@@ -9217,3 +9217,19 @@ tatsächlich aktivierten Module oder P11-Records. Der CPython-Archivscan bleibt
 `CANDIDATES_ONLY` mit unveränderten 93 Modulen, 578 Kanten, 534 Funktionen und
 unverändertem Kandidatenzeilendigest
 `84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
+
+## Fortsetzung: DGN-007 – bedingte Stdlib-Setup-Vorlage
+
+`Modules/Setup.stdlib.in` ist nun separat an den digestgeprüften CPython-3.12.16-
+Quellrelease gebunden. Die Vorlage zählt 68 eindeutige Modulzeilen vor dem
+Testabschnitt sowie zwölf Testmodulzeilen; alle 80 Zeilen tragen eine
+Configure-Bedingung, bei 79 unterschiedlichen Bedingungen. Die vollständigen
+Zeilen- und Abschnittsdigests stehen im [Designnachweis](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md).
+Zwei synthetische Gegenproben prüfen Abschnittstrennung und Fehlerablehnung;
+der fokussierte Scannertestsatz besteht 96/96.
+
+Das ist keine Configure-, Build-, Image- oder Laufzeitattestation. Aktivierte
+Module, konkrete Extension-/Loader-Records, die vollständige P11-Inventur und
+alle 15 S15-Felder bleiben offen. Der Offlinekandidatenscan bleibt
+`CANDIDATES_ONLY` bei 93 Modulen, 578 Kanten, 534 Funktionen und unverändertem
+Zeilendigest `84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.

@@ -17,12 +17,15 @@ FROZEN_SOURCE_MEMBER = "Python-3.12.16/Python/frozen.c"
 FROZEN_SOURCE_SHA256 = "ff2d5e301f1725c013788f30882fd48127a9ecfe891bfaa592cc08c284d4f79f"
 BOOTSTRAP_SETUP_MEMBER = "Python-3.12.16/Modules/Setup.bootstrap.in"
 BOOTSTRAP_SETUP_SHA256 = "d7a4c34c97f414585c7e8480c106a0f85075fb166d4c82a91c5b0b00df455271"
+STDLIB_SETUP_MEMBER = "Python-3.12.16/Modules/Setup.stdlib.in"
+STDLIB_SETUP_SHA256 = "d78ae3af2718df36ac5a80531fe21831c0117a26534a977bbf4e7843c2ee6524"
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_FILES = 2048
 MAX_STDLIB_MODULE_NAMES_BYTES = 64 * 1024
 MAX_FROZEN_SOURCE_BYTES = 64 * 1024
 MAX_BOOTSTRAP_SETUP_BYTES = 64 * 1024
+MAX_STDLIB_SETUP_BYTES = 64 * 1024
 ROOTS = (
     "dataclasses", "hashlib", "importlib.machinery", "importlib.util", "json",
     "os", "struct", "sys", "sysconfig", "types", "zipimport", "zlib",
@@ -45,6 +48,7 @@ def _source_archive_data(archive_bytes):
     stdlib_header = None
     frozen_source = None
     bootstrap_setup = None
+    stdlib_setup = None
     total = 0
     with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:xz") as source:
         for member in source:
@@ -73,6 +77,19 @@ def _source_archive_data(archive_bytes):
                         or hashlib.sha256(bootstrap_setup).hexdigest()
                         != BOOTSTRAP_SETUP_SHA256):
                     raise ValueError("BOOTSTRAP_SETUP_DIGEST")
+                continue
+            if member.name == STDLIB_SETUP_MEMBER:
+                if not member.isfile() or stdlib_setup is not None \
+                        or member.size > MAX_STDLIB_SETUP_BYTES:
+                    raise ValueError("STDLIB_SETUP_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("STDLIB_SETUP_MEMBER")
+                stdlib_setup = stream.read(member.size + 1)
+                if (len(stdlib_setup) != member.size
+                        or hashlib.sha256(stdlib_setup).hexdigest()
+                        != STDLIB_SETUP_SHA256):
+                    raise ValueError("STDLIB_SETUP_DIGEST")
                 continue
             if member.name == STDLIB_MODULE_NAMES_MEMBER:
                 if not member.isfile() or stdlib_header is not None \
@@ -106,7 +123,7 @@ def _source_archive_data(archive_bytes):
                 raise ValueError("SOURCE_ARCHIVE_MEMBER")
             total += len(body)
             files[relative] = body
-    return files, stdlib_header, frozen_source, bootstrap_setup
+    return files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup
 
 
 def _source_files(archive_path):
@@ -245,6 +262,64 @@ def _bootstrap_setup_inventory(source_bytes):
         "conditional_names": tuple(sorted(
             (name, condition) for name, condition in rows if condition
         )),
+    }
+
+
+def _stdlib_setup_inventory(source_bytes):
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_STDLIB_SETUP_BYTES
+            or hashlib.sha256(source_bytes).hexdigest() != STDLIB_SETUP_SHA256):
+        raise ValueError("STDLIB_SETUP_DIGEST")
+    text = source_bytes.decode("utf-8")
+    entries = []
+    test_section = False
+    directives = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("#"):
+            if stripped == "# Test modules":
+                test_section = True
+            continue
+        if stripped in ("*shared*", "*static*", "*@MODULE_BUILDTYPE@*"):
+            directives.append(stripped)
+            continue
+        match = re.fullmatch(
+            r"@MODULE_([A-Z0-9_]+)_TRUE@([A-Za-z_][A-Za-z0-9_]*)\s+(.+)",
+            stripped,
+        )
+        if match is None:
+            raise ValueError("STDLIB_SETUP_ROW")
+        condition, name, source_list = match.groups()
+        source_paths = source_list.split()
+        if not source_paths or any(
+                not (path.endswith((".c", ".a")) or path.startswith("-")
+                     or path.startswith("@") or path.startswith("$("))
+                for path in source_paths):
+            raise ValueError("STDLIB_SETUP_SOURCES")
+        entries.append((name, condition, "test" if test_section else "stdlib"))
+
+    names = tuple(entry[0] for entry in entries)
+    if not entries or len(names) != len(set(names)):
+        raise ValueError("STDLIB_SETUP_NAMES")
+    if directives != ["*@MODULE_BUILDTYPE@*", "*shared*"]:
+        raise ValueError("STDLIB_SETUP_DIRECTIVES")
+    runtime_rows = tuple(sorted(entry for entry in entries if entry[2] == "stdlib"))
+    test_rows = tuple(sorted(entry for entry in entries if entry[2] == "test"))
+    canonical = "".join("\t".join(entry) + "\n" for entry in sorted(entries))
+    return {
+        "stdlib_entry_count": len(runtime_rows),
+        "test_entry_count": len(test_rows),
+        "condition_count": len({entry[1] for entry in entries}),
+        "source_sha256": STDLIB_SETUP_SHA256,
+        "rows_sha256": hashlib.sha256(canonical.encode("ascii")).hexdigest(),
+        "stdlib_names_sha256": hashlib.sha256(
+            "".join(entry[0] + "\n" for entry in runtime_rows).encode("ascii")
+        ).hexdigest(),
+        "test_names_sha256": hashlib.sha256(
+            "".join(entry[0] + "\n" for entry in test_rows).encode("ascii")
+        ).hexdigest(),
     }
 
 
@@ -1835,7 +1910,7 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
 
 
 def analyze(archive_path):
-    files, stdlib_header, frozen_source, bootstrap_setup = _source_archive_data(
+    files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup = _source_archive_data(
         _archive_bytes(archive_path)
     )
     if stdlib_header is None:
@@ -1844,9 +1919,12 @@ def analyze(archive_path):
         raise ValueError("FROZEN_SOURCE_MISSING")
     if bootstrap_setup is None:
         raise ValueError("BOOTSTRAP_SETUP_MISSING")
+    if stdlib_setup is None:
+        raise ValueError("STDLIB_SETUP_MISSING")
     stdlib_names, stdlib_names_sha256 = _stdlib_module_names(stdlib_header)
     frozen = _frozen_module_inventory(frozen_source)
     bootstrap_setup_inventory = _bootstrap_setup_inventory(bootstrap_setup)
+    stdlib_setup_inventory = _stdlib_setup_inventory(stdlib_setup)
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     target_platform, target_edges, target_sha256, target_conditions = _target_platform_candidate_closure(files)
@@ -1884,6 +1962,15 @@ def analyze(archive_path):
         "bootstrap_setup_rows_sha256": bootstrap_setup_inventory["rows_sha256"],
         "bootstrap_setup_conditional_names": [
             list(row) for row in bootstrap_setup_inventory["conditional_names"]
+        ],
+        "stdlib_setup_entry_count": stdlib_setup_inventory["stdlib_entry_count"],
+        "stdlib_setup_test_entry_count": stdlib_setup_inventory["test_entry_count"],
+        "stdlib_setup_condition_count": stdlib_setup_inventory["condition_count"],
+        "stdlib_setup_source_sha256": stdlib_setup_inventory["source_sha256"],
+        "stdlib_setup_rows_sha256": stdlib_setup_inventory["rows_sha256"],
+        "stdlib_setup_names_sha256": stdlib_setup_inventory["stdlib_names_sha256"],
+        "stdlib_setup_test_names_sha256": stdlib_setup_inventory[
+            "test_names_sha256"
         ],
         "edge_count": edges,
         "module_count": len(modules),

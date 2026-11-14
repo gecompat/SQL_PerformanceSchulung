@@ -239,6 +239,41 @@ class StaticImportCandidateTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, expected):
                     SUBJECT._bootstrap_setup_inventory(source)
 
+    def test_stdlib_setup_separates_test_rows_and_conditions(self):
+        source = (
+            b"*@MODULE_BUILDTYPE@*\n"
+            b"@MODULE_ARRAY_TRUE@array arraymodule.c\n"
+            b"*shared*\n"
+            b"# Test modules\n"
+            b"@MODULE_TEST_TRUE@testmod testmod.c\n"
+        )
+        with patch.object(
+            SUBJECT, "STDLIB_SETUP_SHA256", hashlib.sha256(source).hexdigest()
+        ):
+            inventory = SUBJECT._stdlib_setup_inventory(source)
+        self.assertEqual(inventory["stdlib_entry_count"], 1)
+        self.assertEqual(inventory["test_entry_count"], 1)
+        self.assertEqual(inventory["condition_count"], 2)
+
+    def test_stdlib_setup_rejects_malformed_and_duplicate_module_rows(self):
+        for source, expected in (
+            (
+                b"*@MODULE_BUILDTYPE@*\n*shared*\nnot-a-module-row\n",
+                "STDLIB_SETUP_ROW",
+            ),
+            (
+                b"*@MODULE_BUILDTYPE@*\n*shared*\n"
+                b"@MODULE_A_TRUE@module first.c\n"
+                b"@MODULE_B_TRUE@module second.c\n",
+                "STDLIB_SETUP_NAMES",
+            ),
+        ):
+            with patch.object(
+                SUBJECT, "STDLIB_SETUP_SHA256", hashlib.sha256(source).hexdigest()
+            ):
+                with self.assertRaisesRegex(ValueError, expected):
+                    SUBJECT._stdlib_setup_inventory(source)
+
     def test_relative_imports_and_function_imports_are_candidates(self):
         files = {
             "pkg/__init__.py": b"from . import child\n",
@@ -1861,6 +1896,10 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("bootstrap_setup_name_count", labels)
         self.assertIn("bootstrap_setup_conditional_name_count", labels)
         self.assertIn("bootstrap_setup_rows_sha256", labels)
+        self.assertIn("stdlib_setup_entry_count", labels)
+        self.assertIn("stdlib_setup_test_entry_count", labels)
+        self.assertIn("stdlib_setup_condition_count", labels)
+        self.assertIn("stdlib_setup_rows_sha256", labels)
         self.assertIn("module_init_call_roots_outside_source_stdlib_names", labels)
         self.assertIn(
             "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES",

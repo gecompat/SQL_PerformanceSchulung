@@ -5249,3 +5249,27 @@ Der SHA-gebundene Archivscan bleibt `CANDIDATES_ONLY`: 93 Modulstartkandidaten,
 578 Kanten, 534 Funktionen und derselbe Zeilendigest
 `84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`. Es werden
 weder Quellwerte noch die Grenzen der Build-/Runtime-/P11-Aussage geändert.
+
+### Fortsetzung: Quellgebundene bedingte Stdlib-Setup-Vorlage
+
+Der Scanner bindet zusätzlich `Modules/Setup.stdlib.in` an den bereits in §19.8
+festgehaltenen SHA-256
+`d78ae3af2718df36ac5a80531fe21831c0117a26534a977bbf4e7843c2ee6524`. Die
+Vorlage enthält 68 eindeutige Modulzeilen vor dem markierten Testabschnitt und
+zwölf Testmodulzeilen; alle 80 stehen unter Configure-Bedingungen. 79
+unterschiedliche Bedingungen steuern diese Einträge. Der vollständige
+kanonische Zeilendigest ist
+`e50fa3b20c6b9eb9391c15b7e9d35329a4eacb78d7d7f8a6bb9b3f837af462d7`, der
+Digest der 68 Nichttestnamen
+`d747b3889e1c19de7a893d2ac7a067b565ad07ed67eaf8a7d7949c98e5024965` und der
+Digest der zwölf Testnamen
+`5cc39baea3a31e4df819a33d142c585d73c1b44b4c2b9790f8dfff4e4b1e58ce`. Zwei
+synthetische Gegenproben prüfen die Abschnitts-/Bedingungstrennung sowie die
+Zurückweisung fehlerhafter und doppelter Modulzeilen. Der fokussierte
+Scannertestsatz besteht 96/96.
+
+Diese Vorlage ist keine Aussage, welche Configure-Bedingungen erfüllt oder
+welche Builtins/Extensions tatsächlich gebaut, installiert oder geladen wurden.
+Die Testsektion bleibt von den 68 regulären Vorlagenzeilen getrennt. Der
+Importkandidatenscan bleibt `CANDIDATES_ONLY` mit unveränderten 93 Modulen,
+578 Kanten, 534 Funktionen und unverändertem Kandidatenzeilendigest.
