@@ -2725,6 +2725,9 @@ def _target_condition(node, known_names=None, known_call_facts=None):
         if isinstance(expr, ast.List):
             items = [value(item) for item in expr.elts]
             return list(items) if all(item is not _UNKNOWN for item in items) else _UNKNOWN
+        if isinstance(expr, ast.Set):
+            items = [value(item) for item in expr.elts]
+            return set(items) if all(item is not _UNKNOWN for item in items) else _UNKNOWN
         if isinstance(expr, ast.Attribute):
             name = ast.unparse(expr)
             return target.get(name, _UNKNOWN)

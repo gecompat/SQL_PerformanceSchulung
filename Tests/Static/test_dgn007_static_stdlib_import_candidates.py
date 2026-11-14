@@ -1089,6 +1089,16 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIs(SUBJECT._target_condition(minimum), True)
         self.assertIsNone(SUBJECT._target_condition(identity))
 
+    def test_target_platform_membership_resolves_constant_set_literals(self):
+        condition = ast.parse(
+            "sys.platform in {'emscripten', 'vxworks', 'wasi'}", mode="eval"
+        ).body
+        self.assertIs(SUBJECT._target_condition(condition), False)
+        non_target = ast.parse("sys.platform in {'linux', 'wasi'}", mode="eval").body
+        self.assertIs(SUBJECT._target_condition(non_target), True)
+        dynamic = ast.parse("sys.platform in {'linux', runtime_value}", mode="eval").body
+        self.assertIsNone(SUBJECT._target_condition(dynamic))
+
     def test_types_descriptor_facts_require_exact_source_bindings(self):
         types_source = (
             b"GetSetDescriptorType = type(FunctionType.__code__)\n"
