@@ -82,6 +82,9 @@ IMPORT_USED_BYTES_PROBE_SHA256 = "5b34daec2ff34a474b614caf46719aa9f9778c28533a0f
 GETPATH_SOURCE_MEMBER = "Python-3.12.16/Modules/getpath.py"
 GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2"
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
+STRING_SOURCE_SHA256 = "24aeae1f0526250f442022022bf98df9a823b1cb330543ee79e70e44907462e9"
+PIPES_SOURCE_SHA256 = "153f2d249d954b5536c6a049202617ff43ba2f9b109c426e06676c577ddedc61"
+LOGGING_SOURCE_SHA256 = "43f86bbc08fdd5c7b6e697abffe1381f534a92bb32e1f1aee8360d6a142592a1"
 SITE_SOURCE_SHA256 = "b39ab288cc7a6d0cb3bb2655179221411340b22418e4efdee4c20175537a5fa2"
 IMPORTLIB_BOOTSTRAP_SOURCE_SHA256 = "d112d54b7831cf4a818d4841d5ff8003b54df220a6dabafa61f67d7c7a5603f7"
 IMPORTLIB_EXTERNAL_SOURCE_SHA256 = "e6ad72f3f0f9b65c99ab52598cd02ab748511dcdce1dd51f18dace9be9a680c6"
@@ -2902,6 +2905,91 @@ def _target_sysconfig_is_python_build_line_facts(files):
     return {guards[0].lineno: False}
 
 
+def _target_string_template_pattern_guard_line_facts(files):
+    """Resolve Template's pinned self-hook before its pattern is initialized."""
+    if type(files) is not dict:
+        return {}
+    expected_hashes = {
+        "string.py": STRING_SOURCE_SHA256,
+        "pipes.py": PIPES_SOURCE_SHA256,
+        "logging/__init__.py": LOGGING_SOURCE_SHA256,
+    }
+    if any(type(files.get(path)) is not bytes
+           or hashlib.sha256(files[path]).hexdigest() != digest
+           for path, digest in expected_hashes.items()):
+        return {}
+    try:
+        trees = {
+            path: ast.parse(source, filename=path)
+            for path, source in files.items()
+            if type(source) is bytes and path.endswith(".py")
+            and "test" not in path.split("/")
+        }
+    except SyntaxError:
+        return {}
+    template_refs = []
+    template_imports = []
+    subclasses = []
+    for path, tree in trees.items():
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Name) and node.id == "Template":
+                template_refs.append((path, node.lineno, "name"))
+            elif isinstance(node, ast.Attribute) and node.attr == "Template":
+                template_refs.append((path, node.lineno, "attribute"))
+            if (isinstance(node, ast.ImportFrom) and node.module == "string"
+                    and any(alias.name == "Template" for alias in node.names)):
+                template_imports.append((path, node.lineno))
+            if isinstance(node, ast.ClassDef):
+                if any((isinstance(base, ast.Name) and base.id == "Template")
+                       or (isinstance(base, ast.Attribute)
+                           and base.attr == "Template") for base in node.bases):
+                    subclasses.append((path, node.lineno))
+    expected_refs = {
+        ("pipes.py", 104, "name"),
+        ("string.py", 175, "name"),
+        ("logging/__init__.py", 510, "name"),
+        ("logging/__init__.py", 517, "name"),
+    }
+    if (set(template_refs) != expected_refs
+            or template_imports != [("logging/__init__.py", 29)]
+            or subclasses):
+        return {}
+    source = files["string.py"]
+    try:
+        tree = ast.parse(source, filename="string.py")
+    except SyntaxError:
+        return {}
+    classes = [node for node in tree.body
+               if isinstance(node, ast.ClassDef) and node.name == "Template"]
+    if len(classes) != 1:
+        return {}
+    methods = [node for node in classes[0].body
+               if isinstance(node, ast.FunctionDef)
+               and node.name == "__init_subclass__"]
+    if len(methods) != 1:
+        return {}
+    guards = [node for node in ast.walk(methods[0])
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "'pattern' in cls.__dict__"]
+    if len(guards) != 1:
+        return {}
+    invocations = [node for node in ast.walk(tree)
+                   if isinstance(node, ast.Call)
+                   and ast.unparse(node.func) == "Template.__init_subclass__"
+                   and not node.args and not node.keywords]
+    if len(invocations) != 1 or invocations[0].lineno <= guards[0].lineno:
+        return {}
+    if any(isinstance(node, (ast.Assign, ast.AnnAssign, ast.NamedExpr))
+           and any((isinstance(target, ast.Name) and target.id == "pattern")
+                   or (isinstance(target, ast.Attribute)
+                       and target.attr == "pattern")
+                   for target in (node.targets if isinstance(node, ast.Assign)
+                                  else [node.target]))
+           for node in classes[0].body):
+        return {}
+    return {guards[0].lineno: False}
+
+
 def _target_sysconfig_build_setup_guard_line_facts(
         files, image_path_facts, sysconfig_name_facts,
         project_base_env_facts, no_site, no_project_base_override,
@@ -5216,6 +5304,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_sysconfig_is_python_build_line_facts = (
         _target_sysconfig_is_python_build_line_facts(files)
     )
+    target_string_template_pattern_guard_line_facts = (
+        _target_string_template_pattern_guard_line_facts(files)
+    )
     target_image_config_source = None
     if target_image_config_path is not None:
         with Path(target_image_config_path).open("rb") as stream:
@@ -5446,11 +5537,13 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
                 **target_sysconfig_is_python_build_line_facts,
                 **target_sysconfig_build_setup_guard_line_facts,
             },
+            "string": target_string_template_pattern_guard_line_facts,
             "importlib._bootstrap_external": target_importlib_optimize_line_facts,
             "importlib._bootstrap": target_importlib_verbose_line_facts,
         } if (os_createenviron_line_facts or codecs_false_guard_line_facts
               or pickle_buffer_line_facts
               or target_sysconfig_is_python_build_line_facts
+              or target_string_template_pattern_guard_line_facts
               or target_sysconfig_build_setup_guard_line_facts
               or target_importlib_optimize_line_facts
               or target_importlib_verbose_line_facts) else {},
@@ -5655,6 +5748,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_sysconfig_build_setup_guard_line_facts": list(
             target_sysconfig_build_setup_guard_line_facts.items()
+        ),
+        "target_platform_string_template_pattern_guard_line_facts": list(
+            target_string_template_pattern_guard_line_facts.items()
         ),
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,

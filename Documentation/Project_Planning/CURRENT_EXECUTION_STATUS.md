@@ -10,12 +10,12 @@ Generalprobe bleibt ausgeschlossen.
 
 ### DGN-007 – Quellenprüfung unbekannter Importzweige
 
-Der nach PR #736 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
+Der nach PR #737 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
 Workerroute gebundene Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten,
-169 Funktionen, 58 entschiedene und 512 unbekannte Bedingungen. Der
+169 Funktionen, 59 entschiedene und 511 unbekannte Bedingungen. Der
 Zeilendigest ist `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
 der Digest der unbekannten Bedingungen
-`b1c1bd2b2fdbf4fc058cec19f26234aeca851dda52c20f5fc1cbec3d1761355b`.
+`1b7ac602282d591cffb1fe2b1dd222da0b333fe9162f181999506f106c11288a`.
 PR #734 bindet alle 22 gepinnten `_verbose_message`-Aufrufstellen in
 `_bootstrap.py`, `_bootstrap_external.py` und `zipimport.py`; der Guard
 `importlib._bootstrap.py:493` ist für die festgelegte Workerroute falsch.
@@ -9918,6 +9918,27 @@ unbekannt (Digest
 unabhängiger Quellen-/Aufrufreview, fünf vollständige Formen und das gemeinsame
 64-KiB-Gate bleiben vor der einmaligen operativen Inventur offen. Kein
 Interpreter-, Profil-, Worker-, SQL- oder Generalprobenlauf.
+
+## Fortsetzung: `string.Template`-Pattern-Guard
+
+Der gepinnte Produktionsquellstand enthält einen direkten Aufruf von
+`Template.__init_subclass__()` in `string.py`, bevor `Template.pattern`
+initialisiert ist. Der genaue Fact für `string.py:71` verlangt die exakten
+Hashes von `string.py`, `pipes.py` und `logging/__init__.py`, inventarisiert
+alle AST-Verweise und `from string import Template`-Imports in der vollständigen
+produktiven `Lib`-Quellmenge und verwirft Unterklassen oder zusätzliche
+Verwendungsformen. Der begrenzte Archiv-/OCI-Scan entscheidet damit die
+Bedingung falsch; eine synthetische Unterklasse hebt den Fact auf.
+
+Der Scan bleibt `CANDIDATES_ONLY` mit 60 Modulen, 316 Kanten und 169 Funktionen;
+59 Bedingungen sind entschieden, 511 unbekannt. Kandidatendigest
+`33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
+Unknown-Digest
+`1b7ac602282d591cffb1fe2b1dd222da0b333fe9162f181999506f106c11288a`.
+163 fokussierte Regressionen bestehen lokal. Kein Interpreter-, Profil-,
+Worker-, SQL-, Lab- oder Generalprobenlauf. Vollständige Importclosure,
+unabhängiger Quellen-/Aufrufreview, S15-/P11-Inventur und operative Gates
+bleiben offen.
 
 ## Fortsetzung: eingebauter `_thread.RLock`-Pfad
 

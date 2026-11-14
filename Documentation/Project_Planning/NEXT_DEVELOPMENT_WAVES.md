@@ -1622,7 +1622,7 @@ PR #736 integrierte diesen ersten Kandidaten als Commit
 `7a45cc32a501558e209c9e7178119e48c3cc7753`; fünf PR-Gates waren erfolgreich,
 `main` ist synchronisiert und lokale/Remote-Arbeitsbranches wurden entfernt.
 
-### Begrenzte Fortsetzung: sysconfig-Build-Tree-Guard (14. November 2026)
+### Abgeschlossen: sysconfig-Build-Tree-Guard (14. November 2026)
 
 Der Nutzerauftrag setzt die autonome Bearbeitung der weiteren freigegebenen
 Themen fort. Für den nächsten begrenzten Checkpoint gilt höchstens ein
@@ -1631,7 +1631,20 @@ die OCI-Elternpfadprüfung für `Modules/Setup` und der zeilengebundene
 `is_python_build`-Fact mit synthetischen Regressionen. Quellarchiv, Image und
 Konfiguration werden aus den bestehenden digestgebundenen Eingaben
 wiederverwendet. Kein Interpreter-, Worker-, Profil-, SQL-, Lab- oder
-Generalprobenlauf. Token-/Geldverbrauch bleibt unbekannt; die Begrenzung gilt
-für Arbeitspaket, PR und Kandidaten, nicht als Providerkostenlimit. Checkpoint
-ist die PR-Integration; danach wird die nächste offene freigegebene Aufgabe
-erneut aus dem dann aktuellen Status ausgewählt.
+Generalprobenlauf. PR #737 integrierte den Fact als Commit
+`448ba8ae77ffc64a93e98bbd63dd0c08782077cc`; fünf PR-Gates waren erfolgreich,
+`main` ist synchronisiert und lokale/Remote-Arbeitsbranches wurden entfernt.
+Token-/Geldverbrauch bleibt unbekannt; die Begrenzung galt für Arbeitspaket,
+PR und Kandidaten, nicht als Providerkostenlimit.
+
+### Begrenzte Fortsetzung: `string.Template`-Pattern-Guard (14. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei lokale Kandidaten: den Fact für `string.py:71` und seine synthetischen
+Gegenproben. Der bestehende signaturgeprüfte CPython-3.12.16-Quellstand sowie
+Zielimage/-konfiguration werden wiederverwendet. Kein Interpreter-, Profil-,
+Worker-, SQL-, Lab-, operativer Inventur- oder Generalprobenlauf.
+Token-/Geldverbrauch bleibt unbekannt; die Grenze gilt für Paket, PR und
+Kandidaten, nicht als Providerkostenlimit. Der PR-Merge ist der Checkpoint;
+danach wird die nächste offene freigegebene Aufgabe anhand des dann aktuellen
+Status ausgewählt.

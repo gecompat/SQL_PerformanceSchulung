@@ -930,6 +930,52 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {},
             )
 
+    def test_string_template_self_hook_guard_is_false_before_pattern_setup(self):
+        string_lines = [
+            "class Template:",
+            "    def __init_subclass__(cls):",
+            "        if 'pattern' in cls.__dict__:",
+            "            pass",
+        ]
+        string_lines.extend([""] * (174 - len(string_lines)))
+        string_lines.append("Template.__init_subclass__()")
+        string_source = ("\n".join(string_lines) + "\n").encode()
+        pipes_lines = [""] * 103 + ["Template()"]
+        pipes_source = ("\n".join(pipes_lines) + "\n").encode()
+        logging_lines = [""] * 28 + ["from string import Template"]
+        logging_lines.extend([""] * (509 - len(logging_lines)))
+        logging_lines.extend(
+            ["Template('format')"] + [""] * 6 + ["Template.pattern"]
+        )
+        logging_source = ("\n".join(logging_lines) + "\n").encode()
+        files = {
+            "string.py": string_source,
+            "pipes.py": pipes_source,
+            "logging/__init__.py": logging_source,
+        }
+        with patch.multiple(
+            SUBJECT,
+            STRING_SOURCE_SHA256=hashlib.sha256(string_source).hexdigest(),
+            PIPES_SOURCE_SHA256=hashlib.sha256(pipes_source).hexdigest(),
+            LOGGING_SOURCE_SHA256=hashlib.sha256(logging_source).hexdigest(),
+        ):
+            self.assertEqual(
+                SUBJECT._target_string_template_pattern_guard_line_facts(files),
+                {3: False},
+            )
+            subclass_files = dict(files)
+            subclass_files["pipes.py"] += b"\nclass CustomTemplate(Template):\n    pass\n"
+            with patch.object(
+                SUBJECT, "PIPES_SOURCE_SHA256",
+                hashlib.sha256(subclass_files["pipes.py"]).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_string_template_pattern_guard_line_facts(
+                        subclass_files,
+                    ),
+                    {},
+                )
+
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
             "entry.py": (
