@@ -3301,6 +3301,55 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(conditions, {"resolved": 1, "unknown": 0})
         self.assertEqual(resolved[0]["decisions"], [False])
 
+    def test_call_closure_binds_literal_comparison_chains(self):
+        files = {
+            "pkg/__init__.py": (
+                b"def choose(enabled):\n"
+                b"    if enabled:\n        from . import enabled_branch\n"
+                b"    else:\n        from . import disabled_branch\n"
+                b"choose(1 == 1 == 1)\n"
+                b"choose(1 == 1 == 2)\n"
+                b"choose(1 == 2 == runtime_value)\n"
+                b"choose(1 == 1 == runtime_value)\n"
+            ),
+            "pkg/enabled_branch.py": b"VALUE = True\n",
+            "pkg/disabled_branch.py": b"VALUE = False\n",
+        }
+        unknown = []
+        modules, edges, _, _, conditions = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",), unknown_conditions=unknown,
+        )
+        self.assertEqual(modules, (
+            "pkg", "pkg.disabled_branch", "pkg.enabled_branch",
+        ))
+        self.assertEqual(edges, 4)
+        self.assertEqual(conditions, {"resolved": 0, "unknown": 1})
+        function = ast.parse("def choose(enabled): pass").body[0]
+        for expression in (
+                "1 == 1 == runtime_value", "1 == 1 is runtime_value"):
+            call = ast.parse(f"choose({expression})").body[0].value
+            facts = dict(SUBJECT._static_literal_call_facts(function, call))
+            self.assertIs(facts["enabled"], SUBJECT._UNKNOWN)
+
+    def test_call_closure_binds_literal_comparison_chain_defaults(self):
+        files = {
+            "pkg/__init__.py": (
+                b"def choose(enabled=None is None is not False):\n"
+                b"    if enabled:\n        from . import enabled_branch\n"
+                b"    else:\n        from . import disabled_branch\n"
+                b"choose()\n"
+            ),
+            "pkg/enabled_branch.py": b"VALUE = True\n",
+            "pkg/disabled_branch.py": b"VALUE = False\n",
+        }
+        resolved = []
+        modules, _, _, _, conditions = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",), resolved_conditions=resolved,
+        )
+        self.assertEqual(modules, ("pkg", "pkg.enabled_branch"))
+        self.assertEqual(conditions, {"resolved": 1, "unknown": 0})
+        self.assertEqual(resolved[0]["decisions"], [True])
+
     def test_call_closure_binds_boolean_literals_with_short_circuit(self):
         files = {
             "pkg/__init__.py": (
