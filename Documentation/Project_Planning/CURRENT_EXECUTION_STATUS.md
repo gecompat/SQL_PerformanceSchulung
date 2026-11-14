@@ -9853,3 +9853,17 @@ unbekannt (Digest
 unabhängiger Quellen-/Aufrufreview, fünf vollständige Formen und das gemeinsame
 64-KiB-Gate bleiben vor der einmaligen operativen Inventur offen. Kein
 Interpreter-, Profil-, Worker-, SQL- oder Generalprobenlauf.
+
+## Fortsetzung: eingebauter `_thread.RLock`-Pfad
+
+Zusätzlich wird `_CRLock` im CPython-3.12.16-Zielzweig als Nicht-`None`
+behandelt: OCI-/Builtin-Fakten binden `_thread` als eingebautes Zielmodul;
+der gepinnte C-Quelltext registriert den RLock-Typ im unbedingten
+`thread_module_exec`-Pfad; `threading.py` liest ihn ausschließlich im
+festen Import-Try/Except ein. Beide `_CRLock`-Zuweisungen und der native-ID-
+Fact müssen vor der Nutzung in Funktionen quellengebunden stabil sein. Der
+Archiv-/OCI-Scan bleibt `CANDIDATES_ONLY` bei 62 Modulen, 323 Kanten und 178
+Funktionen; 49 Conditions sind entschieden, 543 unbekannt (Digest
+`bfb88a07289191008d0b6ab928c3a30dafb817b5a3670ef4189b408c42474290`). Die
+144 fokussierten Regressionen bestehen lokal. Kein Interpreter-, Profil-,
+Worker-, SQL-, operativer S15/P11- oder Generalprobenlauf.
