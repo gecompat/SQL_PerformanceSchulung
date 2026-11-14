@@ -10,12 +10,12 @@ Generalprobe bleibt ausgeschlossen.
 
 ### DGN-007 – Quellenprüfung unbekannter Importzweige
 
-Der nach PR #738 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
+Der nach PR #739 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
 Workerroute gebundene Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten,
-166 Funktionen, 60 entschiedene und 508 unbekannte Bedingungen. Der
+166 Funktionen, 61 entschiedene und 507 unbekannte Bedingungen. Der
 Zeilendigest ist `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
 der Digest der unbekannten Bedingungen
-`e6ba3b27571eb54a423b30435df158c4239490956cffbc71c8da2a26709a787f`.
+`243c85a371eebf7e21a82d412c49c2b77cb0bfd806c7d85d0639f3b524270cca`.
 PR #734 bindet alle 22 gepinnten `_verbose_message`-Aufrufstellen in
 `_bootstrap.py`, `_bootstrap_external.py` und `zipimport.py`; der Guard
 `importlib._bootstrap.py:493` ist für die festgelegte Workerroute falsch.
@@ -10203,3 +10203,24 @@ der Unknown-Digest lautet
 164 fokussierte Regressionen bestehen lokal. Dies ist keine vollständige
 Importclosure oder P11-/Runtimeattestation. Kein Interpreter-, Profil-,
 Worker-, SQL-, Lab- oder Generalprobenlauf.
+
+PR #739 integrierte den `_weakrefset.WeakSet`-Fact als Commit
+`6f8731d0a8b70dfd591d7a1821c82e0e42714f87`; alle fünf PR-Gates bestanden,
+`main` ist synchronisiert und lokale/Remote-Arbeitsbranches wurden entfernt.
+
+## Fortsetzung: `copyreg.pickle`-Callable-Guard
+
+Der Fact für `copyreg.py:13` prüft den gepinnten Funktionsguard und inventarisiert
+alle `copyreg`-Imports, Modulreferenzen und direkten Aufrufe über die vollständige
+produktive `Lib`-Quellmenge. Alle fünf Aufrufe übergeben als
+`pickle_function` eine top-level definierte Funktion; Import-from-Aliase,
+zusätzliche Aufrufe, Argumente anderer Form oder abweichende Quellhashes
+verwerfen den Fact.
+
+Der Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten, 166 besuchte
+Funktionen, 61 entschiedene und 507 unbekannte Bedingungen. Zeilendigest
+`33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
+Unknown-Digest
+`243c85a371eebf7e21a82d412c49c2b77cb0bfd806c7d85d0639f3b524270cca`.
+165 fokussierte Regressionen bestehen lokal. Keine vollständige
+Importclosure, P11-/Runtimeattestation oder menschliche Generalprobe.
