@@ -2886,10 +2886,10 @@ Statische f-Strings werden jetzt wie andere konstante Stringformen als
 Kandidaten für dynamische Imports berücksichtigt, inline und über
 `Assign`-/`AnnAssign`-Namenswerte. Zulässig sind reine Textsegmente sowie
 direkte und verschachtelte Stringkonstanten in FormattedValue-Knoten ohne
-Formatangabe; keine Konvertierung
-oder die semantisch identische `!s`-Konvertierung wird akzeptiert. `!r`, `!a`,
-Formatangaben und andere formatierte Ausdrücke bleiben unaufgelöst; ihr Ergebnis
-wird nicht geraten. Die vorhandene Regression für dynamische Importaliase prüft
+Formatangabe oder mit wertneutralem `:s`; keine Konvertierung oder die
+semantisch identische `!s`-Konvertierung wird akzeptiert. `!r`, `!a`, Breiten-,
+Ausrichtungs- und andere Formatangaben bleiben unaufgelöst; ihr Ergebnis wird
+nicht geraten. Die vorhandene Regression für dynamische Importaliase prüft
 die positiven Literalformen, verschachtelte Konstanten und gezielte
 Negativfälle. Der
 fokussierte Satz bleibt bei 105 Tests; alle bestehen. CPython-Quellclosure und

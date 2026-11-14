@@ -2080,6 +2080,8 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"load(formatted_fstring_name)\n"
                 b"load(f\"pkg.{'inline_formatted_fstring'}\")\n"
                 b"load(f\"pkg.{'inline_string_converted_fstring'!s}\")\n"
+                b"load(f\"pkg.{'inline_string_format_spec':s}\")\n"
+                b"load(f\"pkg.{'inline_string_format_spec_and_conversion'!s:s}\")\n"
                 b"load(f\"{f'pkg.inline_nested_fstring'}\")\n"
                 b"nested_fstring_name = f\"{f'pkg.nested_fstring_name'}\"\n"
                 b"load(nested_fstring_name)\n"
@@ -2110,6 +2112,8 @@ class StaticImportCandidateTests(unittest.TestCase):
             "pkg/formatted_fstring_name.py": b"VALUE = 12\n",
             "pkg/inline_formatted_fstring.py": b"VALUE = 13\n",
             "pkg/inline_string_converted_fstring.py": b"VALUE = 14\n",
+            "pkg/inline_string_format_spec.py": b"VALUE = 17\n",
+            "pkg/inline_string_format_spec_and_conversion.py": b"VALUE = 18\n",
             "pkg/inline_nested_fstring.py": b"VALUE = 15\n",
             "pkg/nested_fstring_name.py": b"VALUE = 16\n",
         }
@@ -2123,11 +2127,13 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "pkg.formatted_fstring_name", "pkg.fstring_name",
                 "pkg.inline_concat", "pkg.inline_formatted_fstring",
                 "pkg.inline_fstring", "pkg.inline_nested_fstring",
-                "pkg.inline_string_converted_fstring", "pkg.literal_name",
+                "pkg.inline_string_converted_fstring",
+                "pkg.inline_string_format_spec",
+                "pkg.inline_string_format_spec_and_conversion", "pkg.literal_name",
                 "pkg.module_alias", "pkg.nested_fstring_name",
             ),
         )
-        self.assertEqual(edges, 16)
+        self.assertEqual(edges, 18)
 
     def test_import_from_resolves_existing_submodule_conservatively(self):
         files = {
