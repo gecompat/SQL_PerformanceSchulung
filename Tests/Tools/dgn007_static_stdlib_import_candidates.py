@@ -4811,6 +4811,8 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                                    preserve_name_facts_after_star=(),
                                    trusted_line_facts=None,
                                    trusted_empty_for_facts=None,
+                                   condition_observations=None,
+                                   emitted_import_sites=None,
                                    unknown_conditions=None):
     """Follow direct and simply aliased local calls from initialization."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
@@ -4827,6 +4829,13 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
     if type(trusted_empty_for_facts) is not dict:
         raise ValueError("UNTRUSTED_EMPTY_FOR_FACT")
     trusted_empty_for_facts = trusted_empty_for_facts or {}
+    if condition_observations is not None and type(condition_observations) is not dict:
+        raise ValueError("CONDITION_OBSERVATIONS_TYPE")
+    if emitted_import_sites is not None and type(emitted_import_sites) is not set:
+        raise ValueError("IMPORT_SITE_OBSERVATIONS_TYPE")
+    local_condition_observations = {}
+    local_import_sites = set()
+    import_sites = emitted_import_sites if emitted_import_sites is not None else local_import_sites
     if any(source_name_facts.get(name, _UNKNOWN) != value
            for name, value in trusted_function_name_facts.items()):
         raise ValueError("UNTRUSTED_FUNCTION_NAME_FACT")
@@ -4888,6 +4897,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         for statement in statements:
             collect(statement)
         return result
+
 
     def scope_function_aliases(statements, functions, allow_source_name_facts=True):
         """Conservatively add simple same-scope ``alias = function`` names."""
@@ -5103,10 +5113,12 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                 )
         return tuple(local_targets), tuple(sorted(imported_targets))
 
-    def add_base_method_calls(class_name, method_name, function_scope):
+    def add_base_method_calls(class_name, method_name, function_scope, call=None):
         for base_name in local_base_classes(class_name):
             for function in module_class_methods.get(base_name, {}).get(method_name, ()):
-                pending.append((function, function_closures.get(id(function), function_scope)))
+                enqueue_local(
+                    function, function_scope, call, bound_method=True,
+                )
             imported_targets = (imported_class_methods or {}).get(base_name, {}).get(
                 method_name, ()
             )
@@ -5219,6 +5231,98 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
     function_closures = {}
     function_imported_class_closures = {}
     class_method_closure_bases = []
+    active_function_name_facts = {}
+    scheduled_contexts = {}
+    overflowed_contexts = set()
+    max_contexts_per_function = 8
+    call_name_writes = {
+        node.id for node in ast.walk(tree)
+        if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del))
+    }
+    call_name_definitions = {}
+    call_attribute_writes = set()
+    dynamic_binding_call = False
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            call_name_definitions[node.name] = call_name_definitions.get(node.name, 0) + 1
+        elif isinstance(node, ast.Import):
+            call_name_writes.update(
+                alias.asname or alias.name.partition(".")[0] for alias in node.names
+            )
+        elif isinstance(node, ast.ImportFrom):
+            call_name_writes.update(
+                alias.asname or alias.name for alias in node.names
+                if alias.name != "*"
+            )
+        elif isinstance(node, (ast.Global, ast.Nonlocal)):
+            call_name_writes.update(node.names)
+        elif isinstance(node, ast.ExceptHandler) and node.name:
+            call_name_writes.add(node.name)
+        elif (isinstance(node, ast.Attribute)
+              and isinstance(node.ctx, (ast.Store, ast.Del))):
+            call_attribute_writes.add(node.attr)
+        elif isinstance(node, ast.Call):
+            if (isinstance(node.func, ast.Name)
+                    and node.func.id in {"exec", "eval", "globals", "setattr", "delattr"}):
+                dynamic_binding_call = True
+            elif (isinstance(node.func, ast.Attribute)
+                    and node.func.attr in {"exec", "eval", "globals", "setattr", "delattr"}):
+                dynamic_binding_call = True
+
+    def stable_call_binding(call):
+        if dynamic_binding_call or not isinstance(call, ast.Call):
+            return False
+        if isinstance(call.func, ast.Name):
+            name = call.func.id
+            return (name not in call_name_writes
+                    and call_name_definitions.get(name, 0) <= 1)
+        if isinstance(call.func, ast.Attribute):
+            if call.func.attr in call_attribute_writes:
+                return False
+            receiver = call.func.value
+            if isinstance(receiver, ast.Name):
+                return (receiver.id not in call_name_writes
+                        and call_name_definitions.get(receiver.id, 0) <= 1)
+            if (isinstance(receiver, ast.Call)
+                    and isinstance(receiver.func, ast.Name)):
+                name = receiver.func.id
+                return (name not in call_name_writes
+                        and call_name_definitions.get(name, 0) == 1)
+        return False
+
+    def schedule_local(function, function_scope, facts):
+        function_id = id(function)
+        closure = function_closures.get(function_id, function_scope)
+        known = scheduled_contexts.setdefault(function_id, set())
+        key = tuple(sorted(facts.items()))
+        if function_id in overflowed_contexts:
+            return
+        if key in known:
+            return
+        if len(known) >= max_contexts_per_function:
+            overflowed_contexts.add(function_id)
+            facts = {name: _UNKNOWN for name, _ in facts.items()}
+            key = tuple(sorted(facts.items()))
+            if key in known:
+                return
+        known.add(key)
+        pending.append((function, closure, facts))
+
+    def enqueue_local(function, function_scope, call=None, *, bound_method=False):
+        if not stable_call_binding(call):
+            call = None
+        facts = dict(_static_literal_call_facts(
+            function, call, active_function_name_facts,
+            bound_method=bound_method,
+        ))
+        schedule_local(function, function_scope, facts)
+
+    def emit_import(node, imported_name):
+        key = (module, path, node.lineno, imported_name)
+        if key in import_sites:
+            return False
+        import_sites.add(key)
+        return True
 
     def captures_method_receiver(function, receiver):
         args = (*function.args.posonlyargs, *function.args.args, *function.args.kwonlyargs)
@@ -5348,7 +5452,8 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             return
         if isinstance(node, ast.Import):
             for alias in node.names:
-                yield alias.name
+                if emit_import(node, alias.name):
+                    yield alias.name
             return
         if isinstance(node, ast.ImportFrom):
             if node.module == "__future__":
@@ -5371,10 +5476,13 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                 keep = max(0, len(parts) - node.level + 1)
                 base = ".".join(parts[:keep] + ([base] if base else []))
             if base:
-                yield base
+                if emit_import(node, base):
+                    yield base
                 for alias in node.names:
                     if alias.name != "*":
-                        yield base + "." + alias.name
+                        imported_name = base + "." + alias.name
+                        if emit_import(node, imported_name):
+                            yield imported_name
             return
         if (isinstance(node, ast.For)
                 and trusted_empty_for_facts.get(node.lineno) == ast.unparse(node.iter)):
@@ -5383,12 +5491,14 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             return
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
             for function in active_functions.get(node.func.id, ()):
-                pending.append((function, function_closures.get(id(function), function_scope)))
+                enqueue_local(function, function_scope, node)
             constructor_targets, imported_constructor_targets = known_class_method_targets(
                 node.func.id, "__init__"
             )
             for function in constructor_targets:
-                pending.append((function, function_closures.get(id(function), function_scope)))
+                enqueue_local(
+                    function, function_scope, node, bound_method=True,
+                )
             imported_calls.update(imported_constructor_targets)
         elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
             constructor_targets = known_class_method_targets(
@@ -5411,7 +5521,9 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                     and super_args[1].id == receiver_name
                 )
                 if valid_super:
-                    add_base_method_calls(class_name, node.func.attr, function_scope)
+                    add_base_method_calls(
+                        class_name, node.func.attr, function_scope, node,
+                    )
             if isinstance(node.func.value, ast.Call):
                 constructor = node.func.value.func
                 if isinstance(constructor, ast.Name):
@@ -5419,7 +5531,9 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                         constructor.id, node.func.attr
                     )
                     for function in local_targets:
-                        pending.append((function, function_closures.get(id(function), function_scope)))
+                        enqueue_local(
+                            function, function_scope, node, bound_method=True,
+                        )
                     imported_calls.update(imported_targets)
                 elif isinstance(constructor, ast.Attribute):
                     receiver = ast.unparse(constructor.value) + "." + constructor.attr
@@ -5432,17 +5546,25 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                         and node.func.value.id == active_method_context[1]):
                     class_name = active_method_context[0]
                     for function in module_class_methods.get(class_name, {}).get(node.func.attr, ()):
-                        pending.append((function, function_closures.get(id(function), function_scope)))
-                    add_base_method_calls(class_name, node.func.attr, function_scope)
+                        enqueue_local(
+                            function, function_scope, node, bound_method=True,
+                        )
+                    add_base_method_calls(
+                        class_name, node.func.attr, function_scope, node,
+                    )
                 instance_targets = active_instance_methods.get(node.func.value.id, {}).get(
                     node.func.attr, {"local": (), "imported": ()}
                 )
                 for function in instance_targets["local"]:
-                    pending.append((function, function_closures.get(id(function), function_scope)))
+                    enqueue_local(
+                        function, function_scope, node, bound_method=True,
+                    )
                 imported_calls.update(instance_targets["imported"])
                 methods = module_class_methods.get(node.func.value.id, {})
                 for function in methods.get(node.func.attr, ()):
-                    pending.append((function, function_closures.get(id(function), function_scope)))
+                    enqueue_local(
+                        function, function_scope, node,
+                    )
             receiver = ast.unparse(node.func.value)
             imported_targets = (imported_modules or {}).get(receiver, {}).get(node.func.attr, ())
             imported_calls.update(imported_targets)
@@ -5455,21 +5577,16 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                                   for target_module, target_function
                                   in (imported_functions or {}).get(node.func.id, ()))
         if isinstance(node, ast.If):
-            decision = decide_condition(node.test, known_names, in_function)
-            if condition_stats is not None:
-                key = "resolved" if decision is not None else "unknown"
-                condition_stats[key] += 1
-            if decision is None and unknown_conditions is not None:
-                unknown_conditions.append({
-                    "module": module,
-                    "source_path": path,
-                    "line": node.lineno,
-                    "expression": ast.unparse(node.test),
-                    "body_imports": _lexical_import_statements(node.body),
-                    "else_imports": _lexical_import_statements(node.orelse),
-                    "body_calls": _lexical_call_sites(node.body),
-                    "else_calls": _lexical_call_sites(node.orelse),
-                })
+            condition_names = dict(known_names)
+            condition_names.update(active_function_name_facts)
+            decision = decide_condition(node.test, condition_names, in_function)
+            observation_store = (condition_observations if condition_observations is not None
+                                 else local_condition_observations)
+            observation_key = (module, path, node.lineno)
+            observation = observation_store.setdefault(observation_key, {
+                "node": node, "decisions": set(),
+            })
+            observation["decisions"].add(decision)
             selected = node.body if decision is True else node.orelse if decision is False else None
             if selected is not None:
                 for statement in selected:
@@ -5491,14 +5608,13 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                 candidates = module_functions.get(name, ())
             for function in candidates:
                 function_closures.setdefault(id(function), module_functions)
-                pending.append((function, module_functions))
+                enqueue_local(function, module_functions)
     visited = visited_global if visited_global is not None else set()
     visited_before = len(visited)
     while pending:
-        function, closure_scope = pending.pop()
-        if id(function) in visited:
-            continue
+        function, closure_scope, parameter_facts = pending.pop()
         visited.add(id(function))
+        active_function_name_facts = parameter_facts
         enclosing_imported_class_methods = imported_class_methods
         closure_class_methods = function_imported_class_closures.get(id(function), {})
         if closure_class_methods:
@@ -5546,7 +5662,109 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         for statement in function.body:
             imports.extend(visit(statement, visible_functions, True, visible_functions))
         imported_class_methods = enclosing_imported_class_methods
+    if condition_observations is None:
+        for observation in local_condition_observations.values():
+            node = observation["node"]
+            decisions = observation["decisions"]
+            if condition_stats is not None:
+                key = "unknown" if None in decisions else "resolved"
+                condition_stats[key] += 1
+            if None in decisions and unknown_conditions is not None:
+                unknown_conditions.append({
+                    "module": module,
+                    "source_path": path,
+                    "line": node.lineno,
+                    "expression": ast.unparse(node.test),
+                    "body_imports": _lexical_import_statements(node.body),
+                    "else_imports": _lexical_import_statements(node.orelse),
+                    "body_calls": _lexical_call_sites(node.body),
+                    "else_calls": _lexical_call_sites(node.orelse),
+                })
     return tuple(imports), len(visited) - visited_before, tuple(sorted(imported_calls))
+
+
+def _static_literal_call_facts(function, call, name_facts=(), *,
+                               bound_method=False):
+    """Bind only primitive literal arguments for one statically selected call."""
+    if not isinstance(function, (ast.FunctionDef, ast.AsyncFunctionDef)):
+        return ()
+    all_positional = [*function.args.posonlyargs, *function.args.args]
+    positional = list(all_positional)
+    keyword_only = list(function.args.kwonlyargs)
+    parameters = positional + keyword_only
+    if function.args.vararg is not None:
+        parameters.append(function.args.vararg)
+    if function.args.kwarg is not None:
+        parameters.append(function.args.kwarg)
+    if function.decorator_list:
+        return tuple((item.arg, _UNKNOWN) for item in parameters)
+    if bound_method:
+        if not positional:
+            return tuple((item.arg, _UNKNOWN) for item in parameters)
+        parameters = positional[1:] + keyword_only
+        positional = positional[1:]
+
+    if call is None or not isinstance(call, ast.Call):
+        return tuple((item.arg, _UNKNOWN) for item in parameters)
+    if function.args.vararg is not None or function.args.kwarg is not None:
+        return tuple((item.arg, _UNKNOWN) for item in parameters)
+
+    values = {item.arg: _UNKNOWN for item in parameters}
+    invalid = any(isinstance(argument, ast.Starred) for argument in call.args)
+    invalid = invalid or any(keyword.arg is None for keyword in call.keywords)
+    if invalid:
+        return tuple((item.arg, _UNKNOWN) for item in parameters)
+
+    source_names = dict(name_facts)
+
+    def literal(node):
+        if isinstance(node, ast.Constant) and type(node.value) in (
+                str, int, bool, type(None)):
+            return node.value
+        if isinstance(node, ast.Name):
+            return source_names.get(node.id, _UNKNOWN)
+        if isinstance(node, ast.Tuple):
+            items = tuple(literal(item) for item in node.elts)
+            return items if all(item is not _UNKNOWN for item in items) else _UNKNOWN
+        return _UNKNOWN
+
+    assigned = set()
+    if len(call.args) > len(positional):
+        invalid = True
+    else:
+        for parameter, argument in zip(positional, call.args):
+            values[parameter.arg] = literal(argument)
+            assigned.add(parameter.arg)
+
+    legal_keyword_names = {
+        item.arg for item in function.args.args
+    } | {item.arg for item in keyword_only}
+    if bound_method and function.args.args and parameters:
+        # A receiver is positional-only for this binding operation and must not
+        # be treated as an explicit user keyword.
+        legal_keyword_names.discard(function.args.args[0].arg)
+    for keyword in call.keywords:
+        if (keyword.arg in values and keyword.arg in legal_keyword_names
+                and keyword.arg not in assigned):
+            values[keyword.arg] = literal(keyword.value)
+            assigned.add(keyword.arg)
+        else:
+            invalid = True
+
+    positional_defaults = function.args.defaults
+    default_start = len(all_positional) - len(positional_defaults)
+    for index, default in enumerate(positional_defaults, default_start):
+        name = all_positional[index].arg
+        if name in values and name not in assigned:
+            values[name] = literal(default)
+    for parameter, default in zip(keyword_only, function.args.kw_defaults):
+        if parameter.arg not in assigned and default is not None:
+            values[parameter.arg] = literal(default)
+
+    # Unsupported call shapes never retain guessed values.
+    if invalid:
+        values = {item.arg: _UNKNOWN for item in parameters}
+    return tuple((item.arg, values[item.arg]) for item in parameters)
 
 
 def _module_init_call_candidate_closure(files, roots=ROOTS, *,
@@ -5555,7 +5773,8 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
                                         preserve_name_facts_after_star=None,
                                         trusted_line_facts=None,
                                         trusted_empty_for_facts=None,
-                                        unknown_conditions=None):
+                                        unknown_conditions=None,
+                                        resolved_conditions=None):
     if type(files) is not dict or type(roots) is not tuple:
         raise ValueError("SOURCE_INPUT_TYPE")
     if (trusted_empty_for_facts is not None
@@ -5642,6 +5861,8 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
     edges = 0
     functions = 0
     conditions = {"resolved": 0, "unknown": 0}
+    call_condition_observations = {}
+    emitted_call_import_sites = set()
     visited_functions = set()
     while pending:
         module, entry_function = pending.pop()
@@ -5721,6 +5942,8 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
             ),
             trusted_line_facts=(trusted_line_facts or {}).get(module, {}),
             trusted_empty_for_facts=(trusted_empty_for_facts or {}).get(module, {}),
+            condition_observations=call_condition_observations,
+            emitted_import_sites=emitted_call_import_sites,
             unknown_conditions=unknown_conditions,
         )
         functions += visited_count
@@ -5745,6 +5968,36 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
                     pending.append((target_module, None))
                 else:
                     pending.append((target_module, target_function))
+    conditions = {"resolved": 0, "unknown": 0}
+    for (condition_module, condition_path, _), observation in (
+            call_condition_observations.items()):
+        node = observation["node"]
+        decisions = observation["decisions"]
+        is_unknown = None in decisions
+        conditions["unknown" if is_unknown else "resolved"] += 1
+        if not is_unknown and resolved_conditions is not None:
+            resolved_conditions.append({
+                "module": condition_module,
+                "source_path": condition_path,
+                "line": node.lineno,
+                "expression": ast.unparse(node.test),
+                "decisions": sorted(decisions),
+            })
+        if is_unknown and unknown_conditions is not None:
+            unknown_conditions.append({
+                "module": condition_module,
+                "source_path": condition_path,
+                "line": node.lineno,
+                "expression": ast.unparse(node.test),
+                "body_imports": _lexical_import_statements(node.body),
+                "else_imports": _lexical_import_statements(node.orelse),
+                "body_calls": _lexical_call_sites(node.body),
+                "else_calls": _lexical_call_sites(node.orelse),
+            })
+    if resolved_conditions is not None:
+        resolved_conditions.sort(key=lambda row: (
+            row["module"], row["source_path"], row["line"], row["expression"],
+        ))
     rows = []
     for module in sorted(reached):
         path = _module_path(module, files)
@@ -6016,6 +6269,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         _module_init_call_candidate_closure(files)
     )
     target_call_unknown_conditions = []
+    target_call_resolved_conditions = []
     (target_call_modules, target_call_edges, target_call_functions,
      target_call_sha256, target_call_conditions) = _module_init_call_candidate_closure(
         files, known_call_facts=target_call_facts,
@@ -6057,6 +6311,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "warnings": target_warning_options_empty_for_facts.get("warnings", {}),
         } if target_warning_options_empty_for_facts else {},
         unknown_conditions=target_call_unknown_conditions,
+        resolved_conditions=target_call_resolved_conditions,
     )
     target_call_unknown_conditions.sort(
         key=lambda row: (row["module"], row["source_path"], row["line"], row["expression"])
@@ -6346,6 +6601,13 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_module_init_call_function_count": target_call_functions,
         "target_module_init_call_rows_sha256": target_call_sha256,
         "target_module_init_call_resolved_if_count": target_call_conditions["resolved"],
+        "target_module_init_call_resolved_if_conditions": target_call_resolved_conditions,
+        "target_module_init_call_resolved_if_conditions_sha256": hashlib.sha256(
+            json.dumps(
+                target_call_resolved_conditions, ensure_ascii=False, sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest(),
         "target_module_init_call_unknown_if_count": target_call_conditions["unknown"],
         "target_module_init_call_unknown_if_conditions": target_call_unknown_conditions,
         "target_module_init_call_unknown_if_conditions_sha256": (
