@@ -962,6 +962,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             condition = ast.parse(
                 'sys.implementation.name == "cpython"', mode="eval",
             ).body
+            self.assertIsNone(SUBJECT._target_condition(condition))
             self.assertIs(SUBJECT._target_condition(
                 condition, known_call_facts=facts,
             ), True)
@@ -993,7 +994,14 @@ class StaticImportCandidateTests(unittest.TestCase):
         with patch.object(
             SUBJECT, "SYS_MODULE_C_SHA256", hashlib.sha256(sys_module).hexdigest(),
         ):
-            self.assertEqual(SUBJECT._target_sys_implementation_name_fact(sys_module), ())
+            facts = SUBJECT._target_sys_implementation_name_fact(sys_module)
+            self.assertEqual(facts, ())
+            condition = ast.parse(
+                'sys.implementation.name == "cpython"', mode="eval",
+            ).body
+            self.assertIsNone(SUBJECT._target_condition(
+                condition, known_call_facts=facts,
+            ))
 
     def test_sys_implementation_cache_tag_binds_pinned_version_macros(self):
         sys_module = (

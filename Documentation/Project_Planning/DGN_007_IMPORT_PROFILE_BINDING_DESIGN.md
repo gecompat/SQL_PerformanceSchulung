@@ -6167,4 +6167,14 @@ und `TAG`-Kette muss in `make_impl_info` als Feld `cache_tag` veröffentlicht
 werden. Änderungen oder eine andere Versionsbindung lassen die Bedingung
 unbekannt. Zwei synthetische Regressionen prüfen den positiven Fact sowie
 abweichende Makros und Versionen. Die fokussierte Suite besteht lokal mit 218
-Tests unter Python 3.14; PR-Gates stehen noch aus.
+Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der gepinnten
+CPython-3.12.16-Offlineprüfung bestanden; PR #768 integrierte diesen Schnitt.
+
+### Korrektur: Implementierungsnamensfact ist allein entscheidend
+
+Die Prüfung nach PR #768 fand einen verbliebenen unbedingten Eintrag für
+`sys.implementation.name` in der allgemeinen Zielwerttabelle. Dieser hätte
+die Bedingung auch ohne Quellenbeleg entschieden. Der Eintrag ist entfernt;
+`unknown` bleibt das Ergebnis, solange Digest und Quellstruktur des
+Implementierungsnamensfacts nicht stimmen. Synthetische Regressionen prüfen
+beide Fälle. Keine Runtime- oder Profilbeobachtung.
