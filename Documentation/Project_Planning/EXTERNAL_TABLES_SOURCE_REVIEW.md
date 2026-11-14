@@ -1,6 +1,6 @@
 # External Tables: Quellen- und Zugriffswegprüfung
 
-Stand: 12. November 2026  
+Stand: 14. November 2026
 Status: begrenzte Offline-Quellenprüfung; kein Connector, Infrastrukturaufbau,
 Lauf oder Demo-Vertrag freigegeben
 
@@ -41,6 +41,19 @@ PolyBase-Setuppfad. Das macht ihn für einen reproduzierbaren Vergleich
 inhaltlich passend, erzeugt aber eine zusätzliche Instanz, Credentials,
 Netzwerk- und Cleanupgrenzen. Diese Infrastruktur ist nicht vorhanden oder
 freigegeben nachgewiesen und wird nicht eingerichtet.
+
+Die Zugriffsprüfung präzisiert die Authentifizierungsgrenze: Der PolyBase-
+SQL-ODBC-Connector unterstützt laut Microsoft Basic Authentication, nicht
+Kerberos. Der Zugriff setzt eine Datenbank-Hauptschlüssel-Verschlüsselung für
+das datenbankweit gespeicherte Credential voraus. PolyBase muss installiert
+und aktiviert sein; der Installationspfad richtet Engine- und Data-Movement-
+Dienste ein. Außerdem ist `ALTER ANY EXTERNAL DATA SOURCE` besonders
+privilegiert, weil es das Ändern beliebiger externer Datenquellen und dadurch
+den Zugriff auf alle datenbankweiten Credentials ermöglicht. Ein späterer
+Vertrag muss daher Credential-Eigentum, Loginrechte an der Quelle, die
+Verwaltung des Hauptschlüssels, Dienstkonten, Netzpfad und Cleanup getrennt
+begrenzen. Das schärft die Sicherheits- und Betriebsfolgen des gemeinsamen
+Kandidaten, qualifiziert aber keine konkrete Installation oder Berechtigung.
 
 Datei-Connectoren lösen das gemeinsame Versionsproblem nicht ohne
 unterschiedliche Bedingungen: CSV in 2019 benötigt Hadoop, während CSV ab
@@ -99,6 +112,9 @@ SQL, Connector, Netzwerk oder externer Dienst angesprochen.
 ## Quellen
 
 - `SRC-153` bis `SRC-157`: [Projektquellenregister](../Research/SOURCE_REGISTER.md#external-tables-und-polybase-2026-11).
+- Die ergänzende Prüfung des SQL-Server-Zugriffswegs verwendet die Microsoft-
+  Primärseite [Configure PolyBase to access external data in SQL Server](https://learn.microsoft.com/en-us/sql/relational-databases/polybase/polybase-configure-sql-server?view=sql-server-ver17),
+  abgerufen am 14. November 2026; sie ist bei `SRC-154` registriert.
 - Alle Matrix- und Verhaltensaussagen oben sind Herstellerdokumentation. Die
   Empfehlung für `sqlserver://` als ersten Kandidaten und die notwendige
   Windows-/Linux-Aufteilung sind daraus abgeleitete Projektschlussfolgerungen,
