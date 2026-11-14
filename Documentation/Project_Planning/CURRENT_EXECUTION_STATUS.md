@@ -10614,5 +10614,18 @@ Der Resolver bindet `cpython-312` nur, wenn die gepinnten CPython-Makros
 `sys.implementation.cache_tag` der Quelle entsprechen und das bereits
 quellengebundene Versionsfact exakt CPython 3.12.16 bezeichnet. Zwei
 synthetische Regressionen prüfen den Fact und verwerfen abweichende Makros oder
-Versionen. Die fokussierte Suite besteht lokal mit 218 Tests unter Python 3.14;
-PR-Gates stehen noch aus. Keine Runtime- oder Profilbeobachtung.
+Versionen. Die fokussierte Suite besteht lokal mit 218 Tests unter Python 3.14.
+Alle fünf PR-Gates einschließlich der gepinnten CPython-3.12.16-Offlineprüfung
+bestanden. PR #768 ist als Commit `ce1ba20de3186e9c589374c63d6795b4a12c4ec2`
+integriert; `main` ist synchronisiert und lokale/Remote-Branches sind entfernt.
+Keine Runtime- oder Profilbeobachtung.
+
+## Fortsetzung: Implementierungsnamensfact wirksam erzwingen
+
+Die unabhängige Statusprüfung zeigte, dass `sys.implementation.name` noch
+zusätzlich als unbedingter Zielwert hinterlegt war. Damit konnte der Resolver
+den Namen auch ohne den neu quellengebundenen Fact entscheiden. Der
+unbedingte Eintrag ist entfernt; Regressionen verlangen nun `unknown` ohne
+gültigen CPython-Quellfact und die Auflösung mit dem gültigen Fact. Die
+fokussierte Suite besteht lokal mit 218 Tests unter Python 3.14; PR-Gates stehen
+noch aus.

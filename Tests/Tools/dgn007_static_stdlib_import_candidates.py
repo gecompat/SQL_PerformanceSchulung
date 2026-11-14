@@ -3968,7 +3968,6 @@ def _target_condition(node, known_names=None, known_call_facts=None):
         "sys.version_info.micro": 16,
         "sys.version_info.releaselevel": "final",
         "sys.version_info.serial": 0,
-        "sys.implementation.name": "cpython",
         "sys.byteorder": "little",
         "sys.builtin_module_names": _KNOWN_BUILTIN_NAMES,
     }
