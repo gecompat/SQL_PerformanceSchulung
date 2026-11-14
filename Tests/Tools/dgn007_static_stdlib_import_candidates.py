@@ -3835,7 +3835,12 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             if node.module == "__future__":
                 return
             if any(alias.name == "*" for alias in node.names):
+                imported_module_name = (
+                    known_names.get("__name__") is _IMPORTED_MODULE_NAME
+                )
                 known_names.clear()
+                if imported_module_name:
+                    known_names["__name__"] = _IMPORTED_MODULE_NAME
             base = node.module or ""
             if node.level:
                 parts = package.split(".") if package else []

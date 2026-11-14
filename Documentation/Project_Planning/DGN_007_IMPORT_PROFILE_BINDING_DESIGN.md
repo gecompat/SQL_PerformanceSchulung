@@ -5955,3 +5955,27 @@ Importclosure oder P11-Sollrecords. Es gab keinen Interpreter-, Profil-,
 Worker-, SQL- oder Generalprobenlauf. Quellen-/Aufrufreview, vollständige fünf
 Formen, gemeinsames 64-KiB-Gate und die davon abhängige einmalige operative
 Inventur bleiben offen.
+
+### Fortsetzung: importierter `__name__`-Fakt über geprüfte Star-Exports
+
+Der zielgebundene Callfolger erhält einen bereits geprüften importierten
+Modulnamen jetzt auch über `from … import *`. Nach dem Star-Import setzt er
+andere Namensfakten zurück, behält `__name__` aber genau dann bei, wenn die
+getrennte CPython-Quellprüfung für dieses Modul bestätigt hat, dass der Export
+den Namen nicht überschreibt. Synthetische Gegenproben decken den ausgewählten
+Nicht-`__main__`-Zweig sowie lokale Funktions-/Nested-Definitionen ab; fremde
+lokale Namensbindungen bleiben unbekannt.
+
+Im gepinnten Ziel sinkt die zielgebundene Callmenge von 88 Modulen/542 Kanten/
+448 Funktionen auf weiterhin 88 Module, 539 Kanten und 418 Funktionen. Die
+Zahl aufgelöster Guards beträgt 45, die unbekannte Menge 1.154; ihr Digest ist
+`8fc442a206db66681443a3a908a587ed4ce808bf26ac5d71848dbda756bf5516`. Die
+unveränderte Vergleichsmenge bleibt 93/578/534; der separate
+Modul-/Klassenkörpervorschnitt bleibt 56/278 mit 42 entschieden/null
+unbekannten Wachen. Zwölf übrig gebliebene `__main__`- oder vergleichbare
+Guards sind nicht von den geprüften Namensfakten gedeckt.
+
+Auch dies bleibt `CANDIDATES_ONLY`, keine vollständige Importclosure oder
+P11-Sollinventur. Es gab keine Runtime-, Profil-, Worker-, SQL- oder
+Generalproben-Ausführung. Alle S15-/P11-Records, fünf vollständige Formen,
+gemeinsames 64-KiB-Gate und unabhängiger Quellen-/Aufrufreview bleiben offen.
