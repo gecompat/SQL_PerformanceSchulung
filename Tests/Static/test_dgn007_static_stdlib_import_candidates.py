@@ -1120,6 +1120,38 @@ class StaticImportCandidateTests(unittest.TestCase):
                     pyconfig,
                 ), {})
 
+    def test_sysconfig_user_base_is_present_on_the_bound_posix_branch(self):
+        source = (
+            b"def _getuserbase():\n"
+            b"    env_base = os.environ.get('PYTHONUSERBASE', None)\n"
+            b"    if env_base:\n        return env_base\n"
+            b"    if sys.platform in {'emscripten', 'vxworks', 'wasi'}:\n"
+            b"        return None\n"
+            b"    def joinuser(*args):\n"
+            b"        return os.path.expanduser(os.path.join(*args))\n"
+            b"    if os.name == 'nt':\n        return joinuser('~', 'Python')\n"
+            b"    if sys.platform == 'darwin':\n        return joinuser('~', 'Library')\n"
+            b"    return joinuser('~', '.local')\n"
+            b"_HAS_USER_BASE = (_getuserbase() is not None)\n"
+            b"if _HAS_USER_BASE:\n    import user_site\n"
+        )
+        with patch.object(
+            SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ):
+            self.assertEqual(SUBJECT._target_sysconfig_user_base_name_facts(
+                {"sysconfig.py": source}
+            ), {"_HAS_USER_BASE": True})
+            changed = source.replace(
+                b"{'emscripten', 'vxworks', 'wasi'}",
+                b"{'emscripten', 'vxworks', 'wasi', 'linux'}",
+            )
+            with patch.object(
+                SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(changed).hexdigest()
+            ):
+                self.assertEqual(SUBJECT._target_sysconfig_user_base_name_facts(
+                    {"sysconfig.py": changed}
+                ), {})
+
     def test_importlib_windows_name_fact_requires_digest_and_direct_binding(self):
         source = (
             b"import sys\n"

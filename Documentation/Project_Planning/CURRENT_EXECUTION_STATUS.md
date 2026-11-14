@@ -9686,3 +9686,19 @@ Descriptor-Supportwache hängt von tatsächlichen Feature-Probes ab; fünf
 `sysconfig`-Wachen benötigen Laufzeit-/Umgebungswerte. Der Standardscan ohne
 Buildheader bleibt unverändert. Der Header belegt weder unabhängige
 Buildherkunft noch tatsächliche Importclosure oder P11-Sollrecords.
+
+### Fortsetzung: `_HAS_USER_BASE` aus dem Linux-Fallback
+
+Die digestgebundene `sysconfig.py`-Quelle setzt `_HAS_USER_BASE` auf das
+Ergebnis von `_getuserbase() is not None`. Auf dem gepinnten Linuxziel gibt
+`_getuserbase()` entweder den nichtleeren `PYTHONUSERBASE`-Wert oder den
+POSIX-Pfadstring aus `expanduser(join('~', '.local'))` zurück. Die einzige
+`None`-Rückgabe gehört zu Emscripten, VxWorks und WASI. Damit ist die zugehörige
+Wache wahr, ohne ein Home-Verzeichnis anzunehmen.
+
+Der optionale Buildscan bleibt `CANDIDATES_ONLY` bei 56 Kandidaten und 278
+Kanten; 37 Bedingungen sind entschieden und 5 unbekannt. Der
+Unbekannt-Bedingungsdigest lautet
+`0daf39e5838e3cb556eddf0d7993791f16de83ae7f1d9152fb8bc6d3057f5c69`. Offen
+sind die Descriptor-Probeergebnisse und vier Prozess-/Umgebungswerte für
+`sysconfig`.

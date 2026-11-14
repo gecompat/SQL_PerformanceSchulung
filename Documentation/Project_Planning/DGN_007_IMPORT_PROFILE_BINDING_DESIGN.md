@@ -5813,3 +5813,21 @@ Descriptor-Supportmengen sowie fünf `sysconfig`-Wachen, die konkrete
 Executable-, Buildpfad- und Prozessumgebungswerte erfordern. Das ist keine
 Buildherkunftsattestation und keine operative P11-Inventur. Der Standardlauf
 ohne `--target-pyconfig` bleibt der reine Quellvorschnitt.
+
+### Fortsetzung: `_HAS_USER_BASE` aus dem Linux-Fallback
+
+Die gepinnte `sysconfig.py`-Quelle zeigt, dass `_getuserbase()` unter Linux
+bei gesetztem `PYTHONUSERBASE` dessen nichtleeren String zurückgibt und sonst
+über `expanduser(join('~', '.local'))` ebenfalls einen String liefert. Die
+`None`-Rückgabe gilt nur für Emscripten, VxWorks und WASI; Linux gehört nicht
+dazu. Die abschließende Zuweisung `_HAS_USER_BASE = (_getuserbase() is not
+None)` bindet deshalb den Wert `True`, ohne HOME oder `PYTHONUSERBASE` zu
+erraten.
+
+Mit dem gebundenen CPython-Buildprofil bleibt der Scan `CANDIDATES_ONLY` bei
+56 Kandidaten/278 Kanten; 37 Bedingungen sind entschieden und 5 unbekannt.
+Der Digest der offenen Bedingungen lautet
+`0daf39e5838e3cb556eddf0d7993791f16de83ae7f1d9152fb8bc6d3057f5c69`. Die
+verbleibenden Wachen betreffen Descriptor-Probeergebnisse sowie tatsächliches
+`sys.executable`, `sys._home`, `_PYTHON_PROJECT_BASE` und daraus abgeleitetes
+`_PYTHON_BUILD`.

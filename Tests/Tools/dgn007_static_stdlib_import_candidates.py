@@ -1949,6 +1949,49 @@ def _target_threading_native_id_name_facts(
     return {"_HAVE_THREAD_NATIVE_ID": True}
 
 
+def _target_sysconfig_user_base_name_facts(files):
+    """Prove `_HAS_USER_BASE` for the pinned Linux source branch."""
+    source = files.get("sysconfig.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256):
+        return {}
+    tree = ast.parse(source, filename="sysconfig.py")
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef) and node.name == "_getuserbase"]
+    assignments = [node for node in tree.body if isinstance(node, ast.Assign)
+                   and any(isinstance(target, ast.Name)
+                           and target.id == "_HAS_USER_BASE"
+                           for target in node.targets)]
+    if len(functions) != 1 or len(assignments) != 1:
+        return {}
+    function = functions[0]
+    platform_exclusions = [node for node in ast.walk(function)
+                           if isinstance(node, ast.If)
+                           and ast.unparse(node.test)
+                           == "sys.platform in {'emscripten', 'vxworks', 'wasi'}"]
+    nested_joiners = [node for node in function.body
+                      if isinstance(node, ast.FunctionDef) and node.name == "joinuser"]
+    final_userbase_returns = [node for node in function.body
+                              if isinstance(node, ast.Return)
+                              and isinstance(node.value, ast.Call)
+                              and isinstance(node.value.func, ast.Name)
+                              and node.value.func.id == "joinuser"
+                              and [ast.literal_eval(arg) for arg in node.value.args
+                                   if isinstance(arg, ast.Constant)] == ["~", ".local"]]
+    if (len(platform_exclusions) != 1 or len(nested_joiners) != 1
+            or len(final_userbase_returns) != 1
+            or ast.unparse(nested_joiners[0].body[0].value)
+            != "os.path.expanduser(os.path.join(*args))"
+            or ast.unparse(assignments[0].value)
+            != "_getuserbase() is not None"
+            or not any(isinstance(node, ast.Return)
+                       and isinstance(node.value, ast.Constant)
+                       and node.value.value is None
+                       for node in platform_exclusions[0].body)):
+        return {}
+    return {"_HAS_USER_BASE": True}
+
+
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
@@ -2402,6 +2445,8 @@ def _target_platform_candidate_closure(
         elif module == "os":
             aliases.update((known_name_facts or {}).get(module, {}))
         elif module == "threading":
+            aliases.update((known_name_facts or {}).get(module, {}))
+        elif module == "sysconfig":
             aliases.update((known_name_facts or {}).get(module, {}))
         preserve_imported_name = (
             module in preserve_imported_name_modules
@@ -3803,6 +3848,7 @@ def analyze(archive_path, target_pyconfig_path=None):
     if sysconfig_source is None:
         raise ValueError("SYSCONFIG_SOURCE_MISSING")
     sysconfig_inventory = _sysconfig_source_inventory(sysconfig_source)
+    sysconfig_name_facts = _target_sysconfig_user_base_name_facts(files)
     importlib_bootstrap = files.get("importlib/_bootstrap.py")
     importlib_external = files.get("importlib/_bootstrap_external.py")
     if importlib_bootstrap is None or importlib_external is None:
@@ -3889,7 +3935,8 @@ def analyze(archive_path, target_pyconfig_path=None):
             known_call_facts=target_call_facts,
             known_name_facts={"warnings": warnings_default_call_facts,
                               "os": os_name_facts,
-                              "threading": threading_native_id_facts},
+                              "threading": threading_native_id_facts,
+                              "sysconfig": sysconfig_name_facts},
             preserve_imported_name_modules=target_imported_name_safe_modules,
         )
     )
@@ -4083,6 +4130,7 @@ def analyze(archive_path, target_pyconfig_path=None):
         "target_platform_threading_native_id_name_facts": list(
             threading_native_id_facts.items()
         ),
+        "target_platform_sysconfig_name_facts": list(sysconfig_name_facts.items()),
         "target_platform_thread_native_id_source_sha256": {
             "header": THREAD_NATIVE_ID_HEADER_SHA256,
             "module": THREAD_NATIVE_ID_MODULE_SHA256,
