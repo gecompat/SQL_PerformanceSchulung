@@ -5656,3 +5656,21 @@ Der gebundene Linux-Scan bleibt `CANDIDATES_ONLY` bei 56/278 und
 Bedingungen sind entschieden, 26 unbekannt. Der sortierte Inventardigest ist
 `7948e7655fefd9db9d7c1c595993ed75fb05fb0d932fdf8821a9c61ebd835fdd`. Dies
 belegt weder Runtime-Importauswahl noch P11.
+
+### Fortsetzung: C-Warnbackend und `_warnings_defaults`
+
+Der Guard `not _warnings_defaults` wird nur entschieden, wenn `Lib/warnings.py`
+und das C-/Clinic-Paar `Python/_warnings.c` sowie
+`Python/clinic/_warnings.c.h` ihre gebundenen Digests erfüllen. `warnings.py`
+importiert exakt die benötigten Backendnamen aus `_warnings`; die Ziel-Inittab
+enthält dieses Builtin. Das gepinnte C-Modul registriert `warn`, `warn_explicit`
+und `_filters_mutated` samt Clinic-Namensbindungen und setzt die drei
+importierten Zustandsattribute während des Modul-Exec. Damit ist der
+Fallback-Marker wahr. Der äußere Fallback-Guard wird falsch; sein verschachtelter
+`sys.gettotalrefcount`-Guard wird im statischen Zielpfad nicht erreicht.
+
+Der gebundene Scan bleibt `CANDIDATES_ONLY` bei 56/278 und
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 18
+Bedingungen sind entschieden, 24 unbekannt. Der sortierte Inventardigest ist
+`8ae75b218c78d994f42921d69f4914c4ee8cc5028588e8576cca5f155cf65209`. Daraus
+folgt keine Runtime- oder P11-Attestation.

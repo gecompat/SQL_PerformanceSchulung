@@ -721,6 +721,51 @@ class StaticImportCandidateTests(unittest.TestCase):
                 sys_source, clinic_source,
             ), ())
 
+    def test_warnings_defaults_fact_requires_imported_c_backend(self):
+        warnings_source = (
+            b"try:\n"
+            b"    from _warnings import (filters, _defaultaction, _onceregistry, warn, warn_explicit, _filters_mutated)\n"
+            b"    _warnings_defaults = True\n"
+            b"except ImportError:\n    _warnings_defaults = False\n"
+            b"if not _warnings_defaults:\n    pass\n"
+        )
+        c_source = (
+            b'#include "clinic/_warnings.c.h"\n'
+            b"static PyMethodDef warnings_functions[] = {\n"
+            b"WARNINGS_WARN_METHODDEF\nWARNINGS_WARN_EXPLICIT_METHODDEF\n"
+            b"WARNINGS_FILTERS_MUTATED_METHODDEF\n};\n"
+            b"static int warnings_module_exec(PyObject *module) {\n"
+            b'PyModule_AddObjectRef(module, "filters", st->filters);\n'
+            b'PyModule_AddObjectRef(module, "_onceregistry", st->once_registry);\n'
+            b'PyModule_AddObjectRef(module, "_defaultaction", st->default_action);\n}\n'
+            b"static PyModuleDef_Slot warnings_slots[] = {\n"
+            b"{Py_mod_exec, warnings_module_exec}\n};\n"
+            b"static struct PyModuleDef warnings_module = {\n"
+            b".m_methods = warnings_functions,\n.m_slots = warnings_slots,\n};\n"
+        )
+        clinic_source = (
+            b"#define WARNINGS_WARN_METHODDEF \\\n    {\"warn\", impl},\n"
+            b"#define WARNINGS_WARN_EXPLICIT_METHODDEF \\\n    {\"warn_explicit\", impl},\n"
+            b"#define WARNINGS_FILTERS_MUTATED_METHODDEF \\\n    {\"_filters_mutated\", impl},\n"
+        )
+        files = {"warnings.py": warnings_source}
+        patches = (
+            patch.object(SUBJECT, "WARNINGS_SOURCE_SHA256", hashlib.sha256(warnings_source).hexdigest()),
+            patch.object(SUBJECT, "WARNINGS_C_SHA256", hashlib.sha256(c_source).hexdigest()),
+            patch.object(SUBJECT, "WARNINGS_CLINIC_SHA256", hashlib.sha256(clinic_source).hexdigest()),
+        )
+        with patches[0], patches[1], patches[2]:
+            facts = SUBJECT._target_warnings_default_call_facts(
+                files, c_source, clinic_source
+            )
+            self.assertEqual(facts, {"_warnings_defaults": True})
+            condition = ast.parse("not _warnings_defaults", mode="eval").body
+            self.assertIs(SUBJECT._target_condition(condition, known_names=facts), False)
+            self.assertEqual(SUBJECT._target_warnings_default_call_facts(
+                {"warnings.py": warnings_source + b"_warnings_defaults = False\n"},
+                c_source, clinic_source,
+            ), {})
+
     def test_importlib_windows_name_fact_requires_digest_and_direct_binding(self):
         source = (
             b"import sys\n"
