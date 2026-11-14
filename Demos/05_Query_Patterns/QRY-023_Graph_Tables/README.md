@@ -379,5 +379,5 @@ Anwendungsressourcen oder Performancegrenzen.
 - [ScriptDom-Grammatikprüfung](../../../Documentation/Project_Planning/GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md)
 - [Coverage-Prüfung des Proposed Harness](../../../Documentation/Project_Planning/QRY023_PROPOSED_HARNESS_REVIEW.md)
 - [Normative Laufgrenze und Entwurf der Effektivrechtequalifikation](../../../Documentation/Project_Planning/QRY023_EFFECTIVE_PERMISSION_DESIGN.md)
-- Vorgeschlagener unveränderlicher Image-Lock: [`container-images.proposed.json`](container-images.proposed.json); nicht von einem Runtimeworkflow konsumiert und nicht ausführungsberechtigend.
+- Vorgeschlagener unveränderlicher Image-Lock: [`container-images.proposed.json`](container-images.proposed.json). Der statische Harnessvalidator bindet Version, Major, Image-Digest und Reihenfolge exakt an die CI-Matrix; der Workflow leitet seine Pins weiterhin nicht aus der Datei ab. Der Lock bleibt Proposed und nicht ausführungsberechtigend.
 - Framework: `FWK-002`, `FWK-003`, `FWK-004`, `FWK-005`, `FWK-008`, `FWK-010`, `FWK-011` und `FWK-012`.

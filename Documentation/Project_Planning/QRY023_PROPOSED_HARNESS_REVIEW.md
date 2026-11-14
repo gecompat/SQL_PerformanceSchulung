@@ -373,3 +373,10 @@ QRY-023 bleibt nicht katalogisiert. Formale Harness-/T-SQL-Abnahme,
 unabhängige Methodenfreigabe, aktuelle Image-/Buildbestätigung, Ressourcen-
 Durchsetzung, Cleanupqualifikation und konkrete Runtimeautorisierung bleiben
 getrennte Gates.
+
+Der nachfolgende Offlinevalidator bindet inzwischen die geordnete
+Runtime-Matrix aus Jahr, Produktmajor und Image-Digest exakt an die drei Profile
+des vorgeschlagenen Image-Locks. Damit ist die statische Drift zwischen Lock
+und fest codiertem Workflow ausgeschlossen. Der Workflow konsumiert die
+Lockdatei weiterhin nicht; dieser Paritätscheck gewährt keine Ausführungsrechte
+und ersetzt weder die Runtimequalifikation noch ein Review.
