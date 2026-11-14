@@ -9554,6 +9554,23 @@ Zeilendigest `9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`;
 fokussierte Satz besteht 120/120 lokal. Vollständige Offline-CI folgt im
 Pull Request. Runtime-/P11-Auswahl und operative Inventur bleiben offen.
 
+## Fortsetzung: `os.name` aus dem eingebauten `posix`-Export
+
+Die gebundene `os.py`-Quelle setzt `name = 'posix'` vor `from posix import *`
+im gewählten Linux-Zweig. Die gepinnten `posixmodule.c`- und Clinic-Quellen
+belegen, dass der native Star-Export keine Modulvariable `name` oder
+`__all__` bereitstellt: Das C-Vorkommen ist allein `DirEntry.name`; die zwei
+Clinic-Vorkommen sind ausschließlich Schlüsselwortparameter von `pathconf`
+und `memfd_create`. Daher bleibt der lokale Selektor `name` auf `posix`.
+`supports_bytes_environ` wird wahr und die spätere Wache `name == 'nt'` falsch.
+Der Scanner bleibt `CANDIDATES_ONLY` bei 56 Kandidaten, 278 Kanten und
+Zeilendigest
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 24
+Bedingungen sind entschieden, 18 unbekannt. Der Unbekannt-Inventardigest ist
+`0f86fe8fafa0e2ad8454a6286995d26cd03a1de729e190eee9b2cec7c90a3744`. Der
+fokussierte Satz besteht 125/125 lokal. Vollständige Offline-CI folgt im
+Pull Request. Runtime-/P11-Auswahl und operative Inventur bleiben offen.
+
 ## Fortsetzung: `sysconfig.__name__` trotz Funktionslokaler Namespacezugriffe
 
 Die gebundene `sysconfig.py`-Quelle weist weder Store noch Delete von

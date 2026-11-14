@@ -41,6 +41,11 @@ DIS_SOURCE_SHA256 = "44c0b389c96124d8fb5cb0bc41c7a2aa7a6848ef4001b4000dcbd858efa
 TOKENIZE_SOURCE_SHA256 = "026f566ac63e60d69c8185a3880831b657accc5eac984fadf271fc99a5e5825d"
 OPCODE_SOURCE_SHA256 = "192f6008508f28d3273bff42eaea9b01c8394dab1607cd36aea778bdd166c3a6"
 TOKEN_SOURCE_SHA256 = "1a4d994ce9744f4bfe2d964fc24d112a1e76796a08c2e45a2d73c82a8587f922"
+OS_SOURCE_SHA256 = "6f3888d1a5bd4f1333116dd75ca8f1d2d951e38c8c8426179417aea097a1eef0"
+POSIX_MODULE_C_MEMBER = "Python-3.12.16/Modules/posixmodule.c"
+POSIX_MODULE_C_SHA256 = "a8f1410ad95326648a473672ee3bf8158a5f744b7c032c0142327fb252688ab4"
+POSIX_MODULE_CLINIC_MEMBER = "Python-3.12.16/Modules/clinic/posixmodule.c.h"
+POSIX_MODULE_CLINIC_SHA256 = "dd89b7a30073abfad8f082966f135a343ca4e1b7b856e3ba696a6e9c27870747"
 GETPATH_SOURCE_MEMBER = "Python-3.12.16/Modules/getpath.py"
 GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2"
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
@@ -64,6 +69,8 @@ MAX_SYS_MODULE_C_BYTES = 256 * 1024
 MAX_SYS_MODULE_CLINIC_BYTES = 64 * 1024
 MAX_WARNINGS_C_BYTES = 64 * 1024
 MAX_WARNINGS_CLINIC_BYTES = 16 * 1024
+MAX_POSIX_MODULE_C_BYTES = 512 * 1024
+MAX_POSIX_MODULE_CLINIC_BYTES = 384 * 1024
 ROOTS = (
     "dataclasses", "hashlib", "importlib.machinery", "importlib.util", "json",
     "os", "struct", "sys", "sysconfig", "types", "zipimport", "zlib",
@@ -96,6 +103,8 @@ def _source_archive_data(archive_bytes):
     sys_module_clinic_source = None
     warnings_c_source = None
     warnings_clinic_source = None
+    posix_module_c_source = None
+    posix_module_clinic_source = None
     total = 0
     with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:xz") as source:
         for member in source:
@@ -223,6 +232,24 @@ def _source_archive_data(archive_bytes):
                 else:
                     warnings_clinic_source = body
                 continue
+            if member.name in (POSIX_MODULE_C_MEMBER, POSIX_MODULE_CLINIC_MEMBER):
+                is_module = member.name == POSIX_MODULE_C_MEMBER
+                current = posix_module_c_source if is_module else posix_module_clinic_source
+                limit = MAX_POSIX_MODULE_C_BYTES if is_module else MAX_POSIX_MODULE_CLINIC_BYTES
+                expected = POSIX_MODULE_C_SHA256 if is_module else POSIX_MODULE_CLINIC_SHA256
+                if not member.isfile() or current is not None or member.size > limit:
+                    raise ValueError("POSIX_MODULE_SOURCE_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("POSIX_MODULE_SOURCE_MEMBER")
+                body = stream.read(member.size + 1)
+                if len(body) != member.size or hashlib.sha256(body).hexdigest() != expected:
+                    raise ValueError("POSIX_MODULE_SOURCE_DIGEST")
+                if is_module:
+                    posix_module_c_source = body
+                else:
+                    posix_module_clinic_source = body
+                continue
             if member.name == STDLIB_MODULE_NAMES_MEMBER:
                 if not member.isfile() or stdlib_header is not None \
                         or member.size > MAX_STDLIB_MODULE_NAMES_BYTES:
@@ -258,7 +285,7 @@ def _source_archive_data(archive_bytes):
     return (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
             getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source,
             sys_module_c_source, sys_module_clinic_source, warnings_c_source,
-            warnings_clinic_source)
+            warnings_clinic_source, posix_module_c_source, posix_module_clinic_source)
 
 
 def _source_files(archive_path):
@@ -1495,6 +1522,104 @@ def _target_sysconfig_imported_name_safe(files):
     return True
 
 
+def _target_os_posix_name_facts(files, posix_source, clinic_source):
+    """Bind os.name only when the pinned posix star export cannot replace it."""
+    source = files.get("os.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != OS_SOURCE_SHA256
+            or type(posix_source) is not bytes
+            or hashlib.sha256(posix_source).hexdigest() != POSIX_MODULE_C_SHA256
+            or type(clinic_source) is not bytes
+            or hashlib.sha256(clinic_source).hexdigest() != POSIX_MODULE_CLINIC_SHA256
+            or _TARGET_BUILTIN_MEMBERSHIP.get("posix") is not True
+            or _TARGET_BUILTIN_MEMBERSHIP.get("nt") is not False):
+        return {}
+    tree = ast.parse(source, filename="os.py")
+    sys_imports = [
+        alias for statement in tree.body if isinstance(statement, ast.Import)
+        for alias in statement.names if alias.name == "sys"
+    ]
+    if (len(sys_imports) != 1 or sys_imports[0].asname is not None
+            or any(isinstance(node, ast.Name) and node.id == "sys"
+                   and isinstance(node.ctx, (ast.Store, ast.Del))
+                   for node in ast.walk(tree))):
+        return {}
+    names_assignments = [
+        statement for statement in tree.body if isinstance(statement, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "_names"
+                for target in statement.targets)
+    ]
+    selector = next((statement for statement in tree.body if isinstance(statement, ast.If)
+                     and ast.unparse(statement.test) == "'posix' in _names"), None)
+    alternate = selector.orelse[0] if selector and selector.orelse else None
+    if (len(names_assignments) != 1
+            or ast.unparse(names_assignments[0].value) != "sys.builtin_module_names"
+            or not isinstance(alternate, ast.If)
+            or ast.unparse(alternate.test) != "'nt' in _names"):
+        return {}
+    name_assignments = [
+        node for node in ast.walk(tree)
+        if isinstance(node, ast.Name) and node.id == "name"
+        and isinstance(node.ctx, ast.Store)
+    ]
+    parents = {child: parent for parent in ast.walk(tree)
+               for child in ast.iter_child_nodes(parent)}
+    module_name_assignments = []
+    for node in name_assignments:
+        ancestor = node
+        while ancestor in parents and not isinstance(
+                parents[ancestor], (ast.FunctionDef, ast.AsyncFunctionDef)):
+            ancestor = parents[ancestor]
+        if not (ancestor in parents and isinstance(
+                parents[ancestor], (ast.FunctionDef, ast.AsyncFunctionDef))):
+            module_name_assignments.append(node)
+    if len(module_name_assignments) != 2:
+        return {}
+
+    def assignment_value(block, expected):
+        return any(isinstance(statement, ast.Assign)
+                   and any(isinstance(target, ast.Name) and target.id == "name"
+                           for target in statement.targets)
+                   and isinstance(statement.value, ast.Constant)
+                   and statement.value.value == expected
+                   for statement in block)
+
+    star_imports = [
+        statement for statement in selector.body if isinstance(statement, ast.ImportFrom)
+        and any(alias.name == "*" for alias in statement.names)
+    ]
+    if (not assignment_value(selector.body, "posix")
+            or not assignment_value(alternate.body, "nt")
+            or len(star_imports) != 1 or star_imports[0].module != "posix"
+            or star_imports[0].level != 0):
+        return {}
+    posix_text = posix_source.decode("utf-8")
+    clinic_text = clinic_source.decode("utf-8")
+    if ("__all__" in posix_text or "__all__" in clinic_text
+            or posix_text.count('"name"') != 1
+            or not re.search(
+                r'static PyMemberDef DirEntry_members\[\] = \{\s*\{"name",',
+                posix_text,
+            )
+            or clinic_text.count('"name"') != 2
+            or not re.search(
+                r'static const char \* const _keywords\[\] = \{"name", "flags", NULL\};'
+                r'\s*static _PyArg_Parser _parser = \{\s*\.keywords = _keywords,\s*'
+                r'\.fname = "memfd_create"',
+                clinic_text,
+            )
+            or not re.search(
+                r'static const char \* const _keywords\[\] = \{"path", "name", NULL\};'
+                r'\s*static _PyArg_Parser _parser = \{\s*\.keywords = _keywords,\s*'
+                r'\.fname = "pathconf"',
+                clinic_text,
+            )
+            or not re.search(r"static PyMethodDef posix_methods\[\] = \{", posix_text)
+            or not re.search(r"\.m_methods = posix_methods", posix_text)):
+        return {}
+    return {"name": "posix"}
+
+
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
@@ -1757,7 +1882,8 @@ def _target_name_aliases(tree, *, imported_module_name=False):
 
 def _module_body_import_names(
         tree, module, path, target_platform=False, condition_stats=None, known_names=None,
-        unknown_conditions=None, known_call_facts=None, preserve_imported_name=False):
+        unknown_conditions=None, known_call_facts=None, preserve_imported_name=False,
+        preserve_name_facts=False):
     """Include module/class bodies, optionally pruning known target if-branches."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
 
@@ -1784,6 +1910,9 @@ def _module_body_import_names(
                 if (preserve_imported_name
                         and known_names.get("__name__") is _IMPORTED_MODULE_NAME):
                     after_star_false["__name__"] = _IMPORTED_MODULE_NAME
+                if (preserve_name_facts
+                        and known_names.get("name") == "posix"):
+                    after_star_false["name"] = "posix"
                 known_names.clear()
                 known_names.update(after_star_false)
             base = node.module or ""
@@ -1934,6 +2063,8 @@ def _target_platform_candidate_closure(
             aliases.update(_target_importlib_windows_name_facts(files))
         elif module == "warnings":
             aliases.update((known_name_facts or {}).get(module, {}))
+        elif module == "os":
+            aliases.update((known_name_facts or {}).get(module, {}))
         preserve_imported_name = (
             module in preserve_imported_name_modules
             or _target_imported_name_star_imports_safe(files, module)
@@ -1945,7 +2076,8 @@ def _target_platform_candidate_closure(
                 tree, module, path, target_platform=True, condition_stats=condition_stats,
                 known_names=aliases, unknown_conditions=unknown_conditions,
                 known_call_facts=known_call_facts,
-                preserve_imported_name=preserve_imported_name):
+                preserve_imported_name=preserve_imported_name,
+                preserve_name_facts=(module in preserve_imported_name_modules)):
             parts = name.split(".")
             candidate = next(
                 (".".join(parts[:index]) for index in range(len(parts), 0, -1)
@@ -3309,7 +3441,8 @@ def analyze(archive_path):
     (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
      getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source,
      sys_module_c_source, sys_module_clinic_source, warnings_c_source,
-     warnings_clinic_source) = _source_archive_data(
+     warnings_clinic_source, posix_module_c_source,
+     posix_module_clinic_source) = _source_archive_data(
         _archive_bytes(archive_path)
     )
     if stdlib_header is None:
@@ -3358,14 +3491,18 @@ def analyze(archive_path):
     warnings_default_call_facts = _target_warnings_default_call_facts(
         files, warnings_c_source, warnings_clinic_source
     )
+    os_name_facts = _target_os_posix_name_facts(
+        files, posix_module_c_source, posix_module_clinic_source
+    )
     target_imported_name_safe_modules = tuple(sorted(
-        module for module in ("ast", "dis", "inspect", "sysconfig", "tokenize")
+        module for module in ("ast", "dis", "inspect", "os", "sysconfig", "tokenize")
         if (_target_imported_name_star_imports_safe(files, module)
             or module == "ast" and _target_ast_imported_name_star_import_safe(
                 files, ast_c_source
             )
             or module == "inspect" and _target_inspect_imported_name_safe(files)
-            or module == "sysconfig" and _target_sysconfig_imported_name_safe(files))
+            or module == "sysconfig" and _target_sysconfig_imported_name_safe(files)
+            or module == "os" and bool(os_name_facts))
     ))
     target_call_facts = tuple(sorted(
         types_descriptor_call_facts + ast_compatibility_call_facts
@@ -3378,7 +3515,8 @@ def analyze(archive_path):
         _target_platform_candidate_closure(
             files, unknown_conditions=target_unknown_conditions,
             known_call_facts=target_call_facts,
-            known_name_facts={"warnings": warnings_default_call_facts},
+            known_name_facts={"warnings": warnings_default_call_facts,
+                              "os": os_name_facts},
             preserve_imported_name_modules=target_imported_name_safe_modules,
         )
     )
@@ -3556,9 +3694,13 @@ def analyze(archive_path):
         "target_platform_warnings_default_call_facts": list(
             warnings_default_call_facts.items()
         ),
-        "target_platform_imported_name_safe_modules": list(
+        "target_platform_source_name_fact_modules": list(
             target_imported_name_safe_modules
         ),
+        "target_platform_os_name_fact": list(os_name_facts.items()),
+        "target_platform_os_source_sha256": OS_SOURCE_SHA256,
+        "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,
+        "target_platform_posix_module_clinic_sha256": POSIX_MODULE_CLINIC_SHA256,
         "target_platform_types_source_sha256": _TYPES_SOURCE_SHA256,
         "target_platform_inspect_source_sha256": _INSPECT_SOURCE_SHA256,
         "target_platform_builtin_membership": _TARGET_BUILTIN_MEMBERSHIP,
