@@ -5391,3 +5391,9 @@ ein dynamischer Variablenname bleibt ausgeschlossen. Der fokussierte Satz
 besteht 102/102. Das bleibt eine statische Kandidatenmenge einschließlich
 möglicher nicht ausgeführter Zweige, keine vollständige P11-Importclosure oder
 Runtime-Attestation; der gesonderte Startkandidatenscan bleibt 93/578/534.
+
+### Fortsetzung: Direkte lokale Factory-Rückgaben
+
+Der Modulstart-Kandidatenfolger verfolgt eine eng begrenzte lokale Factoryform: eine Top-Level-Funktion mit genau einem abschließenden direkten `return Klasse(...)`, nach ausschließlich Importanweisungen und Docstringausdrücken. Direkte Methodenaufrufe auf dem zurückgegebenen Objekt sowie dessen einfache lokale Aliasbindung können so zu passenden lokalen oder importierten Klassenmethoden führen. Bedingte, zusammengesetzte oder dynamisch rebundene Rückgaben bleiben unaufgelöst.
+
+Zwei Gegenproben decken eine importierte direkte Factory und die Ablehnung bedingter Rückgaben ab; der fokussierte Satz besteht 103/103. Im gepinnten CPython-Archiv ändern sich die aktuellen 93/578/534 Modulstartzahlen und ihr Zeilendigest nicht. Dies ist nur eine zusätzliche konservative Kandidatenregel, keine vollständige Aufrufclosure oder P11-Attestation.
