@@ -1099,6 +1099,29 @@ class StaticImportCandidateTests(unittest.TestCase):
         dynamic = ast.parse("sys.platform in {'linux', runtime_value}", mode="eval").body
         self.assertIsNone(SUBJECT._target_condition(dynamic))
 
+    def test_importlib_case_platform_facts_require_pinned_constants(self):
+        source = (
+            b"_CASE_INSENSITIVE_PLATFORMS_STR_KEY = ('win',)\n"
+            b"_CASE_INSENSITIVE_PLATFORMS_BYTES_KEY = ('cygwin', 'darwin')\n"
+            b"_CASE_INSENSITIVE_PLATFORMS = (_CASE_INSENSITIVE_PLATFORMS_BYTES_KEY "
+            b"+ _CASE_INSENSITIVE_PLATFORMS_STR_KEY)\n"
+            b"def _make_relax_case():\n"
+            b"    if sys.platform.startswith(_CASE_INSENSITIVE_PLATFORMS): pass\n"
+            b"    if sys.platform.startswith(_CASE_INSENSITIVE_PLATFORMS_STR_KEY): pass\n"
+        )
+        expected = (
+            ("sys.platform.startswith(_CASE_INSENSITIVE_PLATFORMS)", False),
+            ("sys.platform.startswith(_CASE_INSENSITIVE_PLATFORMS_STR_KEY)", False),
+        )
+        with patch.object(
+            SUBJECT, "IMPORTLIB_EXTERNAL_SOURCE_SHA256",
+            hashlib.sha256(source).hexdigest(),
+        ):
+            self.assertEqual(SUBJECT._target_importlib_case_platform_facts(
+                {"importlib/_bootstrap_external.py": source}
+            ), expected)
+            self.assertEqual(SUBJECT._target_importlib_case_platform_facts({}), ())
+
     def test_types_descriptor_facts_require_exact_source_bindings(self):
         types_source = (
             b"GetSetDescriptorType = type(FunctionType.__code__)\n"
