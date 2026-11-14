@@ -9252,3 +9252,7 @@ Sollfelder, operative Auswahl und das Fünf-Formen-/64-KiB-Gate bleiben offen.
 ## Fortsetzung: DGN-007 Import-Spec- und Loaderstruktur
 
 Die beiden gepinnten importlib-Quellen sind rein syntaktisch auf acht direkte `ModuleSpec`-Initialisierungsfelder, zwei Builtin-/Frozen-Importer, sechs Datei-/Namespace-/Pfad-Finder-/Loaderklassen und vier zentrale Bootstrap-Aufrufanker abgebildet. Eine synthetische Gegenprobe deckt diese Struktur ab; der fokussierte Satz besteht 99/99. Der CPython-Archivscan bleibt `CANDIDATES_ONLY` mit 93 Modulen, 578 Kanten und 534 Funktionen bei unverändertem Digest. Tatsächliche Zielimage-Specs/Loader, vollständige P11-Records, operative Inventur und das gemeinsame Fünf-Formen-/64-KiB-Gate bleiben offen.
+
+## Fortsetzung: DGN-007 öffentliche Importlib-API
+
+Die gepinnten `machinery.py`-/`util.py`-Quellen binden 28 direkte öffentliche Namen an ihre Quellmodule oder lokale Definitionen (16/12); Zeilendigest `f40ad3be9b2550b9be5e55ed8c3073ea9f64d20eced5afafe8a794d34a2c1f51`. Der fokussierte Satz besteht 100/100, der Archivscan bleibt unverändert `CANDIDATES_ONLY` mit 93/578/534. Die API-Zuordnung belegt keine Zielimage-Installation, Importauswahl oder vollständigen P11-Records. S15, P11, operative Inventur und Fünf-Formen-/64-KiB-Gate bleiben offen.

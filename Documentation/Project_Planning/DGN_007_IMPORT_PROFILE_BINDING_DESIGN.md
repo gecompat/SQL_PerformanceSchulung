@@ -5328,3 +5328,22 @@ der fokussierte Satz besteht 99/99. Das sagt nichts über tatsächliche Specs,
 Loaderinstanzen, Moduldateien, Rootreihenfolgen oder geladene Records im
 Zielimage. Es erweitert keine P11-Closure und ändert weder `CANDIDATES_ONLY`
 noch die bestehenden 93/578/534 Kandidatenwerte.
+
+### Fortsetzung: Öffentliche Importlib-Zuordnungen
+
+`Lib/importlib/machinery.py` (880 Bytes, SHA-256
+`d045cd7ecf2a12b6ecbfbef79eb114e87ef2ebd756f5b705f73e6f3266e3dede`) und
+`Lib/importlib/util.py` (10.994 Bytes, SHA-256
+`671f2995653f673f6d5056a1089debef473bc28ae7114f7a8db71475733d6876`) ordnen
+ihre direkten öffentlichen Exporte statisch den Bootstrap- und External-
+Bootstrap-Modulen oder der lokalen Definition zu. Die kanonische Zuordnung
+umfasst 28 Einträge; davon 16 Namen aus `machinery` und zwölf aus `util`.
+Der Zeilendigest ist
+`f40ad3be9b2550b9be5e55ed8c3073ea9f64d20eced5afafe8a794d34a2c1f51`.
+Erforderliche Spec-, Importer-, Finder-, Loader- und Hilfsnamen werden explizit
+gegen die jeweiligen Zielquellen geprüft.
+
+Eine weitere synthetische Gegenprobe prüft Aliase und lokal definierte
+öffentliche Namen; der fokussierte Satz besteht 100/100. Die Zuordnung beschreibt
+API-Quellverweise, nicht die Zielimage-Installation, Importauswahl oder
+konkrete P11-Records. Kandidatenclosure und Runtimegrenze bleiben unverändert.

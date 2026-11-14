@@ -886,6 +886,10 @@ Die zwei gepinnten CPython-Importquellen `_bootstrap.py` und
 Namespace- und Pfad-Finder-/Loaderklassen abgebildet. Das ist Strukturwissen,
 keine tatsächliche Spec-/Loaderinstanz und keine vollständige P11-Inventur.
 Der fokussierte Satz besteht 99/99; der Kandidatenscan bleibt unverändert.
+Die Quellen `Lib/importlib/machinery.py` und `Lib/importlib/util.py` binden nun
+28 öffentliche API-Namen an ihre direkten Bootstrap-/External-Bootstrap-
+Quellen oder lokale Definitionen; 100/100 fokussierte Tests bestehen. Auch
+diese Zuordnung ist keine Zielimage-Installation oder P11-Recordinventur.
 
 ### Gemeinsame Autonomie- und Stopregeln
 
