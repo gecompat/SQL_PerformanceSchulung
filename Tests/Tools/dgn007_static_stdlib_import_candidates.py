@@ -59,6 +59,7 @@ THREAD_NATIVE_ID_PTHREAD_SHA256 = "467f48143ba6bd2dc8f139934d46fdaefe48b11ddf19e
 GETPATH_SOURCE_MEMBER = "Python-3.12.16/Modules/getpath.py"
 GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2"
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
+SITE_SOURCE_SHA256 = "b39ab288cc7a6d0cb3bb2655179221411340b22418e4efdee4c20175537a5fa2"
 IMPORTLIB_BOOTSTRAP_SOURCE_SHA256 = "d112d54b7831cf4a818d4841d5ff8003b54df220a6dabafa61f67d7c7a5603f7"
 IMPORTLIB_EXTERNAL_SOURCE_SHA256 = "e6ad72f3f0f9b65c99ab52598cd02ab748511dcdce1dd51f18dace9be9a680c6"
 IMPORTLIB_MACHINERY_SOURCE_SHA256 = "d045cd7ecf2a12b6ecbfbef79eb114e87ef2ebd756f5b705f73e6f3266e3dede"
@@ -2072,6 +2073,55 @@ def _target_sysconfig_user_base_name_facts(files):
     return {"_HAS_USER_BASE": True}
 
 
+def _target_sysconfig_no_site_facts(files, sys_module_c_source, no_site):
+    """Resolve the venv-only sys._home branch under the explicit -S assumption."""
+    source = files.get("sysconfig.py")
+    site_source = files.get("site.py")
+    if (no_site is not True
+            or type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256
+            or type(site_source) is not bytes
+            or hashlib.sha256(site_source).hexdigest() != SITE_SOURCE_SHA256
+            or type(sys_module_c_source) is not bytes
+            or hashlib.sha256(sys_module_c_source).hexdigest() != SYS_MODULE_C_SHA256):
+        return {}
+
+    sysconfig_tree = ast.parse(source, filename="sysconfig.py")
+    home_reads = [node for node in sysconfig_tree.body if isinstance(node, ast.Assign)
+                  and any(isinstance(target, ast.Name) and target.id == "_sys_home"
+                          for target in node.targets)]
+    home_guards = [node for node in sysconfig_tree.body if isinstance(node, ast.If)
+                   and ast.unparse(node.test) == "_sys_home"]
+    if (len(home_reads) != 1 or len(home_guards) != 1
+            or ast.unparse(home_reads[0].value) != "getattr(sys, '_home', None)"
+            or not any(isinstance(node, ast.Assign)
+                       and any(isinstance(target, ast.Name)
+                               and target.id == "_PROJECT_BASE"
+                               for target in node.targets)
+                       for node in home_guards[0].body)):
+        return {}
+
+    # Under -S, site.py is not imported. Fail closed if another library source
+    # mentions the private field or the sys C module exposes the name.
+    sys_home_forms = (b"sys._home", b"setattr(sys, '_home'",
+                      b'setattr(sys, "_home"')
+    for name, data in files.items():
+        if (name not in ("site.py", "sysconfig.py")
+                and any(form in data for form in sys_home_forms)):
+            return {}
+    if b"_home" in sys_module_c_source:
+        return {}
+    site_tree = ast.parse(site_source, filename="site.py")
+    home_writes = [node for node in ast.walk(site_tree)
+                   if isinstance(node, ast.Attribute) and node.attr == "_home"
+                   and isinstance(node.ctx, ast.Store)]
+    if (len(home_writes) != 2
+            or any(not isinstance(node.value, ast.Name) or node.value.id != "sys"
+                   for node in home_writes)):
+        return {}
+    return {"_sys_home": False}
+
+
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
@@ -3900,7 +3950,7 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
     return tuple(sorted(reached)), edges, functions, hashlib.sha256(b"".join(rows)).hexdigest(), conditions
 
 
-def analyze(archive_path, target_pyconfig_path=None):
+def analyze(archive_path, target_pyconfig_path=None, target_no_site=False):
     (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
      getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source,
      sys_module_c_source, sys_module_clinic_source, warnings_c_source,
@@ -3929,6 +3979,9 @@ def analyze(archive_path, target_pyconfig_path=None):
         raise ValueError("SYSCONFIG_SOURCE_MISSING")
     sysconfig_inventory = _sysconfig_source_inventory(sysconfig_source)
     sysconfig_name_facts = _target_sysconfig_user_base_name_facts(files)
+    sysconfig_name_facts.update(_target_sysconfig_no_site_facts(
+        files, sys_module_c_source, target_no_site,
+    ))
     importlib_bootstrap = files.get("importlib/_bootstrap.py")
     importlib_external = files.get("importlib/_bootstrap_external.py")
     if importlib_bootstrap is None or importlib_external is None:
@@ -4216,6 +4269,7 @@ def analyze(archive_path, target_pyconfig_path=None):
             threading_native_id_facts.items()
         ),
         "target_platform_sysconfig_name_facts": list(sysconfig_name_facts.items()),
+        "target_profile_no_site_assumption": target_no_site,
         "target_platform_thread_native_id_source_sha256": {
             "header": THREAD_NATIVE_ID_HEADER_SHA256,
             "module": THREAD_NATIVE_ID_MODULE_SHA256,
@@ -4262,9 +4316,15 @@ def main():
         "--target-pyconfig", type=Path,
         help="Digest-geprüfte pyconfig.h aus dem ausgewählten CPython-Zielimage",
     )
+    parser.add_argument(
+        "--target-no-site", action="store_true",
+        help="Annahme für die feste Zielroute: CPython wird mit -S gestartet",
+    )
     args = parser.parse_args()
+    if args.target_no_site and args.target_pyconfig is None:
+        parser.error("--target-no-site requires --target-pyconfig")
     try:
-        result = analyze(args.archive, args.target_pyconfig)
+        result = analyze(args.archive, args.target_pyconfig, args.target_no_site)
     except (OSError, tarfile.TarError, UnicodeError, SyntaxError, ValueError):
         print(json.dumps({"status": "NOT_PROVEN", "issue": "SOURCE_INPUT_REJECTED"},
                          separators=(",", ":")))
