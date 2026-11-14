@@ -1916,7 +1916,7 @@ Schnitt als `7623d5afef2b1173686e49998af4c8ae5a90882d`; `main` ist
 synchronisiert und lokale/Remote-Branches sind entfernt. Kein Interpreter-,
 Profil-, Worker-, SQL-, Lab- oder Generalprobenlauf.
 
-### Begrenzte Fortsetzung: negative `sys.version_info`-Indizes und Grenzen (14. November 2026)
+### Abgeschlossen: negative `sys.version_info`-Indizes und Grenzen (14. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
 und zwei synthetische Regressionen. Für das gebundene `sys.version_info`-Tupel
@@ -1930,4 +1930,23 @@ PR-Integration ist der Checkpoint; danach wird anhand des aktuellen Status
 weitergearbeitet.
 
 Die fokussierte Suite besteht lokal mit 196 Tests unter Python 3.14. PR-Gates
-stehen noch aus.
+standen vor Integration aus. Alle fünf PR-Gates einschließlich der gepinnten
+CPython-3.12.16-Offlineprüfung bestanden. PR #756 integrierte den Schnitt als
+`b28ba4254d845b24cead260486a75ddd28c1692a`; `main` ist synchronisiert und
+lokale/Remote-Branches sind entfernt. Kein Interpreter-, Profil-, Worker-,
+SQL-, Lab- oder Generalprobenlauf.
+
+### Begrenzte Fortsetzung: Compilemodus-gebundenes `__debug__` (14. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. `__debug__` wird nur dann als wahr gebunden,
+wenn der bereits gepinnte CPython-3.12.16-Quellen-/argv-Nachweis
+`sys.flags.optimize == 0` vorliegt. Ohne diesen Fact bleibt die Bedingung
+unbekannt. Keine neue Produktquelle und keine Interpreter-, Profil-, Worker-,
+SQL-, Lab- oder Generalprobenausführung. Token-/Geldverbrauch bleiben
+unbekannt; die Grenze ist ein Paket, ein PR und zwei Kandidaten, kein
+Provider-Ausgabenlimit. PR-Integration ist der Checkpoint; danach wird anhand
+des aktuellen Status weitergearbeitet.
+
+Zwei synthetische Regressionen und die fokussierte Suite bestehen lokal mit 198
+Tests unter Python 3.14. PR-Gates stehen noch aus.
