@@ -712,28 +712,43 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"        print(message.format(*args), file=sys.stderr)\n"
             b"_verbose_message('import {!r}', module, loader)\n"
         )
+        external_source = b"".join(
+            b"_bootstrap._verbose_message('external')\n" for _ in range(14)
+        )
+        zipimport_source = b"".join(
+            b"_bootstrap._verbose_message('zip')\n" for _ in range(7)
+        )
+        files = {
+            "importlib/_bootstrap.py": bootstrap_source,
+            "importlib/_bootstrap_external.py": external_source,
+            "zipimport.py": zipimport_source,
+        }
         with patch.multiple(
             SUBJECT,
             PRECONFIG_C_SHA256=hashlib.sha256(preconfig_source).hexdigest(),
             INITCONFIG_C_SHA256=hashlib.sha256(initconfig_source).hexdigest(),
             IMPORT_USED_BYTES_PROBE_SHA256=hashlib.sha256(worker_source).hexdigest(),
             IMPORTLIB_BOOTSTRAP_SOURCE_SHA256=hashlib.sha256(bootstrap_source).hexdigest(),
+            IMPORTLIB_EXTERNAL_SOURCE_SHA256=hashlib.sha256(external_source).hexdigest(),
+            ZIPIMPORT_SOURCE_SHA256=hashlib.sha256(zipimport_source).hexdigest(),
         ):
             fact = SUBJECT._target_importlib_verbose_line_facts(
-                {"importlib/_bootstrap.py": bootstrap_source},
+                files,
                 preconfig_source, initconfig_source, worker_source,
             )
             self.assertEqual(fact, {2: False})
-            unsafe_source = bootstrap_source.replace(
-                b"_verbose_message('import {!r}', module, loader)",
-                b"_verbose_message('import {!r}', module, loader, verbosity=0)",
+            unsafe_source = external_source.replace(
+                b"_bootstrap._verbose_message('external')",
+                b"_bootstrap._verbose_message('external', verbosity=0)",
             )
             with patch.object(
-                SUBJECT, "IMPORTLIB_BOOTSTRAP_SOURCE_SHA256",
+                SUBJECT, "IMPORTLIB_EXTERNAL_SOURCE_SHA256",
                 hashlib.sha256(unsafe_source).hexdigest(),
             ):
+                unsafe_files = dict(files)
+                unsafe_files["importlib/_bootstrap_external.py"] = unsafe_source
                 self.assertEqual(SUBJECT._target_importlib_verbose_line_facts(
-                    {"importlib/_bootstrap.py": unsafe_source},
+                    unsafe_files,
                     preconfig_source, initconfig_source, worker_source,
                 ), {})
 
