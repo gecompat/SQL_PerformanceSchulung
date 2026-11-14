@@ -9907,3 +9907,17 @@ unbekannt (Digest
 `4423573e2e7b11c7518774a8acecbd41bc55570aec1a7e7e64d00e051220baeb`). Die 148
 fokussierten Regressionen bestehen lokal. Keine vollständige P11-Closure oder
 Runtimeattestation.
+
+## Fortsetzung: `pickle`-Buffer-Funktionswache
+
+Die Klassenwache `_HAVE_PICKLE_BUFFER` in `pickle.Pickler` ist nun nur dann
+entschieden, wenn `pickle.py` und `_pickle.c` exakt an CPython 3.12.16 gebunden
+sind, die C-Quelle `PickleBuffer` im Modul-Init-Pfad unbedingt registriert und
+die Zielimage-OCI-Schichten die konkrete `_pickle.cpython-312-x86_64-linux-gnu.so`
+mit dem festgelegten Digest enthalten. Der auf diese drei Quellen begrenzte
+Zeilenfact entscheidet Guardzeile 834 als wahr. Der Vorschnitt bleibt
+`CANDIDATES_ONLY` bei 60 Modulen, 319 Kanten und 175 Funktionen; 53 Conditions
+sind entschieden, 536 unbekannt (Digest
+`fd4a86a9597d79aafead2372eb6c6d2b20b369d16862ac1d0d00b7be5cc23d16`). 149
+fokussierte Regressionen bestehen lokal. Das ist keine vollständige P11-Closure
+oder Runtimeattestation.

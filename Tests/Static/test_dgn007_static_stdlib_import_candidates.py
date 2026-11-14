@@ -44,6 +44,11 @@ class StaticImportCandidateTests(unittest.TestCase):
                         link.mode = 0o777
                         link.linkname = "python3.12"
                         layer.addfile(link)
+                        extension = b"verified pickle extension"
+                        info = SUBJECT.tarfile.TarInfo(SUBJECT.PICKLE_EXTENSION_PATH)
+                        info.mode = 0o755
+                        info.size = len(extension)
+                        layer.addfile(info, io.BytesIO(extension))
                         whiteout = SUBJECT.tarfile.TarInfo(
                             "usr/local/bin/Modules/.wh.Setup"
                         )
@@ -105,12 +110,39 @@ class StaticImportCandidateTests(unittest.TestCase):
                 TARGET_IMAGE_MANIFEST_SHA256=oci_manifest_digest,
                 TARGET_IMAGE_LAYER_NAMES=layer_names,
                 TARGET_EXECUTABLE_SHA256=hashlib.sha256(b"verified executable").hexdigest(),
+                PICKLE_EXTENSION_SHA256=hashlib.sha256(
+                    b"verified pickle extension"
+                ).hexdigest(),
             ):
                 facts = SUBJECT._target_image_save_facts(image_path, config_bytes)
         self.assertEqual(facts, {
             "executable_path_candidate": "/usr/local/bin/python3.12",
             "_PYTHON_BUILD": False,
+            "_pickle_extension": True,
         })
+
+    def test_pickle_buffer_line_fact_requires_exact_source_and_target_extension(self):
+        source = (
+            b"try:\n    from _pickle import PickleBuffer\n"
+            b"    _HAVE_PICKLE_BUFFER = True\n"
+            b"except ImportError:\n    _HAVE_PICKLE_BUFFER = False\n"
+            b"class Pickler:\n    if _HAVE_PICKLE_BUFFER:\n        pass\n"
+        )
+        c_source = (
+            b"/* Add types */\n    if (PyModule_AddType(m, "
+            b"&PyPickleBuffer_Type) < 0) {"
+        )
+        with patch.multiple(
+            SUBJECT,
+            PICKLE_SOURCE_SHA256=hashlib.sha256(source).hexdigest(),
+            PICKLE_MODULE_C_SHA256=hashlib.sha256(c_source).hexdigest(),
+        ):
+            self.assertEqual(SUBJECT._target_pickle_buffer_line_facts(
+                {"pickle.py": source}, c_source, {"_pickle_extension": True}
+            ), {7: True})
+            self.assertEqual(SUBJECT._target_pickle_buffer_line_facts(
+                {"pickle.py": source}, c_source, {}
+            ), {})
 
     def test_target_image_save_rejects_invalid_archive(self):
         with tempfile.TemporaryDirectory() as directory:
