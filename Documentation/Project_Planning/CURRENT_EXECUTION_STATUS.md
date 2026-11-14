@@ -9260,3 +9260,7 @@ Die gepinnten `machinery.py`-/`util.py`-Quellen binden 28 direkte öffentliche N
 ## Fortsetzung: DGN-007 Builtin-/Configure-Vorlagen
 
 `Modules/config.c.in` und `configure.ac` sind zusätzlich digestgebunden und strukturell geprüft: zwei Inittab-Marker, neun feste Basiseinträge sowie 14 kanonische `MODULE_BLOCK`-/`MODULE_BUILDTYPE`-Zeilen. Eine synthetische Gegenprobe; fokussiert 101/101 PASS. Der Archivscan bleibt `CANDIDATES_ONLY` (93/578/534, Digest unverändert). Kein Configure-/Buildlauf und keine Aktivierungs- oder vollständige P11-Attestation. Die vollständige S15-/P11-Auswahl und das Fünf-Formen-/64-KiB-Gate bleiben offen.
+
+## Fortsetzung: DGN-007 dynamische Importkandidaten
+
+Die statische Quellclosure bezieht verfügbare Paketeltern und konstante Modulnamen in `__import__`-/`importlib.import_module`-Aufrufen ein. Vier Kandidaten kommen hinzu (`concurrent`, `pydoc_data`, `xml`, `xmlrpc`); 268 Module/2.438 Kanten, Closurehash `700ace82b2c5630fc6ac039bb5bed0d788a46f6f8bcd1efba3fc0afb97068b6d`. Der fokussierte Satz besteht 102/102. Berechnete und relative dynamische Namen bleiben ungeklärt. Dies ist weiterhin keine vollständige P11-Importclosure; der getrennte Modulstartscan bleibt 93/578/534.
