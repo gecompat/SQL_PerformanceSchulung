@@ -17,10 +17,15 @@ Die Bedingungen hängen an zur Laufzeit gewählten Hashalgorithmennamen,
 Regex-Parserzuständen/-zeichen, dynamischen Warnungsereignissen oder dem
 `check_home`-Argument von `sysconfig.is_python_build`. Diese Werte sind keine
 durch das festgehaltene Image- oder Buildmanifest entschiedenen Konstanten.
-Beide Zweige bleiben deshalb
-Kandidaten; aus dieser Prüfung folgt keine neue Quellfakt-Entscheidung und
-keine P11-Closure. Die Deklarationen und Fundstellen bleiben im Scannerbericht
-sichtbar, damit ein späterer Aufruf-/Quellenreview sie gezielt prüfen kann.
+Der Bericht bindet jetzt zusätzlich die lexikalischen Aufrufausdrücke jeder
+unbekannten Bedingung getrennt nach Body und Else: 381 der 533 Bedingungen
+enthalten Aufrufstellen, mit 1.119 Fundstellen im Body und 2.233 im Else-Zweig.
+Die Inventur umfasst auch Aufrufe in verschachtelten Funktionskörpern und ist
+keine Ausführungs- oder Call-Closure-Beobachtung. Beide Zweige bleiben
+Kandidaten; daraus folgt weder eine neue Quellfakt-Entscheidung noch eine
+P11-Closure. Der gepinnte Zielscan bleibt mit 60 Modulen/319 Kanten/175
+Funktionen, 55 entschiedenen und 533 unbekannten Bedingungen `CANDIDATES_ONLY`.
+154 fokussierte Regressionen bestehen.
 
 ### DGN-007 – integrierter Import-Only-Worker
 
