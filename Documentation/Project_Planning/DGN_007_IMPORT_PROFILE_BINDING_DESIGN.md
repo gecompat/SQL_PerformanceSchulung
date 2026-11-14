@@ -5979,3 +5979,30 @@ Auch dies bleibt `CANDIDATES_ONLY`, keine vollständige Importclosure oder
 P11-Sollinventur. Es gab keine Runtime-, Profil-, Worker-, SQL- oder
 Generalproben-Ausführung. Alle S15-/P11-Records, fünf vollständige Formen,
 gemeinsames 64-KiB-Gate und unabhängiger Quellen-/Aufrufreview bleiben offen.
+
+### Fortsetzung: leere Warnoptionsschleife der festen Workerroute
+
+Der zielgebundene Callfolger kann nun genau die dynamische Importstelle in
+`warnings._processoptions` auslassen, wenn die Evidenzkette vollständig passt:
+`warnings.py`, `Python/preconfig.c`, `Python/initconfig.c` und die
+DGN-007-Workerquelle sind an ihre festen SHA-256-Werte gebunden. Die gepinnte
+Workerquelle startet das Kind exakt mit `sys.executable -I -S -B -c ...`, ohne
+`-W`; `subprocess.Popen` setzt kein eigenes `env`. CPython-3.12.16-Quellen
+bestätigen, dass `-I` die Umgebungsnutzung deaktiviert, die Umgebungseinlesung
+für Warnoptionen davon abhängt und `-W` die Kommandozeilen-Warnoptionen ergänzt.
+Der gepinnte `warnings.py`-Modulrumpf übergibt `sys.warnoptions` an die
+eindeutige Funktion, deren einzige Optionsschleife `for arg in args` ist.
+Darum ist nur der Schleifenrumpf leer; ein vorhandener `for ... else`-Zweig
+bleibt Teil der Analyse. Jede Quell-, argv- oder `env`-Abweichung verwirft den
+Fact.
+
+Der begrenzte Archiv-/OCI-Scan bindet diesen Fact an `warnings.py:209`. Die
+Zielmenge zählt weiterhin 60 Module, nun 317 Kanten und 169 lokale Funktionen;
+55 Bedingungen sind entschieden und 516 unbekannt. Der Modul-/Quelldigest
+bleibt `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
+der Unknown-Digest ist
+`ecfc7897ccef369680cb1005b5448ceb3395eed6fd93f556bf974f7d72c63d2c`. Das ist
+weiterhin `LEXICAL_SOURCE_CANDIDATES_ONLY`, keine vollständige Importclosure,
+Runtimeattestation oder P11-Sollinventur. 156 fokussierte Regressionen bestehen;
+es gab keine Interpreter-, Profil-, Worker-, SQL-, operative S15/P11- oder
+Generalproben-Ausführung.
