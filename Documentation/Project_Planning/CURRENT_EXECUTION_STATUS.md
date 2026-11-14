@@ -9354,3 +9354,8 @@ besteht 106/106. Archivclosure und Modulstartfolger bleiben unverändert bei
 Importrecord, keine Environment-Absenzprüfung und kein Byte-/Runtimebeleg;
 vollständige operative S15-/P11-Inventur und das Fünf-Formen-/64-KiB-Gate
 bleiben offen.
+
+
+## Fortsetzung: gemeinsamer Fünf-Formen-Größenbericht
+
+Der DGN-007-Sizer berichtet jetzt die fünf vollständigen Größen einschließlich Header und deren Gesamtsumme. Einzelgrenzen von je 16.384 Bytes und gemeinsame Obergrenze von 65.536 Bytes stammen aus gemeinsam genutzten Konstanten von Sizer und Codec. Exakt 65.536 Bytes werden akzeptiert, 65.537 Bytes abgewiesen, jeweils ohne Einzelüberschreitung. Die fokussierten Sizer-/Codec-Tests bestehen 79/79 unter Python 3.13.17. Operative S15-/P11-Inventur, Worker-/Channel- und Runtime-Gates bleiben offen.

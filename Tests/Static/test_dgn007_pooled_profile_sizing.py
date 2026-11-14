@@ -302,6 +302,20 @@ class PoolSizingTests(unittest.TestCase):
                 self.assertEqual(result.forms[index].bytes_including_header, target)
                 self.assertEqual(result.forms[index].overflow, target > 16384)
 
+    def test_five_form_common_output_cap_includes_each_header(self):
+        for lengths, total, overflow in (
+            ((16384, 16384, 16384, 16368, 16), 65536, False),
+            ((16384, 16384, 16384, 16369, 16), 65537, True),
+        ):
+            with self.subTest(total=total), patch.object(s, "_size", side_effect=lengths):
+                result = s.size_declared_profile(prepared(), worker())
+            self.assertEqual(result.total_bytes_including_headers, total)
+            self.assertEqual(result.common_overflow, overflow)
+            self.assertEqual(len(result.forms), 5)
+            self.assertFalse(any(row.overflow for row in result.forms))
+            self.assertEqual(result.status, "POOL_DESIGN_SIZING_OVERFLOW"
+                             if overflow else "POOL_DESIGN_SIZING_ONLY")
+
     def test_all_sizes_retained_for_multiple_byte_overflows(self):
         selected = at_size(2, 16385)
         result = s.size_declared_profile(prepared(), selected)
