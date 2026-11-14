@@ -474,3 +474,23 @@ nicht gespeichert. Die sechs C7–C12-Kandidaten bleiben unverändert klassifizi
 Modell- oder SQL-Aufrufe. Der C7–C12-Hardstop bleibt bestehen. Eine erneute
 Modellqualifikation braucht eine eigene neue endliche Wellenentscheidung;
 TSK-007/008 und die Live-RAG-Abnahme sind nicht abgeschlossen.
+
+## C13–C18-Folgewelle: C13 qualifiziert
+
+Am 2026-11-14 wurde eine separat begrenzte lokale Welle für C13–C18 zugelassen.
+Sie verwendete ausschließlich den integrierten lokalen Gemma-4-Schlüssel, die
+Chat-API mit `think: false`, den eingefrorenen synthetischen SQL-Snapshot und
+dieselben drei vollständigen Antwortoracles. Cloudzugriff, SQL-Aufrufe,
+Wiederholungen und externe Effekte waren ausgeschlossen. Die Admission,
+vollständigen Receipts und Hashbindungen liegen im ignorierten privaten
+Runtimebereich `Runtime/AI_GENERATION_COMPONENT_C13_C18`.
+
+C13 bestand alle drei Antwortoracles. Der bekannte Caller-Prozess endete mit
+Code 0; Modellrequest und Metadatenrequests endeten mit einer Antwort. Es gab
+drei Inferenzaufrufe, 21 Metadatenrequests, null SQL-Aufrufe und keinen Timeout.
+Die Tokenzahl ist nicht belegt. Gemäß der Wellenregel wurde bei der ersten
+vollständigen qualifizierten Antwort gestoppt: C14–C18 wurden nicht gestartet
+und bleiben unbenutzte Reserve. C7–C12 bleiben unverändert historisch
+klassifiziert; ihr Ergebnis wurde nicht nachträglich geändert. Dieser enge
+synthetische Antwortvertrag qualifiziert weder Live-RAG noch die vollständigen
+TSK-007/008-Abnahmen oder andere Modelle und Daten.
