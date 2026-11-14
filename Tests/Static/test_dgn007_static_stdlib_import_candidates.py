@@ -766,6 +766,37 @@ class StaticImportCandidateTests(unittest.TestCase):
                 c_source, clinic_source,
             ), {})
 
+    def test_pinned_star_exports_preserve_imported_module_name_only(self):
+        importer = (
+            b"from opcode import *\n"
+            b"if __name__ == '__main__':\n    import disassembler\n"
+        )
+        exporter = b"__all__ = ['cmp_op', 'opmap']\n"
+        files = {"dis.py": importer, "opcode.py": exporter}
+        digest_patches = (
+            patch.object(SUBJECT, "DIS_SOURCE_SHA256", hashlib.sha256(importer).hexdigest()),
+            patch.object(SUBJECT, "OPCODE_SOURCE_SHA256", hashlib.sha256(exporter).hexdigest()),
+        )
+        with digest_patches[0], digest_patches[1]:
+            self.assertTrue(SUBJECT._target_imported_name_star_imports_safe(files, "dis"))
+            aliases = SUBJECT._target_name_aliases(
+                ast.parse(importer), imported_module_name=True
+            )
+            unknown = []
+            stats = {"resolved": 0, "unknown": 0}
+            imports = tuple(SUBJECT._module_body_import_names(
+                ast.parse(importer), "dis", "dis.py", target_platform=True,
+                condition_stats=stats, known_names=aliases,
+                unknown_conditions=unknown,
+                preserve_imported_name=True,
+            ))
+            self.assertEqual(imports, ("opcode",))
+            self.assertEqual(stats, {"resolved": 1, "unknown": 0})
+            self.assertFalse(SUBJECT._target_imported_name_star_imports_safe(
+                {**files, "opcode.py": exporter + b"__all__.append('__name__')\n"},
+                "dis",
+            ))
+
     def test_importlib_windows_name_fact_requires_digest_and_direct_binding(self):
         source = (
             b"import sys\n"

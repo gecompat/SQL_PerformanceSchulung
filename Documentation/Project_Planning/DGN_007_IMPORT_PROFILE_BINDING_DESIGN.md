@@ -5674,3 +5674,21 @@ Der gebundene Scan bleibt `CANDIDATES_ONLY` bei 56/278 und
 Bedingungen sind entschieden, 24 unbekannt. Der sortierte Inventardigest ist
 `8ae75b218c78d994f42921d69f4914c4ee8cc5028588e8576cca5f155cf65209`. Daraus
 folgt keine Runtime- oder P11-Attestation.
+
+### Fortsetzung: importierter Modulname über statische Star-Exports
+
+Ein `from X import *` verwirft den bekannten importierten Modulnamen
+grundsätzlich weiter, außer die importierende Quelle und der Export sind
+beide gebunden und `X.__all__` statisch exakt ermittelt. Für die beiden
+festen CPython-Paare `dis`/`opcode` und `tokenize`/`token` wird je eine
+unveränderliche Quellbindung geprüft; jede Exportliste ist eine einmalige
+statische Liste und enthält `__name__` nicht. Daher bleiben die Guards
+`__name__ == '__main__'` in `dis.py` und `tokenize.py` im importierten
+Modulpfad falsch. Andere Exportformen und Rebindings verwerfen den Fakt.
+Die `ast.py`- und `inspect.py`-Wachen bleiben wegen ihrer zusätzlichen
+dynamischen Namespacezugriffe unbekannt.
+
+Der gebundene Scan bleibt `CANDIDATES_ONLY` bei 56/278 und
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 20
+Bedingungen sind entschieden, 22 unbekannt. Der Inventardigest lautet
+`6dea737c0357e5b52ad958d31d8d1a2f86f95bdeb8c7ac0f5197a258329ea033`.
