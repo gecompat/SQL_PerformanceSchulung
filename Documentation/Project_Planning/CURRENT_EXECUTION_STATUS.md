@@ -10367,7 +10367,17 @@ Der lokale Argumentbinder wertet jetzt zusätzlich unäre numerische `+`- und
 Zahlentypen bleiben unbekannt; die Auswertung verwendet nur eingebaute
 Integeroperationen. Zwei Regressionen prüfen direkte `not`-Aufrufe,
 Standardwerte und den unbekannten Rückfall. Die fokussierte Suite besteht lokal
-mit 184 Tests unter Python 3.14. Der gebundene CPython-3.12.16-Zielscan und die
-PR-Gates stehen noch aus. Bis zu deren Abschluss gibt es keinen neuen
-Scanbefund; Runtime-, P11-, Profil-, Worker-, SQL-, Lab- und
+mit 184 Tests unter Python 3.14. Alle fünf PR-Gates, einschließlich der
+gepinnten CPython-3.12.16-Offlineprüfung, bestanden. PR #749 ist als Commit
+`35c323c02206e47837ce380b979074c0ae7b4b14` integriert; `main` ist synchronisiert
+und lokale/Remote-Branches sind entfernt. Ein neuer Zielscanbefund wird hier
+nicht behauptet. Runtime-, P11-, Profil-, Worker-, SQL-, Lab- und
 Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: Identitätsargumente für Singletonwerte
+
+Der lokale Argumentbinder wertet `is` und `is not` nur für exakte `None`- und
+Bool-Singletons aus. Identität von Tupeln, anderen Werten oder dynamischen
+Operanden bleibt unbekannt. Zwei Regressionen prüfen direkte Aufrufe,
+Standardwerte und Fail-Closed-Fälle. Die fokussierte Suite besteht lokal mit
+186 Tests unter Python 3.14. CI und der gebundene Zielscan stehen noch aus.
