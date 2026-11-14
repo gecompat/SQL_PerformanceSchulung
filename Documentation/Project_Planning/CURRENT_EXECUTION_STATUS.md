@@ -10011,6 +10011,28 @@ Kanten und 175 Funktionen; 55 Conditions sind entschieden und 533 unbekannt
 151 fokussierte Regressionen bestehen lokal. Keine vollständige P11-Closure oder
 Runtimeattestation.
 
+## Fortsetzung: leere CPython-Warnoptionsschleife der festen Workerroute
+
+Für die festgelegte DGN-007-Workerroute ist `warnings._processoptions` jetzt
+quellengebunden: Die Zielargv enthält `-I -S -B -c` und kein `-W`; der
+Subprozess erhält kein explizites `env`. Die gepinnten CPython-3.12.16-
+`preconfig.c`-/`initconfig.c`-Quellen belegen, dass `-I` die Umgebungsnutzung
+abschaltet und nur `-W` Warnoptionen anfügt. Zusammen mit dem gepinnten
+`warnings.py`-Aufruf wird so ausschließlich die Schleife `for arg in args`
+als leer behandelt. Die AST-Prüfung erhält ihren `for ... else`-Zweig und
+verwirft den Fact bei jeder Quellen- oder Routenabweichung.
+
+Der begrenzte Archiv-/OCI-Scan bestätigt den Fakt für `warnings.py:209`; die
+dynamische Importstelle aus dem Schleifenrumpf wird dadurch nicht mehr als
+Zielkandidat verfolgt. Ergebnis bleibt `LEXICAL_SOURCE_CANDIDATES_ONLY`:
+60 Module, 317 Kanten, 169 Funktionen, 55 entschiedene und 516 unbekannte
+Bedingungen (Zeilendigest `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
+Unknown-Digest
+`ecfc7897ccef369680cb1005b5448ceb3395eed6fd93f556bf974f7d72c63d2c`). 156
+fokussierte Regressionen bestehen lokal. Keine Interpreter-, Profil-, Worker-,
+SQL-, operative S15/P11- oder Generalproben-Ausführung; es ist keine vollständige
+Importclosure oder Runtimeattestation.
+
 ## Fortsetzung: QRY-023 Image-Lock-/Matrix-Parität
 
 Der Offlinevalidator liest nun die drei Runtime-Matrixzeilen strukturiert und
