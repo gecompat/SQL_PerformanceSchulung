@@ -1690,3 +1690,32 @@ Token-/Geldverbrauch bleibt unbekannt; die Grenze gilt für Paket, PR und
 Kandidaten, nicht als Providerkostenlimit. Der PR-Merge ist der Checkpoint;
 danach wird die nächste offene freigegebene Aufgabe anhand des dann aktuellen
 Status ausgewählt.
+
+### Begrenzte Fortsetzung: Argumentbindung bei lokalen Aufrufen (14. November 2026)
+
+Nach PR #744 umfasst der nächste Checkpoint höchstens ein Arbeitspaket, einen
+Pull Request und zwei lokale Kandidaten: die fail-closed Argumentbindung für
+direkte lokale Aufrufkontexte und ihre synthetischen Gegenproben. Verwendet
+werden der vorhandene signaturgeprüfte CPython-3.12.16-Quellstand, das
+digestgebundene Zielimage und die bestehende Workerroute; neue Produktquellen
+sind nicht erforderlich. Token- und Geldverbrauch bleiben unbekannt; die Grenze
+ist 1/1/2 und kein Provider-Ausgabenlimit.
+
+Der Scanner verfolgt primitive Literalargumente und Standardwerte, höchstens
+acht Kontexte je Funktion und danach einen unbekannten Fallback, der beide
+Zweige erhält. Dekorierte oder variadische Funktionen, dynamische/
+Sternargumente sowie Argumentweitergabe über Modulgrenzen bleiben offen. Die
+Quellkanten werden über eindeutige Importfundstellen gezählt. Der gebundene
+Zielscan reduziert die unbekannten Bedingungen von 502 auf 497; 60 Module, 316
+Kanten, 166 Funktionen und der Zeilendigest bleiben unverändert. Fünf konkrete
+Bedingungen sind zusätzlich entschieden. Ein konservativer Rebinding-Guard
+nimmt drei zuvor abgeleitete Importlib-Entscheidungen wieder zurück. Die
+Regressionen decken Funktions- und Methoden-Rebinding ab.
+
+Die fokussierte Regression besteht lokal mit 175 Fällen. DGN-Quellenbundle und
+Prozesskantenprüfung melden auf den lokal verfügbaren Python-Versionen 3.13 und
+3.14 `BOOTSTRAP_CHANGED`; der Repositoryworkflow pinnt Python 3.12. Daher ist
+deren passender Pflichtcheck im PR maßgeblich und steht noch aus. Kein
+Interpreter-, Profil-, Worker-, SQL-, Lab- oder Generalprobenlauf. Der
+Integrations-PR ist der Checkpoint; danach folgt die nächste freigegebene offene
+Aufgabe.

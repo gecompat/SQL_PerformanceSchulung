@@ -12,10 +12,17 @@ Generalprobe bleibt ausgeschlossen.
 
 Der nach PR #744 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
 Workerroute gebundene Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten,
-166 Funktionen, 65 entschiedene und 502 unbekannte Bedingungen. Der
+166 Funktionen, 70 entschiedene und 497 unbekannte Bedingungen. Der
 Zeilendigest ist `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
 der Digest der unbekannten Bedingungen
-`9b963e6118d72158d0dde36fccedf2d92038469d49116c5439becf49df6c6432`.
+`57cc610d1a8d731f756b3f1d1cc86983a610e685bcf53ac3892497c49f5c99d8`.
+Der Digest der entschiedenen Aufrufbedingungen ist
+`1f18e112cd16076f29f43029af5779907ae56dd4d212b65df6778a8c79fcf6d2`.
+Die neue begrenzte Argumentbindung entscheidet fünf zusätzliche Bedingungen
+aus direkten lokalen Aufrufkontexten; drei zunächst abgeleitete Entscheidungen
+werden wegen möglichem Rebinding fail-closed als unbekannt behandelt.
+Importierte Funktionsargumente und nicht statische Aufrufformen bleiben
+unbekannt.
 PR #734 bindet alle 22 gepinnten `_verbose_message`-Aufrufstellen in
 `_bootstrap.py`, `_bootstrap_external.py` und `zipimport.py`; der Guard
 `importlib._bootstrap.py:493` ist für die festgelegte Workerroute falsch.
@@ -10276,3 +10283,35 @@ Unknown-Digest
 `9b963e6118d72158d0dde36fccedf2d92038469d49116c5439becf49df6c6432`.
 167 fokussierte Regressionen bestehen lokal. Kein Interpreter-, Profil-,
 Worker-, SQL-, Lab- oder Generalprobenlauf.
+
+## Fortsetzung: begrenzte Argumentbindung bei lokalen Aufrufen
+
+Der statische Aufrufpfad bindet jetzt primitive Literalargumente und primitive
+Funktionsstandardwerte für direkt erkannte Aufrufe lokaler Funktionen und
+Methoden. Verschiedene Aufrufkontexte werden getrennt ausgewertet; wiederholte
+Besuche desselben Quellimports erhöhen die Kantenanzahl nicht. Pro Funktion
+werden höchstens acht Argumentkontexte verfolgt; bei Überschreitung wird ein
+zusätzlicher unbekannter Kontext verarbeitet, der beide Zweige erhält.
+Dekorierte Funktionen, dynamische Argumente, Sternargumente, variadische
+Signaturen und mehrdeutige Formen bleiben unbekannt. Argumentwerte werden nicht
+über Modulgrenzen weitergereicht.
+
+Der gebundene Zielscan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten und 166
+Funktionen. Er entscheidet 70 Bedingungen; 497 bleiben unbekannt. Gegenüber dem
+Stand nach PR #744 sind fünf Aufrufbedingungen zusätzlich entschieden:
+`logging/__init__.py:613` (`True`) und `:1225` (`False`),
+`re/_parser.py:115` (`True`) sowie `threading.py:908` (`True`) und `:914`
+(`False`). Drei frühere Importlib-Entscheidungen entfallen, weil ein möglicher
+Namens-Rebind keine sichere Literalargumentbindung erlaubt. Der Zeilendigest bleibt
+`33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`; der
+Digest der entschiedenen Aufrufbedingungen ist
+`1f18e112cd16076f29f43029af5779907ae56dd4d212b65df6778a8c79fcf6d2`, der neue
+Digest unbekannter Bedingungen
+`57cc610d1a8d731f756b3f1d1cc86983a610e685bcf53ac3892497c49f5c99d8`.
+175 fokussierte Regressionen bestehen lokal, einschließlich der Rebinding-
+Gegenproben für Funktionen und Methoden. Der vollständige DGN-Quellenbundle-
+und Prozesskanten-Test konnte lokal mit den installierten Python-3.13/3.14-
+Interpretern nicht bestätigt werden: beide brechen an `BOOTSTRAP_CHANGED` ab;
+der Repositoryworkflow pinnt Python 3.12. Ein Python-3.12-Lauf steht daher als
+Pflichtcheck des Pull Requests aus. Kein Zielinterpreter-, Profil-, Worker-,
+SQL-, Lab- oder Generalprobenlauf.
