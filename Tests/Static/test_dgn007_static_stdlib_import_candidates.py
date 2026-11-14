@@ -690,6 +690,28 @@ class StaticImportCandidateTests(unittest.TestCase):
         ), True)
         self.assertIsNone(SUBJECT._target_condition(expression))
 
+    def test_importlib_windows_name_fact_requires_digest_and_direct_binding(self):
+        source = (
+            b"import sys\n"
+            b"_MS_WINDOWS = (sys.platform == 'win32')\n"
+            b"if _MS_WINDOWS:\n    import nt\n"
+        )
+        files = {"importlib/_bootstrap_external.py": source}
+        with patch.object(
+            SUBJECT, "IMPORTLIB_EXTERNAL_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ):
+            self.assertEqual(
+                SUBJECT._target_importlib_windows_name_facts(files),
+                {"_MS_WINDOWS": False},
+            )
+            rebound = source + b"_MS_WINDOWS = True\n"
+            with patch.object(
+                SUBJECT, "IMPORTLIB_EXTERNAL_SOURCE_SHA256", hashlib.sha256(rebound).hexdigest()
+            ):
+                self.assertEqual(SUBJECT._target_importlib_windows_name_facts(
+                    {"importlib/_bootstrap_external.py": rebound}
+                ), {})
+
     def test_target_byteorder_is_bound_to_linux_amd64_image(self):
         little = ast.parse("sys.byteorder == 'little'", mode="eval").body
         big = ast.parse("sys.byteorder == 'big'", mode="eval").body

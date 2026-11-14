@@ -9433,6 +9433,22 @@ fokussierte Satz besteht 112/112 lokal; vollständige gebundene CI folgt für
 diesen Slice. S15-/P11-Auswahl, operative Inventur und Fünf-Formen-/64-KiB-
 Gate bleiben offen.
 
+## Fortsetzung: Importlib-Windows-Selector
+
+Die fünf `_MS_WINDOWS`-Wachen in `_bootstrap_external.py` werden über die
+digestgebundene Importlib-Quelle ausgewertet. Voraussetzung sind der direkte,
+unveränderte `sys`-Import, genau eine Zuweisung `_MS_WINDOWS =
+(sys.platform == 'win32')`, kein Rebinding und eine Zuweisung vor allen
+betroffenen Wachen. Für das gebundene Linux-Ziel sind damit fünf weitere
+Bedingungen entschieden. Der Scan bleibt `CANDIDATES_ONLY` bei 56 Kandidaten,
+278 Kanten und Zeilendigest
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 16
+Bedingungen sind entschieden, 27 unbekannt. Der Inventardigest der unbekannten
+Bedingungen ist `de49880f178dc6716ba2755cd71da449d5185ef5a7daadb3dc8c212d7cd7b898`.
+Der fokussierte Satz besteht 118/118 lokal. Vollständige Offline-CI folgt im
+Pull Request. Laufzeit-/P11-Auswahl, operative Inventur und das
+Fünf-Formen-/64-KiB-Gate bleiben offen.
+
 Der vollständige DGN-007-Offline-CI-Workflow bestand im digestgebundenen
 CPython-3.12.16-Image: 14 Testmodule, 1.028 Tests ausgeführt, zwei bestehende
 Plattform-Skips, alle übrigen bestanden. Der unabhängige Nachreview schloss

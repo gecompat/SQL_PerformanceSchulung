@@ -1078,6 +1078,48 @@ def _target_ast_compatibility_call_facts(files, asdl_source, c_source):
     return tuple(sorted(facts))
 
 
+def _target_importlib_windows_name_facts(files):
+    """Resolve the pinned importlib Windows selector from its direct sys binding."""
+    source = files.get("importlib/_bootstrap_external.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != IMPORTLIB_EXTERNAL_SOURCE_SHA256):
+        return {}
+    tree = ast.parse(source, filename="importlib/_bootstrap_external.py")
+    sys_imports = [
+        alias for statement in tree.body if isinstance(statement, ast.Import)
+        for alias in statement.names if alias.name == "sys"
+    ]
+    sys_stores = [
+        node for node in ast.walk(tree)
+        if isinstance(node, ast.Name) and node.id == "sys"
+        and isinstance(node.ctx, (ast.Store, ast.Del))
+    ]
+    assignments = [
+        statement for statement in tree.body if isinstance(statement, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "_MS_WINDOWS"
+                for target in statement.targets)
+    ]
+    windows_stores = [
+        node for node in ast.walk(tree)
+        if isinstance(node, ast.Name) and node.id == "_MS_WINDOWS"
+        and isinstance(node.ctx, (ast.Store, ast.Del))
+    ]
+    windows_guards = [
+        node for node in ast.walk(tree)
+        if isinstance(node, ast.If) and ast.unparse(node.test) == "_MS_WINDOWS"
+    ]
+    expected = "sys.platform == 'win32'"
+    if (len(sys_imports) != 1 or sys_imports[0].asname is not None or sys_stores
+            or len(assignments) != 1 or len(windows_stores) != 1
+            or not windows_guards
+            or ast.unparse(assignments[0].value) != expected
+            or assignments[0].lineno >= min(
+                node.lineno for node in windows_guards
+            )):
+        return {}
+    return {"_MS_WINDOWS": False}
+
+
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
@@ -1499,6 +1541,8 @@ def _target_platform_candidate_closure(
         reached.add(module)
         tree = ast.parse(files[path], filename=path)
         aliases = _target_name_aliases(tree, imported_module_name=True)
+        if module == "importlib._bootstrap_external":
+            aliases.update(_target_importlib_windows_name_facts(files))
         for name in _module_body_import_names(
                 tree, module, path, target_platform=True, condition_stats=condition_stats,
                 known_names=aliases, unknown_conditions=unknown_conditions,
