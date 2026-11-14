@@ -10380,4 +10380,18 @@ Der lokale Argumentbinder wertet `is` und `is not` nur für exakte `None`- und
 Bool-Singletons aus. Identität von Tupeln, anderen Werten oder dynamischen
 Operanden bleibt unbekannt. Zwei Regressionen prüfen direkte Aufrufe,
 Standardwerte und Fail-Closed-Fälle. Die fokussierte Suite besteht lokal mit
-186 Tests unter Python 3.14. CI und der gebundene Zielscan stehen noch aus.
+186 Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der gepinnten
+CPython-3.12.16-Offlineprüfung bestanden. PR #750 ist als Commit
+`1678bec2c3c1961cd0275123c4253bbf65d7cd49` integriert; `main` ist synchronisiert
+und lokale/Remote-Branches sind entfernt. Der Workflow erzeugt hier keinen
+separaten Zielscanbericht. Runtime-, P11-, Profil-, Worker-, SQL-, Lab- und
+Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: Tupel-Mitgliedschaft bei Literalargumenten
+
+Der lokale Argumentbinder wertet einzelne `in`-/`not in`-Vergleiche aus, wenn
+die rechte Seite ein Literal-Tupel und die linke Seite ein unterstützter
+primitiver Wert oder ein Literal-Tupel ist. Dynamische Operanden und dynamische
+Sammlungen bleiben unbekannt. Zwei Regressionen prüfen direkte Aufrufe,
+Standardwerte und den unbekannten Rückfall. Die fokussierte Suite besteht lokal
+mit 188 Tests unter Python 3.14; PR-Gates stehen noch aus.

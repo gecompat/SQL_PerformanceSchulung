@@ -1794,7 +1794,7 @@ Schnitt als `35c323c02206e47837ce380b979074c0ae7b4b14`; `main` ist
 synchronisiert und lokale/Remote-Branches sind entfernt. Kein Interpreter-,
 Profil-, Worker-, SQL-, Lab- oder Generalprobenlauf.
 
-### Begrenzte Fortsetzung: Singleton-Identitätsargumente (14. November 2026)
+### Abgeschlossen: Singleton-Identitätsargumente (14. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
 und zwei synthetische Regressionen. Der lokale Literalbinder wertet `is` und
@@ -1808,4 +1808,26 @@ Provider-Ausgabenlimit. PR-Integration ist der Checkpoint; danach wird anhand
 des aktuellen Status weitergearbeitet.
 
 Die zwei synthetischen Regressionen und die fokussierte Suite bestehen lokal
-mit 186 Tests unter Python 3.14. Zielscan und PR-Gates stehen noch aus.
+mit 186 Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der
+gepinnten CPython-3.12.16-Offlineprüfung bestanden. PR #750 integrierte den
+Schnitt als `1678bec2c3c1961cd0275123c4253bbf65d7cd49`; `main` ist
+synchronisiert und lokale/Remote-Branches sind entfernt. Der Workflow enthält
+keinen separaten Zielscanbericht. Kein Interpreter-, Profil-, Worker-, SQL-,
+Lab- oder Generalprobenlauf.
+
+### Begrenzte Fortsetzung: Tupel-Mitgliedschaft in Literalargumenten (14. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. Der lokale Argumentbinder wertet einzelne
+`in`-/`not in`-Vergleiche über unterstützte primitive Werte und
+Literal-Tupel aus, wenn die rechte Seite ein Literal-Tupel ist. Dynamische
+Operanden und Sammlungen bleiben unbekannt; es werden keine benutzerdefinierten
+Vergleichs- oder Containeroperationen ausgeführt. Verwendet werden die
+bestehende signaturgeprüfte CPython-3.12.16-Quelle, das gebundene Zielimage und
+die feste Workerroute. Keine neue Produktquelle und keine Interpreter-, Profil-,
+Worker-, SQL-, Lab- oder Generalprobenausführung. Token-/Geldverbrauch bleiben
+unbekannt; die Grenze ist 1/1/2 und kein Provider-Ausgabenlimit. PR-Integration
+ist der Checkpoint; danach wird anhand des aktuellen Status weitergearbeitet.
+
+Die zwei synthetischen Regressionen und die fokussierte Suite bestehen lokal
+mit 188 Tests unter Python 3.14. PR-Gates stehen noch aus.
