@@ -3833,6 +3833,16 @@ def _target_condition(node, known_names=None, known_call_facts=None):
                     if key in container:
                         return container[key]
                     return default
+            if (isinstance(expr.func, ast.Attribute)
+                    and expr.func.attr == "startswith" and not expr.keywords
+                    and len(expr.args) == 1):
+                receiver = value(expr.func.value)
+                prefix = value(expr.args[0])
+                if (type(receiver) is str
+                        and (type(prefix) is str
+                             or (type(prefix) is tuple
+                                 and all(type(item) is str for item in prefix)))):
+                    return receiver.startswith(prefix)
         if isinstance(expr, ast.Constant) and type(expr.value) in (str, int, bool, type(None)):
             return expr.value
         if isinstance(expr, ast.Tuple):
