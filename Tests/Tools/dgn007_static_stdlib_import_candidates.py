@@ -905,7 +905,24 @@ def _import_names(tree, module, path):
 
 _KNOWN_BUILTIN_NAMES = object()
 # Bounded from the digest-pinned linux/amd64 CPython 3.12.16 config.c/Inittab.
-_TARGET_BUILTIN_MEMBERSHIP = {"posix": True, "nt": False}
+_TARGET_BUILTIN_MODULE_NAMES = (
+    "_abc", "_ast", "_codecs", "_collections", "_functools", "_imp",
+    "_io", "_locale", "_operator", "_signal", "_sre", "_stat",
+    "_string", "_symtable", "_thread", "_tokenize", "_tracemalloc",
+    "_typing", "_warnings", "_weakref", "atexit", "builtins", "errno",
+    "faulthandler", "gc", "itertools", "marshal", "posix", "pwd", "sys",
+    "time",
+)
+_TARGET_BUILTIN_MEMBERSHIP = {
+    **dict.fromkeys(_TARGET_BUILTIN_MODULE_NAMES, True),
+    "nt": False,
+}
+_TARGET_BUILTIN_CONFIG_C_SHA256 = (
+    "30d353782cbaf8de2fed2ba82b1040940386e316b7f41604c49f8f3d6f16bb31"
+)
+_TARGET_BUILTIN_LAYER_SHA256 = (
+    "7f0ea382d75a163999c21529b19913d158821816106eed6f02039f8fdf346779"
+)
 
 
 def _target_condition(node, known_names=None):
@@ -2767,6 +2784,9 @@ def analyze(archive_path):
         "target_platform_resolved_if_count": target_conditions["resolved"],
         "target_platform_unknown_if_count": target_conditions["unknown"],
         "target_platform_builtin_membership": _TARGET_BUILTIN_MEMBERSHIP,
+        "target_platform_builtin_module_names": list(_TARGET_BUILTIN_MODULE_NAMES),
+        "target_platform_builtin_config_c_sha256": _TARGET_BUILTIN_CONFIG_C_SHA256,
+        "target_platform_builtin_layer_sha256": _TARGET_BUILTIN_LAYER_SHA256,
         "module_init_call_candidate_count": len(call_modules),
         "module_init_call_source_candidates": _module_source_rows(files, call_modules),
         "module_init_call_edge_count": call_edges,

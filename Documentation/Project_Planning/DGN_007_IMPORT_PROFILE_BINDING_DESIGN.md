@@ -2398,8 +2398,10 @@ importiert oder ausgeführt.
 
 Der generierte Buildoutput enthält 22 Bootstrapmodule und 79
 Standardbibliotheksmodule. Die 101 eindeutigen Namen stimmen vollständig mit
-`MODBUILT_NAMES` überein. `config.c` enthält 27 Einträge in
-`_PyImport_Inittab`; die feste `Setup.bootstrap`-Menge ist darin enthalten.
+`MODBUILT_NAMES` überein. `config.c` enthält 31 eindeutige Modulnamen in
+`_PyImport_Inittab`: 27 Einträge verwenden ein `PyInit_*`-Symbol, vier sind
+Sonderzeilen für `marshal`, `_warnings`, `builtins` und `sys`. Die feste
+`Setup.bootstrap`-Menge ist darin enthalten.
 Die 79 Namen aus `Setup.stdlib` entsprechen exakt den 79 ABI-markierten
 Extensiondateien im selben Layer unter `lib-dynload`. Es gab weder fehlende
 noch zusätzliche Namen. Damit ist die konkrete Builtin-/Extension-Auswahl
