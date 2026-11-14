@@ -10,22 +10,20 @@ Generalprobe bleibt ausgeschlossen.
 
 ### DGN-007 – Quellenprüfung unbekannter Importzweige
 
-Die 44 unbekannten Ziel-Call-Bedingungen mit Importdeklarationen sind im
-verifizierten CPython-3.12.16-Quellarchiv nach Quellmodul gruppiert:
-`hashlib` 7, `re` 2, `re._parser` 29, `sysconfig` 1 und `warnings` 5.
-Die Bedingungen hängen an zur Laufzeit gewählten Hashalgorithmennamen,
-Regex-Parserzuständen/-zeichen, dynamischen Warnungsereignissen oder dem
-`check_home`-Argument von `sysconfig.is_python_build`. Diese Werte sind keine
-durch das festgehaltene Image- oder Buildmanifest entschiedenen Konstanten.
-Der Bericht bindet jetzt zusätzlich die lexikalischen Aufrufausdrücke jeder
-unbekannten Bedingung getrennt nach Body und Else: 381 der 533 Bedingungen
-enthalten Aufrufstellen, mit 1.119 Fundstellen im Body und 2.233 im Else-Zweig.
-Die Inventur umfasst auch Aufrufe in verschachtelten Funktionskörpern und ist
-keine Ausführungs- oder Call-Closure-Beobachtung. Beide Zweige bleiben
-Kandidaten; daraus folgt weder eine neue Quellfakt-Entscheidung noch eine
-P11-Closure. Der gepinnte Zielscan bleibt mit 60 Modulen/319 Kanten/175
-Funktionen, 55 entschiedenen und 533 unbekannten Bedingungen `CANDIDATES_ONLY`.
-154 fokussierte Regressionen bestehen.
+Der nach PR #734 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
+Workerroute gebundene Scan bleibt `CANDIDATES_ONLY`: 60 Module, 317 Kanten,
+169 Funktionen, 56 entschiedene und 514 unbekannte Bedingungen. Der
+Zeilendigest ist `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
+der Digest der unbekannten Bedingungen
+`904afa5d6387a57f7f6d6a1061390424e9b46f3d94b2319e364f797a68473641`.
+PR #734 bindet alle 22 gepinnten `_verbose_message`-Aufrufstellen in
+`_bootstrap.py`, `_bootstrap_external.py` und `zipimport.py`; der Guard
+`importlib._bootstrap.py:493` ist für die festgelegte Workerroute falsch.
+159 fokussierte Regressionen bestehen. Das ist weder eine vollständige
+Importclosure noch P11-, Runtime-, Profil- oder Workerattestation. Der
+Zwischenstand mit 533 unbekannten Bedingungen unten ist historisch; die
+[aktuelle DGN-007-Fortsetzung](#fortsetzung-nicht-ausgegebene-importdebugmeldung)
+enthält die neueren Facts und Digests.
 
 ### DGN-007 – integrierter Import-Only-Worker
 
@@ -135,7 +133,9 @@ S15-/P11-Sollrecords noch ein Profil-/Workerattest. Der feste Lexikalscan samt
 Grenzen steht in §19.15 des
 [DGN-007-Designs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md).
 
-Der gebundene Scannerbericht zeigt unbekannte Kontrollflussbedingungen jetzt
+#### Historischer Zielscanstand vor den zeilengebundenen Facts
+
+Der folgende gebundene Scannerbericht zeigt unbekannte Kontrollflussbedingungen jetzt
 zusätzlich mit getrennten, normalisierten Importdeklarationen und Fundstellen
 aus Body und Else-Zweig. Im CPython-3.12.16-Archivlauf bleiben 93 Module, 578
 Kanten und 534 Funktionen im allgemeinen Kandidatenscan unverändert. Der
