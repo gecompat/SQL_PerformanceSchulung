@@ -9894,3 +9894,16 @@ bleibt `CANDIDATES_ONLY` bei 62 Modulen, 323 Kanten und 175 Funktionen; 52
 Conditions sind entschieden, 538 unbekannt (Digest
 `02f8034a94d6167998a81c9eaf252cf9e7322d0c2c5f5ee235b23d4250266730`). 147
 fokussierte Regressionen bestehen lokal. Keine P11-Closure oder Runtimeattestation.
+
+## Fortsetzung: toter `codecs`-Star-Importzweig
+
+`codecs.py` bindet nach dem älteren `_codecs`-Star-Import `_false = 0` direkt
+vor dem einzigen `if _false: import encodings`. Der Quellenfactsatz bindet nun
+genau diese Folge an den vollständigen CPython-3.12.16-Dateidigest, die
+eindeutige Zuweisung und den Guardkörper. Nach dem zielgebundenen Scan entfallen
+`encodings` und ein davon abhängiger Quellkandidat: `CANDIDATES_ONLY` mit 60
+Modulen, 319 Kanten und 175 Funktionen; 52 Conditions sind entschieden, 537
+unbekannt (Digest
+`4423573e2e7b11c7518774a8acecbd41bc55570aec1a7e7e64d00e051220baeb`). Die 148
+fokussierten Regressionen bestehen lokal. Keine vollständige P11-Closure oder
+Runtimeattestation.

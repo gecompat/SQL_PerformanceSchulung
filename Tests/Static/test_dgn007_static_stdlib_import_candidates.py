@@ -371,6 +371,42 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(target[0], ("os", "posix_branch"))
         self.assertEqual(target[4], {"resolved": 1, "unknown": 0})
 
+    def test_codecs_dead_import_fact_survives_prior_star_import(self):
+        source = (
+            b"try:\n    from _codecs import *\n"
+            b"except ImportError:\n    pass\n"
+            b"_false = 0\n"
+            b"if _false:\n    import encodings\n"
+        )
+        with patch.object(
+            SUBJECT, "_CODECS_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ):
+            line_facts = SUBJECT._target_codecs_false_guard_line_facts(
+                {"codecs.py": source}
+            )
+            self.assertEqual(line_facts, {6: False})
+            for unsafe in (
+                source.replace(b"_false = 0", b"_false = 1"),
+                source + b"_false = 0\n",
+                source.replace(b"import encodings", b"import os"),
+            ):
+                with patch.object(
+                    SUBJECT, "_CODECS_SOURCE_SHA256", hashlib.sha256(unsafe).hexdigest()
+                ):
+                    self.assertEqual(SUBJECT._target_codecs_false_guard_line_facts(
+                        {"codecs.py": unsafe}
+                    ), {})
+        files = {"codecs.py": source, "encodings.py": b"VALUE = 1\n"}
+        baseline = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("codecs",)
+        )
+        target = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("codecs",), trusted_line_facts={"codecs": {6: False}}
+        )
+        self.assertIn("encodings", baseline[0])
+        self.assertEqual(target[0], ("codecs",))
+        self.assertEqual(target[4], {"resolved": 1, "unknown": 0})
+
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
             "entry.py": (
