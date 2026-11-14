@@ -123,13 +123,17 @@ class StaticImportCandidateTests(unittest.TestCase):
     def test_frozen_tables_keep_runtime_and_test_names_separate(self):
         source = (
             b"static const struct _frozen bootstrap_modules[] = {\n"
-            b'{"boot", code, 1, false, GET_CODE(boot)},\n};\n'
+            b'{"boot", code, 1, false, GET_CODE(boot)},\n'
+            b"{0, 0, 0} /* bootstrap sentinel */\n};\n"
             b"static const struct _frozen stdlib_modules[] = {\n"
-            b'{"pkg.module", code, 1, false, GET_CODE(module)},\n};\n'
+            b'{"pkg.module", code, 1, false, GET_CODE(module)},\n'
+            b"{0, 0, 0} /* stdlib sentinel */\n};\n"
             b"static const struct _frozen test_modules[] = {\n"
-            b'{"test_only", code, 1, false, GET_CODE(test_only)},\n};\n'
+            b'{"test_only", code, 1, false, GET_CODE(test_only)},\n'
+            b"{0, 0, 0} /* test sentinel */\n};\n"
             b"static const struct _module_alias aliases[] = {\n"
-            b'{"boot", "pkg.boot"},\n{"test_alias", NULL},\n};\n'
+            b'{"boot", "pkg.boot"},\n{"test_alias", NULL},\n'
+            b"{0, 0} /* aliases sentinel */\n};\n"
         )
         with patch.object(
             SUBJECT, "FROZEN_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
@@ -146,18 +150,63 @@ class StaticImportCandidateTests(unittest.TestCase):
         source = (
             b"static const struct _frozen bootstrap_modules[] = {\n"
             b'{"boot", code, 1, false, GET_CODE(boot)},\n'
-            b'{"boot", code, 1, false, GET_CODE(boot)},\n};\n'
+            b'{"boot", code, 1, false, GET_CODE(boot)},\n'
+            b"{0, 0, 0} /* bootstrap sentinel */\n};\n"
             b"static const struct _frozen stdlib_modules[] = {\n"
-            b'{"module", code, 1, false, GET_CODE(module)},\n};\n'
+            b'{"module", code, 1, false, GET_CODE(module)},\n'
+            b"{0, 0, 0} /* stdlib sentinel */\n};\n"
             b"static const struct _frozen test_modules[] = {\n"
-            b'{"test_only", code, 1, false, GET_CODE(test_only)},\n};\n'
+            b'{"test_only", code, 1, false, GET_CODE(test_only)},\n'
+            b"{0, 0, 0} /* test sentinel */\n};\n"
             b"static const struct _module_alias aliases[] = {\n"
-            b'{"boot", "pkg.boot"},\n};\n'
+            b'{"boot", "pkg.boot"},\n'
+            b"{0, 0} /* aliases sentinel */\n};\n"
         )
         with patch.object(
             SUBJECT, "FROZEN_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
         ):
             with self.assertRaisesRegex(ValueError, "FROZEN_TABLE_NAMES"):
+                SUBJECT._frozen_module_inventory(source)
+
+    def test_frozen_tables_require_explicit_sentinels(self):
+        source = (
+            b"static const struct _frozen bootstrap_modules[] = {\n"
+            b'{"boot", code, 1, false, GET_CODE(boot)},\n};\n'
+            b"static const struct _frozen stdlib_modules[] = {\n"
+            b'{"module", code, 1, false, GET_CODE(module)},\n'
+            b"{0, 0, 0} /* stdlib sentinel */\n};\n"
+            b"static const struct _frozen test_modules[] = {\n"
+            b'{"test_only", code, 1, false, GET_CODE(test_only)},\n'
+            b"{0, 0, 0} /* test sentinel */\n};\n"
+            b"static const struct _module_alias aliases[] = {\n"
+            b'{"boot", "pkg.boot"},\n'
+            b"{0, 0} /* aliases sentinel */\n};\n"
+        )
+        with patch.object(
+            SUBJECT, "FROZEN_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ):
+            with self.assertRaisesRegex(ValueError, "FROZEN_TABLE_SENTINEL"):
+                SUBJECT._frozen_module_inventory(source)
+
+    def test_frozen_tables_reject_unparsed_alias_rows(self):
+        source = (
+            b"static const struct _frozen bootstrap_modules[] = {\n"
+            b'{"boot", code, 1, false, GET_CODE(boot)},\n'
+            b"{0, 0, 0} /* bootstrap sentinel */\n};\n"
+            b"static const struct _frozen stdlib_modules[] = {\n"
+            b'{"module", code, 1, false, GET_CODE(module)},\n'
+            b"{0, 0, 0} /* stdlib sentinel */\n};\n"
+            b"static const struct _frozen test_modules[] = {\n"
+            b'{"test_only", code, 1, false, GET_CODE(test_only)},\n'
+            b"{0, 0, 0} /* test sentinel */\n};\n"
+            b"static const struct _module_alias aliases[] = {\n"
+            b'BROKEN_ALIAS_ROW\n'
+            b"{0, 0} /* aliases sentinel */\n};\n"
+        )
+        with patch.object(
+            SUBJECT, "FROZEN_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ):
+            with self.assertRaisesRegex(ValueError, "FROZEN_ALIAS_ROW"):
                 SUBJECT._frozen_module_inventory(source)
 
     def test_relative_imports_and_function_imports_are_candidates(self):

@@ -130,7 +130,21 @@ def _frozen_module_inventory(source_bytes):
         )
         if len(blocks) != 1:
             raise ValueError("FROZEN_TABLE_FORMAT")
-        names = tuple(re.findall(r'^\s*\{"([^"\\]+)",', blocks[0], re.M))
+        names = []
+        rows = [
+            line for line in blocks[0].splitlines()
+            if line.strip() and not re.fullmatch(r"\s*/\*.*\*/\s*", line)
+        ]
+        sentinel = f"{table.removesuffix('_modules')} sentinel"
+        if not rows or not re.fullmatch(
+                rf"\s*\{{0,\s*0,\s*0\}}\s*/\* {sentinel} \*/\s*", rows[-1]):
+            raise ValueError("FROZEN_TABLE_SENTINEL")
+        for row in rows[:-1]:
+            match = re.fullmatch(r'\s*\{"([^"\\]+)",.*\},?\s*', row)
+            if match is None:
+                raise ValueError("FROZEN_TABLE_ROW")
+            names.append(match.group(1))
+        names = tuple(names)
         if not names or len(names) != len(set(names)):
             raise ValueError("FROZEN_TABLE_NAMES")
         tables[table] = tuple(sorted(names))
@@ -140,10 +154,19 @@ def _frozen_module_inventory(source_bytes):
     )
     if len(alias_blocks) != 1:
         raise ValueError("FROZEN_ALIAS_FORMAT")
-    aliases = tuple(re.findall(
-        r'^\s*\{"([^"\\]+)",\s*(?:"([^"\\]+)"|NULL)\},?$',
-        alias_blocks[0], re.M
-    ))
+    alias_rows = [line for line in alias_blocks[0].splitlines() if line.strip()]
+    if not alias_rows or not re.fullmatch(
+            r"\s*\{0,\s*0\}\s*/\* aliases sentinel \*/\s*", alias_rows[-1]):
+        raise ValueError("FROZEN_ALIAS_SENTINEL")
+    aliases = []
+    for row in alias_rows[:-1]:
+        match = re.fullmatch(
+            r'\s*\{"([^"\\]+)",\s*(?:"([^"\\]+)"|NULL)\},\s*', row
+        )
+        if match is None:
+            raise ValueError("FROZEN_ALIAS_ROW")
+        aliases.append((match.group(1), match.group(2) or ""))
+    aliases = tuple(aliases)
     if not aliases or len(aliases) != len({alias for alias, _ in aliases}):
         raise ValueError("FROZEN_ALIAS_NAMES")
 
