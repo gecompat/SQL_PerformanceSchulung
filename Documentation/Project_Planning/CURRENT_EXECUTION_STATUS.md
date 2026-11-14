@@ -10543,5 +10543,18 @@ Die Auswertung löst jetzt `get()` mit einem oder zwei vollständig bekannten
 Positionsargumenten auf vollständig bekannte Dictionary-Literale auf.
 Dynamische Schlüssel/Defaults und Schlüsselwortargumente bleiben unbekannt.
 Zwei Regressionen prüfen direkte Auswertung, Closure-Zweige und diese Grenze.
-Die fokussierte Suite besteht lokal mit 208 Tests unter Python 3.14; PR-Gates
-stehen noch aus.
+Die fokussierte Suite besteht lokal mit 208 Tests unter Python 3.14. Alle fünf
+PR-Gates einschließlich der gepinnten CPython-3.12.16-Offlineprüfung bestanden.
+PR #762 ist als Commit `e21856f0c1738fd650b37e22de350dc7b40836d6` integriert;
+`main` ist synchronisiert und lokale/Remote-Branches sind entfernt. Der
+Workflow enthält keinen separaten Zielscanbericht. Runtime-, P11-, Profil-,
+Worker-, SQL-, Lab- und Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: `startswith()` auf gebundenen Plattformzeichenfolgen
+
+Die Zielbedingungsauswertung wertet `startswith()` mit genau einem bekannten
+String oder einem vollständig bekannten String-Tupel auf gepinnten
+Plattformzeichenfolgen aus. Dynamische Präfixe und weitere Argumentformen
+bleiben unbekannt. Zwei Regressionen prüfen direkte Auswertung, Closure-Zweige
+und diese Grenze. Die fokussierte Suite besteht lokal mit 210 Tests unter
+Python 3.14; PR-Gates stehen noch aus.

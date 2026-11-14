@@ -2155,6 +2155,41 @@ class StaticImportCandidateTests(unittest.TestCase):
         ))
         self.assertEqual(conditions, {"resolved": 1, "unknown": 1})
 
+    def test_target_condition_resolves_startswith_on_known_platform_strings(self):
+        for expression, expected in (
+                ("sys.platform.startswith('linux')", True),
+                ("os.name.startswith(('nt', 'java'))", False),
+                ("sys.platform.startswith(())", False)):
+            condition = ast.parse(expression, mode="eval").body
+            self.assertIs(SUBJECT._target_condition(condition), expected)
+        for expression in (
+                "sys.platform.startswith(dynamic_prefix)",
+                "sys.platform.startswith(('linux', dynamic_prefix))",
+                "sys.platform.startswith('linux', 1)"):
+            condition = ast.parse(expression, mode="eval").body
+            self.assertIsNone(SUBJECT._target_condition(condition))
+
+    def test_target_platform_closure_uses_known_platform_startswith(self):
+        files = {
+            "pkg.py": (
+                b"if sys.platform.startswith('linux'):\n    import selected\n"
+                b"else:\n    import rejected\n"
+                b"if sys.platform.startswith(dynamic_prefix):\n"
+                b"    import dynamic_a\nelse:\n    import dynamic_b\n"
+            ),
+            "selected.py": b"VALUE = True\n",
+            "rejected.py": b"VALUE = False\n",
+            "dynamic_a.py": b"VALUE = 1\n",
+            "dynamic_b.py": b"VALUE = 2\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+            files, ("pkg",),
+        )
+        self.assertEqual(modules, (
+            "dynamic_a", "dynamic_b", "pkg", "selected",
+        ))
+        self.assertEqual(conditions, {"resolved": 1, "unknown": 1})
+
     def test_target_platform_membership_resolves_constant_set_literals(self):
         condition = ast.parse(
             "sys.platform in {'emscripten', 'vxworks', 'wasi'}", mode="eval"
