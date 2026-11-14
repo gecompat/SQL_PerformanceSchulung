@@ -10331,3 +10331,17 @@ entschiedenen/unbekannten Bedingungen; Zeilen- und Bedingungsdigests bleiben
 unverändert. Die aktuelle Quellenmenge enthält keinen zusätzlichen erreichbaren
 Aufrufkontext dieser Form. Das bleibt `CANDIDATES_ONLY`, ohne Runtime-, P11-,
 Profil-, Worker-, SQL-, Lab- oder Generalprobenattestation.
+
+## Fortsetzung: primitive Gleichheit bei Literalargumenten
+
+Der lokale Literalbinder erkennt jetzt zusätzlich einzelne `==`-/`!=`-
+Vergleiche, wenn beide Operanden aus bereits unterstützten primitiven Literalen
+oder Literal-Tupeln bestehen. Vergleichsketten und dynamische Operanden bleiben
+unbekannt; es werden keine benutzerdefinierten Vergleichsoperatoren ausgeführt.
+Zwei synthetische Regressionen prüfen direkte Aufrufe, Standardwerte und den
+unbekannten Rückfall. Die fokussierte Suite besteht mit 180 Tests. Der erneute
+CPython-3.12.16-Zielscan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten,
+166 Funktionen, 70 entschiedene und 497 unbekannte Bedingungen; Zeilen- und
+Bedingungsdigests sind unverändert. Diese zusätzliche Ausdrucksform kommt in
+den aktuellen erreichten Quellaufrufen nicht vor. Keine Runtime-, P11-, Profil-,
+Worker-, SQL-, Lab- oder Generalprobenattestation.
