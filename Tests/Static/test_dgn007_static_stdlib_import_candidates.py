@@ -1100,6 +1100,15 @@ class StaticImportCandidateTests(unittest.TestCase):
                     ),
                     {},
                 )
+            alias_files = dict(files)
+            alias_files["extra.py"] = (
+                b"from copyreg import pickle as register\n"
+                b"register(object, str)\n"
+            )
+            self.assertEqual(
+                SUBJECT._target_copyreg_pickle_callable_line_facts(alias_files),
+                {},
+            )
 
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
