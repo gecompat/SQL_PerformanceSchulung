@@ -3809,6 +3809,12 @@ def _target_condition(node, known_names=None, known_call_facts=None):
         if expression == fact_expression:
             return fact_value
 
+    def hashable_literal(item):
+        if type(item) in (str, int, bool, type(None)):
+            return True
+        return (type(item) is tuple
+                and all(hashable_literal(element) for element in item))
+
     def value(expr):
         if isinstance(expr, ast.Call):
             expression = ast.unparse(expr)
@@ -3820,8 +3826,30 @@ def _target_condition(node, known_names=None, known_call_facts=None):
         if isinstance(expr, ast.Tuple):
             items = [value(item) for item in expr.elts]
             return tuple(items) if all(item is not _UNKNOWN for item in items) else _UNKNOWN
+        if isinstance(expr, ast.Dict):
+            result = {}
+            for key_expr, value_expr in zip(expr.keys, expr.values):
+                if key_expr is None:
+                    return _UNKNOWN
+                key = value(key_expr)
+                item = value(value_expr)
+                if (key is _UNKNOWN or item is _UNKNOWN
+                        or not hashable_literal(key)):
+                    return _UNKNOWN
+                result[key] = item
+            return result
         if isinstance(expr, ast.Subscript):
             container = value(expr.value)
+            if type(container) is dict:
+                if isinstance(expr.slice, ast.Slice):
+                    return _UNKNOWN
+                index = value(expr.slice)
+                if index is _UNKNOWN or not hashable_literal(index):
+                    return _UNKNOWN
+                try:
+                    return container[index]
+                except KeyError:
+                    return _UNKNOWN
             if type(container) not in (tuple, list, str):
                 return _UNKNOWN
             if isinstance(expr.slice, ast.Slice):
@@ -3849,7 +3877,10 @@ def _target_condition(node, known_names=None, known_call_facts=None):
             return list(items) if all(item is not _UNKNOWN for item in items) else _UNKNOWN
         if isinstance(expr, ast.Set):
             items = [value(item) for item in expr.elts]
-            return set(items) if all(item is not _UNKNOWN for item in items) else _UNKNOWN
+            if (all(item is not _UNKNOWN for item in items)
+                    and all(hashable_literal(item) for item in items)):
+                return set(items)
+            return _UNKNOWN
         if isinstance(expr, ast.Attribute):
             name = ast.unparse(expr)
             return target.get(name, _UNKNOWN)

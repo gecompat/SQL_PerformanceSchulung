@@ -10516,4 +10516,19 @@ Die Zielbedingungsauswertung löst `major`, `minor`, `micro`, `releaselevel`
 und `serial` aus dem bereits gepinnten CPython-Versionsfact auf. Unbekannte
 Feldnamen bleiben unbekannt. Zwei Regressionen prüfen direkte Bedingungen und
 Closure-Zweige. Die fokussierte Suite besteht lokal mit 204 Tests unter Python
-3.14; PR-Gates stehen noch aus.
+3.14. Alle fünf PR-Gates einschließlich der gepinnten CPython-3.12.16-
+Offlineprüfung bestanden. PR #760 ist als Commit
+`790db3bda0ca7b52a77cdd29240d002c11090350` integriert; `main` ist synchronisiert
+und lokale/Remote-Branches sind entfernt. Der Workflow enthält keinen
+separaten Zielscanbericht. Runtime-, P11-, Profil-, Worker-, SQL-, Lab- und
+Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: Zugriff auf konstante Dictionary-Literale
+
+Die Zielbedingungsauswertung erstellt jetzt Dictionary-Literale mit vollständig
+bekannten, hashbaren Schlüsseln und Werten und löst konstante Schlüssel auf.
+Dynamische Expansion, dynamische Schlüssel und fehlende Schlüssel bleiben
+unbekannt. Unhashbare Set-Elemente werden ebenfalls fail-closed verworfen.
+Zwei Regressionen prüfen direkte Auswertung, Closure-Zweige und diese Grenze.
+Die fokussierte Suite besteht lokal mit 206 Tests unter Python 3.14; PR-Gates
+stehen noch aus.
