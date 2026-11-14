@@ -880,6 +880,13 @@ Fünf-Formen-/64-KiB-Gate maßgeblich. Sie sind keine Laufzeitfreigabe und dürf
 nicht aus dem Kandidatenscan abgeleitet werden. Details und lokale Grenze
 stehen im [aktuellen Ausführungsstand](CURRENT_EXECUTION_STATUS.md).
 
+Die zwei gepinnten CPython-Importquellen `_bootstrap.py` und
+`_bootstrap_external.py` sind inzwischen zusätzlich statisch auf acht
+`ModuleSpec`-Initialisierungsfelder, Builtin-/Frozen-Importer sowie Datei-,
+Namespace- und Pfad-Finder-/Loaderklassen abgebildet. Das ist Strukturwissen,
+keine tatsächliche Spec-/Loaderinstanz und keine vollständige P11-Inventur.
+Der fokussierte Satz besteht 99/99; der Kandidatenscan bleibt unverändert.
+
 ### Gemeinsame Autonomie- und Stopregeln
 
 - Ein Owner, höchstens zwei zusammenhängende Arbeitspakete je Fortsetzung und

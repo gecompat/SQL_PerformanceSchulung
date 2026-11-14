@@ -331,6 +331,34 @@ class StaticImportCandidateTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "SYSCONFIG_SCHEME_LITERAL"):
                 SUBJECT._sysconfig_source_inventory(source)
 
+    def test_importlib_sources_bind_module_spec_and_loader_contracts(self):
+        bootstrap = (
+            b"class ModuleSpec:\n"
+            b" def __init__(self):\n"
+            b"  self.name = None\n  self.loader = None\n  self.origin = None\n"
+            b"  self.loader_state = None\n  self.submodule_search_locations = None\n"
+            b"  self._uninitialized_submodules = None\n  self._set_fileattr = None\n"
+            b"  self._cached = None\n"
+            b"class BuiltinImporter:\n def find_spec(self): pass\n"
+            b"class FrozenImporter:\n def find_spec(self): pass\n"
+            b"def _find_spec(): pass\ndef _find_and_load(): pass\n"
+            b"def _load_unlocked(): pass\ndef _init_module_attrs(): pass\n"
+        )
+        external = (
+            b"class SourceFileLoader: pass\nclass SourcelessFileLoader: pass\n"
+            b"class ExtensionFileLoader: pass\nclass NamespaceLoader: pass\n"
+            b"class PathFinder: pass\nclass FileFinder: pass\n"
+        )
+        with patch.object(
+            SUBJECT, "IMPORTLIB_BOOTSTRAP_SOURCE_SHA256", hashlib.sha256(bootstrap).hexdigest()
+        ), patch.object(
+            SUBJECT, "IMPORTLIB_EXTERNAL_SOURCE_SHA256", hashlib.sha256(external).hexdigest()
+        ):
+            inventory = SUBJECT._importlib_source_inventory(bootstrap, external)
+        self.assertEqual(inventory["module_spec_field_count"], 8)
+        self.assertEqual(inventory["loader_finder_class_count"], 6)
+
+
     def test_relative_imports_and_function_imports_are_candidates(self):
         files = {
             "pkg/__init__.py": b"from . import child\n",
@@ -1961,6 +1989,8 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("getpath_config_key_count", labels)
         self.assertIn("sysconfig_install_scheme_count", labels)
         self.assertIn("sysconfig_path_key_count", labels)
+        self.assertIn("importlib_module_spec_field_count", labels)
+        self.assertIn("importlib_loader_finder_class_count", labels)
         self.assertIn("module_init_call_roots_outside_source_stdlib_names", labels)
         self.assertIn(
             "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES",
