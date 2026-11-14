@@ -10,12 +10,12 @@ Generalprobe bleibt ausgeschlossen.
 
 ### DGN-007 – Quellenprüfung unbekannter Importzweige
 
-Der nach PR #742 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
+Der nach PR #743 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
 Workerroute gebundene Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten,
-166 Funktionen, 63 entschiedene und 505 unbekannte Bedingungen. Der
+166 Funktionen, 64 entschiedene und 504 unbekannte Bedingungen. Der
 Zeilendigest ist `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
 der Digest der unbekannten Bedingungen
-`39d45c166915523624d3cc886fbd65e4a5ea4f78f6745a77649ce91350d88f3a`.
+`39fd51d567593d8550f4368adbb0d66025716269eaeb040d117923f7ce45278b`.
 PR #734 bindet alle 22 gepinnten `_verbose_message`-Aufrufstellen in
 `_bootstrap.py`, `_bootstrap_external.py` und `zipimport.py`; der Guard
 `importlib._bootstrap.py:493` ist für die festgelegte Workerroute falsch.
@@ -10215,14 +10215,17 @@ alle `copyreg`-Imports, Modulreferenzen und direkten Aufrufe über die vollstän
 produktive `Lib`-Quellmenge. Alle fünf Aufrufe übergeben als
 `pickle_function` eine top-level definierte Funktion; Import-from-Aliase,
 zusätzliche Aufrufe, Argumente anderer Form oder abweichende Quellhashes
-verwerfen den Fact.
+verwerfen den Fact. Der erweiterte Fact für `copyreg.py:23` folgt dem
+`constructor_ob`-Guard: nur zwei der fünf Registrierungen übergeben einen
+Konstruktor, und beide Argumente (`complex` und `_compile`) sind quellgebundene
+Funktionen.
 
 Der Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten, 166 besuchte
-Funktionen, 61 entschiedene und 507 unbekannte Bedingungen. Zeilendigest
+Funktionen, 64 entschiedene und 504 unbekannte Bedingungen. Zeilendigest
 `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
 Unknown-Digest
-`243c85a371eebf7e21a82d412c49c2b77cb0bfd806c7d85d0639f3b524270cca`.
-165 fokussierte Regressionen bestehen lokal. Keine vollständige
+`39fd51d567593d8550f4368adbb0d66025716269eaeb040d117923f7ce45278b`.
+166 fokussierte Regressionen bestehen lokal. Keine vollständige
 Importclosure, P11-/Runtimeattestation oder menschliche Generalprobe.
 
 PR #740 integrierte den Fact als Commit
@@ -10249,3 +10252,7 @@ Unknown-Digest
 `39d45c166915523624d3cc886fbd65e4a5ea4f78f6745a77649ce91350d88f3a`.
 166 fokussierte Regressionen bestehen lokal. Kein Interpreter-, Profil-,
 Worker-, SQL-, Lab- oder Generalprobenlauf.
+
+PR #742 integrierte die beiden `logging`-Facts als Commit
+`188ea2d696b427d085886f010d1ffd95f5f96f9`; alle fünf Gates bestanden und die
+lokalen/Remote-Branches wurden entfernt.

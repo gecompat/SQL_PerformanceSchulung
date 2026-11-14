@@ -1664,12 +1664,19 @@ eine Aliasimport-Gegenprobe als Commit `b67c22cee8d882df93b375df86ab4958695d1d6e
 Alle erforderlichen Gates bestanden und die Branches wurden entfernt. Der
 Lauf blieb statisch und `CANDIDATES_ONLY`.
 
-### Begrenzte Fortsetzung: `logging`-Lock-Präsenz (14. November 2026)
+### Abgeschlossen: `logging`-Lock-Präsenz (14. November 2026)
+
+Die Facts für `logging/__init__.py:240` und `:247` binden die
+Lock-Präsenzprüfungen an die gepinnten Python- und C-Quellen. PR #742 integrierte sie als
+Commit `188ea2d696b427d085886f010d1ffd95f5f96f9`; alle fünf Gates bestanden,
+`main` ist synchronisiert und die Arbeitsbranches sind entfernt. Der Lauf blieb
+statisch und `CANDIDATES_ONLY`.
+
+### Begrenzte Fortsetzung: `copyreg.constructor`-Callable-Guard (14. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
-und zwei lokale Kandidaten: die Facts für `logging/__init__.py:240` und `:247`
-sowie ihre synthetischen Gegenproben. Die vorhandenen signaturgeprüften
-CPython-3.12.16-Quellen für `logging`, `threading` und `_threadmodule.c` werden
+und zwei lokale Kandidaten: den Fact für `copyreg.py:23` sowie synthetische
+Gegenproben. Der bestehende signaturgeprüfte CPython-3.12.16-Quellstand wird
 wiederverwendet. Kein Interpreter-, Profil-, Worker-, SQL-, Lab-, operativer
 Inventur- oder Generalprobenlauf. Token-/Geldverbrauch bleibt unbekannt; die
 Grenze gilt für Paket, PR und Kandidaten, nicht als Providerkostenlimit. Der
