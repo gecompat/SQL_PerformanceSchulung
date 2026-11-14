@@ -9742,3 +9742,25 @@ Offen sind der tatsächliche `sys.executable`-Wert, die kontrollierte
 Abwesenheit von `_PYTHON_PROJECT_BASE` in der Zielumgebung und die resultierende
 `_PYTHON_BUILD`-Wache. Keine Profilaufnahme, Worker-, SQL- oder
 Interpreterausführung fand statt.
+
+### Fortsetzung: `_PYTHON_PROJECT_BASE` aus Image-Umgebung und Aufrufannahme
+
+Die OCI-Config des gepinnten CPython-Images wurde erneut direkt abgerufen;
+Größe und SHA-256 stimmen mit der gebundenen 6.562-Byte-Config überein.
+Linux/amd64 `Config.Env` enthält keinen `_PYTHON_PROJECT_BASE`-Eintrag. Weil
+Docker einen entsprechenden `--env`-Override erlauben würde, setzt der
+statische Scan die Wache nur mit dem gesonderten
+`--target-no-project-base-override`-Schalter auf falsch. Andere
+Environment-Overrides sind von dieser Teilannahme nicht umfasst. Der Schalter
+dokumentiert eine geplante Aufrufannahme, keinen beobachteten Kindprozess; der
+spätere unabhängige Aufrufreview muss bestätigen, dass dieser konkrete Wert
+nicht gesetzt wird.
+
+Der Scan mit Zielheader, `-S`- und keinem `_PYTHON_PROJECT_BASE`-Override bleibt
+`CANDIDATES_ONLY` bei 56 Kandidaten/278 Kanten; 40 Bedingungen sind entschieden
+und zwei unbekannt. Der Unbekannt-Bedingungsdigest lautet
+`442eee0a7ce8d6766818c14d748d02bc4e689cb1a4e9088ce91cf944475d7677`. Offen
+bleiben tatsächliches `sys.executable` und die daraus folgende
+`_PYTHON_BUILD`-Wache. Die operative Inventur und das gemeinsame
+Fünf-Formen-/64-KiB-Gate bleiben weiterhin vor unabhängiger Vorwahl und Review
+gesperrt.

@@ -5875,3 +5875,25 @@ bleiben tatsächliches `sys.executable`, die kontrollierte Abwesenheit von
 `_PYTHON_PROJECT_BASE` in der Kindumgebung und die daraus folgende
 `_PYTHON_BUILD`-Wache. Bei Änderung der Aufrufflags ist dieser Scan nicht
 anwendbar.
+
+### Fortsetzung: `_PYTHON_PROJECT_BASE` aus OCI-Umgebung und Aufrufannahme
+
+Die OCI-Config des gepinnten Childimages wurde direkt anhand ihres Digests
+`28d30c15b9e9c3b1d557441aad9592226e852f7716451d6c8df5b4f0c3ce3d1b`
+(6.562 Bytes) geprüft. Ihre `linux/amd64`-Umgebung enthält keinen Eintrag für
+`_PYTHON_PROJECT_BASE`. Das ist für sich genommen keine Aussage über
+zusätzliche `docker run --env`-Overrides. Der separate Scannerparameter
+`--target-no-project-base-override` macht das Fehlen eines entsprechenden
+Overrides als geplante Aufrufannahme explizit und wird nur zusammen mit genau
+dieser OCI-Config akzeptiert. Andere Environment-Overrides sind von dieser
+Teilannahme nicht umfasst. Die spätere unabhängige Aufrufprüfung muss bestätigen,
+dass der konkrete Lauf `_PYTHON_PROJECT_BASE` nicht setzt.
+
+Unter dieser gebundenen Annahme entscheidet der Scan auch die
+`sysconfig.py`-Wache `'_PYTHON_PROJECT_BASE' in os.environ` als falsch. Er bleibt
+`CANDIDATES_ONLY` bei 56 Modulen/278 Kanten; 40 Bedingungen sind entschieden
+und zwei unbekannt. Der Unbekannt-Bedingungsdigest lautet
+`442eee0a7ce8d6766818c14d748d02bc4e689cb1a4e9088ce91cf944475d7677`. Offen
+bleiben der tatsächliche `sys.executable`-Wert und die daraus folgende
+`_PYTHON_BUILD`-Wache. Image-Config und Aufrufannahme belegen keine tatsächlich
+geerbte Prozessumgebung oder Zielausführung.
