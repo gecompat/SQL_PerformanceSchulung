@@ -27,6 +27,11 @@ AST_ASDL_MEMBER = "Python-3.12.16/Parser/Python.asdl"
 AST_ASDL_SHA256 = "ecc26bc2818ebddec685f96663c811de8915beaa74a7cb1ace6eea3920679ac7"
 AST_C_MEMBER = "Python-3.12.16/Python/Python-ast.c"
 AST_C_SHA256 = "07983b321fa333242448efc0eb9990f64823532a4a95b01eccf672f69c8c3b4e"
+SYS_MODULE_C_MEMBER = "Python-3.12.16/Python/sysmodule.c"
+SYS_MODULE_C_SHA256 = "6ac1dffffac870e8a7fbe7578ad6a93ff5f6afb4f501ac3ffd1b5e00f17630ff"
+SYS_MODULE_CLINIC_MEMBER = "Python-3.12.16/Python/clinic/sysmodule.c.h"
+SYS_MODULE_CLINIC_SHA256 = "957a480449ebdd284eae78bf27ef663b0f964ef595eb49208a82f8cb17a93833"
+LOGGING_SOURCE_SHA256 = "43f86bbc08fdd5c7b6e697abffe1381f534a92bb32e1f1aee8360d6a142592a1"
 GETPATH_SOURCE_MEMBER = "Python-3.12.16/Modules/getpath.py"
 GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2"
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
@@ -46,6 +51,8 @@ MAX_CONFIG_C_TEMPLATE_BYTES = 64 * 1024
 MAX_CONFIGURE_SOURCE_BYTES = 512 * 1024
 MAX_AST_ASDL_BYTES = 64 * 1024
 MAX_AST_C_BYTES = 512 * 1024
+MAX_SYS_MODULE_C_BYTES = 256 * 1024
+MAX_SYS_MODULE_CLINIC_BYTES = 64 * 1024
 ROOTS = (
     "dataclasses", "hashlib", "importlib.machinery", "importlib.util", "json",
     "os", "struct", "sys", "sysconfig", "types", "zipimport", "zlib",
@@ -74,6 +81,8 @@ def _source_archive_data(archive_bytes):
     configure_source = None
     ast_asdl = None
     ast_c_source = None
+    sys_module_c_source = None
+    sys_module_clinic_source = None
     total = 0
     with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:xz") as source:
         for member in source:
@@ -165,6 +174,24 @@ def _source_archive_data(archive_bytes):
                 else:
                     ast_c_source = body
                 continue
+            if member.name in (SYS_MODULE_C_MEMBER, SYS_MODULE_CLINIC_MEMBER):
+                is_module = member.name == SYS_MODULE_C_MEMBER
+                current = sys_module_c_source if is_module else sys_module_clinic_source
+                limit = MAX_SYS_MODULE_C_BYTES if is_module else MAX_SYS_MODULE_CLINIC_BYTES
+                expected = SYS_MODULE_C_SHA256 if is_module else SYS_MODULE_CLINIC_SHA256
+                if not member.isfile() or current is not None or member.size > limit:
+                    raise ValueError("SYS_MODULE_SOURCE_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("SYS_MODULE_SOURCE_MEMBER")
+                body = stream.read(member.size + 1)
+                if len(body) != member.size or hashlib.sha256(body).hexdigest() != expected:
+                    raise ValueError("SYS_MODULE_SOURCE_DIGEST")
+                if is_module:
+                    sys_module_c_source = body
+                else:
+                    sys_module_clinic_source = body
+                continue
             if member.name == STDLIB_MODULE_NAMES_MEMBER:
                 if not member.isfile() or stdlib_header is not None \
                         or member.size > MAX_STDLIB_MODULE_NAMES_BYTES:
@@ -198,7 +225,8 @@ def _source_archive_data(archive_bytes):
             total += len(body)
             files[relative] = body
     return (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
-            getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source)
+            getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source,
+            sys_module_c_source, sys_module_clinic_source)
 
 
 def _source_files(archive_path):
@@ -1118,6 +1146,47 @@ def _target_importlib_windows_name_facts(files):
             )):
         return {}
     return {"_MS_WINDOWS": False}
+
+
+def _target_sys_getframe_call_facts(files, sys_module_source, clinic_source):
+    """Bind logging's sys._getframe probe to the pinned builtin method table."""
+    logging_source = files.get("logging/__init__.py")
+    if (type(logging_source) is not bytes
+            or hashlib.sha256(logging_source).hexdigest() != LOGGING_SOURCE_SHA256
+            or type(sys_module_source) is not bytes
+            or hashlib.sha256(sys_module_source).hexdigest() != SYS_MODULE_C_SHA256
+            or type(clinic_source) is not bytes
+            or hashlib.sha256(clinic_source).hexdigest() != SYS_MODULE_CLINIC_SHA256
+            or _TARGET_BUILTIN_MEMBERSHIP.get("sys") is not True):
+        return ()
+    logging_tree = ast.parse(logging_source, filename="logging/__init__.py")
+    c_text = sys_module_source.decode("utf-8")
+    clinic_text = clinic_source.decode("utf-8")
+    imports_sys = [
+        alias for statement in logging_tree.body if isinstance(statement, ast.Import)
+        for alias in statement.names if alias.name == "sys"
+    ]
+    if (len(imports_sys) != 1 or imports_sys[0].asname is not None
+            or any(isinstance(node, ast.Name) and node.id in {"sys", "hasattr"}
+                   and isinstance(node.ctx, (ast.Store, ast.Del))
+                   for node in ast.walk(logging_tree))
+            or not any(isinstance(node, ast.If)
+                       and ast.unparse(node.test) == "hasattr(sys, '_getframe')"
+                       for node in logging_tree.body)):
+        return ()
+    clinic_lines = clinic_text.splitlines()
+    methoddef_index = next((index for index, line in enumerate(clinic_lines)
+                            if line.startswith("#define SYS__GETFRAME_METHODDEF")), None)
+    if (methoddef_index is None or methoddef_index + 1 >= len(clinic_lines)
+            or '"_getframe"' not in clinic_lines[methoddef_index + 1]
+            or '#include "clinic/sysmodule.c.h"' not in c_text
+            or not re.search(r"(?m)^static PyMethodDef sys_methods\[\] = \{", c_text)
+            or not re.search(r"(?m)^\s*SYS__GETFRAME_METHODDEF$", c_text)
+            or not re.search(r"(?m)^static struct PyModuleDef sysmodule = \{", c_text)
+            or not re.search(r"(?s)static struct PyModuleDef sysmodule = \{.*?\n\s*sys_methods,", c_text)
+            ):
+        return ()
+    return (("hasattr(sys, '_getframe')", True),)
 
 
 def _target_condition(node, known_names=None, known_call_facts=None):
@@ -2908,7 +2977,8 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
 
 def analyze(archive_path):
     (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
-     getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source) = _source_archive_data(
+     getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source,
+     sys_module_c_source, sys_module_clinic_source) = _source_archive_data(
         _archive_bytes(archive_path)
     )
     if stdlib_header is None:
@@ -2951,8 +3021,12 @@ def analyze(archive_path):
     ast_compatibility_call_facts = _target_ast_compatibility_call_facts(
         files, ast_asdl, ast_c_source
     )
+    sys_getframe_call_facts = _target_sys_getframe_call_facts(
+        files, sys_module_c_source, sys_module_clinic_source
+    )
     target_call_facts = tuple(sorted(
         types_descriptor_call_facts + ast_compatibility_call_facts
+        + sys_getframe_call_facts
     ))
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
@@ -3131,6 +3205,9 @@ def analyze(archive_path):
         "target_platform_ast_source_sha256": _AST_SOURCE_SHA256,
         "target_platform_ast_asdl_sha256": AST_ASDL_SHA256,
         "target_platform_ast_c_sha256": AST_C_SHA256,
+        "target_platform_sys_getframe_call_facts": list(sys_getframe_call_facts),
+        "target_platform_sys_module_c_sha256": SYS_MODULE_C_SHA256,
+        "target_platform_sys_module_clinic_sha256": SYS_MODULE_CLINIC_SHA256,
         "target_platform_types_source_sha256": _TYPES_SOURCE_SHA256,
         "target_platform_inspect_source_sha256": _INSPECT_SOURCE_SHA256,
         "target_platform_builtin_membership": _TARGET_BUILTIN_MEMBERSHIP,

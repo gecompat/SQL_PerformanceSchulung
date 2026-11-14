@@ -690,6 +690,37 @@ class StaticImportCandidateTests(unittest.TestCase):
         ), True)
         self.assertIsNone(SUBJECT._target_condition(expression))
 
+    def test_sys_getframe_fact_requires_builtin_method_table_bindings(self):
+        logging_source = (
+            b"import sys, os\n"
+            b"if hasattr(sys, '_getframe'):\n    currentframe = sys._getframe\n"
+        )
+        sys_source = (
+            b'#include "clinic/sysmodule.c.h"\n'
+            b'static PyMethodDef sys_methods[] = {\n    SYS__GETFRAME_METHODDEF\n};\n'
+            b'static struct PyModuleDef sysmodule = {\n    sys_methods,\n};\n'
+        )
+        clinic_source = (
+            b"#define SYS__GETFRAME_METHODDEF    \\\n"
+            b'    {"_getframe", sys__getframe},\n'
+        )
+        files = {"logging/__init__.py": logging_source}
+        with patch.object(
+            SUBJECT, "LOGGING_SOURCE_SHA256", hashlib.sha256(logging_source).hexdigest()
+        ), patch.object(
+            SUBJECT, "SYS_MODULE_C_SHA256", hashlib.sha256(sys_source).hexdigest()
+        ), patch.object(
+            SUBJECT, "SYS_MODULE_CLINIC_SHA256", hashlib.sha256(clinic_source).hexdigest()
+        ):
+            self.assertEqual(
+                SUBJECT._target_sys_getframe_call_facts(files, sys_source, clinic_source),
+                (("hasattr(sys, '_getframe')", True),),
+            )
+            self.assertEqual(SUBJECT._target_sys_getframe_call_facts(
+                {"logging/__init__.py": logging_source + b"sys = None\n"},
+                sys_source, clinic_source,
+            ), ())
+
     def test_importlib_windows_name_fact_requires_digest_and_direct_binding(self):
         source = (
             b"import sys\n"

@@ -5639,3 +5639,20 @@ Bedingungen sind entschieden, 32 unbekannt; deren sortierter Inventardigest
 ist `9018e5407b5fff1fc6383e7ab808f6b23de04eee1728bb46e07800a28cf952c7`.
 Der Umfang bleibt `CANDIDATES_ONLY`: keine vollständige Importclosure,
 Runtimeauswahl oder P11-Attestation.
+
+### Fortsetzung: `sys._getframe`-Featureprobe von `logging`
+
+Die Featureprobe in `Lib/logging/__init__.py` wird nur bei übereinstimmenden
+Digests für Logging, `Python/sysmodule.c` und
+`Python/clinic/sysmodule.c.h` entschieden. Logging muss `sys` direkt
+importieren und darf `sys` oder `hasattr` nicht neu binden. Das gepinnte
+`sysmodule.c` bindet das `sys_methods`-Register in die `sys`-Moduldefinition
+ein; das Register enthält `SYS__GETFRAME_METHODDEF`, dessen Clinic-Expansion
+exakt `_getframe` als Methode registriert. Die bereits digestgebundene
+Ziel-Inittab enthält `sys`. Damit ist nur `hasattr(sys, '_getframe')` wahr.
+
+Der gebundene Linux-Scan bleibt `CANDIDATES_ONLY` bei 56/278 und
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 17
+Bedingungen sind entschieden, 26 unbekannt. Der sortierte Inventardigest ist
+`7948e7655fefd9db9d7c1c595993ed75fb05fb0d932fdf8821a9c61ebd835fdd`. Dies
+belegt weder Runtime-Importauswahl noch P11.
