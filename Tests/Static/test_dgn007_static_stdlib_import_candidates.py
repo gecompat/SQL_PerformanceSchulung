@@ -274,6 +274,63 @@ class StaticImportCandidateTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, expected):
                     SUBJECT._stdlib_setup_inventory(source)
 
+    def test_getpath_and_sysconfig_sources_bind_path_contracts(self):
+        getpath = (
+            b"platlibdir = config.get('platlibdir')\n"
+            b"program_name = config.get('program_name')\n"
+            b"home = config.get('home')\n"
+            b"executable = config.get('executable')\n"
+            b"base_executable = config.get('base_executable')\n"
+            b"prefix = config.get('prefix')\n"
+            b"exec_prefix = config.get('exec_prefix')\n"
+            b"base_prefix = config.get('base_prefix')\n"
+            b"base_exec_prefix = config.get('base_exec_prefix')\n"
+            b"pythonpath = config.get('module_search_paths')\n"
+            b"real_executable_dir = None\nstdlib_dir = None\n"
+            b"platstdlib_dir = config.get('platstdlib_dir')\n"
+            b"venv_prefix = None\n"
+            b"ENV_PYTHONPATH = config['pythonpath_env']\n"
+            b"def search_up(path):\n    return path\n"
+        )
+        with patch.object(
+            SUBJECT, "GETPATH_SOURCE_SHA256", hashlib.sha256(getpath).hexdigest()
+        ):
+            inventory = SUBJECT._getpath_source_inventory(getpath)
+        self.assertEqual(inventory["path_variable_count"], 14)
+        self.assertEqual(inventory["config_key_count"], 12)
+
+        sysconfig = (
+            b"_INSTALL_SCHEMES = {'posix': {'stdlib': 'lib/python', 'purelib': 'site'}}\n"
+            b"def _get_sysconfigdata_name(): return 'name'\n"
+            b"def get_config_var(name): return name\n"
+            b"def get_config_vars(): return {}\n"
+            b"def get_path(name): return name\n"
+            b"def get_path_names(): return ()\n"
+            b"def get_paths(): return {}\n"
+        )
+        with patch.object(
+            SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(sysconfig).hexdigest()
+        ):
+            scheme_inventory = SUBJECT._sysconfig_source_inventory(sysconfig)
+        self.assertEqual(scheme_inventory["scheme_count"], 1)
+        self.assertEqual(scheme_inventory["path_key_count"], 2)
+
+    def test_sysconfig_source_rejects_executable_scheme_expression(self):
+        source = (
+            b"_INSTALL_SCHEMES = build_schemes()\n"
+            b"def _get_sysconfigdata_name(): return 'name'\n"
+            b"def get_config_var(name): return name\n"
+            b"def get_config_vars(): return {}\n"
+            b"def get_path(name): return name\n"
+            b"def get_path_names(): return ()\n"
+            b"def get_paths(): return {}\n"
+        )
+        with patch.object(
+            SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ):
+            with self.assertRaisesRegex(ValueError, "SYSCONFIG_SCHEME_LITERAL"):
+                SUBJECT._sysconfig_source_inventory(source)
+
     def test_relative_imports_and_function_imports_are_candidates(self):
         files = {
             "pkg/__init__.py": b"from . import child\n",
@@ -1900,6 +1957,10 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("stdlib_setup_test_entry_count", labels)
         self.assertIn("stdlib_setup_condition_count", labels)
         self.assertIn("stdlib_setup_rows_sha256", labels)
+        self.assertIn("getpath_path_variable_count", labels)
+        self.assertIn("getpath_config_key_count", labels)
+        self.assertIn("sysconfig_install_scheme_count", labels)
+        self.assertIn("sysconfig_path_key_count", labels)
         self.assertIn("module_init_call_roots_outside_source_stdlib_names", labels)
         self.assertIn(
             "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES",

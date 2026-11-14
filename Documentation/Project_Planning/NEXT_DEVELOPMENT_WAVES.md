@@ -870,8 +870,11 @@ Tabellenzeilen zurück; 92 synthetische Gegenproben bestehen. Zusätzlich ist
 bedingte `pwd` unter `MODULE_PWD_TRUE`; das ist keine Configure- oder
 Buildfreigabe. `Modules/Setup.stdlib.in` ergänzt 68 reguläre und zwölf
 getrennte Testmodulzeilen, alle 80 mit Configure-Bedingungen; diese sind keine
-Aktivierungsbelege. Der fokussierte Satz besteht nun 96/96. Als nächste
-getrennte Offlinearbeit bleiben die übrigen 15
+Aktivierungsbelege. `Modules/getpath.py` und `Lib/sysconfig.py` binden nun
+zusätzlich Pfadvariablen/Configure-Schlüssel und fünf statische
+Installationsschemas mit acht Pfadschlüsseln. Auch dies sind keine tatsächlichen
+Prefix-, Pfad- oder Schemewerte. Der fokussierte Satz besteht nun 98/98. Als
+nächste getrennte Offlinearbeit bleiben die übrigen 15
 S15-Felder und P11-Recordquellen sowie danach das gemeinsame
 Fünf-Formen-/64-KiB-Gate maßgeblich. Sie sind keine Laufzeitfreigabe und dürfen
 nicht aus dem Kandidatenscan abgeleitet werden. Details und lokale Grenze

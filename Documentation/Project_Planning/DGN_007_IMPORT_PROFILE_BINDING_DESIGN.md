@@ -5273,3 +5273,36 @@ welche Builtins/Extensions tatsächlich gebaut, installiert oder geladen wurden.
 Die Testsektion bleibt von den 68 regulären Vorlagenzeilen getrennt. Der
 Importkandidatenscan bleibt `CANDIDATES_ONLY` mit unveränderten 93 Modulen,
 578 Kanten, 534 Funktionen und unverändertem Kandidatenzeilendigest.
+
+### Fortsetzung: Quellgebundene Pfad- und Sysconfig-Verträge
+
+Der Scanner bindet die bereits in §19.8 gepinnten Quellen `Modules/getpath.py`
+(34.063 Bytes, SHA-256
+`46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2`) und
+`Lib/sysconfig.py` (31.850 Bytes, SHA-256
+`ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8`). Die
+reine AST-Sichtung benennt 14 Pfadvariablen aus `getpath.py` und 20 statisch
+referenzierte `config`-Schlüssel; ihre sortierten Digests lauten
+`bdcad56b3a4446d0e652b5ee1f7d0895bdc9807592b25d33901cb1eac3279abd` und
+`42155ef04eb6d4c950e1d08868183b6cf072e6521c1371c6008137627473f8bc`. Das
+belegt nur die statischen Eingabe-/Variablennamen der Pfadlogik.
+
+`sysconfig.py` enthält fünf literal auswertbare Installationsschemas (`nt`,
+`nt_venv`, `posix_home`, `posix_prefix`, `posix_venv`) und acht Pfadschlüssel
+(`data`, `include`, `platinclude`, `platlib`, `platstdlib`, `purelib`,
+`scripts`, `stdlib`). Die sortierten Namensdigests sind
+`1e795893c12f6069a72381ceb866f746204864d43e6dac20f7ec8505962e3951` und
+`a725e19c10bda20f04765467a32ffc91bb139907105912e54eaa86921b72063f`.
+Die 40 kanonisch sortierten `(Schema, Schlüssel, Template)`-Zeilen sind durch
+`f6018b0d6c5f96cc229a545081348df21458c36971a23de4a0bad96606c08c62` gebunden.
+Außerdem sind die statischen Aufrufanker `_get_sysconfigdata_name`,
+`get_config_var(s)`, `get_path(s)` und `get_path_names` vorhanden. Die
+Gegenproben prüfen beide Quellen und weisen ausführbare Schemakonstruktion
+zurück; der fokussierte Satz besteht 98/98.
+
+Quellvariablen und Scheme-Templates bestimmen keine tatsächlichen Prefixe,
+Suchpfade, Umgebungswerte, ausgewählten Scheme-/Loaderzustände oder Zielimage-
+Werte. Es fand kein Interpreterstart statt. Vollständige S15-/P11-Sollfelder,
+operative Inventur und das gemeinsame Fünf-Formen-/64-KiB-Gate bleiben offen;
+der Importkandidatenscan bleibt `CANDIDATES_ONLY` mit 93 Modulen/578 Kanten/534
+Funktionen und unverändertem Zeilendigest.
