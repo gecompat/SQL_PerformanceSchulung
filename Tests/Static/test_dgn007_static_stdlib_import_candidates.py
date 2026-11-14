@@ -993,6 +993,133 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(imports, ("posix", "bytes_env"))
         self.assertEqual(unknown, [])
 
+    def test_target_pyconfig_binds_native_posix_export_facts(self):
+        os_source = (
+            b"import sys\n_names = sys.builtin_module_names\n"
+            b"def _exists(name):\n    return name in globals()\n"
+            b"if 'posix' in _names:\n    name = 'posix'\n"
+            b"    from posix import *\n"
+            b"    try:\n        from posix import _have_functions\n"
+            b"    except ImportError:\n        pass\n"
+            b"elif 'nt' in _names:\n    name = 'nt'\n"
+            b"if _exists('_have_functions'):\n    pass\n"
+            b"if not _exists('fspath'):\n    pass\n"
+        )
+        posix_source = (
+            b"static PyMemberDef DirEntry_members[] = {\n"
+            b'{"name", T_OBJECT_EX, READONLY};\n'
+            b"static PyMethodDef posix_methods[] = {\n"
+            b"OS_FSPATH_METHODDEF\nOS_STATVFS_METHODDEF\n"
+            b"OS_FSTATVFS_METHODDEF\nOS_LCHOWN_METHODDEF\n"
+            b"OS_REGISTER_AT_FORK_METHODDEF\nOS_FORK_METHODDEF\n"
+            b"OS_EXECV_METHODDEF\nOS_SPAWNV_METHODDEF\n};\n"
+            b"static int posixmodule_exec(PyObject *m) {\n"
+            b'    return _PyModule_Add(m, "_have_functions", list);\n}\n'
+            b"static PyModuleDef_Slot posixmodile_slots[] = {\n"
+            b"    {Py_mod_exec, posixmodule_exec},\n};\n"
+            b"static struct PyModuleDef posixmodule = {.m_methods = posix_methods, "
+            b".m_slots = posixmodile_slots};\n"
+        )
+        clinic_source = (
+            b'static const char * const _keywords[] = {"path", "name", NULL};\n'
+            b'static _PyArg_Parser _parser = {.keywords = _keywords, '
+            b'.fname = "pathconf"};\n'
+            b'static const char * const _keywords[] = {"name", "flags", NULL};\n'
+            b'static _PyArg_Parser _parser = {.keywords = _keywords, '
+            b'.fname = "memfd_create"};\n'
+            b"#define OS_FSPATH_METHODDEF \\\n    {\"fspath\", impl},\n"
+            b"#if (defined(HAVE_STATVFS) && defined(HAVE_SYS_STATVFS_H))\n"
+            b"#define OS_STATVFS_METHODDEF \\\n    {\"statvfs\", impl},\n#endif\n"
+            b"#if (defined(HAVE_FSTATVFS) && defined(HAVE_SYS_STATVFS_H))\n"
+            b"#define OS_FSTATVFS_METHODDEF \\\n    {\"fstatvfs\", impl},\n#endif\n"
+            b"#if defined(HAVE_LCHOWN)\n#define OS_LCHOWN_METHODDEF \\\n"
+            b"    {\"lchown\", impl},\n#endif\n"
+            b"#if defined(HAVE_FORK)\n#define OS_REGISTER_AT_FORK_METHODDEF \\\n"
+            b"    {\"register_at_fork\", impl},\n#endif\n"
+            b"#if defined(HAVE_FORK)\n#define OS_FORK_METHODDEF \\\n"
+            b"    {\"fork\", impl},\n#endif\n"
+            b"#if defined(HAVE_EXECV)\n#define OS_EXECV_METHODDEF \\\n"
+            b"    {\"execv\", impl},\n#endif\n"
+            b"#if (defined(HAVE_SPAWNV) || defined(HAVE_WSPAWNV) || "
+            b"defined(HAVE_RTPSPAWN))\n#define OS_SPAWNV_METHODDEF \\\n"
+            b"    {\"spawnv\", impl},\n#endif\n"
+        )
+        pyconfig = (
+            b"#define HAVE_STATVFS 1\n#define HAVE_FSTATVFS 1\n"
+            b"#define HAVE_SYS_STATVFS_H 1\n#define HAVE_LCHOWN 1\n"
+            b"#define HAVE_FORK 1\n#define HAVE_EXECV 1\n"
+        )
+        with patch.object(
+            SUBJECT, "OS_SOURCE_SHA256", hashlib.sha256(os_source).hexdigest()
+        ), patch.object(
+            SUBJECT, "POSIX_MODULE_C_SHA256", hashlib.sha256(posix_source).hexdigest()
+        ), patch.object(
+            SUBJECT, "POSIX_MODULE_CLINIC_SHA256", hashlib.sha256(clinic_source).hexdigest()
+        ), patch.object(
+            SUBJECT, "TARGET_PYCONFIG_SHA256", hashlib.sha256(pyconfig).hexdigest()
+        ):
+            facts = SUBJECT._target_posix_build_call_facts(
+                {"os.py": os_source}, posix_source, clinic_source, pyconfig
+            )
+            self.assertEqual(SUBJECT._target_posix_build_call_facts(
+                {"os.py": os_source}, posix_source, clinic_source,
+                pyconfig + b"#define HAVE_SPAWNV 1\n",
+            ), ())
+        self.assertIn(("_exists('statvfs') and _exists('fstatvfs')", True), facts)
+        self.assertIn(("_exists('lchown')", True), facts)
+        self.assertIn(("_exists('fork') and (not _exists('spawnv')) and _exists('execv')", True), facts)
+        self.assertIn(("_exists('spawnv')", False), facts)
+        self.assertIn(("_exists('spawnvp')", False), facts)
+        self.assertIn(("hasattr(os, 'register_at_fork')", True), facts)
+
+    def test_linux_thread_native_id_source_binds_threading_flag(self):
+        header = (
+            b"#if (defined(__APPLE__) || defined(__linux__) || defined(_WIN32) "
+            b"|| defined(__FreeBSD__))\n#define PY_HAVE_THREAD_NATIVE_ID\n#endif\n"
+        )
+        module = (
+            b"#ifdef PY_HAVE_THREAD_NATIVE_ID\n"
+            b"static PyObject * thread_get_native_id(void) { return NULL; }\n"
+            b"#endif\nstatic PyMethodDef thread_methods[] = {\n"
+            b"#ifdef PY_HAVE_THREAD_NATIVE_ID\n"
+            b'{"get_native_id", thread_get_native_id, METH_NOARGS, doc},\n'
+            b"#endif\n};\n"
+        )
+        pthread = b"unsigned long PyThread_get_thread_native_id(void) { return 0; }\n"
+        threading_source = (
+            b"import _thread\ntry:\n"
+            b"    get_native_id = _thread.get_native_id\n"
+            b"    _HAVE_THREAD_NATIVE_ID = True\n"
+            b"except AttributeError:\n    _HAVE_THREAD_NATIVE_ID = False\n"
+        )
+        pyconfig = b"#define HAVE_PTHREAD_H 1\n"
+        with patch.object(
+            SUBJECT, "THREAD_NATIVE_ID_HEADER_SHA256", hashlib.sha256(header).hexdigest()
+        ), patch.object(
+            SUBJECT, "THREAD_NATIVE_ID_MODULE_SHA256", hashlib.sha256(module).hexdigest()
+        ), patch.object(
+            SUBJECT, "THREAD_NATIVE_ID_PTHREAD_SHA256", hashlib.sha256(pthread).hexdigest()
+        ), patch.object(
+            SUBJECT, "THREADING_SOURCE_SHA256", hashlib.sha256(threading_source).hexdigest()
+        ), patch.object(
+            SUBJECT, "TARGET_PYCONFIG_SHA256", hashlib.sha256(pyconfig).hexdigest()
+        ):
+            self.assertEqual(SUBJECT._target_threading_native_id_name_facts(
+                {"threading.py": threading_source}, header, module, pthread, pyconfig
+            ), {"_HAVE_THREAD_NATIVE_ID": True})
+            non_linux = header.replace(
+                b"defined(__APPLE__) || defined(__linux__)",
+                b"defined(__WINDOWS__) || defined(__unix__)",
+            )
+            with patch.object(
+                SUBJECT, "THREAD_NATIVE_ID_HEADER_SHA256",
+                hashlib.sha256(non_linux).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_threading_native_id_name_facts(
+                    {"threading.py": threading_source}, non_linux, module, pthread,
+                    pyconfig,
+                ), {})
+
     def test_importlib_windows_name_fact_requires_digest_and_direct_binding(self):
         source = (
             b"import sys\n"

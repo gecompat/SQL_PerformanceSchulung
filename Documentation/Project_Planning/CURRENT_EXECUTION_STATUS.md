@@ -9663,3 +9663,26 @@ ist die Bytes-Umgebungswache wahr. Der Scanner erhält diesen belegten Wert
 entschieden und 15 unbekannt. Der Unbekannt-Bedingungsdigest lautet
 `e50bac923980d1e93e89f3e2944cdf9fad48d3644cd2cd47c58c5b9ab6afbb29`.
 Der fokussierte Satz besteht 127/127 lokal.
+
+### Fortsetzung: Compile-time-Guards aus dem gepinnten CPython-Buildprofil
+
+Der CPython-3.12.16-Scanner kann jetzt optional `--target-pyconfig` erhalten.
+Er akzeptiert ausschließlich den dokumentierten 55.818-Byte-Header mit SHA-256
+`22a6bfe20214fb395e546edd499f826d9d4be7b7b1289b0d391255145a207ed5` aus Layer
+`7f0ea382d75a163999c21529b19913d158821816106eed6f02039f8fdf346779` des
+geprüften Childmanifests `3c3ba8ad4c85eb63b7568f806434f14e33370056985da7fdf2673621cb1d7e93`.
+Die Compile-time-Bindung entscheidet neun weitere Zielwachen: native
+`posix`-Exports für `statvfs`/`fstatvfs`, `lchown`, `fork`, `execv` und
+`register_at_fork`, fehlende `spawnv`-/`spawnvp`-Exporte sowie die beiden
+`threading._HAVE_THREAD_NATIVE_ID`-Wachen. Letztere folgen aus dem Linux-Gate
+in `Include/pythread.h`, der nativen `_thread`-Methodentabelle und dem
+`threading.py`-Fallback.
+
+Der optionale Scan bleibt `CANDIDATES_ONLY` bei 56 Kandidaten und 278 Kanten;
+36 Bedingungen sind entschieden und 6 unbekannt. Der Digest der offenen
+Bedingungen ist
+`e8de317faa34e32b567c6144d43bfbc43847f3824305a37da9329b6cbc3251d2`. Die
+Descriptor-Supportwache hängt von tatsächlichen Feature-Probes ab; fünf
+`sysconfig`-Wachen benötigen Laufzeit-/Umgebungswerte. Der Standardscan ohne
+Buildheader bleibt unverändert. Der Header belegt weder unabhängige
+Buildherkunft noch tatsächliche Importclosure oder P11-Sollrecords.

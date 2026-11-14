@@ -46,6 +46,16 @@ POSIX_MODULE_C_MEMBER = "Python-3.12.16/Modules/posixmodule.c"
 POSIX_MODULE_C_SHA256 = "a8f1410ad95326648a473672ee3bf8158a5f744b7c032c0142327fb252688ab4"
 POSIX_MODULE_CLINIC_MEMBER = "Python-3.12.16/Modules/clinic/posixmodule.c.h"
 POSIX_MODULE_CLINIC_SHA256 = "dd89b7a30073abfad8f082966f135a343ca4e1b7b856e3ba696a6e9c27870747"
+TARGET_PYCONFIG_SHA256 = "22a6bfe20214fb395e546edd499f826d9d4be7b7b1289b0d391255145a207ed5"
+TARGET_IMAGE_MANIFEST_SHA256 = "3c3ba8ad4c85eb63b7568f806434f14e33370056985da7fdf2673621cb1d7e93"
+TARGET_IMAGE_CONFIG_LAYER_SHA256 = "7f0ea382d75a163999c21529b19913d158821816106eed6f02039f8fdf346779"
+THREADING_SOURCE_SHA256 = "846f450ae794e4aab823a163f8c71d27751148af33e91dd3de886686a4e8ebfb"
+THREAD_NATIVE_ID_HEADER_MEMBER = "Python-3.12.16/Include/pythread.h"
+THREAD_NATIVE_ID_HEADER_SHA256 = "cd063073710988ea21b54588473542e5f3b2be06f637dc5a028aefd5a7949144"
+THREAD_NATIVE_ID_MODULE_MEMBER = "Python-3.12.16/Modules/_threadmodule.c"
+THREAD_NATIVE_ID_MODULE_SHA256 = "277217c4a704bc84f9b7caf79123eaed8a45288c3023747e457df5d817cc8bc1"
+THREAD_NATIVE_ID_PTHREAD_MEMBER = "Python-3.12.16/Python/thread_pthread.h"
+THREAD_NATIVE_ID_PTHREAD_SHA256 = "467f48143ba6bd2dc8f139934d46fdaefe48b11ddf19e476a71ad156996f9195"
 GETPATH_SOURCE_MEMBER = "Python-3.12.16/Modules/getpath.py"
 GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2"
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
@@ -71,6 +81,7 @@ MAX_WARNINGS_C_BYTES = 64 * 1024
 MAX_WARNINGS_CLINIC_BYTES = 16 * 1024
 MAX_POSIX_MODULE_C_BYTES = 512 * 1024
 MAX_POSIX_MODULE_CLINIC_BYTES = 384 * 1024
+MAX_TARGET_PYCONFIG_BYTES = 64 * 1024
 ROOTS = (
     "dataclasses", "hashlib", "importlib.machinery", "importlib.util", "json",
     "os", "struct", "sys", "sysconfig", "types", "zipimport", "zlib",
@@ -105,6 +116,14 @@ def _source_archive_data(archive_bytes):
     warnings_clinic_source = None
     posix_module_c_source = None
     posix_module_clinic_source = None
+    thread_native_id_header = None
+    thread_native_id_module = None
+    thread_native_id_pthread = None
+    thread_source_members = {
+        THREAD_NATIVE_ID_HEADER_MEMBER: "header",
+        THREAD_NATIVE_ID_MODULE_MEMBER: "module",
+        THREAD_NATIVE_ID_PTHREAD_MEMBER: "pthread",
+    }
     total = 0
     with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:xz") as source:
         for member in source:
@@ -250,6 +269,33 @@ def _source_archive_data(archive_bytes):
                 else:
                     posix_module_clinic_source = body
                 continue
+            if member.name in thread_source_members:
+                source_key = thread_source_members[member.name]
+                current = {
+                    "header": thread_native_id_header,
+                    "module": thread_native_id_module,
+                    "pthread": thread_native_id_pthread,
+                }[source_key]
+                expected = {
+                    "header": THREAD_NATIVE_ID_HEADER_SHA256,
+                    "module": THREAD_NATIVE_ID_MODULE_SHA256,
+                    "pthread": THREAD_NATIVE_ID_PTHREAD_SHA256,
+                }[source_key]
+                if not member.isfile() or current is not None or member.size > MAX_AST_C_BYTES:
+                    raise ValueError("THREAD_NATIVE_ID_SOURCE_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("THREAD_NATIVE_ID_SOURCE_MEMBER")
+                body = stream.read(member.size + 1)
+                if len(body) != member.size or hashlib.sha256(body).hexdigest() != expected:
+                    raise ValueError("THREAD_NATIVE_ID_SOURCE_DIGEST")
+                if source_key == "header":
+                    thread_native_id_header = body
+                elif source_key == "module":
+                    thread_native_id_module = body
+                else:
+                    thread_native_id_pthread = body
+                continue
             if member.name == STDLIB_MODULE_NAMES_MEMBER:
                 if not member.isfile() or stdlib_header is not None \
                         or member.size > MAX_STDLIB_MODULE_NAMES_BYTES:
@@ -285,7 +331,8 @@ def _source_archive_data(archive_bytes):
     return (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
             getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source,
             sys_module_c_source, sys_module_clinic_source, warnings_c_source,
-            warnings_clinic_source, posix_module_c_source, posix_module_clinic_source)
+            warnings_clinic_source, posix_module_c_source, posix_module_clinic_source,
+            thread_native_id_header, thread_native_id_module, thread_native_id_pthread)
 
 
 def _source_files(archive_path):
@@ -1718,6 +1765,190 @@ def _target_os_have_functions_call_facts(files, posix_source, clinic_source):
     return (("_exists('_have_functions')", True),)
 
 
+def _target_posix_build_call_facts(files, posix_source, clinic_source,
+                                  pyconfig_source):
+    """Bind compile-time posix methods to the selected image's pyconfig.h."""
+    if (type(pyconfig_source) is not bytes
+            or len(pyconfig_source) > MAX_TARGET_PYCONFIG_BYTES
+            or hashlib.sha256(pyconfig_source).hexdigest() != TARGET_PYCONFIG_SHA256
+            or type(posix_source) is not bytes
+            or hashlib.sha256(posix_source).hexdigest() != POSIX_MODULE_C_SHA256
+            or type(clinic_source) is not bytes
+            or hashlib.sha256(clinic_source).hexdigest() != POSIX_MODULE_CLINIC_SHA256
+            or _target_os_have_functions_call_facts(
+                files, posix_source, clinic_source
+            ) != (("_exists('_have_functions')", True),)):
+        return ()
+    config_text = pyconfig_source.decode("ascii")
+    config = set(re.findall(r"(?m)^#define (HAVE_[A-Z0-9_]+) 1$", config_text))
+    c_text = posix_source.decode("utf-8")
+    clinic_text = clinic_source.decode("utf-8")
+    method_table = re.search(
+        r"(?s)static PyMethodDef posix_methods\[\] = \{(.*?)\n\};",
+        c_text,
+    )
+    if (method_table is None
+            or not re.search(r"\.m_methods = posix_methods", c_text)):
+        return ()
+    table = method_table.group(1)
+
+    def guarded_method(feature_condition, macro, exported_name):
+        return bool(
+            re.search(
+                r"(?s)#if " + feature_condition + r".*?#define " + macro
+                + r"\s+\\\s*\{\s*\"" + re.escape(exported_name) + r"\"",
+                clinic_text,
+            )
+            and re.search(r"(?m)^\s*" + macro + r"\s*$", table)
+        )
+
+    facts = []
+    have_statvfs = (
+        "HAVE_STATVFS" in config and "HAVE_SYS_STATVFS_H" in config
+        and guarded_method(
+            r"\(defined\(HAVE_STATVFS\) && defined\(HAVE_SYS_STATVFS_H\)\)",
+            "OS_STATVFS_METHODDEF", "statvfs",
+        )
+    )
+    have_fstatvfs = (
+        "HAVE_FSTATVFS" in config and "HAVE_SYS_STATVFS_H" in config
+        and guarded_method(
+            r"\(defined\(HAVE_FSTATVFS\) && defined\(HAVE_SYS_STATVFS_H\)\)",
+            "OS_FSTATVFS_METHODDEF", "fstatvfs",
+        )
+    )
+    have_lchown = (
+        "HAVE_LCHOWN" in config
+        and guarded_method(r"defined\(HAVE_LCHOWN\)",
+                           "OS_LCHOWN_METHODDEF", "lchown")
+    )
+    have_fork = (
+        "HAVE_FORK" in config
+        and guarded_method(r"defined\(HAVE_FORK\)",
+                           "OS_REGISTER_AT_FORK_METHODDEF", "register_at_fork")
+        and guarded_method(r"defined\(HAVE_FORK\)",
+                           "OS_FORK_METHODDEF", "fork")
+    )
+    have_execv = (
+        "HAVE_EXECV" in config
+        and guarded_method(r"defined\(HAVE_EXECV\)",
+                           "OS_EXECV_METHODDEF", "execv")
+    )
+    spawnv_features = {"HAVE_SPAWNV", "HAVE_WSPAWNV", "HAVE_RTPSPAWN"}
+    spawnv_enabled = bool(config & spawnv_features)
+    spawnv_method_guarded = guarded_method(
+        r"\(defined\(HAVE_SPAWNV\) \|\| defined\(HAVE_WSPAWNV\) \|\| "
+        r"defined\(HAVE_RTPSPAWN\)\)", "OS_SPAWNV_METHODDEF", "spawnv"
+    )
+    have_spawnv = spawnv_enabled and spawnv_method_guarded
+    if have_statvfs and have_fstatvfs:
+        facts.append(("_exists('statvfs') and _exists('fstatvfs')", True))
+    if have_lchown:
+        facts.append(("_exists('lchown')", True))
+    if have_fork:
+        facts.extend((
+            ("hasattr(os, 'register_at_fork')", True),
+            ("_exists('fork')", True),
+        ))
+    if have_execv:
+        facts.append(("_exists('execv')", True))
+    if not spawnv_enabled and spawnv_method_guarded:
+        facts.append(("_exists('spawnv')", False))
+    if (b"spawnvp" not in posix_source
+            and b"spawnvp" not in clinic_source):
+        facts.append(("_exists('spawnvp')", False))
+    if have_fork and not have_spawnv and have_execv:
+        facts.append((
+            "_exists('fork') and (not _exists('spawnv')) and _exists('execv')",
+            True,
+        ))
+    return tuple(sorted(facts))
+
+
+def _target_threading_os_alias_facts(files):
+    """Carry the proven os.register_at_fork method through threading's alias."""
+    source = files.get("threading.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != THREADING_SOURCE_SHA256):
+        return ()
+    tree = ast.parse(source, filename="threading.py")
+    aliases = [alias for node in tree.body if isinstance(node, ast.Import)
+               for alias in node.names if alias.name == "os" and alias.asname == "_os"]
+    if (len(aliases) != 1
+            or any(isinstance(node, ast.Name) and node.id == "_os"
+                   and isinstance(node.ctx, (ast.Store, ast.Del))
+                   for node in ast.walk(tree))):
+        return ()
+    return (("hasattr(_os, 'register_at_fork')", True),)
+
+
+def _target_threading_native_id_name_facts(
+        files, header_source, module_source, pthread_source, pyconfig_source):
+    """Bind threading's native-id flag to the pinned Linux CPython build path."""
+    if (_TARGET_BUILTIN_MEMBERSHIP.get("_thread") is not True
+            or type(pyconfig_source) is not bytes
+            or hashlib.sha256(pyconfig_source).hexdigest() != TARGET_PYCONFIG_SHA256):
+        return {}
+    sources = (
+        (header_source, THREAD_NATIVE_ID_HEADER_SHA256),
+        (module_source, THREAD_NATIVE_ID_MODULE_SHA256),
+        (pthread_source, THREAD_NATIVE_ID_PTHREAD_SHA256),
+    )
+    if any(type(source) is not bytes or hashlib.sha256(source).hexdigest() != expected
+           for source, expected in sources):
+        return {}
+    header = header_source.decode("utf-8")
+    module = module_source.decode("utf-8")
+    pthread = pthread_source.decode("utf-8")
+    threading_source = files.get("threading.py")
+    if (type(threading_source) is not bytes
+            or hashlib.sha256(threading_source).hexdigest() != THREADING_SOURCE_SHA256
+            or not re.search(
+                r"(?s)#if \(defined\(__APPLE__\) \|\| defined\(__linux__\).*?"
+                r"#define PY_HAVE_THREAD_NATIVE_ID",
+                header,
+            )
+            or not re.search(
+                r"(?s)#ifdef PY_HAVE_THREAD_NATIVE_ID.*?thread_get_native_id.*?"
+                r"#endif",
+                module,
+            )
+            or not re.search(
+                r"(?s)#ifdef PY_HAVE_THREAD_NATIVE_ID\s*\{\"get_native_id\",\s*"
+                r"thread_get_native_id,.*?#endif",
+                module,
+            )
+            or "PyThread_get_thread_native_id" not in pthread):
+        return {}
+    tree = ast.parse(threading_source, filename="threading.py")
+    native_id_tries = [node for node in tree.body if isinstance(node, ast.Try)
+                       and any(isinstance(statement, ast.Assign)
+                               and any(isinstance(target, ast.Name)
+                                       and target.id == "get_native_id"
+                                       for target in statement.targets)
+                               for statement in node.body)]
+    if (len(native_id_tries) != 1
+            or not any(isinstance(statement, ast.Assign)
+                       and any(isinstance(target, ast.Name)
+                               and target.id == "_HAVE_THREAD_NATIVE_ID"
+                               for target in statement.targets)
+                       and isinstance(statement.value, ast.Constant)
+                       and statement.value.value is True
+                       for statement in native_id_tries[0].body)
+            or not any(isinstance(handler.type, ast.Name)
+                       and handler.type.id == "AttributeError"
+                       and any(isinstance(statement, ast.Assign)
+                               and any(isinstance(target, ast.Name)
+                                       and target.id == "_HAVE_THREAD_NATIVE_ID"
+                                       for target in statement.targets)
+                               and isinstance(statement.value, ast.Constant)
+                               and statement.value.value is False
+                               for statement in handler.body)
+                       for handler in native_id_tries[0].handlers)):
+        return {}
+    return {"_HAVE_THREAD_NATIVE_ID": True}
+
+
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
@@ -1730,6 +1961,10 @@ def _target_condition(node, known_names=None, known_call_facts=None):
     }
     known_names = known_names or {}
     known_call_facts = known_call_facts or ()
+    expression = ast.unparse(node)
+    for fact_expression, fact_value in known_call_facts:
+        if expression == fact_expression:
+            return fact_value
 
     def value(expr):
         if isinstance(expr, ast.Call):
@@ -2165,6 +2400,8 @@ def _target_platform_candidate_closure(
         elif module == "warnings":
             aliases.update((known_name_facts or {}).get(module, {}))
         elif module == "os":
+            aliases.update((known_name_facts or {}).get(module, {}))
+        elif module == "threading":
             aliases.update((known_name_facts or {}).get(module, {}))
         preserve_imported_name = (
             module in preserve_imported_name_modules
@@ -3538,12 +3775,13 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
     return tuple(sorted(reached)), edges, functions, hashlib.sha256(b"".join(rows)).hexdigest(), conditions
 
 
-def analyze(archive_path):
+def analyze(archive_path, target_pyconfig_path=None):
     (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
      getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source,
      sys_module_c_source, sys_module_clinic_source, warnings_c_source,
      warnings_clinic_source, posix_module_c_source,
-     posix_module_clinic_source) = _source_archive_data(
+     posix_module_clinic_source, thread_native_id_header,
+     thread_native_id_module, thread_native_id_pthread) = _source_archive_data(
         _archive_bytes(archive_path)
     )
     if stdlib_header is None:
@@ -3604,6 +3842,28 @@ def analyze(archive_path):
     os_have_functions_call_facts = _target_os_have_functions_call_facts(
         files, posix_module_c_source, posix_module_clinic_source
     )
+    target_pyconfig_source = None
+    if target_pyconfig_path is not None:
+        with Path(target_pyconfig_path).open("rb") as stream:
+            target_pyconfig_source = stream.read(MAX_TARGET_PYCONFIG_BYTES + 1)
+        if (len(target_pyconfig_source) > MAX_TARGET_PYCONFIG_BYTES
+                or hashlib.sha256(target_pyconfig_source).hexdigest()
+                != TARGET_PYCONFIG_SHA256):
+            raise ValueError("TARGET_PYCONFIG_MISMATCH")
+    posix_build_call_facts = _target_posix_build_call_facts(
+        files, posix_module_c_source, posix_module_clinic_source,
+        target_pyconfig_source,
+    ) if target_pyconfig_source is not None else ()
+    threading_os_alias_call_facts = _target_threading_os_alias_facts(files)
+    if not any(fact[0] == "hasattr(os, 'register_at_fork')"
+               for fact in posix_build_call_facts):
+        threading_os_alias_call_facts = ()
+    threading_native_id_facts = (
+        _target_threading_native_id_name_facts(
+            files, thread_native_id_header, thread_native_id_module,
+            thread_native_id_pthread, target_pyconfig_source,
+        ) if target_pyconfig_source is not None else {}
+    )
     target_imported_name_safe_modules = tuple(sorted(
         module for module in ("ast", "dis", "inspect", "os", "sysconfig", "tokenize")
         if (_target_imported_name_star_imports_safe(files, module)
@@ -3618,6 +3878,7 @@ def analyze(archive_path):
         types_descriptor_call_facts + ast_compatibility_call_facts
         + sys_getframe_call_facts + tuple(warnings_default_call_facts.items())
         + os_fspath_call_facts + os_have_functions_call_facts
+        + posix_build_call_facts + threading_os_alias_call_facts
     ))
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
@@ -3627,7 +3888,8 @@ def analyze(archive_path):
             files, unknown_conditions=target_unknown_conditions,
             known_call_facts=target_call_facts,
             known_name_facts={"warnings": warnings_default_call_facts,
-                              "os": os_name_facts},
+                              "os": os_name_facts,
+                              "threading": threading_native_id_facts},
             preserve_imported_name_modules=target_imported_name_safe_modules,
         )
     )
@@ -3814,6 +4076,30 @@ def analyze(archive_path):
         "target_platform_posix_module_clinic_sha256": POSIX_MODULE_CLINIC_SHA256,
         "target_platform_os_fspath_call_facts": list(os_fspath_call_facts),
         "target_platform_os_have_functions_call_facts": list(os_have_functions_call_facts),
+        "target_platform_posix_build_call_facts": list(posix_build_call_facts),
+        "target_platform_threading_os_alias_call_facts": list(
+            threading_os_alias_call_facts
+        ),
+        "target_platform_threading_native_id_name_facts": list(
+            threading_native_id_facts.items()
+        ),
+        "target_platform_thread_native_id_source_sha256": {
+            "header": THREAD_NATIVE_ID_HEADER_SHA256,
+            "module": THREAD_NATIVE_ID_MODULE_SHA256,
+            "pthread": THREAD_NATIVE_ID_PTHREAD_SHA256,
+        },
+        "target_platform_pyconfig_sha256": (
+            hashlib.sha256(target_pyconfig_source).hexdigest()
+            if target_pyconfig_source is not None else None
+        ),
+        "target_platform_image_manifest_sha256": (
+            TARGET_IMAGE_MANIFEST_SHA256
+            if target_pyconfig_source is not None else None
+        ),
+        "target_platform_pyconfig_layer_sha256": (
+            TARGET_IMAGE_CONFIG_LAYER_SHA256
+            if target_pyconfig_source is not None else None
+        ),
         "target_platform_types_source_sha256": _TYPES_SOURCE_SHA256,
         "target_platform_inspect_source_sha256": _INSPECT_SOURCE_SHA256,
         "target_platform_builtin_membership": _TARGET_BUILTIN_MEMBERSHIP,
@@ -3839,9 +4125,13 @@ def analyze(archive_path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("archive", type=Path, help="signaturgeprüftes CPython-3.12.16-Quellarchiv")
+    parser.add_argument(
+        "--target-pyconfig", type=Path,
+        help="Digest-geprüfte pyconfig.h aus dem ausgewählten CPython-Zielimage",
+    )
     args = parser.parse_args()
     try:
-        result = analyze(args.archive)
+        result = analyze(args.archive, args.target_pyconfig)
     except (OSError, tarfile.TarError, UnicodeError, SyntaxError, ValueError):
         print(json.dumps({"status": "NOT_PROVEN", "issue": "SOURCE_INPUT_REJECTED"},
                          separators=(",", ":")))
