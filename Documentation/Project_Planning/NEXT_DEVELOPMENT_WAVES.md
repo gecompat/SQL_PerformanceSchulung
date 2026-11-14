@@ -1595,3 +1595,7 @@ unverändert; Scope und Rebinding bleiben unbewertet.
 Direkte Stringkonstanten in Namenszuweisungen können nun ebenfalls ein
 dynamisches Importargument binden; relative und berechnete Namen bleiben
 ausgeschlossen. 105/105 fokussierte Tests, Archivkennzahlen unverändert.
+
+Direkte Konkatenation zweier Stringkonstanten wird inline und in einer
+Zuweisung statisch erkannt; relative und sonstige Ausdrücke bleiben offen.
+105/105 fokussiert, Archivkennzahlen unverändert.

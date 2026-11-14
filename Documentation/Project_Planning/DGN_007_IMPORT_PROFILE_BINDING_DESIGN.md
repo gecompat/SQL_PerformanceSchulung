@@ -5443,3 +5443,9 @@ Importfunktionen. Variablen mit relativen Modulstrings und berechnete Namen
 bleiben unaufgelöst. Die Gegenprobe prüft beides; fokussiert 105/105, Archiv-
 closure und Modulstartwerte samt Digests unverändert. Das Mapping berücksichtigt
 keine Kontrollfluss-, Scope- oder spätere Rebindingsemantik.
+
+Die Literalregel akzeptiert jetzt außerdem direkte Stringkonkatenation aus
+zwei Konstanten, sowohl inline als Importargument als auch in einer direkten
+Namenszuweisung. Andere Ausdrücke und relative Ergebnisse bleiben
+unaufgelöst. Gegenproben prüfen beide Formen und die Ausschlüsse; fokussiert
+105/105, Archivclosure und Modulstartscan unverändert.

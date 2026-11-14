@@ -694,6 +694,17 @@ def _module_path(module, files):
 
 def _import_names(tree, module, path):
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
+
+    def literal_string(node):
+        if isinstance(node, ast.Constant) and type(node.value) is str:
+            return node.value
+        if (isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add)
+                and isinstance(node.left, ast.Constant)
+                and type(node.left.value) is str
+                and isinstance(node.right, ast.Constant)
+                and type(node.right.value) is str):
+            return node.left.value + node.right.value
+
     literal_name_aliases = {}
     for node in ast.walk(tree):
         if isinstance(node, ast.Assign):
@@ -702,13 +713,14 @@ def _import_names(tree, module, path):
             targets = (node.target,)
         else:
             continue
-        if not (isinstance(node.value, ast.Constant)
-                and type(node.value.value) is str
-                and node.value.value and not node.value.value.startswith(".")):
+        literal_value = literal_string(node.value)
+        if literal_value is None:
+            continue
+        if not literal_value or literal_value.startswith("."):
             continue
         for target in targets:
             if isinstance(target, ast.Name):
-                literal_name_aliases.setdefault(target.id, set()).add(node.value.value)
+                literal_name_aliases.setdefault(target.id, set()).add(literal_value)
 
     importlib_module_aliases = {"importlib"}
     import_module_aliases = set()
@@ -786,11 +798,9 @@ def _import_names(tree, module, path):
                     if alias.name != "*":
                         yield base + "." + alias.name
         elif isinstance(node, ast.Call) and node.args:
-            if (isinstance(node.args[0], ast.Constant)
-                    and type(node.args[0].value) is str
-                    and node.args[0].value
-                    and not node.args[0].value.startswith(".")):
-                import_names = (node.args[0].value,)
+            direct_literal = literal_string(node.args[0])
+            if (direct_literal and not direct_literal.startswith(".")):
+                import_names = (direct_literal,)
             elif isinstance(node.args[0], ast.Name):
                 import_names = tuple(sorted(literal_name_aliases.get(node.args[0].id, ())))
             else:
