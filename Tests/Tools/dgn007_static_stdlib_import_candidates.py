@@ -1509,6 +1509,83 @@ def _target_warning_options_empty_for_facts(
     return {"warnings": {loops[0].lineno: "args"}}
 
 
+def _target_importlib_optimize_line_facts(
+        files, preconfig_source, initconfig_source, worker_source):
+    """Bind optimize==0 to the pinned isolated child argv and CPython defaults."""
+    external_source = files.get("importlib/_bootstrap_external.py")
+    sources = (
+        (preconfig_source, PRECONFIG_C_SHA256, MAX_PRECONFIG_C_BYTES),
+        (initconfig_source, INITCONFIG_C_SHA256, MAX_INITCONFIG_C_BYTES),
+        (worker_source, IMPORT_USED_BYTES_PROBE_SHA256,
+         MAX_WORKER_CONTROL_SOURCE_BYTES),
+        (external_source, IMPORTLIB_EXTERNAL_SOURCE_SHA256, MAX_SOURCE_BYTES),
+    )
+    if any(type(source) is not bytes or not source or len(source) > limit
+           or hashlib.sha256(source).hexdigest() != digest
+           for source, digest, limit in sources):
+        return {}
+    preconfig_text = preconfig_source.decode("utf-8")
+    initconfig_text = initconfig_source.decode("utf-8")
+    if (not re.search(
+            r"case 'I':\s*cmdline->isolated\s*=\s*1;", preconfig_text
+            )
+            or not re.search(
+                r"if \(config->isolated\)\s*\{[^}]*config->use_environment\s*=\s*0;",
+                initconfig_text,
+            )
+            or not re.search(
+                r"config->optimization_level\s*=\s*0;", initconfig_text,
+            )
+            or not re.search(
+                r"case 'O':\s*config->optimization_level\+\+;", initconfig_text,
+            )
+            or not re.search(
+                r"config_read_env_vars\(PyConfig \*config\).*?"
+                r"int use_env = config->use_environment;.*?"
+                r"_Py_get_env_flag\(use_env, &config->optimization_level,\s*"
+                r"\"PYTHONOPTIMIZE\"\);", initconfig_text, re.DOTALL,
+            )):
+        return {}
+    try:
+        worker_tree = ast.parse(worker_source, filename="dgn007_import_used_bytes_probe.py")
+        external_tree = ast.parse(external_source, filename="importlib/_bootstrap_external.py")
+    except SyntaxError:
+        return {}
+    run_functions = [node for node in worker_tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name == "run_import_only"]
+    collector_functions = [node for node in worker_tree.body
+                           if isinstance(node, ast.FunctionDef)
+                           and node.name == "_collect_process"]
+    expected_command = (
+        "[sys.executable, '-I', '-S', '-B', '-c', "
+        "_worker_source(ordinal, worker_nonce)]"
+    )
+    command_assignments = [
+        node for node in ast.walk(run_functions[0])
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "command"
+                for target in node.targets)
+    ] if len(run_functions) == 1 else []
+    popen_calls = [
+        node for node in ast.walk(collector_functions[0])
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+        and ast.unparse(node.func) == "subprocess.Popen"
+    ] if len(collector_functions) == 1 else []
+    guards = [node for node in ast.walk(external_tree)
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "sys.flags.optimize == 0"]
+    if (len(command_assignments) != 1
+            or ast.unparse(command_assignments[0].value) != expected_command
+            or len(popen_calls) != 1 or not popen_calls[0].args
+            or not isinstance(popen_calls[0].args[0], ast.Name)
+            or popen_calls[0].args[0].id != "command"
+            or any(keyword.arg == "env" for keyword in popen_calls[0].keywords)
+            or len(guards) != 1):
+        return {}
+    return {guards[0].lineno: True}
+
+
 def _target_imported_name_star_imports_safe(files, module):
     """Keep imported __name__ only across pinned star exports that exclude it."""
     bindings = {
@@ -4870,6 +4947,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         raise ValueError("TARGET_IMAGE_CONFIG_REQUIRED")
     target_image_path_facts = {}
     target_warning_options_empty_for_facts = {}
+    target_importlib_optimize_line_facts = {}
     if target_image_save_path is not None:
         if (not target_direct_python312 or not target_no_site
                 or not target_no_project_base_override
@@ -4887,6 +4965,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         if len(worker_source) <= MAX_WORKER_CONTROL_SOURCE_BYTES:
             target_warning_options_empty_for_facts = (
                 _target_warning_options_empty_for_facts(
+                    files, preconfig_c_source, initconfig_c_source, worker_source,
+                )
+            )
+            target_importlib_optimize_line_facts = (
+                _target_importlib_optimize_line_facts(
                     files, preconfig_c_source, initconfig_c_source, worker_source,
                 )
             )
@@ -5009,6 +5092,8 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     ))
     if target_image_path_facts:
         target_call_facts += (("sys.executable", True),)
+    if target_importlib_optimize_line_facts:
+        target_call_facts += (("sys.flags.optimize == 0", True),)
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     target_unknown_conditions = []
@@ -5063,8 +5148,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "os": os_createenviron_line_facts,
             "codecs": codecs_false_guard_line_facts,
             "pickle": pickle_buffer_line_facts,
+            "importlib._bootstrap_external": target_importlib_optimize_line_facts,
         } if (os_createenviron_line_facts or codecs_false_guard_line_facts
-              or pickle_buffer_line_facts) else {},
+              or pickle_buffer_line_facts or target_importlib_optimize_line_facts) else {},
         trusted_empty_for_facts={
             "warnings": target_warning_options_empty_for_facts.get("warnings", {}),
         } if target_warning_options_empty_for_facts else {},
@@ -5254,6 +5340,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_pickle_buffer_line_facts": list(
             pickle_buffer_line_facts.items()
+        ),
+        "target_platform_importlib_optimize_line_facts": list(
+            target_importlib_optimize_line_facts.items()
         ),
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,
