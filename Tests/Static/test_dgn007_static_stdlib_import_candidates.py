@@ -177,6 +177,60 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(target[4], {"resolved": 1, "unknown": 0})
         self.assertEqual(unknown, [])
 
+    def test_unknown_call_guard_reports_lexical_imports_per_branch(self):
+        files = {
+            "entry.py": (
+                b"if runtime_choice():\n"
+                b"    import selected_branch as selected\n"
+                b"    from package import helper as local_helper\n"
+                b"else:\n"
+                b"    import fallback_branch\n"
+            ),
+            "selected_branch.py": b"VALUE = 'selected'\n",
+            "fallback_branch.py": b"VALUE = 'fallback'\n",
+            "package.py": b"VALUE = 'package'\n",
+        }
+        unknown = []
+        SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",), unknown_conditions=unknown
+        )
+        self.assertEqual(len(unknown), 1)
+        self.assertEqual(unknown[0]["expression"], "runtime_choice()")
+        self.assertEqual(unknown[0]["body_imports"], [
+            {"kind": "import", "line": 2, "names": [
+                {"name": "selected_branch", "asname": "selected"}
+            ]},
+            {"kind": "from", "line": 3, "level": 0, "module": "package",
+             "names": [{"name": "helper", "asname": "local_helper"}]},
+        ])
+        self.assertEqual(unknown[0]["else_imports"], [
+            {"kind": "import", "line": 5, "names": [
+                {"name": "fallback_branch", "asname": None}
+            ]}
+        ])
+
+    def test_lexical_import_inventory_is_deterministic_and_preserves_locations(self):
+        tree = ast.parse(
+            "if check():\n    import zed, alpha as a\n    import zed, alpha as a\n"
+            "else:\n    from .pkg import leaf as item\n"
+        )
+        result = SUBJECT._lexical_import_statements(tree.body[0].body)
+        self.assertEqual(result, [
+            {"kind": "import", "line": 2, "names": [
+                {"name": "alpha", "asname": "a"},
+                {"name": "zed", "asname": None},
+            ]},
+            {"kind": "import", "line": 3, "names": [
+                {"name": "alpha", "asname": "a"},
+                {"name": "zed", "asname": None},
+            ]},
+        ])
+        fallback = SUBJECT._lexical_import_statements(tree.body[0].orelse)
+        self.assertEqual(fallback, [
+            {"kind": "from", "line": 5, "level": 1, "module": "pkg",
+             "names": [{"name": "leaf", "asname": "item"}]}
+        ])
+
     def test_target_module_init_call_scan_applies_source_name_facts(self):
         files = {
             "sysconfig.py": (
