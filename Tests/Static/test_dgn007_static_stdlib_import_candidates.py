@@ -380,6 +380,30 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(inventory["machinery_export_count"], 9)
         self.assertEqual(inventory["util_export_count"], 5)
 
+    def test_configure_sources_bind_builtin_template_and_module_block(self):
+        config_c = (
+            b"/* -- ADDMODULE MARKER 1 -- */\n"
+            b"struct _inittab _PyImport_Inittab[] = {\n"
+            b"/* -- ADDMODULE MARKER 2 -- */\n"
+            b'{"marshal", PyMarshal_Init},\n{"_imp", PyInit__imp},\n'
+            b'{"_ast", PyInit__ast},\n{"_tokenize", PyInit__tokenize},\n'
+            b'{"builtins", NULL},\n{"sys", NULL},\n{"gc", PyInit_gc},\n'
+            b'{"_warnings", _PyWarnings_Init},\n{"_string", PyInit__string},\n'
+        )
+        configure = (
+            b"AC_DEFUN([_MODULE_BLOCK_ADD], [AS_VAR_APPEND([MODULE_BLOCK])])\n"
+            b"MODULE_BLOCK=\nAC_SUBST([MODULE_BLOCK])\n"
+            b"AC_SUBST([MODULE_BUILDTYPE])\n"
+        )
+        with patch.object(
+            SUBJECT, "CONFIG_C_TEMPLATE_SHA256", hashlib.sha256(config_c).hexdigest()
+        ), patch.object(
+            SUBJECT, "CONFIGURE_SOURCE_SHA256", hashlib.sha256(configure).hexdigest()
+        ):
+            inventory = SUBJECT._configure_template_inventory(config_c, configure)
+        self.assertEqual(inventory["config_c_row_count"], 9)
+        self.assertEqual(inventory["configure_module_anchor_count"], 4)
+
 
     def test_relative_imports_and_function_imports_are_candidates(self):
         files = {
@@ -2014,6 +2038,8 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("importlib_module_spec_field_count", labels)
         self.assertIn("importlib_loader_finder_class_count", labels)
         self.assertIn("importlib_public_api_row_count", labels)
+        self.assertIn("config_c_row_count", labels)
+        self.assertIn("configure_module_anchor_count", labels)
         self.assertIn("module_init_call_roots_outside_source_stdlib_names", labels)
         self.assertIn(
             "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES",

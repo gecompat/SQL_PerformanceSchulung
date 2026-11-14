@@ -5347,3 +5347,29 @@ Eine weitere synthetische Gegenprobe prüft Aliase und lokal definierte
 öffentliche Namen; der fokussierte Satz besteht 100/100. Die Zuordnung beschreibt
 API-Quellverweise, nicht die Zielimage-Installation, Importauswahl oder
 konkrete P11-Records. Kandidatenclosure und Runtimegrenze bleiben unverändert.
+
+### Fortsetzung: Builtin-Tabellenvorlage und Configure-Modulblock
+
+Die bisher in §19.8 gepinnten Erzeugungsquellen `Modules/config.c.in` (1.752
+Bytes, SHA-256
+`5c76ef60a799f420b09b047dc1087728e5ed08ba82f6c7664c4d4f1d1d715b21`) und
+`configure.ac` (237.552 Bytes, SHA-256
+`4f5345c8d648693030493bdd4a499ae453d477c81a26f61af149d5c70e74d088`) sind nun
+zusätzlich digestgebunden und strukturell geprüft. Die C-Vorlage enthält die
+beiden eindeutigen `ADDMODULE`-Marker und neun feste `_PyImport_Inittab`-
+Vorlageneinträge; ihr Tupeldigest ist
+`bf216aeaaa4d6dc6fa3002c432a86f8bffd74d56c21e9b5e00357152e16aff7e`. Darin
+stehen auch `builtins` und `sys` ohne Initfunktion; der generierte
+Configure-Ausgang wird durch diese Vorlage nicht ersetzt.
+
+In `configure.ac` sind 14 Zeilen zu `MODULE_BLOCK`/`MODULE_BUILDTYPE`
+kanonisch festgehalten, Digest
+`8f4a4eea3969dc36a5ab8b750f2254c7809ad92e61b236243016fd388747233b`. Die
+Struktur verlangt die gemeinsame Blockdefinition, die zwei `AC_SUBST`-Anker
+und die bedingten Modul-CFLAGS-/LDFLAGS-Erweiterungsmakros. Eine synthetische
+Gegenprobe prüft beide Quellen; der fokussierte Satz besteht 101/101.
+
+Damit ist die statische Vorlage-zu-Configure-Kante enger gebunden, aber weder
+ein Configure-Lauf noch dessen Modulentscheidung belegt. Keine Buildaktivierung,
+Zielimage-Attestation oder vollständige P11-Closure wird behauptet; der
+Importkandidatenscan bleibt unverändert.

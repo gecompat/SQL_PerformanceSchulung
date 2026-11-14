@@ -19,6 +19,10 @@ BOOTSTRAP_SETUP_MEMBER = "Python-3.12.16/Modules/Setup.bootstrap.in"
 BOOTSTRAP_SETUP_SHA256 = "d7a4c34c97f414585c7e8480c106a0f85075fb166d4c82a91c5b0b00df455271"
 STDLIB_SETUP_MEMBER = "Python-3.12.16/Modules/Setup.stdlib.in"
 STDLIB_SETUP_SHA256 = "d78ae3af2718df36ac5a80531fe21831c0117a26534a977bbf4e7843c2ee6524"
+CONFIG_C_TEMPLATE_MEMBER = "Python-3.12.16/Modules/config.c.in"
+CONFIG_C_TEMPLATE_SHA256 = "5c76ef60a799f420b09b047dc1087728e5ed08ba82f6c7664c4d4f1d1d715b21"
+CONFIGURE_SOURCE_MEMBER = "Python-3.12.16/configure.ac"
+CONFIGURE_SOURCE_SHA256 = "4f5345c8d648693030493bdd4a499ae453d477c81a26f61af149d5c70e74d088"
 GETPATH_SOURCE_MEMBER = "Python-3.12.16/Modules/getpath.py"
 GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2"
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
@@ -34,6 +38,8 @@ MAX_FROZEN_SOURCE_BYTES = 64 * 1024
 MAX_BOOTSTRAP_SETUP_BYTES = 64 * 1024
 MAX_STDLIB_SETUP_BYTES = 64 * 1024
 MAX_GETPATH_SOURCE_BYTES = 64 * 1024
+MAX_CONFIG_C_TEMPLATE_BYTES = 64 * 1024
+MAX_CONFIGURE_SOURCE_BYTES = 512 * 1024
 ROOTS = (
     "dataclasses", "hashlib", "importlib.machinery", "importlib.util", "json",
     "os", "struct", "sys", "sysconfig", "types", "zipimport", "zlib",
@@ -58,6 +64,8 @@ def _source_archive_data(archive_bytes):
     bootstrap_setup = None
     stdlib_setup = None
     getpath_source = None
+    config_c_template = None
+    configure_source = None
     total = 0
     with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:xz") as source:
         for member in source:
@@ -113,6 +121,24 @@ def _source_archive_data(archive_bytes):
                         != GETPATH_SOURCE_SHA256):
                     raise ValueError("GETPATH_SOURCE_DIGEST")
                 continue
+            if member.name in (CONFIG_C_TEMPLATE_MEMBER, CONFIGURE_SOURCE_MEMBER):
+                is_template = member.name == CONFIG_C_TEMPLATE_MEMBER
+                current = config_c_template if is_template else configure_source
+                limit = MAX_CONFIG_C_TEMPLATE_BYTES if is_template else MAX_CONFIGURE_SOURCE_BYTES
+                if not member.isfile() or current is not None or member.size > limit:
+                    raise ValueError("CONFIGURE_SOURCE_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("CONFIGURE_SOURCE_MEMBER")
+                body = stream.read(member.size + 1)
+                expected = CONFIG_C_TEMPLATE_SHA256 if is_template else CONFIGURE_SOURCE_SHA256
+                if len(body) != member.size or hashlib.sha256(body).hexdigest() != expected:
+                    raise ValueError("CONFIGURE_SOURCE_DIGEST")
+                if is_template:
+                    config_c_template = body
+                else:
+                    configure_source = body
+                continue
             if member.name == STDLIB_MODULE_NAMES_MEMBER:
                 if not member.isfile() or stdlib_header is not None \
                         or member.size > MAX_STDLIB_MODULE_NAMES_BYTES:
@@ -145,7 +171,8 @@ def _source_archive_data(archive_bytes):
                 raise ValueError("SOURCE_ARCHIVE_MEMBER")
             total += len(body)
             files[relative] = body
-    return files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup, getpath_source
+    return (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
+            getpath_source, config_c_template, configure_source)
 
 
 def _source_files(archive_path):
@@ -589,6 +616,7 @@ def _importlib_public_api_inventory(machinery_bytes, util_bytes):
         "FileFinder", "SourceFileLoader", "SourcelessFileLoader",
         "ExtensionFileLoader", "NamespaceLoader",
     }
+
     required_util = {
         "module_from_spec", "spec_from_loader", "find_spec",
         "spec_from_file_location", "LazyLoader",
@@ -602,6 +630,59 @@ def _importlib_public_api_inventory(machinery_bytes, util_bytes):
         "rows_sha256": hashlib.sha256(encoded).hexdigest(),
         "machinery_export_count": len(machinery_names),
         "util_export_count": len(util_names),
+    }
+
+
+def _configure_template_inventory(config_template, configure_source):
+    if (type(config_template) is not bytes or not config_template
+            or len(config_template) > MAX_CONFIG_C_TEMPLATE_BYTES
+            or hashlib.sha256(config_template).hexdigest() != CONFIG_C_TEMPLATE_SHA256):
+        raise ValueError("CONFIG_C_TEMPLATE_DIGEST")
+    if (type(configure_source) is not bytes or not configure_source
+            or len(configure_source) > MAX_CONFIGURE_SOURCE_BYTES
+            or hashlib.sha256(configure_source).hexdigest() != CONFIGURE_SOURCE_SHA256):
+        raise ValueError("CONFIGURE_SOURCE_DIGEST")
+    c_text = config_template.decode("utf-8")
+    if (c_text.count("/* -- ADDMODULE MARKER 1 -- */") != 1
+            or c_text.count("/* -- ADDMODULE MARKER 2 -- */") != 1
+            or c_text.count("struct _inittab _PyImport_Inittab[] = {") != 1):
+        raise ValueError("CONFIG_C_TEMPLATE_MARKERS")
+    rows = tuple(re.findall(
+        r'^\s*\{"([A-Za-z_][A-Za-z0-9_]*)",\s*([A-Za-z_][A-Za-z0-9_]*|NULL)\},?\s*$',
+        c_text, re.M,
+    ))
+    if len(rows) != 9 or len({name for name, _ in rows}) != len(rows):
+        raise ValueError("CONFIG_C_TEMPLATE_ROWS")
+    if not {"builtins", "sys", "marshal", "_imp"}.issubset({name for name, _ in rows}):
+        raise ValueError("CONFIG_C_TEMPLATE_REQUIRED_ROWS")
+    config_c_rows_sha256 = hashlib.sha256(
+        "".join("\t".join(row) + "\n" for row in rows).encode("ascii")
+    ).hexdigest()
+    configure_text = configure_source.decode("utf-8")
+    configure_lines = tuple(
+        line.strip() for line in configure_text.splitlines()
+        if "MODULE_BLOCK" in line or "MODULE_BUILDTYPE" in line
+    )
+    required_anchors = (
+        "AC_DEFUN([_MODULE_BLOCK_ADD]",
+        "AC_SUBST([MODULE_BLOCK])",
+        "AC_SUBST([MODULE_BUILDTYPE])",
+        "MODULE_BLOCK=",
+    )
+    if any(anchor not in configure_text for anchor in required_anchors):
+        raise ValueError("CONFIGURE_MODULE_BLOCK_ANCHORS")
+    configure_rows_sha256 = hashlib.sha256(
+        "".join(line + "\n" for line in configure_lines).encode("utf-8")
+    ).hexdigest()
+    return {
+        "config_c_source_sha256": CONFIG_C_TEMPLATE_SHA256,
+        "config_c_source_bytes": len(config_template),
+        "config_c_row_count": len(rows),
+        "config_c_rows_sha256": config_c_rows_sha256,
+        "configure_source_sha256": CONFIGURE_SOURCE_SHA256,
+        "configure_source_bytes": len(configure_source),
+        "configure_module_anchor_count": len(configure_lines),
+        "configure_module_anchors_sha256": configure_rows_sha256,
     }
 
 
@@ -2193,7 +2274,7 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
 
 def analyze(archive_path):
     (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
-     getpath_source) = _source_archive_data(
+     getpath_source, config_c_template, configure_source) = _source_archive_data(
         _archive_bytes(archive_path)
     )
     if stdlib_header is None:
@@ -2228,6 +2309,9 @@ def analyze(archive_path):
         raise ValueError("IMPORTLIB_PUBLIC_API_SOURCE_MISSING")
     importlib_api_inventory = _importlib_public_api_inventory(
         machinery_source, util_source
+    )
+    configure_inventory = _configure_template_inventory(
+        config_c_template, configure_source
     )
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
@@ -2349,6 +2433,7 @@ def analyze(archive_path):
         "importlib_util_export_count": importlib_api_inventory[
             "util_export_count"
         ],
+        **configure_inventory,
         "edge_count": edges,
         "module_count": len(modules),
         "module_rows_sha256": rows_sha256,

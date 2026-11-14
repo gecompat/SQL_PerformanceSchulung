@@ -9256,3 +9256,7 @@ Die beiden gepinnten importlib-Quellen sind rein syntaktisch auf acht direkte `M
 ## Fortsetzung: DGN-007 öffentliche Importlib-API
 
 Die gepinnten `machinery.py`-/`util.py`-Quellen binden 28 direkte öffentliche Namen an ihre Quellmodule oder lokale Definitionen (16/12); Zeilendigest `f40ad3be9b2550b9be5e55ed8c3073ea9f64d20eced5afafe8a794d34a2c1f51`. Der fokussierte Satz besteht 100/100, der Archivscan bleibt unverändert `CANDIDATES_ONLY` mit 93/578/534. Die API-Zuordnung belegt keine Zielimage-Installation, Importauswahl oder vollständigen P11-Records. S15, P11, operative Inventur und Fünf-Formen-/64-KiB-Gate bleiben offen.
+
+## Fortsetzung: DGN-007 Builtin-/Configure-Vorlagen
+
+`Modules/config.c.in` und `configure.ac` sind zusätzlich digestgebunden und strukturell geprüft: zwei Inittab-Marker, neun feste Basiseinträge sowie 14 kanonische `MODULE_BLOCK`-/`MODULE_BUILDTYPE`-Zeilen. Eine synthetische Gegenprobe; fokussiert 101/101 PASS. Der Archivscan bleibt `CANDIDATES_ONLY` (93/578/534, Digest unverändert). Kein Configure-/Buildlauf und keine Aktivierungs- oder vollständige P11-Attestation. Die vollständige S15-/P11-Auswahl und das Fünf-Formen-/64-KiB-Gate bleiben offen.

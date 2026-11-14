@@ -890,6 +890,10 @@ Die Quellen `Lib/importlib/machinery.py` und `Lib/importlib/util.py` binden nun
 28 öffentliche API-Namen an ihre direkten Bootstrap-/External-Bootstrap-
 Quellen oder lokale Definitionen; 100/100 fokussierte Tests bestehen. Auch
 diese Zuordnung ist keine Zielimage-Installation oder P11-Recordinventur.
+Die vorgepinnten `Modules/config.c.in`-/`configure.ac`-Vorlagen binden zusätzlich
+neun feste Inittab-Basiseinträge und 14 Configure-Modulblock-Anker; 101/101
+fokussierte Tests bestehen. Das belegt weder einen Configure-Lauf noch die
+konkrete Builtin-/Extension-Aktivierung.
 
 ### Gemeinsame Autonomie- und Stopregeln
 
