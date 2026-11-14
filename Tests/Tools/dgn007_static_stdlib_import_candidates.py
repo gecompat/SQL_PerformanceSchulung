@@ -1598,6 +1598,32 @@ def _target_sys_implementation_version_fact(sys_module_source):
     return (("sys.implementation.version", (3, 12, 16, "final", 0)),)
 
 
+def _target_sys_implementation_name_fact(sys_module_source):
+    """Bind CPython's implementation.name to its pinned implementation constant."""
+    if (type(sys_module_source) is not bytes or not sys_module_source
+            or len(sys_module_source) > MAX_SYS_MODULE_C_BYTES
+            or hashlib.sha256(sys_module_source).hexdigest() != SYS_MODULE_C_SHA256):
+        return ()
+    source = sys_module_source.decode("utf-8")
+    implementation = re.search(
+        r"static PyObject\s*\*\s*make_impl_info\(PyObject \*version_info\)(.*?)"
+        r"(?=static PyObject\s*\*\s*make_abi_info)",
+        source, re.DOTALL,
+    )
+    if (implementation is None
+            or not re.search(
+                r'#define NAME "cpython"\s+'
+                r'const char \*_PySys_ImplName\s*=\s*NAME;', source,
+            )
+            or not re.search(
+                r'PyUnicode_FromString\(_PySys_ImplName\).*?'
+                r'PyDict_SetItemString\(impl_info,\s*"name",\s*value\)',
+                implementation.group(1), re.DOTALL,
+            )):
+        return ()
+    return (("sys.implementation.name", "cpython"),)
+
+
 def _target_importlib_verbose_line_facts(
         files, preconfig_source, initconfig_source, worker_source):
     """Bind importlib's verbose guard across every pinned source call site."""
@@ -6419,6 +6445,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     sys_implementation_version_fact = (
         _target_sys_implementation_version_fact(sys_module_c_source)
     )
+    sys_implementation_name_fact = (
+        _target_sys_implementation_name_fact(sys_module_c_source)
+    )
     warnings_default_call_facts = _target_warnings_default_call_facts(
         files, warnings_c_source, warnings_clinic_source
     )
@@ -6502,6 +6531,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         types_descriptor_call_facts + ast_compatibility_call_facts
         + sys_getframe_call_facts + tuple(warnings_default_call_facts.items())
         + sys_implementation_version_fact
+        + sys_implementation_name_fact
         + target_worker_sys_flag_facts
         + os_fspath_call_facts + os_have_functions_call_facts
         + posix_build_call_facts + os_descriptor_support_facts
@@ -6768,6 +6798,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_platform_sys_module_c_sha256": SYS_MODULE_C_SHA256,
         "target_platform_sys_implementation_version_fact": list(
             sys_implementation_version_fact
+        ),
+        "target_platform_sys_implementation_name_fact": list(
+            sys_implementation_name_fact
         ),
         "target_platform_sys_module_clinic_sha256": SYS_MODULE_CLINIC_SHA256,
         "target_platform_warnings_default_call_facts": list(

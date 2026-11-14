@@ -944,6 +944,57 @@ class StaticImportCandidateTests(unittest.TestCase):
                 SUBJECT._target_sys_implementation_version_fact(sys_module), (),
             )
 
+    def test_sys_implementation_name_binds_pinned_constant(self):
+        sys_module = (
+            b'#define NAME "cpython"\n'
+            b"const char *_PySys_ImplName = NAME;\n"
+            b"static PyObject * make_impl_info(PyObject *version_info) {\n"
+            b"value = PyUnicode_FromString(_PySys_ImplName);\n"
+            b'res = PyDict_SetItemString(impl_info, "name", value);\n'
+            b"return ns;\n}\n"
+            b"static PyObject * make_abi_info(void) { return NULL; }\n"
+        )
+        with patch.object(
+            SUBJECT, "SYS_MODULE_C_SHA256", hashlib.sha256(sys_module).hexdigest(),
+        ):
+            facts = SUBJECT._target_sys_implementation_name_fact(sys_module)
+            self.assertEqual(facts, (("sys.implementation.name", "cpython"),))
+            condition = ast.parse(
+                'sys.implementation.name == "cpython"', mode="eval",
+            ).body
+            self.assertIs(SUBJECT._target_condition(
+                condition, known_call_facts=facts,
+            ), True)
+            files = {
+                "pkg.py": (
+                    b'if sys.implementation.name == "cpython":\n'
+                    b"    import cpython_branch\n"
+                    b"else:\n    import other_branch\n"
+                ),
+                "cpython_branch.py": b"VALUE = True\n",
+                "other_branch.py": b"VALUE = False\n",
+            }
+            modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+                files, ("pkg",), known_call_facts=facts,
+            )
+            self.assertEqual(modules, ("cpython_branch", "pkg"))
+            self.assertEqual(conditions, {"resolved": 1, "unknown": 0})
+
+    def test_sys_implementation_name_rejects_unpinned_value(self):
+        sys_module = (
+            b'#define NAME "other"\n'
+            b"const char *_PySys_ImplName = NAME;\n"
+            b"static PyObject * make_impl_info(PyObject *version_info) {\n"
+            b"value = PyUnicode_FromString(_PySys_ImplName);\n"
+            b'res = PyDict_SetItemString(impl_info, "name", value);\n'
+            b"return ns;\n}\n"
+            b"static PyObject * make_abi_info(void) { return NULL; }\n"
+        )
+        with patch.object(
+            SUBJECT, "SYS_MODULE_C_SHA256", hashlib.sha256(sys_module).hexdigest(),
+        ):
+            self.assertEqual(SUBJECT._target_sys_implementation_name_fact(sys_module), ())
+
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
         self.assertEqual(
             SUBJECT._target_importlib_debug_call_facts({17: True}),

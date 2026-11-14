@@ -6140,7 +6140,19 @@ Tupel primitiver Werte.
 
 Zwei synthetische Regressionen prüfen gemeinsame Objektidentität, direkte und
 Slice-Vergleiche, Closure-Auflösung sowie Ablehnung eines separaten Objekts.
-Die fokussierte Suite besteht lokal mit 214 Tests unter Python 3.14; die
-Pull-Request-Gates stehen für diesen Schnitt noch aus. Keine vollständige
-Importclosure, P11-Inventur, Runtimeattestation, SQL-/Lab-Ausführung oder
-menschliche Generalprobe.
+Die fokussierte Suite besteht lokal mit 214 Tests unter Python 3.14. Alle fünf
+Pull-Request-Gates einschließlich der gepinnten CPython-3.12.16-Offlineprüfung
+bestanden. PR #765 integrierte diesen Schnitt; PR #766 korrigierte den
+Ausführungsstand. Keine vollständige Importclosure, P11-Inventur,
+Runtimeattestation, SQL-/Lab-Ausführung oder menschliche Generalprobe.
+
+### Fortsetzung: `sys.implementation.name` aus CPython-Quelle
+
+Der Resolver bindet `sys.implementation.name == "cpython"` nur bei passendem
+Digest und passender Struktur der CPython-3.12.16-Quelle. `NAME` muss exakt
+`"cpython"` sein, `_PySys_ImplName` daraus initialisiert und der Wert im
+`make_impl_info`-Körper als Feld `name` veröffentlicht werden. Direkte
+Bedingung und Closure-Zweig werden synthetisch geprüft; ein abweichender
+Konstantenwert bleibt unbekannt. Die fokussierte Suite besteht lokal mit 216
+Tests unter Python 3.14; PR-Gates stehen noch aus. Keine Runtime- oder
+Profilbeobachtung.
