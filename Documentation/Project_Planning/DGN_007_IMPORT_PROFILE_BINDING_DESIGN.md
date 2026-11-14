@@ -6028,10 +6028,14 @@ Profil-, Worker-, SQL-, operative S15/P11- oder Generalproben-Ausführung.
 
 ### Fortsetzung: nicht ausgegebene Importdebugmeldung
 
-Für den gepinnten `importlib._bootstrap.py` ist `_verbose_message` genau
-einmal direkt aufgerufen; der Call übergibt drei Positionsargumente und kein
-`verbosity`-Keyword. Die gepinnte Funktionssignatur setzt den Keyword-only-
-Standard auf 1. Auf der exakten isolierten Workerroute bleibt
+Die gepinnten `_verbose_message`-Aufrufstellen in den drei CPython-Quellen
+umfassen 22 Calls: einen in `_bootstrap.py`, 14 in `_bootstrap_external.py`
+und sieben in `zipimport.py`. Die externen Calls verwenden den Standard
+`verbosity=1` oder explizit `2`; der eigene Call übergibt drei Positions-
+argumente und kein Keyword. Quellhashes, Callformen und die Abwesenheit
+unbekannter Keywords sind gebunden; Abweichungen verwerfen den Fact. Die
+gepinnt gebundene Helper-Signatur setzt den Keyword-only-Standard auf 1. Auf der
+exakten isolierten Workerroute bleibt
 `sys.flags.verbose` null: CPython initialisiert `verbose` mit 0, `-v` erhöht
 den Wert und `-I` deaktiviert `PYTHONVERBOSE`; die Kinder-argv enthält kein
 `-v`. Der Scanner entscheidet daher den Guard bei Zeile 493 als falsch und
@@ -6044,6 +6048,6 @@ Der Zielscan bleibt bei 60 Modulen, 317 Kanten und 169 lokalen Funktionen;
 `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`, der
 Unknown-Digest lautet
 `904afa5d6387a57f7f6d6a1061390424e9b46f3d94b2319e364f797a68473641`.
-`LEXICAL_SOURCE_CANDIDATES_ONLY` bleibt bestehen; 158 fokussierte Regressionen
+`LEXICAL_SOURCE_CANDIDATES_ONLY` bleibt bestehen; 159 fokussierte Regressionen
 bestehen lokal. Keine Interpreter-, Profil-, Worker-, SQL-, operative S15/P11-
 oder Generalproben-Ausführung.

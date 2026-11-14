@@ -87,6 +87,7 @@ IMPORTLIB_BOOTSTRAP_SOURCE_SHA256 = "d112d54b7831cf4a818d4841d5ff8003b54df220a6d
 IMPORTLIB_EXTERNAL_SOURCE_SHA256 = "e6ad72f3f0f9b65c99ab52598cd02ab748511dcdce1dd51f18dace9be9a680c6"
 IMPORTLIB_MACHINERY_SOURCE_SHA256 = "d045cd7ecf2a12b6ecbfbef79eb114e87ef2ebd756f5b705f73e6f3266e3dede"
 IMPORTLIB_UTIL_SOURCE_SHA256 = "671f2995653f673f6d5056a1089debef473bc28ae7114f7a8db71475733d6876"
+ZIPIMPORT_SOURCE_SHA256 = "a96f1d7a7b6aaf421a3cf382b94b1422f4f0ad452fdd0bb61d635b560d7a4e91"
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_FILES = 2048
@@ -1479,10 +1480,19 @@ def _target_isolated_worker_route_valid(
 
 def _target_importlib_verbose_line_facts(
         files, preconfig_source, initconfig_source, worker_source):
-    """Bind importlib's verbose guard false for the pinned unverbose child route."""
-    source = files.get("importlib/_bootstrap.py")
-    if (type(source) is not bytes or len(source) > MAX_SOURCE_BYTES
-            or hashlib.sha256(source).hexdigest() != IMPORTLIB_BOOTSTRAP_SOURCE_SHA256
+    """Bind importlib's verbose guard across every pinned source call site."""
+    source_bindings = (
+        ("importlib/_bootstrap.py", IMPORTLIB_BOOTSTRAP_SOURCE_SHA256),
+        ("importlib/_bootstrap_external.py", IMPORTLIB_EXTERNAL_SOURCE_SHA256),
+        ("zipimport.py", ZIPIMPORT_SOURCE_SHA256),
+    )
+    if type(files) is not dict:
+        return {}
+    sources = {path: files.get(path) for path, _ in source_bindings}
+    if (any(type(sources[path]) is not bytes
+            or not sources[path] or len(sources[path]) > MAX_SOURCE_BYTES
+            or hashlib.sha256(sources[path]).hexdigest() != digest
+            for path, digest in source_bindings)
             or not _target_isolated_worker_route_valid(
                 preconfig_source, initconfig_source, worker_source,
             )):
@@ -1497,28 +1507,75 @@ def _target_importlib_verbose_line_facts(
                 r"\"PYTHONVERBOSE\"\);", initconfig_text, re.DOTALL,
             )):
         return {}
-    try:
-        tree = ast.parse(source, filename="importlib/_bootstrap.py")
-    except SyntaxError:
+    reference_paths = {
+        path for path, candidate in files.items()
+        if type(candidate) is bytes and b"_verbose_message" in candidate
+    }
+    if reference_paths != {path for path, _ in source_bindings}:
         return {}
-    functions = [node for node in tree.body
+    trees = {}
+    for path in reference_paths:
+        try:
+            trees[path] = ast.parse(sources[path], filename=path)
+        except SyntaxError:
+            return {}
+    calls_by_path = {}
+    for path, tree in trees.items():
+        parents = {child: node for node in ast.walk(tree)
+                   for child in ast.iter_child_nodes(node)}
+        references = [
+            node for node in ast.walk(tree)
+            if (isinstance(node, ast.Name) and node.id == "_verbose_message")
+            or (isinstance(node, ast.Attribute) and node.attr == "_verbose_message")
+        ]
+        for node in references:
+            parent = parents.get(node)
+            if not isinstance(parent, ast.Call) or parent.func is not node:
+                return {}
+        expected_name = (
+            "_verbose_message" if path == "importlib/_bootstrap.py"
+            else "_bootstrap._verbose_message"
+        )
+        calls = [node for node in ast.walk(tree)
+                 if isinstance(node, ast.Call)
+                 and ast.unparse(node.func) == expected_name]
+        if not calls:
+            return {}
+        for call in calls:
+            verbosity_keywords = [keyword for keyword in call.keywords
+                                  if keyword.arg == "verbosity"]
+            if (any(keyword.arg is None for keyword in call.keywords)
+                    or len(verbosity_keywords) > 1
+                    or any(keyword.arg not in ("verbosity",)
+                           for keyword in call.keywords)):
+                return {}
+            if verbosity_keywords:
+                value = verbosity_keywords[0].value
+                if (not isinstance(value, ast.Constant)
+                        or type(value.value) is not int or value.value < 1):
+                    return {}
+        calls_by_path[path] = calls
+    bootstrap_tree = trees["importlib/_bootstrap.py"]
+    functions = [node for node in bootstrap_tree.body
                  if isinstance(node, ast.FunctionDef)
                  and node.name == "_verbose_message"]
-    calls = [node for node in ast.walk(tree)
-             if isinstance(node, ast.Call)
-             and isinstance(node.func, ast.Name)
-             and node.func.id == "_verbose_message"]
     guards = [node for node in ast.walk(functions[0])
               if isinstance(node, ast.If)
               and ast.unparse(node.test) == "sys.flags.verbose >= verbosity"] if len(functions) == 1 else []
-    if (len(functions) != 1 or len(calls) != 1 or len(guards) != 1
-            or len(calls[0].args) != 3 or calls[0].keywords
+    if (len(functions) != 1
+            or len(calls_by_path["importlib/_bootstrap.py"]) != 1
+            or len(calls_by_path["importlib/_bootstrap_external.py"]) != 14
+            or len(calls_by_path["zipimport.py"]) != 7
+            or len(calls_by_path["importlib/_bootstrap.py"][0].args) != 3
+            or calls_by_path["importlib/_bootstrap.py"][0].keywords
             or len(functions[0].args.kwonlyargs) != 1
             or functions[0].args.kwonlyargs[0].arg != "verbosity"
             or len(functions[0].args.kw_defaults) != 1
             or not isinstance(functions[0].args.kw_defaults[0], ast.Constant)
             or type(functions[0].args.kw_defaults[0].value) is not int
             or functions[0].args.kw_defaults[0].value < 1):
+        return {}
+    if len(guards) != 1:
         return {}
     return {guards[0].lineno: False}
 
