@@ -2939,6 +2939,17 @@ entschiedene und 39 unbekannte Bedingungen und schließt `ntpath` aus. Er erfass
 keine Imports aus aufgerufenen Funktionen und ist weder ein vollständiger
 Aufrufgraph noch ein P11-Sollrecord.
 
+#### Abgleich mit den gebundenen Frozen-Quelltabellen
+
+Der Bericht gibt die 3 Bootstrapnamen, 15 Stdlibnamen und neun Aliaszeilen aus
+`Python/frozen.c` zusätzlich einzeln aus. Der Abgleich mit den Quellkandidaten
+ergibt elf exakte Namensüberschneidungen im Linux-Modulkörpervorschnitt und zwölf
+im breiteren Modulstartscan; keiner der neun Aliasnamen überschneidet diese
+Kandidatenmengen. Das sind nur Tabellenüberschneidungen in der gebundenen
+CPython-Quelle. Sie belegen weder, welche Frozenmodule das Image gebaut hat,
+noch deren tatsächliche Cachemitgliedschaft, Loader oder P11-Records. Die
+getrennte Buildauswahl und echte Importauswahl bleiben offen.
+
 ## 20. Reine additive Inline-Metadata-Syntaxquelle
 
 Der dritte reine Builder `build_inline_syntax_control_bootstrap` ergänzt

@@ -9369,3 +9369,8 @@ Der statische DGN-007-Modulstartbericht gibt nun alle 93 Quellkandidaten einzeln
 ## Fortsetzung: Linux-gefilterte CPython-Quellkandidaten
 
 Zusätzlich werden die 58 Kandidaten des engeren Modul-/Klassenkörper-Scans als Modulname, relativer Archivpfad und Quelldateihash ausgegeben. Die fest gebundenen Linux-/CPython-3.12-Prädikate entscheiden fünf Bedingungen, 39 unbekannte bleiben erhalten; 282 Kanten und der bisherige Digest bleiben unverändert. Der Linux-Zweig schließt `ntpath` aus. Der Scope schließt Funktionskörper aus und bleibt `CANDIDATES_ONLY`, kein P11-Soll. Zusammen mit den 93 Modulstartrows unterstützt die Ausgabe die schrittweise Quellenreduktion; vollständige Auswahl und Runtimeinventur bleiben offen.
+
+
+## Fortsetzung: Frozen-Quellnamen gegen Kandidaten abgeglichen
+
+Der Scanner gibt jetzt die quellgebundenen Bootstrap-/Stdlib-Frozen-Namen samt Aliaszeilen einzeln aus und berichtet die Namensüberschneidung mit beiden Kandidatenscans. Im 58er Linux-Modulkörpervorschnitt liegen elf exakte Quelltabellenüberschneidungen; im 93er Modulstartscan zwölf; die neun Aliaszeilen überschneiden keine Kandidaten. Das belegt nur Quelltabellenbeziehungen, nicht die gebaute Image-Tabelle, Cachemitgliedschaft oder Loader. Builtin-/Extensionauswahl, vollständige S15-/P11-Erwartungsrecords und operative Inventur bleiben offen.

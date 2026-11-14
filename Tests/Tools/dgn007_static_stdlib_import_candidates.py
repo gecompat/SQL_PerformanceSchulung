@@ -2631,13 +2631,22 @@ def analyze(archive_path):
         "source_stdlib_module_names_sha256": stdlib_names_sha256,
         "frozen_source_sha256": FROZEN_SOURCE_SHA256,
         "frozen_bootstrap_name_count": len(frozen["bootstrap_names"]),
+        "frozen_bootstrap_names": list(frozen["bootstrap_names"]),
         "frozen_bootstrap_names_sha256": frozen["bootstrap_sha256"],
         "frozen_stdlib_name_count": len(frozen["stdlib_names"]),
+        "frozen_stdlib_names": list(frozen["stdlib_names"]),
         "frozen_stdlib_names_sha256": frozen["stdlib_sha256"],
         "frozen_test_name_count": len(frozen["test_names"]),
         "frozen_test_names_sha256": frozen["test_sha256"],
         "frozen_alias_count": len(frozen["aliases"]),
+        "frozen_alias_rows": [list(row) for row in frozen["aliases"]],
         "frozen_aliases_sha256": frozen["aliases_sha256"],
+        "target_platform_frozen_name_candidates": sorted(
+            set(target_platform) & set(frozen["bootstrap_names"] + frozen["stdlib_names"])
+        ),
+        "module_init_call_frozen_name_candidates": sorted(
+            set(call_modules) & set(frozen["bootstrap_names"] + frozen["stdlib_names"])
+        ),
         "frozen_runtime_roots_outside_source_stdlib_names": list(
             frozen_roots_outside_stdlib
         ),
