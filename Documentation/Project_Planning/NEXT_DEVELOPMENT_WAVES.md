@@ -1599,3 +1599,21 @@ ausgeschlossen. 105/105 fokussierte Tests, Archivkennzahlen unverändert.
 Direkte Konkatenation zweier Stringkonstanten wird inline und in einer
 Zuweisung statisch erkannt; relative und sonstige Ausdrücke bleiben offen.
 105/105 fokussiert, Archivkennzahlen unverändert.
+
+### Begrenzte Fortsetzung: `sysconfig.is_python_build` (14. November 2026)
+
+Die ausdrückliche Freigabe aller noch offenen Themen setzt die autonome
+Fortsetzung fort. Der nächste begrenzte Checkpoint umfasst höchstens ein
+Arbeitspaket, einen Pull Request und zwei lokale Quellen-/Vertragskandidaten:
+den zeilengebundenen CPython-Quellfact und seine synthetischen Gegenproben.
+Die verifizierte CPython-3.12.16-Quelle wird wiederverwendet; es kommt keine
+neue Produktquelle hinzu. SQL, Lab, Runtime, operative Inventur und menschliche
+Generalprobe sind nicht Teil des Pakets. Verbrauch in Tokens/Geld ist unbekannt;
+die Grenze gilt für Paket, PR und Kandidaten, nicht als Providerkostenlimit.
+
+Der Fact entscheidet `sysconfig.py:223` nur für die vollständig geprüfte
+produktive `Lib`-Quellmenge, in der der Selbstaufruf und die drei `venv`-Aufrufe
+argumentlos sind. Testquellen sind nicht Teil dieses Beweises. Alias- und
+dynamische Callerformen verwerfen den Fact. Der PR-Merge ist der Checkpoint;
+danach wird der kanonische Status aktualisiert und die nächste offene,
+freigegebene statische Aufgabe anhand des dann aktuellen Status ausgewählt.

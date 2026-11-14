@@ -2815,6 +2815,93 @@ def _target_sysconfig_no_site_facts(files, sys_module_c_source, no_site):
     return {"_sys_home": False}
 
 
+def _target_sysconfig_is_python_build_line_facts(files):
+    """Resolve the deprecated check_home guard for pinned stdlib callers only."""
+    source = files.get("sysconfig.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256):
+        return {}
+    try:
+        tree = ast.parse(source, filename="sysconfig.py")
+    except SyntaxError:
+        return {}
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef)
+                 and node.name == "is_python_build"]
+    if len(functions) != 1:
+        return {}
+    function = functions[0]
+    args = function.args
+    if (len(args.posonlyargs) != 0 or len(args.args) != 1
+            or args.args[0].arg != "check_home" or args.vararg is not None
+            or args.kwonlyargs or args.kwarg is not None
+            or len(args.defaults) != 1
+            or not isinstance(args.defaults[0], ast.Constant)
+            or args.defaults[0].value is not None):
+        return {}
+    guards = [node for node in ast.walk(function)
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "check_home is not None"]
+    if (len(guards) != 1
+            or not any(isinstance(node, ast.Import)
+                       and len(node.names) == 1
+                       and node.names[0].name == "warnings"
+                       for node in guards[0].body)):
+        return {}
+    if any(isinstance(node, ast.Name) and node.id == "check_home"
+           and isinstance(node.ctx, (ast.Store, ast.Del))
+           for node in ast.walk(function)):
+        return {}
+
+    expected_callers = {"sysconfig.py": 1, "venv/__init__.py": 3}
+    observed_callers = {}
+    for path, candidate in files.items():
+        if type(candidate) is not bytes or not path.endswith(".py"):
+            return {}
+        path_parts = path.split("/")
+        if "test" in path_parts:
+            continue
+        if b"is_python_build" not in candidate:
+            continue
+        try:
+            caller_tree = tree if path == "sysconfig.py" else ast.parse(
+                candidate, filename=path,
+            )
+        except SyntaxError:
+            return {}
+        if any(isinstance(node, ast.ImportFrom)
+               and any(alias.name == "is_python_build" for alias in node.names)
+               for node in ast.walk(caller_tree)):
+            return {}
+        if any(isinstance(node, ast.Constant) and node.value == "is_python_build"
+               for node in ast.walk(caller_tree)):
+            return {}
+        parents = {child: node for node in ast.walk(caller_tree)
+                   for child in ast.iter_child_nodes(node)}
+        references = [
+            node for node in ast.walk(caller_tree)
+            if (isinstance(node, ast.Name) and node.id == "is_python_build")
+            or (isinstance(node, ast.Attribute) and node.attr == "is_python_build")
+        ]
+        for reference in references:
+            parent = parents.get(reference)
+            if (not isinstance(parent, ast.Call) or parent.func is not reference
+                    or parent.args or parent.keywords):
+                return {}
+            if path == "sysconfig.py":
+                if not isinstance(reference, ast.Name):
+                    return {}
+            elif (not isinstance(reference, ast.Attribute)
+                  or not isinstance(reference.value, ast.Name)
+                  or reference.value.id != "sysconfig"):
+                return {}
+        if references:
+            observed_callers[path] = len(references)
+    if observed_callers != expected_callers:
+        return {}
+    return {guards[0].lineno: False}
+
+
 def _target_sysconfig_project_base_env_facts(files, image_config_source,
                                              no_project_base_override):
     """Bind the direct os.environ guard to the pinned image ENV and call assumption."""
@@ -5031,6 +5118,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     sysconfig_name_facts.update(_target_sysconfig_no_site_facts(
         files, sys_module_c_source, target_no_site,
     ))
+    target_sysconfig_is_python_build_line_facts = (
+        _target_sysconfig_is_python_build_line_facts(files)
+    )
     target_image_config_source = None
     if target_image_config_path is not None:
         with Path(target_image_config_path).open("rb") as stream:
@@ -5250,10 +5340,13 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "os": os_createenviron_line_facts,
             "codecs": codecs_false_guard_line_facts,
             "pickle": pickle_buffer_line_facts,
+            "sysconfig": target_sysconfig_is_python_build_line_facts,
             "importlib._bootstrap_external": target_importlib_optimize_line_facts,
             "importlib._bootstrap": target_importlib_verbose_line_facts,
         } if (os_createenviron_line_facts or codecs_false_guard_line_facts
-              or pickle_buffer_line_facts or target_importlib_optimize_line_facts
+              or pickle_buffer_line_facts
+              or target_sysconfig_is_python_build_line_facts
+              or target_importlib_optimize_line_facts
               or target_importlib_verbose_line_facts) else {},
         trusted_empty_for_facts={
             "warnings": target_warning_options_empty_for_facts.get("warnings", {}),
@@ -5450,6 +5543,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_importlib_verbose_line_facts": list(
             target_importlib_verbose_line_facts.items()
+        ),
+        "target_platform_sysconfig_is_python_build_line_facts": list(
+            target_sysconfig_is_python_build_line_facts.items()
         ),
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,

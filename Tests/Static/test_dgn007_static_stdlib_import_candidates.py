@@ -752,6 +752,121 @@ class StaticImportCandidateTests(unittest.TestCase):
                     preconfig_source, initconfig_source, worker_source,
                 ), {})
 
+    def test_sysconfig_build_guard_requires_all_production_calls_to_be_empty(self):
+        sysconfig_source = (
+            b"def is_python_build(check_home=None):\n"
+            b"    if check_home is not None:\n"
+            b"        import warnings\n"
+            b"        warnings.warn('deprecated')\n"
+            b"    return False\n"
+            b"is_python_build()\n"
+        )
+        venv_source = (
+            b"import sysconfig\n"
+            b"sysconfig.is_python_build()\n"
+            b"sysconfig.is_python_build()\n"
+            b"sysconfig.is_python_build()\n"
+        )
+        files = {
+            "sysconfig.py": sysconfig_source,
+            "venv/__init__.py": venv_source,
+            "test/test_sysconfig.py": b"sysconfig.is_python_build('explicit')\n",
+        }
+        with patch.object(
+            SUBJECT, "SYSCONFIG_SOURCE_SHA256",
+            hashlib.sha256(sysconfig_source).hexdigest(),
+        ):
+            facts = SUBJECT._target_sysconfig_is_python_build_line_facts(files)
+            self.assertEqual(facts, {2: False})
+
+            unsafe_files = dict(files)
+            unsafe_files["venv/__init__.py"] = venv_source.replace(
+                b"sysconfig.is_python_build()",
+                b"sysconfig.is_python_build('explicit')", 1,
+            )
+            self.assertEqual(
+                SUBJECT._target_sysconfig_is_python_build_line_facts(unsafe_files),
+                {},
+            )
+
+            unsafe_files["venv/__init__.py"] = venv_source.replace(
+                b"sysconfig.is_python_build()",
+                b"sysconfig.is_python_build(check_home=None)", 1,
+            )
+            self.assertEqual(
+                SUBJECT._target_sysconfig_is_python_build_line_facts(unsafe_files),
+                {},
+            )
+
+            alias_files = dict(files)
+            alias_files["venv/__init__.py"] = (
+                b"from sysconfig import is_python_build as build_check\n"
+                b"build_check()\n"
+                + venv_source
+            )
+            self.assertEqual(
+                SUBJECT._target_sysconfig_is_python_build_line_facts(alias_files),
+                {},
+            )
+
+            reference_files = dict(files)
+            reference_files["venv/__init__.py"] = (
+                b"import sysconfig\n"
+                b"build_check = sysconfig.is_python_build\n"
+                + venv_source.split(b"\n", 1)[1]
+            )
+            self.assertEqual(
+                SUBJECT._target_sysconfig_is_python_build_line_facts(reference_files),
+                {},
+            )
+
+            dynamic_files = dict(files)
+            dynamic_files["venv/__init__.py"] = (
+                b"import sysconfig\n"
+                b"getattr(sysconfig, 'is_python_build')()\n"
+                + venv_source.split(b"\n", 1)[1]
+            )
+            self.assertEqual(
+                SUBJECT._target_sysconfig_is_python_build_line_facts(dynamic_files),
+                {},
+            )
+
+            rebound_files = dict(files)
+            rebound_files["sysconfig.py"] = sysconfig_source.replace(
+                b"        import warnings\n",
+                b"        check_home = None\n        import warnings\n",
+            )
+            with patch.object(
+                SUBJECT, "SYSCONFIG_SOURCE_SHA256",
+                hashlib.sha256(rebound_files["sysconfig.py"]).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_sysconfig_is_python_build_line_facts(
+                        rebound_files,
+                    ),
+                    {},
+                )
+
+            extra_caller_files = dict(files)
+            extra_caller_files["extra.py"] = b"import sysconfig\nsysconfig.is_python_build()\n"
+            self.assertEqual(
+                SUBJECT._target_sysconfig_is_python_build_line_facts(
+                    extra_caller_files,
+                ),
+                {},
+            )
+
+            changed_source_files = dict(files)
+            changed_source_files["sysconfig.py"] = sysconfig_source.replace(
+                b"check_home=None", b"check_home=True",
+            )
+            self.assertEqual(
+                SUBJECT._target_sysconfig_is_python_build_line_facts(
+                    changed_source_files,
+                ),
+                {},
+            )
+
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
             "entry.py": (

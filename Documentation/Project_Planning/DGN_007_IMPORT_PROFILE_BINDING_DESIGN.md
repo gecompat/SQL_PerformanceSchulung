@@ -6051,3 +6051,27 @@ Unknown-Digest lautet
 `LEXICAL_SOURCE_CANDIDATES_ONLY` bleibt bestehen; 159 fokussierte Regressionen
 bestehen lokal. Keine Interpreter-, Profil-, Worker-, SQL-, operative S15/P11-
 oder Generalproben-Ausführung.
+
+### Fortsetzung: sysconfig-Build-Guard
+
+Der digestgebundene CPython-3.12.16-Quellfact entscheidet
+`sysconfig.py:223` als falsch. `is_python_build` akzeptiert nur
+`check_home=None` und testet ausschließlich `check_home is not None`.
+Die vollständigen produktiven `Lib`-Quellen enthalten einen direkten
+argumentlosen Selbstaufruf sowie drei direkte argumentlose Aufrufe in
+`venv/__init__.py`; Testquellen gehören nicht zur Zielimportclosure und werden
+für diese Caller-Inventur ausgelassen. Zusätzliche Caller, Referenzformen,
+`from ... import`-Aliase, dynamische Stringzugriffe, Argumente/Keywords,
+Parameterrebinding oder ein geänderter `sysconfig.py`-Digest verwerfen den Fact.
+Synthetische Positiv- und Negativfälle decken diese Regeln ab.
+
+Der Zielscan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten und 169 lokale
+Funktionen; 57 Bedingungen sind entschieden und 513 unbekannt. Der
+Kandidatendigest bleibt
+`33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`; der
+Unknown-Digest lautet
+`6df5f34ff1f3f7b6c3372ce806b39c7e2c2cd8b2b3db8849ab2d638c429ea193`.
+160 fokussierte Regressionen bestehen lokal. Dies ist weder vollständige
+Importclosure noch P11-Sollinventur oder Runtimeattestation. Quellen-/Aufrufreview,
+vollständige fünf Formen, gemeinsames 64-KiB-Gate und operative Inventur bleiben
+offen. Kein Interpreter-, Worker-, Profil-, SQL- oder Generalprobenlauf.

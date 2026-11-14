@@ -11,18 +11,18 @@ Generalprobe bleibt ausgeschlossen.
 ### DGN-007 – Quellenprüfung unbekannter Importzweige
 
 Der nach PR #734 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
-Workerroute gebundene Scan bleibt `CANDIDATES_ONLY`: 60 Module, 317 Kanten,
-169 Funktionen, 56 entschiedene und 514 unbekannte Bedingungen. Der
+Workerroute gebundene Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten,
+169 Funktionen, 57 entschiedene und 513 unbekannte Bedingungen. Der
 Zeilendigest ist `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
 der Digest der unbekannten Bedingungen
-`904afa5d6387a57f7f6d6a1061390424e9b46f3d94b2319e364f797a68473641`.
+`6df5f34ff1f3f7b6c3372ce806b39c7e2c2cd8b2b3db8849ab2d638c429ea193`.
 PR #734 bindet alle 22 gepinnten `_verbose_message`-Aufrufstellen in
 `_bootstrap.py`, `_bootstrap_external.py` und `zipimport.py`; der Guard
 `importlib._bootstrap.py:493` ist für die festgelegte Workerroute falsch.
-159 fokussierte Regressionen bestehen. Das ist weder eine vollständige
+160 fokussierte Regressionen bestehen. Das ist weder eine vollständige
 Importclosure noch P11-, Runtime-, Profil- oder Workerattestation. Der
 Zwischenstand mit 533 unbekannten Bedingungen unten ist historisch; die
-[aktuelle DGN-007-Fortsetzung](#fortsetzung-nicht-ausgegebene-importdebugmeldung)
+[aktuelle DGN-007-Fortsetzung](#fortsetzung-sysconfig-build-guard)
 enthält die neueren Facts und Digests.
 
 ### DGN-007 – integrierter Import-Only-Worker
@@ -10108,3 +10108,27 @@ Workflow bleibt eine isolierte Qualifikationsroute, QRY-023 bleibt
 `PROPOSED`/nicht katalogisiert und `runtime_authorized: false`. Die frischen
 Engineläufe qualifizieren nur die Lock-Auflösung und den isolierten
 Einzelaufruf. Die menschliche Generalprobe bleibt ausgeschlossen.
+
+## Fortsetzung: sysconfig-Build-Guard
+
+Der CPython-3.12.16-Quellfact löst `sysconfig.py:223` als falsch auf: Die
+Funktion hat ausschließlich `check_home=None`, prüft nur
+`check_home is not None`, und alle produktiven Aufrufe in `sysconfig.py` und
+`venv/__init__.py` sind direkte Aufrufe ohne Argumente. Der Archivscan lässt
+Testquellen aus diesem Laufzeitbeweis aus und verwirft den Fact bei zusätzlichen
+Referenzformen, `from ... import`-Aliasen, dynamischem Stringzugriff,
+Argumenten/Keywords, Parameteränderung oder geändertem `sysconfig.py`-Digest.
+Eine synthetische Regression deckt den positiven Fall und diese Negativformen
+ab.
+
+Der Zielscan bleibt `CANDIDATES_ONLY` mit 60 Modulen und 169 Funktionen. Die
+Kanten sinken von 317 auf 316; 57 Bedingungen sind entschieden, 513 bleiben
+unbekannt. Der Zeilendigest bleibt
+`33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`, der
+Unknown-Digest ist
+`6df5f34ff1f3f7b6c3372ce806b39c7e2c2cd8b2b3db8849ab2d638c429ea193`.
+160 fokussierte Regressionen bestehen lokal. Dies ist keine vollständige
+Importclosure, P11-Sollinventur oder Runtimeattestation. Quellen-/Aufrufreview,
+S15-/P11-Records, fünf vollständige Formen, das gemeinsame 64-KiB-Gate und die
+davon abhängige operative Inventur bleiben offen. Es gab keinen Interpreter-,
+Profil-, Worker-, SQL- oder Generalprobenlauf.
