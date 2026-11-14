@@ -2882,17 +2882,18 @@ Scope-Rebinding wird durch diese Aliasroute nicht modelliert. Der gebundene
 Archivscan behält seine bisherigen Modul-, Kanten-, Funktions-, Bedingungs- und
 Digestwerte.
 
-Statisch nicht interpolierte f-Strings werden jetzt wie andere konstante
-Stringformen als Kandidaten für dynamische Imports berücksichtigt, inline und
-über `Assign`-/`AnnAssign`-Namenswerte. Ein f-String mit formatiertem Ausdruck
-bleibt unaufgelöst; sein Ergebnis wird nicht geraten. Die vorhandene
-Regression für dynamische Importaliase prüft beide positiven Formen sowie
-einen interpolierten Negativfall. Der fokussierte Satz bleibt bei 105 Tests;
-alle bestehen. CPython-Quellclosure und Modulstartscan bleiben unverändert,
-weil das gebundene Archiv keine zusätzliche passende Importkante enthält.
-Unbekannte Namen, Scope/Rebinding, Kontrollfluss und Laufzeitsemantik bleiben
-außerhalb des Scanners. `CANDIDATES_ONLY`, keine vollständige Importclosure,
-kein P11-Sollrecord und keine Runtimequalifikation.
+Statische f-Strings werden jetzt wie andere konstante Stringformen als
+Kandidaten für dynamische Imports berücksichtigt, inline und über
+`Assign`-/`AnnAssign`-Namenswerte. Zulässig sind reine Textsegmente und direkte
+Stringkonstanten in FormattedValue-Knoten ohne Konvertierung oder Formatangabe.
+Andere formatierte Ausdrücke bleiben unaufgelöst; ihr Ergebnis wird nicht
+geraten. Die vorhandene Regression für dynamische Importaliase prüft beide
+positiven Literalformen sowie einen Laufzeitinterpolations-Negativfall. Der
+fokussierte Satz bleibt bei 105 Tests; alle bestehen. CPython-Quellclosure und
+Modulstartscan bleiben unverändert, weil das gebundene Archiv keine zusätzliche
+passende Importkante enthält. Unbekannte Namen, Scope/Rebinding, Kontrollfluss
+und Laufzeitsemantik bleiben außerhalb des Scanners. `CANDIDATES_ONLY`, keine
+vollständige Importclosure, kein P11-Sollrecord und keine Runtimequalifikation.
 
 Diese lexikalische Menge ist kein P11-Sollrecord und keine vollständige
 Laufzeitclosure: Sie enthält unaufgerufene Funktionen, inkompatible

@@ -2068,6 +2068,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"literal_name = 'pkg.literal_name'\n"
                 b"concat_name = 'pkg.' + 'concat_name'\n"
                 b"fstring_name = f'pkg.fstring_name'\n"
+                b"formatted_fstring_name = f\"pkg.{'formatted_fstring_name'}\"\n"
                 b"relative_name = '.pkg.relative'\n"
                 b"load('pkg.api')\n"
                 b"chained_loader('pkg.assigned_alias')\n"
@@ -2076,6 +2077,8 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"load('pkg.' + 'inline_concat')\n"
                 b"load(fstring_name)\n"
                 b"load(f'pkg.inline_fstring')\n"
+                b"load(formatted_fstring_name)\n"
+                b"load(f\"pkg.{'inline_formatted_fstring'}\")\n"
                 b"dynamic_fstring_name = f'pkg.{runtime_name}'\n"
                 b"load(dynamic_fstring_name)\n"
                 b"load(relative_name)\n"
@@ -2097,6 +2100,8 @@ class StaticImportCandidateTests(unittest.TestCase):
             "pkg/inline_concat.py": b"VALUE = 9\n",
             "pkg/fstring_name.py": b"VALUE = 10\n",
             "pkg/inline_fstring.py": b"VALUE = 11\n",
+            "pkg/formatted_fstring_name.py": b"VALUE = 12\n",
+            "pkg/inline_formatted_fstring.py": b"VALUE = 13\n",
         }
         modules, edges, _ = SUBJECT._candidate_closure(files, ("entry",))
         self.assertEqual(
@@ -2104,12 +2109,14 @@ class StaticImportCandidateTests(unittest.TestCase):
             (
                 "entry", "pkg", "pkg.api", "pkg.assigned_alias",
                 "pkg.assigned_builtin", "pkg.builtins_alias",
-                "pkg.builtins_attr", "pkg.concat_name", "pkg.fstring_name",
-                "pkg.inline_concat", "pkg.inline_fstring",
+                "pkg.builtins_attr", "pkg.concat_name",
+                "pkg.formatted_fstring_name", "pkg.fstring_name",
+                "pkg.inline_concat",
+                "pkg.inline_formatted_fstring", "pkg.inline_fstring",
                 "pkg.literal_name", "pkg.module_alias",
             ),
         )
-        self.assertEqual(edges, 11)
+        self.assertEqual(edges, 13)
 
     def test_import_from_resolves_existing_submodule_conservatively(self):
         files = {

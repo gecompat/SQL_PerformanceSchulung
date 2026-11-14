@@ -699,10 +699,18 @@ def _import_names(tree, module, path):
         if isinstance(node, ast.Constant) and type(node.value) is str:
             return node.value
         if isinstance(node, ast.JoinedStr):
-            if all(isinstance(value, ast.Constant) and type(value.value) is str
-                   for value in node.values):
-                return "".join(value.value for value in node.values)
-            return None
+            parts = []
+            for value in node.values:
+                if isinstance(value, ast.Constant) and type(value.value) is str:
+                    parts.append(value.value)
+                elif (isinstance(value, ast.FormattedValue)
+                      and value.conversion == -1 and value.format_spec is None
+                      and isinstance(value.value, ast.Constant)
+                      and type(value.value.value) is str):
+                    parts.append(value.value.value)
+                else:
+                    return None
+            return "".join(parts)
         if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
             left, right = literal_string(node.left), literal_string(node.right)
             if left is not None and right is not None:

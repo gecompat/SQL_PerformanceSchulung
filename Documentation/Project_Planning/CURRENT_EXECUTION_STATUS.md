@@ -57,9 +57,10 @@ und 1.452 unbekannte Bedingungen; Quelldigest
 zwölf Scanwurzeln sind zusätzlich durch AST-Abgleich an die
 fünf Bootstrappräfiximports, acht Profilquellenimports und den `zlib`-Einbau
 gebunden; das belegt weiterhin keine tatsächlich gehaltenen Laufzeitbytes.
-Die dynamische Importkandidatenanalyse erkennt nun auch nicht interpolierte
-f-Strings inline und über Namenszuweisungen; ein f-String mit Laufzeitausdruck
-bleibt unaufgelöst. Die fokussierte Regression besteht mit 105/105 Fällen.
+Die dynamische Importkandidatenanalyse erkennt nun auch f-Strings aus
+Textsegmenten und direkten Stringkonstanten ohne Konvertierung oder
+Formatangabe, inline und über Namenszuweisungen; Laufzeitausdrücke bleiben
+unaufgelöst. Die fokussierte Regression besteht mit 105/105 Fällen.
 Archivclosure und Modulstartscan bleiben unverändert; der Befund ist weiterhin
 `CANDIDATES_ONLY`, keine vollständige P11-Inventur.
 PR #610 hat den Größenfehler des
