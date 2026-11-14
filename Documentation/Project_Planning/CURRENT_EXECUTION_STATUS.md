@@ -9537,3 +9537,19 @@ Bedingungen sind entschieden, 32 unbekannt. Der Unbekannt-Inventardigest ist
 fokussierte Satz besteht 117/117 lokal. Vollständige Offline-CI folgt im
 Pull Request. S15-/P11-Auswahl, operative Inventur und Fünf-Formen-/64-KiB-
 Gate bleiben offen.
+
+## Fortsetzung: C-Warnbackend im `warnings`-Modul
+
+Der gebundene CPython-Scan belegt, dass `warnings.py` sein `_warnings`-
+Backend aus dem Ziel-Builtin importiert: Die erforderlichen Attribute sind
+über das digestgebundene C-Modulmethodenregister und dessen Clinic-Definition
+registriert; der Modul-Exec initialisiert `filters`, `_onceregistry` und
+`_defaultaction`. Damit wird `_warnings_defaults` im erfolgreichen Importzweig
+wahr. Der äußere Fallback-Guard wird falsch und sein innerer
+`sys.gettotalrefcount`-Guard wird nicht mehr betreten. Der Scope bleibt
+`CANDIDATES_ONLY` bei 56 Kandidaten und 278 Kanten mit unverändertem
+Zeilendigest `9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`;
+18 Bedingungen sind entschieden, 24 unbekannt. Der neue Inventardigest lautet
+`8ae75b218c78d994f42921d69f4914c4ee8cc5028588e8576cca5f155cf65209`. Der
+fokussierte Satz besteht 120/120 lokal. Vollständige Offline-CI folgt im
+Pull Request. Runtime-/P11-Auswahl und operative Inventur bleiben offen.

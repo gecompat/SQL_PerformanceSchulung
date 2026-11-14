@@ -32,6 +32,11 @@ SYS_MODULE_C_SHA256 = "6ac1dffffac870e8a7fbe7578ad6a93ff5f6afb4f501ac3ffd1b5e00f
 SYS_MODULE_CLINIC_MEMBER = "Python-3.12.16/Python/clinic/sysmodule.c.h"
 SYS_MODULE_CLINIC_SHA256 = "957a480449ebdd284eae78bf27ef663b0f964ef595eb49208a82f8cb17a93833"
 LOGGING_SOURCE_SHA256 = "43f86bbc08fdd5c7b6e697abffe1381f534a92bb32e1f1aee8360d6a142592a1"
+WARNINGS_SOURCE_SHA256 = "6405e281882932205eae641b2d31fba7776f94517a206d289465a1caffbf310e"
+WARNINGS_C_MEMBER = "Python-3.12.16/Python/_warnings.c"
+WARNINGS_C_SHA256 = "5567817b35e387b6cc5c37074fdcbf0a3978242564a95460ccdc3fe5d6f08019"
+WARNINGS_CLINIC_MEMBER = "Python-3.12.16/Python/clinic/_warnings.c.h"
+WARNINGS_CLINIC_SHA256 = "8ec95ee20132c6ccd71b56070cd5028e0db877a745b215cc5e3ddff8d675b5f0"
 GETPATH_SOURCE_MEMBER = "Python-3.12.16/Modules/getpath.py"
 GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2"
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
@@ -53,6 +58,8 @@ MAX_AST_ASDL_BYTES = 64 * 1024
 MAX_AST_C_BYTES = 512 * 1024
 MAX_SYS_MODULE_C_BYTES = 256 * 1024
 MAX_SYS_MODULE_CLINIC_BYTES = 64 * 1024
+MAX_WARNINGS_C_BYTES = 64 * 1024
+MAX_WARNINGS_CLINIC_BYTES = 16 * 1024
 ROOTS = (
     "dataclasses", "hashlib", "importlib.machinery", "importlib.util", "json",
     "os", "struct", "sys", "sysconfig", "types", "zipimport", "zlib",
@@ -83,6 +90,8 @@ def _source_archive_data(archive_bytes):
     ast_c_source = None
     sys_module_c_source = None
     sys_module_clinic_source = None
+    warnings_c_source = None
+    warnings_clinic_source = None
     total = 0
     with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:xz") as source:
         for member in source:
@@ -192,6 +201,24 @@ def _source_archive_data(archive_bytes):
                 else:
                     sys_module_clinic_source = body
                 continue
+            if member.name in (WARNINGS_C_MEMBER, WARNINGS_CLINIC_MEMBER):
+                is_module = member.name == WARNINGS_C_MEMBER
+                current = warnings_c_source if is_module else warnings_clinic_source
+                limit = MAX_WARNINGS_C_BYTES if is_module else MAX_WARNINGS_CLINIC_BYTES
+                expected = WARNINGS_C_SHA256 if is_module else WARNINGS_CLINIC_SHA256
+                if not member.isfile() or current is not None or member.size > limit:
+                    raise ValueError("WARNINGS_SOURCE_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("WARNINGS_SOURCE_MEMBER")
+                body = stream.read(member.size + 1)
+                if len(body) != member.size or hashlib.sha256(body).hexdigest() != expected:
+                    raise ValueError("WARNINGS_SOURCE_DIGEST")
+                if is_module:
+                    warnings_c_source = body
+                else:
+                    warnings_clinic_source = body
+                continue
             if member.name == STDLIB_MODULE_NAMES_MEMBER:
                 if not member.isfile() or stdlib_header is not None \
                         or member.size > MAX_STDLIB_MODULE_NAMES_BYTES:
@@ -226,7 +253,8 @@ def _source_archive_data(archive_bytes):
             files[relative] = body
     return (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
             getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source,
-            sys_module_c_source, sys_module_clinic_source)
+            sys_module_c_source, sys_module_clinic_source, warnings_c_source,
+            warnings_clinic_source)
 
 
 def _source_files(archive_path):
@@ -1189,6 +1217,65 @@ def _target_sys_getframe_call_facts(files, sys_module_source, clinic_source):
     return (("hasattr(sys, '_getframe')", True),)
 
 
+def _target_warnings_default_call_facts(files, c_source, clinic_source):
+    """Prove the C warnings backend is selected by the pinned builtin import."""
+    source = files.get("warnings.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != WARNINGS_SOURCE_SHA256
+            or type(c_source) is not bytes
+            or hashlib.sha256(c_source).hexdigest() != WARNINGS_C_SHA256
+            or type(clinic_source) is not bytes
+            or hashlib.sha256(clinic_source).hexdigest() != WARNINGS_CLINIC_SHA256
+            or _TARGET_BUILTIN_MEMBERSHIP.get("_warnings") is not True):
+        return {}
+    tree = ast.parse(source, filename="warnings.py")
+    backend_imports = [
+        statement for statement in ast.walk(tree)
+        if isinstance(statement, ast.ImportFrom) and statement.module == "_warnings"
+    ]
+    expected_names = {
+        "filters", "_defaultaction", "_onceregistry", "warn", "warn_explicit",
+        "_filters_mutated",
+    }
+    if (len(backend_imports) != 1
+            or {alias.name for alias in backend_imports[0].names} != expected_names
+            or not any(
+                isinstance(node, ast.If) and ast.unparse(node.test) == "not _warnings_defaults"
+                for node in tree.body
+            )):
+        return {}
+    c_text = c_source.decode("utf-8")
+    clinic_text = clinic_source.decode("utf-8")
+    required_methods = (
+        ("WARNINGS_WARN_METHODDEF", '"warn"'),
+        ("WARNINGS_WARN_EXPLICIT_METHODDEF", '"warn_explicit"'),
+        ("WARNINGS_FILTERS_MUTATED_METHODDEF", '"_filters_mutated"'),
+    )
+    clinic_lines = clinic_text.splitlines()
+    for macro, method_name in required_methods:
+        index = next((i for i, line in enumerate(clinic_lines)
+                      if line.startswith(f"#define {macro}")), None)
+        if (index is None or index + 1 >= len(clinic_lines)
+                or method_name not in clinic_lines[index + 1]):
+            return {}
+    required_source_patterns = (
+        r'#include "clinic/_warnings\.c\.h"',
+        r"static PyMethodDef warnings_functions\[\] = \{",
+        r"WARNINGS_WARN_METHODDEF",
+        r"WARNINGS_WARN_EXPLICIT_METHODDEF",
+        r"WARNINGS_FILTERS_MUTATED_METHODDEF",
+        r'PyModule_AddObjectRef\(module, "filters", st->filters\)',
+        r'PyModule_AddObjectRef\(module, "_onceregistry", st->once_registry\)',
+        r'PyModule_AddObjectRef\(module, "_defaultaction", st->default_action\)',
+        r"\.m_methods = warnings_functions",
+        r"\.m_slots = warnings_slots",
+        r"\{Py_mod_exec, warnings_module_exec\}",
+    )
+    if any(not re.search(pattern, c_text) for pattern in required_source_patterns):
+        return {}
+    return {"_warnings_defaults": True}
+
+
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
@@ -1585,7 +1672,8 @@ def _module_body_candidate_closure(files, roots=ROOTS):
 
 
 def _target_platform_candidate_closure(
-        files, roots=ROOTS, unknown_conditions=None, known_call_facts=None):
+        files, roots=ROOTS, unknown_conditions=None, known_call_facts=None,
+        known_name_facts=None):
     if type(files) is not dict or type(roots) is not tuple:
         raise ValueError("SOURCE_INPUT_TYPE")
     if unknown_conditions is not None and type(unknown_conditions) is not list:
@@ -1596,6 +1684,13 @@ def _target_platform_candidate_closure(
                    or type(fact[0]) is not str or type(fact[1]) is not bool
                    for fact in known_call_facts))):
         raise ValueError("CONDITION_FACTS_TYPE")
+    if (known_name_facts is not None and (
+            type(known_name_facts) is not dict
+            or any(type(module) is not str or type(facts) is not dict
+                   or any(type(name) is not str or type(value) not in (str, bool, int)
+                          for name, value in facts.items())
+                   for module, facts in known_name_facts.items()))):
+        raise ValueError("CONDITION_NAME_FACTS_TYPE")
     reached = set()
     pending = list(roots)
     edges = 0
@@ -1612,6 +1707,8 @@ def _target_platform_candidate_closure(
         aliases = _target_name_aliases(tree, imported_module_name=True)
         if module == "importlib._bootstrap_external":
             aliases.update(_target_importlib_windows_name_facts(files))
+        elif module == "warnings":
+            aliases.update((known_name_facts or {}).get(module, {}))
         for name in _module_body_import_names(
                 tree, module, path, target_platform=True, condition_stats=condition_stats,
                 known_names=aliases, unknown_conditions=unknown_conditions,
@@ -2978,7 +3075,8 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
 def analyze(archive_path):
     (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
      getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source,
-     sys_module_c_source, sys_module_clinic_source) = _source_archive_data(
+     sys_module_c_source, sys_module_clinic_source, warnings_c_source,
+     warnings_clinic_source) = _source_archive_data(
         _archive_bytes(archive_path)
     )
     if stdlib_header is None:
@@ -3024,9 +3122,12 @@ def analyze(archive_path):
     sys_getframe_call_facts = _target_sys_getframe_call_facts(
         files, sys_module_c_source, sys_module_clinic_source
     )
+    warnings_default_call_facts = _target_warnings_default_call_facts(
+        files, warnings_c_source, warnings_clinic_source
+    )
     target_call_facts = tuple(sorted(
         types_descriptor_call_facts + ast_compatibility_call_facts
-        + sys_getframe_call_facts
+        + sys_getframe_call_facts + tuple(warnings_default_call_facts.items())
     ))
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
@@ -3035,6 +3136,7 @@ def analyze(archive_path):
         _target_platform_candidate_closure(
             files, unknown_conditions=target_unknown_conditions,
             known_call_facts=target_call_facts,
+            known_name_facts={"warnings": warnings_default_call_facts},
         )
     )
     target_unknown_conditions_sha256 = hashlib.sha256(
@@ -3208,6 +3310,9 @@ def analyze(archive_path):
         "target_platform_sys_getframe_call_facts": list(sys_getframe_call_facts),
         "target_platform_sys_module_c_sha256": SYS_MODULE_C_SHA256,
         "target_platform_sys_module_clinic_sha256": SYS_MODULE_CLINIC_SHA256,
+        "target_platform_warnings_default_call_facts": list(
+            warnings_default_call_facts.items()
+        ),
         "target_platform_types_source_sha256": _TYPES_SOURCE_SHA256,
         "target_platform_inspect_source_sha256": _INSPECT_SOURCE_SHA256,
         "target_platform_builtin_membership": _TARGET_BUILTIN_MEMBERSHIP,
