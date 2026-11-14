@@ -3808,9 +3808,23 @@ def _target_condition(node, known_names=None, known_call_facts=None):
             return tuple(items) if all(item is not _UNKNOWN for item in items) else _UNKNOWN
         if isinstance(expr, ast.Subscript):
             container = value(expr.value)
+            if type(container) is not tuple:
+                return _UNKNOWN
+            if isinstance(expr.slice, ast.Slice):
+                bounds = []
+                for bound in (expr.slice.lower, expr.slice.upper, expr.slice.step):
+                    if bound is None:
+                        bounds.append(None)
+                        continue
+                    resolved = value(bound)
+                    if type(resolved) is not int or resolved < 0:
+                        return _UNKNOWN
+                    bounds.append(resolved)
+                if bounds[2] == 0:
+                    return _UNKNOWN
+                return container[slice(*bounds)]
             index = value(expr.slice)
-            if (type(container) is tuple and type(index) is int
-                    and 0 <= index < len(container)):
+            if type(index) is int and 0 <= index < len(container):
                 return container[index]
             return _UNKNOWN
         if isinstance(expr, ast.List):

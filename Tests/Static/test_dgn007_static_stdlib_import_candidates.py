@@ -1904,6 +1904,42 @@ class StaticImportCandidateTests(unittest.TestCase):
         ))
         self.assertEqual(conditions, {"resolved": 1, "unknown": 1})
 
+    def test_target_python_version_info_resolves_constant_slices_only(self):
+        for expression, expected in (
+                ("sys.version_info[:2] == (3, 12)", True),
+                ("sys.version_info[1:3] == (12, 16)", True),
+                ("sys.version_info[::2] == (3, 16, 0)", True)):
+            condition = ast.parse(expression, mode="eval").body
+            self.assertIs(SUBJECT._target_condition(condition), expected)
+        for expression in (
+                "sys.version_info[:bound] == (3, 12)",
+                "sys.version_info[-2:] == (16, 'final', 0)",
+                "sys.version_info[::0] == (3, 12, 16, 'final', 0)"):
+            condition = ast.parse(expression, mode="eval").body
+            self.assertIsNone(SUBJECT._target_condition(condition))
+
+    def test_target_platform_closure_uses_version_info_constant_slices(self):
+        files = {
+            "pkg.py": (
+                b"import sys\n"
+                b"if sys.version_info[:2] == (3, 12):\n    import py312\n"
+                b"else:\n    import other\n"
+                b"if sys.version_info[:bound] == (3, 12):\n"
+                b"    import dynamic_a\nelse:\n    import dynamic_b\n"
+            ),
+            "py312.py": b"VALUE = 312\n",
+            "other.py": b"VALUE = 0\n",
+            "dynamic_a.py": b"VALUE = 1\n",
+            "dynamic_b.py": b"VALUE = 2\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+            files, ("pkg",),
+        )
+        self.assertEqual(modules, (
+            "dynamic_a", "dynamic_b", "pkg", "py312",
+        ))
+        self.assertEqual(conditions, {"resolved": 1, "unknown": 1})
+
     def test_target_platform_membership_resolves_constant_set_literals(self):
         condition = ast.parse(
             "sys.platform in {'emscripten', 'vxworks', 'wasi'}", mode="eval"
