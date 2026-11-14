@@ -709,6 +709,17 @@ def _import_names(tree, module, path):
                 for alias in node.names:
                     if alias.name != "*":
                         yield base + "." + alias.name
+        elif (isinstance(node, ast.Call) and node.args
+              and isinstance(node.args[0], ast.Constant)
+              and type(node.args[0].value) is str
+              and node.args[0].value and not node.args[0].value.startswith(".")):
+            if isinstance(node.func, ast.Name) and node.func.id == "__import__":
+                yield node.args[0].value
+            elif (isinstance(node.func, ast.Attribute)
+                  and node.func.attr == "import_module"
+                  and isinstance(node.func.value, ast.Name)
+                  and node.func.value.id == "importlib"):
+                yield node.args[0].value
 
 
 _KNOWN_BUILTIN_NAMES = object()
@@ -957,15 +968,14 @@ def _candidate_closure(files, roots=ROOTS):
         tree = ast.parse(files[path], filename=path)
         for name in _import_names(tree, module, path):
             parts = name.split(".")
-            candidate = next(
-                (".".join(parts[:index]) for index in range(len(parts), 0, -1)
-                 if _module_path(".".join(parts[:index]), files) is not None),
-                None,
-            )
-            if candidate is not None:
+            candidates = []
+            for index in range(1, len(parts) + 1):
+                candidate = ".".join(parts[:index])
+                if _module_path(candidate, files) is not None:
+                    candidates.append(candidate)
+            if candidates:
                 edges += 1
-                if candidate not in reached:
-                    pending.append(candidate)
+                pending.extend(candidate for candidate in candidates if candidate not in reached)
     rows = []
     for module in sorted(reached):
         path = _module_path(module, files)
@@ -992,15 +1002,14 @@ def _module_body_candidate_closure(files, roots=ROOTS):
         tree = ast.parse(files[path], filename=path)
         for name in _module_body_import_names(tree, module, path):
             parts = name.split(".")
-            candidate = next(
-                (".".join(parts[:index]) for index in range(len(parts), 0, -1)
-                 if _module_path(".".join(parts[:index]), files) is not None),
-                None,
-            )
-            if candidate is not None:
+            candidates = []
+            for index in range(1, len(parts) + 1):
+                candidate = ".".join(parts[:index])
+                if _module_path(candidate, files) is not None:
+                    candidates.append(candidate)
+            if candidates:
                 edges += 1
-                if candidate not in reached:
-                    pending.append(candidate)
+                pending.extend(candidate for candidate in candidates if candidate not in reached)
     rows = []
     for module in sorted(reached):
         path = _module_path(module, files)

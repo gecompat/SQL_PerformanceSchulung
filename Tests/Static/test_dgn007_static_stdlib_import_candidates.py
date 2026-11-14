@@ -2001,6 +2001,22 @@ class StaticImportCandidateTests(unittest.TestCase):
         modules, _, _ = SUBJECT._candidate_closure(files, ("entry",))
         self.assertEqual(modules, ("entry",))
 
+    def test_literal_dynamic_imports_add_source_candidates(self):
+        files = {
+            "entry.py": (
+                b"import importlib\n"
+                b"__import__('pkg.direct')\n"
+                b"importlib.import_module('pkg.api')\n"
+                b"importlib.import_module(runtime_name)\n"
+            ),
+            "pkg/__init__.py": b"VALUE = 1\n",
+            "pkg/direct.py": b"VALUE = 2\n",
+            "pkg/api.py": b"VALUE = 3\n",
+        }
+        modules, edges, _ = SUBJECT._candidate_closure(files, ("entry",))
+        self.assertEqual(modules, ("entry", "pkg", "pkg.api", "pkg.direct"))
+        self.assertEqual(edges, 2)
+
     def test_import_from_resolves_existing_submodule_conservatively(self):
         files = {
             "pkg/__init__.py": b"from . import child\n",

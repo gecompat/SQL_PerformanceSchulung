@@ -894,6 +894,11 @@ Die vorgepinnten `Modules/config.c.in`-/`configure.ac`-Vorlagen binden zusätzli
 neun feste Inittab-Basiseinträge und 14 Configure-Modulblock-Anker; 101/101
 fokussierte Tests bestehen. Das belegt weder einen Configure-Lauf noch die
 konkrete Builtin-/Extension-Aktivierung.
+Die allgemeine Quellclosure verfolgt jetzt außerdem vorhandene Paketeltern und
+konstante `__import__`-/`importlib.import_module`-Namen. Vier Quellenmodule
+kommen hinzu (`concurrent`, `pydoc_data`, `xml`, `xmlrpc`); der neue
+Closurehash lautet `700ace82b2c5630fc6ac039bb5bed0d788a46f6f8bcd1efba3fc0afb97068b6d`.
+Berechnete und relative dynamische Namen bleiben offen; keine P11-Vollständigkeit.
 
 ### Gemeinsame Autonomie- und Stopregeln
 

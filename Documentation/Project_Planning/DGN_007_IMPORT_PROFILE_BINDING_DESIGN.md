@@ -5373,3 +5373,21 @@ Damit ist die statische Vorlage-zu-Configure-Kante enger gebunden, aber weder
 ein Configure-Lauf noch dessen Modulentscheidung belegt. Keine Buildaktivierung,
 Zielimage-Attestation oder vollständige P11-Closure wird behauptet; der
 Importkandidatenscan bleibt unverändert.
+
+### Fortsetzung: Statische Paketeltern und konstante dynamische Imports
+
+Die konservative Quellclosure umfasst nun auch vorhandene Package-
+Initialisierer oberhalb eines gefundenen Dotted-Moduls und konstante
+Modulnamen in direkten `__import__("name")`- sowie
+`importlib.import_module("name")`-Aufrufen. Beliebige berechnete Namen und
+relative dynamische Namen bleiben unaufgelöst. Gegenüber dem vorherigen
+gebundenen Scan kommen vier Quellkandidaten hinzu: `concurrent`, `pydoc_data`,
+`xml` und `xmlrpc`. Die Closure umfasst damit 268 Module; die 2.438
+Importkanten bleiben gleich. Der neue Zeilenhash lautet
+`700ace82b2c5630fc6ac039bb5bed0d788a46f6f8bcd1efba3fc0afb97068b6d`.
+
+Eine synthetische Gegenprobe deckt konstante Imports und die Package-Eltern ab;
+ein dynamischer Variablenname bleibt ausgeschlossen. Der fokussierte Satz
+besteht 102/102. Das bleibt eine statische Kandidatenmenge einschließlich
+möglicher nicht ausgeführter Zweige, keine vollständige P11-Importclosure oder
+Runtime-Attestation; der gesonderte Startkandidatenscan bleibt 93/578/534.
