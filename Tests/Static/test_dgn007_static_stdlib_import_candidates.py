@@ -823,6 +823,34 @@ class StaticImportCandidateTests(unittest.TestCase):
                     {"ast.py": changed}, c_source
                 ))
 
+    def test_inspect_module_name_survives_bounded_globals_initialization(self):
+        source = (
+            b"import dis\nmod_dict = globals()\n"
+            b"for k, v in dis.COMPILER_FLAG_NAMES.items():\n"
+            b"    mod_dict['CO_' + v] = k\n"
+            b"del k, v, mod_dict\n"
+            b"def helper():\n    return eval('x', globals(), locals())\n"
+            b"if __name__ == '__main__':\n    import inspect_demo\n"
+        )
+        files = {"inspect.py": source}
+        with patch.object(
+            SUBJECT, "_INSPECT_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ):
+            self.assertTrue(SUBJECT._target_inspect_imported_name_safe(files))
+            self.assertIs(SUBJECT._target_condition(
+                ast.parse("__name__ == '__main__'", mode="eval").body,
+                known_names={"__name__": SUBJECT._IMPORTED_MODULE_NAME},
+            ), False)
+            rebound = source.replace(
+                b"del k, v, mod_dict\n", b"globals()['__name__'] = '__main__'\n"
+            )
+            with patch.object(
+                SUBJECT, "_INSPECT_SOURCE_SHA256", hashlib.sha256(rebound).hexdigest()
+            ):
+                self.assertFalse(SUBJECT._target_inspect_imported_name_safe(
+                    {"inspect.py": rebound}
+                ))
+
     def test_importlib_windows_name_fact_requires_digest_and_direct_binding(self):
         source = (
             b"import sys\n"

@@ -9579,7 +9579,21 @@ Liste historische AST-Aliasnamen, die `__name__` nicht enthält. Die übrigen
 offen. Der Archivscan bleibt `CANDIDATES_ONLY` mit 56 Kandidaten, 278 Kanten
 und Zeilendigest
 `9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 21
-Bedingungen sind entschieden, 21 unbekannt. Der Inventardigest lautet
-`9aface0e6304747998184935748499ffaec6895278c008adac9af1b137ca9f83`. Der
-fokussierte Satz besteht 122/122 lokal. Vollständige Offline-CI folgt im
+Bedingungen sind entschieden, 21 unbekannt. Der Inventardigest lautete
+`9aface0e6304747998184935748499ffaec6895278c008adac9af1b137ca9f83`; der
+fokussierte Satz bestand 122/122 lokal.
+
+## Fortsetzung: `inspect.__name__` trotz begrenztem `globals()`-Zugriff
+
+Die digestgebundene `inspect.py`-Quelle enthält keinen `__name__`-Store oder
+Delete. Ihr einzelner modulweit ausgeführter `globals()`-Zugriff bindet
+`mod_dict`; die folgende feste Schleife ergänzt ausschließlich Schlüssel mit
+dem Präfix `CO_`. Weitere `globals`-/`eval`-/`locals`-/`vars`-Zugriffe liegen
+innerhalb von Funktionen. Damit bleibt der importierte Modulname erhalten und
+`inspect.__name__ == '__main__'` wird falsch. Der gebundene Archivscan bleibt
+`CANDIDATES_ONLY` mit 56 Kandidaten, 278 Kanten und unverändertem Zeilendigest
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 22
+Bedingungen sind entschieden, 20 unbekannt. Der neue Inventardigest lautet
+`529e15a5e908300262cc64d06351f2825c863abfe6a370a3c7919e4a95d30877`. Der
+fokussierte Satz besteht 123/123 lokal. Vollständige Offline-CI folgt im
 Pull Request. Runtime-/P11-Auswahl und operative Inventur bleiben offen.

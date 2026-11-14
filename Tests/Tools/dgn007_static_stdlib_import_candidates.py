@@ -1395,6 +1395,63 @@ def _target_ast_imported_name_star_import_safe(files, ast_c_source):
     return True
 
 
+def _target_inspect_imported_name_safe(files):
+    """Prove inspect's module-level globals access cannot replace __name__."""
+    source = files.get("inspect.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != _INSPECT_SOURCE_SHA256):
+        return False
+    tree = ast.parse(source, filename="inspect.py")
+    if any(isinstance(node, ast.Name) and node.id == "__name__"
+           and isinstance(node.ctx, (ast.Store, ast.Del)) for node in ast.walk(tree)):
+        return False
+    parents = {}
+    for parent in ast.walk(tree):
+        for child in ast.iter_child_nodes(parent):
+            parents[child] = parent
+    module_globals_calls = []
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id in {"exec", "eval", "globals", "locals", "vars"}):
+            continue
+        ancestor = node
+        in_function = False
+        while ancestor in parents:
+            ancestor = parents[ancestor]
+            if isinstance(ancestor, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                in_function = True
+                break
+        if in_function:
+            continue
+        if node.func.id != "globals":
+            return False
+        module_globals_calls.append(node)
+    if len(module_globals_calls) != 1:
+        return False
+    call = module_globals_calls[0]
+    assignment = parents.get(call)
+    if (not isinstance(assignment, ast.Assign) or len(assignment.targets) != 1
+            or not isinstance(assignment.targets[0], ast.Name)
+            or assignment.targets[0].id != "mod_dict"):
+        return False
+    module_name_writes = [
+        node for node in ast.walk(tree)
+        if isinstance(node, ast.Subscript) and isinstance(node.ctx, ast.Store)
+        and isinstance(node.value, ast.Name) and node.value.id == "mod_dict"
+        and isinstance(node.slice, ast.Constant) and node.slice.value == "__name__"
+    ]
+    if module_name_writes:
+        return False
+    compiler_flags_loop = [
+        node for node in tree.body if isinstance(node, ast.For)
+        and ast.unparse(node) == (
+            "for k, v in dis.COMPILER_FLAG_NAMES.items():\n"
+            "    mod_dict['CO_' + v] = k"
+        )
+    ]
+    return len(compiler_flags_loop) == 1
+
+
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
@@ -1838,7 +1895,8 @@ def _target_platform_candidate_closure(
             module in preserve_imported_name_modules
             or _target_imported_name_star_imports_safe(files, module)
         )
-        if preserve_imported_name and module == "ast":
+        if (preserve_imported_name and module in {"ast", "inspect"}
+                and aliases.get("__name__") is not _IMPORTED_MODULE_NAME):
             aliases["__name__"] = _IMPORTED_MODULE_NAME
         for name in _module_body_import_names(
                 tree, module, path, target_platform=True, condition_stats=condition_stats,
@@ -3257,12 +3315,13 @@ def analyze(archive_path):
     warnings_default_call_facts = _target_warnings_default_call_facts(
         files, warnings_c_source, warnings_clinic_source
     )
-    target_imported_name_star_export_modules = tuple(sorted(
-        module for module in ("ast", "dis", "tokenize")
+    target_imported_name_safe_modules = tuple(sorted(
+        module for module in ("ast", "dis", "inspect", "tokenize")
         if (_target_imported_name_star_imports_safe(files, module)
             or module == "ast" and _target_ast_imported_name_star_import_safe(
                 files, ast_c_source
-            ))
+            )
+            or module == "inspect" and _target_inspect_imported_name_safe(files))
     ))
     target_call_facts = tuple(sorted(
         types_descriptor_call_facts + ast_compatibility_call_facts
@@ -3276,7 +3335,7 @@ def analyze(archive_path):
             files, unknown_conditions=target_unknown_conditions,
             known_call_facts=target_call_facts,
             known_name_facts={"warnings": warnings_default_call_facts},
-            preserve_imported_name_modules=target_imported_name_star_export_modules,
+            preserve_imported_name_modules=target_imported_name_safe_modules,
         )
     )
     target_unknown_conditions_sha256 = hashlib.sha256(
@@ -3453,8 +3512,8 @@ def analyze(archive_path):
         "target_platform_warnings_default_call_facts": list(
             warnings_default_call_facts.items()
         ),
-        "target_platform_imported_name_star_export_modules": list(
-            target_imported_name_star_export_modules
+        "target_platform_imported_name_safe_modules": list(
+            target_imported_name_safe_modules
         ),
         "target_platform_types_source_sha256": _TYPES_SOURCE_SHA256,
         "target_platform_inspect_source_sha256": _INSPECT_SOURCE_SHA256,

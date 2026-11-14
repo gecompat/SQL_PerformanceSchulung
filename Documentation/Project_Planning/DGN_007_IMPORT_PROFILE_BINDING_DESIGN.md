@@ -5685,9 +5685,9 @@ unveränderliche Quellbindung geprüft; jede Exportliste ist eine einmalige
 statische Liste und enthält `__name__` nicht. Daher bleiben die Guards
 `__name__ == '__main__'` in `dis.py` und `tokenize.py` im importierten
 Modulpfad falsch. Andere Exportformen und Rebindings verwerfen den Fakt.
-Die `inspect.py`-Wache bleibt wegen zusätzlicher dynamischer
-Namespacezugriffe unbekannt; `ast.py` wird im folgenden Abschnitt gesondert
-gebunden.
+Die `inspect.py`-Wache blieb an diesem Zwischenstand wegen zusätzlicher
+dynamischer Namespacezugriffe noch unbekannt; `ast.py` wird im folgenden
+Abschnitt gesondert gebunden.
 
 Der gebundene Scan bleibt `CANDIDATES_ONLY` bei 56/278 und
 `9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 20
@@ -5708,3 +5708,17 @@ Quellbindungen wird daher auch `ast.__name__ == '__main__'` falsch. Die
 Der aktualisierte Scan bleibt `CANDIDATES_ONLY` bei 56/278; 21 Bedingungen
 sind entschieden und 21 unbekannt. Der Unbekannt-Inventardigest ist
 `9aface0e6304747998184935748499ffaec6895278c008adac9af1b137ca9f83`.
+
+### Fortsetzung: `inspect.__name__` und der Modulinitialisierer
+
+Die digestgebundene `Lib/inspect.py`-Quelle bindet `mod_dict` genau einmal an
+`globals()` und schreibt darüber in der modulweit ausgeführten
+`COMPILER_FLAG_NAMES`-Schleife ausschließlich Schlüssel mit dem festen
+`CO_`-Präfix. Sie schreibt oder löscht `__name__` nicht. Weitere dynamische
+Namespacezugriffe befinden sich innerhalb von Funktionskörpern und werden
+beim Import nicht ausgeführt. Damit ist die `inspect.py`-Wache
+`__name__ == '__main__'` im importierten Modulpfad falsch.
+
+Der aktualisierte Scan bleibt `CANDIDATES_ONLY` bei 56/278; 22 Bedingungen
+sind entschieden und 20 unbekannt. Der Unbekannt-Inventardigest lautet
+`529e15a5e908300262cc64d06351f2825c863abfe6a370a3c7919e4a95d30877`.
