@@ -45,6 +45,11 @@ TOKEN_SOURCE_SHA256 = "1a4d994ce9744f4bfe2d964fc24d112a1e76796a08c2e45a2d73c82a8
 OS_SOURCE_SHA256 = "6f3888d1a5bd4f1333116dd75ca8f1d2d951e38c8c8426179417aea097a1eef0"
 POSIX_MODULE_C_MEMBER = "Python-3.12.16/Modules/posixmodule.c"
 POSIX_MODULE_C_SHA256 = "a8f1410ad95326648a473672ee3bf8158a5f744b7c032c0142327fb252688ab4"
+PICKLE_MODULE_C_MEMBER = "Python-3.12.16/Modules/_pickle.c"
+PICKLE_MODULE_C_SHA256 = "c3ec3ad77fbb84d902bc7366f9b7cd76f17f9c106cb984ef3e99894cf0f9698b"
+PICKLE_EXTENSION_PATH = "usr/local/lib/python3.12/lib-dynload/_pickle.cpython-312-x86_64-linux-gnu.so"
+PICKLE_EXTENSION_SHA256 = "f6cdd4a784089665d18243b944051052b8a9452f3b1e40be88bdf685b2afb83d"
+PICKLE_SOURCE_SHA256 = "7e3447b6d993a6306a7893fd2fba916010ed79f8e09ceb56158a550fa8099a14"
 POSIX_MODULE_CLINIC_MEMBER = "Python-3.12.16/Modules/clinic/posixmodule.c.h"
 POSIX_MODULE_CLINIC_SHA256 = "dd89b7a30073abfad8f082966f135a343ca4e1b7b856e3ba696a6e9c27870747"
 TARGET_PYCONFIG_SHA256 = "22a6bfe20214fb395e546edd499f826d9d4be7b7b1289b0d391255145a207ed5"
@@ -132,6 +137,7 @@ def _source_archive_data(archive_bytes):
     warnings_clinic_source = None
     posix_module_c_source = None
     posix_module_clinic_source = None
+    pickle_module_c_source = None
     thread_native_id_header = None
     thread_native_id_module = None
     thread_native_id_pthread = None
@@ -285,6 +291,19 @@ def _source_archive_data(archive_bytes):
                 else:
                     posix_module_clinic_source = body
                 continue
+            if member.name == PICKLE_MODULE_C_MEMBER:
+                if (not member.isfile() or pickle_module_c_source is not None
+                        or member.size > MAX_POSIX_MODULE_C_BYTES):
+                    raise ValueError("PICKLE_MODULE_SOURCE_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("PICKLE_MODULE_SOURCE_MEMBER")
+                pickle_module_c_source = stream.read(member.size + 1)
+                if (len(pickle_module_c_source) != member.size
+                        or hashlib.sha256(pickle_module_c_source).hexdigest()
+                        != PICKLE_MODULE_C_SHA256):
+                    raise ValueError("PICKLE_MODULE_SOURCE_DIGEST")
+                continue
             if member.name in thread_source_members:
                 source_key = thread_source_members[member.name]
                 current = {
@@ -348,6 +367,7 @@ def _source_archive_data(archive_bytes):
             getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source,
             sys_module_c_source, sys_module_clinic_source, warnings_c_source,
             warnings_clinic_source, posix_module_c_source, posix_module_clinic_source,
+            pickle_module_c_source,
             thread_native_id_header, thread_native_id_module, thread_native_id_pthread)
 
 
@@ -1909,6 +1929,55 @@ def _target_codecs_false_guard_line_facts(files):
     return {guards[0].lineno: False}
 
 
+def _target_pickle_buffer_line_facts(files, pickle_module_c_source,
+                                     target_image_facts):
+    """Bind pickle's feature guard to the exact source and present target extension."""
+    source = files.get("pickle.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != PICKLE_SOURCE_SHA256
+            or type(pickle_module_c_source) is not bytes
+            or hashlib.sha256(pickle_module_c_source).hexdigest()
+            != PICKLE_MODULE_C_SHA256
+            or target_image_facts.get("_pickle_extension") is not True):
+        return {}
+    c_text = pickle_module_c_source.decode("utf-8")
+    if ("/* Add types */\n    if (PyModule_AddType(m, &PyPickleBuffer_Type) < 0) {"
+            not in c_text):
+        return {}
+    tree = ast.parse(source, filename="pickle.py")
+    guards = [node for node in ast.walk(tree) if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "_HAVE_PICKLE_BUFFER"]
+    import_guards = [node for node in tree.body if isinstance(node, ast.Try)
+                     and any(isinstance(item, ast.ImportFrom)
+                             and item.module == "_pickle"
+                             and [alias.name for alias in item.names] == ["PickleBuffer"]
+                             for item in node.body)]
+    guard_classes = [node for node in ast.walk(tree)
+                     if isinstance(node, ast.ClassDef) and guards
+                     and guards[0] in node.body]
+    if (len(guards) != 1 or len(import_guards) != 1 or len(guard_classes) != 1
+            or not any(isinstance(node, ast.Assign)
+                       and any(isinstance(target, ast.Name)
+                               and target.id == "_HAVE_PICKLE_BUFFER"
+                               for target in node.targets)
+                       and isinstance(node.value, ast.Constant)
+                       and node.value.value is True
+                       for node in import_guards[0].body)
+            or not any(isinstance(handler, ast.ExceptHandler)
+                       and handler.type is not None
+                       and ast.unparse(handler.type) == "ImportError"
+                       and any(isinstance(node, ast.Assign)
+                               and any(isinstance(target, ast.Name)
+                                       and target.id == "_HAVE_PICKLE_BUFFER"
+                                       for target in node.targets)
+                               and isinstance(node.value, ast.Constant)
+                               and node.value.value is False
+                               for node in handler.body)
+                       for handler in import_guards[0].handlers)):
+        return {}
+    return {guards[0].lineno: True}
+
+
 def _target_os_have_functions_call_facts(files, posix_source, clinic_source):
     """Prove posixmodule_exec always publishes os.py's feature inventory."""
     source = files.get("os.py")
@@ -2545,6 +2614,7 @@ def _target_image_save_facts(image_save_path, image_config_source):
 
             tracked = {
                 TARGET_EXECUTABLE_PATH: None,
+                PICKLE_EXTENSION_PATH: None,
                 "usr/local/bin/python3": None,
                 "usr/local/bin/Modules/Setup": None,
                 "usr/local/bin/Modules/Setup.local": None,
@@ -2566,7 +2636,8 @@ def _target_image_save_facts(image_save_path, image_config_source):
                             whiteouts.append((parent + "/" + basename[4:], False))
                         elif name in tracked:
                             content_sha256 = None
-                            if member.isfile() and name in (TARGET_EXECUTABLE_PATH,):
+                            if member.isfile() and name in (
+                                    TARGET_EXECUTABLE_PATH, PICKLE_EXTENSION_PATH):
                                 stream = layer.extractfile(member)
                                 content_digest = hashlib.sha256()
                                 while True:
@@ -2610,11 +2681,16 @@ def _target_image_save_facts(image_save_path, image_config_source):
                     or tracked["usr/local/bin/Modules/Setup"] is not None
                     or tracked["usr/local/bin/Modules/Setup.local"] is not None):
                 raise ValueError("TARGET_IMAGE_SAVE_PATH_FACTS")
+            if tracked[PICKLE_EXTENSION_PATH] != {
+                    "file": True, "symlink": False, "linkname": None,
+                    "mode": 0o755, "sha256": PICKLE_EXTENSION_SHA256}:
+                raise ValueError("TARGET_IMAGE_PICKLE_EXTENSION_FACT")
     except (tarfile.TarError, KeyError, TypeError, json.JSONDecodeError) as error:
         raise ValueError("TARGET_IMAGE_SAVE_INVALID") from error
     return {
         "executable_path_candidate": "/usr/local/bin/python3.12",
         "_PYTHON_BUILD": False,
+        "_pickle_extension": True,
     }
 
 
@@ -4523,7 +4599,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
      getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source,
      sys_module_c_source, sys_module_clinic_source, warnings_c_source,
      warnings_clinic_source, posix_module_c_source,
-     posix_module_clinic_source, thread_native_id_header,
+     posix_module_clinic_source, pickle_module_c_source, thread_native_id_header,
      thread_native_id_module, thread_native_id_pthread) = _source_archive_data(
         _archive_bytes(archive_path)
     )
@@ -4619,6 +4695,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         files, os_name_facts,
     ) if os_name_facts else {}
     codecs_false_guard_line_facts = _target_codecs_false_guard_line_facts(files)
+    pickle_buffer_line_facts = _target_pickle_buffer_line_facts(
+        files, pickle_module_c_source, target_image_path_facts,
+    ) if target_image_path_facts else {}
     os_fspath_call_facts = _target_os_fspath_call_facts(
         files, posix_module_c_source, posix_module_clinic_source
     )
@@ -4737,7 +4816,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         trusted_line_facts={
             "os": os_createenviron_line_facts,
             "codecs": codecs_false_guard_line_facts,
-        } if os_createenviron_line_facts or codecs_false_guard_line_facts else {},
+            "pickle": pickle_buffer_line_facts,
+        } if (os_createenviron_line_facts or codecs_false_guard_line_facts
+              or pickle_buffer_line_facts) else {},
         unknown_conditions=target_call_unknown_conditions,
     )
     target_call_unknown_conditions.sort(
@@ -4921,6 +5002,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_codecs_false_guard_line_facts": list(
             codecs_false_guard_line_facts.items()
+        ),
+        "target_platform_pickle_buffer_line_facts": list(
+            pickle_buffer_line_facts.items()
         ),
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,
