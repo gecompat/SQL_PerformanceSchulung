@@ -38,6 +38,9 @@ INITCONFIG_C_MEMBER = "Python-3.12.16/Python/initconfig.c"
 INITCONFIG_C_SHA256 = "a50ff760d49e9d1da8a5a998bcedc8c377f12628d7d0426fc4dab89c1abfeff7"
 LOGGING_SOURCE_SHA256 = "43f86bbc08fdd5c7b6e697abffe1381f534a92bb32e1f1aee8360d6a142592a1"
 WEAKREFSET_SOURCE_SHA256 = "91895a451d06e9f521a1171b31b9b19bc9740f35af00d4fa106338ab7167c9ac"
+COPYREG_SOURCE_SHA256 = "c8eda41f05c6bf95a4da4726a530409d2485ae060b8d019b3a8034389a15d3e9"
+TYPING_SOURCE_SHA256 = "be92d60fb8382bb29ead21c128825d7c96d0e8c915b44f840791e49f5a8d554c"
+RE_SOURCE_SHA256 = "8ff3c37c63b917fcf8dc8d50993a502292a3dc159e41de4f4018c72a53d1c07b"
 WARNINGS_SOURCE_SHA256 = "6405e281882932205eae641b2d31fba7776f94517a206d289465a1caffbf310e"
 WARNINGS_C_MEMBER = "Python-3.12.16/Python/_warnings.c"
 WARNINGS_C_SHA256 = "5567817b35e387b6cc5c37074fdcbf0a3978242564a95460ccdc3fe5d6f08019"
@@ -3083,6 +3086,124 @@ def _target_weakrefset_empty_init_line_facts(files):
     return {guards[0].lineno: False}
 
 
+def _target_copyreg_pickle_callable_line_facts(files):
+    """Resolve copyreg's argument guard for every pinned production caller."""
+    if type(files) is not dict:
+        return {}
+    expected_hashes = {
+        "copyreg.py": COPYREG_SOURCE_SHA256,
+        "typing.py": TYPING_SOURCE_SHA256,
+        "re/__init__.py": RE_SOURCE_SHA256,
+    }
+    if any(type(files.get(path)) is not bytes
+           or hashlib.sha256(files[path]).hexdigest() != digest
+           for path, digest in expected_hashes.items()):
+        return {}
+    try:
+        trees = {
+            path: ast.parse(source, filename=path)
+            for path, source in files.items()
+            if type(source) is bytes and path.endswith(".py")
+            and "test" not in path.split("/")
+        }
+    except SyntaxError:
+        return {}
+    expected_imports = {
+        ("typing.py", 26), ("idlelib/rpc.py", 30),
+        ("multiprocessing/reduction.py", 11), ("re/__init__.py", 338),
+    }
+    expected_calls = {
+        ("copyreg.py", 31, "pickle(complex, pickle_complex, complex)"),
+        ("copyreg.py", 37, "pickle(type(int | str), pickle_union)"),
+        ("typing.py", 1842,
+         "copyreg.pickle(ParamSpecArgs, _pickle_psargs)"),
+        ("typing.py", 1847,
+         "copyreg.pickle(ParamSpecKwargs, _pickle_pskwargs)"),
+        ("re/__init__.py", 343,
+         "copyreg.pickle(Pattern, _pickle, _compile)"),
+    }
+    expected_module_refs = {
+        ("typing.py", 1842), ("typing.py", 1847),
+        ("idlelib/rpc.py", 67), ("multiprocessing/reduction.py", 36),
+        ("re/__init__.py", 343),
+    }
+    imports = []
+    calls = []
+    module_refs = []
+    for path, tree in trees.items():
+        parents = {child: node for node in ast.walk(tree)
+                   for child in ast.iter_child_nodes(node)}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import) and any(
+                    alias.name == "copyreg" for alias in node.names):
+                if any(alias.name == "copyreg" and alias.asname is not None
+                       for alias in node.names):
+                    return {}
+                imports.append((path, node.lineno))
+            if isinstance(node, ast.Name) and node.id == "copyreg":
+                module_refs.append((path, node.lineno))
+            if (isinstance(node, ast.ImportFrom) and node.module == "copyreg"
+                    and any(alias.name == "pickle" for alias in node.names)):
+                return {}
+            if (isinstance(node, ast.Attribute) and node.attr == "pickle"
+                    and isinstance(node.value, ast.Name)
+                    and node.value.id == "copyreg"):
+                parent = parents.get(node)
+                if not isinstance(parent, ast.Call) or parent.func is not node:
+                    return {}
+                calls.append((path, node.lineno, ast.unparse(parent)))
+                if (parent.keywords or len(parent.args) not in (2, 3)
+                        or not isinstance(parent.args[1], ast.Name)):
+                    return {}
+            if (path == "copyreg.py" and isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Name)
+                    and node.func.id == "pickle"):
+                calls.append((path, node.lineno, ast.unparse(node)))
+                if (node.keywords or len(node.args) not in (2, 3)
+                        or not isinstance(node.args[1], ast.Name)):
+                    return {}
+    if (set(imports) != expected_imports or set(calls) != expected_calls
+            or set(module_refs) != expected_module_refs):
+        return {}
+    for path, _, expression in expected_calls:
+        tree = trees[path]
+        call = next((node for node in ast.walk(tree)
+                     if isinstance(node, ast.Call)
+                     and ast.unparse(node) == expression), None)
+        if call is None:
+            return {}
+        function_name = call.args[1].id
+        defining_tree = trees["copyreg.py"] if path == "copyreg.py" else tree
+        if not any(isinstance(node, ast.FunctionDef)
+                   and node.name == function_name
+                   for node in defining_tree.body):
+            return {}
+    source = files["copyreg.py"]
+    try:
+        tree = ast.parse(source, filename="copyreg.py")
+    except SyntaxError:
+        return {}
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef) and node.name == "pickle"]
+    if len(functions) != 1:
+        return {}
+    function = functions[0]
+    guards = [node for node in ast.walk(function)
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "not callable(pickle_function)"]
+    if len(guards) != 1:
+        return {}
+    args = function.args
+    if (len(args.args) != 3
+            or [arg.arg for arg in args.args]
+            != ["ob_type", "pickle_function", "constructor_ob"]
+            or len(args.defaults) != 1
+            or not isinstance(args.defaults[0], ast.Constant)
+            or args.defaults[0].value is not None):
+        return {}
+    return {guards[0].lineno: False}
+
+
 def _target_sysconfig_build_setup_guard_line_facts(
         files, image_path_facts, sysconfig_name_facts,
         project_base_env_facts, no_site, no_project_base_override,
@@ -5403,6 +5524,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_weakrefset_empty_init_line_facts = (
         _target_weakrefset_empty_init_line_facts(files)
     )
+    target_copyreg_pickle_callable_line_facts = (
+        _target_copyreg_pickle_callable_line_facts(files)
+    )
     target_image_config_source = None
     if target_image_config_path is not None:
         with Path(target_image_config_path).open("rb") as stream:
@@ -5635,6 +5759,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             },
             "string": target_string_template_pattern_guard_line_facts,
             "_weakrefset": target_weakrefset_empty_init_line_facts,
+            "copyreg": target_copyreg_pickle_callable_line_facts,
             "importlib._bootstrap_external": target_importlib_optimize_line_facts,
             "importlib._bootstrap": target_importlib_verbose_line_facts,
         } if (os_createenviron_line_facts or codecs_false_guard_line_facts
@@ -5642,6 +5767,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
               or target_sysconfig_is_python_build_line_facts
               or target_string_template_pattern_guard_line_facts
               or target_weakrefset_empty_init_line_facts
+              or target_copyreg_pickle_callable_line_facts
               or target_sysconfig_build_setup_guard_line_facts
               or target_importlib_optimize_line_facts
               or target_importlib_verbose_line_facts) else {},
@@ -5852,6 +5978,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_weakrefset_empty_init_line_facts": list(
             target_weakrefset_empty_init_line_facts.items()
+        ),
+        "target_platform_copyreg_pickle_callable_line_facts": list(
+            target_copyreg_pickle_callable_line_facts.items()
         ),
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,

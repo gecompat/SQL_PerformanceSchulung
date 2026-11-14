@@ -1646,14 +1646,23 @@ alle fünf PR-Gates bestanden, `main` ist synchronisiert und die lokalen sowie
 Remote-Arbeitsbranches wurden entfernt. Der Lauf blieb statisch und
 `CANDIDATES_ONLY`; keine Runtime-, SQL-, Profil- oder Generalprobenattestation.
 
-### Begrenzte Fortsetzung: `_weakrefset.WeakSet`-Leerkonstruktion (14. November 2026)
+### Abgeschlossen: `_weakrefset.WeakSet`-Leerkonstruktion (14. November 2026)
+
+Der Fact für `_weakrefset.py:50` bindet alle Produktionsverweise und die
+zwölf argumentlosen Konstruktionen an den vollständigen gepinnten
+Quellbestand. PR #739 integrierte ihn als Commit
+`6f8731d0a8b70dfd591d7a1821c82e0e42714f87`; alle fünf PR-Gates bestanden,
+`main` ist synchronisiert und die Arbeitsbranches sind entfernt. Der Lauf blieb
+statisch und `CANDIDATES_ONLY`.
+
+### Begrenzte Fortsetzung: `copyreg.pickle`-Callable-Guard (14. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
-und zwei lokale Kandidaten: den Fact für `_weakrefset.py:50` und seine
-synthetischen Gegenproben. Der bestehende signaturgeprüfte CPython-3.12.16-
-Quellstand sowie Zielimage/-konfiguration werden wiederverwendet. Kein
-Interpreter-, Profil-, Worker-, SQL-, Lab-, operativer Inventur- oder
-Generalprobenlauf. Token-/Geldverbrauch bleibt unbekannt; die Grenze gilt für
-Paket, PR und Kandidaten, nicht als Providerkostenlimit. Der PR-Merge ist der
-Checkpoint; danach wird die nächste offene freigegebene Aufgabe anhand des
-dann aktuellen Status ausgewählt.
+und zwei lokale Kandidaten: den Fact für `copyreg.py:13` und synthetische
+Gegenproben. Der bestehende signaturgeprüfte CPython-3.12.16-Quellstand sowie
+Zielimage/-konfiguration werden wiederverwendet. Kein Interpreter-, Profil-,
+Worker-, SQL-, Lab-, operativer Inventur- oder Generalprobenlauf.
+Token-/Geldverbrauch bleibt unbekannt; die Grenze gilt für Paket, PR und
+Kandidaten, nicht als Providerkostenlimit. Der PR-Merge ist der Checkpoint;
+danach wird die nächste offene freigegebene Aufgabe anhand des dann aktuellen
+Status ausgewählt.
