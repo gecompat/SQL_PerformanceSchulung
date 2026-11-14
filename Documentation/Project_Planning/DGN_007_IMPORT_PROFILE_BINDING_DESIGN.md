@@ -5403,3 +5403,9 @@ Zwei Gegenproben decken eine importierte direkte Factory und die Ablehnung bedin
 Die direkte Factoryform umfasst jetzt zusätzlich einen einfachen kontrollflussbegrenzten Fall: eine frühere `if`-Anweisung ohne `else` mit einem direkten `return Klasse(...)`, gefolgt von einem terminalen direkten Klassenreturn, oder ein abschließender vollständiger `if`/`else` mit je einem direkten Klassenreturn. Beide möglichen lokalen/importierten Klassen werden als Kandidaten verfolgt. Andere Verzweigungen, zusammengesetzte Returns und dynamische Werte bleiben unaufgelöst.
 
 Die synthetische Gegenprobe prüft beide möglichen Methodenpfade; der fokussierte Satz bleibt 103/103. Der CPython-3.12.16-Archivscan bleibt mit 93/578/534 und unverändertem Zeilendigest stabil. Dies erweitert nur die konservative Kandidatenregel und belegt keine vollständige Aufrufclosure oder P11-Attestation.
+
+### Fortsetzung: Lokale Factory-Instanzzuweisung
+
+Die einfache Factoryanalyse akzeptiert nun zusätzlich den direkten lokalen Zwischenschritt `instanz = Modul.Klasse()` mit anschließendem `return instanz`; einfache Name-Aliasbindungen dieser Instanz bleiben ebenfalls gebunden. Import- und Docstringanweisungen sind die einzigen weiteren vorherigen Statements. Nicht unterstützte Zuweisungen, Rebinding und komplexe Rückgabepfade werden abgelehnt.
+
+Eine synthetische Gegenprobe verfolgt den importierten Klassenmethodenpfad; der fokussierte Satz besteht 104/104. Der CPython-Archivscan bleibt bei 93/578/534 und unverändertem Modulstartdigest. Das bleibt eine begrenzte Kandidatenverbesserung ohne vollständige P11-Aussage.

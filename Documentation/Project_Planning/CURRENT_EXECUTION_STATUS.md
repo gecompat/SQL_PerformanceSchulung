@@ -9272,3 +9272,7 @@ Der Importfolger verfolgt eine einzige direkte Top-Level-Form: abschließendes `
 ## Fortsetzung: DGN-007 einfache bedingte Factoryrückgaben
 
 Direkte Klassenreturns in eng begrenzten `if`-/`else`-Pfaden werden jetzt beidseitig als Kandidaten verfolgt. Komplexere oder dynamische Kontrollflüsse bleiben offen. Fokussiert 103/103 PASS; Archivscan unverändert 268 Quellmodule und 93/578/534 Modulstartkandidaten mit den bestehenden Digests.
+
+## Fortsetzung: DGN-007 Factory-Instanzzuweisung
+
+Factorymethoden mit lokaler direkter Klasseninstanzzuweisung und einfachem `return` werden jetzt ebenfalls verfolgt. Rebinding und komplexe Statements bleiben ausgeschlossen. Fokussiert 104/104 PASS; der CPython-Archivscan bleibt 268 Quellmodule und 93/578/534 Modulstartkandidaten mit unveränderten Digests.
