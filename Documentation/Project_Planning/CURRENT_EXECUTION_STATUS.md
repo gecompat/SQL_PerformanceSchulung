@@ -9819,3 +9819,19 @@ entschieden und 1.154 unbekannt (Digest
 Callvorschnitt ist keine P11-Closure. S15-/P11-Sollrecords, unabhängiger
 Quellen-/Aufrufreview, fünf vollständige Formen und das gemeinsame 64-KiB-Gate
 bleiben offen; es gab keine operative Inventur oder Generalprobe.
+
+## Fortsetzung: gepinnte `__main__`-Wachen
+
+Der zielgebundene CPython-3.12.16-Callvorschnitt wertet nun den direkten
+`__name__ == '__main__'`-Zweig in `difflib`, `getopt`, `heapq`, `pickle` und
+`textwrap` aus, sofern deren Modulquelle den fest gepinnten SHA-256 besitzt
+und weder `__name__` umbindet noch dynamische globale Namensräume berührt.
+`locale`, `code`, `pdb` und Guards über `module.__name__` bleiben dadurch
+weiterhin unbekannt. Der erneute Archiv-/OCI-Scan reduziert den Zielvorschnitt
+auf 62 Module, 323 Kanten und 179 Funktionen; 45 Conditions sind entschieden,
+547 bleiben unbekannt (Digest
+`15321853408555358930f42026e08a6299b9442cd5298813057e689057ee828c`). Die
+142 fokussierten Regressionen bestehen lokal. Das bleibt `CANDIDATES_ONLY`;
+S15-/P11-Sollrecords, unabhängiger Quellen-/Aufrufreview, fünf vollständige
+Formen und das gemeinsame 64-KiB-Gate bleiben vor der einmaligen operativen
+Inventur offen. Kein Interpreter-, Profil-, Worker-, SQL- oder Generalprobenlauf.
