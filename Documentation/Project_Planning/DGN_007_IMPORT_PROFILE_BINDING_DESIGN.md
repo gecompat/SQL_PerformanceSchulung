@@ -5785,3 +5785,31 @@ Zielplattform-Scan bleibt `CANDIDATES_ONLY` bei 56 Kandidaten und 278 Kanten;
 27 Bedingungen sind entschieden und 15 unbekannt. Der Digest der unbekannten
 Bedingungen lautet
 `e50bac923980d1e93e89f3e2944cdf9fad48d3644cd2cd47c58c5b9ab6afbb29`.
+
+### Fortsetzung: Compile-time-Guards aus dem gepinnten CPython-Buildprofil
+
+Der Scanner akzeptiert optional `--target-pyconfig` und verarbeitet die Datei
+nur bei exaktem Digest `22a6bfe20214fb395e546edd499f826d9d4be7b7b1289b0d391255145a207ed5`.
+Dieser Header stammt aus dem bereits nachgerechneten OCI-Childmanifest
+`3c3ba8ad4c85eb63b7568f806434f14e33370056985da7fdf2673621cb1d7e93`, Layer
+`7f0ea382d75a163999c21529b19913d158821816106eed6f02039f8fdf346779`; seine
+bytes sind zusätzlich in §19.9 dokumentiert. Zusammen mit den weiterhin
+digestgebundenen CPython-C-/Clinic- und `os.py`-Quellen entscheidet das die
+Compile-time-Exporte für `statvfs`/`fstatvfs`, `lchown`, `fork`,
+`register_at_fork` und `execv`; die fehlenden `spawnv`-Buildmakros und das
+Fehlen eines `spawnvp`-Exports entscheiden die betreffenden Guards ebenfalls.
+Der `threading`-Alias `_os` wird über die gepinnte `threading.py`-Quelle auf
+`os` zurückgeführt. `PY_HAVE_THREAD_NATIVE_ID` ist für das gepinnte Linuxziel
+in `Include/pythread.h` gesetzt; `_threadmodule.c`, `thread_pthread.h` und der
+Builtin-Eintrag belegen den nativen Modulpfad und damit beide
+`_HAVE_THREAD_NATIVE_ID`-Wachen.
+
+Mit dem optionalen Buildprofil bleibt der Zielplattformscan
+`CANDIDATES_ONLY`: 56 Kandidaten, 278 Kanten, 36 entschiedene und 6 unbekannte
+Bedingungen. Der Digest der verbleibenden Bedingungen lautet
+`e8de317faa34e32b567c6144d43bfbc43847f3824305a37da9329b6cbc3251d2`. Offen
+bleiben die durch reale `openat`-/`fstatat`-/`fdopendir`-Probes bestimmten
+Descriptor-Supportmengen sowie fünf `sysconfig`-Wachen, die konkrete
+Executable-, Buildpfad- und Prozessumgebungswerte erfordern. Das ist keine
+Buildherkunftsattestation und keine operative P11-Inventur. Der Standardlauf
+ohne `--target-pyconfig` bleibt der reine Quellvorschnitt.
