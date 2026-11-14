@@ -2098,7 +2098,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         active_method_context = method_receiver_context.get(id(function))
         # Track direct same-function aliases of established class candidates.
         # Called nested functions inherit this snapshot as a lexical closure;
-        # factory results and dynamic rebinding remain unresolved.
+        # Conditional/compound factory results and dynamic rebinding remain unresolved.
         scoped_alias_tree = ast.Module(body=function.body, type_ignores=[])
         scoped_class_aliases = _top_level_local_class_alias_index(
             scoped_alias_tree, imported_class_methods or {}
