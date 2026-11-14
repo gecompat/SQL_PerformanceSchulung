@@ -1,6 +1,6 @@
 # External Tables: statischer Lehr- und Demoentwurf
 
-Stand: 12. November 2026  
+Stand: 14. November 2026
 Status: `PROPOSED`; Konzept auf Basis des Quellenreviews, keine registrierte Demo,
 kein ausgeführter Connector und keine Laufzeitfreigabe
 
@@ -94,6 +94,21 @@ Quellberechtigungen qualifiziert sein. Weder Connectorinstallation noch
 Konfiguration eines PolyBase-Dienstes gehören in den unbeaufsichtigten
 Standardpfad.
 
+Für den vorgesehenen SQL-Server-Connector wird der Remotezugriff mit
+SQL-Authentifizierung konfiguriert; der PolyBase-SQL-ODBC-Connector
+unterstützt laut Herstellerdokumentation kein Kerberos. Das datenbankweite
+Credential setzt einen Datenbank-Hauptschlüssel voraus. Der Erstellungsprincipal benötigt
+kontextabhängig `CREATE TABLE`, `ALTER ANY SCHEMA`,
+`ALTER ANY EXTERNAL DATA SOURCE` und `ALTER ANY EXTERNAL FILE FORMAT`;
+`CONTROL DATABASE` ist für Master Key, Credential und externe Datenquelle
+erforderlich. Das Credential muss auf der Remotequelle die für die Abfrage
+erforderlichen Leserechte besitzen. Weil `ALTER ANY EXTERNAL DATA SOURCE` den
+Zugriff auf alle datenbankweiten Credentials eröffnet, muss sein Einsatz auf eine eng
+begrenzte Setupidentität beschränkt werden. Der spätere Readerprincipal,
+Erstellungsprincipal und Remote-Login sind getrennt zu modellieren; aus der
+SQL-Authentifizierung des Connectors folgt keine pauschale Freigabe derselben
+Identität für alle drei Rollen.
+
 Cleanup muss lokale externe Tabellen und Datenquellen sowie den
 markergebundenen synthetischen Quell-Snapshot getrennt behandeln. Das Entfernen
 eines External-Table-Metadatensatzes ist kein Beleg, dass externe Quellobjekte
@@ -125,6 +140,8 @@ Es wurde kein SQL, Connector, Netzwerk, Dienst oder Credential verwendet.
 Die technischen Produktbefunde und ihre Einschränkungen sind an `SRC-153`
 bis `SRC-157` im [Projektquellenregister](../Research/SOURCE_REGISTER.md#external-tables-und-polybase-2026-11)
 und im [Quellen- und Zugriffswegreview](EXTERNAL_TABLES_SOURCE_REVIEW.md)
-gebunden. Die Curriculum-IDs sind bestehende Projektanker, keine neue
+gebunden. Die Edition-, Compatibility-Level- und Berechtigungsgrenzen wurden
+am 14. November 2026 anhand derselben Quellen erneut eingeordnet. Die
+Curriculum-IDs sind bestehende Projektanker, keine neue
 Registrierung. Empfehlungen zu Fixture, Prüfreihenfolge und Gates sind
 Projektentwurf und keine Herstellerzusage oder Laufzeitevidenz.
