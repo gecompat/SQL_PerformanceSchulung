@@ -1329,6 +1329,72 @@ def _target_imported_name_star_imports_safe(files, module):
             and "__name__" not in exported_names)
 
 
+def _target_ast_imported_name_star_import_safe(files, ast_c_source):
+    """Prove `_ast`'s default star exports cannot replace ast.__name__."""
+    importer = files.get("ast.py")
+    if (type(importer) is not bytes
+            or hashlib.sha256(importer).hexdigest() != _AST_SOURCE_SHA256
+            or type(ast_c_source) is not bytes
+            or hashlib.sha256(ast_c_source).hexdigest() != AST_C_SHA256
+            or b"__all__" in ast_c_source):
+        return False
+    tree = ast.parse(importer, filename="ast.py")
+    star_imports = [
+        statement for statement in tree.body if isinstance(statement, ast.ImportFrom)
+        and any(alias.name == "*" for alias in statement.names)
+    ]
+    if (len(star_imports) != 1 or star_imports[0].module != "_ast"
+            or star_imports[0].level != 0
+            or any(isinstance(node, ast.Name) and node.id == "__name__"
+                   and isinstance(node.ctx, (ast.Store, ast.Del))
+                   for node in ast.walk(tree))):
+        return False
+    parents = {}
+    for parent in ast.walk(tree):
+        for child in ast.iter_child_nodes(parent):
+            parents[child] = parent
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id in {"exec", "eval", "locals", "vars"}):
+            return False
+        if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id == "globals"):
+            continue
+        ancestor = node
+        function_scope = False
+        comprehension = None
+        while ancestor in parents:
+            ancestor = parents[ancestor]
+            if isinstance(ancestor, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                function_scope = True
+                break
+            if isinstance(ancestor, ast.DictComp):
+                comprehension = ancestor
+                break
+        if function_scope:
+            continue
+        attr_call = parents.get(parents.get(node))
+        if (comprehension is None or not isinstance(attr_call, ast.Call)
+                or not isinstance(attr_call.func, ast.Attribute)
+                or attr_call.func.attr != "pop" or attr_call.func.value is not node
+                or len(attr_call.args) != 1
+                or not isinstance(attr_call.args[0], ast.Name)
+                or attr_call.args[0].id != "name"):
+            return False
+        if not isinstance(comprehension, ast.DictComp) or not isinstance(
+                comprehension.generators[0].iter, (ast.Tuple, ast.List)):
+            return False
+        try:
+            names = ast.literal_eval(comprehension.generators[0].iter)
+        except (ValueError, TypeError):
+            return False
+        if (type(names) not in (tuple, list)
+                or any(type(name) is not str for name in names)
+                or "__name__" in names):
+            return False
+    return True
+
+
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
@@ -1729,7 +1795,7 @@ def _module_body_candidate_closure(files, roots=ROOTS):
 
 def _target_platform_candidate_closure(
         files, roots=ROOTS, unknown_conditions=None, known_call_facts=None,
-        known_name_facts=None):
+        known_name_facts=None, preserve_imported_name_modules=()):
     if type(files) is not dict or type(roots) is not tuple:
         raise ValueError("SOURCE_INPUT_TYPE")
     if unknown_conditions is not None and type(unknown_conditions) is not list:
@@ -1747,6 +1813,9 @@ def _target_platform_candidate_closure(
                           for name, value in facts.items())
                    for module, facts in known_name_facts.items()))):
         raise ValueError("CONDITION_NAME_FACTS_TYPE")
+    if (type(preserve_imported_name_modules) is not tuple
+            or any(type(module) is not str for module in preserve_imported_name_modules)):
+        raise ValueError("CONDITION_MODULE_NAME_FACTS_TYPE")
     reached = set()
     pending = list(roots)
     edges = 0
@@ -1765,7 +1834,12 @@ def _target_platform_candidate_closure(
             aliases.update(_target_importlib_windows_name_facts(files))
         elif module == "warnings":
             aliases.update((known_name_facts or {}).get(module, {}))
-        preserve_imported_name = _target_imported_name_star_imports_safe(files, module)
+        preserve_imported_name = (
+            module in preserve_imported_name_modules
+            or _target_imported_name_star_imports_safe(files, module)
+        )
+        if preserve_imported_name and module == "ast":
+            aliases["__name__"] = _IMPORTED_MODULE_NAME
         for name in _module_body_import_names(
                 tree, module, path, target_platform=True, condition_stats=condition_stats,
                 known_names=aliases, unknown_conditions=unknown_conditions,
@@ -3183,6 +3257,13 @@ def analyze(archive_path):
     warnings_default_call_facts = _target_warnings_default_call_facts(
         files, warnings_c_source, warnings_clinic_source
     )
+    target_imported_name_star_export_modules = tuple(sorted(
+        module for module in ("ast", "dis", "tokenize")
+        if (_target_imported_name_star_imports_safe(files, module)
+            or module == "ast" and _target_ast_imported_name_star_import_safe(
+                files, ast_c_source
+            ))
+    ))
     target_call_facts = tuple(sorted(
         types_descriptor_call_facts + ast_compatibility_call_facts
         + sys_getframe_call_facts + tuple(warnings_default_call_facts.items())
@@ -3195,6 +3276,7 @@ def analyze(archive_path):
             files, unknown_conditions=target_unknown_conditions,
             known_call_facts=target_call_facts,
             known_name_facts={"warnings": warnings_default_call_facts},
+            preserve_imported_name_modules=target_imported_name_star_export_modules,
         )
     )
     target_unknown_conditions_sha256 = hashlib.sha256(
@@ -3370,6 +3452,9 @@ def analyze(archive_path):
         "target_platform_sys_module_clinic_sha256": SYS_MODULE_CLINIC_SHA256,
         "target_platform_warnings_default_call_facts": list(
             warnings_default_call_facts.items()
+        ),
+        "target_platform_imported_name_star_export_modules": list(
+            target_imported_name_star_export_modules
         ),
         "target_platform_types_source_sha256": _TYPES_SOURCE_SHA256,
         "target_platform_inspect_source_sha256": _INSPECT_SOURCE_SHA256,

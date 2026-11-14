@@ -9561,12 +9561,25 @@ Star-Exports hinweg, wenn der Quellpfad des importierenden Moduls genau einen
 direkten Star-Import besitzt und das Exportmodul genau eine statische
 `__all__`-Liste ohne `__name__` definiert. Für `dis`/`opcode` und
 `tokenize`/`token` erfüllen die CPython-3.12.16-Quellen diese Bedingungen.
-Damit werden ihre beiden `__main__`-Wachen falsch. Entsprechende Wachen in
-`ast` und `inspect` bleiben wegen weiterer dynamischer Namespacezugriffe
-unbekannt. Der Archivscan bleibt `CANDIDATES_ONLY` bei 56 Kandidaten, 278
-Kanten und Zeilendigest
-`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 20
-Bedingungen sind entschieden, 22 unbekannt. Der neue Unbekannt-Inventardigest
-ist `6dea737c0357e5b52ad958d31d8d1a2f86f95bdeb8c7ac0f5197a258329ea033`.
-Der fokussierte Satz besteht 121/121 lokal. Vollständige Offline-CI folgt im
+Damit werden ihre beiden `__main__`-Wachen falsch. Die `inspect`-Wache bleibt
+wegen weiterer dynamischer Namespacezugriffe unbekannt; `ast` wird im
+nachfolgenden Slice gesondert gebunden. Der Archivscan blieb nach diesem
+Zwischenschritt `CANDIDATES_ONLY` bei 56/278; der fokussierte Satz bestand
+121/121 lokal.
+
+## Fortsetzung: `_ast`-Star-Export ohne Modulnamenüberschreibung
+
+Der spezielle `_ast`-Star-Import in `ast.py` erhält den gebundenen importierten
+Modulnamen nun nur bei erfülltem Quellenbeweis: `Python/Python-ast.c` weist
+keine `__all__`-Exportliste aus, `ast.py` importiert exakt einmal per Star, und
+der einzige modulweit ausgeführte Namespacezugriff entfernt aus einer festen
+Liste historische AST-Aliasnamen, die `__name__` nicht enthält. Die übrigen
+`globals()`-Aufrufe liegen in Funktionskörpern. Damit ist auch
+`ast.__name__ == '__main__'` im importierten Modulpfad falsch; `inspect` bleibt
+offen. Der Archivscan bleibt `CANDIDATES_ONLY` mit 56 Kandidaten, 278 Kanten
+und Zeilendigest
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 21
+Bedingungen sind entschieden, 21 unbekannt. Der Inventardigest lautet
+`9aface0e6304747998184935748499ffaec6895278c008adac9af1b137ca9f83`. Der
+fokussierte Satz besteht 122/122 lokal. Vollständige Offline-CI folgt im
 Pull Request. Runtime-/P11-Auswahl und operative Inventur bleiben offen.

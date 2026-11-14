@@ -797,6 +797,32 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "dis",
             ))
 
+    def test_ast_star_import_name_survives_only_fixed_legacy_namespace_removal(self):
+        importer = (
+            b"from _ast import *\n"
+            b"_deprecated_globals = {name: globals().pop(name) "
+            b"for name in ('Num', 'Str')}\n"
+            b"def __getattr__(name):\n    return globals()[name]\n"
+            b"if __name__ == '__main__':\n    import ast_demo\n"
+        )
+        c_source = b"static _ast module initialization without export table\n"
+        files = {"ast.py": importer}
+        with patch.object(
+            SUBJECT, "_AST_SOURCE_SHA256", hashlib.sha256(importer).hexdigest()
+        ), patch.object(
+            SUBJECT, "AST_C_SHA256", hashlib.sha256(c_source).hexdigest()
+        ):
+            self.assertTrue(SUBJECT._target_ast_imported_name_star_import_safe(
+                files, c_source
+            ))
+            changed = importer.replace(b"('Num', 'Str')", b"('Num', '__name__')")
+            with patch.object(
+                SUBJECT, "_AST_SOURCE_SHA256", hashlib.sha256(changed).hexdigest()
+            ):
+                self.assertFalse(SUBJECT._target_ast_imported_name_star_import_safe(
+                    {"ast.py": changed}, c_source
+                ))
+
     def test_importlib_windows_name_fact_requires_digest_and_direct_binding(self):
         source = (
             b"import sys\n"

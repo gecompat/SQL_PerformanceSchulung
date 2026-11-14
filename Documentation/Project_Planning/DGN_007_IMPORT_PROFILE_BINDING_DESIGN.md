@@ -5685,10 +5685,26 @@ unveränderliche Quellbindung geprüft; jede Exportliste ist eine einmalige
 statische Liste und enthält `__name__` nicht. Daher bleiben die Guards
 `__name__ == '__main__'` in `dis.py` und `tokenize.py` im importierten
 Modulpfad falsch. Andere Exportformen und Rebindings verwerfen den Fakt.
-Die `ast.py`- und `inspect.py`-Wachen bleiben wegen ihrer zusätzlichen
-dynamischen Namespacezugriffe unbekannt.
+Die `inspect.py`-Wache bleibt wegen zusätzlicher dynamischer
+Namespacezugriffe unbekannt; `ast.py` wird im folgenden Abschnitt gesondert
+gebunden.
 
 Der gebundene Scan bleibt `CANDIDATES_ONLY` bei 56/278 und
 `9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 20
 Bedingungen sind entschieden, 22 unbekannt. Der Inventardigest lautet
 `6dea737c0357e5b52ad958d31d8d1a2f86f95bdeb8c7ac0f5197a258329ea033`.
+
+### Fortsetzung: `_ast`-Star-Import und `ast.__name__`
+
+Der `_ast`-Star-Import wird gesondert behandelt. Die digestgebundene
+`Python/Python-ast.c`-Quelle enthält keine `__all__`-Exporttabelle. Der einzige
+modulweit ausgeführte dynamische Namespacezugriff in `ast.py` entfernt
+Aliasnamen aus einer statischen Tupelliste ohne `__name__`; die übrigen
+`globals()`-Aufrufe liegen in Funktionskörpern. `ast.py` bindet `__name__`
+nicht neu und importiert `_ast` genau einmal per Star. Unter diesen exakten
+Quellbindungen wird daher auch `ast.__name__ == '__main__'` falsch. Die
+`inspect.py`-Wache bleibt offen.
+
+Der aktualisierte Scan bleibt `CANDIDATES_ONLY` bei 56/278; 21 Bedingungen
+sind entschieden und 21 unbekannt. Der Unbekannt-Inventardigest ist
+`9aface0e6304747998184935748499ffaec6895278c008adac9af1b137ca9f83`.
