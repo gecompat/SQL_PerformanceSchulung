@@ -10490,4 +10490,17 @@ auf den bereits gebundenen Plattformzeichenfolgen wie `sys.platform` und
 `os.name` auswerten. Dynamische Indizes/Grenzen und außerhalb liegende
 Einzelindizes bleiben unbekannt. Zwei Regressionen prüfen die direkten Facts
 und Closure-Zweige. Die fokussierte Suite besteht lokal mit 200 Tests unter
-Python 3.14; PR-Gates stehen noch aus.
+Python 3.14. Alle fünf PR-Gates einschließlich der gepinnten CPython-3.12.16-
+Offlineprüfung bestanden. PR #758 ist als Commit
+`e2bc5c1ba26413d1fd55b5153c85f9e69d2075ad` integriert; `main` ist synchronisiert
+und lokale/Remote-Branches sind entfernt. Der Workflow enthält keinen
+separaten Zielscanbericht. Runtime-, P11-, Profil-, Worker-, SQL-, Lab- und
+Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: konstante Listenindizes und -slices
+
+Die Zielbedingungsauswertung indexiert jetzt auch vollständig bekannte
+Listliterale. Dynamische Container/Indizes und außerhalb liegende Einzelindizes
+bleiben unbekannt. Zwei Regressionen prüfen direkte Auswertung und
+Closure-Zweige. Die fokussierte Suite besteht lokal mit 202 Tests unter Python
+3.14; PR-Gates stehen noch aus.

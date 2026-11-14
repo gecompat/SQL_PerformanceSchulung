@@ -1955,7 +1955,7 @@ CPython-3.12.16-Offlineprüfung bestanden. PR #757 integrierte den Schnitt als
 lokale/Remote-Branches sind entfernt. Kein Interpreter-, Profil-, Worker-,
 SQL-, Lab- oder Generalprobenlauf.
 
-### Begrenzte Fortsetzung: gebundene Plattformzeichenfolgen indexieren (14. November 2026)
+### Abgeschlossen: gebundene Plattformzeichenfolgen indexieren (14. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
 und zwei synthetische Regressionen. Die bestehende Zielbedingungsauswertung
@@ -1968,4 +1968,22 @@ Provider-Ausgabenlimit. PR-Integration ist der Checkpoint; danach wird anhand
 des aktuellen Status weitergearbeitet.
 
 Zwei synthetische Regressionen und die fokussierte Suite bestehen lokal mit 200
+Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der gepinnten
+CPython-3.12.16-Offlineprüfung bestanden. PR #758 integrierte den Schnitt als
+`e2bc5c1ba26413d1fd55b5153c85f9e69d2075ad`; `main` ist synchronisiert und
+lokale/Remote-Branches sind entfernt. Kein Interpreter-, Profil-, Worker-,
+SQL-, Lab- oder Generalprobenlauf.
+
+### Begrenzte Fortsetzung: vollständige Listliterale indexieren (14. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. Die Zielbedingungsauswertung indexiert und
+slice't vollständig bekannte Listliterale. Dynamische Container/Indizes und
+außerhalb liegende Einzelindizes bleiben unbekannt. Keine neue Produktquelle und
+keine Interpreter-, Profil-, Worker-, SQL-, Lab- oder Generalprobenausführung.
+Token-/Geldverbrauch bleiben unbekannt; der Umfang beträgt ein Paket, einen PR
+und zwei Kandidaten, kein Provider-Ausgabenlimit. PR-Integration ist der
+Checkpoint; danach wird anhand des aktuellen Status weitergearbeitet.
+
+Zwei synthetische Regressionen und die fokussierte Suite bestehen lokal mit 202
 Tests unter Python 3.14. PR-Gates stehen noch aus.
