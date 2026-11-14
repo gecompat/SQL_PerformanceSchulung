@@ -1037,8 +1037,13 @@ class StaticImportCandidateTests(unittest.TestCase):
             1: "def pickle(ob_type, pickle_function, constructor_ob=None):",
             2: "    if not callable(pickle_function):",
             3: "        raise TypeError()",
-            4: "def pickle_complex(value): return value",
-            5: "def pickle_union(value): return value",
+            4: "    if constructor_ob is not None:",
+            20: "        constructor(constructor_ob)",
+            21: "def constructor(object):",
+            22: "    if not callable(object):",
+            23: "        raise TypeError()",
+            24: "def pickle_complex(value): return value",
+            25: "def pickle_union(value): return value",
             31: "pickle(complex, pickle_complex, complex)",
             37: "pickle(type(int | str), pickle_union)",
         }
@@ -1050,7 +1055,8 @@ class StaticImportCandidateTests(unittest.TestCase):
             1847: "copyreg.pickle(ParamSpecKwargs, _pickle_pskwargs)",
         }
         re_lines = {
-            1: "def _pickle(value): return value",
+            1: "def _compile(value): return value",
+            2: "def _pickle(value): return value",
             338: "import copyreg",
             343: "copyreg.pickle(Pattern, _pickle, _compile)",
         }
@@ -1083,7 +1089,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         ):
             self.assertEqual(
                 SUBJECT._target_copyreg_pickle_callable_line_facts(files),
-                {2: False},
+                {2: False, 22: False},
             )
             unsafe_files = dict(files)
             unsafe_files["typing.py"] = files["typing.py"].replace(

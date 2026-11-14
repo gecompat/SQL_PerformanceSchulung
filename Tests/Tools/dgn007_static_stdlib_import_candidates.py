@@ -3128,6 +3128,7 @@ def _target_copyreg_pickle_callable_line_facts(files):
     }
     imports = []
     calls = []
+    constructor_calls = []
     module_refs = []
     for path, tree in trees.items():
         parents = {child: node for node in ast.walk(tree)
@@ -3143,6 +3144,9 @@ def _target_copyreg_pickle_callable_line_facts(files):
                 module_refs.append((path, node.lineno))
             if (isinstance(node, ast.ImportFrom) and node.module == "copyreg"
                     and any(alias.name == "pickle" for alias in node.names)):
+                return {}
+            if (isinstance(node, ast.ImportFrom) and node.module == "copyreg"
+                    and any(alias.name == "constructor" for alias in node.names)):
                 return {}
             if (isinstance(node, ast.Attribute) and node.attr == "pickle"
                     and isinstance(node.value, ast.Name)
@@ -3161,6 +3165,12 @@ def _target_copyreg_pickle_callable_line_facts(files):
                 if (node.keywords or len(node.args) not in (2, 3)
                         or not isinstance(node.args[1], ast.Name)):
                     return {}
+            if isinstance(node, ast.Call) and (
+                    (isinstance(node.func, ast.Name)
+                     and node.func.id == "constructor")
+                    or (isinstance(node.func, ast.Attribute)
+                        and node.func.attr == "constructor")):
+                constructor_calls.append((path, node.lineno, ast.unparse(node)))
     if (set(imports) != expected_imports or set(calls) != expected_calls
             or set(module_refs) != expected_module_refs):
         return {}
@@ -3200,7 +3210,58 @@ def _target_copyreg_pickle_callable_line_facts(files):
             or not isinstance(args.defaults[0], ast.Constant)
             or args.defaults[0].value is not None):
         return {}
-    return {guards[0].lineno: False}
+    constructor_functions = [node for node in tree.body
+                             if isinstance(node, ast.FunctionDef)
+                             and node.name == "constructor"]
+    if len(constructor_functions) != 1:
+        return {}
+    constructor_function = constructor_functions[0]
+    constructor_guards = [node for node in ast.walk(constructor_function)
+                          if isinstance(node, ast.If)
+                          and ast.unparse(node.test) == "not callable(object)"]
+    if (len(constructor_guards) != 1
+            or len(constructor_function.args.args) != 1
+            or constructor_function.args.args[0].arg != "object"
+            or constructor_calls != [(
+                "copyreg.py", 20, "constructor(constructor_ob)",
+            )]):
+        return {}
+    constructor_guard = [node for node in ast.walk(function)
+                         if isinstance(node, ast.If)
+                         and ast.unparse(node.test) == "constructor_ob is not None"]
+    if (len(constructor_guard) != 1
+            or not any(isinstance(node, ast.Call)
+                       and ast.unparse(node.func) == "constructor"
+                       and len(node.args) == 1
+                       and isinstance(node.args[0], ast.Name)
+                       and node.args[0].id == "constructor_ob"
+                       for node in ast.walk(constructor_guard[0]))):
+        return {}
+    explicit_constructor_args = set()
+    for path, _, expression in expected_calls:
+        tree_for_call = trees[path]
+        call = next((node for node in ast.walk(tree_for_call)
+                     if isinstance(node, ast.Call)
+                     and ast.unparse(node) == expression), None)
+        if call is not None and len(call.args) == 3:
+            explicit_constructor_args.add(
+                (path, call.lineno, ast.unparse(call.args[2]))
+            )
+    if explicit_constructor_args != {
+            ("copyreg.py", 31, "complex"),
+            ("re/__init__.py", 343, "_compile"),
+    }:
+        return {}
+    re_tree = trees["re/__init__.py"]
+    if not any(isinstance(node, ast.FunctionDef) and node.name == "_compile"
+               for node in re_tree.body):
+        return {}
+    if any(isinstance(node, ast.Name) and node.id == "complex"
+           and isinstance(node.ctx, (ast.Store, ast.Del))
+           for node in tree.body):
+        return {}
+    return {guards[0].lineno: False,
+            constructor_guards[0].lineno: False}
 
 
 def _target_logging_lock_line_facts(files, thread_module_source):
