@@ -1992,7 +1992,7 @@ CPython-3.12.16-Offlineprüfung bestanden. PR #759 integrierte den Schnitt als
 lokale/Remote-Branches sind entfernt. Kein Interpreter-, Profil-, Worker-,
 SQL-, Lab- oder Generalprobenlauf.
 
-### Begrenzte Fortsetzung: benannte `sys.version_info`-Felder (14. November 2026)
+### Abgeschlossen: benannte `sys.version_info`-Felder (14. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
 und zwei synthetische Regressionen. Die fünf benannten Felder `major`, `minor`,
@@ -2005,4 +2005,23 @@ PR-Integration ist der Checkpoint; danach wird anhand des aktuellen Status
 weitergearbeitet.
 
 Zwei synthetische Regressionen und die fokussierte Suite bestehen lokal mit 204
+Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der gepinnten
+CPython-3.12.16-Offlineprüfung bestanden. PR #760 integrierte den Schnitt als
+`790db3bda0ca7b52a77cdd29240d002c11090350`; `main` ist synchronisiert und
+lokale/Remote-Branches sind entfernt. Kein Interpreter-, Profil-, Worker-,
+SQL-, Lab- oder Generalprobenlauf.
+
+### Begrenzte Fortsetzung: konstante Dictionary-Literale (14. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. Vollständig bekannte Dictionary-Literale
+werden nur mit hashbaren Schlüsseln ausgewertet; dynamische Expansion, Schlüssel
+und fehlende Einträge bleiben unbekannt. Unhashbare Set-Elemente liefern
+ebenfalls unbekannt statt einer Ausnahme. Keine neue Produktquelle und keine
+Interpreter-, Profil-, Worker-, SQL-, Lab- oder Generalprobenausführung.
+Token-/Geldverbrauch bleiben unbekannt; der Umfang ist ein Paket, ein PR und
+zwei Kandidaten, kein Provider-Ausgabenlimit. PR-Integration ist der Checkpoint;
+danach wird anhand des aktuellen Status weitergearbeitet.
+
+Zwei synthetische Regressionen und die fokussierte Suite bestehen lokal mit 206
 Tests unter Python 3.14. PR-Gates stehen noch aus.
