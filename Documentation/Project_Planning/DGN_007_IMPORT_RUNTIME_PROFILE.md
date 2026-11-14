@@ -244,6 +244,39 @@ und Dateiauswahl bleibt die Herkunft Teil des privaten Installationsbelegs.
 Keine Zeile dieser Tabelle attestiert Herkunft, Runtimevertrauen oder
 tatsächliche Importbytes.
 
+### P11-Recordherkunft und Identitätsprüfung
+
+Ein P11-Modulrecord beginnt ausschließlich bei einem konkreten Cacheeintrag
+`(name, module)` aus der gebundenen Zielaufnahme. Die folgende Soll-/Ist-
+Zuordnung legt fest, welche Werte aus diesem Objektgraphen gelesen werden und
+welche Beziehungen zusätzlich übereinstimmen müssen:
+
+| Recordwerte | Gelesen aus | Erforderliche Beziehung |
+|---|---|---|
+| `name` | Schlüssel des aufgenommenen `sys.modules`-Eintrags | sortierte, eindeutige Auswahl enthält exakt diesen Schlüssel |
+| `moduleName`, `file` | `module.__dict__` (`__name__`, `__file__`) | Modul ist exakt `ModuleType`; Name passt zum Schlüssel, außer fest benannten Frozenaliasen |
+| `specName`, `origin`, `locations` | gehaltenes `module.__spec__` | exakter `ModuleSpec`; Specname/Origin und Suchorte werden vollständig gehalten |
+| `loader` | `module.__loader__` und `spec.loader` | beide Referenzen sind identisch; nur fest erlaubte Loaderformen |
+| `loaderName`, `loaderPath` | gehaltenes `SourceFileLoader`- oder `ExtensionFileLoader`-Objekt | Name passt zum Cachekey, Pfad zum Moduldateifeld und Datei-Origin |
+| `kind` | vorab festgelegte Controlkeys und konkrete Loaderidentität/-klasse | genau eine der Typen `CONTROL`, `BUILTIN`, `FROZEN`, `SOURCE`, `EXTENSION` |
+| `aliasGroup` | festes, vorab benanntes Frozenaliaspaar | Verband nur, wenn beide Cachekeys denselben Modul- und Specgegenstand halten |
+
+Die passenden CPython-Importquellen begründen die zu prüfenden Strukturen:
+`Python/frozen.c` für deklarierte Frozennamen/-aliaszeilen,
+`Lib/importlib/_bootstrap.py` und `_bootstrap_external.py` für Spec- und
+Importer-/Loaderkonstruktion sowie `Lib/importlib/machinery.py` und
+`Lib/importlib/util.py` für öffentliche Namen. Sie wählen keinen einzigen
+Record für das Zielimage aus. Die vollständige Recordmenge muss separat und
+vor dem Vergleich gewählt werden; weder der Kandidatenscan noch die statischen
+Quellen können sie aus `sys.modules` rekonstruieren.
+
+Die Aufnahme hält den Modulcache nur für den begrenzten Vergleich fest und
+prüft Objektidentitäten vor/nach der Projektion. Das beweist weder eine
+atomare oder dauerhaft aktuelle Cachemitgliedschaft noch ausgeführte
+Quelldateibytes. Jeder konkrete Record, jede vollständige Sollmenge und das
+gemeinsame Größenbudget aller fünf Darstellungen bleiben Teil der offenen
+operativen Abnahme.
+
 Die Reihenfolge und alle Werte bleiben vollständig erhalten. `specName=None`
 ist ausschließlich der geprüfte specfreie Controlfall. Neue feste Fehlercodes
 sind `FILEFINDER_BINDING`, `SCALAR_FORM` und `SCALAR_PROJECTION_FAILED`; vorhandene
