@@ -5606,6 +5606,20 @@ Guardrecords wechseln von unbekannt zu entschieden. Das bleibt eine
 quellengebundene Ableitung; es attestiert weder die tatsächlich importierten
 Module noch eine Runtime-/P11-Inventur.
 
+### Fortsetzung: Importlib-Windows-Selector
+
+Die fünf Bedingungen `_MS_WINDOWS` in `Lib/importlib/_bootstrap_external.py`
+werden nur bei übereinstimmendem digestgebundenem Quelltext entschieden. Die
+Prüfung verlangt einen einzelnen direkten `sys`-Import, keine `sys`- oder
+`_MS_WINDOWS`-Neubindung und genau eine vorangestellte direkte Zuweisung aus
+`sys.platform == 'win32'`. Im gebundenen Linux-Ziel werden diese fünf Wachen
+falsch. Kandidatenmenge und Zeilendigest bleiben 56/278 und
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 16 Wachen
+sind entschieden und 27 unbekannt. Deren Inventardigest ist
+`de49880f178dc6716ba2755cd71da449d5185ef5a7daadb3dc8c212d7cd7b898`. Der
+Claim bleibt `CANDIDATES_ONLY`, ohne vollständige Import- oder Runtimeclosure
+und ohne P11-Attestation.
+
 ### Fortsetzung: Legacy-AST-Attribute aus ASDL und generierten Typen
 
 Die exakt negierten Guards `not hasattr(Constant, 'n')` und
