@@ -69,6 +69,11 @@ class StaticImportCandidateTests(unittest.TestCase):
                 content = io.BytesIO()
                 with SUBJECT.tarfile.open(fileobj=content, mode="w") as layer:
                     if index == 6:
+                        for directory_name in ("usr", "usr/local", "usr/local/bin"):
+                            directory = SUBJECT.tarfile.TarInfo(directory_name)
+                            directory.type = SUBJECT.tarfile.DIRTYPE
+                            directory.mode = 0o755
+                            layer.addfile(directory)
                         executable = b"verified executable"
                         info = SUBJECT.tarfile.TarInfo("usr/local/bin/python3.12")
                         info.mode = 0o755
@@ -153,8 +158,66 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(facts, {
             "executable_path_candidate": "/usr/local/bin/python3.12",
             "_PYTHON_BUILD": False,
+            "setup_parent_paths_verified": True,
             "_pickle_extension": True,
         })
+
+    def test_target_image_setup_paths_reject_symlinked_probe_parents(self):
+        tracked = {
+            "usr": {"directory": True, "symlink": False},
+            "usr/local": {"directory": True, "symlink": False},
+            "usr/local/bin": {"directory": True, "symlink": False},
+            "usr/local/bin/Modules": None,
+            "usr/local/bin/Modules/Setup": None,
+            "usr/local/bin/Modules/Setup.local": None,
+        }
+        self.assertTrue(SUBJECT._target_image_setup_paths_safe(tracked))
+        redirected = dict(tracked)
+        redirected["usr/local/bin/Modules"] = {
+            "directory": False, "symlink": True,
+        }
+        self.assertFalse(SUBJECT._target_image_setup_paths_safe(redirected))
+
+    def test_sysconfig_build_guard_fact_requires_exact_image_and_route(self):
+        source = (
+            b"def _safe_realpath(path):\n    return path\n"
+            b"if sys.executable:\n"
+            b"    _PROJECT_BASE = os.path.dirname(_safe_realpath(sys.executable))\n"
+            b"def is_python_build(check_home=None):\n"
+            b"    if check_home is not None:\n        import warnings\n"
+            b"    for fn in ('Setup', 'Setup.local'):\n"
+            b"        if os.path.isfile(os.path.join(_PROJECT_BASE, 'Modules', fn)):\n"
+            b"            return True\n"
+            b"    return False\n"
+        )
+        files = {"sysconfig.py": source}
+        image_facts = {
+            "executable_path_candidate": "/usr/local/bin/python3.12",
+            "_PYTHON_BUILD": False,
+            "setup_parent_paths_verified": True,
+            "_pickle_extension": True,
+        }
+        sysconfig_name_facts = {"_sys_home": False}
+        env_facts = (("'_PYTHON_PROJECT_BASE' in os.environ", False),)
+        with patch.object(
+            SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(source).hexdigest(),
+        ):
+            facts = SUBJECT._target_sysconfig_build_setup_guard_line_facts(
+                files, image_facts, sysconfig_name_facts, env_facts,
+                True, True, True,
+            )
+            self.assertEqual(facts, {9: False})
+            self.assertEqual(SUBJECT._target_sysconfig_build_setup_guard_line_facts(
+                files, {**image_facts, "setup_parent_paths_verified": False},
+                sysconfig_name_facts, env_facts, True, True, True,
+            ), {})
+            self.assertEqual(SUBJECT._target_sysconfig_build_setup_guard_line_facts(
+                files, image_facts, sysconfig_name_facts, env_facts,
+                False, True, True,
+            ), {})
+            self.assertEqual(SUBJECT._target_sysconfig_build_setup_guard_line_facts(
+                files, image_facts, sysconfig_name_facts, (), True, True, True,
+            ), {})
 
     def test_pickle_buffer_line_fact_requires_exact_source_and_target_extension(self):
         source = (

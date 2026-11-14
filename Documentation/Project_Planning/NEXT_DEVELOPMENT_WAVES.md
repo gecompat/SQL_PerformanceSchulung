@@ -1617,3 +1617,21 @@ argumentlos sind. Testquellen sind nicht Teil dieses Beweises. Alias- und
 dynamische Callerformen verwerfen den Fact. Der PR-Merge ist der Checkpoint;
 danach wird der kanonische Status aktualisiert und die nächste offene,
 freigegebene statische Aufgabe anhand des dann aktuellen Status ausgewählt.
+
+PR #736 integrierte diesen ersten Kandidaten als Commit
+`7a45cc32a501558e209c9e7178119e48c3cc7753`; fünf PR-Gates waren erfolgreich,
+`main` ist synchronisiert und lokale/Remote-Arbeitsbranches wurden entfernt.
+
+### Begrenzte Fortsetzung: sysconfig-Build-Tree-Guard (14. November 2026)
+
+Der Nutzerauftrag setzt die autonome Bearbeitung der weiteren freigegebenen
+Themen fort. Für den nächsten begrenzten Checkpoint gilt höchstens ein
+Arbeitspaket, ein Pull Request und zwei lokale Quellen-/Vertragskandidaten:
+die OCI-Elternpfadprüfung für `Modules/Setup` und der zeilengebundene
+`is_python_build`-Fact mit synthetischen Regressionen. Quellarchiv, Image und
+Konfiguration werden aus den bestehenden digestgebundenen Eingaben
+wiederverwendet. Kein Interpreter-, Worker-, Profil-, SQL-, Lab- oder
+Generalprobenlauf. Token-/Geldverbrauch bleibt unbekannt; die Begrenzung gilt
+für Arbeitspaket, PR und Kandidaten, nicht als Providerkostenlimit. Checkpoint
+ist die PR-Integration; danach wird die nächste offene freigegebene Aufgabe
+erneut aus dem dann aktuellen Status ausgewählt.
