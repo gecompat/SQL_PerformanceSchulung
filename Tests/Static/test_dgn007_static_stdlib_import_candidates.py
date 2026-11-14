@@ -590,6 +590,48 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("little_helper", "pkg"))
         self.assertEqual(conditions, {"resolved": 1, "unknown": 0})
 
+    def test_literal_false_alias_prunes_only_after_single_static_binding(self):
+        files = {
+            "pkg.py": (
+                b"from provider import *\n_false = 0\n"
+                b"if _false:\n    import unreachable\n"
+                b"else:\n    import reachable\n"
+            ),
+            "provider.py": b"VALUE = 0\n",
+            "unreachable.py": b"VALUE = 1\n",
+            "reachable.py": b"VALUE = 2\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg", "provider", "reachable"))
+        self.assertEqual(conditions, {"resolved": 1, "unknown": 0})
+
+    def test_literal_false_alias_keeps_guards_unknown_when_reassigned_or_dynamic(self):
+        for source in (
+            b"if _false:\n    import left\nelse:\n    import right\n_false = 0\n",
+            b"_false = 0\nfrom provider import *\n"
+            b"if _false:\n    import left\nelse:\n    import right\n",
+            b"_false = 0\nglobals()['_false'] = 1\n"
+            b"if _false:\n    import left\nelse:\n    import right\n",
+            b"_false = 0\n_false = feature_flag\n"
+            b"if _false:\n    import left\nelse:\n    import right\n",
+        ):
+            files = {
+                "pkg.py": source,
+                "left.py": b"VALUE = 1\n",
+                "right.py": b"VALUE = 2\n",
+                "provider.py": b"VALUE = 3\n",
+            }
+            modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+                files, ("pkg",)
+            )
+            expected = {"left", "pkg", "right"}
+            if b"from provider import *" in source:
+                expected.add("provider")
+            self.assertEqual(set(modules), expected)
+            self.assertEqual(conditions, {"resolved": 0, "unknown": 1})
+
     def test_builtin_module_membership_uses_only_bound_target_facts(self):
         self.assertEqual(len(SUBJECT._TARGET_BUILTIN_MODULE_NAMES), 31)
         self.assertEqual(
