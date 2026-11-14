@@ -5744,6 +5744,12 @@ def _static_literal_call_facts(function, call, name_facts=(), *,
                 if value is _UNKNOWN:
                     return _UNKNOWN
             return value
+        if isinstance(node, ast.IfExp):
+            test = literal(node.test)
+            if test is _UNKNOWN or type(test) not in (
+                    str, int, bool, type(None), tuple):
+                return _UNKNOWN
+            return literal(node.body if test else node.orelse)
         if (isinstance(node, ast.Compare) and len(node.ops) == 1
                 and len(node.comparators) == 1
                 and isinstance(node.ops[0],
