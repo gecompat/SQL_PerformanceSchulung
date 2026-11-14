@@ -10423,5 +10423,18 @@ Links-nach-rechts-Reihenfolge aus. Bei einem bekannten falschen Teilergebnis
 werden spätere Operanden übersprungen; ein erreichter dynamischer Operand oder
 eine nicht unterstützte Vergleichsform bleibt unbekannt. Zwei Regressionen
 prüfen direkte Aufrufe, Standardwerte, dynamische Werte und Kurzschluss. Die
-fokussierte Suite besteht lokal mit 192 Tests unter Python 3.14; PR-Gates stehen
+fokussierte Suite besteht lokal mit 192 Tests unter Python 3.14. Alle fünf
+PR-Gates einschließlich der gepinnten CPython-3.12.16-Offlineprüfung bestanden.
+PR #753 ist als Commit `b84b259ea88945a48e86f5da5daf36e0a6018cdf` integriert;
+`main` ist synchronisiert und lokale/Remote-Branches sind entfernt. Der
+Workflow enthält keinen separaten Zielscanbericht. Runtime-, P11-, Profil-,
+Worker-, SQL-, Lab- und Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: gebundene `sys.version_info`-Indizes
+
+Die Zielbedingungsauswertung löst nun nichtnegative konstante Ganzzahlindizes
+auf dem bereits gebundenen CPython-`sys.version_info`-Tupel auf. Dynamische,
+negative, Bool- und außerhalb des Tupels liegende Indizes bleiben unbekannt.
+Zwei Regressionen prüfen direkte Bedingungen und Closure-Zweige. Die
+fokussierte Suite besteht lokal mit 194 Tests unter Python 3.14; PR-Gates stehen
 noch aus.

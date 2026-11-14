@@ -3806,6 +3806,13 @@ def _target_condition(node, known_names=None, known_call_facts=None):
         if isinstance(expr, ast.Tuple):
             items = [value(item) for item in expr.elts]
             return tuple(items) if all(item is not _UNKNOWN for item in items) else _UNKNOWN
+        if isinstance(expr, ast.Subscript):
+            container = value(expr.value)
+            index = value(expr.slice)
+            if (type(container) is tuple and type(index) is int
+                    and 0 <= index < len(container)):
+                return container[index]
+            return _UNKNOWN
         if isinstance(expr, ast.List):
             items = [value(item) for item in expr.elts]
             return list(items) if all(item is not _UNKNOWN for item in items) else _UNKNOWN

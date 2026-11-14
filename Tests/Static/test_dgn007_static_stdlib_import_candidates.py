@@ -1868,6 +1868,42 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIs(SUBJECT._target_condition(minimum), True)
         self.assertIsNone(SUBJECT._target_condition(identity))
 
+    def test_target_python_version_info_resolves_constant_indexes_only(self):
+        for expression, expected in (
+                ("sys.version_info[0] == 3", True),
+                ("sys.version_info[1] == 12", True),
+                ("sys.version_info[2] >= 17", False)):
+            condition = ast.parse(expression, mode="eval").body
+            self.assertIs(SUBJECT._target_condition(condition), expected)
+        for expression in (
+                "sys.version_info[index] == 3",
+                "sys.version_info[9] == 3",
+                "sys.version_info[True] == 3"):
+            condition = ast.parse(expression, mode="eval").body
+            self.assertIsNone(SUBJECT._target_condition(condition))
+
+    def test_target_platform_closure_uses_version_info_constant_indexes(self):
+        files = {
+            "pkg.py": (
+                b"import sys\n"
+                b"if sys.version_info[0] == 3:\n    import py3\n"
+                b"else:\n    import other\n"
+                b"if sys.version_info[index] == 3:\n    import dynamic_a\n"
+                b"else:\n    import dynamic_b\n"
+            ),
+            "py3.py": b"VALUE = 3\n",
+            "other.py": b"VALUE = 0\n",
+            "dynamic_a.py": b"VALUE = 1\n",
+            "dynamic_b.py": b"VALUE = 2\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+            files, ("pkg",),
+        )
+        self.assertEqual(modules, (
+            "dynamic_a", "dynamic_b", "pkg", "py3",
+        ))
+        self.assertEqual(conditions, {"resolved": 1, "unknown": 1})
+
     def test_target_platform_membership_resolves_constant_set_literals(self):
         condition = ast.parse(
             "sys.platform in {'emscripten', 'vxworks', 'wasi'}", mode="eval"
