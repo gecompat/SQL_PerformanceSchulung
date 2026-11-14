@@ -1072,6 +1072,65 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn(("_exists('spawnvp')", False), facts)
         self.assertIn(("hasattr(os, 'register_at_fork')", True), facts)
 
+    def test_target_pyconfig_binds_linux_descriptor_support_guard(self):
+        os_source = (
+            b"from posix import *\n"
+            b"def _add(feature, name):\n    pass\n"
+            b"_add(\"HAVE_OPENAT\", \"open\")\n"
+            b"_add(\"HAVE_FSTATAT\", \"stat\")\n"
+            b"_add(\"HAVE_FDOPENDIR\", \"scandir\")\n"
+            b"_set.add(stat)\n"
+            b"supports_dir_fd = _set\nsupports_fd = _set\n"
+            b"if {open, stat} <= supports_dir_fd and {scandir, stat} <= supports_fd:\n"
+            b"    pass\n"
+        )
+        posix_source = (
+            b"#if defined(__APPLE__)\n#else\n"
+            b"#  define HAVE_FSTATAT_RUNTIME 1\n"
+            b"#  define HAVE_FDOPENDIR_RUNTIME 1\n"
+            b"#  define HAVE_OPENAT_RUNTIME 1\n#endif\n"
+            b"static PyMethodDef posix_methods[] = {\n"
+            b"OS_OPEN_METHODDEF\nOS_STAT_METHODDEF\nOS_SCANDIR_METHODDEF\n};\n"
+            b".m_methods = posix_methods;\n"
+            b'{ "HAVE_OPENAT", probe_openat };\n'
+            b'{ "HAVE_FSTATAT", probe_fstatat };\n'
+            b'{ "HAVE_FDOPENDIR", probe_fdopendir };\n'
+        )
+        clinic_source = (
+            b'#define OS_OPEN_METHODDEF \\\n    {"open", impl},\n'
+            b'#define OS_STAT_METHODDEF \\\n    {"stat", impl},\n'
+            b'#define OS_SCANDIR_METHODDEF \\\n    {"scandir", impl},\n'
+        )
+        pyconfig = (
+            b"#define HAVE_OPENAT 1\n#define HAVE_FSTATAT 1\n"
+            b"#define HAVE_FDOPENDIR 1\n"
+        )
+        patches = (
+            patch.object(SUBJECT, "OS_SOURCE_SHA256", hashlib.sha256(os_source).hexdigest()),
+            patch.object(SUBJECT, "POSIX_MODULE_C_SHA256", hashlib.sha256(posix_source).hexdigest()),
+            patch.object(SUBJECT, "POSIX_MODULE_CLINIC_SHA256", hashlib.sha256(clinic_source).hexdigest()),
+            patch.object(SUBJECT, "TARGET_PYCONFIG_SHA256", hashlib.sha256(pyconfig).hexdigest()),
+            patch.object(SUBJECT, "_target_os_have_functions_call_facts",
+                         return_value=(("_exists('_have_functions')", True),)),
+        )
+        with patches[0], patches[1], patches[2], patches[3], patches[4]:
+            files = {"os.py": os_source}
+            fact = (("{open, stat} <= supports_dir_fd and {scandir, stat} <= supports_fd", True),)
+            self.assertEqual(SUBJECT._target_os_descriptor_support_facts(
+                files, posix_source, clinic_source, pyconfig
+            ), fact)
+            missing_probe = pyconfig.replace(b"#define HAVE_FSTATAT 1\n", b"")
+            with patch.object(
+                SUBJECT, "TARGET_PYCONFIG_SHA256", hashlib.sha256(missing_probe).hexdigest()
+            ):
+                self.assertEqual(SUBJECT._target_os_descriptor_support_facts(
+                    files, posix_source, clinic_source, missing_probe
+                ), ())
+            self.assertEqual(SUBJECT._target_os_descriptor_support_facts(
+                {"os.py": os_source.replace(b"HAVE_OPENAT", b"HAVE_OPENAT_X")},
+                posix_source, clinic_source, pyconfig,
+            ), ())
+
     def test_linux_thread_native_id_source_binds_threading_flag(self):
         header = (
             b"#if (defined(__APPLE__) || defined(__linux__) || defined(_WIN32) "

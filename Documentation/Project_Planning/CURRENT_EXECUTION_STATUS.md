@@ -9702,3 +9702,24 @@ Unbekannt-Bedingungsdigest lautet
 `0daf39e5838e3cb556eddf0d7993791f16de83ae7f1d9152fb8bc6d3057f5c69`. Offen
 sind die Descriptor-Probeergebnisse und vier Prozess-/Umgebungswerte für
 `sysconfig`.
+
+### Fortsetzung: Descriptor-Support aus dem gepinnten Linux-Buildprofil
+
+Der konfigurierte OCI-Layer wurde direkt aus der Registry geladen, ohne einen
+Container oder Interpreter zu starten. Layerdigest und -größe stimmen mit der
+festgelegten Bindung überein. Der extrahierte 55.818-Byte-Header stimmt mit dem
+erwarteten SHA-256 `22a6bfe20214fb395e546edd499f826d9d4be7b7b1289b0d391255145a207ed5`.
+Die Makros `HAVE_OPENAT`, `HAVE_FSTATAT` und `HAVE_FDOPENDIR`, die gepinnten
+`posixmodule.c`-Probe-/Runtimepfade und deren Python-Exporte entscheiden nun
+die Descriptor-Unterstützung für `os.fwalk`. Der statische Scanner bindet
+dieses Ergebnis nur bei exakt gepinntem Quellenarchiv und Zielheader ein.
+
+Die fokussierte Regression besteht mit 131/131 Tests unter Python 3.13.17.
+Der optionale Scan bleibt `CANDIDATES_ONLY` bei 56 Kandidaten/278 Kanten;
+38 Bedingungen sind entschieden und vier unbekannt. Der Digest der offenen
+Bedingungen lautet
+`e0a86cb9787bb5ea27cbfcdb06ba7f0f5673438ce75deaba366b9b6857429696`.
+Offen sind `sys.executable`, `sys._home`, `_PYTHON_PROJECT_BASE` und
+`_PYTHON_BUILD`. Es gab weder Profilaufnahme noch Worker-, SQL- oder
+Interpreterausführung; die operative S15-/P11-Inventur und das gemeinsame
+Fünf-Formen-/64-KiB-Gate bleiben gesperrte Folgeschritte.
