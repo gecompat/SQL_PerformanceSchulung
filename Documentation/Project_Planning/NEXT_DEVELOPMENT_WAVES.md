@@ -1672,13 +1672,21 @@ Commit `188ea2d696b427d085886f010d1ffd95f5f96f9`; alle fünf Gates bestanden,
 `main` ist synchronisiert und die Arbeitsbranches sind entfernt. Der Lauf blieb
 statisch und `CANDIDATES_ONLY`.
 
-### Begrenzte Fortsetzung: `copyreg.constructor`-Callable-Guard (14. November 2026)
+### Abgeschlossen: `copyreg.constructor`-Callable-Guard (14. November 2026)
+
+Der Fact für `copyreg.py:23` folgt alle fünf `pickle`-Registrierungen und deren
+optionale Konstruktorargumente. PR #743 integrierte ihn als Commit
+`348d5b27b749c9004ad9c04ae840508073959ee5`; alle fünf PR-Gates bestanden und
+die Branches wurden entfernt. Der Lauf blieb statisch und `CANDIDATES_ONLY`.
+
+### Begrenzte Fortsetzung: `collections.namedtuple`-Rename-Guard (14. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
-und zwei lokale Kandidaten: den Fact für `copyreg.py:23` sowie synthetische
-Gegenproben. Der bestehende signaturgeprüfte CPython-3.12.16-Quellstand wird
-wiederverwendet. Kein Interpreter-, Profil-, Worker-, SQL-, Lab-, operativer
-Inventur- oder Generalprobenlauf. Token-/Geldverbrauch bleibt unbekannt; die
-Grenze gilt für Paket, PR und Kandidaten, nicht als Providerkostenlimit. Der
-PR-Merge ist der Checkpoint; danach wird die nächste offene freigegebene
-Aufgabe anhand des dann aktuellen Status ausgewählt.
+und zwei lokale Kandidaten: den Fact für `collections/__init__.py:386` sowie
+synthetische Gegenproben. Der bestehende signaturgeprüfte CPython-3.12.16-
+Quellstand und die Zielimageeingaben werden wiederverwendet. Kein Interpreter-,
+Profil-, Worker-, SQL-, Lab-, operativer Inventur- oder Generalprobenlauf.
+Token-/Geldverbrauch bleibt unbekannt; die Grenze gilt für Paket, PR und
+Kandidaten, nicht als Providerkostenlimit. Der PR-Merge ist der Checkpoint;
+danach wird die nächste offene freigegebene Aufgabe anhand des dann aktuellen
+Status ausgewählt.

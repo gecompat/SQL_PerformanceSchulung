@@ -41,6 +41,7 @@ WEAKREFSET_SOURCE_SHA256 = "91895a451d06e9f521a1171b31b9b19bc9740f35af00d4fa1063
 COPYREG_SOURCE_SHA256 = "c8eda41f05c6bf95a4da4726a530409d2485ae060b8d019b3a8034389a15d3e9"
 TYPING_SOURCE_SHA256 = "be92d60fb8382bb29ead21c128825d7c96d0e8c915b44f840791e49f5a8d554c"
 RE_SOURCE_SHA256 = "8ff3c37c63b917fcf8dc8d50993a502292a3dc159e41de4f4018c72a53d1c07b"
+COLLECTIONS_SOURCE_SHA256 = "7fdb04dd248ab37909f46d2085bfee56b32d7e91e49ad3a2fad99c453295659b"
 WARNINGS_SOURCE_SHA256 = "6405e281882932205eae641b2d31fba7776f94517a206d289465a1caffbf310e"
 WARNINGS_C_MEMBER = "Python-3.12.16/Python/_warnings.c"
 WARNINGS_C_SHA256 = "5567817b35e387b6cc5c37074fdcbf0a3978242564a95460ccdc3fe5d6f08019"
@@ -3376,6 +3377,105 @@ def _target_logging_lock_line_facts(files, thread_module_source):
     return facts
 
 
+def _target_collections_namedtuple_rename_line_facts(files):
+    """Resolve namedtuple's rename guard when all production callers omit it."""
+    source = (files.get("collections/__init__.py")
+              if type(files) is dict else None)
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest()
+            != COLLECTIONS_SOURCE_SHA256):
+        return {}
+    try:
+        trees = {
+            path: ast.parse(candidate, filename=path)
+            for path, candidate in files.items()
+            if type(candidate) is bytes and path.endswith(".py")
+            and "test" not in path.split("/")
+        }
+    except SyntaxError:
+        return {}
+    calls = []
+    for path, tree in trees.items():
+        parents = {child: node for node in ast.walk(tree)
+                   for child in ast.iter_child_nodes(node)}
+        namedtuple_aliases = set()
+        collections_aliases = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom):
+                for alias in node.names:
+                    if alias.name == "namedtuple":
+                        if node.module != "collections":
+                            return {}
+                        namedtuple_aliases.add(alias.asname or alias.name)
+            elif isinstance(node, ast.Import):
+                for alias in node.names:
+                    if (alias.name == "collections"
+                            or (alias.name.startswith("collections.")
+                                and alias.asname is None)):
+                        collections_aliases.add(alias.asname or "collections")
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                if node.func.id in namedtuple_aliases:
+                    calls.append((path, node))
+            elif isinstance(node, ast.Attribute) and node.attr == "namedtuple":
+                parent = parents.get(node)
+                if (not isinstance(parent, ast.Call) or parent.func is not node
+                        or not isinstance(node.value, ast.Name)
+                        or node.value.id not in collections_aliases):
+                    return {}
+                calls.append((path, parent))
+            if isinstance(node, ast.Name) and node.id in namedtuple_aliases:
+                parent = parents.get(node)
+                if not isinstance(parent, ast.Call) or parent.func is not node:
+                    return {}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                if (node.func.id == "getattr" and len(node.args) > 1
+                        and isinstance(node.args[1], ast.Constant)
+                        and node.args[1].value == "namedtuple"):
+                    return {}
+    if not calls:
+        return {}
+    for _, call in calls:
+        if len(call.args) > 2:
+            return {}
+        for keyword in call.keywords:
+            if keyword.arg is None:
+                return {}
+            if keyword.arg == "rename" and not (
+                    isinstance(keyword.value, ast.Constant)
+                    and keyword.value.value is False):
+                return {}
+
+    try:
+        tree = ast.parse(source, filename="collections/__init__.py")
+    except SyntaxError:
+        return {}
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef)
+                 and node.name == "namedtuple"]
+    if len(functions) != 1:
+        return {}
+    function = functions[0]
+    guards = [node for node in ast.walk(function)
+              if isinstance(node, ast.If)
+              and isinstance(node.test, ast.Name)
+              and node.test.id == "rename"]
+    args = function.args
+    if (len(guards) != 1 or len(args.args) != 2
+            or [arg.arg for arg in args.args] != ["typename", "field_names"]
+            or [arg.arg for arg in args.kwonlyargs]
+            != ["rename", "defaults", "module"]
+            or len(args.kw_defaults) != 3
+            or not isinstance(args.kw_defaults[0], ast.Constant)
+            or args.kw_defaults[0].value is not False
+            or any(isinstance(node, ast.Name) and node.id == "rename"
+                   and isinstance(node.ctx, (ast.Store, ast.Del))
+                   for node in ast.walk(function))):
+        return {}
+    return {guards[0].lineno: False}
+
+
 def _target_sysconfig_build_setup_guard_line_facts(
         files, image_path_facts, sysconfig_name_facts,
         project_base_env_facts, no_site, no_project_base_override,
@@ -5702,6 +5802,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_logging_lock_line_facts = _target_logging_lock_line_facts(
         files, thread_native_id_module,
     )
+    target_collections_namedtuple_rename_line_facts = (
+        _target_collections_namedtuple_rename_line_facts(files)
+    )
     target_image_config_source = None
     if target_image_config_path is not None:
         with Path(target_image_config_path).open("rb") as stream:
@@ -5936,6 +6039,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "_weakrefset": target_weakrefset_empty_init_line_facts,
             "copyreg": target_copyreg_pickle_callable_line_facts,
             "logging": target_logging_lock_line_facts,
+            "collections": target_collections_namedtuple_rename_line_facts,
             "importlib._bootstrap_external": target_importlib_optimize_line_facts,
             "importlib._bootstrap": target_importlib_verbose_line_facts,
         } if (os_createenviron_line_facts or codecs_false_guard_line_facts
@@ -5945,6 +6049,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
               or target_weakrefset_empty_init_line_facts
               or target_copyreg_pickle_callable_line_facts
               or target_logging_lock_line_facts
+              or target_collections_namedtuple_rename_line_facts
               or target_sysconfig_build_setup_guard_line_facts
               or target_importlib_optimize_line_facts
               or target_importlib_verbose_line_facts) else {},
@@ -6161,6 +6266,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_logging_lock_line_facts": list(
             target_logging_lock_line_facts.items()
+        ),
+        "target_platform_collections_namedtuple_rename_line_facts": list(
+            target_collections_namedtuple_rename_line_facts.items()
         ),
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,
