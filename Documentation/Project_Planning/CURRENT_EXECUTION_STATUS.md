@@ -10503,4 +10503,17 @@ Die Zielbedingungsauswertung indexiert jetzt auch vollständig bekannte
 Listliterale. Dynamische Container/Indizes und außerhalb liegende Einzelindizes
 bleiben unbekannt. Zwei Regressionen prüfen direkte Auswertung und
 Closure-Zweige. Die fokussierte Suite besteht lokal mit 202 Tests unter Python
+3.14. Alle fünf PR-Gates einschließlich der gepinnten CPython-3.12.16-
+Offlineprüfung bestanden. PR #759 ist als Commit
+`bd7035da2bbcce19c91011597f3849584ecaf08d` integriert; `main` ist synchronisiert
+und lokale/Remote-Branches sind entfernt. Der Workflow enthält keinen
+separaten Zielscanbericht. Runtime-, P11-, Profil-, Worker-, SQL-, Lab- und
+Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: benannte `sys.version_info`-Felder
+
+Die Zielbedingungsauswertung löst `major`, `minor`, `micro`, `releaselevel`
+und `serial` aus dem bereits gepinnten CPython-Versionsfact auf. Unbekannte
+Feldnamen bleiben unbekannt. Zwei Regressionen prüfen direkte Bedingungen und
+Closure-Zweige. Die fokussierte Suite besteht lokal mit 204 Tests unter Python
 3.14; PR-Gates stehen noch aus.

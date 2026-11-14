@@ -1900,6 +1900,42 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIs(SUBJECT._target_condition(minimum), True)
         self.assertIsNone(SUBJECT._target_condition(identity))
 
+    def test_target_python_version_info_resolves_named_fields(self):
+        for expression, expected in (
+                ("sys.version_info.major == 3", True),
+                ("sys.version_info.minor == 12", True),
+                ("sys.version_info.micro == 15", False),
+                ("sys.version_info.releaselevel == 'final'", True),
+                ("sys.version_info.serial == 0", True)):
+            condition = ast.parse(expression, mode="eval").body
+            self.assertIs(SUBJECT._target_condition(condition), expected)
+        unknown = ast.parse(
+            "sys.version_info.future_field == 0", mode="eval"
+        ).body
+        self.assertIsNone(SUBJECT._target_condition(unknown))
+
+    def test_target_platform_closure_uses_version_info_named_fields(self):
+        files = {
+            "pkg.py": (
+                b"import sys\n"
+                b"if sys.version_info.major == 3:\n    import current\n"
+                b"else:\n    import other\n"
+                b"if sys.version_info.future_field == 0:\n"
+                b"    import dynamic_a\nelse:\n    import dynamic_b\n"
+            ),
+            "current.py": b"VALUE = True\n",
+            "other.py": b"VALUE = False\n",
+            "dynamic_a.py": b"VALUE = 1\n",
+            "dynamic_b.py": b"VALUE = 2\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+            files, ("pkg",),
+        )
+        self.assertEqual(modules, (
+            "current", "dynamic_a", "dynamic_b", "pkg",
+        ))
+        self.assertEqual(conditions, {"resolved": 1, "unknown": 1})
+
     def test_target_python_version_info_resolves_constant_indexes_only(self):
         for expression, expected in (
                 ("sys.version_info[0] == 3", True),
