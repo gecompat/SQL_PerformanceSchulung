@@ -9488,3 +9488,20 @@ Modulstartclosure bleibt 93/578/534 mit unverändertem Digest. Der fokussierte
 Satz besteht 115/115 lokal; vollständige Offline-CI folgt im Pull Request.
 Runtime-/P11-Auswahl, operative Inventur und Fünf-Formen-/64-KiB-Gate bleiben
 offen.
+
+## Fortsetzung: AST-Kompatibilitätsattribute aus generierten Typquellen
+
+Die zwei historischen `ast.py`-Guards für `Constant.n` und `Tuple.dims` werden
+jetzt gegen die digestgebundenen CPython-Quellen `Parser/Python.asdl`,
+`Python/Python-ast.c` und `Lib/ast.py` geprüft. Das ASDL legt die beiden
+Konstruktorfelder fest; die generierte C-Quelle bindet die konkreten AST-Typen
+mit genau `value`/`kind` beziehungsweise `elts`/`ctx`. Zusammen mit dem
+unveränderten `from _ast import *`-Import und den exakten negierten Guards
+belegt dies das Fehlen der Legacy-Attribute. Der gebundene Archivscan bleibt
+`CANDIDATES_ONLY`: 56 Kandidaten, 278 Kanten und unveränderter Digest
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; elf
+Bedingungen sind entschieden, 32 unbekannt. Der Unbekannt-Inventardigest ist
+`9018e5407b5fff1fc6383e7ab808f6b23de04eee1728bb46e07800a28cf952c7`. Der
+fokussierte Satz besteht 117/117 lokal. Vollständige Offline-CI folgt im
+Pull Request. S15-/P11-Auswahl, operative Inventur und Fünf-Formen-/64-KiB-
+Gate bleiben offen.
