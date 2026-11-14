@@ -9340,3 +9340,17 @@ Die gleiche begrenzte Regel löst jetzt direkte Konkatenation zweier
 Stringkonstanten auf, inline oder in einer Namenszuweisung. Relative Resultate
 und sonstige Ausdrücke bleiben offen; synthetisch geprüft, fokussiert 105/105,
 Archivwerte und Digests unverändert.
+
+## Fortsetzung: DGN-007 dynamische Sysconfigdatenkante
+
+Der gebundene Quellscanner prüft nun die vollständige AST-Form von
+`_get_sysconfigdata_name()` und deren Aufruf in `_init_posix()`: Overridekey,
+Fallbacktemplate, `__import__`-Argument und `build_time_vars`-Zugriff sind
+fest gebunden. Zusammen mit den separat abgeleiteten CPython-3.12.16-
+Buildwerten ergibt sich `_sysconfigdata__linux_x86_64-linux-gnu` als zusätzlicher
+externer Namenskandidat für die P11-Auswahl. Der synthetische Quellvertragssatz
+besteht 106/106. Archivclosure und Modulstartfolger bleiben unverändert bei
+268/2.438 und 93/578/534 mit den bestehenden Digests. Das ist kein tatsächlicher
+Importrecord, keine Environment-Absenzprüfung und kein Byte-/Runtimebeleg;
+vollständige operative S15-/P11-Inventur und das Fünf-Formen-/64-KiB-Gate
+bleiben offen.

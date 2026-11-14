@@ -5162,6 +5162,22 @@ P11-Importclosure. Keine Zielinterpreter-, Profil-, Worker-, SQL- oder
 Generalproben-Ausführung; S15-/P11-Inventur und Fünf-Formen-/64-KiB-Gate bleiben
 offen.
 
+Die Offlinequellenprüfung bindet jetzt zusätzlich die konkrete dynamische
+Sysconfigdatenkante. Für die digestgebundene `Lib/sysconfig.py` wird die
+vollständige AST-Form von `_get_sysconfigdata_name()` sowie deren Verwendung in
+`_init_posix()` geprüft: der Override-Schlüssel ist
+`_PYTHON_SYSCONFIGDATA_NAME`, der Fallbackname hat die Form
+`_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}`, und `__import__`
+liest daraus `build_time_vars`. Zusammen mit den in §19.12 vorab gebundenen
+Werten ergibt sich der zusätzliche externe Modulnamenskandidat
+`_sysconfigdata__linux_x86_64-linux-gnu` für die S15-/P11-Auswahl. Der
+fokussierte AST-Satz besteht 106/106; das Archivresultat bleibt 268/2.438 und
+93/578/534 mit unveränderten Zeilendigesten. Dies bindet den Quellpfad und
+einen aus den separat gewählten Buildwerten abgeleiteten Namen, nicht die
+vollständige Recordmenge, den tatsächlich gesetzten Environmentzustand, den
+geladenen Modulrecord oder ausgeführte Bytes. Die vollständige P11-Auswahl und
+die operative Inventur bleiben offen.
+
 ### Fortsetzung: importierte Klassenaliase in aufgerufenen Nested-Function-Closures
 
 Ein bereits erkannter importierter Klassenalias wird nun als lexikalischer
