@@ -995,6 +995,63 @@ class StaticImportCandidateTests(unittest.TestCase):
         ):
             self.assertEqual(SUBJECT._target_sys_implementation_name_fact(sys_module), ())
 
+    def test_sys_implementation_cache_tag_binds_pinned_version_macros(self):
+        sys_module = (
+            b'#define NAME "cpython"\n'
+            b"const char *_PySys_ImplName = NAME;\n"
+            b"#define MAJOR Py_STRINGIFY(PY_MAJOR_VERSION)\n"
+            b"#define MINOR Py_STRINGIFY(PY_MINOR_VERSION)\n"
+            b'#define TAG NAME "-" MAJOR MINOR\n'
+            b"const char *_PySys_ImplCacheTag = TAG;\n"
+            b"static PyObject * make_impl_info(PyObject *version_info) {\n"
+            b"value = PyUnicode_FromString(_PySys_ImplCacheTag);\n"
+            b'res = PyDict_SetItemString(impl_info, "cache_tag", value);\n'
+            b"return ns;\n}\n"
+            b"static PyObject * make_abi_info(void) { return NULL; }\n"
+        )
+        version_fact = (("sys.implementation.version", (3, 12, 16, "final", 0)),)
+        with patch.object(
+            SUBJECT, "SYS_MODULE_C_SHA256", hashlib.sha256(sys_module).hexdigest(),
+        ):
+            facts = SUBJECT._target_sys_implementation_cache_tag_fact(
+                sys_module, version_fact,
+            )
+            self.assertEqual(
+                facts, (("sys.implementation.cache_tag", "cpython-312"),),
+            )
+            condition = ast.parse(
+                'sys.implementation.cache_tag == "cpython-312"', mode="eval",
+            ).body
+            self.assertIs(SUBJECT._target_condition(
+                condition, known_call_facts=facts,
+            ), True)
+
+    def test_sys_implementation_cache_tag_rejects_unbound_version_or_macros(self):
+        sys_module = (
+            b'#define NAME "cpython"\n'
+            b"const char *_PySys_ImplName = NAME;\n"
+            b"#define MAJOR Py_STRINGIFY(PY_MAJOR_VERSION)\n"
+            b"#define MINOR Py_STRINGIFY(PY_MINOR_VERSION)\n"
+            b'#define TAG NAME "-" MINOR MAJOR\n'
+            b"const char *_PySys_ImplCacheTag = TAG;\n"
+            b"static PyObject * make_impl_info(PyObject *version_info) {\n"
+            b"value = PyUnicode_FromString(_PySys_ImplCacheTag);\n"
+            b'res = PyDict_SetItemString(impl_info, "cache_tag", value);\n'
+            b"return ns;\n}\n"
+            b"static PyObject * make_abi_info(void) { return NULL; }\n"
+        )
+        with patch.object(
+            SUBJECT, "SYS_MODULE_C_SHA256", hashlib.sha256(sys_module).hexdigest(),
+        ):
+            self.assertEqual(SUBJECT._target_sys_implementation_cache_tag_fact(
+                sys_module,
+                (("sys.implementation.version", (3, 13, 0, "final", 0)),),
+            ), ())
+            self.assertEqual(SUBJECT._target_sys_implementation_cache_tag_fact(
+                sys_module,
+                (("sys.implementation.version", (3, 12, 16, "final", 0)),),
+            ), ())
+
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
         self.assertEqual(
             SUBJECT._target_importlib_debug_call_facts({17: True}),
