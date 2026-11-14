@@ -1773,3 +1773,20 @@ Die fokussierte Suite besteht lokal mit 182 Fällen. Der gebundene Zielscan blei
 entschiedenen/unbekannten Bedingungen; Zeilen- und Bedingungsdigests bleiben
 unverändert. Der PR-Merge ist der Checkpoint; danach folgt die nächste offene,
 freigegebene Aufgabe anhand des dann aktuellen Status.
+
+### Begrenzte Fortsetzung: unäre numerische Argumentliterale (14. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. Der lokale Literalbinder wertet unäre
+`+`-/`-`-Ausdrücke ausschließlich über exakte Integer- und Bool-Literale aus.
+Unbekannte Operanden und andere Zahlentypen bleiben offen; es werden keine
+benutzerdefinierten Operationen aufgerufen. Verwendet werden die bestehende
+signaturgeprüfte CPython-3.12.16-Quelle, das gebundene Zielimage und die feste
+Workerroute. Keine neue Produktquelle und keine Interpreter-, Profil-, Worker-,
+SQL-, Lab- oder Generalprobenausführung. Token-/Geldverbrauch bleiben
+unbekannt; die Grenze ist 1/1/2 und kein Provider-Ausgabenlimit. PR-Integration
+ist der Checkpoint; danach wird anhand des aktuellen Status weitergearbeitet.
+
+Die zwei synthetischen Regressionen und die fokussierte Suite bestehen lokal
+mit 184 Tests unter Python 3.14. Zielscan und PR-Gates stehen vor Integration
+noch aus.
