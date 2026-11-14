@@ -10359,3 +10359,15 @@ Zielscan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten, 166 Funktionen,
 70 entschiedene und 497 unbekannte Bedingungen; Zeilen- und Bedingungsdigests
 sind unverändert. Kein Runtime-, P11-, Profil-, Worker-, SQL-, Lab- oder
 Generalprobenclaim.
+
+## Fortsetzung: unäre numerische Literalargumente
+
+Der lokale Argumentbinder wertet jetzt zusätzlich unäre numerische `+`- und
+`-`-Ausdrücke über exakte Integer- und Bool-Literale aus. Dynamische und andere
+Zahlentypen bleiben unbekannt; die Auswertung verwendet nur eingebaute
+Integeroperationen. Zwei Regressionen prüfen direkte `not`-Aufrufe,
+Standardwerte und den unbekannten Rückfall. Die fokussierte Suite besteht lokal
+mit 184 Tests unter Python 3.14. Der gebundene CPython-3.12.16-Zielscan und die
+PR-Gates stehen noch aus. Bis zu deren Abschluss gibt es keinen neuen
+Scanbefund; Runtime-, P11-, Profil-, Worker-, SQL-, Lab- und
+Generalprobenattestation bleiben ausgeschlossen.
