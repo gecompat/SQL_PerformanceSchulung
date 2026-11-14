@@ -10,12 +10,12 @@ Generalprobe bleibt ausgeschlossen.
 
 ### DGN-007 – Quellenprüfung unbekannter Importzweige
 
-Der nach PR #743 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
+Der nach PR #744 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
 Workerroute gebundene Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten,
-166 Funktionen, 64 entschiedene und 504 unbekannte Bedingungen. Der
+166 Funktionen, 65 entschiedene und 502 unbekannte Bedingungen. Der
 Zeilendigest ist `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
 der Digest der unbekannten Bedingungen
-`39fd51d567593d8550f4368adbb0d66025716269eaeb040d117923f7ce45278b`.
+`9b963e6118d72158d0dde36fccedf2d92038469d49116c5439becf49df6c6432`.
 PR #734 bindet alle 22 gepinnten `_verbose_message`-Aufrufstellen in
 `_bootstrap.py`, `_bootstrap_external.py` und `zipimport.py`; der Guard
 `importlib._bootstrap.py:493` ist für die festgelegte Workerroute falsch.
@@ -10221,11 +10221,11 @@ Konstruktor, und beide Argumente (`complex` und `_compile`) sind quellgebundene
 Funktionen.
 
 Der Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten, 166 besuchte
-Funktionen, 64 entschiedene und 504 unbekannte Bedingungen. Zeilendigest
+Funktionen, 65 entschiedene und 502 unbekannte Bedingungen. Zeilendigest
 `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
 Unknown-Digest
-`39fd51d567593d8550f4368adbb0d66025716269eaeb040d117923f7ce45278b`.
-166 fokussierte Regressionen bestehen lokal. Keine vollständige
+`9b963e6118d72158d0dde36fccedf2d92038469d49116c5439becf49df6c6432`.
+167 fokussierte Regressionen bestehen lokal. Keine vollständige
 Importclosure, P11-/Runtimeattestation oder menschliche Generalprobe.
 
 PR #740 integrierte den Fact als Commit
@@ -10233,6 +10233,9 @@ PR #740 integrierte den Fact als Commit
 Aliasimport-Gegenprobe als Commit `b67c22cee8d882df93b375df86ab4958695d1d6e`.
 Alle jeweiligen erforderlichen Gates bestanden; `main` ist synchronisiert und
 die lokalen/Remote-Branches wurden entfernt.
+
+PR #743 ergänzte den `copyreg.py:23`-Fact als Commit
+`348d5b27b749c9004ad9c04ae840508073959ee5`; alle fünf PR-Gates bestanden.
 
 ## Fortsetzung: `logging`-Lock-Präsenz
 
@@ -10256,3 +10259,20 @@ Worker-, SQL-, Lab- oder Generalprobenlauf.
 PR #742 integrierte die beiden `logging`-Facts als Commit
 `188ea2d696b427d085886f010d1ffd95f5f96f9`; alle fünf Gates bestanden und die
 lokalen/Remote-Branches wurden entfernt.
+
+## Fortsetzung: `collections.namedtuple`-Rename-Guard
+
+Der Fact für `collections/__init__.py:386` inventarisiert alle direkten
+Produktionsimporte und Aufrufe von `namedtuple`, einschließlich direkter
+Importaliase und `collections`-Modulaliase. Alle Aufrufe lassen `rename` aus;
+der gepinnte Funktionsstandard ist `False`. Dynamischer Zugriff, Rebinding,
+zusätzliche Argumentformen oder ein Aufruf mit `rename=True` verwerfen den
+Fact.
+
+Der Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten, 166 besuchte
+Funktionen, 65 entschiedene und 502 unbekannte Bedingungen. Zeilendigest
+`33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
+Unknown-Digest
+`9b963e6118d72158d0dde36fccedf2d92038469d49116c5439becf49df6c6432`.
+167 fokussierte Regressionen bestehen lokal. Kein Interpreter-, Profil-,
+Worker-, SQL-, Lab- oder Generalprobenlauf.

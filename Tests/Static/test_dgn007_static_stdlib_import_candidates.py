@@ -1185,6 +1185,39 @@ class StaticImportCandidateTests(unittest.TestCase):
                     {},
                 )
 
+    def test_namedtuple_rename_guard_requires_all_production_calls_to_omit_it(self):
+        collections_source = (
+            b"def namedtuple(typename, field_names, *, rename=False, "
+            b"defaults=None, module=None):\n"
+            b"    if rename:\n"
+            b"        pass\n"
+        )
+        files = {
+            "collections/__init__.py": collections_source,
+            "caller.py": (
+                b"from collections import namedtuple as nt\n"
+                b"import collections as c\n"
+                b"nt('Point', 'x y')\n"
+                b"c.namedtuple('Pair', ('left', 'right'))\n"
+            ),
+        }
+        with patch.object(
+            SUBJECT, "COLLECTIONS_SOURCE_SHA256",
+            hashlib.sha256(collections_source).hexdigest(),
+        ):
+            self.assertEqual(
+                SUBJECT._target_collections_namedtuple_rename_line_facts(files),
+                {2: False},
+            )
+            unsafe_files = dict(files)
+            unsafe_files["caller.py"] += b"nt('Bad', 'x', rename=True)\n"
+            self.assertEqual(
+                SUBJECT._target_collections_namedtuple_rename_line_facts(
+                    unsafe_files,
+                ),
+                {},
+            )
+
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
             "entry.py": (
