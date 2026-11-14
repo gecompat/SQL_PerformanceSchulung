@@ -9364,3 +9364,8 @@ Der DGN-007-Sizer berichtet jetzt die fünf vollständigen Größen einschließl
 ## Fortsetzung: einzeln gebundene CPython-Quellkandidaten
 
 Der statische DGN-007-Modulstartbericht gibt nun alle 93 Quellkandidaten einzeln als Modulname, relativen CPython-Archivpfad und Quelldatei-SHA-256 aus. Die Ausgabe verlangt sortierte eindeutige Namen und vollständige Quellenauflösung. Am signaturgeprüften CPython-3.12.16-Archiv blieb der Kandidatenscan CANDIDATES_ONLY bei 93 Modulen, 578 Kanten, 534 Funktionen und Digest 84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091; alle 93 Ausgaberows sind geordnet, eindeutig und quellgebunden. Der fokussierte Scannertestsatz besteht 108/108 unter Python 3.13.17. Die Itemisierung erleichtert die weitere quellengebundene Reduktion, ist keine P11-Sollinventur oder Runtimebeobachtung. Vollständige S15-/P11-Auswahl und fünf Formen bleiben offen.
+
+
+## Fortsetzung: Linux-gefilterte CPython-Quellkandidaten
+
+Zusätzlich werden die 58 Kandidaten des engeren Modul-/Klassenkörper-Scans als Modulname, relativer Archivpfad und Quelldateihash ausgegeben. Die fest gebundenen Linux-/CPython-3.12-Prädikate entscheiden fünf Bedingungen, 39 unbekannte bleiben erhalten; 282 Kanten und der bisherige Digest bleiben unverändert. Der Linux-Zweig schließt `ntpath` aus. Der Scope schließt Funktionskörper aus und bleibt `CANDIDATES_ONLY`, kein P11-Soll. Zusammen mit den 93 Modulstartrows unterstützt die Ausgabe die schrittweise Quellenreduktion; vollständige Auswahl und Runtimeinventur bleiben offen.
