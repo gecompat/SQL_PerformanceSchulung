@@ -10627,5 +10627,7 @@ zusätzlich als unbedingter Zielwert hinterlegt war. Damit konnte der Resolver
 den Namen auch ohne den neu quellengebundenen Fact entscheiden. Der
 unbedingte Eintrag ist entfernt; Regressionen verlangen nun `unknown` ohne
 gültigen CPython-Quellfact und die Auflösung mit dem gültigen Fact. Die
-fokussierte Suite besteht lokal mit 218 Tests unter Python 3.14; PR-Gates stehen
-noch aus.
+fokussierte Suite besteht lokal mit 218 Tests unter Python 3.14. Alle fünf
+PR-Gates einschließlich der gepinnten CPython-3.12.16-Offlineprüfung bestanden.
+PR #769 ist als Commit `87dbd9a8e3bde1d8db57a60518a0808cf3896da1` integriert;
+`main` ist synchronisiert und lokale/Remote-Branches sind entfernt.

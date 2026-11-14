@@ -6177,4 +6177,7 @@ Die Prüfung nach PR #768 fand einen verbliebenen unbedingten Eintrag für
 die Bedingung auch ohne Quellenbeleg entschieden. Der Eintrag ist entfernt;
 `unknown` bleibt das Ergebnis, solange Digest und Quellstruktur des
 Implementierungsnamensfacts nicht stimmen. Synthetische Regressionen prüfen
-beide Fälle. Keine Runtime- oder Profilbeobachtung.
+beide Fälle. Die fokussierte Suite besteht lokal mit 218 Tests unter Python
+3.14. Alle fünf PR-Gates einschließlich der gepinnten CPython-3.12.16-
+Offlineprüfung bestanden; PR #769 integrierte die Korrektur. Keine Runtime-
+oder Profilbeobachtung.
