@@ -2150,7 +2150,7 @@ CPython-3.12.16-Offlineprüfung bestanden. PR #768 integrierte den Schnitt als
 lokale/Remote-Branches sind entfernt. Kein Interpreter-, Profil-, Worker-,
 SQL-, Lab- oder Generalprobenlauf.
 
-### Begrenzte Fortsetzung: Implementierungsnamensfact wirksam erzwingen
+### Abgeschlossen: Implementierungsnamensfact wirksam erzwingen
 (15. November 2026)
 
 Ein Arbeitspaket und ein PR entfernen den unbedingten `cpython`-Zielwert für
@@ -2159,3 +2159,8 @@ Bedingung auflösen kann. Die synthetische Regression prüft unknown ohne Fact
 und eine Auflösung mit gültigem Fact. Keine neue Produktquelle und keine
 Runtime-, Profil-, Worker-, SQL-, Lab- oder Generalprobenausführung.
 Token-/Geldverbrauch bleiben unbekannt; PR-Integration ist der Checkpoint.
+
+Die fokussierte Suite besteht lokal mit 218 Tests unter Python 3.14. Alle fünf
+PR-Gates einschließlich der gepinnten CPython-3.12.16-Offlineprüfung bestanden.
+PR #769 integrierte den Schnitt als `87dbd9a8e3bde1d8db57a60518a0808cf3896da1`;
+`main` ist synchronisiert und lokale/Remote-Branches sind entfernt.
