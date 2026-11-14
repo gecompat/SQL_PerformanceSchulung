@@ -1872,12 +1872,15 @@ class StaticImportCandidateTests(unittest.TestCase):
         for expression, expected in (
                 ("sys.version_info[0] == 3", True),
                 ("sys.version_info[1] == 12", True),
-                ("sys.version_info[2] >= 17", False)):
+                ("sys.version_info[2] >= 17", False),
+                ("sys.version_info[-1] == 0", True),
+                ("sys.version_info[-2] == 'final'", True)):
             condition = ast.parse(expression, mode="eval").body
             self.assertIs(SUBJECT._target_condition(condition), expected)
         for expression in (
                 "sys.version_info[index] == 3",
                 "sys.version_info[9] == 3",
+                "sys.version_info[-9] == 3",
                 "sys.version_info[True] == 3"):
             condition = ast.parse(expression, mode="eval").body
             self.assertIsNone(SUBJECT._target_condition(condition))
@@ -1888,11 +1891,15 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"import sys\n"
                 b"if sys.version_info[0] == 3:\n    import py3\n"
                 b"else:\n    import other\n"
+                b"if sys.version_info[-1] == 0:\n    import final_release\n"
+                b"else:\n    import prerelease\n"
                 b"if sys.version_info[index] == 3:\n    import dynamic_a\n"
                 b"else:\n    import dynamic_b\n"
             ),
             "py3.py": b"VALUE = 3\n",
             "other.py": b"VALUE = 0\n",
+            "final_release.py": b"VALUE = 1\n",
+            "prerelease.py": b"VALUE = 2\n",
             "dynamic_a.py": b"VALUE = 1\n",
             "dynamic_b.py": b"VALUE = 2\n",
         }
@@ -1900,20 +1907,21 @@ class StaticImportCandidateTests(unittest.TestCase):
             files, ("pkg",),
         )
         self.assertEqual(modules, (
-            "dynamic_a", "dynamic_b", "pkg", "py3",
+            "dynamic_a", "dynamic_b", "final_release", "pkg", "py3",
         ))
-        self.assertEqual(conditions, {"resolved": 1, "unknown": 1})
+        self.assertEqual(conditions, {"resolved": 2, "unknown": 1})
 
     def test_target_python_version_info_resolves_constant_slices_only(self):
         for expression, expected in (
                 ("sys.version_info[:2] == (3, 12)", True),
                 ("sys.version_info[1:3] == (12, 16)", True),
-                ("sys.version_info[::2] == (3, 16, 0)", True)):
+                ("sys.version_info[::2] == (3, 16, 0)", True),
+                ("sys.version_info[-2:] == ('final', 0)", True),
+                ("sys.version_info[4:1:-1] == (0, 'final', 16)", True)):
             condition = ast.parse(expression, mode="eval").body
             self.assertIs(SUBJECT._target_condition(condition), expected)
         for expression in (
                 "sys.version_info[:bound] == (3, 12)",
-                "sys.version_info[-2:] == (16, 'final', 0)",
                 "sys.version_info[::0] == (3, 12, 16, 'final', 0)"):
             condition = ast.parse(expression, mode="eval").body
             self.assertIsNone(SUBJECT._target_condition(condition))
