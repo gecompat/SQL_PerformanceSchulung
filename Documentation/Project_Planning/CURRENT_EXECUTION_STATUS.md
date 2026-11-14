@@ -10526,9 +10526,22 @@ Generalprobenattestation bleiben ausgeschlossen.
 ## Fortsetzung: Zugriff auf konstante Dictionary-Literale
 
 Die Zielbedingungsauswertung erstellt jetzt Dictionary-Literale mit vollständig
-bekannten, hashbaren Schlüsseln und Werten und löst konstante Schlüssel auf.
+bekannten Werten und hashbaren Schlüsseln und löst konstante Schlüssel auf.
 Dynamische Expansion, dynamische Schlüssel und fehlende Schlüssel bleiben
 unbekannt. Unhashbare Set-Elemente werden ebenfalls fail-closed verworfen.
 Zwei Regressionen prüfen direkte Auswertung, Closure-Zweige und diese Grenze.
-Die fokussierte Suite besteht lokal mit 206 Tests unter Python 3.14; PR-Gates
+Die fokussierte Suite besteht lokal mit 206 Tests unter Python 3.14. Alle fünf
+PR-Gates einschließlich der gepinnten CPython-3.12.16-Offlineprüfung bestanden.
+PR #761 ist als Commit `2ed3677c68daea5237ac37cb460db204a570821c` integriert;
+`main` ist synchronisiert und lokale/Remote-Branches sind entfernt. Der
+Workflow enthält keinen separaten Zielscanbericht. Runtime-, P11-, Profil-,
+Worker-, SQL-, Lab- und Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: `get()` auf konstanten Dictionary-Literalen
+
+Die Auswertung löst jetzt `get()` mit einem oder zwei vollständig bekannten
+Positionsargumenten auf vollständig bekannte Dictionary-Literale auf.
+Dynamische Schlüssel/Defaults und Schlüsselwortargumente bleiben unbekannt.
+Zwei Regressionen prüfen direkte Auswertung, Closure-Zweige und diese Grenze.
+Die fokussierte Suite besteht lokal mit 208 Tests unter Python 3.14; PR-Gates
 stehen noch aus.

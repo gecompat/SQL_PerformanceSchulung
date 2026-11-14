@@ -3821,6 +3821,18 @@ def _target_condition(node, known_names=None, known_call_facts=None):
             for fact_expression, fact_value in known_call_facts:
                 if expression == fact_expression:
                     return fact_value
+            if (isinstance(expr.func, ast.Attribute)
+                    and expr.func.attr == "get" and not expr.keywords
+                    and len(expr.args) in (1, 2)):
+                container = value(expr.func.value)
+                key = value(expr.args[0])
+                default = value(expr.args[1]) if len(expr.args) == 2 else None
+                if (type(container) is dict and key is not _UNKNOWN
+                        and default is not _UNKNOWN
+                        and hashable_literal(key)):
+                    if key in container:
+                        return container[key]
+                    return default
         if isinstance(expr, ast.Constant) and type(expr.value) in (str, int, bool, type(None)):
             return expr.value
         if isinstance(expr, ast.Tuple):
