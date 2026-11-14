@@ -2119,6 +2119,42 @@ class StaticImportCandidateTests(unittest.TestCase):
         ))
         self.assertEqual(conditions, {"resolved": 1, "unknown": 1})
 
+    def test_target_condition_resolves_get_on_literal_dictionaries(self):
+        for expression, expected in (
+                ("{'x': True}.get('x')", True),
+                ("{'x': True}.get('missing', False)", False),
+                ("{}.get('missing') is None", True)):
+            condition = ast.parse(expression, mode="eval").body
+            self.assertIs(SUBJECT._target_condition(condition), expected)
+        for expression in (
+                "{'x': True}.get(dynamic_key)",
+                "{}.get('missing', dynamic_default)",
+                "{'x': True}.get('x', dynamic_default)",
+                "{'x': True}.get('x', default=False)"):
+            condition = ast.parse(expression, mode="eval").body
+            self.assertIsNone(SUBJECT._target_condition(condition))
+
+    def test_target_platform_closure_uses_literal_dictionary_get(self):
+        files = {
+            "pkg.py": (
+                b"if {'x': True}.get('x'):\n    import selected\n"
+                b"else:\n    import rejected\n"
+                b"if {}.get('missing', dynamic_default):\n"
+                b"    import dynamic_a\nelse:\n    import dynamic_b\n"
+            ),
+            "selected.py": b"VALUE = True\n",
+            "rejected.py": b"VALUE = False\n",
+            "dynamic_a.py": b"VALUE = 1\n",
+            "dynamic_b.py": b"VALUE = 2\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+            files, ("pkg",),
+        )
+        self.assertEqual(modules, (
+            "dynamic_a", "dynamic_b", "pkg", "selected",
+        ))
+        self.assertEqual(conditions, {"resolved": 1, "unknown": 1})
+
     def test_target_platform_membership_resolves_constant_set_literals(self):
         condition = ast.parse(
             "sys.platform in {'emscripten', 'vxworks', 'wasi'}", mode="eval"
