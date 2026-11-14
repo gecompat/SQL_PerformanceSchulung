@@ -2751,6 +2751,7 @@ def analyze(archive_path):
         "module_body_scope": "MODULE_AND_CLASS_BODIES_ONLY",
         "module_body_rows_sha256": module_body_sha256,
         "target_platform_candidate_count": len(target_platform),
+        "target_platform_source_candidates": _module_source_rows(files, target_platform),
         "target_platform_edge_count": target_edges,
         "target_platform_scope": "MODULE_CLASS_AND_KNOWN_LINUX_CPYTHON312_IF_AND_BUILTIN_BRANCHES",
         "target_platform_rows_sha256": target_sha256,

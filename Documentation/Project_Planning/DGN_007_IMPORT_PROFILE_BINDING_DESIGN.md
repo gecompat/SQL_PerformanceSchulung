@@ -2928,6 +2928,17 @@ werden abgewiesen. Diese Auflistung macht die 93 Kandidaten für die weitere
 quellengebundene Reduktion prüfbar, ist aber weder eine vollständige Importclosure
 noch ein P11-Sollrecord und wird nicht als Profilinventur verwendet.
 
+#### Einzelauflistung des Linux-Modulkörpervorschnitts
+
+Auch die enger gefilterte Traversierung veröffentlicht ihre 58 Quellkandidaten
+einzeln mit Modulname, Archivpfad und Quelldateihash. Sie betrachtet Importe in
+Modul-/Klassenkörpern und wertet ausschließlich die fest gebundenen Linux- und
+CPython-3.12-Prädikate samt zwei Inittab-Mitgliedschaften aus; unbekannte
+Bedingungen bleiben beidseitig enthalten. Der Befund umfasst 282 Kanten, fünf
+entschiedene und 39 unbekannte Bedingungen und schließt `ntpath` aus. Er erfasst
+keine Imports aus aufgerufenen Funktionen und ist weder ein vollständiger
+Aufrufgraph noch ein P11-Sollrecord.
+
 ## 20. Reine additive Inline-Metadata-Syntaxquelle
 
 Der dritte reine Builder `build_inline_syntax_control_bootstrap` ergänzt
