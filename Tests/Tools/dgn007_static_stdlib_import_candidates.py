@@ -88,7 +88,6 @@ GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcef
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
 STRING_SOURCE_SHA256 = "24aeae1f0526250f442022022bf98df9a823b1cb330543ee79e70e44907462e9"
 PIPES_SOURCE_SHA256 = "153f2d249d954b5536c6a049202617ff43ba2f9b109c426e06676c577ddedc61"
-LOGGING_SOURCE_SHA256 = "43f86bbc08fdd5c7b6e697abffe1381f534a92bb32e1f1aee8360d6a142592a1"
 SITE_SOURCE_SHA256 = "b39ab288cc7a6d0cb3bb2655179221411340b22418e4efdee4c20175537a5fa2"
 IMPORTLIB_BOOTSTRAP_SOURCE_SHA256 = "d112d54b7831cf4a818d4841d5ff8003b54df220a6dabafa61f67d7c7a5603f7"
 IMPORTLIB_EXTERNAL_SOURCE_SHA256 = "e6ad72f3f0f9b65c99ab52598cd02ab748511dcdce1dd51f18dace9be9a680c6"
@@ -3204,6 +3203,118 @@ def _target_copyreg_pickle_callable_line_facts(files):
     return {guards[0].lineno: False}
 
 
+def _target_logging_lock_line_facts(files, thread_module_source):
+    """Resolve logging's lock-presence guards for the pinned import route."""
+    logging_source = files.get("logging/__init__.py") if type(files) is dict else None
+    threading_source = files.get("threading.py") if type(files) is dict else None
+    if (type(logging_source) is not bytes or type(threading_source) is not bytes
+            or type(thread_module_source) is not bytes
+            or hashlib.sha256(logging_source).hexdigest() != LOGGING_SOURCE_SHA256
+            or hashlib.sha256(threading_source).hexdigest()
+            != THREADING_SOURCE_SHA256
+            or hashlib.sha256(thread_module_source).hexdigest()
+            != THREAD_NATIVE_ID_MODULE_SHA256):
+        return {}
+    try:
+        logging_tree = ast.parse(logging_source, filename="logging/__init__.py")
+        threading_tree = ast.parse(threading_source, filename="threading.py")
+    except SyntaxError:
+        return {}
+    lock_assignments = [node for node in ast.walk(logging_tree)
+                        if isinstance(node, ast.Assign)
+                        and any(isinstance(target, ast.Name)
+                                and target.id == "_lock"
+                                for target in node.targets)]
+    if (len(lock_assignments) != 1
+            or ast.unparse(lock_assignments[0].value) != "threading.RLock()"):
+        return {}
+    lock_writes = [node for node in ast.walk(logging_tree)
+                   if isinstance(node, ast.Name) and node.id == "_lock"
+                   and isinstance(node.ctx, (ast.Store, ast.Del))]
+    if len(lock_writes) != 1:
+        return {}
+    functions = {node.name: node for node in logging_tree.body
+                 if isinstance(node, ast.FunctionDef)
+                 and node.name in ("_acquireLock", "_releaseLock")}
+    if set(functions) != {"_acquireLock", "_releaseLock"}:
+        return {}
+    expected_methods = {"_acquireLock": "acquire", "_releaseLock": "release"}
+    facts = {}
+    for name, method_name in expected_methods.items():
+        guards = [node for node in ast.walk(functions[name])
+                  if isinstance(node, ast.If)
+                  and isinstance(node.test, ast.Name)
+                  and node.test.id == "_lock"]
+        if len(guards) != 1:
+            return {}
+        calls = [node for node in ast.walk(guards[0])
+                 if isinstance(node, ast.Call)
+                 and ast.unparse(node.func) == f"_lock.{method_name}"]
+        if len(calls) != 1:
+            return {}
+        facts[guards[0].lineno] = False
+
+    rlock_factories = [node for node in threading_tree.body
+                       if isinstance(node, ast.FunctionDef)
+                       and node.name == "RLock"]
+    python_rlock_classes = [node for node in threading_tree.body
+                            if isinstance(node, ast.ClassDef)
+                            and node.name == "_RLock"]
+    if len(rlock_factories) != 1 or len(python_rlock_classes) != 1:
+        return {}
+    factory_returns = [node for node in ast.walk(rlock_factories[0])
+                       if isinstance(node, ast.Return)]
+    if ({ast.unparse(node.value) for node in factory_returns
+         if node.value is not None} != {"_PyRLock(*args, **kwargs)",
+                                         "_CRLock(*args, **kwargs)"}):
+        return {}
+    if any(isinstance(node, ast.FunctionDef)
+           and node.name in ("__bool__", "__len__")
+           for node in ast.walk(python_rlock_classes[0])):
+        return {}
+    c_source = thread_module_source.decode("utf-8", errors="strict")
+    slots_start = c_source.find("static PyType_Slot rlock_type_slots[] = {")
+    slots_end = c_source.find("};", slots_start) if slots_start >= 0 else -1
+    if slots_end <= slots_start:
+        return {}
+    rlock_slots = c_source[slots_start:slots_end]
+    if ("Py_nb_bool" in rlock_slots or "Py_sq_length" in rlock_slots
+            or "Py_tp_bool" in rlock_slots or "Py_mp_length" in rlock_slots):
+        return {}
+    if ("{Py_tp_new, rlock_new}" not in rlock_slots
+            or "{Py_tp_methods, rlock_methods}" not in rlock_slots):
+        return {}
+
+    # The production archive is hash-pinned. Also fail closed if it adds a
+    # source-level import or module-attribute route for mutating logging._lock.
+    for path, candidate in files.items():
+        if type(candidate) is not bytes or not path.endswith(".py"):
+            continue
+        if "test" in path.split("/"):
+            continue
+        try:
+            tree = logging_tree if path == "logging/__init__.py" else ast.parse(
+                candidate, filename=path,
+            )
+        except SyntaxError:
+            return {}
+        logging_aliases = {
+            alias.asname or "logging"
+            for node in ast.walk(tree) if isinstance(node, ast.Import)
+            for alias in node.names if alias.name == "logging"
+        }
+        for node in ast.walk(tree):
+            if (isinstance(node, ast.ImportFrom) and node.module == "logging"
+                    and any(alias.name == "_lock" for alias in node.names)):
+                return {}
+            if (isinstance(node, ast.Attribute) and node.attr == "_lock"
+                    and isinstance(node.value, ast.Name)
+                    and node.value.id in logging_aliases
+                    and isinstance(node.ctx, (ast.Store, ast.Del))):
+                return {}
+    return facts
+
+
 def _target_sysconfig_build_setup_guard_line_facts(
         files, image_path_facts, sysconfig_name_facts,
         project_base_env_facts, no_site, no_project_base_override,
@@ -5527,6 +5638,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_copyreg_pickle_callable_line_facts = (
         _target_copyreg_pickle_callable_line_facts(files)
     )
+    target_logging_lock_line_facts = _target_logging_lock_line_facts(
+        files, thread_native_id_module,
+    )
     target_image_config_source = None
     if target_image_config_path is not None:
         with Path(target_image_config_path).open("rb") as stream:
@@ -5760,6 +5874,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "string": target_string_template_pattern_guard_line_facts,
             "_weakrefset": target_weakrefset_empty_init_line_facts,
             "copyreg": target_copyreg_pickle_callable_line_facts,
+            "logging": target_logging_lock_line_facts,
             "importlib._bootstrap_external": target_importlib_optimize_line_facts,
             "importlib._bootstrap": target_importlib_verbose_line_facts,
         } if (os_createenviron_line_facts or codecs_false_guard_line_facts
@@ -5768,6 +5883,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
               or target_string_template_pattern_guard_line_facts
               or target_weakrefset_empty_init_line_facts
               or target_copyreg_pickle_callable_line_facts
+              or target_logging_lock_line_facts
               or target_sysconfig_build_setup_guard_line_facts
               or target_importlib_optimize_line_facts
               or target_importlib_verbose_line_facts) else {},
@@ -5981,6 +6097,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_copyreg_pickle_callable_line_facts": list(
             target_copyreg_pickle_callable_line_facts.items()
+        ),
+        "target_platform_logging_lock_line_facts": list(
+            target_logging_lock_line_facts.items()
         ),
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,

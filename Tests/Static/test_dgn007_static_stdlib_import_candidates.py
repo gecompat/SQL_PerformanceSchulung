@@ -1110,6 +1110,75 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {},
             )
 
+    def test_logging_lock_guards_require_unmutated_truthy_lock_implementations(self):
+        logging_lines = {
+            232: "_lock = threading.RLock()",
+            239: "def _acquireLock():",
+            240: "    if _lock:",
+            241: "        _lock.acquire()",
+            246: "def _releaseLock():",
+            247: "    if _lock:",
+            248: "        _lock.release()",
+        }
+        threading_source = (
+            b"def RLock(*args, **kwargs):\n"
+            b"    if _CRLock is None:\n"
+            b"        return _PyRLock(*args, **kwargs)\n"
+            b"    return _CRLock(*args, **kwargs)\n"
+            b"class _RLock:\n"
+            b"    pass\n"
+        )
+        c_source = (
+            b"static PyType_Slot rlock_type_slots[] = {\n"
+            b"    {Py_tp_new, rlock_new},\n"
+            b"    {Py_tp_methods, rlock_methods},\n"
+            b"    {0, 0},\n"
+            b"};\n"
+        )
+
+        def make_source(lines):
+            content = [""] * max(lines)
+            for number, statement in lines.items():
+                content[number - 1] = statement
+            return ("\n".join(content) + "\n").encode()
+
+        files = {
+            "logging/__init__.py": make_source(logging_lines),
+            "threading.py": threading_source,
+        }
+        with patch.multiple(
+            SUBJECT,
+            LOGGING_SOURCE_SHA256=hashlib.sha256(
+                files["logging/__init__.py"],
+            ).hexdigest(),
+            THREADING_SOURCE_SHA256=hashlib.sha256(threading_source).hexdigest(),
+            THREAD_NATIVE_ID_MODULE_SHA256=hashlib.sha256(c_source).hexdigest(),
+        ):
+            self.assertEqual(
+                SUBJECT._target_logging_lock_line_facts(files, c_source),
+                {240: False, 247: False},
+            )
+            unsafe_files = dict(files)
+            unsafe_files["extra.py"] = (
+                b"import logging as log\nlog._lock = None\n"
+            )
+            self.assertEqual(
+                SUBJECT._target_logging_lock_line_facts(unsafe_files, c_source),
+                {},
+            )
+            unsafe_c_source = c_source.replace(
+                b"{Py_tp_methods, rlock_methods}",
+                b"{Py_nb_bool, custom_bool}",
+            )
+            with patch.object(
+                SUBJECT, "THREAD_NATIVE_ID_MODULE_SHA256",
+                hashlib.sha256(unsafe_c_source).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_logging_lock_line_facts(files, unsafe_c_source),
+                    {},
+                )
+
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
             "entry.py": (

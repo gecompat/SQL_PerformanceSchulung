@@ -1655,14 +1655,23 @@ Quellbestand. PR #739 integrierte ihn als Commit
 `main` ist synchronisiert und die Arbeitsbranches sind entfernt. Der Lauf blieb
 statisch und `CANDIDATES_ONLY`.
 
-### Begrenzte Fortsetzung: `copyreg.pickle`-Callable-Guard (14. November 2026)
+### Abgeschlossen: `copyreg.pickle`-Callable-Guard (14. November 2026)
+
+Der Fact für `copyreg.py:13` bindet alle fünf produktiven Aufrufstellen und
+deren Funktionsargumente an den gepinnten Quellenbestand. PR #740 integrierte
+ihn als Commit `84ac87aa755864e7cb69ebc94d5e2b75ab675e6d`; PR #741 ergänzte
+eine Aliasimport-Gegenprobe als Commit `b67c22cee8d882df93b375df86ab4958695d1d6e`.
+Alle erforderlichen Gates bestanden und die Branches wurden entfernt. Der
+Lauf blieb statisch und `CANDIDATES_ONLY`.
+
+### Begrenzte Fortsetzung: `logging`-Lock-Präsenz (14. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
-und zwei lokale Kandidaten: den Fact für `copyreg.py:13` und synthetische
-Gegenproben. Der bestehende signaturgeprüfte CPython-3.12.16-Quellstand sowie
-Zielimage/-konfiguration werden wiederverwendet. Kein Interpreter-, Profil-,
-Worker-, SQL-, Lab-, operativer Inventur- oder Generalprobenlauf.
-Token-/Geldverbrauch bleibt unbekannt; die Grenze gilt für Paket, PR und
-Kandidaten, nicht als Providerkostenlimit. Der PR-Merge ist der Checkpoint;
-danach wird die nächste offene freigegebene Aufgabe anhand des dann aktuellen
-Status ausgewählt.
+und zwei lokale Kandidaten: die Facts für `logging/__init__.py:240` und `:247`
+sowie ihre synthetischen Gegenproben. Die vorhandenen signaturgeprüften
+CPython-3.12.16-Quellen für `logging`, `threading` und `_threadmodule.c` werden
+wiederverwendet. Kein Interpreter-, Profil-, Worker-, SQL-, Lab-, operativer
+Inventur- oder Generalprobenlauf. Token-/Geldverbrauch bleibt unbekannt; die
+Grenze gilt für Paket, PR und Kandidaten, nicht als Providerkostenlimit. Der
+PR-Merge ist der Checkpoint; danach wird die nächste offene freigegebene
+Aufgabe anhand des dann aktuellen Status ausgewählt.
