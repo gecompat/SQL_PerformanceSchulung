@@ -9554,6 +9554,20 @@ Zeilendigest `9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`;
 fokussierte Satz besteht 120/120 lokal. Vollständige Offline-CI folgt im
 Pull Request. Runtime-/P11-Auswahl und operative Inventur bleiben offen.
 
+## Fortsetzung: natives `posix.fspath` statt `os`-Fallback
+
+Die digestgebundenen `posixmodule.c`-/Clinic-Quellen registrieren `fspath` als
+Modulmethode im `posix`-Methodenregister. Die gepinnte `os.py`-Quelle übernimmt
+dieses Modul im Linux-Zweig per Star-Import und prüft danach exakt
+`_exists('fspath')`. Daher ist der Ausdruck wahr, der Python-Fallback wird
+übersprungen und der Guard `not _exists('fspath')` ist falsch. Der gebundene
+Scan bleibt `CANDIDATES_ONLY` bei 56 Kandidaten, 278 Kanten und Zeilendigest
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 25
+Bedingungen sind entschieden, 17 unbekannt. Der Unbekannt-Inventardigest ist
+`46488d66b4ffd341a6227e1c05994d052493dcd8ad7da424418bf4828a99a10c`. Der
+fokussierte Satz besteht 125/125 lokal. Vollständige Offline-CI folgt im
+Pull Request. Runtime-/P11-Auswahl und operative Inventur bleiben offen.
+
 ## Fortsetzung: `os.name` aus dem eingebauten `posix`-Export
 
 Die gebundene `os.py`-Quelle setzt `name = 'posix'` vor `from posix import *`

@@ -1620,6 +1620,42 @@ def _target_os_posix_name_facts(files, posix_source, clinic_source):
     return {"name": "posix"}
 
 
+def _target_os_fspath_call_facts(files, posix_source, clinic_source):
+    """Prove the Linux posix star export leaves os.fspath for the Python fallback."""
+    source = files.get("os.py")
+    if (not _target_os_posix_name_facts(files, posix_source, clinic_source)
+            or type(source) is not bytes):
+        return ()
+    tree = ast.parse(source, filename="os.py")
+    guard = [node for node in tree.body if isinstance(node, ast.If)
+             and ast.unparse(node.test) == "not _exists('fspath')"]
+    exists_functions = [node for node in tree.body
+                        if isinstance(node, ast.FunctionDef) and node.name == "_exists"]
+    if (len(guard) != 1 or len(exists_functions) != 1
+            or ast.unparse(exists_functions[0].body[0]) != "return name in globals()"
+            or any(isinstance(node, ast.Name) and node.id == "_exists"
+                   and isinstance(node.ctx, (ast.Store, ast.Del))
+                   for node in ast.walk(tree))):
+        return ()
+    if any(isinstance(node, ast.Name) and node.id == "fspath"
+           and isinstance(node.ctx, ast.Store) and node.lineno < guard[0].lineno
+           for node in ast.walk(tree)):
+        return ()
+    posix_text = posix_source.decode("utf-8")
+    clinic_text = clinic_source.decode("utf-8")
+    method_macro = "OS_FSPATH_METHODDEF"
+    clinic_lines = clinic_text.splitlines()
+    method_index = next((i for i, line in enumerate(clinic_lines)
+                         if line.startswith(f"#define {method_macro}")), None)
+    if (method_index is None or method_index + 1 >= len(clinic_lines)
+            or '"fspath"' not in clinic_lines[method_index + 1]
+            or not re.search(r"(?m)^\s*OS_FSPATH_METHODDEF$", posix_text)
+            or not re.search(r"(?m)^static PyMethodDef posix_methods\[\] = \{", posix_text)
+            or not re.search(r"\.m_methods = posix_methods", posix_text)):
+        return ()
+    return (("_exists('fspath')", True),)
+
+
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
@@ -3494,6 +3530,9 @@ def analyze(archive_path):
     os_name_facts = _target_os_posix_name_facts(
         files, posix_module_c_source, posix_module_clinic_source
     )
+    os_fspath_call_facts = _target_os_fspath_call_facts(
+        files, posix_module_c_source, posix_module_clinic_source
+    )
     target_imported_name_safe_modules = tuple(sorted(
         module for module in ("ast", "dis", "inspect", "os", "sysconfig", "tokenize")
         if (_target_imported_name_star_imports_safe(files, module)
@@ -3507,6 +3546,7 @@ def analyze(archive_path):
     target_call_facts = tuple(sorted(
         types_descriptor_call_facts + ast_compatibility_call_facts
         + sys_getframe_call_facts + tuple(warnings_default_call_facts.items())
+        + os_fspath_call_facts
     ))
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
@@ -3701,6 +3741,7 @@ def analyze(archive_path):
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,
         "target_platform_posix_module_clinic_sha256": POSIX_MODULE_CLINIC_SHA256,
+        "target_platform_os_fspath_call_facts": list(os_fspath_call_facts),
         "target_platform_types_source_sha256": _TYPES_SOURCE_SHA256,
         "target_platform_inspect_source_sha256": _INSPECT_SOURCE_SHA256,
         "target_platform_builtin_membership": _TARGET_BUILTIN_MEMBERSHIP,
