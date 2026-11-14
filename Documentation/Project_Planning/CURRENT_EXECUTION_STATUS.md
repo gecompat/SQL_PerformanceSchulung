@@ -9433,6 +9433,22 @@ fokussierte Satz besteht 112/112 lokal; vollständige gebundene CI folgt für
 diesen Slice. S15-/P11-Auswahl, operative Inventur und Fünf-Formen-/64-KiB-
 Gate bleiben offen.
 
+## Fortsetzung: `sys._getframe` im Logging-Modul
+
+Der `logging`-Guard `hasattr(sys, '_getframe')` wird über den gebundenen
+CPython-Quellpfad belegt: `sys` ist im Ziel-Inittab enthalten, `logging` bindet
+`sys` und `hasattr` nicht neu, und das `sys`-Modulregister enthält den in der
+Clinic-Quelle exakt definierten `_getframe`-Eintrag. Die Moduldefinition
+verwendet dieses Methodenregister. Die Quellen `Lib/logging/__init__.py`,
+`Python/sysmodule.c` und `Python/clinic/sysmodule.c.h` sind digestgebunden.
+Damit sinkt der unbekannte Bestand um eine Bedingung. Der gebundene Scan bleibt
+`CANDIDATES_ONLY` mit 56 Kandidaten, 278 Kanten und Zeilendigest
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 17
+Bedingungen sind entschieden, 26 unbekannt. Der Inventardigest lautet
+`7948e7655fefd9db9d7c1c595993ed75fb05fb0d932fdf8821a9c61ebd835fdd`. Der
+fokussierte Satz besteht 119/119 lokal. Vollständige Offline-CI folgt im
+Pull Request. Laufzeit-/P11-Auswahl und operative Inventur bleiben offen.
+
 ## Fortsetzung: Importlib-Windows-Selector
 
 Die fünf `_MS_WINDOWS`-Wachen in `_bootstrap_external.py` werden über die
