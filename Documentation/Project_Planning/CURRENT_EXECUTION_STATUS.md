@@ -9419,3 +9419,22 @@ Der vollständige DGN-007-Offline-CI-Workflow bestand im digestgebundenen
 CPython-3.12.16-Image: 14 Testmodule, 1.028 Tests ausgeführt, zwei bestehende
 Plattform-Skips, alle übrigen bestanden. Der unabhängige Nachreview schloss
 den P2 zu dynamischen Namespaceänderungen ohne offene P1/P2.
+
+
+## Fortsetzung: Byteordnung des linux/amd64-Ziels
+
+Das statische Zielprädikat bindet `sys.byteorder` für das in §19.4 des
+DGN-007-Entwurfs digestgebundene `linux/amd64`-Childmanifest an `little`.
+Gleichheits-/Ungleichheitszweige werden gemäß dem bestehenden Prädikatsvertrag
+ausgewertet; Identitätsprüfungen bleiben unbekannt. Die synthetische Gegenprobe
+prüft `little`, `big`, Identitätsausschluss und die Zweigauswahl. Das bezieht
+sich nur auf das konkret festgelegte Zielimage, nicht auf andere Architekturen
+oder CPython-Builds. Der signaturgeprüfte CPython-3.12.16-Archivscan bleibt bei
+58 Kandidaten, 282 Kanten und Digest
+`478ca51898448040d8da49f3edb6620d96a58b89857e352d88ffd2d7c75395fb`; sieben
+Bedingungen sind entschieden, 37 unbekannt. Der getrennte Modulstartscan bleibt
+93/578/534 mit Digest
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`. Der
+fokussierte Scannertestsatz besteht 110/110 lokal; die gebundene Offline-CI
+folgt im Pull Request. S15-/P11-Auswahl, operative Inventur und
+Fünf-Formen-/64-KiB-Gate bleiben offen.

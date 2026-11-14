@@ -5525,6 +5525,17 @@ unaufgelöst. Gegenproben prüfen beide Formen und die Ausschlüsse; fokussiert
 
 Der Größenbericht prüft jetzt auch die gemeinsame Grenze aller fünf vollständigen Formen: exakt 65.536 Bytes werden angenommen, 65.537 Bytes abgewiesen. Die Gegenprobe erreicht beide Summen ohne Einzelüberschreitung; damit ist die gemeinsame Grenze unabhängig von den fünf Einzelgrenzen regressionsgesichert.
 
+### Fortsetzung: Byteordnung im festgelegten Linux-/amd64-Ziel
+
+Das statische Linux-/CPython-3.12.16-Prädikat bindet `sys.byteorder` an
+`little`, weil der ausgewählte OCI-Childmanifestdigest in §19.4 ausdrücklich
+`linux/amd64` festlegt. Der Scanner wertet nur Gleichheits- und Ungleichheits-
+vergleiche aus, die sein bestehender konservativer Vergleichsvertrag zulässt;
+Identitätsprüfungen bleiben unbekannt. Eine synthetische Gegenprobe prüft beide
+Werte, Identitätsausschluss und die Auswahl des Little-Endian-Zweigs. Das ist
+eine Ableitung aus der festgelegten Zielarchitektur, keine Runtimebeobachtung
+und keine Aussage für andere Architekturen oder CPython-Builds.
+
 ### Fortsetzung: importierte Modulnamen in `__main__`-Wachen
 
 Der Linux-/CPython-Zielvorschnitt behandelt `__name__` nur dann als
@@ -5540,3 +5551,16 @@ sechs Bedingungen sind aufgelöst und 38 unbekannt. Der separate Modulstartscan
 bleibt unverändert bei 93/578/534. Der fokussierte Satz besteht 109/109 unter
 CPython 3.12.16. Das ist weiterhin `CANDIDATES_ONLY`, keine Import- oder
 Runtimeattestation.
+
+### Fortsetzung: Byteordnung im festgelegten Linux-/amd64-Ziel
+
+Das statische Linux-/CPython-3.12.16-Prädikat bindet `sys.byteorder` an
+`little`, weil der ausgewählte OCI-Childmanifestdigest in §19.4 ausdrücklich
+`linux/amd64` festlegt. Der Scanner wertet nur Gleichheits- und Ungleichheits-
+vergleiche aus, die sein bestehender konservativer Vergleichsvertrag zulässt;
+Identitätsprüfungen bleiben unbekannt. Eine synthetische Gegenprobe prüft beide
+Werte, Identitätsausschluss und die Auswahl des Little-Endian-Zweigs. Das ist
+eine Ableitung aus der festgelegten Zielarchitektur, keine Runtimebeobachtung
+und keine Aussage für andere Architekturen oder CPython-Builds. Im gebundenen
+Archivscan wird eine weitere Bedingung entschieden; Kandidatenzeilen und
+Kanten bleiben unverändert.

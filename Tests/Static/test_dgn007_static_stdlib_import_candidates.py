@@ -566,6 +566,30 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIs(SUBJECT._target_condition(minimum), True)
         self.assertIsNone(SUBJECT._target_condition(identity))
 
+    def test_target_byteorder_is_bound_to_linux_amd64_image(self):
+        little = ast.parse("sys.byteorder == 'little'", mode="eval").body
+        big = ast.parse("sys.byteorder == 'big'", mode="eval").body
+        self.assertIs(SUBJECT._target_condition(little), True)
+        self.assertIs(SUBJECT._target_condition(big), False)
+        self.assertIsNone(SUBJECT._target_condition(
+            ast.parse("sys.byteorder is 'little'", mode="eval").body
+        ))
+
+        files = {
+            "pkg.py": (
+                b"import sys\n"
+                b"if sys.byteorder == 'little':\n    import little_helper\n"
+                b"else:\n    import big_helper\n"
+            ),
+            "little_helper.py": b"VALUE = 1\n",
+            "big_helper.py": b"VALUE = 2\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("little_helper", "pkg"))
+        self.assertEqual(conditions, {"resolved": 1, "unknown": 0})
+
     def test_builtin_module_membership_uses_only_bound_target_facts(self):
         self.assertEqual(len(SUBJECT._TARGET_BUILTIN_MODULE_NAMES), 31)
         self.assertEqual(

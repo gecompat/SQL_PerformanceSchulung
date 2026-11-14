@@ -933,6 +933,7 @@ def _target_condition(node, known_names=None):
         "os.name": "posix",
         "sys.version_info": (3, 12, 16, "final", 0),
         "sys.implementation.name": "cpython",
+        "sys.byteorder": "little",
         "sys.builtin_module_names": _KNOWN_BUILTIN_NAMES,
     }
     known_names = known_names or {}
