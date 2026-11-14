@@ -1192,6 +1192,31 @@ def _top_level_class_base_index(tree):
     return {name: tuple(bases) for name, bases in result.items()}
 
 
+def _top_level_factory_constructor_index(tree):
+    factories = {}
+    for node in tree.body:
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        if not node.body or not isinstance(node.body[-1], ast.Return):
+            continue
+        if any(
+            not isinstance(statement, (ast.Import, ast.ImportFrom))
+            and not (isinstance(statement, ast.Expr)
+                     and isinstance(statement.value, ast.Constant)
+                     and type(statement.value.value) is str)
+            for statement in node.body[:-1]
+        ):
+            continue
+        returned = node.body[-1].value
+        if (not isinstance(returned, ast.Call) or returned.keywords
+                or not isinstance(returned.func, (ast.Name, ast.Attribute))):
+            continue
+        if any(isinstance(statement, ast.Return) for statement in node.body[:-1]):
+            continue
+        factories[node.name] = (ast.unparse(returned.func),)
+    return factories
+
+
 def _top_level_local_class_alias_index(tree, class_index):
     """Resolve simple module-scope aliases to locally declared classes."""
     aliases = {}
@@ -1650,6 +1675,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         return result
 
     module_functions = scope_function_aliases(tree.body, scope_functions(tree.body))
+    factory_constructors = _top_level_factory_constructor_index(tree)
     module_class_methods = scope_class_methods(tree.body)
     module_class_bases = _top_level_class_base_index(tree)
     module_class_aliases = _top_level_local_class_alias_index(
@@ -1675,7 +1701,8 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         local_targets = []
         imported_targets = set()
         class_candidates = tuple(dict.fromkeys((
-            class_name, *module_class_aliases.get(class_name, ())
+            class_name, *module_class_aliases.get(class_name, ()),
+            *factory_constructors.get(class_name, ()),
         )))
         for local_class in class_candidates:
             for candidate in (local_class, *local_base_classes(local_class)):
@@ -1725,6 +1752,10 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                 local_methods = module_class_methods.get(constructor.id, {})
                 imported_methods = (imported_class_methods or {}).get(constructor.id, {})
                 method_names = set(local_methods) | set(imported_methods)
+                for factory_class in factory_constructors.get(constructor.id, ()):
+                    method_names.update(module_class_methods.get(factory_class, {}))
+                    method_names.update((imported_class_methods or {}).get(factory_class, {}))
+                    method_names.update((imported_module_class_methods or {}).get(factory_class, {}))
                 method_names.update(
                     name
                     for base_name in local_base_classes(constructor.id)
@@ -1959,6 +1990,10 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                 pending.append((function, function_closures.get(id(function), function_scope)))
             imported_calls.update(imported_constructor_targets)
         elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            constructor_targets = known_class_method_targets(
+                ast.unparse(node.func), "__init__"
+            )
+            imported_calls.update(constructor_targets[1])
             if (isinstance(node.func.value, ast.Call)
                     and isinstance(node.func.value.func, ast.Name)
                     and node.func.value.func.id == "super"
@@ -2463,7 +2498,7 @@ def analyze(archive_path):
         "module_init_call_roots_outside_source_stdlib_names": list(
             call_roots_outside_stdlib
         ),
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES_AND_DIRECT_TOP_LEVEL_FACTORY_RETURNS_AFTER_IMPORTS_AND_DOCSTRINGS",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],

@@ -9264,3 +9264,7 @@ Die gepinnten `machinery.py`-/`util.py`-Quellen binden 28 direkte öffentliche N
 ## Fortsetzung: DGN-007 dynamische Importkandidaten
 
 Die statische Quellclosure bezieht verfügbare Paketeltern und konstante Modulnamen in `__import__`-/`importlib.import_module`-Aufrufen ein. Vier Kandidaten kommen hinzu (`concurrent`, `pydoc_data`, `xml`, `xmlrpc`); 268 Module/2.438 Kanten, Closurehash `700ace82b2c5630fc6ac039bb5bed0d788a46f6f8bcd1efba3fc0afb97068b6d`. Der fokussierte Satz besteht 102/102. Berechnete und relative dynamische Namen bleiben ungeklärt. Dies ist weiterhin keine vollständige P11-Importclosure; der getrennte Modulstartscan bleibt 93/578/534.
+
+## Fortsetzung: DGN-007 direkte Factory-Rückgaben
+
+Der Importfolger verfolgt eine einzige direkte Top-Level-Form: abschließendes `return Klasse(...)` nach Importen/Docstring, einschließlich einfacher Aliasbindung und Methodenaufruf. Bedingte/dynamische Rückgaben bleiben unaufgelöst. Zwei synthetische Gegenproben; fokussiert 103/103 PASS. Der CPython-Archivscan bleibt 268/2.438 in der Quellclosure und 93/578/534 im Modulstartfolger mit unveränderten jeweiligen Digests. Keine vollständige P11- oder Runtimeattestation.

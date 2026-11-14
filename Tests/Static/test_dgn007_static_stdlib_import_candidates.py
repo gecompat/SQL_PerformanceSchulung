@@ -1302,7 +1302,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("pkg", "pkg.init_leaf", "pkg.method_leaf"))
         self.assertEqual(function_count, 2)
 
-    def test_constructed_instance_from_factory_is_not_guessed(self):
+    def test_direct_imported_class_factory_return_tracks_method(self):
         files = {
             "pkg/__init__.py": (
                 b"def make():\n    from . import helper\n    return helper.Worker()\n"
@@ -1317,8 +1317,26 @@ class StaticImportCandidateTests(unittest.TestCase):
         modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
             files, ("pkg",)
         )
-        self.assertEqual(modules, ("pkg", "pkg.helper"))
-        self.assertEqual(function_count, 1)
+        self.assertEqual(modules, ("pkg", "pkg.helper", "pkg.method_leaf"))
+        self.assertEqual(function_count, 2)
+
+    def test_conditional_factory_return_is_not_guessed(self):
+        files = {
+            "pkg/__init__.py": (
+                b"def make(flag):\n"
+                b"    if flag:\n        return Worker()\n"
+                b"    return Other()\n"
+                b"class Worker:\n    def run(self):\n        from . import worker_leaf\n"
+                b"class Other:\n    def run(self):\n        from . import other_leaf\n"
+                b"make(flag).run()\n"
+            ),
+            "pkg/worker_leaf.py": b"VALUE = 1\n",
+            "pkg/other_leaf.py": b"VALUE = 2\n",
+        }
+        modules, _, _, _, _ = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("pkg",))
 
     def test_same_scope_local_class_instance_method_is_followed(self):
         files = {
@@ -2058,7 +2076,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("configure_module_anchor_count", labels)
         self.assertIn("module_init_call_roots_outside_source_stdlib_names", labels)
         self.assertIn(
-            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES",
+            "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES_AND_DIRECT_TOP_LEVEL_FACTORY_RETURNS_AFTER_IMPORTS_AND_DOCSTRINGS",
             labels,
         )
         self.assertNotIn("P11_MATCH", labels)
