@@ -9397,3 +9397,25 @@ CPython-3.12.16-Image: 14 Testmodule, 1.027 Tests ausgeführt, zwei bestehende
 Plattform-Skips, alle übrigen bestanden. Der Archivscan unter derselben Runtime
 bestätigte die oben genannten Zähler und Digests. Es gab weiterhin keinen
 Interpreter-Profilstart, Worker-, SQL- oder Generalprobebetrieb.
+
+
+## Fortsetzung: importierte Modulnamen in `__main__`-Wachen
+
+Der Zielvorschnitt erkennt `__name__ == "__main__"` und `!=` als importierte
+Modulwachen, sofern der Quellbaum keine Bindung, Löschung oder erkannte
+dynamische Namespaceoperation enthält. Nach `import *` wird die Annahme
+verworfen; andere Vergleiche bleiben unbekannt. Eine Bedingung wird zusätzlich
+aufgelöst, weitere Wachen bleiben wegen Star-Imports oder dynamischer
+Namespaceoperationen offen.
+Der CPython-3.12.16-Archivscan bleibt bei 58 Modulkörperkandidaten, 282 Kanten
+und Digest
+`478ca51898448040d8da49f3edb6620d96a58b89857e352d88ffd2d7c75395fb`; sechs
+Bedingungen sind aufgelöst, 38 unbekannt. Der getrennte Modulstartscan bleibt
+93/578/534 mit unverändertem Digest. Der fokussierte Scannertestsatz besteht
+109/109. Vollständige S15-/P11-Auswahl, operative Inventur und
+Fünf-Formen-/64-KiB-Gate bleiben offen.
+
+Der vollständige DGN-007-Offline-CI-Workflow bestand im digestgebundenen
+CPython-3.12.16-Image: 14 Testmodule, 1.028 Tests ausgeführt, zwei bestehende
+Plattform-Skips, alle übrigen bestanden. Der unabhängige Nachreview schloss
+den P2 zu dynamischen Namespaceänderungen ohne offene P1/P2.

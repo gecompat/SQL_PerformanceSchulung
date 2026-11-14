@@ -628,6 +628,136 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertEqual(conditions, {"resolved": 2, "unknown": 1})
 
+    def test_imported_module_name_guards_resolve_only_without_rebinding(self):
+        tree = ast.parse(
+            "if __name__ == '__main__':\n"
+            "    import main_only\n"
+            "else:\n"
+            "    import imported_only\n"
+        )
+        known = SUBJECT._target_name_aliases(tree, imported_module_name=True)
+        equal = tree.body[0].test
+        unequal = ast.parse("__name__ != '__main__'", mode="eval").body
+        self.assertIs(SUBJECT._target_condition(equal, known), False)
+        self.assertIs(SUBJECT._target_condition(unequal, known), True)
+
+        alias_tree = ast.parse(
+            "_entry_name = __name__\n"
+            "if _entry_name == '__main__':\n    pass\n"
+        )
+        self.assertIs(
+            SUBJECT._target_condition(
+                alias_tree.body[1].test,
+                SUBJECT._target_name_aliases(alias_tree, imported_module_name=True),
+            ),
+            False,
+        )
+
+        rebound = ast.parse(
+            "if feature_flag:\n    __name__ = '__main__'\n"
+            "if __name__ == '__main__':\n    import maybe_main\n"
+        )
+        self.assertIsNone(
+            SUBJECT._target_condition(
+                rebound.body[1].test,
+                SUBJECT._target_name_aliases(rebound, imported_module_name=True),
+            )
+        )
+        deleted = ast.parse(
+            "del __name__\nif __name__ == '__main__':\n    pass\n"
+        )
+        self.assertIsNone(
+            SUBJECT._target_condition(
+                deleted.body[1].test,
+                SUBJECT._target_name_aliases(deleted, imported_module_name=True),
+            )
+        )
+        for mutation in (
+            "globals()['__name__'] = '__main__'\n",
+            "exec(\"__name__ = '__main__'\")\n",
+        ):
+            with self.subTest(mutation=mutation):
+                dynamic = ast.parse(
+                    mutation + "if __name__ == '__main__':\n    pass\n"
+                )
+                self.assertIsNone(
+                    SUBJECT._target_condition(
+                        dynamic.body[-1].test,
+                        SUBJECT._target_name_aliases(
+                            dynamic, imported_module_name=True
+                        ),
+                    )
+                )
+        mixed = ast.parse(
+            "__name__ = 'before'\n"
+            "_entry_name = __name__\n"
+            "globals()['__name__'] = '__main__'\n"
+            "if _entry_name == '__main__':\n    pass\n"
+        )
+        self.assertIsNone(
+            SUBJECT._target_condition(
+                mixed.body[-1].test,
+                SUBJECT._target_name_aliases(mixed, imported_module_name=True),
+            )
+        )
+        dynamic_with_builtin = ast.parse(
+            "import sys\n_names = sys.builtin_module_names\n"
+            "globals()\nif 'posix' in _names:\n    pass\n"
+        )
+        self.assertIs(
+            SUBJECT._target_condition(
+                dynamic_with_builtin.body[-1].test,
+                SUBJECT._target_name_aliases(
+                    dynamic_with_builtin, imported_module_name=True
+                ),
+            ),
+            True,
+        )
+
+        files = {
+            "pkg.py": (
+                b"if __name__ == '__main__':\n    import main_only\n"
+                b"else:\n    import imported_only\n"
+            ),
+            "main_only.py": b"VALUE = 1\n",
+            "imported_only.py": b"VALUE = 2\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+            files, ("pkg",)
+        )
+        self.assertEqual(modules, ("imported_only", "pkg"))
+        self.assertEqual(conditions, {"resolved": 1, "unknown": 0})
+
+        star_import_files = {
+            "pkg.py": (
+                b"from unknown_provider import *\n"
+                b"if __name__ == '__main__':\n    import main_only\n"
+                b"else:\n    import imported_only\n"
+            ),
+            "main_only.py": b"VALUE = 1\n",
+            "imported_only.py": b"VALUE = 2\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+            star_import_files, ("pkg",)
+        )
+        self.assertEqual(modules, ("imported_only", "main_only", "pkg"))
+        self.assertEqual(conditions, {"resolved": 0, "unknown": 1})
+
+        dynamic_namespace_files = {
+            "pkg.py": (
+                b"globals()['__name__'] = '__main__'\n"
+                b"if __name__ == '__main__':\n    import main_only\n"
+                b"else:\n    import imported_only\n"
+            ),
+            "main_only.py": b"VALUE = 1\n",
+            "imported_only.py": b"VALUE = 2\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+            dynamic_namespace_files, ("pkg",)
+        )
+        self.assertEqual(modules, ("imported_only", "main_only", "pkg"))
+        self.assertEqual(conditions, {"resolved": 0, "unknown": 1})
+
     def test_rebound_builtin_alias_does_not_prune_reachable_fallback(self):
         files = {
             "pkg.py": (
@@ -2318,6 +2448,10 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("module_init_call_roots_outside_source_stdlib_names", labels)
         self.assertIn("module_init_call_source_candidates", labels)
         self.assertIn("target_platform_source_candidates", labels)
+        self.assertIn(
+            "MODULE_CLASS_AND_KNOWN_LINUX_CPYTHON312_IF_BUILTIN_AND_IMPORTED_MODULE_NAME_BRANCHES",
+            labels,
+        )
         self.assertIn("target_platform_builtin_membership", labels)
         self.assertIn("target_platform_builtin_module_names", labels)
         self.assertIn("target_platform_builtin_config_c_sha256", labels)

@@ -5524,3 +5524,19 @@ unaufgelöst. Gegenproben prüfen beide Formen und die Ausschlüsse; fokussiert
 #### Gemeinsame Größenobergrenze (Fortschreibung)
 
 Der Größenbericht prüft jetzt auch die gemeinsame Grenze aller fünf vollständigen Formen: exakt 65.536 Bytes werden angenommen, 65.537 Bytes abgewiesen. Die Gegenprobe erreicht beide Summen ohne Einzelüberschreitung; damit ist die gemeinsame Grenze unabhängig von den fünf Einzelgrenzen regressionsgesichert.
+
+### Fortsetzung: importierte Modulnamen in `__main__`-Wachen
+
+Der Linux-/CPython-Zielvorschnitt behandelt `__name__` nur dann als
+importierten Modulnamen, wenn der Quellbaum keine Bindung, Löschung oder
+erkannte dynamische Namespaceoperation enthält. Exakt
+`__name__ == "__main__"` und `!=` werden damit aufgelöst; andere Vergleiche,
+Identitätsprüfungen und nach einem Star-Import verworfene Namensfakten bleiben
+unbekannt. Eine zusätzliche Bedingung wird entschieden; weitere Wachen bleiben
+wegen Star-Imports oder dynamischer Namespaceoperationen unbekannt.
+Der Archivvorschnitt bleibt bei 58 Kandidaten und 282 Kanten mit unverändertem
+Digest `478ca51898448040d8da49f3edb6620d96a58b89857e352d88ffd2d7c75395fb`;
+sechs Bedingungen sind aufgelöst und 38 unbekannt. Der separate Modulstartscan
+bleibt unverändert bei 93/578/534. Der fokussierte Satz besteht 109/109 unter
+CPython 3.12.16. Das ist weiterhin `CANDIDATES_ONLY`, keine Import- oder
+Runtimeattestation.
