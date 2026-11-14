@@ -397,14 +397,36 @@ Weitere P1/P2 blieben nicht offen.
 
 Der [Offline-Review](EXTERNAL_TABLES_SOURCE_REVIEW.md) bindet die
 Microsoft-Matrix für SQL Server 2019/2022/2025: identische External-Table-
-Verfügbarkeit reicht nicht für einen identischen Connector-/OS-Pfad. `sqlserver://`
-ist der gemeinsame RDBMS-Kandidat, für eine gemeinsame 2019/2022/2025-Matrix
+Verfügbarkeit reicht nicht für einen identischen Connector-/OS-Pfad.
+`sqlserver://` ist der gemeinsame RDBMS-Kandidat, für eine gemeinsame 2019/2022/2025-Matrix
 aber nur auf Windows durchgängig dokumentiert; unter Linux gilt dieser
 Connectorweg erst ab 2025. Datei- und ODBC-Wege unterscheiden sich zusätzlich
 nach Version und Pushdown-Fähigkeit. Die Quelle empfiehlt daher nur den
 Kandidaten für einen späteren Entwurf; externe SQL-Quelle, OS, Credentials,
 Infrastruktur, Transportmessung, formale Methodenfreigabe und Lauf bleiben
 offen. Kein Connector, SQL oder Netzwerk wurde angesprochen.
+
+Die Zugriffsprüfung vom 14. November ergänzt bei `SRC-154` die konkrete
+Authentifizierungs- und Credentialgrenze: Der SQL-ODBC-Connector unterstützt
+Basic Authentication, nicht Kerberos; er erfordert einen Datenbank-
+Hauptschlüssel, datenbankweites Credential und installierte/aktivierte
+PolyBase-Dienste. `ALTER ANY EXTERNAL DATA SOURCE` ist wegen des Zugriffs auf
+alle datenbankweiten Credentials ein hoch privilegiertes Recht. Damit ist der
+gemeinsame Connector-Kandidat sicherheitsseitig präzisiert, aber weder eine
+Zugriffsart noch Infrastruktur oder Ausführung qualifiziert. Vergleichbare
+synthetische Abfragen, reale Ressourcen-/Transportkosten und alle späteren
+Methoden-, Rechte- und Laufgates bleiben offen.
+
+Die Zugriffsprüfung vom 14. November ergänzt bei `SRC-154` die konkrete
+Authentifizierungs- und Credentialgrenze: Der SQL-ODBC-Connector unterstützt
+Basic Authentication, nicht Kerberos; er erfordert einen Datenbank-
+Hauptschlüssel, datenbankweites Credential und installierte/aktivierte
+PolyBase-Dienste. `ALTER ANY EXTERNAL DATA SOURCE` ist wegen des Zugriffs auf
+alle datenbankweiten Credentials ein hoch privilegiertes Recht. Damit ist der
+gemeinsame Connector-Kandidat sicherheitsseitig präzisiert, aber weder eine
+Zugriffsart noch Infrastruktur oder Ausführung qualifiziert. Vergleichbare
+synthetische Abfragen, reale Ressourcen-/Transportkosten und alle späteren
+Methoden-, Rechte- und Laufgates bleiben offen.
 
 ## Fortsetzung: Datenschutzscanner – fehlerhafte URL sicher klassifizieren
 
