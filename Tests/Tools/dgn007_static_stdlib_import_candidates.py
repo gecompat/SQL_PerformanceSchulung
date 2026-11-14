@@ -1873,6 +1873,42 @@ def _target_os_createenviron_line_facts(files, facts):
     return {guards[0].lineno: False} if len(guards) == 1 else {}
 
 
+_CODECS_SOURCE_SHA256 = (
+    "7b7839e53a77961153240aecfe11edc8054d05b1dedd83894450dae21ec05785"
+)
+
+
+def _target_codecs_false_guard_line_facts(files):
+    """Bind codecs' dead encodings import after its fixed `_false = 0` assignment."""
+    source = files.get("codecs.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != _CODECS_SOURCE_SHA256):
+        return {}
+    tree = ast.parse(source, filename="codecs.py")
+    star_imports = [node for node in ast.walk(tree)
+                    if isinstance(node, ast.ImportFrom)
+                    and any(alias.name == "*" for alias in node.names)]
+    assignments = [node for node in tree.body if isinstance(node, ast.Assign)
+                   and any(isinstance(target, ast.Name) and target.id == "_false"
+                           for target in node.targets)]
+    guards = [node for node in tree.body if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "_false"]
+    stores = [node for node in ast.walk(tree)
+              if isinstance(node, ast.Name) and node.id == "_false"
+              and isinstance(node.ctx, (ast.Store, ast.Del))]
+    if (len(star_imports) != 1 or star_imports[0].module != "_codecs"
+            or star_imports[0].level != 0 or len(assignments) != 1
+            or not isinstance(assignments[0].value, ast.Constant)
+            or type(assignments[0].value.value) is not int
+            or assignments[0].value.value != 0 or len(guards) != 1
+            or len(stores) != 1 or guards[0].lineno <= assignments[0].lineno
+            or guards[0].orelse or len(guards[0].body) != 1
+            or not isinstance(guards[0].body[0], ast.Import)
+            or [alias.name for alias in guards[0].body[0].names] != ["encodings"]):
+        return {}
+    return {guards[0].lineno: False}
+
+
 def _target_os_have_functions_call_facts(files, posix_source, clinic_source):
     """Prove posixmodule_exec always publishes os.py's feature inventory."""
     source = files.get("os.py")
@@ -4582,6 +4618,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     os_createenviron_line_facts = _target_os_createenviron_line_facts(
         files, os_name_facts,
     ) if os_name_facts else {}
+    codecs_false_guard_line_facts = _target_codecs_false_guard_line_facts(files)
     os_fspath_call_facts = _target_os_fspath_call_facts(
         files, posix_module_c_source, posix_module_clinic_source
     )
@@ -4699,7 +4736,8 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         } if os_name_facts else {},
         trusted_line_facts={
             "os": os_createenviron_line_facts,
-        } if os_createenviron_line_facts else {},
+            "codecs": codecs_false_guard_line_facts,
+        } if os_createenviron_line_facts or codecs_false_guard_line_facts else {},
         unknown_conditions=target_call_unknown_conditions,
     )
     target_call_unknown_conditions.sort(
@@ -4880,6 +4918,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_platform_os_name_fact": list(os_name_facts.items()),
         "target_platform_os_function_line_facts": list(
             os_createenviron_line_facts.items()
+        ),
+        "target_platform_codecs_false_guard_line_facts": list(
+            codecs_false_guard_line_facts.items()
         ),
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,
