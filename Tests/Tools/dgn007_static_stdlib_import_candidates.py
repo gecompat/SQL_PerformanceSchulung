@@ -3668,6 +3668,36 @@ def _imported_module_aliases(tree, module, path, module_index):
     return {expression: tuple(targets) for expression, targets in result.items()}
 
 
+def _lexical_import_statements(statements):
+    """Return normalized import declarations lexically nested in AST nodes."""
+    rows = []
+    for statement in statements:
+        for node in ast.walk(statement):
+            if isinstance(node, ast.Import):
+                rows.append({
+                    "kind": "import",
+                    "line": node.lineno,
+                    "names": sorted([
+                        {"name": alias.name, "asname": alias.asname}
+                        for alias in node.names
+                    ], key=lambda item: (item["name"], item["asname"] or "")),
+                })
+            elif isinstance(node, ast.ImportFrom):
+                rows.append({
+                    "kind": "from",
+                    "line": node.lineno,
+                    "level": node.level,
+                    "module": node.module or "",
+                    "names": sorted([
+                        {"name": alias.name, "asname": alias.asname}
+                        for alias in node.names
+                    ], key=lambda item: (item["name"], item["asname"] or "")),
+                })
+    return sorted(rows, key=lambda row: (
+        row["line"], json.dumps(row, sort_keys=True, separators=(",", ":"))
+    ))
+
+
 def _imported_module_function_aliases(
         module_aliases, function_index, class_dispatch_index):
     result = {}
@@ -4360,6 +4390,8 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                     "source_path": path,
                     "line": node.lineno,
                     "expression": ast.unparse(node.test),
+                    "body_imports": _lexical_import_statements(node.body),
+                    "else_imports": _lexical_import_statements(node.orelse),
                 })
             selected = node.body if decision is True else node.orelse if decision is False else None
             if selected is not None:

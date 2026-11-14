@@ -116,6 +116,18 @@ S15-/P11-Sollrecords noch ein Profil-/Workerattest. Der feste Lexikalscan samt
 Grenzen steht in §19.15 des
 [DGN-007-Designs](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md).
 
+Der gebundene Scannerbericht zeigt unbekannte Kontrollflussbedingungen jetzt
+zusätzlich mit getrennten, normalisierten Importdeklarationen und Fundstellen
+aus Body und Else-Zweig. Im CPython-3.12.16-Archivlauf blieben 93 Module, 578 Kanten und
+534 Funktionen im allgemeinen Kandidatenscan sowie 60 Module, 319 Kanten und
+178 Funktionen im zielplattformbezogenen Callvorschnitt unverändert. Von 552
+unbekannten Bedingungen enthalten 44 mindestens eine lexikalische
+Importdeklaration (28 Fundstellen im Body, 46 im Else-Zweig; Bedingungen
+überlappen). Diese Sichtbarkeit erleichtert die gezielte Quellenprüfung,
+entscheidet keine dieser Bedingungen und qualifiziert weder P11 noch Runtime.
+153 fokussierte Regressionen bestehen; der Archivbefund bleibt
+`CANDIDATES_ONLY`.
+
 ## Graph Tables – Curriculum-Lernnotiz
 
 Die [Graph-Tables-Lernnotiz](../Curriculum/GRAPH_TABLES_LESSON.md) ergänzt
