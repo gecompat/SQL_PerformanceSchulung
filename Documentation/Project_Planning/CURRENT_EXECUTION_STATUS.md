@@ -10394,4 +10394,19 @@ die rechte Seite ein Literal-Tupel und die linke Seite ein unterstützter
 primitiver Wert oder ein Literal-Tupel ist. Dynamische Operanden und dynamische
 Sammlungen bleiben unbekannt. Zwei Regressionen prüfen direkte Aufrufe,
 Standardwerte und den unbekannten Rückfall. Die fokussierte Suite besteht lokal
-mit 188 Tests unter Python 3.14; PR-Gates stehen noch aus.
+mit 188 Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der
+gepinnten CPython-3.12.16-Offlineprüfung bestanden. PR #751 ist als Commit
+`4422e10bcb1abaec63f1f6497b63462dd880d692` integriert; `main` ist synchronisiert
+und lokale/Remote-Branches sind entfernt. Der Workflow enthält keinen
+separaten Zielscanbericht. Runtime-, P11-, Profil-, Worker-, SQL-, Lab- und
+Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: bedingte Literalargumente
+
+Der lokale Argumentbinder wertet bedingte Ausdrücke aus, wenn ihr Test ein
+bekanntes, nebenwirkungsfreies Literal oder Literal-Tupel ist. Er wertet nur
+den ausgewählten Zweig aus; ein dynamischer Test oder ein ausgewählter
+dynamischer Wert bleibt unbekannt. Zwei Regressionen prüfen direkte Aufrufe,
+Standardwerte, Kurzschluss auf den gewählten Zweig und den unbekannten
+Rückfall. Die fokussierte Suite besteht lokal mit 190 Tests unter Python 3.14;
+PR-Gates stehen noch aus.

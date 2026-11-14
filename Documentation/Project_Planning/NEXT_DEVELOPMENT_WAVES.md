@@ -1815,7 +1815,7 @@ synchronisiert und lokale/Remote-Branches sind entfernt. Der Workflow enthält
 keinen separaten Zielscanbericht. Kein Interpreter-, Profil-, Worker-, SQL-,
 Lab- oder Generalprobenlauf.
 
-### Begrenzte Fortsetzung: Tupel-Mitgliedschaft in Literalargumenten (14. November 2026)
+### Abgeschlossen: Tupel-Mitgliedschaft in Literalargumenten (14. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
 und zwei synthetische Regressionen. Der lokale Argumentbinder wertet einzelne
@@ -1830,4 +1830,25 @@ unbekannt; die Grenze ist 1/1/2 und kein Provider-Ausgabenlimit. PR-Integration
 ist der Checkpoint; danach wird anhand des aktuellen Status weitergearbeitet.
 
 Die zwei synthetischen Regressionen und die fokussierte Suite bestehen lokal
-mit 188 Tests unter Python 3.14. PR-Gates stehen noch aus.
+mit 188 Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der
+gepinnten CPython-3.12.16-Offlineprüfung bestanden. PR #751 integrierte den
+Schnitt als `4422e10bcb1abaec63f1f6497b63462dd880d692`; `main` ist
+synchronisiert und lokale/Remote-Branches sind entfernt. Kein Interpreter-,
+Profil-, Worker-, SQL-, Lab- oder Generalprobenlauf.
+
+### Begrenzte Fortsetzung: bedingte Literalargumente (14. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. Der lokale Argumentbinder wertet einen
+`IfExp` nur aus, wenn sein Test ein bekannter primitiver Wert oder ein
+Literal-Tupel ist. Er wertet ausschließlich den gewählten Zweig aus; dynamische
+Tests und gewählte dynamische Ergebnisse bleiben unbekannt. Verwendet werden
+die bestehende signaturgeprüfte CPython-3.12.16-Quelle, das gebundene Zielimage
+und die feste Workerroute. Keine neue Produktquelle und keine Interpreter-,
+Profil-, Worker-, SQL-, Lab- oder Generalprobenausführung. Token-/Geldverbrauch
+bleiben unbekannt; die Grenze ist 1/1/2 und kein Provider-Ausgabenlimit.
+PR-Integration ist der Checkpoint; danach wird anhand des aktuellen Status
+weitergearbeitet.
+
+Die zwei synthetischen Regressionen und die fokussierte Suite bestehen lokal
+mit 190 Tests unter Python 3.14. PR-Gates stehen noch aus.
