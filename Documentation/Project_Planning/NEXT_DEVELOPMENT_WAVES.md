@@ -1877,7 +1877,7 @@ Schnitt als `b84b259ea88945a48e86f5da5daf36e0a6018cdf`; `main` ist
 synchronisiert und lokale/Remote-Branches sind entfernt. Kein Interpreter-,
 Profil-, Worker-, SQL-, Lab- oder Generalprobenlauf.
 
-### Begrenzte Fortsetzung: `sys.version_info` mit konstantem Index (14. November 2026)
+### Abgeschlossen: `sys.version_info` mit konstantem Index (14. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
 und zwei synthetische Regressionen. Die Zielbedingungsauswertung indexiert
@@ -1890,4 +1890,24 @@ kein Provider-Ausgabenlimit. PR-Integration ist der Checkpoint; danach wird
 anhand des aktuellen Status weitergearbeitet.
 
 Die zwei synthetischen Regressionen und die fokussierte Suite bestehen lokal
-mit 194 Tests unter Python 3.14. PR-Gates stehen noch aus.
+mit 194 Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der
+gepinnten CPython-3.12.16-Offlineprüfung bestanden. PR #754 integrierte den
+Schnitt als `a0784f4460c583521c0d8d29cdfea140685b3583`; `main` ist
+synchronisiert und lokale/Remote-Branches sind entfernt. Kein Interpreter-,
+Profil-, Worker-, SQL-, Lab- oder Generalprobenlauf.
+
+### Begrenzte Fortsetzung: konstante `sys.version_info`-Slices (14. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. Die Zielbedingungsauswertung wertet Slices
+des gebundenen `sys.version_info`-Tupels nur mit nichtnegativen konstanten
+Ganzzahlgrenzen und Schrittweiten aus. Dynamische oder negative Grenzen oder
+Schrittweiten sowie Schrittweite null bleiben unbekannt. Keine
+neue Produktquelle und keine Interpreter-, Profil-, Worker-, SQL-, Lab- oder
+Generalprobenausführung. Token-/Geldverbrauch bleiben unbekannt; der Umfang
+beträgt ein Paket, einen PR und zwei Kandidaten, kein Provider-Ausgabenlimit.
+PR-Integration ist der Checkpoint; danach wird anhand des aktuellen Status
+weitergearbeitet.
+
+Die zwei synthetischen Regressionen und die fokussierte Suite bestehen lokal
+mit 196 Tests unter Python 3.14. PR-Gates stehen noch aus.

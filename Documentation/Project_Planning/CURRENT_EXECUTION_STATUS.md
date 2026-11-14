@@ -10436,5 +10436,19 @@ Die Zielbedingungsauswertung löst nun nichtnegative konstante Ganzzahlindizes
 auf dem bereits gebundenen CPython-`sys.version_info`-Tupel auf. Dynamische,
 negative, Bool- und außerhalb des Tupels liegende Indizes bleiben unbekannt.
 Zwei Regressionen prüfen direkte Bedingungen und Closure-Zweige. Die
-fokussierte Suite besteht lokal mit 194 Tests unter Python 3.14; PR-Gates stehen
-noch aus.
+fokussierte Suite besteht lokal mit 194 Tests unter Python 3.14. Alle fünf
+PR-Gates einschließlich der gepinnten CPython-3.12.16-Offlineprüfung bestanden.
+PR #754 ist als Commit `a0784f4460c583521c0d8d29cdfea140685b3583` integriert;
+`main` ist synchronisiert und lokale/Remote-Branches sind entfernt. Der
+Workflow enthält keinen separaten Zielscanbericht. Runtime-, P11-, Profil-,
+Worker-, SQL-, Lab- und Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: konstante `sys.version_info`-Slices
+
+Die Zielbedingungsauswertung kann jetzt zusätzlich einfache Slices des
+gebundenen Versions-Tupels mit nichtnegativen konstanten Ganzzahlgrenzen
+und Schrittweiten auswerten. Dynamische oder negative Grenzen/Schrittweiten
+sowie Schrittweite null bleiben unbekannt. Zwei Regressionen prüfen direkte
+Bedingungen und Closure-Zweige.
+Die fokussierte Suite besteht lokal mit 196 Tests unter Python 3.14; PR-Gates
+stehen noch aus.
