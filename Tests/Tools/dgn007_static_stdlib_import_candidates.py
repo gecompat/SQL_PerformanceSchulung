@@ -733,6 +733,28 @@ def _module_path(module, files):
     return package if package in files else relative + ".py" if relative + ".py" in files else None
 
 
+def _module_source_rows(files, modules):
+    """Return the ordered name/path/hash evidence for source candidates only."""
+    if (type(modules) is not tuple or len(modules) > MAX_SOURCE_FILES
+            or any(type(name) is not str or not name
+                   or any(not part.isidentifier() for part in name.split("."))
+                   for name in modules)):
+        raise ValueError("CANDIDATE_MODULES")
+    if modules != tuple(sorted(set(modules))):
+        raise ValueError("CANDIDATE_MODULES")
+    rows = []
+    for module in modules:
+        path = _module_path(module, files)
+        if path is None or path not in files:
+            raise ValueError("CANDIDATE_SOURCE_MISSING")
+        rows.append({
+            "module": module,
+            "source_path": path,
+            "source_sha256": hashlib.sha256(files[path]).hexdigest(),
+        })
+    return rows
+
+
 def _import_names(tree, module, path):
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
 
@@ -2736,6 +2758,7 @@ def analyze(archive_path):
         "target_platform_unknown_if_count": target_conditions["unknown"],
         "target_platform_builtin_membership": _TARGET_BUILTIN_MEMBERSHIP,
         "module_init_call_candidate_count": len(call_modules),
+        "module_init_call_source_candidates": _module_source_rows(files, call_modules),
         "module_init_call_edge_count": call_edges,
         "module_init_call_function_count": call_functions,
         "module_init_call_roots_outside_source_stdlib_names": list(

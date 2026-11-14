@@ -23,6 +23,34 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(SUBJECT.MAX_SOURCE_BYTES, 64 * 1024 * 1024)
         self.assertEqual(SUBJECT.MAX_SOURCE_FILES, 2048)
 
+    def test_module_source_rows_bind_name_path_and_bytes_in_stable_order(self):
+        files = {
+            "pkg/__init__.py": b"from . import child\n",
+            "pkg/child.py": b"VALUE = 1\n",
+        }
+        modules = ("pkg", "pkg.child")
+        rows = SUBJECT._module_source_rows(files, modules)
+        self.assertEqual(rows, [
+            {"module": "pkg", "source_path": "pkg/__init__.py",
+             "source_sha256": hashlib.sha256(files["pkg/__init__.py"]).hexdigest()},
+            {"module": "pkg.child", "source_path": "pkg/child.py",
+             "source_sha256": hashlib.sha256(files["pkg/child.py"]).hexdigest()},
+        ])
+        self.assertEqual(SUBJECT._module_source_rows(files, modules), rows)
+
+    def test_module_source_rows_reject_missing_or_unordered_candidates(self):
+        files = {"pkg.py": b"VALUE = 1\n"}
+        with self.assertRaisesRegex(ValueError, "CANDIDATE_SOURCE_MISSING"):
+            SUBJECT._module_source_rows(files, ("pkg", "pkg.child"))
+        with self.assertRaisesRegex(ValueError, "CANDIDATE_MODULES"):
+            SUBJECT._module_source_rows(files, ("zeta", "alpha"))
+        with self.assertRaisesRegex(ValueError, "CANDIDATE_MODULES"):
+            SUBJECT._module_source_rows(files, ("pkg", "pkg"))
+        with self.assertRaisesRegex(ValueError, "CANDIDATE_MODULES"):
+            SUBJECT._module_source_rows(files, ("pkg", 1))
+        with self.assertRaisesRegex(ValueError, "CANDIDATE_MODULES"):
+            SUBJECT._module_source_rows(files, ("../outside",))
+
     def test_roots_are_derived_from_bound_bootstrap_and_profile_sources(self):
         tools = Path(__file__).resolve().parents[1] / "Tools"
         builder_path = tools / "dgn007_control_bootstrap_source.py"
@@ -2247,6 +2275,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("config_c_row_count", labels)
         self.assertIn("configure_module_anchor_count", labels)
         self.assertIn("module_init_call_roots_outside_source_stdlib_names", labels)
+        self.assertIn("module_init_call_source_candidates", labels)
         self.assertIn(
             "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES_AND_DIRECT_TOP_LEVEL_FACTORY_RETURNS_AFTER_IMPORTS_AND_DOCSTRINGS_AND_SIMPLE_LOCAL_INSTANCE_ASSIGNMENTS",
             labels,
