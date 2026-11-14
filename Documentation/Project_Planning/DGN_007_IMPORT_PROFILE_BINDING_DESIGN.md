@@ -5927,3 +5927,31 @@ Kandidat, kein beobachteter `sys.executable`-Wert. Vollständigkeit der fünf
 S15-/P11-Darstellungen, das gemeinsame 64-KiB-Gate, unabhängiger Aufrufreview
 und die danach autorisierte einmalige operative Inventur bleiben offen.
 Es gab keinen Interpreter-, Worker-, Profil-, SQL- oder Generalprobenlauf.
+
+### Fortsetzung: zielgebundene Modulstart-/Funktionskandidaten
+
+Der bisherige Modulstart- und lokale Funktionsfolger blieb als
+unveränderlicher konservativer Vergleich bestehen. Eine getrennte Variante
+erhält jetzt dieselben digestgebundenen Zielwachen wie der Linux-Quellscan:
+Buildheader- und CPython-Quellfakten, `-S`, die gebundene OCI-Umgebung, den
+direkten Executable-Pfadkandidaten sowie geprüfte Modulnamen-/`__main__`-
+Wachen. Modulnamenfakten werden innerhalb eines Funktionskörpers verworfen,
+damit gleichnamige Parameter nicht durch globale Annahmen ersetzt werden.
+Unbekannte Guards werden als sortierte Modul-/Pfad-/Zeilen-/Ausdrucksrecords
+mit eigenem Digest ausgegeben.
+
+Beim gepinnten Ziel sank der getrennte Callvorschnitt von 93 Modulen, 578
+Kanten und 534 Funktionen auf 88 Module, 542 Kanten und 448 Funktionen. Fünf
+zusätzliche Nichtzielzweigkandidaten entfielen: `_aix_support`, `_osx_support`,
+`ntpath`, `selectors` und `subprocess`. Die eigentliche Unbekanntmenge bleibt
+groß: 42 Guards sind in dieser Callanalyse entschieden, 1.238 unbekannt; der
+Digest der unbekannten Guardrecords ist
+`4c1a3f1afff72c291291dd052c59aefd6a3c10b88d2ad61e8bc10a594942bd8d`. Die
+separate quellgebundene Modul-/Klassenkörperanalyse bleibt bei 56/278 und 42
+entschiedenen/null unbekannten Bedingungen.
+
+Beide Resultate sind weiterhin konservative Quellkandidaten, keine vollständige
+Importclosure oder P11-Sollrecords. Es gab keinen Interpreter-, Profil-,
+Worker-, SQL- oder Generalprobenlauf. Quellen-/Aufrufreview, vollständige fünf
+Formen, gemeinsames 64-KiB-Gate und die davon abhängige einmalige operative
+Inventur bleiben offen.

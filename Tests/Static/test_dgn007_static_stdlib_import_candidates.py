@@ -120,6 +120,135 @@ class StaticImportCandidateTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_SAVE_INVALID"):
                     SUBJECT._target_image_save_facts(image_path, b"{}")
 
+    def test_target_module_init_call_scan_uses_only_bound_guard_facts(self):
+        files = {
+            "entry.py": (
+                b"def selected_branch():\n    return True\n"
+                b"if selected_branch():\n    import windows_branch\n"
+                b"else:\n    import linux_branch\n"
+            ),
+            "windows_branch.py": b"VALUE = 'windows'\n",
+            "linux_branch.py": b"VALUE = 'linux'\n",
+        }
+        baseline = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",)
+        )
+        unknown = []
+        target = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",),
+            known_call_facts=(("selected_branch()", False),),
+            unknown_conditions=unknown,
+        )
+        self.assertIn("windows_branch", baseline[0])
+        self.assertIn("linux_branch", baseline[0])
+        self.assertEqual(target[0], ("entry", "linux_branch"))
+        self.assertEqual(target[4], {"resolved": 1, "unknown": 0})
+        self.assertEqual(unknown, [])
+
+    def test_target_module_init_call_scan_applies_source_name_facts(self):
+        files = {
+            "sysconfig.py": (
+                b"_PYTHON_BUILD = True\n"
+                b"if _PYTHON_BUILD:\n    import build_branch\n"
+                b"else:\n    import installed_branch\n"
+            ),
+            "build_branch.py": b"VALUE = 'build'\n",
+            "installed_branch.py": b"VALUE = 'installed'\n",
+        }
+        unknown = []
+        target = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("sysconfig",),
+            known_name_facts={"sysconfig": {"_PYTHON_BUILD": False}},
+            unknown_conditions=unknown,
+        )
+        self.assertEqual(target[0], ("installed_branch", "sysconfig"))
+        self.assertEqual(target[4], {"resolved": 1, "unknown": 0})
+        self.assertEqual(unknown, [])
+
+    def test_target_module_init_call_scan_applies_imported_module_name_fact(self):
+        files = {
+            "entry.py": (
+                b"if __name__ == '__main__':\n    import script_only\n"
+            ),
+            "script_only.py": b"VALUE = 1\n",
+        }
+        baseline = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",)
+        )
+        target = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",),
+            known_name_facts={
+                "entry": {"__name__": SUBJECT._IMPORTED_MODULE_NAME},
+            },
+        )
+        self.assertEqual(baseline[0], ("entry", "script_only"))
+        self.assertEqual(target[0], ("entry",))
+        self.assertEqual(target[4], {"resolved": 1, "unknown": 0})
+
+    def test_target_imported_name_fact_does_not_override_function_parameter(self):
+        files = {
+            "entry.py": (
+                b"def check(__name__):\n"
+                b"    if __name__ == '__main__':\n"
+                b"        import function_local_branch\n"
+                b"check('synthetic')\n"
+            ),
+            "function_local_branch.py": b"VALUE = 1\n",
+        }
+        target = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",),
+            known_name_facts={
+                "entry": {"__name__": SUBJECT._IMPORTED_MODULE_NAME},
+            },
+        )
+        self.assertIn("function_local_branch", target[0])
+        self.assertGreaterEqual(target[4]["unknown"], 1)
+
+    def test_target_name_fact_does_not_prune_nested_function_definition(self):
+        files = {
+            "entry.py": (
+                b"def check(__name__):\n"
+                b"    if __name__ == '__main__':\n"
+                b"        def inner():\n"
+                b"            import nested_function_branch\n"
+                b"        inner()\n"
+                b"check('synthetic')\n"
+            ),
+            "nested_function_branch.py": b"VALUE = 1\n",
+        }
+        target = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",),
+            known_name_facts={
+                "entry": {"__name__": SUBJECT._IMPORTED_MODULE_NAME},
+            },
+        )
+        self.assertIn("nested_function_branch", target[0])
+
+    def test_target_module_init_call_scan_uses_only_bound_guard_facts(self):
+        files = {
+            "entry.py": (
+                b"def selected_branch():\n    return True\n"
+                b"if selected_branch():\n    import windows_branch\n"
+                b"else:\n    import linux_branch\n"
+            ),
+            "windows_branch.py": b"VALUE = 'windows'\n",
+            "linux_branch.py": b"VALUE = 'linux'\n",
+        }
+        baseline = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",)
+        )
+        unknown = []
+        target = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",),
+            known_call_facts=(("selected_branch()", False),),
+            unknown_conditions=unknown,
+        )
+        self.assertIn("windows_branch", baseline[0])
+        self.assertIn("linux_branch", baseline[0])
+        self.assertEqual(target[0], ("entry", "linux_branch"))
+        self.assertEqual(target[4], {"resolved": 1, "unknown": 0})
+        self.assertEqual(unknown, [])
+
     def test_module_source_rows_bind_name_path_and_bytes_in_stable_order(self):
         files = {
             "pkg/__init__.py": b"from . import child\n",

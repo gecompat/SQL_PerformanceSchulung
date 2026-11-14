@@ -9769,3 +9769,33 @@ bleiben tatsächliches `sys.executable` und die daraus folgende
 `_PYTHON_BUILD`-Wache. Die operative Inventur und das gemeinsame
 Fünf-Formen-/64-KiB-Gate bleiben weiterhin vor unabhängiger Vorwahl und Review
 gesperrt.
+
+## Fortsetzung: Image-Pfade und zielgebundene Modulstartkandidaten
+
+PR [#704](https://github.com/gecompat/SQL_PerformanceSchulung/pull/704) wurde
+am 14. November 2026 nach grünen Repository-, Privacy-, ADV- und DGN-Offline-
+Bundlechecks squash-gemergt (`f4c9c1c0b91eddff228dbc1f69cb1270d31af364`). Der
+Docker-save-Prüfer bindet jetzt OCI-Index, Childmanifest, Config, sieben
+komprimierte Layerdigests und entpackte DiffIDs, wertet Whiteouts aus und
+prüft Executable-/Setup-Pfade ohne Container- oder Interpreterstart. Unter
+der ausdrücklich ausgewiesenen direkten Executable-Aufrufannahme bleibt der
+Linux-Quellvorschnitt `CANDIDATES_ONLY`, 56 Module/278 Kanten, 42 entschiedene,
+null unbekannte Guards.
+
+Die nächste nichtoperative Callvorschnittvariante nutzt dieselben gebundenen
+Plattform- und Imageannahmen sowie geprüfte importierte Modulnamen. Gegenüber
+der weiter erhaltenen 93/578/534-Baseline sinkt sie auf 88 Module, 542 Kanten
+und 448 Funktionen; `_aix_support`, `_osx_support`, `ntpath`, `selectors` und
+`subprocess` entfallen als Nichtzielzweige. 42 Guards sind entschieden und
+1.238 bleiben unbekannt (Digest
+`4c1a3f1afff72c291291dd052c59aefd6a3c10b88d2ad61e8bc10a594942bd8d`). Die
+140 fokussierten Scannergegenproben bestehen lokal; geänderte Dateien bestehen
+Privacy- und Syntaxprüfung. Die breite Bundleprüfung gehört in den Python-3.12-
+CI-Job; auf dem lokalen Windows-Host mit Python 3.13/3.14 scheitert deren
+unveränderte CPython-3.12-AST-Pinprobe erwartungsgemäß am `BOOTSTRAP_CHANGED`-
+Digest. PR-Checks sind maßgeblich.
+
+Das ist weder P11-Soll noch Runtimeattestation. Vollständige S15-/P11-
+Sollrecords, Quellen-/Aufrufreview, fünf tatsächliche Formen und gemeinsames
+64-KiB-Gate bleiben vor der einmaligen operativen Inventur offen; Worker,
+Profil, SQL und Generalprobe wurden nicht gestartet.
