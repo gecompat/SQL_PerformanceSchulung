@@ -10600,6 +10600,19 @@ CPython-3.12.16-`sysmodule.c` sowohl die Implementierungskonstante als auch
 deren Nutzung beim Aufbau von `sys.implementation.name` nachweist. Zwei
 synthetische Regressionen decken die direkte Bedingung, Closure-Auswertung und
 Ablehnung eines abweichenden Konstantenwerts ab. Die fokussierte Suite besteht
-lokal mit 216 Tests unter Python 3.14; PR-Gates stehen für diesen Schnitt noch
-aus. Keine vollständige Importclosure, P11-Inventur, Runtimeattestation,
-SQL-/Lab-Ausführung oder menschliche Generalprobe.
+lokal mit 216 Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der
+gepinnten CPython-3.12.16-Offlineprüfung bestanden. PR #767 ist als Commit
+`cf567c274867f515f9a7dd4b6048bb70ffeb9c69` integriert; `main` ist synchronisiert
+und lokale/Remote-Branches sind entfernt. Keine vollständige Importclosure,
+P11-Inventur, Runtimeattestation, SQL-/Lab-Ausführung oder menschliche
+Generalprobe.
+
+## Fortsetzung: `sys.implementation.cache_tag` aus CPython-Quelle
+
+Der Resolver bindet `cpython-312` nur, wenn die gepinnten CPython-Makros
+`NAME`, `MAJOR`, `MINOR` und `TAG` sowie deren Nutzung für
+`sys.implementation.cache_tag` der Quelle entsprechen und das bereits
+quellengebundene Versionsfact exakt CPython 3.12.16 bezeichnet. Zwei
+synthetische Regressionen prüfen den Fact und verwerfen abweichende Makros oder
+Versionen. Die fokussierte Suite besteht lokal mit 218 Tests unter Python 3.14;
+PR-Gates stehen noch aus. Keine Runtime- oder Profilbeobachtung.

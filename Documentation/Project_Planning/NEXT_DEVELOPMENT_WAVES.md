@@ -2111,7 +2111,7 @@ CPython-3.12.16-Offlineprüfung bestanden. PR #765 integrierte den Schnitt als
 lokale/Remote-Branches sind entfernt. Kein Interpreter-, Profil-, Worker-,
 SQL-, Lab- oder Generalprobenlauf.
 
-### Begrenzte Fortsetzung: `sys.implementation.name` quellenbinden
+### Abgeschlossen: `sys.implementation.name` quellenbinden
 (15. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
@@ -2125,4 +2125,23 @@ unbekannt; ein Paket, ein PR und zwei Kandidaten begrenzen den Arbeitsumfang,
 nicht Providerkosten. PR-Integration ist der Checkpoint.
 
 Zwei synthetische Regressionen und die fokussierte Suite bestehen lokal mit 216
+Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der gepinnten
+CPython-3.12.16-Offlineprüfung bestanden. PR #767 integrierte den Schnitt als
+`cf567c274867f515f9a7dd4b6048bb70ffeb9c69`; `main` ist synchronisiert und
+lokale/Remote-Branches sind entfernt. Kein Interpreter-, Profil-, Worker-,
+SQL-, Lab- oder Generalprobenlauf.
+
+### Begrenzte Fortsetzung: `sys.implementation.cache_tag` quellenbinden
+(15. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. `cpython-312` wird ausschließlich aus den
+gepinnten `sysmodule.c`-Makros und dem bereits quellengebundenen Versionsfact
+3.12.16 abgeleitet; geänderte Makros, Versionen oder Feldzuweisungen verwerfen
+den Fact. Keine Produktquelle und keine Runtime-, Profil-, Worker-, SQL-, Lab-
+oder Generalprobenausführung. Token-/Geldverbrauch bleiben unbekannt; ein
+Paket, ein PR und zwei Kandidaten sind Umfangsgrenzen, kein Providerlimit.
+PR-Integration ist der Checkpoint.
+
+Zwei synthetische Regressionen und die fokussierte Suite bestehen lokal mit 218
 Tests unter Python 3.14; PR-Gates stehen noch aus.

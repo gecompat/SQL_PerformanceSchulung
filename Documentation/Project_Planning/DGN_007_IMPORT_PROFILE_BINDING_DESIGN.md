@@ -6154,5 +6154,17 @@ Digest und passender Struktur der CPython-3.12.16-Quelle. `NAME` muss exakt
 `make_impl_info`-Körper als Feld `name` veröffentlicht werden. Direkte
 Bedingung und Closure-Zweig werden synthetisch geprüft; ein abweichender
 Konstantenwert bleibt unbekannt. Die fokussierte Suite besteht lokal mit 216
-Tests unter Python 3.14; PR-Gates stehen noch aus. Keine Runtime- oder
-Profilbeobachtung.
+Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der gepinnten
+CPython-3.12.16-Offlineprüfung bestanden; PR #767 integrierte den Schnitt.
+Keine Runtime- oder Profilbeobachtung.
+
+### Fortsetzung: `sys.implementation.cache_tag` aus CPython-Quelle
+
+Der Resolver bindet `sys.implementation.cache_tag == "cpython-312"` nur bei
+passendem CPython-3.12.16-`sysmodule.c`-Digest, passender Makrostruktur und
+vorliegendem, exakt gebundenem Versionsfact. Die `NAME`-, `MAJOR`-, `MINOR`-
+und `TAG`-Kette muss in `make_impl_info` als Feld `cache_tag` veröffentlicht
+werden. Änderungen oder eine andere Versionsbindung lassen die Bedingung
+unbekannt. Zwei synthetische Regressionen prüfen den positiven Fact sowie
+abweichende Makros und Versionen. Die fokussierte Suite besteht lokal mit 218
+Tests unter Python 3.14; PR-Gates stehen noch aus.
