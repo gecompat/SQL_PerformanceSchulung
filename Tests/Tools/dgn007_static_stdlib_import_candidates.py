@@ -22,6 +22,8 @@ STDLIB_SETUP_SHA256 = "d78ae3af2718df36ac5a80531fe21831c0117a26534a977bbf4e7843c
 GETPATH_SOURCE_MEMBER = "Python-3.12.16/Modules/getpath.py"
 GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2"
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
+IMPORTLIB_BOOTSTRAP_SOURCE_SHA256 = "d112d54b7831cf4a818d4841d5ff8003b54df220a6dabafa61f67d7c7a5603f7"
+IMPORTLIB_EXTERNAL_SOURCE_SHA256 = "e6ad72f3f0f9b65c99ab52598cd02ab748511dcdce1dd51f18dace9be9a680c6"
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_FILES = 2048
@@ -460,6 +462,98 @@ def _sysconfig_source_inventory(source_bytes):
         "required_functions_sha256": hashlib.sha256(
             "".join(name + "\n" for name in required_functions).encode("ascii")
         ).hexdigest(),
+    }
+
+
+def _class_method_names(tree):
+    classes = {}
+    for node in tree.body:
+        if isinstance(node, ast.ClassDef):
+            classes[node.name] = tuple(
+                child.name for child in node.body
+                if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+            )
+    return classes
+
+
+def _importlib_source_inventory(bootstrap_bytes, external_bytes):
+    sources = (
+        (bootstrap_bytes, IMPORTLIB_BOOTSTRAP_SOURCE_SHA256),
+        (external_bytes, IMPORTLIB_EXTERNAL_SOURCE_SHA256),
+    )
+    trees = []
+    for body, expected in sources:
+        if (type(body) is not bytes or not body
+                or len(body) > MAX_SOURCE_BYTES
+                or hashlib.sha256(body).hexdigest() != expected):
+            raise ValueError("IMPORTLIB_SOURCE_DIGEST")
+        trees.append(ast.parse(body.decode("utf-8")))
+    bootstrap_tree, external_tree = trees
+    bootstrap_classes = _class_method_names(bootstrap_tree)
+    external_classes = _class_method_names(external_tree)
+    spec = next((node for node in bootstrap_tree.body
+                 if isinstance(node, ast.ClassDef) and node.name == "ModuleSpec"), None)
+    init = next((node for node in spec.body
+                 if isinstance(node, ast.FunctionDef) and node.name == "__init__"), None) if spec else None
+    if init is None:
+        raise ValueError("IMPORTLIB_MODULE_SPEC_INIT")
+    spec_fields = set()
+    for node in ast.walk(init):
+        if isinstance(node, ast.Assign):
+            targets = node.targets
+        elif isinstance(node, ast.AnnAssign):
+            targets = (node.target,)
+        else:
+            continue
+        for target in targets:
+            if (isinstance(target, ast.Attribute) and isinstance(target.value, ast.Name)
+                    and target.value.id == "self"):
+                spec_fields.add(target.attr)
+    required_spec_fields = {
+        "name", "loader", "origin", "loader_state", "submodule_search_locations",
+        "_uninitialized_submodules", "_set_fileattr", "_cached",
+    }
+    if spec_fields != required_spec_fields:
+        raise ValueError("IMPORTLIB_MODULE_SPEC_FIELDS")
+    required_bootstrap = {
+        "BuiltinImporter", "FrozenImporter", "ModuleSpec",
+    }
+    required_external = {
+        "SourceFileLoader", "SourcelessFileLoader", "ExtensionFileLoader",
+        "NamespaceLoader", "PathFinder", "FileFinder",
+    }
+    if not required_bootstrap.issubset(bootstrap_classes) or not required_external.issubset(external_classes):
+        raise ValueError("IMPORTLIB_FINDER_LOADER_CLASSES")
+    required_methods = {
+        "_find_spec", "_find_and_load", "_load_unlocked", "_init_module_attrs",
+    }
+    bootstrap_functions = {
+        node.name for node in bootstrap_tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    if not required_methods.issubset(bootstrap_functions):
+        raise ValueError("IMPORTLIB_BOOTSTRAP_METHODS")
+    bootstrap_rows = tuple(sorted(
+        (name, method) for name, methods in bootstrap_classes.items()
+        for method in methods if name in required_bootstrap
+    ))
+    external_rows = tuple(sorted(
+        (name, method) for name, methods in external_classes.items()
+        for method in methods if name in required_external
+    ))
+    field_rows = tuple(sorted(spec_fields))
+    canonical = lambda rows: "".join("\t".join(row) + "\n" if isinstance(row, tuple) else row + "\n" for row in rows).encode("ascii")
+    return {
+        "source_sha256": tuple(expected for _, expected in sources),
+        "module_spec_field_count": len(field_rows),
+        "module_spec_fields": field_rows,
+        "module_spec_fields_sha256": hashlib.sha256(canonical(field_rows)).hexdigest(),
+        "builtin_frozen_importer_count": len(required_bootstrap - {"ModuleSpec"}),
+        "loader_finder_class_count": len(required_external),
+        "bootstrap_method_count": len(required_methods),
+        "bootstrap_methods_sha256": hashlib.sha256(canonical(tuple(sorted(required_methods)))).hexdigest(),
+        "builtin_frozen_methods_sha256": hashlib.sha256(canonical(bootstrap_rows)).hexdigest(),
+        "loader_finder_methods_sha256": hashlib.sha256(canonical(external_rows)).hexdigest(),
     }
 
 
@@ -2073,6 +2167,13 @@ def analyze(archive_path):
     if sysconfig_source is None:
         raise ValueError("SYSCONFIG_SOURCE_MISSING")
     sysconfig_inventory = _sysconfig_source_inventory(sysconfig_source)
+    importlib_bootstrap = files.get("importlib/_bootstrap.py")
+    importlib_external = files.get("importlib/_bootstrap_external.py")
+    if importlib_bootstrap is None or importlib_external is None:
+        raise ValueError("IMPORTLIB_SOURCE_MISSING")
+    importlib_inventory = _importlib_source_inventory(
+        importlib_bootstrap, importlib_external
+    )
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     target_platform, target_edges, target_sha256, target_conditions = _target_platform_candidate_closure(files)
@@ -2155,6 +2256,33 @@ def analyze(archive_path):
         ],
         "sysconfig_required_functions_sha256": sysconfig_inventory[
             "required_functions_sha256"
+        ],
+        "importlib_module_spec_field_count": importlib_inventory[
+            "module_spec_field_count"
+        ],
+        "importlib_module_spec_fields": list(importlib_inventory[
+            "module_spec_fields"
+        ]),
+        "importlib_module_spec_fields_sha256": importlib_inventory[
+            "module_spec_fields_sha256"
+        ],
+        "importlib_builtin_frozen_importer_count": importlib_inventory[
+            "builtin_frozen_importer_count"
+        ],
+        "importlib_loader_finder_class_count": importlib_inventory[
+            "loader_finder_class_count"
+        ],
+        "importlib_bootstrap_method_count": importlib_inventory[
+            "bootstrap_method_count"
+        ],
+        "importlib_bootstrap_methods_sha256": importlib_inventory[
+            "bootstrap_methods_sha256"
+        ],
+        "importlib_builtin_frozen_methods_sha256": importlib_inventory[
+            "builtin_frozen_methods_sha256"
+        ],
+        "importlib_loader_finder_methods_sha256": importlib_inventory[
+            "loader_finder_methods_sha256"
         ],
         "edge_count": edges,
         "module_count": len(modules),

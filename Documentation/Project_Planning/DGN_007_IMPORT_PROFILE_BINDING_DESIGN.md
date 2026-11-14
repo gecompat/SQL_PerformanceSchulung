@@ -5306,3 +5306,25 @@ Werte. Es fand kein Interpreterstart statt. Vollständige S15-/P11-Sollfelder,
 operative Inventur und das gemeinsame Fünf-Formen-/64-KiB-Gate bleiben offen;
 der Importkandidatenscan bleibt `CANDIDATES_ONLY` mit 93 Modulen/578 Kanten/534
 Funktionen und unverändertem Zeilendigest.
+
+### Fortsetzung: Quellgebundene Import-Spec- und Loaderstruktur
+
+Die bereits in §19.8 gepinnten Quellen `Lib/importlib/_bootstrap.py`
+(`d112d54b7831cf4a818d4841d5ff8003b54df220a6dabafa61f67d7c7a5603f7`) und
+`Lib/importlib/_bootstrap_external.py`
+(`e6ad72f3f0f9b65c99ab52598cd02ab748511dcdce1dd51f18dace9be9a680c6`) werden
+rein syntaktisch ausgewertet. Der `ModuleSpec.__init__`-Konstruktor bindet acht
+direkte `self`-Felder: `_cached`, `_set_fileattr`, `_uninitialized_submodules`,
+`loader`, `loader_state`, `name`, `origin` und `submodule_search_locations`;
+der sortierte Felderdigest ist
+`6232bc593fe021a53ed711a3ae05467a2ddb2d487a784efe2dd393ec16467d55`. Die
+Strukturprüfung bindet außerdem zwei Builtin-/Frozen-Importer, sechs
+Datei-/Namespace-/Pfad-Finder- und Loaderklassen sowie vier zentrale
+Bootstrap-Aufrufanker. Die Methoden-/Klassenmethoden-Digests stehen im
+Scanneroutput.
+
+Eine synthetische Gegenprobe deckt `ModuleSpec`-Felder, Klassen und Anker ab;
+der fokussierte Satz besteht 99/99. Das sagt nichts über tatsächliche Specs,
+Loaderinstanzen, Moduldateien, Rootreihenfolgen oder geladene Records im
+Zielimage. Es erweitert keine P11-Closure und ändert weder `CANDIDATES_ONLY`
+noch die bestehenden 93/578/534 Kandidatenwerte.

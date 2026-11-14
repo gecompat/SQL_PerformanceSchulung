@@ -9248,3 +9248,7 @@ Zeilendigest `84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
 Die AST-/Literalprüfung startet keinen Interpreter und bestimmt keine
 Zielprefixe, Suchpfade, aktiven Installationsschemas oder Loaderwerte. S15-/P11-
 Sollfelder, operative Auswahl und das Fünf-Formen-/64-KiB-Gate bleiben offen.
+
+## Fortsetzung: DGN-007 Import-Spec- und Loaderstruktur
+
+Die beiden gepinnten importlib-Quellen sind rein syntaktisch auf acht direkte `ModuleSpec`-Initialisierungsfelder, zwei Builtin-/Frozen-Importer, sechs Datei-/Namespace-/Pfad-Finder-/Loaderklassen und vier zentrale Bootstrap-Aufrufanker abgebildet. Eine synthetische Gegenprobe deckt diese Struktur ab; der fokussierte Satz besteht 99/99. Der CPython-Archivscan bleibt `CANDIDATES_ONLY` mit 93 Modulen, 578 Kanten und 534 Funktionen bei unverändertem Digest. Tatsächliche Zielimage-Specs/Loader, vollständige P11-Records, operative Inventur und das gemeinsame Fünf-Formen-/64-KiB-Gate bleiben offen.
