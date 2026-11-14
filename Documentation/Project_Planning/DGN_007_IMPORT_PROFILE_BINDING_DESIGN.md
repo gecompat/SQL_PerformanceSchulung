@@ -5722,3 +5722,15 @@ beim Import nicht ausgeführt. Damit ist die `inspect.py`-Wache
 Der aktualisierte Scan bleibt `CANDIDATES_ONLY` bei 56/278; 22 Bedingungen
 sind entschieden und 20 unbekannt. Der Unbekannt-Inventardigest lautet
 `529e15a5e908300262cc64d06351f2825c863abfe6a370a3c7919e4a95d30877`.
+
+### Fortsetzung: `sysconfig.__name__` und Funktionszugriffe
+
+Die gepinnte `Lib/sysconfig.py`-Quelle bindet oder löscht `__name__` nicht.
+Ihre dynamischen Namespacezugriffe befinden sich nur in Funktionen; der
+Scanner prüft zusätzlich, dass kein solcher Funktionsname vor dem
+`__main__`-Guard auf Modulebene aufgerufen wird. Damit bleibt der importierte
+Modulname erhalten und die Wache ist falsch.
+
+Der aktualisierte Scan bleibt `CANDIDATES_ONLY` bei 56/278; 23 Bedingungen
+sind entschieden und 19 unbekannt. Der Inventardigest lautet
+`00096a01ad582d0854e22d65d1e308e9ddc6dc28ba0726563bcb681f7ed76214`.
