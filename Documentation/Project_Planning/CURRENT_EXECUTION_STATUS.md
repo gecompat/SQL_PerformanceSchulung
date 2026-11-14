@@ -9554,6 +9554,20 @@ Zeilendigest `9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`;
 fokussierte Satz besteht 120/120 lokal. Vollständige Offline-CI folgt im
 Pull Request. Runtime-/P11-Auswahl und operative Inventur bleiben offen.
 
+## Fortsetzung: natives `posix.fspath` statt `os`-Fallback
+
+Die digestgebundenen `posixmodule.c`-/Clinic-Quellen registrieren `fspath` als
+Modulmethode im `posix`-Methodenregister. Die gepinnte `os.py`-Quelle übernimmt
+dieses Modul im Linux-Zweig per Star-Import und prüft danach exakt
+`_exists('fspath')`. Daher ist der Ausdruck wahr, der Python-Fallback wird
+übersprungen und der Guard `not _exists('fspath')` ist falsch. Der gebundene
+Scan bleibt `CANDIDATES_ONLY` bei 56 Kandidaten, 278 Kanten und Zeilendigest
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 25
+Bedingungen sind entschieden, 17 unbekannt. Der Unbekannt-Inventardigest ist
+`46488d66b4ffd341a6227e1c05994d052493dcd8ad7da424418bf4828a99a10c`. Der
+fokussierte Satz besteht 125/125 lokal. Vollständige Offline-CI folgt im
+Pull Request. Runtime-/P11-Auswahl und operative Inventur bleiben offen.
+
 ## Fortsetzung: `os.name` aus dem eingebauten `posix`-Export
 
 Die gebundene `os.py`-Quelle setzt `name = 'posix'` vor `from posix import *`
@@ -9628,3 +9642,13 @@ Bedingungen sind entschieden, 20 unbekannt. Der neue Inventardigest lautet
 `529e15a5e908300262cc64d06351f2825c863abfe6a370a3c7919e4a95d30877`. Der
 fokussierte Satz besteht 123/123 lokal. Vollständige Offline-CI folgt im
 Pull Request. Runtime-/P11-Auswahl und operative Inventur bleiben offen.
+
+### Fortsetzung: `posix._have_functions` beim Modulstart
+
+Die digestgebundenen `posixmodule.c`- und `os.py`-Quellen belegen, dass
+`posixmodule_exec` den direkt von `os.py` importierten Namen
+`_have_functions` beim Modulstart bereitstellt. Dadurch ist die zugehörige
+`_exists`-Wache entschieden. Der Zielplattform-Scan bleibt
+`CANDIDATES_ONLY` bei 56 Kandidaten und 278 Kanten; 26 Bedingungen sind
+entschieden und 16 unbekannt. Der Unbekannt-Bedingungsdigest lautet
+`375a88090d5aad18ca6359ef2753863ad9bb238180110bbe3536e381def7decc`.
