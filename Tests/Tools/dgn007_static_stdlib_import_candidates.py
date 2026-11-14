@@ -2075,10 +2075,70 @@ def _target_threading_native_id_name_facts(
     return {"_HAVE_THREAD_NATIVE_ID": True}
 
 
+def _target_threading_crlock_name_fact(files, module_source, pyconfig_source):
+    """Bind `_CRLock` to a non-None marker only on the pinned built-in RLock path."""
+    source = files.get("threading.py")
+    if (_TARGET_BUILTIN_MEMBERSHIP.get("_thread") is not True
+            or type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != THREADING_SOURCE_SHA256
+            or type(module_source) is not bytes
+            or hashlib.sha256(module_source).hexdigest() != THREAD_NATIVE_ID_MODULE_SHA256
+            or type(pyconfig_source) is not bytes
+            or hashlib.sha256(pyconfig_source).hexdigest() != TARGET_PYCONFIG_SHA256):
+        return {}
+    c_text = module_source.decode("utf-8")
+    start = c_text.find("thread_module_exec(PyObject *module)")
+    end = c_text.find("thread_module_traverse", start + 1) if start >= 0 else -1
+    if (start < 0 or end < 0
+            or not re.search(r'static PyType_Spec rlock_type_spec\s*=\s*\{'
+                             r'(?:(?!\};).)*\.name\s*=\s*"_thread\.RLock"',
+                             c_text, re.S)
+            or "PyType_FromSpec(&rlock_type_spec)" not in c_text[start:end]
+            or "PyModule_AddType(module, rlock_type)" not in c_text[start:end]
+            or any(line.lstrip().startswith(("#if", "#else", "#elif"))
+                   for line in c_text[start:end].splitlines())):
+        return {}
+    tree = ast.parse(source, filename="threading.py")
+    crlock_tries = [node for node in tree.body if isinstance(node, ast.Try)
+                    and any(isinstance(statement, ast.Assign)
+                            and any(isinstance(target, ast.Name)
+                                    and target.id == "_CRLock"
+                                    for target in statement.targets)
+                            for statement in node.body)]
+    if len(crlock_tries) != 1:
+        return {}
+    initializer = next((statement for statement in crlock_tries[0].body
+                        if isinstance(statement, ast.Assign)
+                        and any(isinstance(target, ast.Name)
+                                and target.id == "_CRLock"
+                                for target in statement.targets)), None)
+    fallback = next((statement for handler in crlock_tries[0].handlers
+                     if isinstance(handler.type, ast.Name)
+                     and handler.type.id == "AttributeError"
+                     for statement in handler.body
+                     if isinstance(statement, ast.Assign)
+                     and any(isinstance(target, ast.Name)
+                             and target.id == "_CRLock"
+                             for target in statement.targets)), None)
+    if (initializer is None or ast.unparse(initializer.value) != "_thread.RLock"
+            or fallback is None or not isinstance(fallback.value, ast.Constant)
+            or fallback.value.value is not None):
+        return {}
+    stores = [node for node in ast.walk(tree)
+              if isinstance(node, ast.Name) and node.id == "_CRLock"
+              and isinstance(node.ctx, (ast.Store, ast.Del))]
+    if len(stores) != 2:
+        return {}
+    return {"_CRLock": True}
+
+
 def _target_threading_native_id_function_fact_safe(files, facts):
     """Allow only the pinned module-level native-id flag inside its functions."""
     source = files.get("threading.py")
-    if (facts != {"_HAVE_THREAD_NATIVE_ID": True}
+    if (facts not in (
+            {"_HAVE_THREAD_NATIVE_ID": True},
+            {"_HAVE_THREAD_NATIVE_ID": True, "_CRLock": True},
+    )
             or type(source) is not bytes
             or hashlib.sha256(source).hexdigest() != THREADING_SOURCE_SHA256):
         return False
@@ -2104,10 +2164,28 @@ def _target_threading_native_id_function_fact_safe(files, facts):
             ancestor = parents[ancestor]
         if ancestor not in parents or parents[ancestor] is not tries[0]:
             return False
-    for node in ast.walk(tree):
-        if isinstance(node, ast.arg) and node.arg == "_HAVE_THREAD_NATIVE_ID":
+    if "_CRLock" in facts:
+        crlock_tries = [node for node in tree.body if isinstance(node, ast.Try)
+                        and any(isinstance(statement, ast.Assign)
+                                and any(isinstance(target, ast.Name)
+                                        and target.id == "_CRLock"
+                                        for target in statement.targets)
+                                for statement in node.body)]
+        crlock_stores = [node for node in ast.walk(tree)
+                         if isinstance(node, ast.Name) and node.id == "_CRLock"
+                         and isinstance(node.ctx, (ast.Store, ast.Del))]
+        if len(crlock_tries) != 1 or len(crlock_stores) != 2:
             return False
-        if isinstance(node, ast.Global) and "_HAVE_THREAD_NATIVE_ID" in node.names:
+        for node in crlock_stores:
+            ancestor = node
+            while ancestor in parents and parents[ancestor] is not crlock_tries[0]:
+                ancestor = parents[ancestor]
+            if ancestor not in parents or parents[ancestor] is not crlock_tries[0]:
+                return False
+    for node in ast.walk(tree):
+        if isinstance(node, ast.arg) and node.arg in facts:
+            return False
+        if isinstance(node, (ast.Global, ast.Nonlocal)) and set(node.names) & set(facts):
             return False
         if ((isinstance(node, ast.Name) and node.id in {
                 "exec", "eval", "globals", "locals", "vars"})
@@ -4409,10 +4487,15 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             thread_native_id_pthread, target_pyconfig_source,
         ) if target_pyconfig_source is not None else {}
     )
+    threading_crlock_facts = _target_threading_crlock_name_fact(
+        files, thread_native_id_module, target_pyconfig_source,
+    ) if target_pyconfig_source is not None else {}
+    threading_call_name_facts = dict(threading_native_id_facts)
+    threading_call_name_facts.update(threading_crlock_facts)
     threading_function_name_facts = (
-        threading_native_id_facts
+        threading_call_name_facts
         if _target_threading_native_id_function_fact_safe(
-            files, threading_native_id_facts
+            files, threading_call_name_facts
         ) else {}
     )
     target_imported_name_safe_modules = tuple(sorted(
@@ -4443,7 +4526,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_name_facts = {
         "warnings": warnings_default_call_facts,
         "os": os_name_facts,
-        "threading": threading_native_id_facts,
+        "threading": threading_call_name_facts,
         "sysconfig": sysconfig_name_facts,
     }
     target_call_name_facts = {
@@ -4672,6 +4755,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_threading_native_id_name_facts": list(
             threading_native_id_facts.items()
+        ),
+        "target_platform_threading_crlock_name_facts": list(
+            threading_crlock_facts.items()
         ),
         "target_platform_sysconfig_name_facts": list(sysconfig_name_facts.items()),
         "target_profile_no_site_assumption": target_no_site,

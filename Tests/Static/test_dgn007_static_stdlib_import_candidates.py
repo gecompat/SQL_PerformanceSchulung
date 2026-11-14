@@ -171,13 +171,17 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"try:\n    get_native_id = _thread.get_native_id\n"
                 b"    _HAVE_THREAD_NATIVE_ID = True\n"
                 b"except AttributeError:\n    _HAVE_THREAD_NATIVE_ID = False\n"
+                b"try:\n    _CRLock = _thread.RLock\n"
+                b"except AttributeError:\n    _CRLock = None\n"
                 b"def check():\n"
                 b"    if not _HAVE_THREAD_NATIVE_ID:\n        import native_branch\n"
+                b"    if _CRLock is None:\n        import crlock_branch\n"
                 b"check()\n"
             ),
             "native_branch.py": b"VALUE = 1\n",
+            "crlock_branch.py": b"VALUE = 2\n",
         }
-        fact = {"_HAVE_THREAD_NATIVE_ID": True}
+        fact = {"_HAVE_THREAD_NATIVE_ID": True, "_CRLock": True}
         with patch.object(
             SUBJECT, "THREADING_SOURCE_SHA256",
             hashlib.sha256(files["threading.py"]).hexdigest(),
@@ -185,11 +189,20 @@ class StaticImportCandidateTests(unittest.TestCase):
             self.assertTrue(SUBJECT._target_threading_native_id_function_fact_safe(
                 files, fact
             ))
-            self.assertFalse(SUBJECT._target_threading_native_id_function_fact_safe(
-                {"threading.py": files["threading.py"] +
-                 b"def replace():\n    global _HAVE_THREAD_NATIVE_ID\n"
-                 b"    _HAVE_THREAD_NATIVE_ID = False\n"}, fact
-            ))
+            for unsafe in (
+                files["threading.py"] +
+                b"def replace():\n    global _HAVE_THREAD_NATIVE_ID\n"
+                b"    _HAVE_THREAD_NATIVE_ID = False\n",
+                files["threading.py"] +
+                b"def shadow(_CRLock):\n    return _CRLock is None\n",
+            ):
+                with patch.object(
+                    SUBJECT, "THREADING_SOURCE_SHA256",
+                    hashlib.sha256(unsafe).hexdigest(),
+                ):
+                    self.assertFalse(SUBJECT._target_threading_native_id_function_fact_safe(
+                        {"threading.py": unsafe}, fact
+                    ))
         baseline = SUBJECT._module_init_call_candidate_closure(
             files, roots=("threading",), known_name_facts={"threading": fact}
         )
@@ -198,8 +211,42 @@ class StaticImportCandidateTests(unittest.TestCase):
             trusted_function_name_facts={"threading": fact},
         )
         self.assertIn("native_branch", baseline[0])
+        self.assertIn("crlock_branch", baseline[0])
         self.assertEqual(target[0], ("threading",))
-        self.assertEqual(target[4], {"resolved": 1, "unknown": 0})
+        self.assertEqual(target[4], {"resolved": 2, "unknown": 0})
+
+    def test_threading_crlock_fact_requires_unconditional_pinned_c_registration(self):
+        source = (
+            b"import _thread\n"
+            b"try:\n    _CRLock = _thread.RLock\n"
+            b"except AttributeError:\n    _CRLock = None\n"
+        )
+        module = (
+            b'static PyType_Spec rlock_type_spec = { .name = "_thread.RLock" };\n'
+            b"thread_module_exec(PyObject *module) {\n// RLock\n"
+            b"PyType_FromSpec(&rlock_type_spec);\n"
+            b"PyModule_AddType(module, rlock_type);\n}\n"
+            b"thread_module_traverse\n"
+        )
+        pyconfig = b"#define WITH_THREAD 1\n"
+        with patch.object(
+            SUBJECT, "THREADING_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ), patch.object(
+            SUBJECT, "THREAD_NATIVE_ID_MODULE_SHA256", hashlib.sha256(module).hexdigest()
+        ), patch.object(
+            SUBJECT, "TARGET_PYCONFIG_SHA256", hashlib.sha256(pyconfig).hexdigest()
+        ), patch.dict(SUBJECT._TARGET_BUILTIN_MEMBERSHIP, {"_thread": True}):
+            self.assertEqual(SUBJECT._target_threading_crlock_name_fact(
+                {"threading.py": source}, module, pyconfig
+            ), {"_CRLock": True})
+            conditional = module.replace(b"// RLock", b"#if WITH_THREAD\n// RLock")
+            with patch.object(
+                SUBJECT, "THREAD_NATIVE_ID_MODULE_SHA256",
+                hashlib.sha256(conditional).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_threading_crlock_name_fact(
+                    {"threading.py": source}, conditional, pyconfig
+                ), {})
 
     def test_target_module_init_call_scan_applies_imported_module_name_fact(self):
         files = {
