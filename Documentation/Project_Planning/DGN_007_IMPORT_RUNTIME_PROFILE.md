@@ -209,6 +209,41 @@ Die Payload hat exakt `(selection, installation, modules)`:
 | jede Modulzeile in `modules` | `name,moduleName,specName,origin,file,kind,locations,loader,loaderName,loaderPath,aliasGroup` |
 | jede Dateizeile in `files` | `path,size,sha256` |
 
+### S15-Feldherkunft für die nächste Auswahl
+
+Der Auswahlvalidator fasst die Felder `assumption`, `roots` und `inert_zip`
+mit den zwölf Installationsfeldern zur 15-Felder-S15-Auswahl zusammen;
+`controls` bleibt separat. Die Herkunft muss beim operativen Vorschnitt vor
+jeder Beobachtung feststehen. Sollwerte dürfen weder aus dem zu prüfenden
+`sys.modules`-Inhalt noch nachträglich aus der Zielruntimeaufnahme entstehen.
+
+| S15-Feld | Vorab gewählte Sollwertquelle | Getrennt zu beobachtender Zielwert |
+|---|---|---|
+| `assumption` | Fester deklarierter Vertrauensannahme-Text | keiner; keine Attestation |
+| `platform` | Zielplattform `linux` | natives `sys.platform` |
+| `implementation` | CPython als Auswahlkriterium | `sys.implementation.name` |
+| `version` | Gewählte CPython-3.12-Patchversion | `sys.version_info[:3]` |
+| `executable` | Absoluter Locator der gewählten Executable | `sys.executable` |
+| `executable_target` | Vorab aufgelöstes Ziel derselben Executable | separat erneut aufgelöstes Executableziel |
+| `prefixes` | Vier separat ausgewählte Prefixwerte | `prefix`, `exec_prefix`, `base_prefix`, `base_exec_prefix` |
+| `abi` | Aus der gepinnten Sysconfigquelle gewählter SOABI-Text | tatsächlicher SOABI-Rückgabewert im gebundenen Bootstrap |
+| `paths` | Vorab gewählte vollständige Startup-Suchpfadfolge | `sys.path` in der gehaltenen Bootstraproute |
+| `roots` | Separat gewählte Standardbibliotheks- und Extensionroots | keine Ableitung aus Modulrecords |
+| `inert_zip` | Vorab gewählter fehlender ZIP-Pfad aus dem Startpfad | erneute Absenzprüfung am eigenen Ziel |
+| `flags` | Festgelegtes Flagprofil `(1,1,1,1,1,0)` | direkte native Flag- und Bytecodewerte |
+| `finders` | Festgelegte Identitäten `BUILTIN`, `FROZEN`, `PATH` | geordnete gehaltene `sys.meta_path`-Objekte |
+| `hooks` | Festgelegte Identitäten `ZIPIMPORTER`, `FILEFINDER` | geordnete gehaltene `sys.path_hooks`-Objekte |
+| `files` | Vorab ausgewählte Executable-/Quelldateien samt zulässigen Roots | begrenzte Dateigröße und SHA-256 der ausgewählten Dateien |
+
+Diese Zuordnung schließt keine vollständige operative Auswahl ab.
+Insbesondere sind konkrete Prefixe, Suchpfade, Datei-Locators und Hashes noch
+separat vorab auszuwählen und unabhängig zu prüfen. Das Feld `abi` beschreibt
+den erwarteten Sysconfigwert; sein bestehender Aufruf vor dem
+Abschlussvergleich ersetzt keine P11-Recordinventur. Für `roots`, `inert_zip`
+und Dateiauswahl bleibt die Herkunft Teil des privaten Installationsbelegs.
+Keine Zeile dieser Tabelle attestiert Herkunft, Runtimevertrauen oder
+tatsächliche Importbytes.
+
 Die Reihenfolge und alle Werte bleiben vollständig erhalten. `specName=None`
 ist ausschließlich der geprüfte specfreie Controlfall. Neue feste Fehlercodes
 sind `FILEFINDER_BINDING`, `SCALAR_FORM` und `SCALAR_PROJECTION_FAILED`; vorhandene
