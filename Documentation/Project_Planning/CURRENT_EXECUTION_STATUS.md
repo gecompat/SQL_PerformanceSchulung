@@ -10592,3 +10592,14 @@ ist als Commit `ab5240ed62662e0edffebd020df6ba3ddad14728` integriert; `main` ist
 synchronisiert und lokale/Remote-Branches sind entfernt. Der Workflow enthält
 keinen separaten Zielscanbericht. Dies sind statische Routenfacts, keine
 aktuelle Runtimebeobachtung oder vollständigen S15-Records.
+
+## Fortsetzung: `sys.implementation.name` aus CPython-Quelle
+
+Der statische Resolver bindet den Namen `cpython` nur, wenn das gepinnte
+CPython-3.12.16-`sysmodule.c` sowohl die Implementierungskonstante als auch
+deren Nutzung beim Aufbau von `sys.implementation.name` nachweist. Zwei
+synthetische Regressionen decken die direkte Bedingung, Closure-Auswertung und
+Ablehnung eines abweichenden Konstantenwerts ab. Die fokussierte Suite besteht
+lokal mit 216 Tests unter Python 3.14; PR-Gates stehen für diesen Schnitt noch
+aus. Keine vollständige Importclosure, P11-Inventur, Runtimeattestation,
+SQL-/Lab-Ausführung oder menschliche Generalprobe.
