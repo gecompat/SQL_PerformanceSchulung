@@ -4656,8 +4656,8 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "os": os_function_name_facts,
         }.items() if facts},
         preserve_name_facts_after_star={
-            "os": ("supports_bytes_environ",),
-        } if os_function_name_facts else {},
+            "os": tuple(os_name_facts),
+        } if os_name_facts else {},
         unknown_conditions=target_call_unknown_conditions,
     )
     target_call_unknown_conditions.sort(

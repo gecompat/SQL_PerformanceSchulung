@@ -9870,14 +9870,14 @@ Worker-, SQL-, operativer S15/P11- oder Generalprobenlauf.
 
 ## Fortsetzung: OS-Fact nach verifizierten Star-Imports
 
-Der Quellprüfer bindet für das gepinnte Linux-`os.py` weiterhin `name='posix'`
-und `supports_bytes_environ=True`; letzteres wird nach dem früheren
+Der Quellprüfer bindet für das gepinnte Linux-`os.py` `name='posix'`
+und `supports_bytes_environ=True`; beide geprüften Facts werden nach dem früheren
 `from posix import *` erneut an seine eindeutige, spätere Modulzuweisung
 gebunden. Der Fact darf in Funktionen nur nach zusätzlicher Stabilitätsprüfung
 verwendet werden: genau eine Modulzuweisung, keine lokale-/Parameter-/Global-
 Überschreibung, kein dynamischer Namespacecode und der ausschließlich lesende
 `globals()`-Alias. Der Zielscan bleibt `CANDIDATES_ONLY` bei 62 Modulen, 323
-Kanten und 178 Funktionen; 50 Conditions sind entschieden und 542 unbekannt
-(Digest `7284af181590cbb9add384806a4ccc05a72c05426a004909d4a93f0a25ec18bc`).
+Kanten und 178 Funktionen; 51 Conditions sind entschieden und 541 unbekannt
+(Digest `6253faefd6aa12a040b199ead7adc7e91a873018b90f246781f98a0badaef021`).
 146 fokussierte Regressionen bestehen lokal. Operative S15/P11-Inventur und
 Generalprobe bleiben unberührt.
