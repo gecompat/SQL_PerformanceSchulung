@@ -558,6 +558,27 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertEqual(conditions, {"resolved": 2, "unknown": 1})
 
+    def test_target_platform_reports_unknown_guards_with_stable_source_locations(self):
+        files = {
+            "pkg.py": (
+                b"if first_flag:\n    import child\n"
+                b"else:\n    import fallback\n"
+            ),
+            "child.py": b"if second_flag:\n    pass\n",
+            "fallback.py": b"VALUE = 1\n",
+        }
+        unknown = []
+        _, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+            files, ("pkg",), unknown_conditions=unknown
+        )
+        self.assertEqual(conditions, {"resolved": 0, "unknown": 2})
+        self.assertEqual(unknown, [
+            {"module": "child", "source_path": "child.py", "line": 1,
+             "expression": "second_flag"},
+            {"module": "pkg", "source_path": "pkg.py", "line": 1,
+             "expression": "first_flag"},
+        ])
+
     def test_target_python_version_info_uses_full_cpython_tuple(self):
         short_equal = ast.parse("sys.version_info == (3, 12, 16)", mode="eval").body
         minimum = ast.parse("sys.version_info >= (3, 12)", mode="eval").body

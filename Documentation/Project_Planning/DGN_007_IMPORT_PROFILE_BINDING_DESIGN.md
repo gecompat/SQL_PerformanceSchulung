@@ -5577,3 +5577,17 @@ gebundenen CPython-Archiv entfernt dies ausschließlich die beiden Quellmodule
 `encodings` und `encodings.aliases` aus dem Linux-Modulkörpervorschnitt; es
 entscheidet keine weitere If-Bedingung. Die Kandidatenliste bleibt
 `CANDIDATES_ONLY`.
+
+### Fortsetzung: vollständige offene Zielwachen als Quelleninventar
+
+Der Kandidatenbericht gibt nun jede im Linux-Modulkörpervorschnitt unbekannte
+`if`-Bedingung mit Modul, relativem Quellpfad, Zeile und exaktem AST-Ausdruck
+aus. Die sortierten Records besitzen einen eigenen JSON-gebundenen SHA-256.
+Damit lassen sich offene Bedingungen quellgebunden prüfen, ohne den
+Kandidatenumfang oder die Laufzeitgrenze als vollständig darzustellen. Im
+aktuellen CPython-3.12.16-Archiv umfasst die Liste 36 Records mit Digest
+`424a62f6bcf9bc7a4e676e2c2bd6a667f9c50efb9d4d9ef23ba820e7c6b286bf`.
+Beispiele sind dynamische `_exists(...)`-Prädikate in `os.py`, Importlib-
+Plattformwachen sowie AST- und `sysconfig`-Attribute; der vollständige Bestand
+steht im JSON-Bericht. Die Inventur ist keine Auswahl aktiver Runtimemodule
+oder P11-Attestation.
