@@ -1755,3 +1755,21 @@ Die fokussierte Suite besteht lokal mit 180 Fällen. Der gebundene Zielscan blei
 entschiedenen/unbekannten Bedingungen; Zeilen- und Bedingungsdigests sind
 unverändert. Der PR-Merge ist der Checkpoint; danach folgt die nächste offene,
 freigegebene Aufgabe anhand des dann aktuellen Status.
+
+### Begrenzte Fortsetzung: boolesche Kurzschlussargumente (14. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. Der lokale Literalbinder wertet `and`-/`or`-
+Ausdrücke nur entlang vollständig bekannter primitiver Operanden aus und wahrt
+die Python-Kurzschlussreihenfolge. Ein dynamischer linker Operand bleibt
+unbekannt; übersprungene Operanden werden nicht analysiert oder ausgeführt.
+Verwendet werden der signaturgeprüfte CPython-3.12.16-Quellstand, das gebundene
+Zielimage und die bestehende Workerroute. Keine neue Produktquelle und keine
+Runtime-, SQL-, Lab- oder Generalprobenausführung. Token-/Geldverbrauch bleiben
+unbekannt; die Grenze ist 1/1/2 und kein Provider-Ausgabenlimit.
+
+Die fokussierte Suite besteht lokal mit 182 Fällen. Der gebundene Zielscan bleibt
+`CANDIDATES_ONLY` bei 60 Modulen, 316 Kanten, 166 Funktionen und 70/497
+entschiedenen/unbekannten Bedingungen; Zeilen- und Bedingungsdigests bleiben
+unverändert. Der PR-Merge ist der Checkpoint; danach folgt die nächste offene,
+freigegebene Aufgabe anhand des dann aktuellen Status.

@@ -3149,6 +3149,54 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(conditions, {"resolved": 1, "unknown": 0})
         self.assertEqual(resolved[0]["decisions"], [False])
 
+    def test_call_closure_binds_boolean_literals_with_short_circuit(self):
+        files = {
+            "pkg/__init__.py": (
+                b"def choose(enabled):\n"
+                b"    if enabled:\n        from . import enabled_branch\n"
+                b"    else:\n        from . import disabled_branch\n"
+                b"choose(True and True)\n"
+                b"choose(False or False)\n"
+                b"choose(False and runtime_value)\n"
+                b"choose(True or runtime_value)\n"
+            ),
+            "pkg/enabled_branch.py": b"VALUE = True\n",
+            "pkg/disabled_branch.py": b"VALUE = False\n",
+        }
+        resolved = []
+        modules, edges, _, _, conditions = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",), resolved_conditions=resolved,
+        )
+        self.assertEqual(modules, (
+            "pkg", "pkg.disabled_branch", "pkg.enabled_branch",
+        ))
+        self.assertEqual(edges, 4)
+        self.assertEqual(conditions, {"resolved": 1, "unknown": 0})
+        self.assertEqual(resolved[0]["decisions"], [False, True])
+
+    def test_call_closure_does_not_simplify_boolean_ops_with_dynamic_left_operand(self):
+        files = {
+            "pkg/__init__.py": (
+                b"def choose(enabled):\n"
+                b"    if enabled:\n        from . import enabled_branch\n"
+                b"    else:\n        from . import disabled_branch\n"
+                b"choose(runtime_value and False)\n"
+                b"choose(runtime_value or True)\n"
+            ),
+            "pkg/enabled_branch.py": b"VALUE = True\n",
+            "pkg/disabled_branch.py": b"VALUE = False\n",
+        }
+        unknown = []
+        modules, edges, _, _, conditions = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",), unknown_conditions=unknown,
+        )
+        self.assertEqual(modules, (
+            "pkg", "pkg.disabled_branch", "pkg.enabled_branch",
+        ))
+        self.assertEqual(edges, 4)
+        self.assertEqual(conditions, {"resolved": 0, "unknown": 1})
+        self.assertEqual(unknown[0]["expression"], "enabled")
+
     def test_call_closure_keeps_unknown_context_when_other_call_is_literal(self):
         files = {
             "pkg/__init__.py": (
