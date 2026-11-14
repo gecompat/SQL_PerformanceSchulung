@@ -1419,6 +1419,36 @@ def _target_imported_name_star_imports_safe(files, module):
             and "__name__" not in exported_names)
 
 
+_TARGET_PLAIN_MAIN_GUARD_SOURCE_DIGESTS = {
+    "difflib": "3eb2d371b4a171b063921de6bbf115108bc39de8bf72866315868ce2599213b7",
+    "getopt": "0ce875700c8798193b8e2748f7a27fc542cc4d525a1e6fc403767450ec92be99",
+    "heapq": "6d43277e5c76fc0f073cd388fcff852d14d068f6bb6d4886c340f8b75a1229a9",
+    "pickle": "7e3447b6d993a6306a7893fd2fba916010ed79f8e09ceb56158a550fa8099a14",
+    "textwrap": "62867e40cdea6669b361f72af4d7daf0359f207c92cbeddfc7c7506397c1f31c",
+}
+
+
+def _target_plain_main_guard_name_safe(files, module):
+    """Prove pinned, simple stdlib modules do not rebind their import name."""
+    expected = _TARGET_PLAIN_MAIN_GUARD_SOURCE_DIGESTS.get(module)
+    source = files.get(module + ".py")
+    if (expected is None or type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != expected):
+        return False
+    tree = ast.parse(source, filename=module + ".py")
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and node.id == "__name__":
+            if isinstance(node.ctx, (ast.Store, ast.Del)):
+                return False
+        if (isinstance(node, ast.Name)
+                and node.id in {"globals", "locals", "vars", "exec", "eval"}):
+            return False
+        if (isinstance(node, ast.Attribute)
+                and node.attr in {"globals", "locals", "vars", "exec", "eval"}):
+            return False
+    return True
+
+
 def _target_ast_imported_name_star_import_safe(files, ast_c_source):
     """Prove `_ast`'s default star exports cannot replace ast.__name__."""
     importer = files.get("ast.py")
@@ -4329,13 +4359,16 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ) if target_pyconfig_source is not None else {}
     )
     target_imported_name_safe_modules = tuple(sorted(
-        module for module in ("ast", "dis", "inspect", "os", "sysconfig", "tokenize")
+        module for module in ("ast", "dis", "difflib", "getopt", "heapq",
+                              "inspect", "os", "pickle", "sysconfig",
+                              "textwrap", "tokenize")
         if (_target_imported_name_star_imports_safe(files, module)
             or module == "ast" and _target_ast_imported_name_star_import_safe(
                 files, ast_c_source
             )
             or module == "inspect" and _target_inspect_imported_name_safe(files)
             or module == "sysconfig" and _target_sysconfig_imported_name_safe(files)
+            or _target_plain_main_guard_name_safe(files, module)
             or module == "os" and bool(os_name_facts))
     ))
     target_call_facts = tuple(sorted(

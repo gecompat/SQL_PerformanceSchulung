@@ -1045,6 +1045,29 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "dis",
             ))
 
+    def test_plain_main_guard_requires_pinned_unmodified_module_name(self):
+        source = b"VALUE = 1\nif __name__ == '__main__':\n    import demo\n"
+        digest_patch = patch.dict(
+            SUBJECT._TARGET_PLAIN_MAIN_GUARD_SOURCE_DIGESTS,
+            {"fixture": hashlib.sha256(source).hexdigest()},
+        )
+        with digest_patch:
+            self.assertTrue(SUBJECT._target_plain_main_guard_name_safe(
+                {"fixture.py": source}, "fixture"
+            ))
+            for unsafe in (
+                source + b"__name__ = 'changed'\n",
+                source + b"g = globals\ng()\n",
+                source + b"import builtins\nbuiltins.exec('pass')\n",
+            ):
+                with self.subTest(unsafe=unsafe), patch.dict(
+                    SUBJECT._TARGET_PLAIN_MAIN_GUARD_SOURCE_DIGESTS,
+                    {"fixture": hashlib.sha256(unsafe).hexdigest()},
+                ):
+                    self.assertFalse(SUBJECT._target_plain_main_guard_name_safe(
+                        {"fixture.py": unsafe}, "fixture"
+                    ))
+
     def test_ast_star_import_name_survives_only_fixed_legacy_namespace_removal(self):
         importer = (
             b"from _ast import *\n"
