@@ -1210,6 +1210,37 @@ def _top_level_factory_constructor_index(tree):
                     and isinstance(statement.value, ast.Constant)
                     and type(statement.value.value) is str))
 
+    def imported_bindings(statement):
+        if isinstance(statement, ast.Import):
+            return tuple(alias.asname or alias.name.partition(".")[0]
+                         for alias in statement.names)
+        if isinstance(statement, ast.ImportFrom):
+            return tuple(alias.asname or alias.name for alias in statement.names)
+        return ()
+
+    def constructor_bindings(statements):
+        bindings = {}
+        for statement in statements:
+            if inert_prefix(statement):
+                for name in imported_bindings(statement):
+                    bindings.pop(name, None)
+                continue
+            if not isinstance(statement, (ast.Assign, ast.AnnAssign)):
+                return None
+            targets = statement.targets if isinstance(statement, ast.Assign) else [statement.target]
+            value = statement.value
+            if len(targets) != 1 or not isinstance(targets[0], ast.Name):
+                return None
+            target = targets[0].id
+            if isinstance(value, ast.Call) and not value.keywords \
+                    and isinstance(value.func, (ast.Name, ast.Attribute)):
+                bindings[target] = ast.unparse(value.func)
+            elif isinstance(value, ast.Name) and value.id in bindings:
+                bindings[target] = bindings[value.id]
+            else:
+                bindings.pop(target, None)
+        return bindings
+
     for node in tree.body:
         if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             continue
@@ -1219,22 +1250,28 @@ def _top_level_factory_constructor_index(tree):
         prefix = node.body[:-1]
         if isinstance(node.body[-1], ast.Return):
             terminal = simple_return_call(node.body[-1])
-            if terminal is None:
+            if terminal is not None:
+                returns.append(terminal)
+                for statement in prefix:
+                    if inert_prefix(statement):
+                        continue
+                    if (isinstance(statement, ast.If) and not statement.orelse
+                            and len(statement.body) == 1):
+                        branch = simple_return_call(statement.body[0])
+                        if branch is None:
+                            returns = []
+                            break
+                        returns.append(branch)
+                        continue
+                    returns = []
+                    break
+            elif isinstance(node.body[-1].value, ast.Name):
+                bindings = constructor_bindings(prefix)
+                target = node.body[-1].value.id
+                if bindings is not None and target in bindings:
+                    returns.append(bindings[target])
+            else:
                 continue
-            returns.append(terminal)
-            for statement in prefix:
-                if inert_prefix(statement):
-                    continue
-                if (isinstance(statement, ast.If) and not statement.orelse
-                        and len(statement.body) == 1):
-                    branch = simple_return_call(statement.body[0])
-                    if branch is None:
-                        returns = []
-                        break
-                    returns.append(branch)
-                    continue
-                returns = []
-                break
         elif isinstance(node.body[-1], ast.If) and node.body[-1].orelse:
             branch = node.body[-1]
             if any(not inert_prefix(statement) for statement in prefix):
@@ -2535,7 +2572,7 @@ def analyze(archive_path):
         "module_init_call_roots_outside_source_stdlib_names": list(
             call_roots_outside_stdlib
         ),
-        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES_AND_DIRECT_TOP_LEVEL_FACTORY_RETURNS_AFTER_IMPORTS_AND_DOCSTRINGS",
+        "module_init_call_scope": "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES_AND_DIRECT_TOP_LEVEL_FACTORY_RETURNS_AFTER_IMPORTS_AND_DOCSTRINGS_AND_SIMPLE_LOCAL_INSTANCE_ASSIGNMENTS",
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],
