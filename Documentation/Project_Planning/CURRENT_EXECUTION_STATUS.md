@@ -132,15 +132,23 @@ Grenzen steht in §19.15 des
 
 Der gebundene Scannerbericht zeigt unbekannte Kontrollflussbedingungen jetzt
 zusätzlich mit getrennten, normalisierten Importdeklarationen und Fundstellen
-aus Body und Else-Zweig. Im CPython-3.12.16-Archivlauf blieben 93 Module, 578 Kanten und
-534 Funktionen im allgemeinen Kandidatenscan sowie 60 Module, 319 Kanten und
-178 Funktionen im zielplattformbezogenen Callvorschnitt unverändert. Von 552
-unbekannten Bedingungen enthalten 44 mindestens eine lexikalische
-Importdeklaration (28 Fundstellen im Body, 46 im Else-Zweig; Bedingungen
-überlappen). Diese Sichtbarkeit erleichtert die gezielte Quellenprüfung,
-entscheidet keine dieser Bedingungen und qualifiziert weder P11 noch Runtime.
-153 fokussierte Regressionen bestehen; der Archivbefund bleibt
-`CANDIDATES_ONLY`.
+aus Body und Else-Zweig. Im CPython-3.12.16-Archivlauf bleiben 93 Module, 578
+Kanten und 534 Funktionen im allgemeinen Kandidatenscan unverändert. Der
+vollständige Scan gegen das lokal vorhandene, per OCI-Manifest/Config/Layers
+digestgebundene Zielimage sowie die festgelegten CPython-Aufrufannahmen zählt
+60 Module, 319 Kanten und 175 besuchte Funktionen; 55 Bedingungen sind
+entschieden, 533 bleiben unbekannt. Von diesen 533 Bedingungen enthalten 44
+lexikalische Importdeklarationen (28 Fundstellen im Body, 46 im Else-Zweig;
+Bedingungen überlappen). Archivdigest
+`b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c`,
+Image-Configdigest
+`28d30c15b9e9c3b1d557441aad9592226e852f7716451d6c8df5b4f0c3ce3d1b`,
+Rows-Digest `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
+Digest der offenen Bedingungen
+`076409e3adc12cc9c693ce009bee771cb466bde08379ceae91db45890e96f1a8`.
+153 fokussierte Regressionen bestehen. Der Befund bleibt
+`CANDIDATES_ONLY`: keine vollständige P11-Closure, keine Interpreter- oder
+Runtimeattestation.
 
 ## Graph Tables – Curriculum-Lernnotiz
 
