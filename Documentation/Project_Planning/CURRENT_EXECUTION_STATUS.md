@@ -8,6 +8,20 @@ einer Nutzerdatenbank. QRY-023 bleibt bis zu gesonderter Produkt-/Katalog-
 freigabe `PROPOSED` und `runtime_authorized: false`. Die menschliche
 Generalprobe bleibt ausgeschlossen.
 
+### DGN-007 – Quellenprüfung unbekannter Importzweige
+
+Die 44 unbekannten Ziel-Call-Bedingungen mit Importdeklarationen sind im
+verifizierten CPython-3.12.16-Quellarchiv nach Quellmodul gruppiert:
+`hashlib` 7, `re` 2, `re._parser` 29, `sysconfig` 1 und `warnings` 5.
+Die Bedingungen hängen an zur Laufzeit gewählten Hashalgorithmennamen,
+Regex-Parserzuständen/-zeichen, dynamischen Warnungsereignissen oder dem
+`check_home`-Argument von `sysconfig.is_python_build`. Diese Werte sind keine
+durch das festgehaltene Image- oder Buildmanifest entschiedenen Konstanten.
+Beide Zweige bleiben deshalb
+Kandidaten; aus dieser Prüfung folgt keine neue Quellfakt-Entscheidung und
+keine P11-Closure. Die Deklarationen und Fundstellen bleiben im Scannerbericht
+sichtbar, damit ein späterer Aufruf-/Quellenreview sie gezielt prüfen kann.
+
 ### DGN-007 – integrierter Import-Only-Worker
 
 Der begrenzte Importworker ist über [PR 352](https://github.com/gecompat/SQL_PerformanceSchulung/pull/352)
