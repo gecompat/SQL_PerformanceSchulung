@@ -976,6 +976,62 @@ class StaticImportCandidateTests(unittest.TestCase):
                     {},
                 )
 
+    def test_weakrefset_optional_data_guard_requires_all_empty_callers(self):
+        weakrefset_source = (
+            b"class WeakSet:\n"
+            b"    def __init__(self, data=None):\n"
+            b"        if data is not None:\n"
+            b"            self.update(data)\n"
+        )
+        lines_by_path = {
+            "threading.py": {9: "from _weakrefset import WeakSet", 849: "WeakSet()"},
+            "weakref.py": {
+                22: "from _weakrefset import WeakSet, _IterationGuard",
+                36: "_collections_abc.MutableSet.register(WeakSet)",
+            },
+            "_py_abc.py": {
+                1: "from _weakrefset import WeakSet",
+                48: "WeakSet()", 49: "WeakSet()", 50: "WeakSet()",
+                79: "WeakSet()", 118: "WeakSet()",
+            },
+            "asyncio/base_events.py": {434: "weakref.WeakSet()"},
+            "asyncio/tasks.py": {986: "weakref.WeakSet()"},
+            "asyncio/windows_events.py": {
+                254: "weakref.WeakSet()", 425: "weakref.WeakSet()",
+                427: "weakref.WeakSet()",
+            },
+            "logging/__init__.py": {260: "weakref.WeakSet()"},
+            "multiprocessing/process.py": {
+                22: "from _weakrefset import WeakSet", 439: "WeakSet()",
+            },
+        }
+        files = {"_weakrefset.py": weakrefset_source}
+        for path, statements in lines_by_path.items():
+            lines = [""] * max(statements)
+            for line, statement in statements.items():
+                lines[line - 1] = statement
+            files[path] = ("\n".join(lines) + "\n").encode()
+        with patch.object(
+            SUBJECT, "WEAKREFSET_SOURCE_SHA256",
+            hashlib.sha256(weakrefset_source).hexdigest(),
+        ):
+            self.assertEqual(
+                SUBJECT._target_weakrefset_empty_init_line_facts(files),
+                {3: False},
+            )
+            unsafe_files = dict(files)
+            unsafe_files["extra.py"] = b"WeakSet(items)\n"
+            self.assertEqual(
+                SUBJECT._target_weakrefset_empty_init_line_facts(unsafe_files),
+                {},
+            )
+            subclass_files = dict(files)
+            subclass_files["extra.py"] = b"class Derived(WeakSet):\n    pass\n"
+            self.assertEqual(
+                SUBJECT._target_weakrefset_empty_init_line_facts(subclass_files),
+                {},
+            )
+
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
             "entry.py": (

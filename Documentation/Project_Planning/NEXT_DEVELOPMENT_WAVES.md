@@ -1637,14 +1637,23 @@ Generalprobenlauf. PR #737 integrierte den Fact als Commit
 Token-/Geldverbrauch bleibt unbekannt; die Begrenzung galt für Arbeitspaket,
 PR und Kandidaten, nicht als Providerkostenlimit.
 
-### Begrenzte Fortsetzung: `string.Template`-Pattern-Guard (14. November 2026)
+### Abgeschlossen: `string.Template`-Pattern-Guard (14. November 2026)
+
+Der Fact für `string.py:71` wurde gegen den vollständigen AST-Verweisbestand
+der gepinnten Produktionsbibliothek und synthetische Gegenproben validiert.
+PR #738 integrierte ihn als Commit `223bf0f6a4082367ecc2e22fab45b8df38189430`;
+alle fünf PR-Gates bestanden, `main` ist synchronisiert und die lokalen sowie
+Remote-Arbeitsbranches wurden entfernt. Der Lauf blieb statisch und
+`CANDIDATES_ONLY`; keine Runtime-, SQL-, Profil- oder Generalprobenattestation.
+
+### Begrenzte Fortsetzung: `_weakrefset.WeakSet`-Leerkonstruktion (14. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
-und zwei lokale Kandidaten: den Fact für `string.py:71` und seine synthetischen
-Gegenproben. Der bestehende signaturgeprüfte CPython-3.12.16-Quellstand sowie
-Zielimage/-konfiguration werden wiederverwendet. Kein Interpreter-, Profil-,
-Worker-, SQL-, Lab-, operativer Inventur- oder Generalprobenlauf.
-Token-/Geldverbrauch bleibt unbekannt; die Grenze gilt für Paket, PR und
-Kandidaten, nicht als Providerkostenlimit. Der PR-Merge ist der Checkpoint;
-danach wird die nächste offene freigegebene Aufgabe anhand des dann aktuellen
-Status ausgewählt.
+und zwei lokale Kandidaten: den Fact für `_weakrefset.py:50` und seine
+synthetischen Gegenproben. Der bestehende signaturgeprüfte CPython-3.12.16-
+Quellstand sowie Zielimage/-konfiguration werden wiederverwendet. Kein
+Interpreter-, Profil-, Worker-, SQL-, Lab-, operativer Inventur- oder
+Generalprobenlauf. Token-/Geldverbrauch bleibt unbekannt; die Grenze gilt für
+Paket, PR und Kandidaten, nicht als Providerkostenlimit. Der PR-Merge ist der
+Checkpoint; danach wird die nächste offene freigegebene Aufgabe anhand des
+dann aktuellen Status ausgewählt.
