@@ -70,3 +70,17 @@ Die Nutzeranweisung vom 2026-11-12 autorisiert die offenen Punkte innerhalb
 dieses bestehenden Scopes. Sie hebt weder das YELLOW-Gate noch die übrigen
 Qualifikationsgrenzen auf. Menschliche Generalprobe, Replay-Erweiterung und
 SQL Server 2019 bleiben ausgeschlossen.
+
+## Read-only Vorstartaktualisierung vom 14. November 2026
+
+Eine erneute Docker-Inventur fand weiterhin fünf laufende, nicht DGN-004-
+zugeordnete SQL-Server-Container (2017, 2019, 2022 und zweimal 2025) sowie den
+Open-WebUI-Dienst. `docker stats --no-stream` zeigte in dieser einzelnen
+Momentaufnahme für die beiden Zielbuilds 2022 und 2025 5,76 % beziehungsweise
+15,06 % CPU; die übrigen SQL-Container meldeten 0,78 %, 0,93 % und 1,16 %.
+Speicherbelegungen lagen zwischen 1,231 und 2,563 GiB. Diese Werte sind weder
+ein Lastprofil noch ein Beleg ausreichender Reserve oder kontrollierter
+Optimiererbedingungen. Die beiden zielrelevanten fremden SQL-Instanzen sind
+aktiv; daher bleibt das YELLOW-Isolations-/Lastgate nicht erfüllt. Die
+vorgehaltenen digestgebundenen DGN-004-Images ändern daran nichts. Es wurde
+kein Container gestartet, gestoppt oder verändert und kein SQL ausgeführt.

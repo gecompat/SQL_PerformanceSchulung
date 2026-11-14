@@ -2004,6 +2004,14 @@ und zweimal 2025). Die Inventur hat keinen Container gestartet, gestoppt oder
 verändert. Das YELLOW-Isolations-/Lastgate bleibt damit aktuell nicht erfüllt;
 es wurde kein SQL- oder DGN-004-Lauf begonnen.
 
+Eine Read-only-Aktualisierung am 14. November bestätigte dieselben fünf
+fremden SQL-Container und den zusätzlichen Open-WebUI-Dienst. Ein einzelner
+`docker stats --no-stream`-Snapshot zeigte 5,76 % CPU im 2022- und 15,06 % im
+2025-Zielcontainer; weitere SQL-Container meldeten 0,78 %, 0,93 % und 1,16 %.
+Das ist keine Last-/Reservequalifikation; beide Zielbuilds sind gleichzeitig
+aktiv. Die vorhandenen DGN-004-Imagepins erfüllen das YELLOW-Gate nicht. Es
+wurden keine Container verändert und kein DGN-004-SQL gestartet.
+
 Der source-only-Schnitt ergänzt die vollständige DMV-Kandidatenaufzählung
 nach Datenbank, Objekt, exaktem UTF-16-Modultext und registriertem Statement-
 Offset, eine vollständige Frameprüfung und einen fail-closed Vorher-/Nachher-
