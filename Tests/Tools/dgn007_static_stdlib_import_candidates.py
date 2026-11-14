@@ -1564,6 +1564,40 @@ def _target_worker_sys_flag_facts(
     )
 
 
+def _condition_fact_value_supported(value):
+    if type(value) in (str, bool, int, type(None)):
+        return True
+    return (type(value) is tuple and len(value) <= 16
+            and all(type(item) in (str, bool, int, type(None)) for item in value))
+
+
+def _target_sys_implementation_version_fact(sys_module_source):
+    """Bind CPython's implementation.version to the shared version_info object."""
+    if (type(sys_module_source) is not bytes or not sys_module_source
+            or len(sys_module_source) > MAX_SYS_MODULE_C_BYTES
+            or hashlib.sha256(sys_module_source).hexdigest() != SYS_MODULE_C_SHA256):
+        return ()
+    source = sys_module_source.decode("utf-8")
+    implementation = re.search(
+        r"static PyObject\s*\*\s*make_impl_info\(PyObject \*version_info\)(.*?)"
+        r"(?=static PyObject\s*\*\s*make_abi_info)",
+        source, re.DOTALL,
+    )
+    if (implementation is None
+            or not re.search(
+                r'PyDict_SetItemString\(impl_info,\s*"version",\s*version_info\)',
+                implementation.group(1),
+            )
+            or not re.search(
+                r"version_info\s*=\s*make_version_info\(tstate\);.*?"
+                r'SET_SYS\("version_info",\s*version_info\);.*?'
+                r'SET_SYS\("implementation",\s*make_impl_info\(version_info\)\);',
+                source, re.DOTALL,
+            )):
+        return ()
+    return (("sys.implementation.version", (3, 12, 16, "final", 0)),)
+
+
 def _target_importlib_verbose_line_facts(
         files, preconfig_source, initconfig_source, worker_source):
     """Bind importlib's verbose guard across every pinned source call site."""
@@ -4376,7 +4410,7 @@ def _target_platform_candidate_closure(
             type(known_call_facts) is not tuple
             or any(type(fact) is not tuple or len(fact) != 2
                    or type(fact[0]) is not str
-                   or type(fact[1]) not in (str, bool, int)
+                   or not _condition_fact_value_supported(fact[1])
                    for fact in known_call_facts))):
         raise ValueError("CONDITION_FACTS_TYPE")
     if (known_name_facts is not None and (
@@ -6382,6 +6416,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     sys_getframe_call_facts = _target_sys_getframe_call_facts(
         files, sys_module_c_source, sys_module_clinic_source
     )
+    sys_implementation_version_fact = (
+        _target_sys_implementation_version_fact(sys_module_c_source)
+    )
     warnings_default_call_facts = _target_warnings_default_call_facts(
         files, warnings_c_source, warnings_clinic_source
     )
@@ -6464,6 +6501,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_call_facts = tuple(sorted(
         types_descriptor_call_facts + ast_compatibility_call_facts
         + sys_getframe_call_facts + tuple(warnings_default_call_facts.items())
+        + sys_implementation_version_fact
         + target_worker_sys_flag_facts
         + os_fspath_call_facts + os_have_functions_call_facts
         + posix_build_call_facts + os_descriptor_support_facts
@@ -6728,6 +6766,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_platform_ast_c_sha256": AST_C_SHA256,
         "target_platform_sys_getframe_call_facts": list(sys_getframe_call_facts),
         "target_platform_sys_module_c_sha256": SYS_MODULE_C_SHA256,
+        "target_platform_sys_implementation_version_fact": list(
+            sys_implementation_version_fact
+        ),
         "target_platform_sys_module_clinic_sha256": SYS_MODULE_CLINIC_SHA256,
         "target_platform_warnings_default_call_facts": list(
             warnings_default_call_facts.items()

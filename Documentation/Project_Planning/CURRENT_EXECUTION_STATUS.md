@@ -10572,5 +10572,18 @@ festen Worker-argv, den gepinnten CPython-Konfigurationsquellen und der
 `sys.flags`-Abbildung in `sysmodule.c`. Zusätzlich ist `sys.dont_write_bytecode`
 als boolescher Alias gebunden; `sys.flags.safe_path` bleibt ebenfalls ein
 boolescher Fact. Die fokussierte Suite besteht lokal mit 212 Tests unter Python
-3.14; PR-Gates stehen noch aus. Dies sind statische Routenfacts, keine aktuelle
+3.14. Alle fünf PR-Gates einschließlich der gepinnten CPython-3.12.16-
+Offlineprüfung bestanden. PR #764 ist als Commit
+`1ef59b533545ac29ddd7ef31e22224f84b0d50c7` integriert; `main` ist synchronisiert
+und lokale/Remote-Branches sind entfernt. Der Workflow enthält keinen
+separaten Zielscanbericht. Dies sind statische Routenfacts, keine aktuelle
 Profilaufnahme oder vollständigen S15-Records.
+
+## Fortsetzung: `sys.implementation.version` aus CPython-Quelle
+
+Der statische Resolver bindet `sys.implementation.version` nur, wenn das
+digestgeprüfte `sysmodule.c` nachweist, dass `make_impl_info` dasselbe
+`version_info`-Objekt einsetzt, das als `sys.version_info` veröffentlicht wird.
+Abweichende Zuweisungen bleiben unbekannt. Zwei Regressionen prüfen direkte
+Vergleiche, Slice-/Closure-Auswertung und die Quellenabweichung. Die fokussierte
+Suite besteht lokal mit 214 Tests unter Python 3.14; PR-Gates stehen noch aus.

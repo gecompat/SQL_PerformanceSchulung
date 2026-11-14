@@ -2069,7 +2069,7 @@ CPython-3.12.16-Offlineprüfung bestanden. PR #763 integrierte den Schnitt als
 lokale/Remote-Branches sind entfernt. Kein Interpreter-, Profil-, Worker-,
 SQL-, Lab- oder Generalprobenlauf.
 
-### Begrenzte Fortsetzung: S15-Startupflags aus der festen Workerroute
+### Abgeschlossen: S15-Startupflags aus der festen Workerroute
 (15. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
@@ -2085,4 +2085,24 @@ Provider-Ausgabenlimit. PR-Integration ist der Checkpoint; danach wird anhand
 des aktuellen Status weitergearbeitet.
 
 Zwei synthetische Regressionen und die fokussierte Suite bestehen lokal mit 212
+Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der gepinnten
+CPython-3.12.16-Offlineprüfung bestanden. PR #764 integrierte den Schnitt als
+`1ef59b533545ac29ddd7ef31e22224f84b0d50c7`; `main` ist synchronisiert und
+lokale/Remote-Branches sind entfernt. Kein Interpreter-, Profil-, Worker-,
+SQL-, Lab- oder Generalprobenlauf.
+
+### Begrenzte Fortsetzung: `sys.implementation.version` quellenbinden
+(15. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. Der Wert wird nur aus dem gepinnten
+CPython-`sysmodule.c` abgeleitet, wenn `make_impl_info(version_info)` nachweislich
+denselben zuvor erzeugten und `sys.version_info` zugewiesenen Wert erhält.
+Abweichende Objektzuweisungen bleiben unbekannt. Keine neue Produktquelle und
+keine Runtime-, Profil-, Worker-, SQL-, Lab- oder Generalprobenausführung.
+Token-/Geldverbrauch bleiben unbekannt; ein Paket, ein PR und zwei Kandidaten
+sind Arbeitsumfang, kein Provider-Ausgabenlimit. PR-Integration ist der
+Checkpoint; danach wird anhand des aktuellen Status weitergearbeitet.
+
+Zwei synthetische Regressionen und die fokussierte Suite bestehen lokal mit 214
 Tests unter Python 3.14. PR-Gates stehen noch aus.

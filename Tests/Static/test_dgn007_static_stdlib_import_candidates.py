@@ -886,6 +886,64 @@ class StaticImportCandidateTests(unittest.TestCase):
                     preconfig, changed_initconfig, sys_module, worker,
                 ), ())
 
+    def test_sys_implementation_version_binds_shared_version_info(self):
+        sys_module = (
+            b"static PyObject * make_impl_info(PyObject *version_info) {\n"
+            b"res = PyDict_SetItemString(impl_info, \"version\", version_info);\n"
+            b"return ns;\n}\n"
+            b"static PyObject * make_abi_info(void) { return NULL; }\n"
+            b"version_info = make_version_info(tstate);\n"
+            b"SET_SYS(\"version_info\", version_info);\n"
+            b"SET_SYS(\"implementation\", make_impl_info(version_info));\n"
+        )
+        expected = ((
+            "sys.implementation.version", (3, 12, 16, "final", 0),
+        ),)
+        with patch.object(
+            SUBJECT, "SYS_MODULE_C_SHA256", hashlib.sha256(sys_module).hexdigest(),
+        ):
+            facts = SUBJECT._target_sys_implementation_version_fact(sys_module)
+            self.assertEqual(facts, expected)
+            condition = ast.parse(
+                "sys.implementation.version == sys.version_info and "
+                "sys.implementation.version[:2] == (3, 12)",
+                mode="eval",
+            ).body
+            self.assertIs(SUBJECT._target_condition(
+                condition, known_call_facts=facts,
+            ), True)
+            files = {
+                "pkg.py": (
+                    b"if sys.implementation.version[:2] == (3, 12):\n"
+                    b"    import matching_version\n"
+                    b"else:\n    import other_version\n"
+                ),
+                "matching_version.py": b"VALUE = True\n",
+                "other_version.py": b"VALUE = False\n",
+            }
+            modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+                files, ("pkg",), known_call_facts=facts,
+            )
+            self.assertEqual(modules, ("matching_version", "pkg"))
+            self.assertEqual(conditions, {"resolved": 1, "unknown": 0})
+
+    def test_sys_implementation_version_rejects_a_separate_version_object(self):
+        sys_module = (
+            b"static PyObject * make_impl_info(PyObject *version_info) {\n"
+            b"res = PyDict_SetItemString(impl_info, \"version\", other_version);\n"
+            b"return ns;\n}\n"
+            b"static PyObject * make_abi_info(void) { return NULL; }\n"
+            b"version_info = make_version_info(tstate);\n"
+            b"SET_SYS(\"version_info\", version_info);\n"
+            b"SET_SYS(\"implementation\", make_impl_info(version_info));\n"
+        )
+        with patch.object(
+            SUBJECT, "SYS_MODULE_C_SHA256", hashlib.sha256(sys_module).hexdigest(),
+        ):
+            self.assertEqual(
+                SUBJECT._target_sys_implementation_version_fact(sys_module), (),
+            )
+
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
         self.assertEqual(
             SUBJECT._target_importlib_debug_call_facts({17: True}),

@@ -6126,3 +6126,21 @@ fokussierte Regressionen bestehen lokal. Dies belegt weder eine vollständige
 Importclosure noch P11-Sollrecords oder Runtime. Quellen-/Aufrufreview, fünf
 vollständige Formen, gemeinsames 64-KiB-Gate und operative Inventur bleiben
 offen. Kein Interpreter-, Worker-, Profil-, SQL- oder Generalprobenlauf.
+
+### Fortsetzung: `sys.implementation.version` an `sys.version_info` binden
+
+Der statische Resolver darf `sys.implementation.version` als Tupel
+`(3, 12, 16, "final", 0)` verwenden, wenn der Digest von CPython 3.12.16
+`sysmodule.c` stimmt und die Quelle `make_impl_info(version_info)` nachweislich
+dieselbe `version_info`-Referenz in das Implementierungs-Dictionary einsetzt,
+die zuvor `sys.version_info` zugewiesen wurde. Das ist eine quellengebundene
+Routenableitung, keine Messung an einem Interpreter. Eine Abweichung in der
+Zuweisung verwirft den Fact; bedingte Auswertung unterstützt dafür flache
+Tupel primitiver Werte.
+
+Zwei synthetische Regressionen prüfen gemeinsame Objektidentität, direkte und
+Slice-Vergleiche, Closure-Auflösung sowie Ablehnung eines separaten Objekts.
+Die fokussierte Suite besteht lokal mit 214 Tests unter Python 3.14; die
+Pull-Request-Gates stehen für diesen Schnitt noch aus. Keine vollständige
+Importclosure, P11-Inventur, Runtimeattestation, SQL-/Lab-Ausführung oder
+menschliche Generalprobe.
