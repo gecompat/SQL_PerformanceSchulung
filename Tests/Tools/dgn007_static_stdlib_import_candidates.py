@@ -1978,6 +1978,47 @@ def _target_pickle_buffer_line_facts(files, pickle_module_c_source,
     return {guards[0].lineno: True}
 
 
+def _target_importlib_case_platform_facts(files):
+    """Resolve the two pinned case-sensitivity checks for the Linux target."""
+    source = files.get("importlib/_bootstrap_external.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != IMPORTLIB_EXTERNAL_SOURCE_SHA256):
+        return ()
+    tree = ast.parse(source, filename="importlib/_bootstrap_external.py")
+    expected = {
+        "_CASE_INSENSITIVE_PLATFORMS_STR_KEY": ("win",),
+        "_CASE_INSENSITIVE_PLATFORMS_BYTES_KEY": ("cygwin", "darwin"),
+    }
+    tracked_names = {*expected, "_CASE_INSENSITIVE_PLATFORMS"}
+    assignments = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id in tracked_names:
+                    assignments.setdefault(target.id, []).append(node.value)
+    for name, value in expected.items():
+        if len(assignments.get(name, ())) != 1:
+            return ()
+        try:
+            if ast.literal_eval(assignments[name][0]) != value:
+                return ()
+        except (ValueError, TypeError):
+            return ()
+    combined = assignments.get("_CASE_INSENSITIVE_PLATFORMS", ())
+    if (len(combined) != 1 or ast.unparse(combined[0])
+            != "_CASE_INSENSITIVE_PLATFORMS_BYTES_KEY + _CASE_INSENSITIVE_PLATFORMS_STR_KEY"):
+        return ()
+    functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+                 and node.name == "_make_relax_case"]
+    calls = ({ast.unparse(node.test) for node in ast.walk(functions[0])
+              if isinstance(node, ast.If)} if len(functions) == 1 else set())
+    facts = (
+        ("sys.platform.startswith(_CASE_INSENSITIVE_PLATFORMS)", False),
+        ("sys.platform.startswith(_CASE_INSENSITIVE_PLATFORMS_STR_KEY)", False),
+    )
+    return facts if {item[0] for item in facts} <= calls else ()
+
+
 def _target_os_have_functions_call_facts(files, posix_source, clinic_source):
     """Prove posixmodule_exec always publishes os.py's feature inventory."""
     source = files.get("os.py")
@@ -4763,6 +4804,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         + os_fspath_call_facts + os_have_functions_call_facts
         + posix_build_call_facts + os_descriptor_support_facts
         + threading_os_alias_call_facts + sysconfig_project_base_env_facts
+        + _target_importlib_case_platform_facts(files)
     ))
     if target_image_path_facts:
         target_call_facts += (("sys.executable", True),)
@@ -5028,6 +5070,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_profile_no_site_assumption": target_no_site,
         "target_platform_sysconfig_project_base_env_fact": list(
             sysconfig_project_base_env_facts
+        ),
+        "target_platform_importlib_case_platform_facts": list(
+            _target_importlib_case_platform_facts(files)
         ),
         "target_profile_no_project_base_override_assumption": (
             target_no_project_base_override

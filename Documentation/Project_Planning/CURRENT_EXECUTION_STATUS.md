@@ -9933,3 +9933,15 @@ entschieden, 535 unbekannt (Digest
 `213ec073aa4c1b35f1c5da0fa9dd63baaabd10ba1a651277a61d9aef906f2f10`). 150
 fokussierte Regressionen bestehen lokal. Keine vollständige P11-Closure oder
 Runtimeattestation.
+
+## Fortsetzung: `importlib`-Plattformpräfixwachen
+
+Für das digestgebundene `_bootstrap_external.py` werden jetzt die beiden
+`sys.platform.startswith(...)`-Wachen in `_make_relax_case` aus den exakt
+geprüften Präfixtupeln `('cygwin', 'darwin')` und `('win',)` samt ihrer
+quellgebundenen Verkettung entschieden. Im vorhandenen Linux-Zielvertrag sind
+beide falsch. Der Vorschnitt bleibt `CANDIDATES_ONLY` bei 60 Modulen, 319
+Kanten und 175 Funktionen; 55 Conditions sind entschieden und 533 unbekannt
+(Digest `da690f35425d88a92d87f6f1051712919a0c12b1112cf8a026f3f893a5996cd4`).
+151 fokussierte Regressionen bestehen lokal. Keine vollständige P11-Closure oder
+Runtimeattestation.
