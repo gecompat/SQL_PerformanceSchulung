@@ -413,9 +413,13 @@ Hauptschlüssel, datenbankweites Credential und installierte/aktivierte
 PolyBase-Dienste. `ALTER ANY EXTERNAL DATA SOURCE` ist wegen des Zugriffs auf
 alle datenbankweiten Credentials ein hoch privilegiertes Recht. Damit ist der
 gemeinsame Connector-Kandidat sicherheitsseitig präzisiert, aber weder eine
-Zugriffsart noch Infrastruktur oder Ausführung qualifiziert. Vergleichbare
-synthetische Abfragen, reale Ressourcen-/Transportkosten und alle späteren
-Methoden-, Rechte- und Laufgates bleiben offen.
+Zugriffsart noch Infrastruktur oder Ausführung qualifiziert. Die ergänzende
+Editionsprüfung findet keine einheitliche editionsweise 2019/2022/2025-
+Connectorzusage; für `sqlserver://` ist außerdem keine gemeinsame
+Compatibility-Level-Matrix dokumentiert. Für einen konkreten Lauf bleiben
+Edition, Level und deren Zielbuildwirkung offen. Vergleichbare synthetische
+Abfragen, reale Ressourcen-/Transportkosten und alle späteren Methoden-,
+Rechte- und Laufgates bleiben offen.
 
 Die Zugriffsprüfung vom 14. November ergänzt bei `SRC-154` die konkrete
 Authentifizierungs- und Credentialgrenze: Der SQL-ODBC-Connector unterstützt

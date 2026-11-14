@@ -55,6 +55,38 @@ Verwaltung des Hauptschlüssels, Dienstkonten, Netzpfad und Cleanup getrennt
 begrenzen. Das schärft die Sicherheits- und Betriebsfolgen des gemeinsamen
 Kandidaten, qualifiziert aber keine konkrete Installation oder Berechtigung.
 
+## Editions-, Kompatibilitäts- und Berechtigungsgrenzen
+
+Die Editionsquellen belegen keine einheitliche 2019/2022/2025-Zusage für jede
+Edition. Die SQL-Server-2019-Editionsmatrix nennt PolyBase-Head-Nodes für
+Enterprise und Standard, aber nicht für Web oder Express; diese historische
+Head-Node-Bezeichnung stammt aus der damaligen Scale-out-Terminologie. Die
+2022- und 2025-Editionsseiten beschreiben PolyBase als Bestandteil der
+Database-Engine beziehungsweise Datenvirtualisierung, liefern in den
+geprüften Tabellen aber keine gleich strukturierte editionsweise
+Connector-Matrix. Die Featurematrix nach Version sagt deshalb nicht
+automatisch, dass jede Edition jeden Connector und Installationsweg anbietet.
+Ein gemeinsames Schulungsprofil braucht weiterhin eine konkrete Edition und
+deren exakte Feature-/Connectorprüfung.
+
+Die geprüften `CREATE EXTERNAL TABLE`-Unterlagen nennen `CREATE TABLE`,
+`ALTER ANY SCHEMA`, `ALTER ANY EXTERNAL DATA SOURCE` und
+`ALTER ANY EXTERNAL FILE FORMAT`; `CONTROL DATABASE` wird nur für die
+Erstellung von Master Key, datenbankweitem Credential und externer Datenquelle
+benötigt. Microsoft warnt ausdrücklich, dass `ALTER ANY EXTERNAL DATA SOURCE`
+den Zugriff auf alle datenbankweiten Credentials eröffnet. Das konkrete
+PolyBase-SQL-Beispiel ergänzt, dass die Remote-Anmeldung SQL-Authentifizierung
+verwendet und an der Quellinstanz die erforderlichen Leserechte benötigt.
+Diese Setuprechte sind vom späteren Readerzugriff auf die externe Tabelle und
+von den Rechten des Remote-Logins getrennt zu planen.
+
+In den geprüften Produktseiten wurde keine editions- und versionsübergreifende
+Compatibility-Level-Matrix für den `sqlserver://`-Connector gefunden. Das ist
+eine offene Quellen-/Zielbuildprüfung, kein Beleg dafür, dass ein bestimmtes
+Compatibility Level erforderlich oder wirkungslos wäre. Vor einem Lauf muss
+der konkrete Level explizit festgelegt und seine Connector-/Optimiererauswirkung
+für jedes Zielprofil dokumentiert werden.
+
 Datei-Connectoren lösen das gemeinsame Versionsproblem nicht ohne
 unterschiedliche Bedingungen: CSV in 2019 benötigt Hadoop, während CSV ab
 2022 nativ verfügbar ist; Parquet und Delta beginnen erst ab 2022. Ein solcher
@@ -115,6 +147,7 @@ SQL, Connector, Netzwerk oder externer Dienst angesprochen.
 - Die ergänzende Prüfung des SQL-Server-Zugriffswegs verwendet die Microsoft-
   Primärseite [Configure PolyBase to access external data in SQL Server](https://learn.microsoft.com/en-us/sql/relational-databases/polybase/polybase-configure-sql-server?view=sql-server-ver17),
   abgerufen am 14. November 2026; sie ist bei `SRC-154` registriert.
+- Die editionsbezogene Ergänzung verwendet die Microsoft-Primärseiten [Editions and Supported Features of SQL Server 2019](https://learn.microsoft.com/en-us/sql/sql-server/editions-and-components-of-sql-server-2019?view=sql-server-ver17), [SQL Server 2022](https://learn.microsoft.com/en-us/sql/sql-server/editions-and-components-of-sql-server-2022?view=sql-server-ver17) und [SQL Server 2025](https://learn.microsoft.com/en-us/sql/sql-server/editions-and-components-of-sql-server-2025?view=sql-server-ver17), abgerufen am 14. November 2026; sie sind bei `SRC-153` registriert.
 - Alle Matrix- und Verhaltensaussagen oben sind Herstellerdokumentation. Die
   Empfehlung für `sqlserver://` als ersten Kandidaten und die notwendige
   Windows-/Linux-Aufteilung sind daraus abgeleitete Projektschlussfolgerungen,
