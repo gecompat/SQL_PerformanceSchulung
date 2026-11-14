@@ -5425,3 +5425,14 @@ separate Modulstartscan bleibt bei 93/578/534 und Digest
 `84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
 Das sind weiterhin statische Kandidaten, keine vollständige P11-Closure oder
 Runtimeattestation.
+
+### Fortsetzung: einfache Zuweisungsaliase dynamischer Importfunktionen
+
+Die Aliasauflösung verfolgt jetzt zusätzlich einfache `Assign`- und
+`AnnAssign`-Zuweisungen von bereits gebundenen Importfunktionen, einschließlich
+mehrstufiger Namensketten und direkter Modul-Attributaufrufe. Das ist eine
+lexikalische Kandidatenregel über den ganzen AST; Scope, Rebinding und
+Ausführbarkeit werden nicht bewiesen. Die synthetische Aliasgegenprobe deckt
+beide Importfunktionen und eine zweistufige Kette ab, während berechnete Namen
+weiterhin keinen Kandidaten liefern. Fokussiert 105/105; CPython-Archivwerte
+und beide Digests bleiben unverändert.
