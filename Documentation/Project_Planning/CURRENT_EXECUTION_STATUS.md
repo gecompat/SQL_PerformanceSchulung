@@ -9966,13 +9966,15 @@ weiterhin genau die geordneten Profile SQL Server 2019/15, 2022/16 und 2025/17,
 Linux/AMD64 sowie einen zum Produktmajor passenden vollständigen Image-Digest.
 Fehlende, zusätzliche, vertauschte oder veränderte Profile und ein Wechsel zu
 `runtime_authorized: true` werden vor den Enginejobs abgewiesen. Der Offline-
-Validator prüft die Bindung des Workflowoutputs; synthetische Regressionen
-decken Profilzahl, Reihenfolge, Digest und Autorisierungsstatus ab.
+Validator prüft die Bindung des Workflowoutputs; sechs synthetische
+Regressionen decken Profilzahl, Reihenfolge, Digest, CLI-Ausgabe und
+Autorisierungsstatus ab. PR #716 und sein Head-Workflow `43609775554`
+bestanden den neuen Resolverlauf und die vollständigen Harness-Lifecycles auf
+SQL Server 2019, 2022 und 2025 sowie alle übrigen Pflichtchecks.
 
 Der Schritt beseitigt die zuvor dokumentierte doppelte Pflege der Inline-Pins
 und des Locks. Er ändert weder die Ressourcen- noch Produktfreigabe: Der
 Workflow bleibt eine isolierte Qualifikationsroute, QRY-023 bleibt
-`PROPOSED`/nicht katalogisiert und `runtime_authorized: false`. Die drei
-vorherigen Engineläufe bleiben Evidenz für deren damaligen Commit; der geänderte
-Matrixresolver benötigt einen frischen Workflowlauf. Die menschliche
-Generalprobe bleibt ausgeschlossen.
+`PROPOSED`/nicht katalogisiert und `runtime_authorized: false`. Die frischen
+Engineläufe qualifizieren nur die Lock-Auflösung und den isolierten
+Einzelaufruf. Die menschliche Generalprobe bleibt ausgeschlossen.
