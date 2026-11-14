@@ -1656,6 +1656,35 @@ def _target_os_fspath_call_facts(files, posix_source, clinic_source):
     return (("_exists('fspath')", True),)
 
 
+def _target_os_posix_boolean_assignment_facts(files, posix_source, clinic_source):
+    """Propagate a digest-bound os.name expression into its next guard."""
+    source = files.get("os.py")
+    if (not _target_os_posix_name_facts(files, posix_source, clinic_source)
+            or type(source) is not bytes):
+        return {}
+    tree = ast.parse(source, filename="os.py")
+    assignments = [
+        node for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name)
+                and target.id == "supports_bytes_environ"
+                for target in node.targets)
+    ]
+    if (len(assignments) != 1
+            or ast.unparse(assignments[0].value) != "name != 'nt'"
+            or not any(isinstance(node, ast.If)
+                       and ast.unparse(node.test) == "supports_bytes_environ"
+                       and node.lineno > assignments[0].lineno
+                       for node in tree.body)
+            or any(isinstance(node, ast.Name)
+                   and node.id == "supports_bytes_environ"
+                   and isinstance(node.ctx, (ast.Store, ast.Del))
+                   and node.lineno > assignments[0].lineno
+                   for node in ast.walk(tree))):
+        return {}
+    return {"supports_bytes_environ": True}
+
+
 def _target_os_have_functions_call_facts(files, posix_source, clinic_source):
     """Prove posixmodule_exec always publishes os.py's feature inventory."""
     source = files.get("os.py")
@@ -1982,6 +2011,9 @@ def _module_body_import_names(
                 if (preserve_name_facts
                         and known_names.get("name") == "posix"):
                     after_star_false["name"] = "posix"
+                if (module == "os"
+                        and known_names.get("supports_bytes_environ") is True):
+                    after_star_false["supports_bytes_environ"] = True
                 known_names.clear()
                 known_names.update(after_star_false)
             base = node.module or ""
@@ -3563,6 +3595,9 @@ def analyze(archive_path):
     os_name_facts = _target_os_posix_name_facts(
         files, posix_module_c_source, posix_module_clinic_source
     )
+    os_name_facts.update(_target_os_posix_boolean_assignment_facts(
+        files, posix_module_c_source, posix_module_clinic_source
+    ))
     os_fspath_call_facts = _target_os_fspath_call_facts(
         files, posix_module_c_source, posix_module_clinic_source
     )
