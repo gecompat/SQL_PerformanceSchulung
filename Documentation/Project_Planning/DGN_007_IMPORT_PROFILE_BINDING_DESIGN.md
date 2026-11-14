@@ -5774,3 +5774,14 @@ Der Zielplattform-Scan bleibt `CANDIDATES_ONLY` bei 56 Kandidaten und 278
 Kanten; 26 Bedingungen sind entschieden und 16 unbekannt. Der Digest der
 Unbekannt-Bedingungen lautet
 `375a88090d5aad18ca6359ef2753863ad9bb238180110bbe3536e381def7decc`.
+
+### Fortsetzung: `supports_bytes_environ` aus `os.name`
+
+Die gepinnte `os.py`-Quelle setzt `supports_bytes_environ` exakt auf
+`name != 'nt'`. Zusammen mit dem belegten POSIX-Selektor ist der Wert wahr.
+Der Quellenbeweis übersteht nun auch den vorangehenden `from posix import *`-
+Schritt im Kontrollflussmodell und entscheidet die Bytes-Umgebungswache. Der
+Zielplattform-Scan bleibt `CANDIDATES_ONLY` bei 56 Kandidaten und 278 Kanten;
+27 Bedingungen sind entschieden und 15 unbekannt. Der Digest der unbekannten
+Bedingungen lautet
+`e50bac923980d1e93e89f3e2944cdf9fad48d3644cd2cd47c58c5b9ab6afbb29`.

@@ -939,6 +939,60 @@ class StaticImportCandidateTests(unittest.TestCase):
                 clinic_source,
             ), {})
 
+    def test_os_posix_name_fact_propagates_to_bytes_environment_guard(self):
+        source = (
+            b"import sys\n_names = sys.builtin_module_names\n"
+            b"def _exists(name):\n    return name in globals()\n"
+            b"if 'posix' in _names:\n    name = 'posix'\n"
+            b"    from posix import *\n"
+            b"elif 'nt' in _names:\n    name = 'nt'\n"
+            b"supports_bytes_environ = (name != 'nt')\n"
+            b"if supports_bytes_environ:\n    pass\n"
+        )
+        posix = (
+            b"static PyMemberDef DirEntry_members[] = {\n"
+            b'{"name", T_OBJECT_EX, READONLY};\n'
+            b"static PyMethodDef posix_methods[] = {\n};\n"
+            b"static struct PyModuleDef posixmodule = {.m_methods = posix_methods};\n"
+        )
+        clinic = (
+            b'static const char * const _keywords[] = {"path", "name", NULL};\n'
+            b'static _PyArg_Parser _parser = {.keywords = _keywords, '
+            b'.fname = "pathconf"};\n'
+            b'static const char * const _keywords[] = {"name", "flags", NULL};\n'
+            b'static _PyArg_Parser _parser = {.keywords = _keywords, '
+            b'.fname = "memfd_create"};\n'
+        )
+        with patch.object(
+            SUBJECT, "OS_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ), patch.object(
+            SUBJECT, "POSIX_MODULE_C_SHA256", hashlib.sha256(posix).hexdigest()
+        ), patch.object(
+            SUBJECT, "POSIX_MODULE_CLINIC_SHA256", hashlib.sha256(clinic).hexdigest()
+        ):
+            self.assertEqual(SUBJECT._target_os_posix_boolean_assignment_facts(
+                {"os.py": source}, posix, clinic
+            ), {"supports_bytes_environ": True})
+            rebound = source.replace(b"name != 'nt'", b"name == 'nt'")
+            with patch.object(
+                SUBJECT, "OS_SOURCE_SHA256", hashlib.sha256(rebound).hexdigest()
+            ):
+                self.assertEqual(SUBJECT._target_os_posix_boolean_assignment_facts(
+                    {"os.py": rebound}, posix, clinic
+                ), {})
+
+    def test_os_posix_boolean_fact_survives_the_star_import(self):
+        source = b"from posix import *\nif supports_bytes_environ:\n    import bytes_env\n"
+        unknown = []
+        imports = tuple(SUBJECT._module_body_import_names(
+            ast.parse(source, filename="os.py"), "os", "os.py",
+            target_platform=True,
+            known_names={"supports_bytes_environ": True},
+            unknown_conditions=unknown,
+        ))
+        self.assertEqual(imports, ("posix", "bytes_env"))
+        self.assertEqual(unknown, [])
+
     def test_importlib_windows_name_fact_requires_digest_and_direct_binding(self):
         source = (
             b"import sys\n"

@@ -9652,3 +9652,14 @@ Die digestgebundenen `posixmodule.c`- und `os.py`-Quellen belegen, dass
 `CANDIDATES_ONLY` bei 56 Kandidaten und 278 Kanten; 26 Bedingungen sind
 entschieden und 16 unbekannt. Der Unbekannt-Bedingungsdigest lautet
 `375a88090d5aad18ca6359ef2753863ad9bb238180110bbe3536e381def7decc`.
+
+### Fortsetzung: `supports_bytes_environ` aus `os.name`
+
+`supports_bytes_environ` wird in der digestgebundenen `os.py`-Quelle exakt
+als `name != 'nt'` definiert. Mit dem zuvor gebundenen Wert `name == 'posix'`
+ist die Bytes-Umgebungswache wahr. Der Scanner erhält diesen belegten Wert
+über den `posix`-Star-Import hinweg. Der Zielplattform-Scan bleibt
+`CANDIDATES_ONLY` mit 56 Kandidaten und 278 Kanten; 27 Bedingungen sind
+entschieden und 15 unbekannt. Der Unbekannt-Bedingungsdigest lautet
+`e50bac923980d1e93e89f3e2944cdf9fad48d3644cd2cd47c58c5b9ab6afbb29`.
+Der fokussierte Satz besteht 127/127 lokal.
