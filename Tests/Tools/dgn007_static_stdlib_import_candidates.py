@@ -1846,6 +1846,33 @@ def _target_os_function_name_facts_safe(files, facts):
     return True
 
 
+def _target_os_createenviron_line_facts(files, facts):
+    """Bind only os._createenviron's non-shadowed target-name comparison."""
+    source = files.get("os.py")
+    if (not isinstance(facts, dict) or facts.get("name") != "posix"
+            or type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != OS_SOURCE_SHA256):
+        return {}
+    tree = ast.parse(source, filename="os.py")
+    functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+                 and node.name == "_createenviron"]
+    if len(functions) != 1:
+        return {}
+    function = functions[0]
+    arguments = (*function.args.posonlyargs, *function.args.args,
+                 *function.args.kwonlyargs)
+    if (arguments or function.args.vararg is not None or function.args.kwarg is not None
+            or any(isinstance(node, ast.Name) and node.id == "name"
+                   and isinstance(node.ctx, (ast.Store, ast.Del))
+                   for node in ast.walk(function))
+            or any(isinstance(node, (ast.Global, ast.Nonlocal)) and "name" in node.names
+                   for node in ast.walk(function))):
+        return {}
+    guards = [node for node in function.body if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "name == 'nt'"]
+    return {guards[0].lineno: False} if len(guards) == 1 else {}
+
+
 def _target_os_have_functions_call_facts(files, posix_source, clinic_source):
     """Prove posixmodule_exec always publishes os.py's feature inventory."""
     source = files.get("os.py")
@@ -3536,6 +3563,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                                    known_call_facts=(), known_name_facts=None,
                                    trusted_function_name_facts=None,
                                    preserve_name_facts_after_star=(),
+                                   trusted_line_facts=None,
                                    unknown_conditions=None):
     """Follow direct and simply aliased local calls from initialization."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
@@ -3548,14 +3576,20 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
     source_name_facts = known_name_facts or {}
     trusted_function_name_facts = trusted_function_name_facts or {}
     preserve_name_facts_after_star = frozenset(preserve_name_facts_after_star)
+    trusted_line_facts = trusted_line_facts or {}
     if any(source_name_facts.get(name, _UNKNOWN) != value
            for name, value in trusted_function_name_facts.items()):
         raise ValueError("UNTRUSTED_FUNCTION_NAME_FACT")
     if not preserve_name_facts_after_star.issubset(source_name_facts):
         raise ValueError("UNTRUSTED_STAR_IMPORT_NAME_FACT")
+    if (any(type(line) is not int or type(value) is not bool
+            for line, value in trusted_line_facts.items())):
+        raise ValueError("UNTRUSTED_LINE_FACT")
     known_names.update(source_name_facts)
 
     def decide_condition(node, facts, in_function=False):
+        if node.lineno in trusted_line_facts:
+            return trusted_line_facts[node.lineno]
         if in_function and source_name_facts:
             facts = dict(facts)
             facts.update({name: _UNKNOWN for name in source_name_facts})
@@ -4254,6 +4288,7 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
                                         known_call_facts=(), known_name_facts=None,
                                         trusted_function_name_facts=None,
                                         preserve_name_facts_after_star=None,
+                                        trusted_line_facts=None,
                                         unknown_conditions=None):
     if type(files) is not dict or type(roots) is not tuple:
         raise ValueError("SOURCE_INPUT_TYPE")
@@ -4413,6 +4448,7 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
             preserve_name_facts_after_star=(
                 (preserve_name_facts_after_star or {}).get(module, ())
             ),
+            trusted_line_facts=(trusted_line_facts or {}).get(module, {}),
             unknown_conditions=unknown_conditions,
         )
         functions += visited_count
@@ -4543,6 +4579,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             files, {"supports_bytes_environ": True}
         ) else {}
     )
+    os_createenviron_line_facts = _target_os_createenviron_line_facts(
+        files, os_name_facts,
+    ) if os_name_facts else {}
     os_fspath_call_facts = _target_os_fspath_call_facts(
         files, posix_module_c_source, posix_module_clinic_source
     )
@@ -4658,6 +4697,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         preserve_name_facts_after_star={
             "os": tuple(os_name_facts),
         } if os_name_facts else {},
+        trusted_line_facts={
+            "os": os_createenviron_line_facts,
+        } if os_createenviron_line_facts else {},
         unknown_conditions=target_call_unknown_conditions,
     )
     target_call_unknown_conditions.sort(
@@ -4836,6 +4878,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_imported_name_safe_modules
         ),
         "target_platform_os_name_fact": list(os_name_facts.items()),
+        "target_platform_os_function_line_facts": list(
+            os_createenviron_line_facts.items()
+        ),
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,
         "target_platform_posix_module_clinic_sha256": POSIX_MODULE_CLINIC_SHA256,

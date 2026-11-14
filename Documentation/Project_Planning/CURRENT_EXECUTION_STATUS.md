@@ -9881,3 +9881,16 @@ Kanten und 178 Funktionen; 51 Conditions sind entschieden und 541 unbekannt
 (Digest `6253faefd6aa12a040b199ead7adc7e91a873018b90f246781f98a0badaef021`).
 146 fokussierte Regressionen bestehen lokal. Operative S15/P11-Inventur und
 Generalprobe bleiben unberührt.
+
+## Fortsetzung: zeilengebundener `_createenviron`-Fact
+
+Für die eine gepinnte `os._createenviron`-Wache wird `name='posix'` jetzt
+zeilengenau genutzt: Die Funktion besitzt keine Parameter und bindet `name`
+nirgends lokal, global oder nichtlokal neu. Die Zeilenfact-API nimmt nur
+explizite boolesche Werte an; der Scanner erhält sie ausschließlich nach
+Archivdigest- und Funktionsformprüfung. Damit entfällt neben dem Windows-Zweig
+auch dessen zwei abhängige dynamische Bedingungen. Der Archiv-/OCI-Vorschnitt
+bleibt `CANDIDATES_ONLY` bei 62 Modulen, 323 Kanten und 175 Funktionen; 52
+Conditions sind entschieden, 538 unbekannt (Digest
+`02f8034a94d6167998a81c9eaf252cf9e7322d0c2c5f5ee235b23d4250266730`). 147
+fokussierte Regressionen bestehen lokal. Keine P11-Closure oder Runtimeattestation.

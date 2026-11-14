@@ -331,6 +331,46 @@ class StaticImportCandidateTests(unittest.TestCase):
                         {"os.py": unsafe}, fact
                     ))
 
+    def test_os_createenviron_fact_is_bound_to_one_unshadowed_guard(self):
+        source = (
+            b"def _createenviron():\n"
+            b"    if name == 'nt':\n        import nt_branch\n"
+            b"    else:\n        import posix_branch\n"
+            b"_createenviron()\n"
+        )
+        with patch.object(
+            SUBJECT, "OS_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ):
+            facts = SUBJECT._target_os_createenviron_line_facts(
+                {"os.py": source}, {"name": "posix"}
+            )
+            self.assertEqual(facts, {2: False})
+            for unsafe in (
+                source.replace(b"def _createenviron():", b"def _createenviron(name):"),
+                source.replace(b"    if name == 'nt':", b"    name = 'nt'\n    if name == 'nt':"),
+            ):
+                with patch.object(
+                    SUBJECT, "OS_SOURCE_SHA256", hashlib.sha256(unsafe).hexdigest()
+                ):
+                    self.assertEqual(SUBJECT._target_os_createenviron_line_facts(
+                        {"os.py": unsafe}, {"name": "posix"}
+                    ), {})
+        files = {
+            "os.py": source,
+            "nt_branch.py": b"VALUE = 1\n",
+            "posix_branch.py": b"VALUE = 2\n",
+        }
+        baseline = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("os",)
+        )
+        target = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("os",), trusted_line_facts={"os": {2: False}}
+        )
+        self.assertIn("nt_branch", baseline[0])
+        self.assertIn("posix_branch", baseline[0])
+        self.assertEqual(target[0], ("os", "posix_branch"))
+        self.assertEqual(target[4], {"resolved": 1, "unknown": 0})
+
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
             "entry.py": (
