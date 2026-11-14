@@ -9233,3 +9233,18 @@ Module, konkrete Extension-/Loader-Records, die vollständige P11-Inventur und
 alle 15 S15-Felder bleiben offen. Der Offlinekandidatenscan bleibt
 `CANDIDATES_ONLY` bei 93 Modulen, 578 Kanten, 534 Funktionen und unverändertem
 Zeilendigest `84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
+
+## Fortsetzung: DGN-007 – Pfad- und Sysconfig-Quellen gebunden
+
+Die bestehenden Quellpins für `Modules/getpath.py` und `Lib/sysconfig.py`
+werden jetzt getrennt syntaktisch ausgewertet. `getpath.py` benennt 14
+Pfadvariablen und 20 statisch verwendete `config`-Schlüssel; `sysconfig.py`
+enthält fünf literal auswertbare Installationsschemas mit acht Pfadschlüsseln.
+Quell- und kanonische Digests stehen im [Designnachweis](DGN_007_IMPORT_PROFILE_BINDING_DESIGN.md).
+Der fokussierte Scanner besteht 98/98; der Kandidatenscan bleibt
+`CANDIDATES_ONLY` mit unveränderten 93 Modulen, 578 Kanten, 534 Funktionen und
+Zeilendigest `84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
+
+Die AST-/Literalprüfung startet keinen Interpreter und bestimmt keine
+Zielprefixe, Suchpfade, aktiven Installationsschemas oder Loaderwerte. S15-/P11-
+Sollfelder, operative Auswahl und das Fünf-Formen-/64-KiB-Gate bleiben offen.

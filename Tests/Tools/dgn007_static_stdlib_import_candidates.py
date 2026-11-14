@@ -19,6 +19,9 @@ BOOTSTRAP_SETUP_MEMBER = "Python-3.12.16/Modules/Setup.bootstrap.in"
 BOOTSTRAP_SETUP_SHA256 = "d7a4c34c97f414585c7e8480c106a0f85075fb166d4c82a91c5b0b00df455271"
 STDLIB_SETUP_MEMBER = "Python-3.12.16/Modules/Setup.stdlib.in"
 STDLIB_SETUP_SHA256 = "d78ae3af2718df36ac5a80531fe21831c0117a26534a977bbf4e7843c2ee6524"
+GETPATH_SOURCE_MEMBER = "Python-3.12.16/Modules/getpath.py"
+GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2"
+SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_FILES = 2048
@@ -26,6 +29,7 @@ MAX_STDLIB_MODULE_NAMES_BYTES = 64 * 1024
 MAX_FROZEN_SOURCE_BYTES = 64 * 1024
 MAX_BOOTSTRAP_SETUP_BYTES = 64 * 1024
 MAX_STDLIB_SETUP_BYTES = 64 * 1024
+MAX_GETPATH_SOURCE_BYTES = 64 * 1024
 ROOTS = (
     "dataclasses", "hashlib", "importlib.machinery", "importlib.util", "json",
     "os", "struct", "sys", "sysconfig", "types", "zipimport", "zlib",
@@ -49,6 +53,7 @@ def _source_archive_data(archive_bytes):
     frozen_source = None
     bootstrap_setup = None
     stdlib_setup = None
+    getpath_source = None
     total = 0
     with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:xz") as source:
         for member in source:
@@ -91,6 +96,19 @@ def _source_archive_data(archive_bytes):
                         != STDLIB_SETUP_SHA256):
                     raise ValueError("STDLIB_SETUP_DIGEST")
                 continue
+            if member.name == GETPATH_SOURCE_MEMBER:
+                if not member.isfile() or getpath_source is not None \
+                        or member.size > MAX_GETPATH_SOURCE_BYTES:
+                    raise ValueError("GETPATH_SOURCE_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("GETPATH_SOURCE_MEMBER")
+                getpath_source = stream.read(member.size + 1)
+                if (len(getpath_source) != member.size
+                        or hashlib.sha256(getpath_source).hexdigest()
+                        != GETPATH_SOURCE_SHA256):
+                    raise ValueError("GETPATH_SOURCE_DIGEST")
+                continue
             if member.name == STDLIB_MODULE_NAMES_MEMBER:
                 if not member.isfile() or stdlib_header is not None \
                         or member.size > MAX_STDLIB_MODULE_NAMES_BYTES:
@@ -123,7 +141,7 @@ def _source_archive_data(archive_bytes):
                 raise ValueError("SOURCE_ARCHIVE_MEMBER")
             total += len(body)
             files[relative] = body
-    return files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup
+    return files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup, getpath_source
 
 
 def _source_files(archive_path):
@@ -319,6 +337,128 @@ def _stdlib_setup_inventory(source_bytes):
         ).hexdigest(),
         "test_names_sha256": hashlib.sha256(
             "".join(entry[0] + "\n" for entry in test_rows).encode("ascii")
+        ).hexdigest(),
+    }
+
+
+def _top_level_names(tree):
+    assignments = set()
+    functions = set()
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            functions.add(node.name)
+        elif isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    assignments.add(target.id)
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            assignments.add(node.target.id)
+    return assignments, functions
+
+
+def _getpath_source_inventory(source_bytes):
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_GETPATH_SOURCE_BYTES
+            or hashlib.sha256(source_bytes).hexdigest() != GETPATH_SOURCE_SHA256):
+        raise ValueError("GETPATH_SOURCE_DIGEST")
+    tree = ast.parse(source_bytes.decode("utf-8"))
+    assignments, functions = _top_level_names(tree)
+    path_variables = (
+        "base_exec_prefix", "base_executable", "base_prefix", "exec_prefix",
+        "executable", "home", "platlibdir", "platstdlib_dir", "prefix",
+        "program_name", "pythonpath", "real_executable_dir", "stdlib_dir",
+        "venv_prefix",
+    )
+    if not set(path_variables).issubset(assignments) or "search_up" not in functions:
+        raise ValueError("GETPATH_SOURCE_SYMBOLS")
+    config_keys = set()
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name)
+                and node.value.id == "config" and isinstance(node.slice, ast.Constant)
+                and type(node.slice.value) is str):
+            config_keys.add(node.slice.value)
+        elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+              and node.func.attr == "get" and isinstance(node.func.value, ast.Name)
+              and node.func.value.id == "config" and node.args
+              and isinstance(node.args[0], ast.Constant)
+              and type(node.args[0].value) is str):
+            config_keys.add(node.args[0].value)
+    if "pythonpath_env" not in config_keys:
+        raise ValueError("GETPATH_SOURCE_CONFIG_KEYS")
+    canonical = "".join(name + "\n" for name in path_variables).encode("ascii")
+    config_canonical = "".join(name + "\n" for name in sorted(config_keys)).encode("ascii")
+    return {
+        "source_sha256": GETPATH_SOURCE_SHA256,
+        "source_bytes": len(source_bytes),
+        "path_variable_count": len(path_variables),
+        "path_variables": path_variables,
+        "path_variables_sha256": hashlib.sha256(canonical).hexdigest(),
+        "config_key_count": len(config_keys),
+        "config_keys": tuple(sorted(config_keys)),
+        "config_keys_sha256": hashlib.sha256(config_canonical).hexdigest(),
+    }
+
+
+def _sysconfig_source_inventory(source_bytes):
+    if (type(source_bytes) is not bytes or not source_bytes
+            or hashlib.sha256(source_bytes).hexdigest() != SYSCONFIG_SOURCE_SHA256):
+        raise ValueError("SYSCONFIG_SOURCE_DIGEST")
+    tree = ast.parse(source_bytes.decode("utf-8"))
+    assignments, functions = _top_level_names(tree)
+    required_functions = (
+        "_get_sysconfigdata_name", "get_config_var", "get_config_vars",
+        "get_path", "get_path_names", "get_paths",
+    )
+    if "_INSTALL_SCHEMES" not in assignments \
+            or not set(required_functions).issubset(functions):
+        raise ValueError("SYSCONFIG_SOURCE_SYMBOLS")
+    scheme_assignment = next((node for node in tree.body
+                              if isinstance(node, ast.Assign)
+                              and any(isinstance(target, ast.Name)
+                                      and target.id == "_INSTALL_SCHEMES"
+                                      for target in node.targets)), None)
+    if scheme_assignment is None:
+        raise ValueError("SYSCONFIG_SCHEME_SOURCE")
+    try:
+        schemes = ast.literal_eval(scheme_assignment.value)
+    except (ValueError, TypeError, SyntaxError) as error:
+        raise ValueError("SYSCONFIG_SCHEME_LITERAL") from error
+    if (type(schemes) is not dict or not schemes
+            or any(type(name) is not str for name in schemes)
+            or any(type(value) is not dict for value in schemes.values())):
+        raise ValueError("SYSCONFIG_SCHEME_SHAPE")
+    if any(type(key) is not str or type(value) is not str
+           for scheme in schemes.values() for key, value in scheme.items()):
+        raise ValueError("SYSCONFIG_SCHEME_PATHS")
+    scheme_names = tuple(sorted(schemes))
+    path_keys = tuple(sorted({key for value in schemes.values() for key in value}))
+    template_rows = tuple(sorted(
+        (scheme_name, key, template)
+        for scheme_name, scheme in schemes.items()
+        for key, template in scheme.items()
+    ))
+    scheme_digest = hashlib.sha256(
+        "".join(name + "\n" for name in scheme_names).encode("ascii")
+    ).hexdigest()
+    path_digest = hashlib.sha256(
+        "".join(name + "\n" for name in path_keys).encode("ascii")
+    ).hexdigest()
+    return {
+        "source_sha256": SYSCONFIG_SOURCE_SHA256,
+        "source_bytes": len(source_bytes),
+        "scheme_count": len(scheme_names),
+        "scheme_names": scheme_names,
+        "scheme_names_sha256": scheme_digest,
+        "path_key_count": len(path_keys),
+        "path_keys": path_keys,
+        "path_keys_sha256": path_digest,
+        "path_template_row_count": len(template_rows),
+        "path_templates_sha256": hashlib.sha256(
+            "".join("\t".join(row) + "\n" for row in template_rows).encode("ascii")
+        ).hexdigest(),
+        "required_function_count": len(required_functions),
+        "required_functions_sha256": hashlib.sha256(
+            "".join(name + "\n" for name in required_functions).encode("ascii")
         ).hexdigest(),
     }
 
@@ -1910,7 +2050,8 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
 
 
 def analyze(archive_path):
-    files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup = _source_archive_data(
+    (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
+     getpath_source) = _source_archive_data(
         _archive_bytes(archive_path)
     )
     if stdlib_header is None:
@@ -1921,10 +2062,17 @@ def analyze(archive_path):
         raise ValueError("BOOTSTRAP_SETUP_MISSING")
     if stdlib_setup is None:
         raise ValueError("STDLIB_SETUP_MISSING")
+    if getpath_source is None:
+        raise ValueError("GETPATH_SOURCE_MISSING")
     stdlib_names, stdlib_names_sha256 = _stdlib_module_names(stdlib_header)
     frozen = _frozen_module_inventory(frozen_source)
     bootstrap_setup_inventory = _bootstrap_setup_inventory(bootstrap_setup)
     stdlib_setup_inventory = _stdlib_setup_inventory(stdlib_setup)
+    getpath_inventory = _getpath_source_inventory(getpath_source)
+    sysconfig_source = files.get("sysconfig.py")
+    if sysconfig_source is None:
+        raise ValueError("SYSCONFIG_SOURCE_MISSING")
+    sysconfig_inventory = _sysconfig_source_inventory(sysconfig_source)
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     target_platform, target_edges, target_sha256, target_conditions = _target_platform_candidate_closure(files)
@@ -1971,6 +2119,42 @@ def analyze(archive_path):
         "stdlib_setup_names_sha256": stdlib_setup_inventory["stdlib_names_sha256"],
         "stdlib_setup_test_names_sha256": stdlib_setup_inventory[
             "test_names_sha256"
+        ],
+        "getpath_source_sha256": getpath_inventory["source_sha256"],
+        "getpath_source_bytes": getpath_inventory["source_bytes"],
+        "getpath_path_variable_count": getpath_inventory["path_variable_count"],
+        "getpath_path_variables": list(getpath_inventory["path_variables"]),
+        "getpath_path_variables_sha256": getpath_inventory[
+            "path_variables_sha256"
+        ],
+        "getpath_config_key_count": getpath_inventory["config_key_count"],
+        "getpath_config_keys": list(getpath_inventory["config_keys"]),
+        "getpath_config_keys_sha256": getpath_inventory[
+            "config_keys_sha256"
+        ],
+        "sysconfig_source_sha256": sysconfig_inventory["source_sha256"],
+        "sysconfig_source_bytes": sysconfig_inventory["source_bytes"],
+        "sysconfig_install_scheme_count": sysconfig_inventory["scheme_count"],
+        "sysconfig_install_scheme_names": list(
+            sysconfig_inventory["scheme_names"]
+        ),
+        "sysconfig_scheme_names_sha256": sysconfig_inventory[
+            "scheme_names_sha256"
+        ],
+        "sysconfig_path_key_count": sysconfig_inventory["path_key_count"],
+        "sysconfig_path_keys": list(sysconfig_inventory["path_keys"]),
+        "sysconfig_path_keys_sha256": sysconfig_inventory["path_keys_sha256"],
+        "sysconfig_path_template_row_count": sysconfig_inventory[
+            "path_template_row_count"
+        ],
+        "sysconfig_path_templates_sha256": sysconfig_inventory[
+            "path_templates_sha256"
+        ],
+        "sysconfig_required_function_count": sysconfig_inventory[
+            "required_function_count"
+        ],
+        "sysconfig_required_functions_sha256": sysconfig_inventory[
+            "required_functions_sha256"
         ],
         "edge_count": edges,
         "module_count": len(modules),
