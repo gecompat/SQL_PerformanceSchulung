@@ -1419,21 +1419,19 @@ def _target_warnings_default_call_facts(files, c_source, clinic_source):
     return {"_warnings_defaults": True}
 
 
-def _target_warning_options_empty_for_facts(
-        files, preconfig_source, initconfig_source, worker_source):
-    """Bind an empty warnings option loop to the pinned isolated worker argv."""
-    warnings_source = files.get("warnings.py")
+def _target_isolated_worker_route_valid(
+        preconfig_source, initconfig_source, worker_source):
+    """Validate the one digest-pinned isolated child route shared by route facts."""
     sources = (
         (preconfig_source, PRECONFIG_C_SHA256, MAX_PRECONFIG_C_BYTES),
         (initconfig_source, INITCONFIG_C_SHA256, MAX_INITCONFIG_C_BYTES),
         (worker_source, IMPORT_USED_BYTES_PROBE_SHA256,
          MAX_WORKER_CONTROL_SOURCE_BYTES),
-        (warnings_source, WARNINGS_SOURCE_SHA256, MAX_SOURCE_BYTES),
     )
     if any(type(source) is not bytes or not source or len(source) > limit
            or hashlib.sha256(source).hexdigest() != digest
            for source, digest, limit in sources):
-        return {}
+        return False
     preconfig_text = preconfig_source.decode("utf-8")
     initconfig_text = initconfig_source.decode("utf-8")
     if (not re.search(
@@ -1442,12 +1440,60 @@ def _target_warning_options_empty_for_facts(
             or not re.search(
                 r"if \(config->isolated\)\s*\{[^}]*config->use_environment\s*=\s*0;",
                 initconfig_text,
-            )
-            or not re.search(
-                r"if \(config->use_environment\)\s*\{\s*status\s*=\s*"
-                r"config_init_env_warnoptions\(config,\s*&env_warnoptions\);",
-                initconfig_text,
-            )
+            )):
+        return False
+    try:
+        worker_tree = ast.parse(worker_source, filename="dgn007_import_used_bytes_probe.py")
+    except SyntaxError:
+        return False
+    run_functions = [node for node in worker_tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name == "run_import_only"]
+    collector_functions = [node for node in worker_tree.body
+                           if isinstance(node, ast.FunctionDef)
+                           and node.name == "_collect_process"]
+    if len(run_functions) != 1 or len(collector_functions) != 1:
+        return False
+    command_assignments = [
+        node for node in ast.walk(run_functions[0])
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "command"
+                for target in node.targets)
+    ]
+    expected_command = (
+        "[sys.executable, '-I', '-S', '-B', '-c', "
+        "_worker_source(ordinal, worker_nonce)]"
+    )
+    popen_calls = [
+        node for node in ast.walk(collector_functions[0])
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+        and ast.unparse(node.func) == "subprocess.Popen"
+    ]
+    return (len(command_assignments) == 1
+            and ast.unparse(command_assignments[0].value) == expected_command
+            and len(popen_calls) == 1 and bool(popen_calls[0].args)
+            and isinstance(popen_calls[0].args[0], ast.Name)
+            and popen_calls[0].args[0].id == "command"
+            and not any(keyword.arg == "env" for keyword in popen_calls[0].keywords))
+
+
+def _target_warning_options_empty_for_facts(
+        files, preconfig_source, initconfig_source, worker_source):
+    """Bind an empty warnings option loop to the pinned isolated worker argv."""
+    warnings_source = files.get("warnings.py")
+    if (type(warnings_source) is not bytes
+            or len(warnings_source) > MAX_SOURCE_BYTES
+            or hashlib.sha256(warnings_source).hexdigest() != WARNINGS_SOURCE_SHA256
+            or not _target_isolated_worker_route_valid(
+                preconfig_source, initconfig_source, worker_source,
+            )):
+        return {}
+    initconfig_text = initconfig_source.decode("utf-8")
+    if (not re.search(
+            r"if \(config->use_environment\)\s*\{\s*status\s*=\s*"
+            r"config_init_env_warnoptions\(config,\s*&env_warnoptions\);",
+            initconfig_text,
+        )
             or not re.search(
                 r"case 'W':\s*status\s*=\s*PyWideStringList_Append\(warnoptions,\s*"
                 r"_PyOS_optarg\);",
@@ -1456,7 +1502,6 @@ def _target_warning_options_empty_for_facts(
         return {}
     try:
         warnings_tree = ast.parse(warnings_source, filename="warnings.py")
-        worker_tree = ast.parse(worker_source, filename="dgn007_import_used_bytes_probe.py")
     except SyntaxError:
         return {}
     process_calls = [
@@ -1473,38 +1518,6 @@ def _target_warning_options_empty_for_facts(
     loops = [node for node in ast.walk(process_functions[0])
              if isinstance(node, ast.For) and ast.unparse(node.iter) == "args"]
     if len(loops) != 1:
-        return {}
-    run_functions = [
-        node for node in worker_tree.body
-        if isinstance(node, ast.FunctionDef) and node.name == "run_import_only"
-    ]
-    collector_functions = [
-        node for node in worker_tree.body
-        if isinstance(node, ast.FunctionDef) and node.name == "_collect_process"
-    ]
-    if len(run_functions) != 1 or len(collector_functions) != 1:
-        return {}
-    command_assignments = [
-        node for node in ast.walk(run_functions[0])
-        if isinstance(node, ast.Assign)
-        and any(isinstance(target, ast.Name) and target.id == "command"
-                for target in node.targets)
-    ]
-    expected_command = (
-        "[sys.executable, '-I', '-S', '-B', '-c', "
-        "_worker_source(ordinal, worker_nonce)]"
-    )
-    popen_calls = [
-        node for node in ast.walk(collector_functions[0])
-        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
-        and ast.unparse(node.func) == "subprocess.Popen"
-    ]
-    if (len(command_assignments) != 1
-            or ast.unparse(command_assignments[0].value) != expected_command
-            or len(popen_calls) != 1 or not popen_calls[0].args
-            or not isinstance(popen_calls[0].args[0], ast.Name)
-            or popen_calls[0].args[0].id != "command"
-            or any(keyword.arg == "env" for keyword in popen_calls[0].keywords)):
         return {}
     return {"warnings": {loops[0].lineno: "args"}}
 
@@ -1523,6 +1536,9 @@ def _target_importlib_optimize_line_facts(
     if any(type(source) is not bytes or not source or len(source) > limit
            or hashlib.sha256(source).hexdigest() != digest
            for source, digest, limit in sources):
+        return {}
+    if not _target_isolated_worker_route_valid(
+            preconfig_source, initconfig_source, worker_source):
         return {}
     preconfig_text = preconfig_source.decode("utf-8")
     initconfig_text = initconfig_source.decode("utf-8")
@@ -1547,41 +1563,13 @@ def _target_importlib_optimize_line_facts(
             )):
         return {}
     try:
-        worker_tree = ast.parse(worker_source, filename="dgn007_import_used_bytes_probe.py")
         external_tree = ast.parse(external_source, filename="importlib/_bootstrap_external.py")
     except SyntaxError:
         return {}
-    run_functions = [node for node in worker_tree.body
-                     if isinstance(node, ast.FunctionDef)
-                     and node.name == "run_import_only"]
-    collector_functions = [node for node in worker_tree.body
-                           if isinstance(node, ast.FunctionDef)
-                           and node.name == "_collect_process"]
-    expected_command = (
-        "[sys.executable, '-I', '-S', '-B', '-c', "
-        "_worker_source(ordinal, worker_nonce)]"
-    )
-    command_assignments = [
-        node for node in ast.walk(run_functions[0])
-        if isinstance(node, ast.Assign)
-        and any(isinstance(target, ast.Name) and target.id == "command"
-                for target in node.targets)
-    ] if len(run_functions) == 1 else []
-    popen_calls = [
-        node for node in ast.walk(collector_functions[0])
-        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
-        and ast.unparse(node.func) == "subprocess.Popen"
-    ] if len(collector_functions) == 1 else []
     guards = [node for node in ast.walk(external_tree)
               if isinstance(node, ast.If)
               and ast.unparse(node.test) == "sys.flags.optimize == 0"]
-    if (len(command_assignments) != 1
-            or ast.unparse(command_assignments[0].value) != expected_command
-            or len(popen_calls) != 1 or not popen_calls[0].args
-            or not isinstance(popen_calls[0].args[0], ast.Name)
-            or popen_calls[0].args[0].id != "command"
-            or any(keyword.arg == "env" for keyword in popen_calls[0].keywords)
-            or len(guards) != 1):
+    if len(guards) != 1:
         return {}
     return {guards[0].lineno: True}
 
