@@ -9553,3 +9553,20 @@ Zeilendigest `9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`;
 `8ae75b218c78d994f42921d69f4914c4ee8cc5028588e8576cca5f155cf65209`. Der
 fokussierte Satz besteht 120/120 lokal. Vollständige Offline-CI folgt im
 Pull Request. Runtime-/P11-Auswahl und operative Inventur bleiben offen.
+
+## Fortsetzung: `__main__`-Wachen über feste Star-Exports
+
+Die Importnamen-Analyse erhält `__name__` jetzt nur über digestgebundene
+Star-Exports hinweg, wenn der Quellpfad des importierenden Moduls genau einen
+direkten Star-Import besitzt und das Exportmodul genau eine statische
+`__all__`-Liste ohne `__name__` definiert. Für `dis`/`opcode` und
+`tokenize`/`token` erfüllen die CPython-3.12.16-Quellen diese Bedingungen.
+Damit werden ihre beiden `__main__`-Wachen falsch. Entsprechende Wachen in
+`ast` und `inspect` bleiben wegen weiterer dynamischer Namespacezugriffe
+unbekannt. Der Archivscan bleibt `CANDIDATES_ONLY` bei 56 Kandidaten, 278
+Kanten und Zeilendigest
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; 20
+Bedingungen sind entschieden, 22 unbekannt. Der neue Unbekannt-Inventardigest
+ist `6dea737c0357e5b52ad958d31d8d1a2f86f95bdeb8c7ac0f5197a258329ea033`.
+Der fokussierte Satz besteht 121/121 lokal. Vollständige Offline-CI folgt im
+Pull Request. Runtime-/P11-Auswahl und operative Inventur bleiben offen.

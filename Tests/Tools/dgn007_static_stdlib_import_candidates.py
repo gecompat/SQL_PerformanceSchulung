@@ -37,6 +37,10 @@ WARNINGS_C_MEMBER = "Python-3.12.16/Python/_warnings.c"
 WARNINGS_C_SHA256 = "5567817b35e387b6cc5c37074fdcbf0a3978242564a95460ccdc3fe5d6f08019"
 WARNINGS_CLINIC_MEMBER = "Python-3.12.16/Python/clinic/_warnings.c.h"
 WARNINGS_CLINIC_SHA256 = "8ec95ee20132c6ccd71b56070cd5028e0db877a745b215cc5e3ddff8d675b5f0"
+DIS_SOURCE_SHA256 = "44c0b389c96124d8fb5cb0bc41c7a2aa7a6848ef4001b4000dcbd858efa4a1a2"
+TOKENIZE_SOURCE_SHA256 = "026f566ac63e60d69c8185a3880831b657accc5eac984fadf271fc99a5e5825d"
+OPCODE_SOURCE_SHA256 = "192f6008508f28d3273bff42eaea9b01c8394dab1607cd36aea778bdd166c3a6"
+TOKEN_SOURCE_SHA256 = "1a4d994ce9744f4bfe2d964fc24d112a1e76796a08c2e45a2d73c82a8587f922"
 GETPATH_SOURCE_MEMBER = "Python-3.12.16/Modules/getpath.py"
 GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2"
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
@@ -1276,6 +1280,55 @@ def _target_warnings_default_call_facts(files, c_source, clinic_source):
     return {"_warnings_defaults": True}
 
 
+def _target_imported_name_star_imports_safe(files, module):
+    """Keep imported __name__ only across pinned star exports that exclude it."""
+    bindings = {
+        "dis": (DIS_SOURCE_SHA256, "opcode", OPCODE_SOURCE_SHA256),
+        "tokenize": (TOKENIZE_SOURCE_SHA256, "token", TOKEN_SOURCE_SHA256),
+    }
+    binding = bindings.get(module)
+    if binding is None:
+        return False
+    importer_digest, exporter_name, exporter_digest = binding
+    importer_path = module + ".py"
+    exporter_path = exporter_name + ".py"
+    importer = files.get(importer_path)
+    exporter = files.get(exporter_path)
+    if (type(importer) is not bytes or hashlib.sha256(importer).hexdigest() != importer_digest
+            or type(exporter) is not bytes
+            or hashlib.sha256(exporter).hexdigest() != exporter_digest):
+        return False
+    importer_tree = ast.parse(importer, filename=importer_path)
+    star_imports = [
+        statement for statement in importer_tree.body
+        if isinstance(statement, ast.ImportFrom)
+        and any(alias.name == "*" for alias in statement.names)
+    ]
+    if (len(star_imports) != 1 or star_imports[0].module != exporter_name
+            or star_imports[0].level != 0):
+        return False
+    exporter_tree = ast.parse(exporter, filename=exporter_path)
+    exports = [
+        statement for statement in exporter_tree.body if isinstance(statement, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "__all__"
+                for target in statement.targets)
+    ]
+    stores = [
+        node for node in ast.walk(exporter_tree)
+        if isinstance(node, ast.Name) and node.id == "__all__"
+        and isinstance(node.ctx, (ast.Store, ast.Del))
+    ]
+    if len(exports) != 1 or len(stores) != 1:
+        return False
+    try:
+        exported_names = ast.literal_eval(exports[0].value)
+    except (ValueError, TypeError):
+        return False
+    return (type(exported_names) is list
+            and all(type(name) is str for name in exported_names)
+            and "__name__" not in exported_names)
+
+
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
@@ -1538,7 +1591,7 @@ def _target_name_aliases(tree, *, imported_module_name=False):
 
 def _module_body_import_names(
         tree, module, path, target_platform=False, condition_stats=None, known_names=None,
-        unknown_conditions=None, known_call_facts=None):
+        unknown_conditions=None, known_call_facts=None, preserve_imported_name=False):
     """Include module/class bodies, optionally pruning known target if-branches."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
 
@@ -1562,6 +1615,9 @@ def _module_body_import_names(
                         and value[0] is _STATIC_FALSE_LITERAL
                         and value[1] > node.lineno)
                 }
+                if (preserve_imported_name
+                        and known_names.get("__name__") is _IMPORTED_MODULE_NAME):
+                    after_star_false["__name__"] = _IMPORTED_MODULE_NAME
                 known_names.clear()
                 known_names.update(after_star_false)
             base = node.module or ""
@@ -1709,10 +1765,12 @@ def _target_platform_candidate_closure(
             aliases.update(_target_importlib_windows_name_facts(files))
         elif module == "warnings":
             aliases.update((known_name_facts or {}).get(module, {}))
+        preserve_imported_name = _target_imported_name_star_imports_safe(files, module)
         for name in _module_body_import_names(
                 tree, module, path, target_platform=True, condition_stats=condition_stats,
                 known_names=aliases, unknown_conditions=unknown_conditions,
-                known_call_facts=known_call_facts):
+                known_call_facts=known_call_facts,
+                preserve_imported_name=preserve_imported_name):
             parts = name.split(".")
             candidate = next(
                 (".".join(parts[:index]) for index in range(len(parts), 0, -1)
