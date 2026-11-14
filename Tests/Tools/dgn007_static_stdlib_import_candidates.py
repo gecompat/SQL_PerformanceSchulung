@@ -904,6 +904,7 @@ def _import_names(tree, module, path):
 
 
 _KNOWN_BUILTIN_NAMES = object()
+_IMPORTED_MODULE_NAME = object()
 # Bounded from the digest-pinned linux/amd64 CPython 3.12.16 config.c/Inittab.
 _TARGET_BUILTIN_MODULE_NAMES = (
     "_abc", "_ast", "_codecs", "_collections", "_functools", "_imp",
@@ -968,22 +969,40 @@ def _target_condition(node, known_names=None):
             try:
                 for op, right in zip(expr.ops, rights):
                     if isinstance(op, ast.Eq):
-                        if current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES:
+                        if (current is _IMPORTED_MODULE_NAME
+                                or right is _IMPORTED_MODULE_NAME):
+                            other = right if current is _IMPORTED_MODULE_NAME else current
+                            if type(other) is not str or other != "__main__":
+                                return _UNKNOWN
+                            matched = False
+                        elif current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES:
                             return _UNKNOWN
-                        matched = current == right
+                        else:
+                            matched = current == right
                     elif isinstance(op, ast.Is):
-                        if current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES:
+                        if (current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES
+                                or current is _IMPORTED_MODULE_NAME
+                                or right is _IMPORTED_MODULE_NAME):
                             return _UNKNOWN
                         if (current is not None and type(current) is not bool
                                 or right is not None and type(right) is not bool):
                             return _UNKNOWN
                         matched = current is right
                     elif isinstance(op, ast.NotEq):
-                        if current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES:
+                        if (current is _IMPORTED_MODULE_NAME
+                                or right is _IMPORTED_MODULE_NAME):
+                            other = right if current is _IMPORTED_MODULE_NAME else current
+                            if type(other) is not str or other != "__main__":
+                                return _UNKNOWN
+                            matched = True
+                        elif current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES:
                             return _UNKNOWN
-                        matched = current != right
+                        else:
+                            matched = current != right
                     elif isinstance(op, ast.IsNot):
-                        if current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES:
+                        if (current is _KNOWN_BUILTIN_NAMES or right is _KNOWN_BUILTIN_NAMES
+                                or current is _IMPORTED_MODULE_NAME
+                                or right is _IMPORTED_MODULE_NAME):
                             return _UNKNOWN
                         if (current is not None and type(current) is not bool
                                 or right is not None and type(right) is not bool):
@@ -1036,33 +1055,7 @@ def _target_condition(node, known_names=None):
 _UNKNOWN = object()
 
 
-def _target_name_aliases(tree):
-    known = {}
-    for statement in tree.body:
-        if isinstance(statement, ast.Assign):
-            value = statement.value
-            mapped = (_KNOWN_BUILTIN_NAMES
-                      if isinstance(value, ast.Attribute)
-                      and ast.unparse(value) == "sys.builtin_module_names"
-                      else known.get(value.id, _UNKNOWN) if isinstance(value, ast.Name) else _UNKNOWN)
-            for target in statement.targets:
-                if isinstance(target, ast.Name):
-                    if mapped is _UNKNOWN:
-                        known.pop(target.id, None)
-                    else:
-                        known[target.id] = mapped
-        elif isinstance(statement, ast.AnnAssign) and isinstance(statement.target, ast.Name):
-            value = statement.value
-            mapped = (_KNOWN_BUILTIN_NAMES
-                      if isinstance(value, ast.Attribute)
-                      and ast.unparse(value) == "sys.builtin_module_names"
-                      else known.get(value.id, _UNKNOWN) if isinstance(value, ast.Name) else _UNKNOWN)
-            if mapped is _UNKNOWN:
-                known.pop(statement.target.id, None)
-            else:
-                known[statement.target.id] = mapped
-    if not known:
-        return known
+def _target_name_aliases(tree, *, imported_module_name=False):
     bindings = {}
 
     def bind(name):
@@ -1092,7 +1085,72 @@ def _target_name_aliases(tree):
             bind(node.name)
         elif isinstance(node, ast.MatchMapping):
             bind(node.rest)
-    return {name: value for name, value in known.items() if bindings.get(name) == 1}
+    known = {}
+    module_name_aliases = {"__name__"} if imported_module_name else set()
+    deletes_module_name = any(
+        isinstance(node, ast.Name) and node.id == "__name__"
+        and isinstance(node.ctx, ast.Del)
+        for node in ast.walk(tree)
+    )
+    dynamic_namespace_access = any(
+        (isinstance(node, ast.Name) and node.id in {
+            "exec", "eval", "globals", "locals", "vars",
+        })
+        or (isinstance(node, ast.alias) and node.name in {
+            "exec", "eval", "globals", "locals", "vars",
+        })
+        or (isinstance(node, ast.Attribute) and node.attr in {
+            "exec", "eval", "globals", "locals", "vars",
+        })
+        for node in ast.walk(tree)
+    )
+    if (imported_module_name and bindings.get("__name__", 0) == 0
+            and not deletes_module_name and not dynamic_namespace_access):
+        known["__name__"] = _IMPORTED_MODULE_NAME
+    for statement in tree.body:
+        if isinstance(statement, ast.Assign):
+            value = statement.value
+            mapped = (_KNOWN_BUILTIN_NAMES
+                      if isinstance(value, ast.Attribute)
+                      and ast.unparse(value) == "sys.builtin_module_names"
+                      else known.get(value.id, _UNKNOWN) if isinstance(value, ast.Name) else _UNKNOWN)
+            for target in statement.targets:
+                if isinstance(target, ast.Name):
+                    if (target.id == "__name__"
+                            or isinstance(value, ast.Name)
+                            and value.id in module_name_aliases):
+                        module_name_aliases.add(target.id)
+                    else:
+                        module_name_aliases.discard(target.id)
+                    if mapped is _UNKNOWN:
+                        known.pop(target.id, None)
+                    else:
+                        known[target.id] = mapped
+        elif isinstance(statement, ast.AnnAssign) and isinstance(statement.target, ast.Name):
+            value = statement.value
+            if (statement.target.id == "__name__"
+                    or isinstance(value, ast.Name)
+                    and value.id in module_name_aliases):
+                module_name_aliases.add(statement.target.id)
+            else:
+                module_name_aliases.discard(statement.target.id)
+            mapped = (_KNOWN_BUILTIN_NAMES
+                      if isinstance(value, ast.Attribute)
+                      and ast.unparse(value) == "sys.builtin_module_names"
+                      else known.get(value.id, _UNKNOWN) if isinstance(value, ast.Name) else _UNKNOWN)
+            if mapped is _UNKNOWN:
+                known.pop(statement.target.id, None)
+            else:
+                known[statement.target.id] = mapped
+    if dynamic_namespace_access:
+        for name in module_name_aliases:
+            known.pop(name, None)
+    return {
+        name: value for name, value in known.items()
+        if bindings.get(name) == 1
+        or (name == "__name__" and value is _IMPORTED_MODULE_NAME
+            and bindings.get(name, 0) == 0)
+    }
 
 
 def _module_body_import_names(
@@ -1231,7 +1289,7 @@ def _target_platform_candidate_closure(files, roots=ROOTS):
             continue
         reached.add(module)
         tree = ast.parse(files[path], filename=path)
-        aliases = _target_name_aliases(tree)
+        aliases = _target_name_aliases(tree, imported_module_name=True)
         for name in _module_body_import_names(
                 tree, module, path, target_platform=True, condition_stats=condition_stats,
                 known_names=aliases):
@@ -2779,7 +2837,7 @@ def analyze(archive_path):
         "target_platform_candidate_count": len(target_platform),
         "target_platform_source_candidates": _module_source_rows(files, target_platform),
         "target_platform_edge_count": target_edges,
-        "target_platform_scope": "MODULE_CLASS_AND_KNOWN_LINUX_CPYTHON312_IF_AND_BUILTIN_BRANCHES",
+        "target_platform_scope": "MODULE_CLASS_AND_KNOWN_LINUX_CPYTHON312_IF_BUILTIN_AND_IMPORTED_MODULE_NAME_BRANCHES",
         "target_platform_rows_sha256": target_sha256,
         "target_platform_resolved_if_count": target_conditions["resolved"],
         "target_platform_unknown_if_count": target_conditions["unknown"],
