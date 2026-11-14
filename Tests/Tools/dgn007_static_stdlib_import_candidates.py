@@ -15,11 +15,14 @@ STDLIB_MODULE_NAMES_MEMBER = "Python-3.12.16/Python/stdlib_module_names.h"
 STDLIB_MODULE_NAMES_SHA256 = "450581463358b2ffaeca45b261c2e59a41cd6546b487445ed5ff9e0a2b4163a6"
 FROZEN_SOURCE_MEMBER = "Python-3.12.16/Python/frozen.c"
 FROZEN_SOURCE_SHA256 = "ff2d5e301f1725c013788f30882fd48127a9ecfe891bfaa592cc08c284d4f79f"
+BOOTSTRAP_SETUP_MEMBER = "Python-3.12.16/Modules/Setup.bootstrap.in"
+BOOTSTRAP_SETUP_SHA256 = "d7a4c34c97f414585c7e8480c106a0f85075fb166d4c82a91c5b0b00df455271"
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_FILES = 2048
 MAX_STDLIB_MODULE_NAMES_BYTES = 64 * 1024
 MAX_FROZEN_SOURCE_BYTES = 64 * 1024
+MAX_BOOTSTRAP_SETUP_BYTES = 64 * 1024
 ROOTS = (
     "dataclasses", "hashlib", "importlib.machinery", "importlib.util", "json",
     "os", "struct", "sys", "sysconfig", "types", "zipimport", "zlib",
@@ -41,6 +44,7 @@ def _source_archive_data(archive_bytes):
     files = {}
     stdlib_header = None
     frozen_source = None
+    bootstrap_setup = None
     total = 0
     with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:xz") as source:
         for member in source:
@@ -56,6 +60,19 @@ def _source_archive_data(archive_bytes):
                         or hashlib.sha256(frozen_source).hexdigest()
                         != FROZEN_SOURCE_SHA256):
                     raise ValueError("FROZEN_SOURCE_DIGEST")
+                continue
+            if member.name == BOOTSTRAP_SETUP_MEMBER:
+                if not member.isfile() or bootstrap_setup is not None \
+                        or member.size > MAX_BOOTSTRAP_SETUP_BYTES:
+                    raise ValueError("BOOTSTRAP_SETUP_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("BOOTSTRAP_SETUP_MEMBER")
+                bootstrap_setup = stream.read(member.size + 1)
+                if (len(bootstrap_setup) != member.size
+                        or hashlib.sha256(bootstrap_setup).hexdigest()
+                        != BOOTSTRAP_SETUP_SHA256):
+                    raise ValueError("BOOTSTRAP_SETUP_DIGEST")
                 continue
             if member.name == STDLIB_MODULE_NAMES_MEMBER:
                 if not member.isfile() or stdlib_header is not None \
@@ -89,7 +106,7 @@ def _source_archive_data(archive_bytes):
                 raise ValueError("SOURCE_ARCHIVE_MEMBER")
             total += len(body)
             files[relative] = body
-    return files, stdlib_header, frozen_source
+    return files, stdlib_header, frozen_source, bootstrap_setup
 
 
 def _source_files(archive_path):
@@ -184,6 +201,50 @@ def _frozen_module_inventory(source_bytes):
         "stdlib_sha256": digest_rows(tuple((name,) for name in tables["stdlib_modules"])),
         "test_sha256": digest_rows(tuple((name,) for name in tables["test_modules"])),
         "aliases_sha256": digest_rows(tuple(sorted(aliases))),
+    }
+
+
+def _bootstrap_setup_inventory(source_bytes):
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_BOOTSTRAP_SETUP_BYTES
+            or hashlib.sha256(source_bytes).hexdigest() != BOOTSTRAP_SETUP_SHA256):
+        raise ValueError("BOOTSTRAP_SETUP_DIGEST")
+    text = source_bytes.decode("utf-8")
+    names = []
+    rows = []
+    static_count = 0
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if stripped == "*static*":
+            static_count += 1
+            continue
+        match = re.fullmatch(
+            r"(?:@MODULE_([A-Z0-9_]+)_TRUE@\s*)?"
+            r"([A-Za-z_][A-Za-z0-9_]*)\s+(.+)", stripped
+        )
+        if match is None:
+            raise ValueError("BOOTSTRAP_SETUP_ROW")
+        condition, name, sources = match.groups()
+        source_paths = sources.split()
+        if not source_paths or any(not path.endswith(".c") for path in source_paths):
+            raise ValueError("BOOTSTRAP_SETUP_SOURCES")
+        names.append(name)
+        rows.append((name, condition or ""))
+    if static_count != 1:
+        raise ValueError("BOOTSTRAP_SETUP_STATIC")
+    if len(names) != len(set(names)):
+        raise ValueError("BOOTSTRAP_SETUP_NAMES")
+    canonical = "".join("\t".join(row) + "\n" for row in sorted(rows)).encode("ascii")
+    return {
+        "name_count": len(names),
+        "conditional_name_count": sum(bool(condition) for _, condition in rows),
+        "source_sha256": BOOTSTRAP_SETUP_SHA256,
+        "rows_sha256": hashlib.sha256(canonical).hexdigest(),
+        "conditional_names": tuple(sorted(
+            (name, condition) for name, condition in rows if condition
+        )),
     }
 
 
@@ -1774,15 +1835,18 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
 
 
 def analyze(archive_path):
-    files, stdlib_header, frozen_source = _source_archive_data(
+    files, stdlib_header, frozen_source, bootstrap_setup = _source_archive_data(
         _archive_bytes(archive_path)
     )
     if stdlib_header is None:
         raise ValueError("STDLIB_MODULE_NAMES_MISSING")
     if frozen_source is None:
         raise ValueError("FROZEN_SOURCE_MISSING")
+    if bootstrap_setup is None:
+        raise ValueError("BOOTSTRAP_SETUP_MISSING")
     stdlib_names, stdlib_names_sha256 = _stdlib_module_names(stdlib_header)
     frozen = _frozen_module_inventory(frozen_source)
+    bootstrap_setup_inventory = _bootstrap_setup_inventory(bootstrap_setup)
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     target_platform, target_edges, target_sha256, target_conditions = _target_platform_candidate_closure(files)
@@ -1812,6 +1876,15 @@ def analyze(archive_path):
         "frozen_runtime_roots_outside_source_stdlib_names": list(
             frozen_roots_outside_stdlib
         ),
+        "bootstrap_setup_name_count": bootstrap_setup_inventory["name_count"],
+        "bootstrap_setup_conditional_name_count": bootstrap_setup_inventory[
+            "conditional_name_count"
+        ],
+        "bootstrap_setup_source_sha256": bootstrap_setup_inventory["source_sha256"],
+        "bootstrap_setup_rows_sha256": bootstrap_setup_inventory["rows_sha256"],
+        "bootstrap_setup_conditional_names": [
+            list(row) for row in bootstrap_setup_inventory["conditional_names"]
+        ],
         "edge_count": edges,
         "module_count": len(modules),
         "module_rows_sha256": rows_sha256,

@@ -5217,6 +5217,24 @@ bleibt `CANDIDATES_ONLY`; die 93 Quellmodule/578 Kanten/534 Funktionen und der
 Zeilendigest `84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`
 bleiben unverändert.
 
+### Fortsetzung: Quellgebundene CPython-Bootstrap-Setup-Vorlage
+
+Der Offline-Scanner liest zusätzlich `Modules/Setup.bootstrap.in` aus demselben
+signaturgeprüften CPython-3.12.16-Archiv und prüft den bereits in §19.8
+festgehaltenen Dateidigest
+`d7a4c34c97f414585c7e8480c106a0f85075fb166d4c82a91c5b0b00df455271`. Die
+Vorlage enthält 22 eindeutige Modulzeilen, davon genau die bedingte Zeile
+`pwd` unter `MODULE_PWD_TRUE`; der kanonische Zeilendigest lautet
+`c7a4aee7afafc66564299cc149649e936153956c20e75f314f02cd696531e42f`. Zwei
+synthetische Gegenproben prüfen die Trennung bedingter Namen sowie die Ablehnung
+defekter und duplizierter Vorlagenzeilen. Der fokussierte Satz besteht 94/94.
+
+Die Vorlage beschreibt Buildkandidaten, nicht den tatsächlichen Configure- oder
+Buildausgang. Sie belegt weder, welche bedingten Module im Zielimage aktiviert
+wurden, noch installierte/geladene Module oder P11-Records. Der gebundene
+Importkandidatenscan bleibt `CANDIDATES_ONLY`; seine 93 Module, 578 Kanten, 534
+Funktionen und sein Zeilendigest bleiben unverändert.
+
 ### Fortsetzung: Frozen-Tabellenparser mit Sentinel- und Zeilenprüfung
 
 Der Parser verlangt jetzt für alle drei Frozen-Modultabellen den jeweils
