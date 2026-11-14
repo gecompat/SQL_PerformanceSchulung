@@ -5717,6 +5717,27 @@ def _static_literal_call_facts(function, call, name_facts=(), *,
 
     source_names = dict(name_facts)
 
+    def compare_literals(operator, left, right):
+        if left is _UNKNOWN or right is _UNKNOWN:
+            return _UNKNOWN
+        if isinstance(operator, ast.Eq):
+            return left == right
+        if isinstance(operator, ast.NotEq):
+            return left != right
+        if isinstance(operator, (ast.Is, ast.IsNot)):
+            if (type(left) not in (bool, type(None))
+                    or type(right) not in (bool, type(None))):
+                return _UNKNOWN
+            if isinstance(operator, ast.Is):
+                return left is right
+            return left is not right
+        if (isinstance(operator, (ast.In, ast.NotIn))
+                and type(right) is tuple
+                and type(left) in (str, int, bool, type(None), tuple)):
+            matched = left in right
+            return not matched if isinstance(operator, ast.NotIn) else matched
+        return _UNKNOWN
+
     def literal(node):
         if isinstance(node, ast.Constant) and type(node.value) in (
                 str, int, bool, type(None)):
@@ -5750,28 +5771,18 @@ def _static_literal_call_facts(function, call, name_facts=(), *,
                     str, int, bool, type(None), tuple):
                 return _UNKNOWN
             return literal(node.body if test else node.orelse)
-        if (isinstance(node, ast.Compare) and len(node.ops) == 1
-                and len(node.comparators) == 1
-                and isinstance(node.ops[0],
-                               (ast.Eq, ast.NotEq, ast.Is, ast.IsNot,
-                                ast.In, ast.NotIn))):
+        if (isinstance(node, ast.Compare) and node.ops
+                and len(node.ops) == len(node.comparators)):
             left = literal(node.left)
-            right = literal(node.comparators[0])
-            if left is not _UNKNOWN and right is not _UNKNOWN:
-                if isinstance(node.ops[0], ast.Eq):
-                    return left == right
-                if isinstance(node.ops[0], ast.NotEq):
-                    return left != right
-                if (type(left) in (bool, type(None))
-                        and type(right) in (bool, type(None))):
-                    if isinstance(node.ops[0], ast.Is):
-                        return left is right
-                    return left is not right
-                if (isinstance(node.ops[0], (ast.In, ast.NotIn))
-                        and type(right) is tuple
-                        and type(left) in (str, int, bool, type(None), tuple)):
-                    matched = left in right
-                    return not matched if isinstance(node.ops[0], ast.NotIn) else matched
+            if left is _UNKNOWN:
+                return _UNKNOWN
+            for operator, expression in zip(node.ops, node.comparators):
+                right = literal(expression)
+                matched = compare_literals(operator, left, right)
+                if matched is _UNKNOWN or not matched:
+                    return matched
+                left = right
+            return True
         if isinstance(node, ast.Name):
             return source_names.get(node.id, _UNKNOWN)
         if isinstance(node, ast.Tuple):

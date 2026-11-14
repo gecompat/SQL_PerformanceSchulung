@@ -10408,5 +10408,20 @@ bekanntes, nebenwirkungsfreies Literal oder Literal-Tupel ist. Er wertet nur
 den ausgewählten Zweig aus; ein dynamischer Test oder ein ausgewählter
 dynamischer Wert bleibt unbekannt. Zwei Regressionen prüfen direkte Aufrufe,
 Standardwerte, Kurzschluss auf den gewählten Zweig und den unbekannten
-Rückfall. Die fokussierte Suite besteht lokal mit 190 Tests unter Python 3.14;
-PR-Gates stehen noch aus.
+Rückfall. Die fokussierte Suite besteht lokal mit 190 Tests unter Python 3.14.
+Alle fünf PR-Gates einschließlich der gepinnten CPython-3.12.16-
+Offlineprüfung bestanden. PR #752 ist als Commit
+`a028a4dd360b5147c0fc9933ec063ef40a59a269` integriert; `main` ist synchronisiert
+und lokale/Remote-Branches sind entfernt. Der Workflow enthält keinen
+separaten Zielscanbericht. Runtime-, P11-, Profil-, Worker-, SQL-, Lab- und
+Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: kurze Literal-Vergleichsketten
+
+Der lokale Argumentbinder wertet nun einfache Vergleichsketten in
+Links-nach-rechts-Reihenfolge aus. Bei einem bekannten falschen Teilergebnis
+werden spätere Operanden übersprungen; ein erreichter dynamischer Operand oder
+eine nicht unterstützte Vergleichsform bleibt unbekannt. Zwei Regressionen
+prüfen direkte Aufrufe, Standardwerte, dynamische Werte und Kurzschluss. Die
+fokussierte Suite besteht lokal mit 192 Tests unter Python 3.14; PR-Gates stehen
+noch aus.

@@ -1836,7 +1836,7 @@ Schnitt als `4422e10bcb1abaec63f1f6497b63462dd880d692`; `main` ist
 synchronisiert und lokale/Remote-Branches sind entfernt. Kein Interpreter-,
 Profil-, Worker-, SQL-, Lab- oder Generalprobenlauf.
 
-### Begrenzte Fortsetzung: bedingte Literalargumente (14. November 2026)
+### Abgeschlossen: bedingte Literalargumente (14. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
 und zwei synthetische Regressionen. Der lokale Argumentbinder wertet einen
@@ -1851,4 +1851,24 @@ PR-Integration ist der Checkpoint; danach wird anhand des aktuellen Status
 weitergearbeitet.
 
 Die zwei synthetischen Regressionen und die fokussierte Suite bestehen lokal
-mit 190 Tests unter Python 3.14. PR-Gates stehen noch aus.
+mit 190 Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der
+gepinnten CPython-3.12.16-Offlineprüfung bestanden. PR #752 integrierte den
+Schnitt als `a028a4dd360b5147c0fc9933ec063ef40a59a269`; `main` ist
+synchronisiert und lokale/Remote-Branches sind entfernt. Kein Interpreter-,
+Profil-, Worker-, SQL-, Lab- oder Generalprobenlauf.
+
+### Begrenzte Fortsetzung: kurze Literal-Vergleichsketten (14. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. Der lokale Literalbinder wertet unterstützte
+Vergleichsketten links nach rechts aus und bildet Python-Kurzschluss bei einem
+falschen Teilergebnis nach. Ein erreichter dynamischer Operand oder eine nicht
+unterstützte Vergleichsform bleibt unbekannt. Verwendet werden die bestehende
+signaturgeprüfte CPython-3.12.16-Quelle, das gebundene Zielimage und die feste
+Workerroute. Keine neue Produktquelle und keine Interpreter-, Profil-, Worker-,
+SQL-, Lab- oder Generalprobenausführung. Token-/Geldverbrauch bleiben
+unbekannt; die Grenze ist 1/1/2 und kein Provider-Ausgabenlimit. PR-Integration
+ist der Checkpoint; danach wird anhand des aktuellen Status weitergearbeitet.
+
+Die zwei synthetischen Regressionen und die fokussierte Suite bestehen lokal
+mit 192 Tests unter Python 3.14. PR-Gates stehen noch aus.
