@@ -58,7 +58,8 @@ zwölf Scanwurzeln sind zusätzlich durch AST-Abgleich an die
 fünf Bootstrappräfiximports, acht Profilquellenimports und den `zlib`-Einbau
 gebunden; das belegt weiterhin keine tatsächlich gehaltenen Laufzeitbytes.
 Die dynamische Importkandidatenanalyse erkennt nun auch f-Strings aus
-Textsegmenten und direkten Stringkonstanten ohne Formatangabe sowie mit
+Textsegmenten und direkten oder verschachtelten Stringkonstanten ohne
+Formatangabe sowie mit
 semantisch identischer `!s`-Konvertierung inline;
 Laufzeitausdrücke, `!r`/`!a` und Formatangaben bleiben unaufgelöst. Die
 fokussierte Regression besteht mit 105/105 Fällen.
