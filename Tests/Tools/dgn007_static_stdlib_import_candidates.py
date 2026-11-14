@@ -32,6 +32,10 @@ SYS_MODULE_C_MEMBER = "Python-3.12.16/Python/sysmodule.c"
 SYS_MODULE_C_SHA256 = "6ac1dffffac870e8a7fbe7578ad6a93ff5f6afb4f501ac3ffd1b5e00f17630ff"
 SYS_MODULE_CLINIC_MEMBER = "Python-3.12.16/Python/clinic/sysmodule.c.h"
 SYS_MODULE_CLINIC_SHA256 = "957a480449ebdd284eae78bf27ef663b0f964ef595eb49208a82f8cb17a93833"
+PRECONFIG_C_MEMBER = "Python-3.12.16/Python/preconfig.c"
+PRECONFIG_C_SHA256 = "837e6e39347c4ded7d053c7f23d3ac751614a8dc135332748af7a4b0fcd46cab"
+INITCONFIG_C_MEMBER = "Python-3.12.16/Python/initconfig.c"
+INITCONFIG_C_SHA256 = "a50ff760d49e9d1da8a5a998bcedc8c377f12628d7d0426fc4dab89c1abfeff7"
 LOGGING_SOURCE_SHA256 = "43f86bbc08fdd5c7b6e697abffe1381f534a92bb32e1f1aee8360d6a142592a1"
 WARNINGS_SOURCE_SHA256 = "6405e281882932205eae641b2d31fba7776f94517a206d289465a1caffbf310e"
 WARNINGS_C_MEMBER = "Python-3.12.16/Python/_warnings.c"
@@ -74,6 +78,7 @@ THREAD_NATIVE_ID_MODULE_MEMBER = "Python-3.12.16/Modules/_threadmodule.c"
 THREAD_NATIVE_ID_MODULE_SHA256 = "277217c4a704bc84f9b7caf79123eaed8a45288c3023747e457df5d817cc8bc1"
 THREAD_NATIVE_ID_PTHREAD_MEMBER = "Python-3.12.16/Python/thread_pthread.h"
 THREAD_NATIVE_ID_PTHREAD_SHA256 = "467f48143ba6bd2dc8f139934d46fdaefe48b11ddf19e476a71ad156996f9195"
+IMPORT_USED_BYTES_PROBE_SHA256 = "5b34daec2ff34a474b614caf46719aa9f9778c28533a0fcfa9031e3b466c00bc"
 GETPATH_SOURCE_MEMBER = "Python-3.12.16/Modules/getpath.py"
 GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2"
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
@@ -96,6 +101,9 @@ MAX_AST_ASDL_BYTES = 64 * 1024
 MAX_AST_C_BYTES = 512 * 1024
 MAX_SYS_MODULE_C_BYTES = 256 * 1024
 MAX_SYS_MODULE_CLINIC_BYTES = 64 * 1024
+MAX_PRECONFIG_C_BYTES = 64 * 1024
+MAX_INITCONFIG_C_BYTES = 128 * 1024
+MAX_WORKER_CONTROL_SOURCE_BYTES = 256 * 1024
 MAX_WARNINGS_C_BYTES = 64 * 1024
 MAX_WARNINGS_CLINIC_BYTES = 16 * 1024
 MAX_POSIX_MODULE_C_BYTES = 512 * 1024
@@ -133,6 +141,8 @@ def _source_archive_data(archive_bytes):
     ast_c_source = None
     sys_module_c_source = None
     sys_module_clinic_source = None
+    preconfig_c_source = None
+    initconfig_c_source = None
     warnings_c_source = None
     warnings_clinic_source = None
     posix_module_c_source = None
@@ -255,6 +265,24 @@ def _source_archive_data(archive_bytes):
                 else:
                     sys_module_clinic_source = body
                 continue
+            if member.name in (PRECONFIG_C_MEMBER, INITCONFIG_C_MEMBER):
+                is_preconfig = member.name == PRECONFIG_C_MEMBER
+                current = preconfig_c_source if is_preconfig else initconfig_c_source
+                limit = MAX_PRECONFIG_C_BYTES if is_preconfig else MAX_INITCONFIG_C_BYTES
+                expected = PRECONFIG_C_SHA256 if is_preconfig else INITCONFIG_C_SHA256
+                if not member.isfile() or current is not None or member.size > limit:
+                    raise ValueError("PYTHON_CONFIG_SOURCE_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("PYTHON_CONFIG_SOURCE_MEMBER")
+                body = stream.read(member.size + 1)
+                if len(body) != member.size or hashlib.sha256(body).hexdigest() != expected:
+                    raise ValueError("PYTHON_CONFIG_SOURCE_DIGEST")
+                if is_preconfig:
+                    preconfig_c_source = body
+                else:
+                    initconfig_c_source = body
+                continue
             if member.name in (WARNINGS_C_MEMBER, WARNINGS_CLINIC_MEMBER):
                 is_module = member.name == WARNINGS_C_MEMBER
                 current = warnings_c_source if is_module else warnings_clinic_source
@@ -368,7 +396,8 @@ def _source_archive_data(archive_bytes):
             sys_module_c_source, sys_module_clinic_source, warnings_c_source,
             warnings_clinic_source, posix_module_c_source, posix_module_clinic_source,
             pickle_module_c_source,
-            thread_native_id_header, thread_native_id_module, thread_native_id_pthread)
+            thread_native_id_header, thread_native_id_module, thread_native_id_pthread,
+            preconfig_c_source, initconfig_c_source)
 
 
 def _source_files(archive_path):
@@ -1388,6 +1417,96 @@ def _target_warnings_default_call_facts(files, c_source, clinic_source):
     if any(not re.search(pattern, c_text) for pattern in required_source_patterns):
         return {}
     return {"_warnings_defaults": True}
+
+
+def _target_warning_options_empty_for_facts(
+        files, preconfig_source, initconfig_source, worker_source):
+    """Bind an empty warnings option loop to the pinned isolated worker argv."""
+    warnings_source = files.get("warnings.py")
+    sources = (
+        (preconfig_source, PRECONFIG_C_SHA256, MAX_PRECONFIG_C_BYTES),
+        (initconfig_source, INITCONFIG_C_SHA256, MAX_INITCONFIG_C_BYTES),
+        (worker_source, IMPORT_USED_BYTES_PROBE_SHA256,
+         MAX_WORKER_CONTROL_SOURCE_BYTES),
+        (warnings_source, WARNINGS_SOURCE_SHA256, MAX_SOURCE_BYTES),
+    )
+    if any(type(source) is not bytes or not source or len(source) > limit
+           or hashlib.sha256(source).hexdigest() != digest
+           for source, digest, limit in sources):
+        return {}
+    preconfig_text = preconfig_source.decode("utf-8")
+    initconfig_text = initconfig_source.decode("utf-8")
+    if (not re.search(
+            r"case 'I':\s*cmdline->isolated\s*=\s*1;", preconfig_text
+            )
+            or not re.search(
+                r"if \(config->isolated\)\s*\{[^}]*config->use_environment\s*=\s*0;",
+                initconfig_text,
+            )
+            or not re.search(
+                r"if \(config->use_environment\)\s*\{\s*status\s*=\s*"
+                r"config_init_env_warnoptions\(config,\s*&env_warnoptions\);",
+                initconfig_text,
+            )
+            or not re.search(
+                r"case 'W':\s*status\s*=\s*PyWideStringList_Append\(warnoptions,\s*"
+                r"_PyOS_optarg\);",
+                initconfig_text,
+            )):
+        return {}
+    try:
+        warnings_tree = ast.parse(warnings_source, filename="warnings.py")
+        worker_tree = ast.parse(worker_source, filename="dgn007_import_used_bytes_probe.py")
+    except SyntaxError:
+        return {}
+    process_calls = [
+        node for node in warnings_tree.body
+        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call)
+        and ast.unparse(node.value) == "_processoptions(sys.warnoptions)"
+    ]
+    process_functions = [
+        node for node in warnings_tree.body
+        if isinstance(node, ast.FunctionDef) and node.name == "_processoptions"
+    ]
+    if len(process_calls) != 1 or len(process_functions) != 1:
+        return {}
+    loops = [node for node in ast.walk(process_functions[0])
+             if isinstance(node, ast.For) and ast.unparse(node.iter) == "args"]
+    if len(loops) != 1:
+        return {}
+    run_functions = [
+        node for node in worker_tree.body
+        if isinstance(node, ast.FunctionDef) and node.name == "run_import_only"
+    ]
+    collector_functions = [
+        node for node in worker_tree.body
+        if isinstance(node, ast.FunctionDef) and node.name == "_collect_process"
+    ]
+    if len(run_functions) != 1 or len(collector_functions) != 1:
+        return {}
+    command_assignments = [
+        node for node in ast.walk(run_functions[0])
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "command"
+                for target in node.targets)
+    ]
+    expected_command = (
+        "[sys.executable, '-I', '-S', '-B', '-c', "
+        "_worker_source(ordinal, worker_nonce)]"
+    )
+    popen_calls = [
+        node for node in ast.walk(collector_functions[0])
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+        and ast.unparse(node.func) == "subprocess.Popen"
+    ]
+    if (len(command_assignments) != 1
+            or ast.unparse(command_assignments[0].value) != expected_command
+            or len(popen_calls) != 1 or not popen_calls[0].args
+            or not isinstance(popen_calls[0].args[0], ast.Name)
+            or popen_calls[0].args[0].id != "command"
+            or any(keyword.arg == "env" for keyword in popen_calls[0].keywords)):
+        return {}
+    return {"warnings": {loops[0].lineno: "args"}}
 
 
 def _target_imported_name_star_imports_safe(files, module):
@@ -3767,6 +3886,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                                    trusted_function_name_facts=None,
                                    preserve_name_facts_after_star=(),
                                    trusted_line_facts=None,
+                                   trusted_empty_for_facts=None,
                                    unknown_conditions=None):
     """Follow direct and simply aliased local calls from initialization."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
@@ -3780,6 +3900,9 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
     trusted_function_name_facts = trusted_function_name_facts or {}
     preserve_name_facts_after_star = frozenset(preserve_name_facts_after_star)
     trusted_line_facts = trusted_line_facts or {}
+    if type(trusted_empty_for_facts) is not dict:
+        raise ValueError("UNTRUSTED_EMPTY_FOR_FACT")
+    trusted_empty_for_facts = trusted_empty_for_facts or {}
     if any(source_name_facts.get(name, _UNKNOWN) != value
            for name, value in trusted_function_name_facts.items()):
         raise ValueError("UNTRUSTED_FUNCTION_NAME_FACT")
@@ -3788,6 +3911,12 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
     if (any(type(line) is not int or type(value) is not bool
             for line, value in trusted_line_facts.items())):
         raise ValueError("UNTRUSTED_LINE_FACT")
+    for line, iterator in trusted_empty_for_facts.items():
+        matching = [node for node in ast.walk(tree)
+                    if isinstance(node, ast.For) and node.lineno == line]
+        if (type(line) is not int or type(iterator) is not str
+                or len(matching) != 1 or ast.unparse(matching[0].iter) != iterator):
+            raise ValueError("UNTRUSTED_EMPTY_FOR_FACT")
     known_names.update(source_name_facts)
 
     def decide_condition(node, facts, in_function=False):
@@ -4323,6 +4452,11 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                     if alias.name != "*":
                         yield base + "." + alias.name
             return
+        if (isinstance(node, ast.For)
+                and trusted_empty_for_facts.get(node.lineno) == ast.unparse(node.iter)):
+            for statement in node.orelse:
+                yield from visit(statement, active_functions, in_function, function_scope)
+            return
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
             for function in active_functions.get(node.func.id, ()):
                 pending.append((function, function_closures.get(id(function), function_scope)))
@@ -4496,6 +4630,7 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
                                         trusted_function_name_facts=None,
                                         preserve_name_facts_after_star=None,
                                         trusted_line_facts=None,
+                                        trusted_empty_for_facts=None,
                                         unknown_conditions=None):
     if type(files) is not dict or type(roots) is not tuple:
         raise ValueError("SOURCE_INPUT_TYPE")
@@ -4656,6 +4791,7 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
                 (preserve_name_facts_after_star or {}).get(module, ())
             ),
             trusted_line_facts=(trusted_line_facts or {}).get(module, {}),
+            trusted_empty_for_facts=(trusted_empty_for_facts or {}).get(module, {}),
             unknown_conditions=unknown_conditions,
         )
         functions += visited_count
@@ -4695,7 +4831,8 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
      sys_module_c_source, sys_module_clinic_source, warnings_c_source,
      warnings_clinic_source, posix_module_c_source,
      posix_module_clinic_source, pickle_module_c_source, thread_native_id_header,
-     thread_native_id_module, thread_native_id_pthread) = _source_archive_data(
+     thread_native_id_module, thread_native_id_pthread,
+     preconfig_c_source, initconfig_c_source) = _source_archive_data(
         _archive_bytes(archive_path)
     )
     if stdlib_header is None:
@@ -4732,6 +4869,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     if target_no_project_base_override and target_image_config_source is None:
         raise ValueError("TARGET_IMAGE_CONFIG_REQUIRED")
     target_image_path_facts = {}
+    target_warning_options_empty_for_facts = {}
     if target_image_save_path is not None:
         if (not target_direct_python312 or not target_no_site
                 or not target_no_project_base_override
@@ -4740,6 +4878,18 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         target_image_path_facts = _target_image_save_facts(
             target_image_save_path, target_image_config_source,
         )
+        worker_source_path = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_used_bytes_probe.py"
+        )
+        with worker_source_path.open("rb") as stream:
+            worker_source = stream.read(MAX_WORKER_CONTROL_SOURCE_BYTES + 1)
+        if len(worker_source) <= MAX_WORKER_CONTROL_SOURCE_BYTES:
+            target_warning_options_empty_for_facts = (
+                _target_warning_options_empty_for_facts(
+                    files, preconfig_c_source, initconfig_c_source, worker_source,
+                )
+            )
         sysconfig_name_facts.update({
             "_PYTHON_BUILD": target_image_path_facts["_PYTHON_BUILD"],
         })
@@ -4915,6 +5065,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "pickle": pickle_buffer_line_facts,
         } if (os_createenviron_line_facts or codecs_false_guard_line_facts
               or pickle_buffer_line_facts) else {},
+        trusted_empty_for_facts={
+            "warnings": target_warning_options_empty_for_facts.get("warnings", {}),
+        } if target_warning_options_empty_for_facts else {},
         unknown_conditions=target_call_unknown_conditions,
     )
     target_call_unknown_conditions.sort(
@@ -5183,6 +5336,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_module_init_call_unknown_if_conditions_sha256": (
             target_call_unknown_conditions_sha256
         ),
+        "target_module_init_call_empty_for_facts": [
+            {"module": module, "line": line, "iterator": iterator}
+            for module, facts in sorted(target_warning_options_empty_for_facts.items())
+            for line, iterator in sorted(facts.items())
+        ],
         "roots": list(ROOTS),
         "scope": "LEXICAL_SOURCE_CANDIDATES_ONLY",
     }

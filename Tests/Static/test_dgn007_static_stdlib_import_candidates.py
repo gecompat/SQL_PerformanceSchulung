@@ -522,6 +522,80 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(target[0], ("codecs",))
         self.assertEqual(target[4], {"resolved": 1, "unknown": 0})
 
+    def test_trusted_empty_for_fact_prunes_body_but_keeps_else(self):
+        files = {
+            "entry.py": (
+                b"for item in items:\n"
+                b"    import loop_body\n"
+                b"else:\n"
+                b"    import loop_else\n"
+            ),
+            "loop_body.py": b"VALUE = 1\n",
+            "loop_else.py": b"VALUE = 2\n",
+        }
+        loop_line = ast.parse(files["entry.py"]).body[0].lineno
+        baseline = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",)
+        )
+        target = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",),
+            trusted_empty_for_facts={"entry": {loop_line: "items"}},
+        )
+        self.assertIn("loop_body", baseline[0])
+        self.assertEqual(target[0], ("entry", "loop_else"))
+        self.assertEqual(target[4], {"resolved": 0, "unknown": 0})
+        with self.assertRaisesRegex(ValueError, "UNTRUSTED_EMPTY_FOR_FACT"):
+            SUBJECT._module_init_call_candidate_closure(
+                files, roots=("entry",),
+                trusted_empty_for_facts={"entry": {loop_line: "other"}},
+            )
+
+    def test_warning_options_empty_fact_requires_pinned_sources_and_route(self):
+        warnings_source = (
+            b"_processoptions(sys.warnoptions)\n"
+            b"def _processoptions(args):\n"
+            b"    for arg in args:\n"
+            b"        __import__(arg)\n"
+        )
+        preconfig_source = b"case 'I': cmdline->isolated = 1;"
+        initconfig_source = (
+            b"if (config->isolated) { config->use_environment = 0; }\n"
+            b"if (config->use_environment) { status = "
+            b"config_init_env_warnoptions(config, &env_warnoptions); }\n"
+            b"case 'W': status = PyWideStringList_Append(warnoptions, _PyOS_optarg);"
+        )
+        worker_source = (
+            b"def run_import_only(ordinal, worker_nonce):\n"
+            b"    command = [sys.executable, '-I', '-S', '-B', '-c', "
+            b"_worker_source(ordinal, worker_nonce)]\n"
+            b"def _collect_process(command):\n"
+            b"    return subprocess.Popen(command)\n"
+        )
+        with patch.multiple(
+            SUBJECT,
+            PRECONFIG_C_SHA256=hashlib.sha256(preconfig_source).hexdigest(),
+            INITCONFIG_C_SHA256=hashlib.sha256(initconfig_source).hexdigest(),
+            IMPORT_USED_BYTES_PROBE_SHA256=hashlib.sha256(worker_source).hexdigest(),
+            WARNINGS_SOURCE_SHA256=hashlib.sha256(warnings_source).hexdigest(),
+        ):
+            fact = SUBJECT._target_warning_options_empty_for_facts(
+                {"warnings.py": warnings_source}, preconfig_source,
+                initconfig_source, worker_source,
+            )
+            self.assertEqual(fact, {"warnings": {3: "args"}})
+            changed_worker = worker_source.replace(b"'-I'", b"'-W', 'ignore'")
+            self.assertEqual(SUBJECT._target_warning_options_empty_for_facts(
+                {"warnings.py": warnings_source}, preconfig_source,
+                initconfig_source, changed_worker,
+            ), {})
+            env_worker = worker_source.replace(
+                b"subprocess.Popen(command)", b"subprocess.Popen(command, env={})"
+            )
+            self.assertEqual(SUBJECT._target_warning_options_empty_for_facts(
+                {"warnings.py": warnings_source}, preconfig_source,
+                initconfig_source, env_worker,
+            ), {})
+
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
             "entry.py": (
