@@ -9945,3 +9945,15 @@ Kanten und 175 Funktionen; 55 Conditions sind entschieden und 533 unbekannt
 (Digest `da690f35425d88a92d87f6f1051712919a0c12b1112cf8a026f3f893a5996cd4`).
 151 fokussierte Regressionen bestehen lokal. Keine vollständige P11-Closure oder
 Runtimeattestation.
+
+## Fortsetzung: QRY-023 Image-Lock-/Matrix-Parität
+
+Der Offlinevalidator liest nun die drei Runtime-Matrixzeilen strukturiert und
+vergleicht Jahr, Produktmajor, Image-Digest und Reihenfolge exakt mit
+`container-images.proposed.json`. Fehlende, zusätzliche, vertauschte oder
+falsch zugeordnete Profile werden abgewiesen. 116 fokussierte Harness-Validator-
+Regressionen und der Validator selbst bestehen lokal. Der GitHub-Workflow
+verwendet weiterhin feste Inline-Pins; die statische Parität bindet sie an den
+Lock, macht diesen aber weder zum Runtimeinput noch autorisiert sie einen Lauf.
+QRY-023 bleibt `PROPOSED`, nicht katalogisiert und `runtime_authorized: false`;
+Produkt-/Katalog- und Generalprobenstatus bleiben getrennt.

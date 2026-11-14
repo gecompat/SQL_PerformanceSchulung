@@ -29,6 +29,9 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                      self.root / "Documentation/Project_Planning/GRAPH_TABLES_BUILD_EDITION_REVIEW.md")
         shutil.copy2(validator.PUBLIC_SYSTEM_SELECT_BASELINE,
                      self.root / "Documentation/Project_Planning/QRY023_PUBLIC_SYSTEM_OBJECT_BASELINE.json")
+        workflow = self.root / ".github/workflows/qry023-proposed-runtime.yml"
+        workflow.parent.mkdir(parents=True)
+        shutil.copy2(validator.ROOT / ".github/workflows/qry023-proposed-runtime.yml", workflow)
         framework_sql = self.root / "Demos/00_Framework/Sql/FWK_Measurement.sql"
         framework_sql.parent.mkdir(parents=True)
         shutil.copy2(validator.ROOT / "Demos/00_Framework/Sql/FWK_Measurement.sql", framework_sql)
@@ -38,6 +41,38 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
 
     def test_current_draft_satisfies_offline_contract(self) -> None:
         self.assertEqual(self.errors(), [])
+
+    def test_runtime_matrix_must_match_locked_profile_order_and_digests(self) -> None:
+        path = self.root / ".github/workflows/qry023-proposed-runtime.yml"
+        source = path.read_text(encoding="utf-8")
+        changed = source.replace(
+            "year: 2019\n            major: 15\n            image: mcr.microsoft.com/mssql/server@sha256:",
+            "year: 2019\n            major: 16\n            image: mcr.microsoft.com/mssql/server@sha256:",
+            1,
+        )
+        self.assertNotEqual(changed, source)
+        path.write_text(changed, encoding="utf-8")
+        self.assertTrue(any("workflow matrix must exactly match the image lock" in error
+                            for error in self.errors()))
+
+    def test_image_lock_rejects_duplicate_major_and_malformed_extra_matrix_row(self) -> None:
+        workflow = (validator.ROOT / ".github/workflows/qry023-proposed-runtime.yml")
+        source = workflow.read_text(encoding="utf-8")
+        lock = validator.json.loads(
+            (validator.DEMO / "container-images.proposed.json").read_text(encoding="utf-8")
+        )
+        self.assertTrue(validator.runtime_matrix_matches_image_lock(source, lock["profiles"]))
+        duplicate = validator.json.loads(validator.json.dumps(lock["profiles"]))
+        duplicate[1]["product_major_version"] = duplicate[0]["product_major_version"]
+        self.assertFalse(validator.runtime_matrix_matches_image_lock(source, duplicate))
+        marker = "      matrix:\n        include:\n"
+        head, matrix = source.split(marker, 1)
+        extra_row = head + marker + matrix.replace(
+            "\n    steps:\n", "\n          - year: 2030\n    steps:\n", 1
+        )
+        self.assertFalse(
+            validator.runtime_matrix_matches_image_lock(extra_row, lock["profiles"])
+        )
 
     def test_admin_inventory_phase_is_required_and_uses_admin_profile(self) -> None:
         path = self.demo / "manifest.proposed.json"

@@ -683,6 +683,47 @@ def public_system_select_baseline_is_bound(demo: Path, repository: Path) -> list
         require(f"productversion'))=n'{expected['product_version']}'" in inventory,
                 f"ADMIN SQL does not bind the public system-object SELECT baseline to exact build {expected['product_version']}", errors)
     return errors
+
+
+def runtime_matrix_profiles(workflow: str) -> list[tuple[int, int, str]]:
+    """Read only the fixed three-field QRY-023 workflow matrix rows."""
+    marker = "      matrix:\n        include:\n"
+    if workflow.count(marker) != 1:
+        return []
+    block = workflow.split(marker, 1)[1].split("\n    steps:", 1)[0]
+    profiles = [
+        (int(year), int(major), image)
+        for year, major, image in re.findall(
+            r"(?m)^          - year: ([0-9]+)\n"
+            r"            major: ([0-9]+)\n"
+            r"            image: (\S+)$",
+            block,
+        )
+    ]
+    if len(re.findall(r"(?m)^          - year:", block)) != len(profiles):
+        return []
+    return profiles
+
+
+def runtime_matrix_matches_image_lock(workflow: str, profiles: object) -> bool:
+    """Require exact order and equality between the proposed lock and CI pins."""
+    if type(profiles) is not list or len(profiles) != 3:
+        return False
+    expected = []
+    for profile in profiles:
+        if type(profile) is not dict:
+            return False
+        source_tag = profile.get("source_tag")
+        major = profile.get("product_major_version")
+        image = profile.get("image")
+        if (type(source_tag) is not str or not source_tag[:4].isdigit()
+                or type(major) is not int or type(image) is not str):
+            return False
+        expected.append((int(source_tag[:4]), major, image))
+    if [(year, major) for year, major, _ in expected] != [
+            (2019, 15), (2022, 16), (2025, 17)]:
+        return False
+    return runtime_matrix_profiles(workflow) == expected
 def reader_effective_permission_inventory_is_fail_closed(qualification: str) -> bool:
     """Bind the actual READER permission-set calls, expected securables, and fail gate."""
     uncommented = re.sub(r"/\*.*?\*/|--[^\r\n]*", " ", qualification, flags=re.DOTALL)
@@ -991,6 +1032,15 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     }
     require(isinstance(image_profiles, list) and len(image_profiles) == 3,
             "image lock must declare exactly three product profiles", errors)
+    runtime_workflow_path = repository / ".github/workflows/qry023-proposed-runtime.yml"
+    try:
+        runtime_workflow = runtime_workflow_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        runtime_workflow = ""
+        errors.append(f"Cannot read QRY-023 proposed runtime workflow: {exc}")
+    require(runtime_matrix_matches_image_lock(runtime_workflow, image_profiles),
+            "proposed runtime workflow matrix must exactly match the image lock profile years, majors, digests, and order",
+            errors)
     image_builds: dict[int, str] = {}
     if isinstance(image_profiles, list):
         for profile in image_profiles:
