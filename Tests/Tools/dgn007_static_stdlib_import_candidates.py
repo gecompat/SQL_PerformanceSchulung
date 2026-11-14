@@ -1485,6 +1485,85 @@ def _target_isolated_worker_route_valid(
             and not any(keyword.arg == "env" for keyword in popen_calls[0].keywords))
 
 
+def _target_worker_sys_flag_facts(
+        preconfig_source, initconfig_source, sys_module_source, worker_source):
+    """Derive the six startup flags from the exact isolated worker route."""
+    if (type(sys_module_source) is not bytes or not sys_module_source
+            or len(sys_module_source) > MAX_SYS_MODULE_C_BYTES
+            or hashlib.sha256(sys_module_source).hexdigest() != SYS_MODULE_C_SHA256
+            or not _target_isolated_worker_route_valid(
+                preconfig_source, initconfig_source, worker_source,
+            )):
+        return ()
+    initconfig_text = initconfig_source.decode("utf-8")
+    sys_module_text = sys_module_source.decode("utf-8")
+    defaults = re.search(
+        r"static void\s+config_init_defaults\(PyConfig \*config\)\s*\{(.*?)\n\}",
+        initconfig_text, re.DOTALL,
+    )
+    fields = re.search(
+        r"static PyStructSequence_Field flags_fields\[\] = \{(.*?)\n\};",
+        sys_module_text, re.DOTALL,
+    )
+    expected_fields = (
+        "debug", "inspect", "interactive", "optimize", "dont_write_bytecode",
+        "no_user_site", "no_site", "ignore_environment", "verbose",
+        "bytes_warning", "quiet", "hash_randomization", "isolated", "dev_mode",
+        "utf8_mode", "warn_default_encoding", "safe_path", "int_max_str_digits",
+    )
+    actual_fields = tuple(re.findall(
+        r'\{\s*"([a-z0-9_]+)"\s*,', fields.group(1),
+    )) if fields else ()
+    set_flags = re.search(
+        r"static int\s+set_flags_from_config\(.*?\n\s*return 0;\n\}",
+        sys_module_text, re.DOTALL,
+    )
+    if (defaults is None or fields is None or actual_fields != expected_fields
+            or set_flags is None
+            or not re.search(r"config->optimization_level\s*=\s*0\s*;", defaults.group(1))
+            or not re.search(
+                r"case 'B':\s*config->write_bytecode\s*=\s*0\s*;",
+                initconfig_text,
+            )
+            or not re.search(
+                r"case 'S':\s*config->site_import\s*=\s*0\s*;",
+                initconfig_text,
+            )
+            or not re.search(
+                r"case 'O':\s*config->optimization_level\+\+\s*;",
+                initconfig_text,
+            )
+            or not re.search(
+                r"if \(config->isolated\)\s*\{\s*config->safe_path\s*=\s*1\s*;"
+                r"\s*config->use_environment\s*=\s*0\s*;",
+                initconfig_text,
+            )):
+        return ()
+    flag_body = set_flags.group(0)
+    required_bindings = (
+        r"SetFlag\(config->optimization_level\);\s*"
+        r"SetFlag\(!config->write_bytecode\);\s*"
+        r"SetFlag\(!config->user_site_directory\);\s*"
+        r"SetFlag\(!config->site_import\);\s*"
+        r"SetFlag\(!config->use_environment\);",
+        r"SetFlag\(config->isolated\);",
+        r"SetFlagObj\(PyBool_FromLong\(config->safe_path\)\);",
+        r'SET_SYS\("dont_write_bytecode",\s*'
+        r"PyBool_FromLong\(!config->write_bytecode\)\);",
+    )
+    if any(not re.search(pattern, flag_body) for pattern in required_bindings):
+        return ()
+    return (
+        ("sys.flags.isolated", 1),
+        ("sys.flags.no_site", 1),
+        ("sys.flags.dont_write_bytecode", 1),
+        ("sys.flags.ignore_environment", 1),
+        ("sys.flags.safe_path", True),
+        ("sys.flags.optimize", 0),
+        ("sys.dont_write_bytecode", True),
+    )
+
+
 def _target_importlib_verbose_line_facts(
         files, preconfig_source, initconfig_source, worker_source):
     """Bind importlib's verbose guard across every pinned source call site."""
@@ -3807,7 +3886,7 @@ def _target_condition(node, known_names=None, known_call_facts=None):
     expression = ast.unparse(node)
     for fact_expression, fact_value in known_call_facts:
         if expression == fact_expression:
-            return fact_value
+            return fact_value if type(fact_value) is bool else None
 
     def hashable_literal(item):
         if type(item) in (str, int, bool, type(None)):
@@ -3816,11 +3895,11 @@ def _target_condition(node, known_names=None, known_call_facts=None):
                 and all(hashable_literal(element) for element in item))
 
     def value(expr):
+        expression = ast.unparse(expr)
+        for fact_expression, fact_value in known_call_facts:
+            if expression == fact_expression:
+                return fact_value
         if isinstance(expr, ast.Call):
-            expression = ast.unparse(expr)
-            for fact_expression, fact_value in known_call_facts:
-                if expression == fact_expression:
-                    return fact_value
             if (isinstance(expr.func, ast.Attribute)
                     and expr.func.attr == "get" and not expr.keywords
                     and len(expr.args) in (1, 2)):
@@ -4296,7 +4375,8 @@ def _target_platform_candidate_closure(
     if (known_call_facts is not None and (
             type(known_call_facts) is not tuple
             or any(type(fact) is not tuple or len(fact) != 2
-                   or type(fact[0]) is not str or type(fact[1]) is not bool
+                   or type(fact[0]) is not str
+                   or type(fact[1]) not in (str, bool, int)
                    for fact in known_call_facts))):
         raise ValueError("CONDITION_FACTS_TYPE")
     if (known_name_facts is not None and (
@@ -6229,6 +6309,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_image_path_facts = {}
     target_warning_options_empty_for_facts = {}
     target_importlib_optimize_line_facts = {}
+    target_worker_sys_flag_facts = ()
     target_importlib_verbose_line_facts = {}
     if target_image_save_path is not None:
         if (not target_direct_python312 or not target_no_site
@@ -6245,6 +6326,10 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         with worker_source_path.open("rb") as stream:
             worker_source = stream.read(MAX_WORKER_CONTROL_SOURCE_BYTES + 1)
         if len(worker_source) <= MAX_WORKER_CONTROL_SOURCE_BYTES:
+            target_worker_sys_flag_facts = _target_worker_sys_flag_facts(
+                preconfig_c_source, initconfig_c_source, sys_module_c_source,
+                worker_source,
+            )
             target_warning_options_empty_for_facts = (
                 _target_warning_options_empty_for_facts(
                     files, preconfig_c_source, initconfig_c_source, worker_source,
@@ -6379,6 +6464,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_call_facts = tuple(sorted(
         types_descriptor_call_facts + ast_compatibility_call_facts
         + sys_getframe_call_facts + tuple(warnings_default_call_facts.items())
+        + target_worker_sys_flag_facts
         + os_fspath_call_facts + os_have_functions_call_facts
         + posix_build_call_facts + os_descriptor_support_facts
         + threading_os_alias_call_facts + sysconfig_project_base_env_facts
@@ -6661,6 +6747,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_importlib_optimize_line_facts": list(
             target_importlib_optimize_line_facts.items()
+        ),
+        "target_platform_worker_sys_flag_facts": list(
+            target_worker_sys_flag_facts
         ),
         "target_platform_importlib_verbose_line_facts": list(
             target_importlib_verbose_line_facts.items()

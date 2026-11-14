@@ -10557,4 +10557,20 @@ String oder einem vollständig bekannten String-Tupel auf gepinnten
 Plattformzeichenfolgen aus. Dynamische Präfixe und weitere Argumentformen
 bleiben unbekannt. Zwei Regressionen prüfen direkte Auswertung, Closure-Zweige
 und diese Grenze. Die fokussierte Suite besteht lokal mit 210 Tests unter
-Python 3.14; PR-Gates stehen noch aus.
+Python 3.14. Alle fünf PR-Gates einschließlich der gepinnten CPython-3.12.16-
+Offlineprüfung bestanden. PR #763 ist als Commit
+`7cb558344532d3dc4fe27ec91b390367df57bc66` integriert; `main` ist synchronisiert
+und lokale/Remote-Branches sind entfernt. Der Workflow enthält keinen
+separaten Zielscanbericht. Runtime-, P11-, Profil-, Worker-, SQL-, Lab- und
+Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: quellgebundene Worker-Startupflags
+
+Die Zielroutenanalyse bindet nun die sechs Flags `isolated`, `no_site`,
+`dont_write_bytecode`, `ignore_environment`, `safe_path` und `optimize` aus der
+festen Worker-argv, den gepinnten CPython-Konfigurationsquellen und der
+`sys.flags`-Abbildung in `sysmodule.c`. Zusätzlich ist `sys.dont_write_bytecode`
+als boolescher Alias gebunden; `sys.flags.safe_path` bleibt ebenfalls ein
+boolescher Fact. Die fokussierte Suite besteht lokal mit 212 Tests unter Python
+3.14; PR-Gates stehen noch aus. Dies sind statische Routenfacts, keine aktuelle
+Profilaufnahme oder vollständigen S15-Records.

@@ -18,6 +18,53 @@ SPEC.loader.exec_module(SUBJECT)
 
 
 class StaticImportCandidateTests(unittest.TestCase):
+    @staticmethod
+    def _worker_sys_flag_fact_fixture():
+        preconfig_source = b"case 'I': cmdline->isolated = 1;"
+        initconfig_source = (
+            b"if (config->isolated) { config->safe_path = 1; "
+            b"config->use_environment = 0; }\n"
+            b"static void config_init_defaults(PyConfig *config) {\n"
+            b"config->optimization_level = 0;\n}\n"
+            b"case 'B': config->write_bytecode = 0;\n"
+            b"case 'S': config->site_import = 0;\n"
+            b"case 'O': config->optimization_level++;\n"
+        )
+        sys_module_source = (
+            b"static PyStructSequence_Field flags_fields[] = {\n"
+            b'{"debug", "-d"}, {"inspect", "-i"}, '
+            b'{"interactive", "-i"}, {"optimize", "-O"}, '
+            b'{"dont_write_bytecode", "-B"}, {"no_user_site", "-s"}, '
+            b'{"no_site", "-S"}, {"ignore_environment", "-E"}, '
+            b'{"verbose", "-v"}, {"bytes_warning", "-b"}, '
+            b'{"quiet", "-q"}, {"hash_randomization", "-R"}, '
+            b'{"isolated", "-I"}, {"dev_mode", "-X dev"}, '
+            b'{"utf8_mode", "-X utf8"}, '
+            b'{"warn_default_encoding", "-X warn_default_encoding"}, '
+            b'{"safe_path", "-P"}, '
+            b'{"int_max_str_digits", "-X int_max_str_digits"},\n};\n'
+            b"static int set_flags_from_config(PyInterpreterState *interp, "
+            b"PyObject *flags) {\n"
+            b"SetFlag(config->optimization_level);\n"
+            b"SetFlag(!config->write_bytecode);\n"
+            b"SetFlag(!config->user_site_directory);\n"
+            b"SetFlag(!config->site_import);\n"
+            b"SetFlag(!config->use_environment);\n"
+            b"SetFlag(config->isolated);\n"
+            b"SetFlagObj(PyBool_FromLong(config->safe_path));\n"
+            b'SET_SYS("dont_write_bytecode", '
+            b"PyBool_FromLong(!config->write_bytecode));\n"
+            b"return 0;\n}\n"
+        )
+        worker_source = (
+            b"def run_import_only(ordinal, worker_nonce):\n"
+            b"    command = [sys.executable, '-I', '-S', '-B', '-c', "
+            b"_worker_source(ordinal, worker_nonce)]\n"
+            b"def _collect_process(command):\n"
+            b"    return subprocess.Popen(command)\n"
+        )
+        return preconfig_source, initconfig_source, sys_module_source, worker_source
+
     def test_archive_binding_and_limits_are_fixed(self):
         self.assertEqual(len(SUBJECT.ARCHIVE_SHA256), 64)
         self.assertEqual(SUBJECT.ARCHIVE_ROOT, "Python-3.12.16/Lib/")
@@ -751,6 +798,93 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {"importlib/_bootstrap_external.py": external_source},
                 preconfig_source, initconfig_source, env_worker,
             ), {})
+
+    def test_worker_sys_flag_facts_bind_all_six_s15_values(self):
+        preconfig, initconfig, sys_module, worker = (
+            self._worker_sys_flag_fact_fixture()
+        )
+        expected = (
+            ("sys.flags.isolated", 1),
+            ("sys.flags.no_site", 1),
+            ("sys.flags.dont_write_bytecode", 1),
+            ("sys.flags.ignore_environment", 1),
+            ("sys.flags.safe_path", True),
+            ("sys.flags.optimize", 0),
+            ("sys.dont_write_bytecode", True),
+        )
+        with patch.multiple(
+            SUBJECT,
+            PRECONFIG_C_SHA256=hashlib.sha256(preconfig).hexdigest(),
+            INITCONFIG_C_SHA256=hashlib.sha256(initconfig).hexdigest(),
+            SYS_MODULE_C_SHA256=hashlib.sha256(sys_module).hexdigest(),
+            IMPORT_USED_BYTES_PROBE_SHA256=hashlib.sha256(worker).hexdigest(),
+        ):
+            facts = SUBJECT._target_worker_sys_flag_facts(
+                preconfig, initconfig, sys_module, worker,
+            )
+            self.assertEqual(facts, expected)
+            condition = ast.parse(
+                "sys.flags.isolated == 1 and sys.flags.no_site == 1 and "
+                "sys.flags.dont_write_bytecode == 1 and "
+                "sys.flags.ignore_environment == 1 and "
+                "sys.flags.safe_path is True and sys.flags.optimize == 0 and "
+                "sys.dont_write_bytecode is True",
+                mode="eval",
+            ).body
+            self.assertIs(
+                SUBJECT._target_condition(condition, known_call_facts=facts), True,
+            )
+            untyped_condition = ast.parse(
+                "sys.flags.no_site", mode="eval",
+            ).body
+            self.assertIsNone(SUBJECT._target_condition(
+                untyped_condition, known_call_facts=facts,
+            ))
+            files = {
+                "pkg.py": (
+                    b"if not sys.flags.no_site:\n    import other_route\n"
+                    b"else:\n    import isolated_route\n"
+                ),
+                "isolated_route.py": b"VALUE = True\n",
+                "other_route.py": b"VALUE = False\n",
+            }
+            modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+                files, ("pkg",), known_call_facts=facts,
+            )
+            self.assertEqual(modules, ("isolated_route", "pkg"))
+            self.assertEqual(conditions, {"resolved": 1, "unknown": 0})
+
+    def test_worker_sys_flag_facts_fail_closed_on_route_or_source_changes(self):
+        preconfig, initconfig, sys_module, worker = (
+            self._worker_sys_flag_fact_fixture()
+        )
+        with patch.multiple(
+            SUBJECT,
+            PRECONFIG_C_SHA256=hashlib.sha256(preconfig).hexdigest(),
+            INITCONFIG_C_SHA256=hashlib.sha256(initconfig).hexdigest(),
+            SYS_MODULE_C_SHA256=hashlib.sha256(sys_module).hexdigest(),
+            IMPORT_USED_BYTES_PROBE_SHA256=hashlib.sha256(worker).hexdigest(),
+        ):
+            self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
+                preconfig, initconfig, sys_module,
+                worker.replace(b"'-I'", b"'-E'"),
+            ), ())
+            self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
+                preconfig, initconfig,
+                sys_module.replace(b"config->safe_path));", b"config->safe_path = 0));"),
+                worker,
+            ), ())
+            changed_initconfig = initconfig.replace(
+                b"case 'S': config->site_import = 0;",
+                b"case 's': config->site_import = 0;",
+            )
+            with patch.object(
+                SUBJECT, "INITCONFIG_C_SHA256",
+                hashlib.sha256(changed_initconfig).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
+                    preconfig, changed_initconfig, sys_module, worker,
+                ), ())
 
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
         self.assertEqual(
