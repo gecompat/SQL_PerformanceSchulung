@@ -3817,7 +3817,7 @@ def _target_condition(node, known_names=None, known_call_facts=None):
             return tuple(items) if all(item is not _UNKNOWN for item in items) else _UNKNOWN
         if isinstance(expr, ast.Subscript):
             container = value(expr.value)
-            if type(container) not in (tuple, str):
+            if type(container) not in (tuple, list, str):
                 return _UNKNOWN
             if isinstance(expr.slice, ast.Slice):
                 bounds = []

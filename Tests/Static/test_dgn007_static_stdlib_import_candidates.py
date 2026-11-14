@@ -2017,6 +2017,38 @@ class StaticImportCandidateTests(unittest.TestCase):
         ))
         self.assertEqual(conditions, {"resolved": 1, "unknown": 1})
 
+    def test_target_condition_indexes_complete_literal_lists(self):
+        for expression, expected in (
+                ("[3, 12, 16][0] == 3", True),
+                ("[3, 12, 16][1:] == [12, 16]", True),
+                ("[3, 12, 16][-1] == 16", True)):
+            condition = ast.parse(expression, mode="eval").body
+            self.assertIs(SUBJECT._target_condition(condition), expected)
+        for expression in ("[3, 12][index] == 3", "[3, 12][9] == 3"):
+            condition = ast.parse(expression, mode="eval").body
+            self.assertIsNone(SUBJECT._target_condition(condition))
+
+    def test_target_platform_closure_uses_complete_literal_list_indexes(self):
+        files = {
+            "pkg.py": (
+                b"if [3, 12][0] == 3:\n    import selected\n"
+                b"else:\n    import rejected\n"
+                b"if [3, 12][index] == 3:\n    import dynamic_a\n"
+                b"else:\n    import dynamic_b\n"
+            ),
+            "selected.py": b"VALUE = True\n",
+            "rejected.py": b"VALUE = False\n",
+            "dynamic_a.py": b"VALUE = 1\n",
+            "dynamic_b.py": b"VALUE = 2\n",
+        }
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+            files, ("pkg",),
+        )
+        self.assertEqual(modules, (
+            "dynamic_a", "dynamic_b", "pkg", "selected",
+        ))
+        self.assertEqual(conditions, {"resolved": 1, "unknown": 1})
+
     def test_target_platform_membership_resolves_constant_set_literals(self):
         condition = ast.parse(
             "sys.platform in {'emscripten', 'vxworks', 'wasi'}", mode="eval"
