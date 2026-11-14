@@ -9921,3 +9921,15 @@ sind entschieden, 536 unbekannt (Digest
 `fd4a86a9597d79aafead2372eb6c6d2b20b369d16862ac1d0d00b7be5cc23d16`). 149
 fokussierte Regressionen bestehen lokal. Das ist keine vollständige P11-Closure
 oder Runtimeattestation.
+
+## Fortsetzung: konstante Zielbedingungs-Sets
+
+Der Zielbedingungen-Evaluator löst jetzt auch Set-Literale aus bekannten
+Konstanten auf; dynamische Set-Elemente bleiben unbekannt. Damit ist im
+`sysconfig`-Aufrufscan `sys.platform in {'emscripten', 'vxworks', 'wasi'}` unter
+dem bestehenden Zielplattformvertrag entschieden. Der `CANDIDATES_ONLY`-
+Vorschnitt bleibt 60 Module, 319 Kanten und 175 Funktionen; 54 Bedingungen sind
+entschieden, 535 unbekannt (Digest
+`213ec073aa4c1b35f1c5da0fa9dd63baaabd10ba1a651277a61d9aef906f2f10`). 150
+fokussierte Regressionen bestehen lokal. Keine vollständige P11-Closure oder
+Runtimeattestation.
