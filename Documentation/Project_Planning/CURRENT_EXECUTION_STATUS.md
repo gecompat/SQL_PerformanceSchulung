@@ -10476,5 +10476,18 @@ Der statische Scanner leitet `__debug__ == True` jetzt nur aus dem bereits
 quellgebundenen Nachweis `sys.flags.optimize == 0` für die feste Worker-argv
 ab. Ohne diesen Nachweis werden weder Debug- noch Optimierungszweige
 vereinfacht. Zwei Regressionen prüfen die Fact-Grenze und den Closure-Zweig.
-Die fokussierte Suite besteht lokal mit 198 Tests unter Python 3.14; PR-Gates
-stehen noch aus.
+Die fokussierte Suite besteht lokal mit 198 Tests unter Python 3.14. Alle fünf
+PR-Gates einschließlich der gepinnten CPython-3.12.16-Offlineprüfung bestanden.
+PR #757 ist als Commit `aa182abe50858b62b290e82dcacfe82c6abd031b` integriert;
+`main` ist synchronisiert und lokale/Remote-Branches sind entfernt. Der
+Workflow enthält keinen separaten Zielscanbericht. Runtime-, P11-, Profil-,
+Worker-, SQL-, Lab- und Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: Indizes und Slices fester Plattformzeichenfolgen
+
+Die Zielbedingungsauswertung kann nun zusätzlich konstante Indizes und Slices
+auf den bereits gebundenen Plattformzeichenfolgen wie `sys.platform` und
+`os.name` auswerten. Dynamische Indizes/Grenzen und außerhalb liegende
+Einzelindizes bleiben unbekannt. Zwei Regressionen prüfen die direkten Facts
+und Closure-Zweige. Die fokussierte Suite besteht lokal mit 200 Tests unter
+Python 3.14; PR-Gates stehen noch aus.
