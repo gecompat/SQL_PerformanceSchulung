@@ -4711,6 +4711,11 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
                                         unknown_conditions=None):
     if type(files) is not dict or type(roots) is not tuple:
         raise ValueError("SOURCE_INPUT_TYPE")
+    if (trusted_empty_for_facts is not None
+            and (type(trusted_empty_for_facts) is not dict
+                 or any(type(module) is not str or type(facts) is not dict
+                        for module, facts in trusted_empty_for_facts.items()))):
+        raise ValueError("UNTRUSTED_EMPTY_FOR_FACT")
     if any(type(name) is not str for name in roots) or len(set(roots)) != len(roots):
         raise ValueError("SOURCE_ROOTS")
     lexical_modules, _, _ = _candidate_closure(files, roots)

@@ -549,6 +549,10 @@ class StaticImportCandidateTests(unittest.TestCase):
                 files, roots=("entry",),
                 trusted_empty_for_facts={"entry": {loop_line: "other"}},
             )
+        with self.assertRaisesRegex(ValueError, "UNTRUSTED_EMPTY_FOR_FACT"):
+            SUBJECT._module_init_call_candidate_closure(
+                files, roots=("entry",), trusted_empty_for_facts=[],
+            )
 
     def test_warning_options_empty_fact_requires_pinned_sources_and_route(self):
         warnings_source = (
