@@ -2080,6 +2080,10 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"load(formatted_fstring_name)\n"
                 b"load(f\"pkg.{'inline_formatted_fstring'}\")\n"
                 b"load(f\"pkg.{'inline_string_converted_fstring'!s}\")\n"
+                b"load(f\"{f'pkg.inline_nested_fstring'}\")\n"
+                b"nested_fstring_name = f\"{f'pkg.nested_fstring_name'}\"\n"
+                b"load(nested_fstring_name)\n"
+                b"load(f\"{f'pkg.{runtime_name}'}\")\n"
                 b"load(f\"pkg.{'repr_conversion_not_supported'!r}\")\n"
                 b"load(f\"pkg.{'format_spec_not_supported':>1}\")\n"
                 b"dynamic_fstring_name = f'pkg.{runtime_name}'\n"
@@ -2106,6 +2110,8 @@ class StaticImportCandidateTests(unittest.TestCase):
             "pkg/formatted_fstring_name.py": b"VALUE = 12\n",
             "pkg/inline_formatted_fstring.py": b"VALUE = 13\n",
             "pkg/inline_string_converted_fstring.py": b"VALUE = 14\n",
+            "pkg/inline_nested_fstring.py": b"VALUE = 15\n",
+            "pkg/nested_fstring_name.py": b"VALUE = 16\n",
         }
         modules, edges, _ = SUBJECT._candidate_closure(files, ("entry",))
         self.assertEqual(
@@ -2116,11 +2122,12 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "pkg.builtins_attr", "pkg.concat_name",
                 "pkg.formatted_fstring_name", "pkg.fstring_name",
                 "pkg.inline_concat", "pkg.inline_formatted_fstring",
-                "pkg.inline_fstring", "pkg.inline_string_converted_fstring",
-                "pkg.literal_name", "pkg.module_alias",
+                "pkg.inline_fstring", "pkg.inline_nested_fstring",
+                "pkg.inline_string_converted_fstring", "pkg.literal_name",
+                "pkg.module_alias", "pkg.nested_fstring_name",
             ),
         )
-        self.assertEqual(edges, 14)
+        self.assertEqual(edges, 16)
 
     def test_import_from_resolves_existing_submodule_conservatively(self):
         files = {

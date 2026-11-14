@@ -706,9 +706,11 @@ def _import_names(tree, module, path):
                 elif (isinstance(value, ast.FormattedValue)
                       and value.conversion in (-1, ord("s"))
                       and value.format_spec is None
-                      and isinstance(value.value, ast.Constant)
-                      and type(value.value.value) is str):
-                    parts.append(value.value.value)
+                      and isinstance(value.value, (ast.Constant, ast.JoinedStr))):
+                    formatted_value = literal_string(value.value)
+                    if formatted_value is None:
+                        return None
+                    parts.append(formatted_value)
                 else:
                     return None
             return "".join(parts)
