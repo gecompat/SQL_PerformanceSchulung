@@ -9294,3 +9294,9 @@ Funktionsaliaskette bestehen; berechnete Namen bleiben außen vor. Der AST-weite
 Kandidatenscan attestiert keine Scope-/Rebinding- oder Ausführungssemantik.
 Fokussiert 105/105; CPython-Closure 268/2.438 und Modulstartfolger 93/578/534,
 jeweils unverändert mit den oben genannten Digests.
+
+Konstante dynamische Importargumente werden zusätzlich aus einfachen
+Stringkonstanten in Namenszuweisungen gebunden. Relative Stringwerte und
+berechnete Namen bleiben unaufgelöst; die AST-weite Regel bewertet weder Scope
+noch Kontrollfluss oder Rebinding. Die synthetische Gegenprobe besteht,
+fokussiert 105/105, Archivwerte und Digests unverändert.

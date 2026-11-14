@@ -694,6 +694,22 @@ def _module_path(module, files):
 
 def _import_names(tree, module, path):
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
+    literal_name_aliases = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            targets = node.targets
+        elif isinstance(node, ast.AnnAssign):
+            targets = (node.target,)
+        else:
+            continue
+        if not (isinstance(node.value, ast.Constant)
+                and type(node.value.value) is str
+                and node.value.value and not node.value.value.startswith(".")):
+            continue
+        for target in targets:
+            if isinstance(target, ast.Name):
+                literal_name_aliases.setdefault(target.id, set()).add(node.value.value)
+
     importlib_module_aliases = {"importlib"}
     import_module_aliases = set()
     builtins_module_aliases = {"builtins"}
@@ -769,25 +785,33 @@ def _import_names(tree, module, path):
                 for alias in node.names:
                     if alias.name != "*":
                         yield base + "." + alias.name
-        elif (isinstance(node, ast.Call) and node.args
-              and isinstance(node.args[0], ast.Constant)
-              and type(node.args[0].value) is str
-              and node.args[0].value and not node.args[0].value.startswith(".")):
+        elif isinstance(node, ast.Call) and node.args:
+            if (isinstance(node.args[0], ast.Constant)
+                    and type(node.args[0].value) is str
+                    and node.args[0].value
+                    and not node.args[0].value.startswith(".")):
+                import_names = (node.args[0].value,)
+            elif isinstance(node.args[0], ast.Name):
+                import_names = tuple(sorted(literal_name_aliases.get(node.args[0].id, ())))
+            else:
+                import_names = ()
+            if not import_names:
+                continue
             if isinstance(node.func, ast.Name) and node.func.id in builtin_import_aliases:
-                yield node.args[0].value
+                yield from import_names
             elif (isinstance(node.func, ast.Attribute)
                   and node.func.attr == "import_module"
                   and isinstance(node.func.value, ast.Name)
                   and node.func.value.id in importlib_module_aliases):
-                yield node.args[0].value
+                yield from import_names
             elif (isinstance(node.func, ast.Name)
                   and node.func.id in import_module_aliases):
-                yield node.args[0].value
+                yield from import_names
             elif (isinstance(node.func, ast.Attribute)
                   and node.func.attr == "__import__"
                   and isinstance(node.func.value, ast.Name)
                   and node.func.value.id in builtins_module_aliases):
-                yield node.args[0].value
+                yield from import_names
 
 
 _KNOWN_BUILTIN_NAMES = object()
