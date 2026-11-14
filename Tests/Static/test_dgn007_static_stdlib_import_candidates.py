@@ -873,6 +873,47 @@ class StaticImportCandidateTests(unittest.TestCase):
                     {"sysconfig.py": rebound}
                 ))
 
+    def test_os_posix_star_import_cannot_replace_platform_name(self):
+        os_source = (
+            b"import sys\n_names = sys.builtin_module_names\n"
+            b"if 'posix' in _names:\n    name = 'posix'\n"
+            b"    from posix import *\n"
+            b"elif 'nt' in _names:\n    name = 'nt'\n"
+        )
+        posix_source = (
+            b"static PyMemberDef DirEntry_members[] = {\n"
+            b'{"name", T_OBJECT_EX, READONLY};\n'
+            b"static PyMethodDef posix_methods[] = {\n};\n"
+            b"static struct PyModuleDef posixmodule = {.m_methods = posix_methods};\n"
+        )
+        clinic_source = (
+            b'static const char * const _keywords[] = {"path", "name", NULL};\n'
+            b'static _PyArg_Parser _parser = {.keywords = _keywords, '
+            b'.fname = "pathconf"};\n'
+            b'static const char * const _keywords[] = {"name", "flags", NULL};\n'
+            b'static _PyArg_Parser _parser = {.keywords = _keywords, '
+            b'.fname = "memfd_create"};\n'
+        )
+        patches = (
+            patch.object(SUBJECT, "OS_SOURCE_SHA256", hashlib.sha256(os_source).hexdigest()),
+            patch.object(SUBJECT, "POSIX_MODULE_C_SHA256", hashlib.sha256(posix_source).hexdigest()),
+            patch.object(SUBJECT, "POSIX_MODULE_CLINIC_SHA256", hashlib.sha256(clinic_source).hexdigest()),
+        )
+        with patches[0], patches[1], patches[2]:
+            facts = SUBJECT._target_os_posix_name_facts(
+                {"os.py": os_source}, posix_source, clinic_source
+            )
+            self.assertEqual(facts, {"name": "posix"})
+            self.assertIs(SUBJECT._target_condition(
+                ast.parse("name == 'nt'", mode="eval").body,
+                known_names=facts,
+            ), False)
+            self.assertEqual(SUBJECT._target_os_posix_name_facts(
+                {"os.py": os_source},
+                posix_source + b'PyModule_AddObjectRef(m, "name", value);\n',
+                clinic_source,
+            ), {})
+
     def test_importlib_windows_name_fact_requires_digest_and_direct_binding(self):
         source = (
             b"import sys\n"

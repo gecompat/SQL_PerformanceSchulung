@@ -5734,3 +5734,18 @@ Modulname erhalten und die Wache ist falsch.
 Der aktualisierte Scan bleibt `CANDIDATES_ONLY` bei 56/278; 23 Bedingungen
 sind entschieden und 19 unbekannt. Der Inventardigest lautet
 `00096a01ad582d0854e22d65d1e308e9ddc6dc28ba0726563bcb681f7ed76214`.
+
+### Fortsetzung: lokaler `os.name`-Selector nach `posix`-Star-Import
+
+Die digestgebundene `Lib/os.py`-Quelle setzt im durch Builtin-Mitgliedschaft
+ausgewählten POSIX-Zweig `name = 'posix'` vor dem Star-Import. Die ebenfalls
+digestgebundenen `Modules/posixmodule.c`- und Clinic-Quellen belegen den
+Exportvertrag: kein `__all__`, keine Modulvariable `name`; das einzige C-
+Vorkommen bezeichnet `DirEntry.name`, die beiden Clinic-Vorkommen sind
+Schlüsselwortparameter von `pathconf` und `memfd_create`. Damit bleibt der
+lokale Selektor nach dem Star-Import `posix`, `supports_bytes_environ` ist
+wahr und die spätere `name == 'nt'`-Wache falsch.
+
+Der aktualisierte Scan bleibt `CANDIDATES_ONLY` bei 56/278; 24 Bedingungen
+sind entschieden und 18 unbekannt. Der Inventardigest ist
+`0f86fe8fafa0e2ad8454a6286995d26cd03a1de729e190eee9b2cec7c90a3744`.
