@@ -5409,3 +5409,19 @@ Die synthetische Gegenprobe prüft beide möglichen Methodenpfade; der fokussier
 Die einfache Factoryanalyse akzeptiert nun zusätzlich den direkten lokalen Zwischenschritt `instanz = Modul.Klasse()` mit anschließendem `return instanz`; einfache Name-Aliasbindungen dieser Instanz bleiben ebenfalls gebunden. Import- und Docstringanweisungen sind die einzigen weiteren vorherigen Statements. Nicht unterstützte Zuweisungen, Rebinding und komplexe Rückgabepfade werden abgelehnt.
 
 Eine synthetische Gegenprobe verfolgt den importierten Klassenmethodenpfad; der fokussierte Satz besteht 104/104. Der CPython-Archivscan bleibt bei 93/578/534 und unverändertem Modulstartdigest. Das bleibt eine begrenzte Kandidatenverbesserung ohne vollständige P11-Aussage.
+
+### Fortsetzung: Aliase konstanter dynamischer Imports
+
+Die statische Quellclosure erkennt konstante Modulnamen nun auch über direkte
+Importaliase von `importlib.import_module` und `builtins.__import__`, über
+Aliase der Module `importlib`/`builtins` sowie über `builtins.__import__` als
+Attributaufruf. Berechnete und relative Namen bleiben unaufgelöst. Eine
+synthetische Gegenprobe deckt alle vier Aliasformen ab und bestätigt, dass ein
+Variablenname keinen Kandidaten erzeugt; der fokussierte Satz besteht 105/105.
+Der CPython-3.12.16-Archivscan bleibt unverändert bei 268 Quellmodulen,
+2.438 Kanten und Digest
+`700ace82b2c5630fc6ac039bb5bed0d788a46f6f8bcd1efba3fc0afb97068b6d`; der
+separate Modulstartscan bleibt bei 93/578/534 und Digest
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
+Das sind weiterhin statische Kandidaten, keine vollständige P11-Closure oder
+Runtimeattestation.

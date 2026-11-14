@@ -694,6 +694,30 @@ def _module_path(module, files):
 
 def _import_names(tree, module, path):
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
+    importlib_module_aliases = {"importlib"}
+    import_module_aliases = set()
+    builtins_module_aliases = {"builtins"}
+    builtin_import_aliases = {"__import__"}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                binding = alias.asname or alias.name.partition(".")[0]
+                if alias.name == "importlib":
+                    importlib_module_aliases.add(binding)
+                elif alias.name == "builtins":
+                    builtins_module_aliases.add(binding)
+                elif alias.name == "importlib.import_module":
+                    import_module_aliases.add(binding)
+                elif alias.name == "builtins.__import__":
+                    builtin_import_aliases.add(binding)
+        elif isinstance(node, ast.ImportFrom):
+            for alias in node.names:
+                binding = alias.asname or alias.name
+                if node.module == "importlib" and alias.name == "import_module":
+                    import_module_aliases.add(binding)
+                elif node.module == "builtins" and alias.name == "__import__":
+                    builtin_import_aliases.add(binding)
+
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
@@ -713,12 +737,20 @@ def _import_names(tree, module, path):
               and isinstance(node.args[0], ast.Constant)
               and type(node.args[0].value) is str
               and node.args[0].value and not node.args[0].value.startswith(".")):
-            if isinstance(node.func, ast.Name) and node.func.id == "__import__":
+            if isinstance(node.func, ast.Name) and node.func.id in builtin_import_aliases:
                 yield node.args[0].value
             elif (isinstance(node.func, ast.Attribute)
                   and node.func.attr == "import_module"
                   and isinstance(node.func.value, ast.Name)
-                  and node.func.value.id == "importlib"):
+                  and node.func.value.id in importlib_module_aliases):
+                yield node.args[0].value
+            elif (isinstance(node.func, ast.Name)
+                  and node.func.id in import_module_aliases):
+                yield node.args[0].value
+            elif (isinstance(node.func, ast.Attribute)
+                  and node.func.attr == "__import__"
+                  and isinstance(node.func.value, ast.Name)
+                  and node.func.value.id in builtins_module_aliases):
                 yield node.args[0].value
 
 
