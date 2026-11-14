@@ -9286,3 +9286,11 @@ unverändert 268/2.438, Digest
 Modulstartfolger 93/578/534, Digest
 `84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
 Statische Kandidaten begründen keine vollständige P11- oder Runtimeaussage.
+
+Dieselbe Aliasregel verfolgt zusätzlich einfache Funktionszuweisungen und
+Aliasverkettungen aus `Assign`-/`AnnAssign`-Statements. Gegenproben für
+`importlib.import_module`, `builtins.__import__` und eine zweistufige
+Funktionsaliaskette bestehen; berechnete Namen bleiben außen vor. Der AST-weite
+Kandidatenscan attestiert keine Scope-/Rebinding- oder Ausführungssemantik.
+Fokussiert 105/105; CPython-Closure 268/2.438 und Modulstartfolger 93/578/534,
+jeweils unverändert mit den oben genannten Digests.

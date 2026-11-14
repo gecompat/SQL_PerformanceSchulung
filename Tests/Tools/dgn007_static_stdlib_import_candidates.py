@@ -718,6 +718,42 @@ def _import_names(tree, module, path):
                 elif node.module == "builtins" and alias.name == "__import__":
                     builtin_import_aliases.add(binding)
 
+    changed = True
+    while changed:
+        changed = False
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign):
+                targets = node.targets
+            elif isinstance(node, ast.AnnAssign):
+                targets = (node.target,)
+            else:
+                continue
+            names = tuple(target.id for target in targets if isinstance(target, ast.Name))
+            value = node.value
+            if isinstance(value, ast.Name):
+                if value.id in import_module_aliases:
+                    aliases, source = import_module_aliases, value.id
+                elif value.id in builtin_import_aliases:
+                    aliases, source = builtin_import_aliases, value.id
+                else:
+                    continue
+            elif (isinstance(value, ast.Attribute)
+                  and isinstance(value.value, ast.Name)
+                  and value.attr == "import_module"
+                  and value.value.id in importlib_module_aliases):
+                aliases, source = import_module_aliases, value.attr
+            elif (isinstance(value, ast.Attribute)
+                  and isinstance(value.value, ast.Name)
+                  and value.attr == "__import__"
+                  and value.value.id in builtins_module_aliases):
+                aliases, source = builtin_import_aliases, value.attr
+            else:
+                continue
+            for name in names:
+                if name not in aliases:
+                    aliases.add(name)
+                    changed = True
+
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:

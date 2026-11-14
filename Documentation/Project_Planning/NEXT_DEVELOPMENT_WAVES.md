@@ -1587,3 +1587,7 @@ Konstante dynamische Importnamen werden zusätzlich über direkte `importlib`-
 und `builtins`-Importaliase verfolgt. Vier synthetische Aliasformen bestehen;
 berechnete Namen bleiben ausgeschlossen. Fokussiert 105/105, Archivclosure
 268/2.438 und Modulstartkandidaten 93/578/534 mit unveränderten Digests.
+
+Einfache Zuweisungsaliase und Namensketten zu diesen Importfunktionen sind
+ebenfalls statisch gebunden. 105/105 fokussierte Tests, Archivkennzahlen
+unverändert; Scope und Rebinding bleiben unbewertet.
