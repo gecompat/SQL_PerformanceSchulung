@@ -879,14 +879,22 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"def _exists(name):\n    return name in globals()\n"
             b"if 'posix' in _names:\n    name = 'posix'\n"
             b"    from posix import *\n"
+            b"    try:\n        from posix import _have_functions\n"
+            b"    except ImportError:\n        pass\n"
             b"elif 'nt' in _names:\n    name = 'nt'\n"
             b"if not _exists('fspath'):\n    pass\n"
+            b"if _exists('_have_functions'):\n    pass\n"
         )
         posix_source = (
             b"static PyMemberDef DirEntry_members[] = {\n"
             b'{"name", T_OBJECT_EX, READONLY};\n'
             b"static PyMethodDef posix_methods[] = {\nOS_FSPATH_METHODDEF\n};\n"
-            b"static struct PyModuleDef posixmodule = {.m_methods = posix_methods};\n"
+            b"static int posixmodule_exec(PyObject *m) {\n"
+            b'    return _PyModule_Add(m, "_have_functions", list);\n}\n'
+            b"static struct PyModuleDef_Slot posixmodile_slots[] = {\n"
+            b"    {Py_mod_exec, posixmodule_exec},\n};\n"
+            b"static struct PyModuleDef posixmodule = {.m_methods = posix_methods, "
+            b".m_slots = posixmodile_slots};\n"
         )
         clinic_source = (
             b'static const char * const _keywords[] = {"path", "name", NULL};\n'
@@ -914,6 +922,17 @@ class StaticImportCandidateTests(unittest.TestCase):
             self.assertEqual(SUBJECT._target_os_fspath_call_facts(
                 {"os.py": os_source}, posix_source, clinic_source
             ), (("_exists('fspath')", True),))
+            self.assertEqual(SUBJECT._target_os_have_functions_call_facts(
+                {"os.py": os_source}, posix_source, clinic_source
+            ), (("_exists('_have_functions')", True),))
+            self.assertEqual(SUBJECT._target_os_have_functions_call_facts(
+                {"os.py": os_source},
+                posix_source.replace(
+                    b'return _PyModule_Add(m, "_have_functions", list);',
+                    b'return 0;',
+                ),
+                clinic_source,
+            ), ())
             self.assertEqual(SUBJECT._target_os_posix_name_facts(
                 {"os.py": os_source},
                 posix_source + b'PyModule_AddObjectRef(m, "name", value);\n',

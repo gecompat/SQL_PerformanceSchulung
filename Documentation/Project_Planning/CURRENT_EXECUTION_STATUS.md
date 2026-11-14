@@ -9642,3 +9642,13 @@ Bedingungen sind entschieden, 20 unbekannt. Der neue Inventardigest lautet
 `529e15a5e908300262cc64d06351f2825c863abfe6a370a3c7919e4a95d30877`. Der
 fokussierte Satz besteht 123/123 lokal. Vollständige Offline-CI folgt im
 Pull Request. Runtime-/P11-Auswahl und operative Inventur bleiben offen.
+
+### Fortsetzung: `posix._have_functions` beim Modulstart
+
+Die digestgebundenen `posixmodule.c`- und `os.py`-Quellen belegen, dass
+`posixmodule_exec` den direkt von `os.py` importierten Namen
+`_have_functions` beim Modulstart bereitstellt. Dadurch ist die zugehörige
+`_exists`-Wache entschieden. Der Zielplattform-Scan bleibt
+`CANDIDATES_ONLY` bei 56 Kandidaten und 278 Kanten; 26 Bedingungen sind
+entschieden und 16 unbekannt. Der Unbekannt-Bedingungsdigest lautet
+`375a88090d5aad18ca6359ef2753863ad9bb238180110bbe3536e381def7decc`.

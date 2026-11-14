@@ -5762,3 +5762,15 @@ den Python-Fallback und `not _exists('fspath')` ist falsch.
 Der aktualisierte Scan bleibt `CANDIDATES_ONLY` bei 56/278; 25 Bedingungen
 sind entschieden und 17 unbekannt. Der Inventardigest lautet
 `46488d66b4ffd341a6227e1c05994d052493dcd8ad7da424418bf4828a99a10c`.
+
+### Fortsetzung: `posix._have_functions` beim Modulstart
+
+Die digestgebundenen `posixmodule.c`- und `os.py`-Quellen belegen nun auch
+`_exists('_have_functions')`: `os.py` importiert den Namen direkt aus `posix`,
+und dessen registrierter `posixmodule_exec` veröffentlicht ihn beim
+Modulstart mit `_PyModule_Add`. Der Scanner entscheidet damit eine weitere
+Wache, ohne Laufzeit-Feature-Makros anderer Funktionen zu verallgemeinern.
+Der Zielplattform-Scan bleibt `CANDIDATES_ONLY` bei 56 Kandidaten und 278
+Kanten; 26 Bedingungen sind entschieden und 16 unbekannt. Der Digest der
+Unbekannt-Bedingungen lautet
+`375a88090d5aad18ca6359ef2753863ad9bb238180110bbe3536e381def7decc`.
