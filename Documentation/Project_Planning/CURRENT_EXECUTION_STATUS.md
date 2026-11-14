@@ -9268,3 +9268,7 @@ Die statische Quellclosure bezieht verfügbare Paketeltern und konstante Modulna
 ## Fortsetzung: DGN-007 direkte Factory-Rückgaben
 
 Der Importfolger verfolgt eine einzige direkte Top-Level-Form: abschließendes `return Klasse(...)` nach Importen/Docstring, einschließlich einfacher Aliasbindung und Methodenaufruf. Bedingte/dynamische Rückgaben bleiben unaufgelöst. Zwei synthetische Gegenproben; fokussiert 103/103 PASS. Der CPython-Archivscan bleibt 268/2.438 in der Quellclosure und 93/578/534 im Modulstartfolger mit unveränderten jeweiligen Digests. Keine vollständige P11- oder Runtimeattestation.
+
+## Fortsetzung: DGN-007 einfache bedingte Factoryrückgaben
+
+Direkte Klassenreturns in eng begrenzten `if`-/`else`-Pfaden werden jetzt beidseitig als Kandidaten verfolgt. Komplexere oder dynamische Kontrollflüsse bleiben offen. Fokussiert 103/103 PASS; Archivscan unverändert 268 Quellmodule und 93/578/534 Modulstartkandidaten mit den bestehenden Digests.

@@ -1194,26 +1194,63 @@ def _top_level_class_base_index(tree):
 
 def _top_level_factory_constructor_index(tree):
     factories = {}
+
+    def simple_return_call(statement):
+        if not isinstance(statement, ast.Return):
+            return None
+        returned = statement.value
+        if (not isinstance(returned, ast.Call) or returned.keywords
+                or not isinstance(returned.func, (ast.Name, ast.Attribute))):
+            return None
+        return ast.unparse(returned.func)
+
+    def inert_prefix(statement):
+        return (isinstance(statement, (ast.Import, ast.ImportFrom))
+                or (isinstance(statement, ast.Expr)
+                    and isinstance(statement.value, ast.Constant)
+                    and type(statement.value.value) is str))
+
     for node in tree.body:
         if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             continue
-        if not node.body or not isinstance(node.body[-1], ast.Return):
+        if not node.body:
             continue
-        if any(
-            not isinstance(statement, (ast.Import, ast.ImportFrom))
-            and not (isinstance(statement, ast.Expr)
-                     and isinstance(statement.value, ast.Constant)
-                     and type(statement.value.value) is str)
-            for statement in node.body[:-1]
-        ):
+        returns = []
+        prefix = node.body[:-1]
+        if isinstance(node.body[-1], ast.Return):
+            terminal = simple_return_call(node.body[-1])
+            if terminal is None:
+                continue
+            returns.append(terminal)
+            for statement in prefix:
+                if inert_prefix(statement):
+                    continue
+                if (isinstance(statement, ast.If) and not statement.orelse
+                        and len(statement.body) == 1):
+                    branch = simple_return_call(statement.body[0])
+                    if branch is None:
+                        returns = []
+                        break
+                    returns.append(branch)
+                    continue
+                returns = []
+                break
+        elif isinstance(node.body[-1], ast.If) and node.body[-1].orelse:
+            branch = node.body[-1]
+            if any(not inert_prefix(statement) for statement in prefix):
+                continue
+            if len(branch.body) != 1 or len(branch.orelse) != 1:
+                continue
+            body_return = simple_return_call(branch.body[0])
+            else_return = simple_return_call(branch.orelse[0])
+            if body_return is None or else_return is None:
+                continue
+            returns.extend((body_return, else_return))
+        else:
             continue
-        returned = node.body[-1].value
-        if (not isinstance(returned, ast.Call) or returned.keywords
-                or not isinstance(returned.func, (ast.Name, ast.Attribute))):
+        if not returns:
             continue
-        if any(isinstance(statement, ast.Return) for statement in node.body[:-1]):
-            continue
-        factories[node.name] = (ast.unparse(returned.func),)
+        factories[node.name] = tuple(dict.fromkeys(returns))
     return factories
 
 

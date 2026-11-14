@@ -1320,7 +1320,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("pkg", "pkg.helper", "pkg.method_leaf"))
         self.assertEqual(function_count, 2)
 
-    def test_conditional_factory_return_is_not_guessed(self):
+    def test_simple_conditional_factory_returns_keep_both_method_candidates(self):
         files = {
             "pkg/__init__.py": (
                 b"def make(flag):\n"
@@ -1333,10 +1333,11 @@ class StaticImportCandidateTests(unittest.TestCase):
             "pkg/worker_leaf.py": b"VALUE = 1\n",
             "pkg/other_leaf.py": b"VALUE = 2\n",
         }
-        modules, _, _, _, _ = SUBJECT._module_init_call_candidate_closure(
+        modules, _, function_count, _, _ = SUBJECT._module_init_call_candidate_closure(
             files, ("pkg",)
         )
-        self.assertEqual(modules, ("pkg",))
+        self.assertEqual(modules, ("pkg", "pkg.other_leaf", "pkg.worker_leaf"))
+        self.assertEqual(function_count, 3)
 
     def test_same_scope_local_class_instance_method_is_followed(self):
         files = {
