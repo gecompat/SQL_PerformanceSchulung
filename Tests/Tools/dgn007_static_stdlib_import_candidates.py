@@ -1477,6 +1477,52 @@ def _target_isolated_worker_route_valid(
             and not any(keyword.arg == "env" for keyword in popen_calls[0].keywords))
 
 
+def _target_importlib_verbose_line_facts(
+        files, preconfig_source, initconfig_source, worker_source):
+    """Bind importlib's verbose guard false for the pinned unverbose child route."""
+    source = files.get("importlib/_bootstrap.py")
+    if (type(source) is not bytes or len(source) > MAX_SOURCE_BYTES
+            or hashlib.sha256(source).hexdigest() != IMPORTLIB_BOOTSTRAP_SOURCE_SHA256
+            or not _target_isolated_worker_route_valid(
+                preconfig_source, initconfig_source, worker_source,
+            )):
+        return {}
+    initconfig_text = initconfig_source.decode("utf-8")
+    if (not re.search(r"config->verbose\s*=\s*0;", initconfig_text)
+            or not re.search(r"case 'v':\s*config->verbose\+\+;", initconfig_text)
+            or not re.search(
+                r"config_read_env_vars\(PyConfig \*config\).*?"
+                r"int use_env = config->use_environment;.*?"
+                r"_Py_get_env_flag\(use_env, &config->verbose,\s*"
+                r"\"PYTHONVERBOSE\"\);", initconfig_text, re.DOTALL,
+            )):
+        return {}
+    try:
+        tree = ast.parse(source, filename="importlib/_bootstrap.py")
+    except SyntaxError:
+        return {}
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef)
+                 and node.name == "_verbose_message"]
+    calls = [node for node in ast.walk(tree)
+             if isinstance(node, ast.Call)
+             and isinstance(node.func, ast.Name)
+             and node.func.id == "_verbose_message"]
+    guards = [node for node in ast.walk(functions[0])
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "sys.flags.verbose >= verbosity"] if len(functions) == 1 else []
+    if (len(functions) != 1 or len(calls) != 1 or len(guards) != 1
+            or len(calls[0].args) != 3 or calls[0].keywords
+            or len(functions[0].args.kwonlyargs) != 1
+            or functions[0].args.kwonlyargs[0].arg != "verbosity"
+            or len(functions[0].args.kw_defaults) != 1
+            or not isinstance(functions[0].args.kw_defaults[0], ast.Constant)
+            or type(functions[0].args.kw_defaults[0].value) is not int
+            or functions[0].args.kw_defaults[0].value < 1):
+        return {}
+    return {guards[0].lineno: False}
+
+
 def _target_warning_options_empty_for_facts(
         files, preconfig_source, initconfig_source, worker_source):
     """Bind an empty warnings option loop to the pinned isolated worker argv."""
@@ -4941,6 +4987,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_image_path_facts = {}
     target_warning_options_empty_for_facts = {}
     target_importlib_optimize_line_facts = {}
+    target_importlib_verbose_line_facts = {}
     if target_image_save_path is not None:
         if (not target_direct_python312 or not target_no_site
                 or not target_no_project_base_override
@@ -4963,6 +5010,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             )
             target_importlib_optimize_line_facts = (
                 _target_importlib_optimize_line_facts(
+                    files, preconfig_c_source, initconfig_c_source, worker_source,
+                )
+            )
+            target_importlib_verbose_line_facts = (
+                _target_importlib_verbose_line_facts(
                     files, preconfig_c_source, initconfig_c_source, worker_source,
                 )
             )
@@ -5142,8 +5194,10 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "codecs": codecs_false_guard_line_facts,
             "pickle": pickle_buffer_line_facts,
             "importlib._bootstrap_external": target_importlib_optimize_line_facts,
+            "importlib._bootstrap": target_importlib_verbose_line_facts,
         } if (os_createenviron_line_facts or codecs_false_guard_line_facts
-              or pickle_buffer_line_facts or target_importlib_optimize_line_facts) else {},
+              or pickle_buffer_line_facts or target_importlib_optimize_line_facts
+              or target_importlib_verbose_line_facts) else {},
         trusted_empty_for_facts={
             "warnings": target_warning_options_empty_for_facts.get("warnings", {}),
         } if target_warning_options_empty_for_facts else {},
@@ -5336,6 +5390,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_importlib_optimize_line_facts": list(
             target_importlib_optimize_line_facts.items()
+        ),
+        "target_platform_importlib_verbose_line_facts": list(
+            target_importlib_verbose_line_facts.items()
         ),
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,

@@ -654,6 +654,54 @@ class StaticImportCandidateTests(unittest.TestCase):
                 preconfig_source, initconfig_source, env_worker,
             ), {})
 
+    def test_importlib_verbose_fact_requires_positive_callsite_verbosity(self):
+        preconfig_source = b"case 'I': cmdline->isolated = 1;"
+        initconfig_source = (
+            b"if (config->isolated) { config->use_environment = 0; }\n"
+            b"static void config_init_defaults(void) { config->verbose = 0; }\n"
+            b"case 'v': config->verbose++;\n"
+            b"static PyStatus config_read_env_vars(PyConfig *config) { "
+            b"int use_env = config->use_environment; "
+            b"_Py_get_env_flag(use_env, &config->verbose, \"PYTHONVERBOSE\"); }"
+        )
+        worker_source = (
+            b"def run_import_only(ordinal, worker_nonce):\n"
+            b"    command = [sys.executable, '-I', '-S', '-B', '-c', "
+            b"_worker_source(ordinal, worker_nonce)]\n"
+            b"def _collect_process(command):\n"
+            b"    return subprocess.Popen(command)\n"
+        )
+        bootstrap_source = (
+            b"def _verbose_message(message, *args, verbosity=1):\n"
+            b"    if sys.flags.verbose >= verbosity:\n"
+            b"        print(message.format(*args), file=sys.stderr)\n"
+            b"_verbose_message('import {!r}', module, loader)\n"
+        )
+        with patch.multiple(
+            SUBJECT,
+            PRECONFIG_C_SHA256=hashlib.sha256(preconfig_source).hexdigest(),
+            INITCONFIG_C_SHA256=hashlib.sha256(initconfig_source).hexdigest(),
+            IMPORT_USED_BYTES_PROBE_SHA256=hashlib.sha256(worker_source).hexdigest(),
+            IMPORTLIB_BOOTSTRAP_SOURCE_SHA256=hashlib.sha256(bootstrap_source).hexdigest(),
+        ):
+            fact = SUBJECT._target_importlib_verbose_line_facts(
+                {"importlib/_bootstrap.py": bootstrap_source},
+                preconfig_source, initconfig_source, worker_source,
+            )
+            self.assertEqual(fact, {2: False})
+            unsafe_source = bootstrap_source.replace(
+                b"_verbose_message('import {!r}', module, loader)",
+                b"_verbose_message('import {!r}', module, loader, verbosity=0)",
+            )
+            with patch.object(
+                SUBJECT, "IMPORTLIB_BOOTSTRAP_SOURCE_SHA256",
+                hashlib.sha256(unsafe_source).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_importlib_verbose_line_facts(
+                    {"importlib/_bootstrap.py": unsafe_source},
+                    preconfig_source, initconfig_source, worker_source,
+                ), {})
+
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
             "entry.py": (

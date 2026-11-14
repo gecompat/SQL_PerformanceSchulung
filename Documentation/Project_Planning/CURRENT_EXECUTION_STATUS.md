@@ -10052,6 +10052,26 @@ Bedingungen (`33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
 fokussierte Regressionen bestehen lokal. Keine Interpreter-, Profil-, Worker-,
 SQL-, operative S15/P11- oder Generalproben-Ausführung.
 
+## Fortsetzung: nicht ausgegebene Importdebugmeldung
+
+Der gepinnte `_verbose_message`-Helper in `importlib._bootstrap.py` wird genau
+einmal direkt mit drei Positionsargumenten und ohne `verbosity`-Keyword
+aufgerufen. Seine gepinnte Signatur setzt den Keyword-only-Standard auf 1.
+Für die feste Kinder-argv gilt `sys.flags.verbose == 0`: CPython startet mit
+Default 0, `-v` erhöht den Wert, `-I` deaktiviert `PYTHONVERBOSE`, und die argv
+enthält kein `-v`. Der quellengebundene Guard `importlib._bootstrap.py:493`
+ist deshalb falsch; seine innere `message.startswith(...)`-Wache wird im
+Callfolger ebenfalls nicht mehr besucht.
+
+Der zielgebundene Scan zählt jetzt 60 Module, 317 Kanten, 169 Funktionen,
+56 entschiedene und 514 unbekannte Bedingungen. Modul-/Quelldigest bleibt
+`33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`, der neue
+Unknown-Digest lautet
+`904afa5d6387a57f7f6d6a1061390424e9b46f3d94b2319e364f797a68473641`. Ergebnis
+bleibt `LEXICAL_SOURCE_CANDIDATES_ONLY`; 158 fokussierte Regressionen bestehen.
+Keine Interpreter-, Profil-, Worker-, SQL-, operative S15/P11- oder
+Generalproben-Ausführung.
+
 ## Fortsetzung: QRY-023 Image-Lock-/Matrix-Parität
 
 Der Offlinevalidator liest nun die drei Runtime-Matrixzeilen strukturiert und
