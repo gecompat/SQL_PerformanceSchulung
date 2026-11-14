@@ -851,6 +851,28 @@ class StaticImportCandidateTests(unittest.TestCase):
                     {"inspect.py": rebound}
                 ))
 
+    def test_sysconfig_module_name_fact_rejects_executed_namespace_access(self):
+        source = (
+            b"def helper():\n    return globals()\n"
+            b"VALUE = 1\n"
+            b"if __name__ == '__main__':\n    import config_demo\n"
+        )
+        with patch.object(
+            SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ):
+            self.assertTrue(SUBJECT._target_sysconfig_imported_name_safe(
+                {"sysconfig.py": source}
+            ))
+            rebound = source.replace(
+                b"VALUE = 1", b"globals()['__name__'] = '__main__'"
+            )
+            with patch.object(
+                SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(rebound).hexdigest()
+            ):
+                self.assertFalse(SUBJECT._target_sysconfig_imported_name_safe(
+                    {"sysconfig.py": rebound}
+                ))
+
     def test_importlib_windows_name_fact_requires_digest_and_direct_binding(self):
         source = (
             b"import sys\n"

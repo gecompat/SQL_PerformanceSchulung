@@ -1452,6 +1452,49 @@ def _target_inspect_imported_name_safe(files):
     return len(compiler_flags_loop) == 1
 
 
+def _target_sysconfig_imported_name_safe(files):
+    """Resolve sysconfig's imported module name when dynamic access is deferred."""
+    source = files.get("sysconfig.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256):
+        return False
+    tree = ast.parse(source, filename="sysconfig.py")
+    if any(isinstance(node, ast.Name) and node.id == "__name__"
+           and isinstance(node.ctx, (ast.Store, ast.Del)) for node in ast.walk(tree)):
+        return False
+    guards = [node for node in tree.body if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "__name__ == '__main__'"]
+    if len(guards) != 1:
+        return False
+    parents = {child: parent for parent in ast.walk(tree)
+               for child in ast.iter_child_nodes(parent)}
+    dynamic_functions = set()
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id in {"exec", "eval", "globals", "locals", "vars"}):
+            continue
+        ancestor = node
+        while ancestor in parents and not isinstance(
+                parents[ancestor], (ast.FunctionDef, ast.AsyncFunctionDef)):
+            ancestor = parents[ancestor]
+        if (ancestor not in parents or not isinstance(
+                parents[ancestor], (ast.FunctionDef, ast.AsyncFunctionDef))):
+            return False
+        dynamic_functions.add(parents[ancestor].name)
+    guard_line = guards[0].lineno
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id in dynamic_functions and node.lineno < guard_line):
+            ancestor = node
+            while ancestor in parents and not isinstance(
+                    parents[ancestor], (ast.FunctionDef, ast.AsyncFunctionDef)):
+                ancestor = parents[ancestor]
+            if (ancestor not in parents or not isinstance(
+                    parents[ancestor], (ast.FunctionDef, ast.AsyncFunctionDef))):
+                return False
+    return True
+
+
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
@@ -1895,7 +1938,7 @@ def _target_platform_candidate_closure(
             module in preserve_imported_name_modules
             or _target_imported_name_star_imports_safe(files, module)
         )
-        if (preserve_imported_name and module in {"ast", "inspect"}
+        if (preserve_imported_name and module in {"ast", "inspect", "sysconfig"}
                 and aliases.get("__name__") is not _IMPORTED_MODULE_NAME):
             aliases["__name__"] = _IMPORTED_MODULE_NAME
         for name in _module_body_import_names(
@@ -3316,12 +3359,13 @@ def analyze(archive_path):
         files, warnings_c_source, warnings_clinic_source
     )
     target_imported_name_safe_modules = tuple(sorted(
-        module for module in ("ast", "dis", "inspect", "tokenize")
+        module for module in ("ast", "dis", "inspect", "sysconfig", "tokenize")
         if (_target_imported_name_star_imports_safe(files, module)
             or module == "ast" and _target_ast_imported_name_star_import_safe(
                 files, ast_c_source
             )
-            or module == "inspect" and _target_inspect_imported_name_safe(files))
+            or module == "inspect" and _target_inspect_imported_name_safe(files)
+            or module == "sysconfig" and _target_sysconfig_imported_name_safe(files))
     ))
     target_call_facts = tuple(sorted(
         types_descriptor_call_facts + ast_compatibility_call_facts
