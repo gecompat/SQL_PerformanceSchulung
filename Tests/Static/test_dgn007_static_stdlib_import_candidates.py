@@ -1246,6 +1246,48 @@ class StaticImportCandidateTests(unittest.TestCase):
                 files, sys_c + b"_home\n", True
             ), {})
 
+    def test_sysconfig_project_base_env_guard_requires_pinned_config_and_no_override(self):
+        source = (
+            b"if '_PYTHON_PROJECT_BASE' in os.environ:\n"
+            b"    _PROJECT_BASE = os.environ['_PYTHON_PROJECT_BASE']\n"
+        )
+        config = (
+            b'{"os":"linux","architecture":"amd64","config":'
+            b'{"Env":["PATH=/usr/local/bin","LANG=C.UTF-8"]}}'
+        )
+        files = {"sysconfig.py": source}
+        patches = (
+            patch.object(SUBJECT, "SYSCONFIG_SOURCE_SHA256",
+                         hashlib.sha256(source).hexdigest()),
+            patch.object(SUBJECT, "TARGET_IMAGE_CONFIG_SHA256",
+                         hashlib.sha256(config).hexdigest()),
+        )
+        with patches[0], patches[1]:
+            self.assertEqual(SUBJECT._target_sysconfig_project_base_env_facts(
+                files, config, True
+            ), (("'_PYTHON_PROJECT_BASE' in os.environ", False),))
+            self.assertEqual(SUBJECT._target_sysconfig_project_base_env_facts(
+                files, config, False
+            ), ())
+            with_override = config.replace(
+                b"LANG=C.UTF-8", b"_PYTHON_PROJECT_BASE=/tmp/build"
+            )
+            with patch.object(
+                SUBJECT, "TARGET_IMAGE_CONFIG_SHA256",
+                hashlib.sha256(with_override).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_sysconfig_project_base_env_facts(
+                    files, with_override, True
+                ), ())
+            wrong_platform = config.replace(b"amd64", b"arm64")
+            with patch.object(
+                SUBJECT, "TARGET_IMAGE_CONFIG_SHA256",
+                hashlib.sha256(wrong_platform).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_sysconfig_project_base_env_facts(
+                    files, wrong_platform, True
+                ), ())
+
     def test_importlib_windows_name_fact_requires_digest_and_direct_binding(self):
         source = (
             b"import sys\n"

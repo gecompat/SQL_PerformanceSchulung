@@ -48,6 +48,7 @@ POSIX_MODULE_CLINIC_MEMBER = "Python-3.12.16/Modules/clinic/posixmodule.c.h"
 POSIX_MODULE_CLINIC_SHA256 = "dd89b7a30073abfad8f082966f135a343ca4e1b7b856e3ba696a6e9c27870747"
 TARGET_PYCONFIG_SHA256 = "22a6bfe20214fb395e546edd499f826d9d4be7b7b1289b0d391255145a207ed5"
 TARGET_IMAGE_MANIFEST_SHA256 = "3c3ba8ad4c85eb63b7568f806434f14e33370056985da7fdf2673621cb1d7e93"
+TARGET_IMAGE_CONFIG_SHA256 = "28d30c15b9e9c3b1d557441aad9592226e852f7716451d6c8df5b4f0c3ce3d1b"
 TARGET_IMAGE_CONFIG_LAYER_SHA256 = "7f0ea382d75a163999c21529b19913d158821816106eed6f02039f8fdf346779"
 THREADING_SOURCE_SHA256 = "846f450ae794e4aab823a163f8c71d27751148af33e91dd3de886686a4e8ebfb"
 THREAD_NATIVE_ID_HEADER_MEMBER = "Python-3.12.16/Include/pythread.h"
@@ -83,6 +84,7 @@ MAX_WARNINGS_CLINIC_BYTES = 16 * 1024
 MAX_POSIX_MODULE_C_BYTES = 512 * 1024
 MAX_POSIX_MODULE_CLINIC_BYTES = 384 * 1024
 MAX_TARGET_PYCONFIG_BYTES = 64 * 1024
+MAX_TARGET_IMAGE_CONFIG_BYTES = 16 * 1024
 ROOTS = (
     "dataclasses", "hashlib", "importlib.machinery", "importlib.util", "json",
     "os", "struct", "sys", "sysconfig", "types", "zipimport", "zlib",
@@ -2122,6 +2124,36 @@ def _target_sysconfig_no_site_facts(files, sys_module_c_source, no_site):
     return {"_sys_home": False}
 
 
+def _target_sysconfig_project_base_env_facts(files, image_config_source,
+                                             no_project_base_override):
+    """Bind the direct os.environ guard to the pinned image ENV and call assumption."""
+    source = files.get("sysconfig.py")
+    if (no_project_base_override is not True
+            or type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256
+            or type(image_config_source) is not bytes
+            or len(image_config_source) > MAX_TARGET_IMAGE_CONFIG_BYTES
+            or hashlib.sha256(image_config_source).hexdigest()
+            != TARGET_IMAGE_CONFIG_SHA256):
+        return ()
+    tree = ast.parse(source, filename="sysconfig.py")
+    guards = [node for node in tree.body if isinstance(node, ast.If)
+              and ast.unparse(node.test)
+              == "'_PYTHON_PROJECT_BASE' in os.environ"]
+    if len(guards) != 1:
+        return ()
+    config = json.loads(image_config_source)
+    if (type(config) is not dict or config.get("os") != "linux"
+            or config.get("architecture") != "amd64"):
+        return ()
+    runtime_config = config.get("config")
+    env = runtime_config.get("Env") if type(runtime_config) is dict else None
+    if (type(env) is not list or any(type(item) is not str for item in env)
+            or any(item.partition("=")[0] == "_PYTHON_PROJECT_BASE" for item in env)):
+        return ()
+    return (("'_PYTHON_PROJECT_BASE' in os.environ", False),)
+
+
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
@@ -3950,7 +3982,8 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
     return tuple(sorted(reached)), edges, functions, hashlib.sha256(b"".join(rows)).hexdigest(), conditions
 
 
-def analyze(archive_path, target_pyconfig_path=None, target_no_site=False):
+def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
+            target_image_config_path=None, target_no_project_base_override=False):
     (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
      getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source,
      sys_module_c_source, sys_module_clinic_source, warnings_c_source,
@@ -3982,6 +4015,19 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False):
     sysconfig_name_facts.update(_target_sysconfig_no_site_facts(
         files, sys_module_c_source, target_no_site,
     ))
+    target_image_config_source = None
+    if target_image_config_path is not None:
+        with Path(target_image_config_path).open("rb") as stream:
+            target_image_config_source = stream.read(MAX_TARGET_IMAGE_CONFIG_BYTES + 1)
+        if (len(target_image_config_source) > MAX_TARGET_IMAGE_CONFIG_BYTES
+                or hashlib.sha256(target_image_config_source).hexdigest()
+                != TARGET_IMAGE_CONFIG_SHA256):
+            raise ValueError("TARGET_IMAGE_CONFIG_MISMATCH")
+    if target_no_project_base_override and target_image_config_source is None:
+        raise ValueError("TARGET_IMAGE_CONFIG_REQUIRED")
+    sysconfig_project_base_env_facts = _target_sysconfig_project_base_env_facts(
+        files, target_image_config_source, target_no_project_base_override,
+    ) if target_image_config_source is not None else ()
     importlib_bootstrap = files.get("importlib/_bootstrap.py")
     importlib_external = files.get("importlib/_bootstrap_external.py")
     if importlib_bootstrap is None or importlib_external is None:
@@ -4062,7 +4108,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False):
         + sys_getframe_call_facts + tuple(warnings_default_call_facts.items())
         + os_fspath_call_facts + os_have_functions_call_facts
         + posix_build_call_facts + os_descriptor_support_facts
-        + threading_os_alias_call_facts
+        + threading_os_alias_call_facts + sysconfig_project_base_env_facts
     ))
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
@@ -4270,6 +4316,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False):
         ),
         "target_platform_sysconfig_name_facts": list(sysconfig_name_facts.items()),
         "target_profile_no_site_assumption": target_no_site,
+        "target_platform_sysconfig_project_base_env_fact": list(
+            sysconfig_project_base_env_facts
+        ),
+        "target_profile_no_project_base_override_assumption": (
+            target_no_project_base_override
+        ),
         "target_platform_thread_native_id_source_sha256": {
             "header": THREAD_NATIVE_ID_HEADER_SHA256,
             "module": THREAD_NATIVE_ID_MODULE_SHA256,
@@ -4278,6 +4330,10 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False):
         "target_platform_pyconfig_sha256": (
             hashlib.sha256(target_pyconfig_source).hexdigest()
             if target_pyconfig_source is not None else None
+        ),
+        "target_platform_image_config_sha256": (
+            hashlib.sha256(target_image_config_source).hexdigest()
+            if target_image_config_source is not None else None
         ),
         "target_platform_image_manifest_sha256": (
             TARGET_IMAGE_MANIFEST_SHA256
@@ -4320,11 +4376,23 @@ def main():
         "--target-no-site", action="store_true",
         help="Annahme für die feste Zielroute: CPython wird mit -S gestartet",
     )
+    parser.add_argument(
+        "--target-image-config", type=Path,
+        help="Digest-geprüfte OCI-Config des ausgewählten CPython-Zielimages",
+    )
+    parser.add_argument(
+        "--target-no-project-base-override", action="store_true",
+        help="Annahme für die feste Zielroute: kein Override für _PYTHON_PROJECT_BASE",
+    )
     args = parser.parse_args()
     if args.target_no_site and args.target_pyconfig is None:
         parser.error("--target-no-site requires --target-pyconfig")
+    if args.target_no_project_base_override and args.target_image_config is None:
+        parser.error("--target-no-project-base-override requires --target-image-config")
     try:
-        result = analyze(args.archive, args.target_pyconfig, args.target_no_site)
+        result = analyze(args.archive, args.target_pyconfig, args.target_no_site,
+                         args.target_image_config,
+                         args.target_no_project_base_override)
     except (OSError, tarfile.TarError, UnicodeError, SyntaxError, ValueError):
         print(json.dumps({"status": "NOT_PROVEN", "issue": "SOURCE_INPUT_REJECTED"},
                          separators=(",", ":")))
