@@ -567,6 +567,42 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIsNone(SUBJECT._target_condition(identity))
 
     def test_builtin_module_membership_uses_only_bound_target_facts(self):
+        self.assertEqual(len(SUBJECT._TARGET_BUILTIN_MODULE_NAMES), 31)
+        self.assertEqual(
+            SUBJECT._TARGET_BUILTIN_MODULE_NAMES,
+            tuple(sorted(set(SUBJECT._TARGET_BUILTIN_MODULE_NAMES))),
+        )
+        self.assertEqual(
+            set(SUBJECT._TARGET_BUILTIN_MEMBERSHIP),
+            {*SUBJECT._TARGET_BUILTIN_MODULE_NAMES, "nt"},
+        )
+        self.assertEqual(
+            SUBJECT._TARGET_BUILTIN_CONFIG_C_SHA256,
+            "30d353782cbaf8de2fed2ba82b1040940386e316b7f41604c49f8f3d6f16bb31",
+        )
+        self.assertEqual(
+            SUBJECT._TARGET_BUILTIN_LAYER_SHA256,
+            "7f0ea382d75a163999c21529b19913d158821816106eed6f02039f8fdf346779",
+        )
+        for name in ("gc", "_ast", "marshal", "posix"):
+            expression = ast.parse(
+                f"{name!r} in sys.builtin_module_names", mode="eval"
+            ).body
+            self.assertIs(SUBJECT._target_condition(expression), True)
+        absent = ast.parse("'nt' in sys.builtin_module_names", mode="eval").body
+        future = ast.parse(
+            "'future_builtin' in sys.builtin_module_names", mode="eval"
+        ).body
+        self.assertIs(SUBJECT._target_condition(absent), False)
+        absent_complement = ast.parse(
+            "'nt' not in sys.builtin_module_names", mode="eval"
+        ).body
+        present_complement = ast.parse(
+            "'gc' not in sys.builtin_module_names", mode="eval"
+        ).body
+        self.assertIs(SUBJECT._target_condition(absent_complement), True)
+        self.assertIs(SUBJECT._target_condition(present_complement), False)
+        self.assertIsNone(SUBJECT._target_condition(future))
         equality = ast.parse(
             "sys.builtin_module_names == ('posix',)", mode="eval"
         ).body
@@ -2282,6 +2318,10 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIn("module_init_call_roots_outside_source_stdlib_names", labels)
         self.assertIn("module_init_call_source_candidates", labels)
         self.assertIn("target_platform_source_candidates", labels)
+        self.assertIn("target_platform_builtin_membership", labels)
+        self.assertIn("target_platform_builtin_module_names", labels)
+        self.assertIn("target_platform_builtin_config_c_sha256", labels)
+        self.assertIn("target_platform_builtin_layer_sha256", labels)
         self.assertIn(
             "MODULE_CLASS_CALLS_SIMPLE_ALIASES_GENERATORS_IMPORTED_FUNCTIONS_MODULE_ALIASES_FROM_IMPORT_IMPORTED_CLASS_METHODS_DIRECT_CONSTRUCTED_METHODS_SAME_SCOPE_INSTANCE_BINDINGS_INSTANCE_ALIASES_BOUND_RECEIVER_METHODS_NESTED_RECEIVER_CLOSURES_INHERITED_RECEIVER_METHODS_AND_TRANSITIVE_LOCAL_BASES_AND_IMPORTED_SOURCE_BASES_AND_BASE_ALIASES_AND_ZERO_ARG_AND_EXPLICIT_LOCAL_SUPER_METHODS_AND_INHERITED_CONSTRUCTORS_AND_CONSTRUCTED_INHERITED_METHODS_AND_IMPORTED_SOURCE_SUBCLASS_DISPATCH_SAME_MODULE_AND_IMPORTED_SOURCE_BASE_DISPATCH_AND_SIMPLE_IMPORTED_CLASS_ALIASES_AND_QUALIFIED_IMPORTED_CLASS_ALIASES_AND_LOCAL_CLASS_ALIASES_AND_DIRECT_FUNCTION_AND_CLASS_SCOPE_IMPORTED_CLASS_ALIASES_AND_CALLED_NESTED_FUNCTION_CLASS_ALIAS_CLOSURES_AND_DIRECT_TOP_LEVEL_FACTORY_RETURNS_AFTER_IMPORTS_AND_DOCSTRINGS_AND_SIMPLE_LOCAL_INSTANCE_ASSIGNMENTS",
             labels,

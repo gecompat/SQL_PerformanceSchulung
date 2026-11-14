@@ -9374,3 +9374,26 @@ Zusätzlich werden die 58 Kandidaten des engeren Modul-/Klassenkörper-Scans als
 ## Fortsetzung: Frozen-Quellnamen gegen Kandidaten abgeglichen
 
 Der Scanner gibt jetzt die quellgebundenen Bootstrap-/Stdlib-Frozen-Namen samt Aliaszeilen einzeln aus und berichtet die Namensüberschneidung mit beiden Kandidatenscans. Im 58er Linux-Modulkörpervorschnitt liegen elf exakte Quelltabellenüberschneidungen; im 93er Modulstartscan zwölf; die neun Aliaszeilen überschneiden keine Kandidaten. Das belegt nur Quelltabellenbeziehungen, nicht die gebaute Image-Tabelle, Cachemitgliedschaft oder Loader. Builtin-/Extensionauswahl, vollständige S15-/P11-Erwartungsrecords und operative Inventur bleiben offen.
+
+
+## Fortsetzung: vollständige statische CPython-Builtin-Mitgliedschaft
+
+Der Linux-/CPython-3.12.16-Quellvorschnitt verwendet jetzt alle 31 eindeutigen
+Modulnamen aus dem digestgebundenen OCI-Layer-`config.c`/`_PyImport_Inittab`.
+Die 27 `PyInit_*`-Zeilen und vier Sonderzeilen (`marshal`, `_warnings`,
+`builtins`, `sys`) sind in der Designquelle getrennt erklärt. `nt` ist für
+dieses Linux-Ziel als nicht enthalten gebunden; nicht gelistete Namen bleiben
+unbekannt. Der Bericht gibt die geordnete Namensliste und `config.c`- sowie
+Layer-Digests aus. Der signaturgeprüfte Archivscan bleibt `CANDIDATES_ONLY`:
+58 Linux-Modulkörperkandidaten, 282 Kanten, Digest
+`478ca51898448040d8da49f3edb6620d96a58b89857e352d88ffd2d7c75395fb`, fünf
+aufgelöste und 39 unbekannte Bedingungen. Der fokussierte Scannertestsatz
+besteht 108/108. Diese statische Ableitung ist keine Runtime-`sys.builtin_module_names`-
+Beobachtung oder P11-Attestation; vollständige S15-/P11-Auswahl, operative
+Inventur und das Fünf-Formen-/64-KiB-Gate bleiben offen.
+
+Der betroffene DGN-007-Offline-CI-Workflow lief vollständig im digestgebundenen
+CPython-3.12.16-Image: 14 Testmodule, 1.027 Tests ausgeführt, zwei bestehende
+Plattform-Skips, alle übrigen bestanden. Der Archivscan unter derselben Runtime
+bestätigte die oben genannten Zähler und Digests. Es gab weiterhin keinen
+Interpreter-Profilstart, Worker-, SQL- oder Generalprobebetrieb.
