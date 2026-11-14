@@ -268,6 +268,69 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(target[0], ("entry",))
         self.assertEqual(target[4], {"resolved": 1, "unknown": 0})
 
+    def test_verified_source_name_fact_can_survive_a_star_import(self):
+        files = {
+            "entry.py": (
+                b"from posix import *\n"
+                b"if platform_name == 'nt':\n    import nt_branch\n"
+                b"else:\n    import posix_branch\n"
+            ),
+            "posix.py": b"VALUE = 1\n",
+            "nt_branch.py": b"VALUE = 2\n",
+            "posix_branch.py": b"VALUE = 3\n",
+        }
+        facts = {"entry": {"platform_name": "posix"}}
+        unknown = []
+        unpreserved = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",), known_name_facts=facts,
+            unknown_conditions=unknown,
+        )
+        self.assertIn("nt_branch", unpreserved[0])
+        self.assertIn("posix_branch", unpreserved[0])
+        self.assertEqual(len(unknown), 1)
+        preserved_unknown = []
+        preserved = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("entry",), known_name_facts=facts,
+            preserve_name_facts_after_star={"entry": ("platform_name",)},
+            unknown_conditions=preserved_unknown,
+        )
+        self.assertIn("posix_branch", preserved[0])
+        self.assertNotIn("nt_branch", preserved[0])
+        self.assertEqual(preserved[4], {"resolved": 1, "unknown": 0})
+        self.assertEqual(preserved_unknown, [])
+        with self.assertRaisesRegex(ValueError, "UNTRUSTED_STAR_IMPORT_NAME_FACT"):
+            SUBJECT._module_init_call_candidate_closure(
+                files, roots=("entry",),
+                preserve_name_facts_after_star={"entry": ("platform_name",)},
+            )
+
+    def test_os_boolean_fact_requires_stable_function_scope(self):
+        source = (
+            b"def _exists(name):\n    return name in globals()\n"
+            b"_globals = globals()\n"
+            b"def _read(name):\n    return name in _globals\n"
+            b"supports_bytes_environ = True\n"
+            b"def check():\n    return supports_bytes_environ\n"
+        )
+        fact = {"supports_bytes_environ": True}
+        with patch.object(
+            SUBJECT, "OS_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ):
+            self.assertTrue(SUBJECT._target_os_function_name_facts_safe(
+                {"os.py": source}, fact
+            ))
+            for unsafe in (
+                source + b"def shadow(supports_bytes_environ):\n    return supports_bytes_environ\n",
+                source + b"def reset():\n    global supports_bytes_environ\n"
+                b"    supports_bytes_environ = False\n",
+            ):
+                with patch.object(
+                    SUBJECT, "OS_SOURCE_SHA256", hashlib.sha256(unsafe).hexdigest()
+                ):
+                    self.assertFalse(SUBJECT._target_os_function_name_facts_safe(
+                        {"os.py": unsafe}, fact
+                    ))
+
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
             "entry.py": (

@@ -1778,6 +1778,74 @@ def _target_os_posix_boolean_assignment_facts(files, posix_source, clinic_source
     return {"supports_bytes_environ": True}
 
 
+def _target_os_function_name_facts_safe(files, facts):
+    """Keep the post-star bytes-environ assignment through pinned functions."""
+    if facts != {"supports_bytes_environ": True}:
+        return False
+    source = files.get("os.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != OS_SOURCE_SHA256):
+        return False
+    tree = ast.parse(source, filename="os.py")
+    parents = {child: parent for parent in ast.walk(tree)
+               for child in ast.iter_child_nodes(parent)}
+    stores = [node for node in ast.walk(tree)
+              if isinstance(node, ast.Name) and node.id == "supports_bytes_environ"
+              and isinstance(node.ctx, (ast.Store, ast.Del))]
+    if len(stores) != 1:
+        return False
+    ancestor = stores[0]
+    while ancestor in parents:
+        ancestor = parents[ancestor]
+        if isinstance(ancestor, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            return False
+    for node in ast.walk(tree):
+        if isinstance(node, ast.arg) and node.arg == "supports_bytes_environ":
+            return False
+        if (isinstance(node, (ast.Global, ast.Nonlocal))
+                and "supports_bytes_environ" in node.names):
+            return False
+        if ((isinstance(node, ast.Name) and node.id in {
+                "exec", "eval", "locals", "vars"})
+                or (isinstance(node, ast.Attribute) and node.attr in {
+                    "exec", "eval", "locals", "vars"})):
+            return False
+    globals_calls = [node for node in ast.walk(tree)
+                     if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                     and node.func.id == "globals"]
+    if len(globals_calls) != 2:
+        return False
+    exists = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+              and node.name == "_exists"]
+    global_assignments = [node for node in ast.walk(tree) if isinstance(node, ast.Assign)
+                          and any(isinstance(target, ast.Name)
+                                  and target.id == "_globals"
+                                  for target in node.targets)]
+    if (len(exists) != 1 or ast.unparse(exists[0].body[0])
+            != "return name in globals()" or len(global_assignments) != 1
+            or ast.unparse(global_assignments[0].value) != "globals()"):
+        return False
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and node.id == "_globals":
+            if isinstance(node.ctx, ast.Store) and node is not global_assignments[0].targets[0]:
+                return False
+            if isinstance(node.ctx, ast.Del):
+                ancestor = node
+                while ancestor in parents:
+                    ancestor = parents[ancestor]
+                    if isinstance(ancestor, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                        return False
+                if node.lineno < global_assignments[0].lineno:
+                    return False
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            if isinstance(node.func.value, ast.Name) and node.func.value.id == "_globals":
+                return False
+        if isinstance(node, ast.Subscript) and isinstance(node.ctx, (ast.Store, ast.Del)):
+            if isinstance(node.value, ast.Name) and node.value.id == "_globals":
+                return False
+    return True
+
+
 def _target_os_have_functions_call_facts(files, posix_source, clinic_source):
     """Prove posixmodule_exec always publishes os.py's feature inventory."""
     source = files.get("os.py")
@@ -3467,6 +3535,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                                    run_module=True, visited_global=None,
                                    known_call_facts=(), known_name_facts=None,
                                    trusted_function_name_facts=None,
+                                   preserve_name_facts_after_star=(),
                                    unknown_conditions=None):
     """Follow direct and simply aliased local calls from initialization."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
@@ -3478,9 +3547,12 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
     known_names = _target_name_aliases(tree)
     source_name_facts = known_name_facts or {}
     trusted_function_name_facts = trusted_function_name_facts or {}
+    preserve_name_facts_after_star = frozenset(preserve_name_facts_after_star)
     if any(source_name_facts.get(name, _UNKNOWN) != value
            for name, value in trusted_function_name_facts.items()):
         raise ValueError("UNTRUSTED_FUNCTION_NAME_FACT")
+    if not preserve_name_facts_after_star.issubset(source_name_facts):
+        raise ValueError("UNTRUSTED_STAR_IMPORT_NAME_FACT")
     known_names.update(source_name_facts)
 
     def decide_condition(node, facts, in_function=False):
@@ -3995,7 +4067,12 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                 imported_module_name = (
                     known_names.get("__name__") is _IMPORTED_MODULE_NAME
                 )
+                preserved_source_names = {
+                    name: source_name_facts[name]
+                    for name in preserve_name_facts_after_star
+                }
                 known_names.clear()
+                known_names.update(preserved_source_names)
                 if imported_module_name:
                     known_names["__name__"] = _IMPORTED_MODULE_NAME
             base = node.module or ""
@@ -4176,6 +4253,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
 def _module_init_call_candidate_closure(files, roots=ROOTS, *,
                                         known_call_facts=(), known_name_facts=None,
                                         trusted_function_name_facts=None,
+                                        preserve_name_facts_after_star=None,
                                         unknown_conditions=None):
     if type(files) is not dict or type(roots) is not tuple:
         raise ValueError("SOURCE_INPUT_TYPE")
@@ -4332,6 +4410,9 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
             known_call_facts=known_call_facts,
             known_name_facts=(known_name_facts or {}).get(module, {}),
             trusted_function_name_facts=(trusted_function_name_facts or {}).get(module, {}),
+            preserve_name_facts_after_star=(
+                (preserve_name_facts_after_star or {}).get(module, ())
+            ),
             unknown_conditions=unknown_conditions,
         )
         functions += visited_count
@@ -4455,6 +4536,13 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     os_name_facts.update(_target_os_posix_boolean_assignment_facts(
         files, posix_module_c_source, posix_module_clinic_source
     ))
+    os_function_name_facts = (
+        {"supports_bytes_environ": True}
+        if os_name_facts.get("supports_bytes_environ") is True
+        and _target_os_function_name_facts_safe(
+            files, {"supports_bytes_environ": True}
+        ) else {}
+    )
     os_fspath_call_facts = _target_os_fspath_call_facts(
         files, posix_module_c_source, posix_module_clinic_source
     )
@@ -4563,9 +4651,13 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
      target_call_sha256, target_call_conditions) = _module_init_call_candidate_closure(
         files, known_call_facts=target_call_facts,
         known_name_facts=target_call_name_facts,
-        trusted_function_name_facts={
+        trusted_function_name_facts={module: facts for module, facts in {
             "threading": threading_function_name_facts,
-        } if threading_function_name_facts else {},
+            "os": os_function_name_facts,
+        }.items() if facts},
+        preserve_name_facts_after_star={
+            "os": ("supports_bytes_environ",),
+        } if os_function_name_facts else {},
         unknown_conditions=target_call_unknown_conditions,
     )
     target_call_unknown_conditions.sort(
