@@ -10,12 +10,12 @@ Generalprobe bleibt ausgeschlossen.
 
 ### DGN-007 – Quellenprüfung unbekannter Importzweige
 
-Der nach PR #739 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
+Der nach PR #742 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
 Workerroute gebundene Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten,
-166 Funktionen, 61 entschiedene und 507 unbekannte Bedingungen. Der
+166 Funktionen, 63 entschiedene und 505 unbekannte Bedingungen. Der
 Zeilendigest ist `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
 der Digest der unbekannten Bedingungen
-`243c85a371eebf7e21a82d412c49c2b77cb0bfd806c7d85d0639f3b524270cca`.
+`39d45c166915523624d3cc886fbd65e4a5ea4f78f6745a77649ce91350d88f3a`.
 PR #734 bindet alle 22 gepinnten `_verbose_message`-Aufrufstellen in
 `_bootstrap.py`, `_bootstrap_external.py` und `zipimport.py`; der Guard
 `importlib._bootstrap.py:493` ist für die festgelegte Workerroute falsch.
@@ -10224,3 +10224,28 @@ Unknown-Digest
 `243c85a371eebf7e21a82d412c49c2b77cb0bfd806c7d85d0639f3b524270cca`.
 165 fokussierte Regressionen bestehen lokal. Keine vollständige
 Importclosure, P11-/Runtimeattestation oder menschliche Generalprobe.
+
+PR #740 integrierte den Fact als Commit
+`84ac87aa755864e7cb69ebc94d5e2b75ab675e6d`; PR #741 ergänzte die negative
+Aliasimport-Gegenprobe als Commit `b67c22cee8d882df93b375df86ab4958695d1d6e`.
+Alle jeweiligen erforderlichen Gates bestanden; `main` ist synchronisiert und
+die lokalen/Remote-Branches wurden entfernt.
+
+## Fortsetzung: `logging`-Lock-Präsenz
+
+Die Facts für `logging/__init__.py:240` und `:247` hängen an den exakten
+Hashes von `logging`, `threading` und `_threadmodule.c`. Die gepinnte
+Loggingquelle setzt `_lock` einmal auf `threading.RLock()` und verwendet die
+beiden Guards ausschließlich vor `acquire()` beziehungsweise `release()`.
+Der Python-Fallback-RLock definiert weder `__bool__` noch `__len__`; die
+geprüften C-Slots des nativen RLocks enthalten ebenfalls keinen Bool- oder
+Längenslot. Zusätzliche Produktionsimporte oder Schreibzugriffe auf
+`logging._lock` heben den Fact auf.
+
+Der Zielscan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten und 166 besuchte
+Funktionen, 63 entschieden und 505 unbekannt. Zeilendigest
+`33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
+Unknown-Digest
+`39d45c166915523624d3cc886fbd65e4a5ea4f78f6745a77649ce91350d88f3a`.
+166 fokussierte Regressionen bestehen lokal. Kein Interpreter-, Profil-,
+Worker-, SQL-, Lab- oder Generalprobenlauf.
