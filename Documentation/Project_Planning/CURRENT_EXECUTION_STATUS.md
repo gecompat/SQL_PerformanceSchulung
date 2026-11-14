@@ -10345,3 +10345,17 @@ CPython-3.12.16-Zielscan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten,
 Bedingungsdigests sind unverändert. Diese zusätzliche Ausdrucksform kommt in
 den aktuellen erreichten Quellaufrufen nicht vor. Keine Runtime-, P11-, Profil-,
 Worker-, SQL-, Lab- oder Generalprobenattestation.
+
+## Fortsetzung: boolesche Kurzschlussargumente
+
+Der lokale Literalbinder wertet `and`-/`or`-Ausdrücke aus, wenn die ausgewerteten
+linken Operanden ausschließlich bereits bekannte primitive Werte sind. Er hält
+die Python-Kurzschlussreihenfolge ein und wertet übersprungene rechte Operanden
+nicht aus. Ein unbekannter linker Operand bleibt unbekannt, auch wenn ein
+nachfolgender Operand den booleschen Ausgang einschränken könnte. Zwei
+Regressionen prüfen bekannte Kurzschlussfälle und unbekannte linke Operanden.
+Die fokussierte Suite besteht mit 182 Tests. Der erneute CPython-3.12.16-
+Zielscan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten, 166 Funktionen,
+70 entschiedene und 497 unbekannte Bedingungen; Zeilen- und Bedingungsdigests
+sind unverändert. Kein Runtime-, P11-, Profil-, Worker-, SQL-, Lab- oder
+Generalprobenclaim.
