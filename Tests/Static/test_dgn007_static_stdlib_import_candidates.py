@@ -165,6 +165,42 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(target[4], {"resolved": 1, "unknown": 0})
         self.assertEqual(unknown, [])
 
+    def test_trusted_function_name_fact_requires_explicit_stable_source_scope(self):
+        files = {
+            "threading.py": (
+                b"try:\n    get_native_id = _thread.get_native_id\n"
+                b"    _HAVE_THREAD_NATIVE_ID = True\n"
+                b"except AttributeError:\n    _HAVE_THREAD_NATIVE_ID = False\n"
+                b"def check():\n"
+                b"    if not _HAVE_THREAD_NATIVE_ID:\n        import native_branch\n"
+                b"check()\n"
+            ),
+            "native_branch.py": b"VALUE = 1\n",
+        }
+        fact = {"_HAVE_THREAD_NATIVE_ID": True}
+        with patch.object(
+            SUBJECT, "THREADING_SOURCE_SHA256",
+            hashlib.sha256(files["threading.py"]).hexdigest(),
+        ):
+            self.assertTrue(SUBJECT._target_threading_native_id_function_fact_safe(
+                files, fact
+            ))
+            self.assertFalse(SUBJECT._target_threading_native_id_function_fact_safe(
+                {"threading.py": files["threading.py"] +
+                 b"def replace():\n    global _HAVE_THREAD_NATIVE_ID\n"
+                 b"    _HAVE_THREAD_NATIVE_ID = False\n"}, fact
+            ))
+        baseline = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("threading",), known_name_facts={"threading": fact}
+        )
+        target = SUBJECT._module_init_call_candidate_closure(
+            files, roots=("threading",), known_name_facts={"threading": fact},
+            trusted_function_name_facts={"threading": fact},
+        )
+        self.assertIn("native_branch", baseline[0])
+        self.assertEqual(target[0], ("threading",))
+        self.assertEqual(target[4], {"resolved": 1, "unknown": 0})
+
     def test_target_module_init_call_scan_applies_imported_module_name_fact(self):
         files = {
             "entry.py": (

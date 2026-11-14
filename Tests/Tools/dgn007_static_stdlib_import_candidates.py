@@ -2075,6 +2075,48 @@ def _target_threading_native_id_name_facts(
     return {"_HAVE_THREAD_NATIVE_ID": True}
 
 
+def _target_threading_native_id_function_fact_safe(files, facts):
+    """Allow only the pinned module-level native-id flag inside its functions."""
+    source = files.get("threading.py")
+    if (facts != {"_HAVE_THREAD_NATIVE_ID": True}
+            or type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != THREADING_SOURCE_SHA256):
+        return False
+    tree = ast.parse(source, filename="threading.py")
+    parents = {child: parent for parent in ast.walk(tree)
+               for child in ast.iter_child_nodes(parent)}
+    tries = [node for node in tree.body if isinstance(node, ast.Try)
+             and any(isinstance(statement, ast.Assign)
+                     and any(isinstance(target, ast.Name)
+                             and target.id == "get_native_id"
+                             for target in statement.targets)
+                     for statement in node.body)]
+    if len(tries) != 1:
+        return False
+    stores = [node for node in ast.walk(tree)
+              if isinstance(node, ast.Name) and node.id == "_HAVE_THREAD_NATIVE_ID"
+              and isinstance(node.ctx, (ast.Store, ast.Del))]
+    if len(stores) != 2:
+        return False
+    for node in stores:
+        ancestor = node
+        while ancestor in parents and parents[ancestor] is not tries[0]:
+            ancestor = parents[ancestor]
+        if ancestor not in parents or parents[ancestor] is not tries[0]:
+            return False
+    for node in ast.walk(tree):
+        if isinstance(node, ast.arg) and node.arg == "_HAVE_THREAD_NATIVE_ID":
+            return False
+        if isinstance(node, ast.Global) and "_HAVE_THREAD_NATIVE_ID" in node.names:
+            return False
+        if ((isinstance(node, ast.Name) and node.id in {
+                "exec", "eval", "globals", "locals", "vars"})
+                or (isinstance(node, ast.Attribute) and node.attr in {
+                    "exec", "eval", "globals", "locals", "vars"})):
+            return False
+    return True
+
+
 def _target_sysconfig_user_base_name_facts(files):
     """Prove `_HAS_USER_BASE` for the pinned Linux source branch."""
     source = files.get("sysconfig.py")
@@ -3346,6 +3388,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                                    entry_functions=(),
                                    run_module=True, visited_global=None,
                                    known_call_facts=(), known_name_facts=None,
+                                   trusted_function_name_facts=None,
                                    unknown_conditions=None):
     """Follow direct and simply aliased local calls from initialization."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
@@ -3356,18 +3399,24 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
     )
     known_names = _target_name_aliases(tree)
     source_name_facts = known_name_facts or {}
+    trusted_function_name_facts = trusted_function_name_facts or {}
+    if any(source_name_facts.get(name, _UNKNOWN) != value
+           for name, value in trusted_function_name_facts.items()):
+        raise ValueError("UNTRUSTED_FUNCTION_NAME_FACT")
     known_names.update(source_name_facts)
 
     def decide_condition(node, facts, in_function=False):
         if in_function and source_name_facts:
             facts = dict(facts)
             facts.update({name: _UNKNOWN for name in source_name_facts})
+            facts.update(trusted_function_name_facts)
         return _target_condition(node, facts, known_call_facts)
 
     def scope_condition_names(allow_source_name_facts):
         facts = dict(known_names)
         if not allow_source_name_facts and source_name_facts:
             facts.update({name: _UNKNOWN for name in source_name_facts})
+            facts.update(trusted_function_name_facts)
         return facts
 
     def scope_functions(statements, allow_source_name_facts=True):
@@ -4048,6 +4097,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
 
 def _module_init_call_candidate_closure(files, roots=ROOTS, *,
                                         known_call_facts=(), known_name_facts=None,
+                                        trusted_function_name_facts=None,
                                         unknown_conditions=None):
     if type(files) is not dict or type(roots) is not tuple:
         raise ValueError("SOURCE_INPUT_TYPE")
@@ -4203,6 +4253,7 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
             visited_global=visited_functions,
             known_call_facts=known_call_facts,
             known_name_facts=(known_name_facts or {}).get(module, {}),
+            trusted_function_name_facts=(trusted_function_name_facts or {}).get(module, {}),
             unknown_conditions=unknown_conditions,
         )
         functions += visited_count
@@ -4358,6 +4409,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             thread_native_id_pthread, target_pyconfig_source,
         ) if target_pyconfig_source is not None else {}
     )
+    threading_function_name_facts = (
+        threading_native_id_facts
+        if _target_threading_native_id_function_fact_safe(
+            files, threading_native_id_facts
+        ) else {}
+    )
     target_imported_name_safe_modules = tuple(sorted(
         module for module in ("ast", "dis", "difflib", "getopt", "heapq",
                               "inspect", "os", "pickle", "sysconfig",
@@ -4423,6 +4480,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
      target_call_sha256, target_call_conditions) = _module_init_call_candidate_closure(
         files, known_call_facts=target_call_facts,
         known_name_facts=target_call_name_facts,
+        trusted_function_name_facts={
+            "threading": threading_function_name_facts,
+        } if threading_function_name_facts else {},
         unknown_conditions=target_call_unknown_conditions,
     )
     target_call_unknown_conditions.sort(

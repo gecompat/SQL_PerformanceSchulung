@@ -9835,3 +9835,21 @@ auf 62 Module, 323 Kanten und 179 Funktionen; 45 Conditions sind entschieden,
 S15-/P11-Sollrecords, unabhängiger Quellen-/Aufrufreview, fünf vollständige
 Formen und das gemeinsame 64-KiB-Gate bleiben vor der einmaligen operativen
 Inventur offen. Kein Interpreter-, Profil-, Worker-, SQL- oder Generalprobenlauf.
+
+## Fortsetzung: stabiler `threading`-Buildfact in Funktionen
+
+Der bereits an CPython-Build-/C-Quellen gebundene
+`_HAVE_THREAD_NATIVE_ID=True`-Fact darf nun auch in Funktionen des gepinnten
+`threading.py` ausgewertet werden. Eine zusätzliche Quellprüfung verlangt
+genau die zwei Zuweisungen im gebundenen Import-Try/Except, keine Parameter-,
+Funktions- oder Global-Rebindings und keinen dynamischen Namespacezugriff.
+Die synthetische Gegenprobe erhält unbekannte Funktionsbedingungen ohne diese
+explizite Stabilitätsfreigabe und entscheidet sie mit dem Fact nur nach
+Prüfung. Der erneute Archiv-/OCI-Scan bleibt `CANDIDATES_ONLY` bei 62 Modulen,
+323 Kanten und 179 Funktionen; 48 Conditions sind entschieden und 544
+unbekannt (Digest
+`89897a5a933bdfc1a8e9de359a64b69ae3fb3fa7d4f1a65cf10baec93f75ad11`). Die
+143 fokussierten Regressionen bestehen lokal. S15-/P11-Sollrecords,
+unabhängiger Quellen-/Aufrufreview, fünf vollständige Formen und das gemeinsame
+64-KiB-Gate bleiben vor der einmaligen operativen Inventur offen. Kein
+Interpreter-, Profil-, Worker-, SQL- oder Generalprobenlauf.
