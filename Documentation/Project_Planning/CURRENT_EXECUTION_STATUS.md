@@ -9276,3 +9276,13 @@ Direkte Klassenreturns in eng begrenzten `if`-/`else`-Pfaden werden jetzt beidse
 ## Fortsetzung: DGN-007 Factory-Instanzzuweisung
 
 Factorymethoden mit lokaler direkter Klasseninstanzzuweisung und einfachem `return` werden jetzt ebenfalls verfolgt. Rebinding und komplexe Statements bleiben ausgeschlossen. Fokussiert 104/104 PASS; der CPython-Archivscan bleibt 268 Quellmodule und 93/578/534 Modulstartkandidaten mit unveränderten Digests.
+
+Die Quellclosure verfolgt konstante dynamische Imports nun auch über direkte
+Aliase von `importlib.import_module`, `builtins.__import__` sowie die Modul-
+Aliase `importlib` und `builtins`. Vier Aliasformen sind synthetisch geprüft;
+Variablennamen bleiben unaufgelöst. Fokussiert 105/105 PASS. Archivclosure
+unverändert 268/2.438, Digest
+`700ace82b2c5630fc6ac039bb5bed0d788a46f6f8bcd1efba3fc0afb97068b6d`;
+Modulstartfolger 93/578/534, Digest
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
+Statische Kandidaten begründen keine vollständige P11- oder Runtimeaussage.

@@ -1582,3 +1582,8 @@ Die SQLCMD-sichere Endpunktübergabe änderte anschließend erneut den gemeinsam
 Direkte lokale Factory-Rückgaben sind jetzt zusätzlich in einer engen Top-Level-Form abgedeckt; bedingte/dynamische Rückgaben bleiben offen. 103/103 fokussierte Tests bestehen, die 93/578/534 Startkandidaten bleiben unverändert.
 Einfache `if`-/`else`-Factoryzweige mit ausschließlich direkten Klassenreturns werden jetzt ebenfalls konservativ beidseitig verfolgt; komplexe Kontrollflüsse bleiben offen. 103/103 fokussierte Tests, 93/578/534 Archivscan unverändert.
 Einfache Factoryrückgaben über eine lokale direkte Instanzzuweisung werden ebenfalls verfolgt; Rebinding und komplexe Statements bleiben ausgeschlossen. 104/104 fokussierte Tests; der Archivscan bleibt unverändert.
+
+Konstante dynamische Importnamen werden zusätzlich über direkte `importlib`-
+und `builtins`-Importaliase verfolgt. Vier synthetische Aliasformen bestehen;
+berechnete Namen bleiben ausgeschlossen. Fokussiert 105/105, Archivclosure
+268/2.438 und Modulstartkandidaten 93/578/534 mit unveränderten Digests.

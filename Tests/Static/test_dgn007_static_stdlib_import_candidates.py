@@ -2055,6 +2055,35 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(modules, ("entry", "pkg", "pkg.api", "pkg.direct"))
         self.assertEqual(edges, 2)
 
+    def test_literal_dynamic_import_aliases_are_candidates(self):
+        files = {
+            "entry.py": (
+                b"from importlib import import_module as load\n"
+                b"import importlib as il\n"
+                b"import builtins as bi\n"
+                b"from builtins import __import__ as direct_import\n"
+                b"load('pkg.api')\n"
+                b"il.import_module('pkg.module_alias')\n"
+                b"bi.__import__('pkg.builtins_attr')\n"
+                b"direct_import('pkg.builtins_alias')\n"
+                b"load(runtime_name)\n"
+            ),
+            "pkg/__init__.py": b"VALUE = 0\n",
+            "pkg/api.py": b"VALUE = 1\n",
+            "pkg/module_alias.py": b"VALUE = 2\n",
+            "pkg/builtins_attr.py": b"VALUE = 3\n",
+            "pkg/builtins_alias.py": b"VALUE = 4\n",
+        }
+        modules, edges, _ = SUBJECT._candidate_closure(files, ("entry",))
+        self.assertEqual(
+            modules,
+            (
+                "entry", "pkg", "pkg.api", "pkg.builtins_alias",
+                "pkg.builtins_attr", "pkg.module_alias",
+            ),
+        )
+        self.assertEqual(edges, 4)
+
     def test_import_from_resolves_existing_submodule_conservatively(self):
         files = {
             "pkg/__init__.py": b"from . import child\n",
