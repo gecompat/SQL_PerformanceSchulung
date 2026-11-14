@@ -9470,3 +9470,21 @@ Runtimemodule, vollständige Closure oder P11 zu behaupten. Kandidatenmenge und
 Modulstartscan bleiben unverändert; der fokussierte Inventory-Test und die
 vollständige DGN-007-Offline-CI laufen im Pull Request. S15-/P11-Auswahl,
 operative Inventur und Fünf-Formen-/64-KiB-Gate bleiben offen.
+
+
+## Fortsetzung: Deskriptortypnamen in `types.py`
+
+Zwei `inspect.py`-Guards werden nun über die exakten gepinnten CPython-3.12.16-
+Quellen `Lib/types.py` und `Lib/inspect.py` geprüft. `MemberDescriptorType`
+und `GetSetDescriptorType` besitzen je eine direkte Modulzuweisung mit `type()`;
+`inspect.py` importiert `types` unverändert und bindet `hasattr` nicht neu.
+Nur die beiden exakten `hasattr(types, ...)`-Prädikate werden auf true gesetzt.
+Der Linux-Modulkörpervorschnitt bleibt bei 56 Kandidaten, 278 Kanten und Digest
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; neun
+Bedingungen sind entschieden und 34 unbekannt. Der sortierte Unbekannt-
+Inventardigest ist jetzt
+`f8b00ee5ac8769b34cec1750068fd48294864a9fdc214550a84afed17b57e682`. Die
+Modulstartclosure bleibt 93/578/534 mit unverändertem Digest. Der fokussierte
+Satz besteht 115/115 lokal; vollständige Offline-CI folgt im Pull Request.
+Runtime-/P11-Auswahl, operative Inventur und Fünf-Formen-/64-KiB-Gate bleiben
+offen.

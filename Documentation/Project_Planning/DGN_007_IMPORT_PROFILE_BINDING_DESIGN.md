@@ -5591,3 +5591,17 @@ Beispiele sind dynamische `_exists(...)`-Prädikate in `os.py`, Importlib-
 Plattformwachen sowie AST- und `sysconfig`-Attribute; der vollständige Bestand
 steht im JSON-Bericht. Die Inventur ist keine Auswahl aktiver Runtimemodule
 oder P11-Attestation.
+
+### Fortsetzung: Deskriptortypen aus gepinnten Quellbindungen
+
+Für die beiden exakten Guards `hasattr(types, 'MemberDescriptorType')` und
+`hasattr(types, 'GetSetDescriptorType')` prüft der Scanner zusätzlich die
+SHA-256-gebundenen Quellen `Lib/types.py` und `Lib/inspect.py`. Die beiden
+Namen werden in `types.py` genau einmal durch direkte Modulzuweisungen an
+`type(...)` gebunden; `inspect.py` importiert `types` direkt und bindet weder
+`types` noch `hasattr` neu. Nur diese zwei exakt passenden Ausdrücke werden
+entschieden. Die Zielclosure bleibt bei 56 Modulen und 278 Kanten mit Digest
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; zwei
+Guardrecords wechseln von unbekannt zu entschieden. Das bleibt eine
+quellengebundene Ableitung; es attestiert weder die tatsächlich importierten
+Module noch eine Runtime-/P11-Inventur.

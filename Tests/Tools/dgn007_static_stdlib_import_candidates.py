@@ -925,9 +925,67 @@ _TARGET_BUILTIN_CONFIG_C_SHA256 = (
 _TARGET_BUILTIN_LAYER_SHA256 = (
     "7f0ea382d75a163999c21529b19913d158821816106eed6f02039f8fdf346779"
 )
+_TYPES_SOURCE_SHA256 = (
+    "345474ef027a1273f353da9bdc1f7c18f65335e72e681bcc0376774cc51f2405"
+)
+_INSPECT_SOURCE_SHA256 = (
+    "5c54ebf0bfdc25397750e5d0f63800751650ee50e65325ff3ea4069c9bfa5f75"
+)
+_TARGET_TYPES_DESCRIPTOR_ATTRIBUTES = (
+    "GetSetDescriptorType", "MemberDescriptorType",
+)
 
 
-def _target_condition(node, known_names=None):
+def _target_types_descriptor_call_facts(files):
+    """Bind two `types` names only to their digest-pinned direct source definitions."""
+    types_source = files.get("types.py")
+    inspect_source = files.get("inspect.py")
+    if (type(types_source) is not bytes or type(inspect_source) is not bytes
+            or hashlib.sha256(types_source).hexdigest() != _TYPES_SOURCE_SHA256
+            or hashlib.sha256(inspect_source).hexdigest() != _INSPECT_SOURCE_SHA256):
+        return ()
+
+    types_tree = ast.parse(types_source, filename="types.py")
+    inspect_tree = ast.parse(inspect_source, filename="inspect.py")
+    for name in _TARGET_TYPES_DESCRIPTOR_ATTRIBUTES:
+        assignments = [
+            statement for statement in types_tree.body
+            if isinstance(statement, ast.Assign)
+            and any(isinstance(target, ast.Name) and target.id == name
+                    for target in statement.targets)
+        ]
+        stores = [
+            node for node in ast.walk(types_tree)
+            if isinstance(node, ast.Name) and node.id == name
+            and isinstance(node.ctx, (ast.Store, ast.Del))
+        ]
+        if (len(assignments) != 1 or len(stores) != 1
+                or not isinstance(assignments[0].value, ast.Call)
+                or not isinstance(assignments[0].value.func, ast.Name)
+                or assignments[0].value.func.id != "type"):
+            return ()
+
+    imports_types = [
+        alias for statement in inspect_tree.body if isinstance(statement, ast.Import)
+        for alias in statement.names if alias.name == "types"
+    ]
+    if (len(imports_types) != 1 or imports_types[0].asname is not None
+            or any(isinstance(node, ast.Name) and node.id in {"types", "hasattr"}
+                   and isinstance(node.ctx, (ast.Store, ast.Del))
+                   for node in ast.walk(inspect_tree))):
+        return ()
+
+    facts = []
+    for name in _TARGET_TYPES_DESCRIPTOR_ATTRIBUTES:
+        expression = f"hasattr(types, {name!r})"
+        if not any(isinstance(node, ast.If) and ast.unparse(node.test) == expression
+                   for node in inspect_tree.body):
+            return ()
+        facts.append(expression)
+    return tuple(sorted(facts))
+
+
+def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
         "sys.platform": "linux",
@@ -938,8 +996,11 @@ def _target_condition(node, known_names=None):
         "sys.builtin_module_names": _KNOWN_BUILTIN_NAMES,
     }
     known_names = known_names or {}
+    known_call_facts = known_call_facts or ()
 
     def value(expr):
+        if isinstance(expr, ast.Call) and ast.unparse(expr) in known_call_facts:
+            return True
         if isinstance(expr, ast.Constant) and type(expr.value) in (str, int, bool, type(None)):
             return expr.value
         if isinstance(expr, ast.Tuple):
@@ -1183,7 +1244,7 @@ def _target_name_aliases(tree, *, imported_module_name=False):
 
 def _module_body_import_names(
         tree, module, path, target_platform=False, condition_stats=None, known_names=None,
-        unknown_conditions=None):
+        unknown_conditions=None, known_call_facts=None):
     """Include module/class bodies, optionally pruning known target if-branches."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
 
@@ -1221,7 +1282,7 @@ def _module_body_import_names(
                         yield base + "." + alias.name
             return
         if target_platform and isinstance(node, ast.If):
-            decision = _target_condition(node.test, known_names)
+            decision = _target_condition(node.test, known_names, known_call_facts)
             if condition_stats is not None:
                 key = "resolved" if decision is not None else "unknown"
                 condition_stats[key] += 1
@@ -1316,11 +1377,14 @@ def _module_body_candidate_closure(files, roots=ROOTS):
     return tuple(sorted(reached)), edges, hashlib.sha256(b"".join(rows)).hexdigest()
 
 
-def _target_platform_candidate_closure(files, roots=ROOTS, unknown_conditions=None):
+def _target_platform_candidate_closure(
+        files, roots=ROOTS, unknown_conditions=None, known_call_facts=None):
     if type(files) is not dict or type(roots) is not tuple:
         raise ValueError("SOURCE_INPUT_TYPE")
     if unknown_conditions is not None and type(unknown_conditions) is not list:
         raise ValueError("CONDITION_INVENTORY_TYPE")
+    if known_call_facts is not None and type(known_call_facts) is not tuple:
+        raise ValueError("CONDITION_FACTS_TYPE")
     reached = set()
     pending = list(roots)
     edges = 0
@@ -1337,7 +1401,8 @@ def _target_platform_candidate_closure(files, roots=ROOTS, unknown_conditions=No
         aliases = _target_name_aliases(tree, imported_module_name=True)
         for name in _module_body_import_names(
                 tree, module, path, target_platform=True, condition_stats=condition_stats,
-                known_names=aliases, unknown_conditions=unknown_conditions):
+                known_names=aliases, unknown_conditions=unknown_conditions,
+                known_call_facts=known_call_facts):
             parts = name.split(".")
             candidate = next(
                 (".".join(parts[:index]) for index in range(len(parts), 0, -1)
@@ -2738,12 +2803,14 @@ def analyze(archive_path):
     configure_inventory = _configure_template_inventory(
         config_c_template, configure_source
     )
+    types_descriptor_call_facts = _target_types_descriptor_call_facts(files)
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     target_unknown_conditions = []
     target_platform, target_edges, target_sha256, target_conditions = (
         _target_platform_candidate_closure(
-            files, unknown_conditions=target_unknown_conditions
+            files, unknown_conditions=target_unknown_conditions,
+            known_call_facts=types_descriptor_call_facts,
         )
     )
     target_unknown_conditions_sha256 = hashlib.sha256(
@@ -2905,6 +2972,11 @@ def analyze(archive_path):
         "target_platform_unknown_if_count": target_conditions["unknown"],
         "target_platform_unknown_if_conditions": target_unknown_conditions,
         "target_platform_unknown_if_conditions_sha256": target_unknown_conditions_sha256,
+        "target_platform_types_descriptor_call_facts": list(
+            types_descriptor_call_facts
+        ),
+        "target_platform_types_source_sha256": _TYPES_SOURCE_SHA256,
+        "target_platform_inspect_source_sha256": _INSPECT_SOURCE_SHA256,
         "target_platform_builtin_membership": _TARGET_BUILTIN_MEMBERSHIP,
         "target_platform_builtin_module_names": list(_TARGET_BUILTIN_MODULE_NAMES),
         "target_platform_builtin_config_c_sha256": _TARGET_BUILTIN_CONFIG_C_SHA256,

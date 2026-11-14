@@ -587,6 +587,55 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIs(SUBJECT._target_condition(minimum), True)
         self.assertIsNone(SUBJECT._target_condition(identity))
 
+    def test_types_descriptor_facts_require_exact_source_bindings(self):
+        types_source = (
+            b"GetSetDescriptorType = type(FunctionType.__code__)\n"
+            b"MemberDescriptorType = type(FunctionType.__globals__)\n"
+        )
+        inspect_source = (
+            b"import types\n"
+            b"if hasattr(types, 'MemberDescriptorType'):\n    pass\n"
+            b"if hasattr(types, 'GetSetDescriptorType'):\n    pass\n"
+        )
+        files = {"types.py": types_source, "inspect.py": inspect_source}
+        with patch.object(
+            SUBJECT, "_TYPES_SOURCE_SHA256", hashlib.sha256(types_source).hexdigest()
+        ), patch.object(
+            SUBJECT, "_INSPECT_SOURCE_SHA256", hashlib.sha256(inspect_source).hexdigest()
+        ):
+            facts = SUBJECT._target_types_descriptor_call_facts(files)
+            self.assertEqual(
+                facts,
+                ("hasattr(types, 'GetSetDescriptorType')",
+                 "hasattr(types, 'MemberDescriptorType')"),
+            )
+            self.assertEqual(
+                SUBJECT._target_types_descriptor_call_facts(
+                    {**files, "types.py": types_source + b"Other = 1\n"}
+                ),
+                (),
+            )
+            rebound = inspect_source + b"hasattr = lambda *args: False\n"
+            with patch.object(
+                SUBJECT, "_INSPECT_SOURCE_SHA256", hashlib.sha256(rebound).hexdigest()
+            ):
+                self.assertEqual(
+                    SUBJECT._target_types_descriptor_call_facts(
+                        {**files, "inspect.py": rebound}
+                    ),
+                    (),
+                )
+
+    def test_source_bound_hasattr_fact_resolves_only_exact_recorded_call(self):
+        fact = "hasattr(types, 'MemberDescriptorType')"
+        expression = ast.parse(fact, mode="eval").body
+        self.assertIs(SUBJECT._target_condition(expression, known_call_facts=(fact,)), True)
+        self.assertIsNone(SUBJECT._target_condition(expression))
+        self.assertIsNone(SUBJECT._target_condition(
+            ast.parse("hasattr(types, 'UnknownType')", mode="eval").body,
+            known_call_facts=(fact,),
+        ))
+
     def test_target_byteorder_is_bound_to_linux_amd64_image(self):
         little = ast.parse("sys.byteorder == 'little'", mode="eval").body
         big = ast.parse("sys.byteorder == 'big'", mode="eval").body
