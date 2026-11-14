@@ -3314,7 +3314,9 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                                    imported_class_methods=None,
                                    imported_module_class_methods=None,
                                    entry_functions=(),
-                                   run_module=True, visited_global=None):
+                                   run_module=True, visited_global=None,
+                                   known_call_facts=(), known_name_facts=None,
+                                   unknown_conditions=None):
     """Follow direct and simply aliased local calls from initialization."""
     package = module if path.endswith("/__init__.py") else module.rpartition(".")[0]
     postponed_annotations = any(
@@ -3323,9 +3325,24 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
         for statement in tree.body
     )
     known_names = _target_name_aliases(tree)
-    def scope_functions(statements):
+    source_name_facts = known_name_facts or {}
+    known_names.update(source_name_facts)
+
+    def decide_condition(node, facts, in_function=False):
+        if in_function and source_name_facts:
+            facts = dict(facts)
+            facts.update({name: _UNKNOWN for name in source_name_facts})
+        return _target_condition(node, facts, known_call_facts)
+
+    def scope_condition_names(allow_source_name_facts):
+        facts = dict(known_names)
+        if not allow_source_name_facts and source_name_facts:
+            facts.update({name: _UNKNOWN for name in source_name_facts})
+        return facts
+
+    def scope_functions(statements, allow_source_name_facts=True):
         result = {}
-        conditions = dict(known_names)
+        conditions = scope_condition_names(allow_source_name_facts)
 
         def collect(node):
             if isinstance(node, ast.FunctionDef):
@@ -3337,7 +3354,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                 conditions.clear()
                 return
             if isinstance(node, ast.If):
-                decision = _target_condition(node.test, conditions)
+                decision = decide_condition(node.test, conditions)
                 selected = node.body if decision is True else node.orelse if decision is False else None
                 for statement in selected if selected is not None else (*node.body, *node.orelse):
                     collect(statement)
@@ -3353,10 +3370,10 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             collect(statement)
         return result
 
-    def scope_function_aliases(statements, functions):
+    def scope_function_aliases(statements, functions, allow_source_name_facts=True):
         """Conservatively add simple same-scope ``alias = function`` names."""
         result = {name: list(nodes) for name, nodes in functions.items()}
-        conditions = dict(known_names)
+        conditions = scope_condition_names(allow_source_name_facts)
 
         def add_alias(node):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
@@ -3365,7 +3382,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                 conditions.clear()
                 return
             if isinstance(node, ast.If):
-                decision = _target_condition(node.test, conditions)
+                decision = decide_condition(node.test, conditions)
                 selected = node.body if decision is True else node.orelse if decision is False else None
                 for statement in selected if selected is not None else (*node.body, *node.orelse):
                     add_alias(statement)
@@ -3391,10 +3408,11 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
             add_alias(statement)
         return result
 
-    def class_scope_functions(statements, outer_functions):
+    def class_scope_functions(statements, outer_functions,
+                              allow_source_name_facts=False):
         """Resolve class-body function aliases against ordered class bindings."""
         result = {name: list(nodes) for name, nodes in outer_functions.items()}
-        conditions = dict(known_names)
+        conditions = scope_condition_names(allow_source_name_facts)
 
         def copy_scope(scope):
             return {name: list(nodes) for name, nodes in scope.items()}
@@ -3421,7 +3439,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                 facts.clear()
                 return
             if isinstance(node, ast.If):
-                decision = _target_condition(node.test, facts)
+                decision = decide_condition(node.test, facts)
                 selected = node.body if decision is True else node.orelse if decision is False else None
                 if selected is not None:
                     for statement in selected:
@@ -3459,7 +3477,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
     def scope_class_methods(statements):
         """Index methods declared by local classes, preserving alternatives."""
         result = {}
-        conditions = dict(known_names)
+        conditions = scope_condition_names(False)
 
         def collect_class(node):
             methods = {}
@@ -3474,7 +3492,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                     conditions.clear()
                     return
                 if isinstance(member, ast.If):
-                    decision = _target_condition(member.test, conditions)
+                    decision = decide_condition(member.test, conditions)
                     selected = member.body if decision is True else member.orelse if decision is False else None
                     for statement in selected if selected is not None else (*member.body, *member.orelse):
                         collect_member(statement)
@@ -3507,7 +3525,7 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                 conditions.clear()
                 return
             if isinstance(node, ast.If):
-                decision = _target_condition(node.test, conditions)
+                decision = decide_condition(node.test, conditions)
                 selected = node.body if decision is True else node.orelse if decision is False else None
                 for statement in selected if selected is not None else (*node.body, *node.orelse):
                     collect(statement)
@@ -3903,10 +3921,17 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                                   for target_module, target_function
                                   in (imported_functions or {}).get(node.func.id, ()))
         if isinstance(node, ast.If):
-            decision = _target_condition(node.test, known_names)
+            decision = decide_condition(node.test, known_names, in_function)
             if condition_stats is not None:
                 key = "resolved" if decision is not None else "unknown"
                 condition_stats[key] += 1
+            if decision is None and unknown_conditions is not None:
+                unknown_conditions.append({
+                    "module": module,
+                    "source_path": path,
+                    "line": node.lineno,
+                    "expression": ast.unparse(node.test),
+                })
             selected = node.body if decision is True else node.orelse if decision is False else None
             if selected is not None:
                 for statement in selected:
@@ -3974,15 +3999,21 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                 **scoped_method_aliases,
             }
         visible_functions = dict(closure_scope)
-        visible_functions.update(scope_functions(function.body))
-        visible_functions = scope_function_aliases(function.body, visible_functions)
+        visible_functions.update(scope_functions(
+            function.body, allow_source_name_facts=False
+        ))
+        visible_functions = scope_function_aliases(
+            function.body, visible_functions, allow_source_name_facts=False
+        )
         for statement in function.body:
             imports.extend(visit(statement, visible_functions, True, visible_functions))
         imported_class_methods = enclosing_imported_class_methods
     return tuple(imports), len(visited) - visited_before, tuple(sorted(imported_calls))
 
 
-def _module_init_call_candidate_closure(files, roots=ROOTS):
+def _module_init_call_candidate_closure(files, roots=ROOTS, *,
+                                        known_call_facts=(), known_name_facts=None,
+                                        unknown_conditions=None):
     if type(files) is not dict or type(roots) is not tuple:
         raise ValueError("SOURCE_INPUT_TYPE")
     if any(type(name) is not str for name in roots) or len(set(roots)) != len(roots):
@@ -4135,6 +4166,9 @@ def _module_init_call_candidate_closure(files, roots=ROOTS):
             entry_functions=entries,
             run_module=run_module,
             visited_global=visited_functions,
+            known_call_facts=known_call_facts,
+            known_name_facts=(known_name_facts or {}).get(module, {}),
+            unknown_conditions=unknown_conditions,
         )
         functions += visited_count
         for name in names:
@@ -4311,14 +4345,29 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     target_unknown_conditions = []
+    target_name_facts = {
+        "warnings": warnings_default_call_facts,
+        "os": os_name_facts,
+        "threading": threading_native_id_facts,
+        "sysconfig": sysconfig_name_facts,
+    }
+    target_call_name_facts = {
+        module: dict(facts) for module, facts in target_name_facts.items()
+    }
+    for module in target_imported_name_safe_modules:
+        target_call_name_facts.setdefault(module, {})[
+            "__name__"
+        ] = _IMPORTED_MODULE_NAME
+    importlib_windows_name_facts = _target_importlib_windows_name_facts(files)
+    if importlib_windows_name_facts:
+        target_call_name_facts.setdefault("importlib._bootstrap_external", {}).update(
+            importlib_windows_name_facts
+        )
     target_platform, target_edges, target_sha256, target_conditions = (
         _target_platform_candidate_closure(
             files, unknown_conditions=target_unknown_conditions,
             known_call_facts=target_call_facts,
-            known_name_facts={"warnings": warnings_default_call_facts,
-                              "os": os_name_facts,
-                              "threading": threading_native_id_facts,
-                              "sysconfig": sysconfig_name_facts},
+            known_name_facts=target_name_facts,
             preserve_imported_name_modules=target_imported_name_safe_modules,
         )
     )
@@ -4331,6 +4380,20 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     call_modules, call_edges, call_functions, call_sha256, call_conditions = (
         _module_init_call_candidate_closure(files)
     )
+    target_call_unknown_conditions = []
+    (target_call_modules, target_call_edges, target_call_functions,
+     target_call_sha256, target_call_conditions) = _module_init_call_candidate_closure(
+        files, known_call_facts=target_call_facts,
+        known_name_facts=target_call_name_facts,
+        unknown_conditions=target_call_unknown_conditions,
+    )
+    target_call_unknown_conditions.sort(
+        key=lambda row: (row["module"], row["source_path"], row["line"], row["expression"])
+    )
+    target_call_unknown_conditions_sha256 = hashlib.sha256(json.dumps(
+        target_call_unknown_conditions, ensure_ascii=False, sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")).hexdigest()
     call_roots = {name.partition(".")[0] for name in call_modules}
     call_roots_outside_stdlib = tuple(sorted(call_roots - set(stdlib_names)))
     frozen_roots = {
@@ -4562,6 +4625,19 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "module_init_call_rows_sha256": call_sha256,
         "module_init_call_resolved_if_count": call_conditions["resolved"],
         "module_init_call_unknown_if_count": call_conditions["unknown"],
+        "target_module_init_call_candidate_count": len(target_call_modules),
+        "target_module_init_call_source_candidates": _module_source_rows(
+            files, target_call_modules
+        ),
+        "target_module_init_call_edge_count": target_call_edges,
+        "target_module_init_call_function_count": target_call_functions,
+        "target_module_init_call_rows_sha256": target_call_sha256,
+        "target_module_init_call_resolved_if_count": target_call_conditions["resolved"],
+        "target_module_init_call_unknown_if_count": target_call_conditions["unknown"],
+        "target_module_init_call_unknown_if_conditions": target_call_unknown_conditions,
+        "target_module_init_call_unknown_if_conditions_sha256": (
+            target_call_unknown_conditions_sha256
+        ),
         "roots": list(ROOTS),
         "scope": "LEXICAL_SOURCE_CANDIDATES_ONLY",
     }
