@@ -10,19 +10,19 @@ Generalprobe bleibt ausgeschlossen.
 
 ### DGN-007 – Quellenprüfung unbekannter Importzweige
 
-Der nach PR #734 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
+Der nach PR #736 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
 Workerroute gebundene Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten,
-169 Funktionen, 57 entschiedene und 513 unbekannte Bedingungen. Der
+169 Funktionen, 58 entschiedene und 512 unbekannte Bedingungen. Der
 Zeilendigest ist `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
 der Digest der unbekannten Bedingungen
-`6df5f34ff1f3f7b6c3372ce806b39c7e2c2cd8b2b3db8849ab2d638c429ea193`.
+`b1c1bd2b2fdbf4fc058cec19f26234aeca851dda52c20f5fc1cbec3d1761355b`.
 PR #734 bindet alle 22 gepinnten `_verbose_message`-Aufrufstellen in
 `_bootstrap.py`, `_bootstrap_external.py` und `zipimport.py`; der Guard
 `importlib._bootstrap.py:493` ist für die festgelegte Workerroute falsch.
-160 fokussierte Regressionen bestehen. Das ist weder eine vollständige
+162 fokussierte Regressionen bestehen. Das ist weder eine vollständige
 Importclosure noch P11-, Runtime-, Profil- oder Workerattestation. Der
 Zwischenstand mit 533 unbekannten Bedingungen unten ist historisch; die
-[aktuelle DGN-007-Fortsetzung](#fortsetzung-sysconfig-build-guard)
+[aktuelle DGN-007-Fortsetzung](#fortsetzung-sysconfig-build-tree-guard)
 enthält die neueren Facts und Digests.
 
 ### DGN-007 – integrierter Import-Only-Worker
@@ -10132,3 +10132,29 @@ Importclosure, P11-Sollinventur oder Runtimeattestation. Quellen-/Aufrufreview,
 S15-/P11-Records, fünf vollständige Formen, das gemeinsame 64-KiB-Gate und die
 davon abhängige operative Inventur bleiben offen. Es gab keinen Interpreter-,
 Profil-, Worker-, SQL- oder Generalprobenlauf.
+
+## Fortsetzung: sysconfig-Build-Tree-Guard
+
+Die vorhandene OCI-Layerauswertung validiert neben Executable und beiden
+`Modules/Setup`-Dateien nun auch die Typen von `usr`, `usr/local` und
+`usr/local/bin`; `usr/local/bin/Modules` muss fehlen oder ein echtes Verzeichnis
+sein. Symlink-Eltern, die die Dateiprüfung auf andere Rootfs-Pfade umlenken
+könnten, verwerfen den Image-Fact. Die gebundene Imageauswertung bestätigt die
+normalen Vorfahren und das Fehlen des `Modules`-Verzeichnisses.
+
+Darauf aufbauend wird `sysconfig.py:235` nur als falsch behandelt, wenn die
+geprüfte CPython-Quelle den `_PROJECT_BASE`-Pfad direkt aus
+`sys.executable` ableitet, der direkte CPython-3.12-Pfad gebunden ist, `-S`
+`sys._home` ausschließt und der gesonderte Vertrag einen
+`_PYTHON_PROJECT_BASE`-Override ausschließt. Der Quell- und Zielscan entscheidet
+damit `is_python_build()` als falsch, ohne den Interpreter auszuführen.
+
+Der Scan bleibt `CANDIDATES_ONLY` mit 60 Modulen, 316 Kanten und 169 Funktionen;
+58 Bedingungen sind entschieden und 512 unbekannt. Der Kandidatendigest bleibt
+`33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`; der neue
+Unknown-Digest lautet
+`b1c1bd2b2fdbf4fc058cec19f26234aeca851dda52c20f5fc1cbec3d1761355b`.
+162 fokussierte Regressionen bestehen lokal. Vollständige Importclosure,
+S15-/P11-Sollinventur, unabhängiger Quellen-/Aufrufreview, fünf vollständige
+Formen, gemeinsames 64-KiB-Gate und operative Inventur bleiben offen. Kein
+Interpreter-, Profil-, Worker-, SQL- oder Generalprobenlauf.

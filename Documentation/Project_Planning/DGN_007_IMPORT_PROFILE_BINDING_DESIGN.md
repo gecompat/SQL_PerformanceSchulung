@@ -6075,3 +6075,28 @@ Unknown-Digest lautet
 Importclosure noch P11-Sollinventur oder Runtimeattestation. Quellen-/Aufrufreview,
 vollständige fünf Formen, gemeinsames 64-KiB-Gate und operative Inventur bleiben
 offen. Kein Interpreter-, Worker-, Profil-, SQL- oder Generalprobenlauf.
+
+### Fortsetzung: `sysconfig.is_python_build()` und geprüfter Imagepfad
+
+Die verifizierte OCI-Layerauswertung bindet nun auch die Pfadvorfahren von
+`usr/local/bin/Modules/Setup` und `Setup.local`. `usr`, `usr/local` und
+`usr/local/bin` müssen echte Verzeichnisse sein; `usr/local/bin/Modules` muss
+fehlen oder ein echtes Verzeichnis sein. Damit kann ein Symlink den
+`os.path.isfile`-Check nicht auf einen anderen Imagepfad umlenken.
+
+Der zeilengebundene CPython-Fact setzt `sysconfig.py:235` nur dann auf falsch,
+wenn die geprüfte Quelle `_PROJECT_BASE` aus dem gebundenen direkten
+`sys.executable`-Pfad ableitet, der Image-Scan beide `Setup`-Dateien unter dem
+damit festgelegten Verzeichnis ausschließt, `-S` den `sys._home`-Zweig sperrt
+und der Aufrufvertrag einen `_PYTHON_PROJECT_BASE`-Override ausschließt. Alle
+anderen Pfade verwerfen den Fact.
+
+Der zielgebundene Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten, 169
+Funktionen, 58 entschiedene und 512 unbekannte Bedingungen. Der Zeilendigest
+bleibt `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`;
+der Unknown-Digest lautet
+`b1c1bd2b2fdbf4fc058cec19f26234aeca851dda52c20f5fc1cbec3d1761355b`. 162
+fokussierte Regressionen bestehen lokal. Dies belegt weder eine vollständige
+Importclosure noch P11-Sollrecords oder Runtime. Quellen-/Aufrufreview, fünf
+vollständige Formen, gemeinsames 64-KiB-Gate und operative Inventur bleiben
+offen. Kein Interpreter-, Worker-, Profil-, SQL- oder Generalprobenlauf.

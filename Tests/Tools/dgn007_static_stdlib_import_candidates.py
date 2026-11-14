@@ -2902,6 +2902,72 @@ def _target_sysconfig_is_python_build_line_facts(files):
     return {guards[0].lineno: False}
 
 
+def _target_sysconfig_build_setup_guard_line_facts(
+        files, image_path_facts, sysconfig_name_facts,
+        project_base_env_facts, no_site, no_project_base_override,
+        direct_python312):
+    """Bind the build-tree file probes to the exact image and worker assumptions."""
+    source = files.get("sysconfig.py") if type(files) is dict else None
+    expected_image_facts = {
+        "executable_path_candidate": "/usr/local/bin/python3.12",
+        "_PYTHON_BUILD": False,
+        "setup_parent_paths_verified": True,
+        "_pickle_extension": True,
+    }
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256
+            or image_path_facts != expected_image_facts
+            or type(sysconfig_name_facts) is not dict
+            or sysconfig_name_facts.get("_sys_home") is not False
+            or project_base_env_facts != (
+                ("'_PYTHON_PROJECT_BASE' in os.environ", False),
+            )
+            or no_site is not True or no_project_base_override is not True
+            or direct_python312 is not True):
+        return {}
+    try:
+        tree = ast.parse(source, filename="sysconfig.py")
+    except SyntaxError:
+        return {}
+    executable_guards = [node for node in tree.body
+                         if isinstance(node, ast.If)
+                         and ast.unparse(node.test) == "sys.executable"]
+    project_assignments = [node for node in executable_guards[0].body
+                           if isinstance(node, ast.Assign)
+                           and any(isinstance(target, ast.Name)
+                                   and target.id == "_PROJECT_BASE"
+                                   for target in node.targets)] if len(executable_guards) == 1 else []
+    if (len(executable_guards) != 1 or len(project_assignments) != 1
+            or ast.unparse(project_assignments[0].value)
+            != "os.path.dirname(_safe_realpath(sys.executable))"):
+        return {}
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef)
+                 and node.name == "is_python_build"]
+    if len(functions) != 1:
+        return {}
+    function = functions[0]
+    loops = [node for node in function.body if isinstance(node, ast.For)]
+    guards = [node for node in ast.walk(function)
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test)
+              == "os.path.isfile(os.path.join(_PROJECT_BASE, 'Modules', fn))"]
+    final_false_returns = [node for node in function.body
+                           if isinstance(node, ast.Return)
+                           and isinstance(node.value, ast.Constant)
+                           and node.value.value is False]
+    if (len(loops) != 1 or ast.unparse(loops[0].iter)
+            != "('Setup', 'Setup.local')"
+            or len(guards) != 1
+            or len(final_false_returns) != 1
+            or not any(isinstance(node, ast.Return)
+                       and isinstance(node.value, ast.Constant)
+                       and node.value.value is True
+                       for node in guards[0].body)):
+        return {}
+    return {guards[0].lineno: False}
+
+
 def _target_sysconfig_project_base_env_facts(files, image_config_source,
                                              no_project_base_override):
     """Bind the direct os.environ guard to the pinned image ENV and call assumption."""
@@ -3028,6 +3094,10 @@ def _target_image_save_facts(image_save_path, image_config_source):
                 raise ValueError("TARGET_IMAGE_SAVE_DIFF_IDS")
 
             tracked = {
+                "usr": None,
+                "usr/local": None,
+                "usr/local/bin": None,
+                "usr/local/bin/Modules": None,
                 TARGET_EXECUTABLE_PATH: None,
                 PICKLE_EXTENSION_PATH: None,
                 "usr/local/bin/python3": None,
@@ -3062,7 +3132,8 @@ def _target_image_save_facts(image_save_path, image_config_source):
                                     content_digest.update(chunk)
                                 content_sha256 = content_digest.hexdigest()
                             additions.append((name, {
-                                "file": member.isfile(), "symlink": member.issym(),
+                                "file": member.isfile(), "directory": member.isdir(),
+                                "symlink": member.issym(),
                                 "linkname": member.linkname if member.issym() else None,
                                 "mode": member.mode & 0o777,
                                 "sha256": content_sha256,
@@ -3086,18 +3157,23 @@ def _target_image_save_facts(image_save_path, image_config_source):
                         tracked[target] = None
                 for name, facts in additions:
                     tracked[name] = facts
+            if not _target_image_setup_paths_safe(tracked):
+                raise ValueError("TARGET_IMAGE_SAVE_SETUP_PATHS")
             executable = tracked[TARGET_EXECUTABLE_PATH]
-            if (executable != {"file": True, "symlink": False, "linkname": None,
+            if (executable != {"file": True, "directory": False, "symlink": False,
+                               "linkname": None,
                                "mode": 0o755, "sha256": TARGET_EXECUTABLE_SHA256}
                     or tracked["usr/local/bin/python3"] != {
-                        "file": False, "symlink": True, "linkname": "python3.12",
+                        "file": False, "directory": False, "symlink": True,
+                        "linkname": "python3.12",
                         "mode": 0o777, "sha256": None,
                     }
                     or tracked["usr/local/bin/Modules/Setup"] is not None
                     or tracked["usr/local/bin/Modules/Setup.local"] is not None):
                 raise ValueError("TARGET_IMAGE_SAVE_PATH_FACTS")
             if tracked[PICKLE_EXTENSION_PATH] != {
-                    "file": True, "symlink": False, "linkname": None,
+                    "file": True, "directory": False, "symlink": False,
+                    "linkname": None,
                     "mode": 0o755, "sha256": PICKLE_EXTENSION_SHA256}:
                 raise ValueError("TARGET_IMAGE_PICKLE_EXTENSION_FACT")
     except (tarfile.TarError, KeyError, TypeError, json.JSONDecodeError) as error:
@@ -3105,8 +3181,27 @@ def _target_image_save_facts(image_save_path, image_config_source):
     return {
         "executable_path_candidate": "/usr/local/bin/python3.12",
         "_PYTHON_BUILD": False,
+        "setup_parent_paths_verified": True,
         "_pickle_extension": True,
     }
+
+
+def _target_image_setup_paths_safe(tracked):
+    """Reject symlinked parents that could redirect the pinned Setup probes."""
+    if type(tracked) is not dict:
+        return False
+    for path in ("usr", "usr/local", "usr/local/bin"):
+        facts = tracked.get(path)
+        if (type(facts) is not dict or facts.get("directory") is not True
+                or facts.get("symlink") is not False):
+            return False
+    modules = tracked.get("usr/local/bin/Modules")
+    if (modules is not None
+            and (type(modules) is not dict or modules.get("directory") is not True
+                 or modules.get("symlink") is not False)):
+        return False
+    return (tracked.get("usr/local/bin/Modules/Setup") is None
+            and tracked.get("usr/local/bin/Modules/Setup.local") is None)
 
 
 def _target_condition(node, known_names=None, known_call_facts=None):
@@ -5171,6 +5266,13 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     sysconfig_project_base_env_facts = _target_sysconfig_project_base_env_facts(
         files, target_image_config_source, target_no_project_base_override,
     ) if target_image_config_source is not None else ()
+    target_sysconfig_build_setup_guard_line_facts = (
+        _target_sysconfig_build_setup_guard_line_facts(
+            files, target_image_path_facts, sysconfig_name_facts,
+            sysconfig_project_base_env_facts, target_no_site,
+            target_no_project_base_override, target_direct_python312,
+        )
+    )
     importlib_bootstrap = files.get("importlib/_bootstrap.py")
     importlib_external = files.get("importlib/_bootstrap_external.py")
     if importlib_bootstrap is None or importlib_external is None:
@@ -5340,12 +5442,16 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "os": os_createenviron_line_facts,
             "codecs": codecs_false_guard_line_facts,
             "pickle": pickle_buffer_line_facts,
-            "sysconfig": target_sysconfig_is_python_build_line_facts,
+            "sysconfig": {
+                **target_sysconfig_is_python_build_line_facts,
+                **target_sysconfig_build_setup_guard_line_facts,
+            },
             "importlib._bootstrap_external": target_importlib_optimize_line_facts,
             "importlib._bootstrap": target_importlib_verbose_line_facts,
         } if (os_createenviron_line_facts or codecs_false_guard_line_facts
               or pickle_buffer_line_facts
               or target_sysconfig_is_python_build_line_facts
+              or target_sysconfig_build_setup_guard_line_facts
               or target_importlib_optimize_line_facts
               or target_importlib_verbose_line_facts) else {},
         trusted_empty_for_facts={
@@ -5546,6 +5652,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_sysconfig_is_python_build_line_facts": list(
             target_sysconfig_is_python_build_line_facts.items()
+        ),
+        "target_platform_sysconfig_build_setup_guard_line_facts": list(
+            target_sysconfig_build_setup_guard_line_facts.items()
         ),
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,
