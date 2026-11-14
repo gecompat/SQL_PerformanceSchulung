@@ -24,6 +24,8 @@ GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcef
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
 IMPORTLIB_BOOTSTRAP_SOURCE_SHA256 = "d112d54b7831cf4a818d4841d5ff8003b54df220a6dabafa61f67d7c7a5603f7"
 IMPORTLIB_EXTERNAL_SOURCE_SHA256 = "e6ad72f3f0f9b65c99ab52598cd02ab748511dcdce1dd51f18dace9be9a680c6"
+IMPORTLIB_MACHINERY_SOURCE_SHA256 = "d045cd7ecf2a12b6ecbfbef79eb114e87ef2ebd756f5b705f73e6f3266e3dede"
+IMPORTLIB_UTIL_SOURCE_SHA256 = "671f2995653f673f6d5056a1089debef473bc28ae7114f7a8db71475733d6876"
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_FILES = 2048
@@ -513,6 +515,8 @@ def _importlib_source_inventory(bootstrap_bytes, external_bytes):
         "name", "loader", "origin", "loader_state", "submodule_search_locations",
         "_uninitialized_submodules", "_set_fileattr", "_cached",
     }
+
+
     if spec_fields != required_spec_fields:
         raise ValueError("IMPORTLIB_MODULE_SPEC_FIELDS")
     required_bootstrap = {
@@ -554,6 +558,50 @@ def _importlib_source_inventory(bootstrap_bytes, external_bytes):
         "bootstrap_methods_sha256": hashlib.sha256(canonical(tuple(sorted(required_methods)))).hexdigest(),
         "builtin_frozen_methods_sha256": hashlib.sha256(canonical(bootstrap_rows)).hexdigest(),
         "loader_finder_methods_sha256": hashlib.sha256(canonical(external_rows)).hexdigest(),
+    }
+
+
+def _importlib_public_api_inventory(machinery_bytes, util_bytes):
+    sources = (
+        ("machinery.py", machinery_bytes, IMPORTLIB_MACHINERY_SOURCE_SHA256),
+        ("util.py", util_bytes, IMPORTLIB_UTIL_SOURCE_SHA256),
+    )
+    rows = []
+    for filename, body, expected in sources:
+        if (type(body) is not bytes or not body
+                or hashlib.sha256(body).hexdigest() != expected):
+            raise ValueError("IMPORTLIB_PUBLIC_API_DIGEST")
+        tree = ast.parse(body.decode("utf-8"))
+        for node in tree.body:
+            if isinstance(node, ast.ImportFrom) and node.module:
+                for item in node.names:
+                    exported = item.asname or item.name
+                    if not exported.startswith("_"):
+                        rows.append((filename, exported, node.module, item.name))
+            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                if not node.name.startswith("_"):
+                    rows.append((filename, node.name, "<local>", node.name))
+    canonical_rows = tuple(sorted(rows))
+    machinery_names = {row[1] for row in canonical_rows if row[0] == "machinery.py"}
+    util_names = {row[1] for row in canonical_rows if row[0] == "util.py"}
+    required_machinery = {
+        "ModuleSpec", "BuiltinImporter", "FrozenImporter", "PathFinder",
+        "FileFinder", "SourceFileLoader", "SourcelessFileLoader",
+        "ExtensionFileLoader", "NamespaceLoader",
+    }
+    required_util = {
+        "module_from_spec", "spec_from_loader", "find_spec",
+        "spec_from_file_location", "LazyLoader",
+    }
+    if not required_machinery.issubset(machinery_names) or not required_util.issubset(util_names):
+        raise ValueError("IMPORTLIB_PUBLIC_API_SYMBOLS")
+    encoded = "".join("\t".join(row) + "\n" for row in canonical_rows).encode("ascii")
+    return {
+        "source_sha256": tuple(expected for _, _, expected in sources),
+        "row_count": len(canonical_rows),
+        "rows_sha256": hashlib.sha256(encoded).hexdigest(),
+        "machinery_export_count": len(machinery_names),
+        "util_export_count": len(util_names),
     }
 
 
@@ -2174,6 +2222,13 @@ def analyze(archive_path):
     importlib_inventory = _importlib_source_inventory(
         importlib_bootstrap, importlib_external
     )
+    machinery_source = files.get("importlib/machinery.py")
+    util_source = files.get("importlib/util.py")
+    if machinery_source is None or util_source is None:
+        raise ValueError("IMPORTLIB_PUBLIC_API_SOURCE_MISSING")
+    importlib_api_inventory = _importlib_public_api_inventory(
+        machinery_source, util_source
+    )
     modules, edges, rows_sha256 = _candidate_closure(files)
     module_body, module_body_edges, module_body_sha256 = _module_body_candidate_closure(files)
     target_platform, target_edges, target_sha256, target_conditions = _target_platform_candidate_closure(files)
@@ -2283,6 +2338,16 @@ def analyze(archive_path):
         ],
         "importlib_loader_finder_methods_sha256": importlib_inventory[
             "loader_finder_methods_sha256"
+        ],
+        "importlib_public_api_row_count": importlib_api_inventory["row_count"],
+        "importlib_public_api_rows_sha256": importlib_api_inventory[
+            "rows_sha256"
+        ],
+        "importlib_machinery_export_count": importlib_api_inventory[
+            "machinery_export_count"
+        ],
+        "importlib_util_export_count": importlib_api_inventory[
+            "util_export_count"
         ],
         "edge_count": edges,
         "module_count": len(modules),
