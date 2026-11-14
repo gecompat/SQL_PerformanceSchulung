@@ -6076,6 +6076,32 @@ Importclosure noch P11-Sollinventur oder Runtimeattestation. Quellen-/Aufrufrevi
 vollständige fünf Formen, gemeinsames 64-KiB-Gate und operative Inventur bleiben
 offen. Kein Interpreter-, Worker-, Profil-, SQL- oder Generalprobenlauf.
 
+### Fortsetzung: sechs Startupflags der festen Workerroute
+
+Der Scanner bindet die sechs `sys.flags`-Werte des festgelegten Kindaufrufs
+`sys.executable -I -S -B -c ...` nur, wenn die CPython-3.12.16-Quellen und die
+Workerquelle ihre bestehenden Digests erfüllen und der AST genau diese argv
+ohne eigenes `env` enthält. `preconfig.c` bindet `-I` an `isolated`; `initconfig.c`
+bindet `-S` an `site_import=0`, `-B` an `write_bytecode=0`, den Default von
+`optimization_level` an null und `isolated` an `safe_path=1` sowie
+`use_environment=0`. `sysmodule.c` muss die vollständigen 18 benannten
+`sys.flags`-Felder und deren genaue `PyConfig`-Abbildung enthalten. Die
+separate sys-Attributzuweisung bindet zusätzlich
+`sys.dont_write_bytecode = bool(!write_bytecode)`. Die Feldzuordnungen sind an
+den [gepinnten CPython-Quellen](https://github.com/python/cpython/tree/v3.12.16/Python)
+gebunden; die Argumentsemantik steht in der
+[CPython-3.12-Kommandozeilenreferenz](https://docs.python.org/3.12/using/cmdline.html).
+
+Die Ausgabe liefert statische Zielroutenfacts: `isolated=1`, `no_site=1`,
+`dont_write_bytecode=1`, `ignore_environment=1`, `safe_path=True` und
+`optimize=0`; der separate boolesche Alias `sys.dont_write_bytecode` ist
+`True`. Boolesche Nativefacts werden nicht still als vollständige
+S15-Intrecords ausgegeben. Zwei synthetische Regressionen prüfen vollständige
+Zuordnung, Weitergabe an die Bedingungsauswertung und Fail-closed-Verhalten bei
+Quell-/Routenänderung. Der fokussierte Satz besteht lokal 212/212 unter Python
+3.14. PR-Gates stehen noch aus. Keine Profilaufnahme, P11-Sollinventur,
+Runtimeattestation oder menschliche Generalprobe.
+
 ### Fortsetzung: `sysconfig.is_python_build()` und geprüfter Imagepfad
 
 Die verifizierte OCI-Layerauswertung bindet nun auch die Pfadvorfahren von

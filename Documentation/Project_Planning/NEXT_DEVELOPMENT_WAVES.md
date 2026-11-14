@@ -2049,7 +2049,7 @@ CPython-3.12.16-Offlineprüfung bestanden. PR #762 integrierte den Schnitt als
 lokale/Remote-Branches sind entfernt. Kein Interpreter-, Profil-, Worker-,
 SQL-, Lab- oder Generalprobenlauf.
 
-### Begrenzte Fortsetzung: `startswith()` auf Plattformstrings (15. November 2026)
+### Abgeschlossen: `startswith()` auf Plattformstrings (15. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
 und zwei synthetische Regressionen. `startswith()` wird nur mit einem bekannten
@@ -2063,4 +2063,26 @@ sind Arbeitsumfang, kein Provider-Ausgabenlimit. PR-Integration ist der
 Checkpoint; danach wird anhand des aktuellen Status weitergearbeitet.
 
 Zwei synthetische Regressionen und die fokussierte Suite bestehen lokal mit 210
+Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der gepinnten
+CPython-3.12.16-Offlineprüfung bestanden. PR #763 integrierte den Schnitt als
+`7cb558344532d3dc4fe27ec91b390367df57bc66`; `main` ist synchronisiert und
+lokale/Remote-Branches sind entfernt. Kein Interpreter-, Profil-, Worker-,
+SQL-, Lab- oder Generalprobenlauf.
+
+### Begrenzte Fortsetzung: S15-Startupflags aus der festen Workerroute
+(15. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. Die sechs S15-Startupflags werden nur aus
+der exakt gepinnten Worker-argv, `preconfig.c`, `initconfig.c` und der
+`sys.flags`-/`sys.dont_write_bytecode`-Abbildung aus `sysmodule.c` abgeleitet.
+Geänderte Quellen, argv oder `env` verwerfen die Facts. Native Boolwerte und
+die normalisierte S15-Intdarstellung bleiben unterschieden; es entstehen weder
+Profilaufnahme noch vollständige S15-Records. Keine Runtime-, Profil-, Worker-,
+SQL-, Lab- oder Generalprobenausführung. Token-/Geldverbrauch bleiben
+unbekannt; ein Paket, ein PR und zwei Kandidaten sind Arbeitsumfang, kein
+Provider-Ausgabenlimit. PR-Integration ist der Checkpoint; danach wird anhand
+des aktuellen Status weitergearbeitet.
+
+Zwei synthetische Regressionen und die fokussierte Suite bestehen lokal mit 212
 Tests unter Python 3.14. PR-Gates stehen noch aus.
