@@ -705,10 +705,12 @@ def _import_names(tree, module, path):
                     parts.append(value.value)
                 elif (isinstance(value, ast.FormattedValue)
                       and value.conversion in (-1, ord("s"))
-                      and value.format_spec is None
                       and isinstance(value.value, (ast.Constant, ast.JoinedStr))):
                     formatted_value = literal_string(value.value)
-                    if formatted_value is None:
+                    format_spec = (literal_string(value.format_spec)
+                                   if value.format_spec is not None else None)
+                    if (formatted_value is None
+                            or (value.format_spec is not None and format_spec != "s")):
                         return None
                     parts.append(formatted_value)
                 else:

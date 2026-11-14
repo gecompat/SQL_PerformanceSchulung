@@ -59,9 +59,9 @@ fünf Bootstrappräfiximports, acht Profilquellenimports und den `zlib`-Einbau
 gebunden; das belegt weiterhin keine tatsächlich gehaltenen Laufzeitbytes.
 Die dynamische Importkandidatenanalyse erkennt nun auch f-Strings aus
 Textsegmenten und direkten oder verschachtelten Stringkonstanten ohne
-Formatangabe sowie mit
-semantisch identischer `!s`-Konvertierung inline;
-Laufzeitausdrücke, `!r`/`!a` und Formatangaben bleiben unaufgelöst. Die
+Formatangabe oder mit wertneutralem `:s` sowie mit semantisch identischer
+`!s`-Konvertierung inline; Laufzeitausdrücke, `!r`/`!a` und andere
+Formatangaben bleiben unaufgelöst. Die
 fokussierte Regression besteht mit 105/105 Fällen.
 Archivclosure und Modulstartscan bleiben unverändert; der Befund ist weiterhin
 `CANDIDATES_ONLY`, keine vollständige P11-Inventur.
