@@ -10586,4 +10586,9 @@ digestgeprüfte `sysmodule.c` nachweist, dass `make_impl_info` dasselbe
 `version_info`-Objekt einsetzt, das als `sys.version_info` veröffentlicht wird.
 Abweichende Zuweisungen bleiben unbekannt. Zwei Regressionen prüfen direkte
 Vergleiche, Slice-/Closure-Auswertung und die Quellenabweichung. Die fokussierte
-Suite besteht lokal mit 214 Tests unter Python 3.14; PR-Gates stehen noch aus.
+Suite besteht lokal mit 214 Tests unter Python 3.14. Alle fünf PR-Gates
+einschließlich der gepinnten CPython-3.12.16-Offlineprüfung bestanden. PR #765
+ist als Commit `ab5240ed62662e0edffebd020df6ba3ddad14728` integriert; `main` ist
+synchronisiert und lokale/Remote-Branches sind entfernt. Der Workflow enthält
+keinen separaten Zielscanbericht. Dies sind statische Routenfacts, keine
+aktuelle Runtimebeobachtung oder vollständigen S15-Records.

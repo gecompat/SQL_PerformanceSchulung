@@ -2091,7 +2091,7 @@ CPython-3.12.16-Offlineprüfung bestanden. PR #764 integrierte den Schnitt als
 lokale/Remote-Branches sind entfernt. Kein Interpreter-, Profil-, Worker-,
 SQL-, Lab- oder Generalprobenlauf.
 
-### Begrenzte Fortsetzung: `sys.implementation.version` quellenbinden
+### Abgeschlossen: `sys.implementation.version` quellenbinden
 (15. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
@@ -2105,4 +2105,8 @@ sind Arbeitsumfang, kein Provider-Ausgabenlimit. PR-Integration ist der
 Checkpoint; danach wird anhand des aktuellen Status weitergearbeitet.
 
 Zwei synthetische Regressionen und die fokussierte Suite bestehen lokal mit 214
-Tests unter Python 3.14. PR-Gates stehen noch aus.
+Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der gepinnten
+CPython-3.12.16-Offlineprüfung bestanden. PR #765 integrierte den Schnitt als
+`ab5240ed62662e0edffebd020df6ba3ddad14728`; `main` ist synchronisiert und
+lokale/Remote-Branches sind entfernt. Kein Interpreter-, Profil-, Worker-,
+SQL-, Lab- oder Generalprobenlauf.
