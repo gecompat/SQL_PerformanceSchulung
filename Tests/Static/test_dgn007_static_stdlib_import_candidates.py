@@ -25,6 +25,41 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(SUBJECT.MAX_SOURCE_BYTES, 64 * 1024 * 1024)
         self.assertEqual(SUBJECT.MAX_SOURCE_FILES, 2048)
 
+    def test_python_config_sources_are_digest_checked_during_archive_read(self):
+        preconfig = b"preconfig source fixture"
+        initconfig = b"initconfig source fixture"
+
+        def make_archive(members):
+            output = io.BytesIO()
+            with SUBJECT.tarfile.open(fileobj=output, mode="w:xz") as archive:
+                for name, content in members:
+                    info = SUBJECT.tarfile.TarInfo(name)
+                    info.size = len(content)
+                    archive.addfile(info, io.BytesIO(content))
+            return output.getvalue()
+
+        members = [
+            (SUBJECT.PRECONFIG_C_MEMBER, preconfig),
+            (SUBJECT.INITCONFIG_C_MEMBER, initconfig),
+        ]
+        with patch.multiple(
+            SUBJECT,
+            PRECONFIG_C_SHA256=hashlib.sha256(preconfig).hexdigest(),
+            INITCONFIG_C_SHA256=hashlib.sha256(initconfig).hexdigest(),
+        ):
+            result = SUBJECT._source_archive_data(make_archive(members))
+            self.assertEqual(result[-2:], (preconfig, initconfig))
+            with self.assertRaisesRegex(ValueError, "PYTHON_CONFIG_SOURCE_MEMBER"):
+                SUBJECT._source_archive_data(make_archive(
+                    members + [(SUBJECT.PRECONFIG_C_MEMBER, preconfig)]
+                ))
+            changed = b"changed initconfig fixture"
+            with self.assertRaisesRegex(ValueError, "PYTHON_CONFIG_SOURCE_DIGEST"):
+                SUBJECT._source_archive_data(make_archive([
+                    (SUBJECT.PRECONFIG_C_MEMBER, preconfig),
+                    (SUBJECT.INITCONFIG_C_MEMBER, changed),
+                ]))
+
     def test_target_image_save_requires_verified_config_layers_and_path_facts(self):
         with tempfile.TemporaryDirectory() as directory:
             image_path = Path(directory) / "image.tar"
