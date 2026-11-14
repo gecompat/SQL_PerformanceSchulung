@@ -301,7 +301,15 @@ class StaticImportCandidateTests(unittest.TestCase):
 
         sysconfig = (
             b"_INSTALL_SCHEMES = {'posix': {'stdlib': 'lib/python', 'purelib': 'site'}}\n"
-            b"def _get_sysconfigdata_name(): return 'name'\n"
+            b"def _get_sysconfigdata_name():\n"
+            b"    multiarch = getattr(sys.implementation, '_multiarch', '')\n"
+            b"    return os.environ.get('_PYTHON_SYSCONFIGDATA_NAME', "
+            b"f'_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}')\n"
+            b"def _init_posix(vars):\n"
+            b"    name = _get_sysconfigdata_name()\n"
+            b"    _temp = __import__(name, globals(), locals(), ['build_time_vars'], 0)\n"
+            b"    build_time_vars = _temp.build_time_vars\n"
+            b"    vars.update(build_time_vars)\n"
             b"def get_config_var(name): return name\n"
             b"def get_config_vars(): return {}\n"
             b"def get_path(name): return name\n"
@@ -314,11 +322,75 @@ class StaticImportCandidateTests(unittest.TestCase):
             scheme_inventory = SUBJECT._sysconfig_source_inventory(sysconfig)
         self.assertEqual(scheme_inventory["scheme_count"], 1)
         self.assertEqual(scheme_inventory["path_key_count"], 2)
+        self.assertEqual(scheme_inventory["sysconfigdata_override_key"], "_PYTHON_SYSCONFIGDATA_NAME")
+        self.assertEqual(scheme_inventory["sysconfigdata_name_template"],
+                         "_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}")
+        self.assertEqual(scheme_inventory["sysconfigdata_importer"], "__import__")
+        self.assertEqual(scheme_inventory["sysconfigdata_imported_attribute"], "build_time_vars")
+
+    def test_sysconfig_source_rejects_changed_sysconfigdata_import_route(self):
+        source = (
+            b"_INSTALL_SCHEMES = {'posix': {'stdlib': 'lib/python'}}\n"
+            b"def _get_sysconfigdata_name():\n"
+            b"    multiarch = getattr(sys.implementation, '_multiarch', '')\n"
+            b"    return os.environ.get('_PYTHON_SYSCONFIGDATA_NAME', "
+            b"f'_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}')\n"
+            b"def _init_posix(vars):\n"
+            b"    name = _get_sysconfigdata_name()\n"
+            b"    _temp = __import__(name, globals(), locals(), ['wrong'], 0)\n"
+            b"    build_time_vars = _temp.build_time_vars\n"
+            b"    vars.update(build_time_vars)\n"
+            b"def get_config_var(name): return name\n"
+            b"def get_config_vars(): return {}\n"
+            b"def get_path(name): return name\n"
+            b"def get_path_names(): return ()\n"
+            b"def get_paths(): return {}\n"
+        )
+        with patch.object(
+            SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(source).hexdigest()
+        ):
+            with self.assertRaisesRegex(ValueError, "SYSCONFIGDATA_IMPORT_SOURCE"):
+                SUBJECT._sysconfig_source_inventory(source)
+        changed_name_source = source.replace(
+            b"_PYTHON_SYSCONFIGDATA_NAME", b"_UNSELECTED_SYSCONFIGDATA_NAME"
+        )
+        with patch.object(
+            SUBJECT, "SYSCONFIG_SOURCE_SHA256",
+            hashlib.sha256(changed_name_source).hexdigest(),
+        ):
+            with self.assertRaisesRegex(ValueError, "SYSCONFIGDATA_NAME_SOURCE"):
+                SUBJECT._sysconfig_source_inventory(changed_name_source)
+        async_source = source.replace(
+            b"def _init_posix(vars):", b"async def _init_posix(vars):"
+        )
+        with patch.object(
+            SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(async_source).hexdigest()
+        ):
+            with self.assertRaisesRegex(ValueError, "SYSCONFIGDATA_IMPORT_SOURCE"):
+                SUBJECT._sysconfig_source_inventory(async_source)
+        decorated_source = source.replace(
+            b"def _get_sysconfigdata_name():",
+            b"@decorator\ndef _get_sysconfigdata_name():",
+        )
+        with patch.object(
+            SUBJECT, "SYSCONFIG_SOURCE_SHA256",
+            hashlib.sha256(decorated_source).hexdigest(),
+        ):
+            with self.assertRaisesRegex(ValueError, "SYSCONFIGDATA_NAME_SOURCE"):
+                SUBJECT._sysconfig_source_inventory(decorated_source)
 
     def test_sysconfig_source_rejects_executable_scheme_expression(self):
         source = (
             b"_INSTALL_SCHEMES = build_schemes()\n"
-            b"def _get_sysconfigdata_name(): return 'name'\n"
+            b"def _get_sysconfigdata_name():\n"
+            b"    multiarch = getattr(sys.implementation, '_multiarch', '')\n"
+            b"    return os.environ.get('_PYTHON_SYSCONFIGDATA_NAME', "
+            b"f'_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}')\n"
+            b"def _init_posix(vars):\n"
+            b"    name = _get_sysconfigdata_name()\n"
+            b"    _temp = __import__(name, globals(), locals(), ['build_time_vars'], 0)\n"
+            b"    build_time_vars = _temp.build_time_vars\n"
+            b"    vars.update(build_time_vars)\n"
             b"def get_config_var(name): return name\n"
             b"def get_config_vars(): return {}\n"
             b"def get_path(name): return name\n"

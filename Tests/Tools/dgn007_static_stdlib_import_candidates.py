@@ -443,6 +443,43 @@ def _sysconfig_source_inventory(source_bytes):
     if "_INSTALL_SCHEMES" not in assignments \
             or not set(required_functions).issubset(functions):
         raise ValueError("SYSCONFIG_SOURCE_SYMBOLS")
+    function_nodes = {
+        node.name: node for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+
+    def function_without_docstring(function):
+        body = list(function.body)
+        if (body and isinstance(body[0], ast.Expr)
+                and isinstance(body[0].value, ast.Constant)
+                and type(body[0].value.value) is str):
+            body.pop(0)
+        fields = {name: getattr(function, name) for name in function._fields}
+        fields["body"] = body
+        normalized = type(function)(**fields)
+        return ast.dump(normalized, include_attributes=False)
+
+    expected_name_builder = ast.parse(
+        "def _get_sysconfigdata_name():\n"
+        "    multiarch = getattr(sys.implementation, '_multiarch', '')\n"
+        "    return os.environ.get('_PYTHON_SYSCONFIGDATA_NAME', "
+        "f'_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}')\n"
+    ).body[0]
+    expected_posix_init = ast.parse(
+        "def _init_posix(vars):\n"
+        "    name = _get_sysconfigdata_name()\n"
+        "    _temp = __import__(name, globals(), locals(), ['build_time_vars'], 0)\n"
+        "    build_time_vars = _temp.build_time_vars\n"
+        "    vars.update(build_time_vars)\n"
+    ).body[0]
+    name_builder = function_nodes.get("_get_sysconfigdata_name")
+    posix_init = function_nodes.get("_init_posix")
+    if (name_builder is None or posix_init is None
+            or function_without_docstring(name_builder)
+            != function_without_docstring(expected_name_builder)):
+        raise ValueError("SYSCONFIGDATA_NAME_SOURCE")
+    if function_without_docstring(posix_init) != function_without_docstring(expected_posix_init):
+        raise ValueError("SYSCONFIGDATA_IMPORT_SOURCE")
     scheme_assignment = next((node for node in tree.body
                               if isinstance(node, ast.Assign)
                               and any(isinstance(target, ast.Name)
@@ -491,6 +528,10 @@ def _sysconfig_source_inventory(source_bytes):
         "required_functions_sha256": hashlib.sha256(
             "".join(name + "\n" for name in required_functions).encode("ascii")
         ).hexdigest(),
+        "sysconfigdata_override_key": "_PYTHON_SYSCONFIGDATA_NAME",
+        "sysconfigdata_name_template": "_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}",
+        "sysconfigdata_importer": "__import__",
+        "sysconfigdata_imported_attribute": "build_time_vars",
     }
 
 
@@ -2631,6 +2672,16 @@ def analyze(archive_path):
         ],
         "sysconfig_required_functions_sha256": sysconfig_inventory[
             "required_functions_sha256"
+        ],
+        "sysconfigdata_override_key": sysconfig_inventory[
+            "sysconfigdata_override_key"
+        ],
+        "sysconfigdata_name_template": sysconfig_inventory[
+            "sysconfigdata_name_template"
+        ],
+        "sysconfigdata_importer": sysconfig_inventory["sysconfigdata_importer"],
+        "sysconfigdata_imported_attribute": sysconfig_inventory[
+            "sysconfigdata_imported_attribute"
         ],
         "importlib_module_spec_field_count": importlib_inventory[
             "module_spec_field_count"
