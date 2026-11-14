@@ -596,6 +596,60 @@ class StaticImportCandidateTests(unittest.TestCase):
                 initconfig_source, env_worker,
             ), {})
 
+    def test_importlib_optimize_fact_requires_pinned_isolated_unoptimized_route(self):
+        preconfig_source = b"case 'I': cmdline->isolated = 1;"
+        initconfig_source = (
+            b"if (config->isolated) { config->use_environment = 0; }\n"
+            b"static void config_init_defaults(void) { "
+            b"config->optimization_level = 0; }\n"
+            b"case 'O': config->optimization_level++;\n"
+            b"static PyStatus config_read_env_vars(PyConfig *config) { "
+            b"int use_env = config->use_environment; "
+            b"_Py_get_env_flag(use_env, &config->optimization_level, "
+            b"\"PYTHONOPTIMIZE\"); }"
+        )
+        worker_source = (
+            b"def run_import_only(ordinal, worker_nonce):\n"
+            b"    command = [sys.executable, '-I', '-S', '-B', '-c', "
+            b"_worker_source(ordinal, worker_nonce)]\n"
+            b"def _collect_process(command):\n"
+            b"    return subprocess.Popen(command)\n"
+        )
+        external_source = (
+            b"if sys.flags.optimize == 0:\n"
+            b"    optimization = ''\n"
+        )
+        with patch.multiple(
+            SUBJECT,
+            PRECONFIG_C_SHA256=hashlib.sha256(preconfig_source).hexdigest(),
+            INITCONFIG_C_SHA256=hashlib.sha256(initconfig_source).hexdigest(),
+            IMPORT_USED_BYTES_PROBE_SHA256=hashlib.sha256(worker_source).hexdigest(),
+            IMPORTLIB_EXTERNAL_SOURCE_SHA256=hashlib.sha256(external_source).hexdigest(),
+        ):
+            fact = SUBJECT._target_importlib_optimize_line_facts(
+                {"importlib/_bootstrap_external.py": external_source},
+                preconfig_source, initconfig_source, worker_source,
+            )
+            self.assertEqual(fact, {1: True})
+            guard = ast.parse(external_source).body[0].test
+            self.assertTrue(SUBJECT._target_condition(
+                guard, known_call_facts=(("sys.flags.optimize == 0", True),)
+            ))
+            optimized_worker = worker_source.replace(
+                b"'-B', '-c'", b"'-B', '-O', '-c'"
+            )
+            self.assertEqual(SUBJECT._target_importlib_optimize_line_facts(
+                {"importlib/_bootstrap_external.py": external_source},
+                preconfig_source, initconfig_source, optimized_worker,
+            ), {})
+            env_worker = worker_source.replace(
+                b"subprocess.Popen(command)", b"subprocess.Popen(command, env={})"
+            )
+            self.assertEqual(SUBJECT._target_importlib_optimize_line_facts(
+                {"importlib/_bootstrap_external.py": external_source},
+                preconfig_source, initconfig_source, env_worker,
+            ), {})
+
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
             "entry.py": (

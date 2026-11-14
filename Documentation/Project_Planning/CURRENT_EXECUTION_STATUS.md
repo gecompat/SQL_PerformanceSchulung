@@ -10033,6 +10033,25 @@ fokussierte Regressionen bestehen lokal. Keine Interpreter-, Profil-, Worker-,
 SQL-, operative S15/P11- oder Generalproben-Ausführung; es ist keine vollständige
 Importclosure oder Runtimeattestation.
 
+## Fortsetzung: CPython-Optimierungsflag der festen Workerroute
+
+Die exakte Worker-argv aus dem vorherigen Abschnitt bindet zusätzlich den
+Quellfact für `importlib._bootstrap_external:519`: `sys.flags.optimize == 0`
+ist wahr, wenn der CPython-3.12.16-Default `optimization_level = 0` gilt,
+`-O` nicht in der argv steht und `-I` die Umgebungsflags deaktiviert. Der
+quellgebundene Fact verlangt die eindeutige Guardzeile und wird bei geänderter
+Worker-argv, gesetztem `env` oder abweichenden CPython-Quellen verworfen.
+
+Der aktuelle Startcallgraph erreicht diesen Funktionsguard nicht; Kandidaten,
+Kanten, Funktionen und Unknown-Digest ändern sich daher nicht. Der Fact wird
+als Zielrouten-Evidenz ausgegeben, aber nicht als zusätzliche ausgeführte
+Importkante oder Runtimebeobachtung ausgelegt. Der Scan bleibt bei 60 Modulen,
+317 Kanten und 169 lokalen Funktionen, 55 entschiedenen und 516 unbekannten
+Bedingungen (`33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
+`ecfc7897ccef369680cb1005b5448ceb3395eed6fd93f556bf974f7d72c63d2c`). 157
+fokussierte Regressionen bestehen lokal. Keine Interpreter-, Profil-, Worker-,
+SQL-, operative S15/P11- oder Generalproben-Ausführung.
+
 ## Fortsetzung: QRY-023 Image-Lock-/Matrix-Parität
 
 Der Offlinevalidator liest nun die drei Runtime-Matrixzeilen strukturiert und

@@ -6006,3 +6006,22 @@ weiterhin `LEXICAL_SOURCE_CANDIDATES_ONLY`, keine vollständige Importclosure,
 Runtimeattestation oder P11-Sollinventur. 156 fokussierte Regressionen bestehen;
 es gab keine Interpreter-, Profil-, Worker-, SQL-, operative S15/P11- oder
 Generalproben-Ausführung.
+
+### Fortsetzung: Optimierungsflag der festen Workerroute
+
+Dieselbe exakte Kinder-argv bindet nun den `sys.flags.optimize == 0`-Guard in
+`importlib._bootstrap_external:519`. Die Evidenz verlangt die gepinnten
+`preconfig.c`-, `initconfig.c`-, `_bootstrap_external.py`- und Workerquellen.
+CPython setzt `optimization_level` standardmäßig auf null, erhöht ihn nur für
+`-O` und liest `PYTHONOPTIMIZE` über die Umgebungsroute; das festgelegte `-I`
+deaktiviert diese Route, und die gepinnte argv enthält kein `-O`. Der Guardfact
+wird bei abweichenden Quellen, argv oder explizitem `env` verworfen.
+
+Der aktuelle Modulstart-/Funktionsfolger erreicht diesen Funktionsguard nicht;
+der neue Fact ändert daher keine Kandidaten-, Kanten-, Funktions- oder
+Unknown-Zählung. Er wird als quellengebundene Zielrouten-Evidenz ausgegeben und
+belegt keine Ausführung. Der Scan bleibt `LEXICAL_SOURCE_CANDIDATES_ONLY` mit
+60 Modulen, 317 Kanten, 169 lokalen Funktionen, 55 entschiedenen und 516
+unbekannten Bedingungen; die bestehenden Zeilen- und Unknown-Digests bleiben
+unverändert. 157 fokussierte Regressionen bestehen lokal. Keine Interpreter-,
+Profil-, Worker-, SQL-, operative S15/P11- oder Generalproben-Ausführung.
