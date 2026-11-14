@@ -1896,7 +1896,7 @@ Schnitt als `a0784f4460c583521c0d8d29cdfea140685b3583`; `main` ist
 synchronisiert und lokale/Remote-Branches sind entfernt. Kein Interpreter-,
 Profil-, Worker-, SQL-, Lab- oder Generalprobenlauf.
 
-### Begrenzte Fortsetzung: konstante `sys.version_info`-Slices (14. November 2026)
+### Abgeschlossen: konstante `sys.version_info`-Slices (14. November 2026)
 
 Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
 und zwei synthetische Regressionen. Die Zielbedingungsauswertung wertet Slices
@@ -1910,4 +1910,24 @@ PR-Integration ist der Checkpoint; danach wird anhand des aktuellen Status
 weitergearbeitet.
 
 Die zwei synthetischen Regressionen und die fokussierte Suite bestehen lokal
-mit 196 Tests unter Python 3.14. PR-Gates stehen noch aus.
+mit 196 Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der
+gepinnten CPython-3.12.16-Offlineprüfung bestanden. PR #755 integrierte den
+Schnitt als `7623d5afef2b1173686e49998af4c8ae5a90882d`; `main` ist
+synchronisiert und lokale/Remote-Branches sind entfernt. Kein Interpreter-,
+Profil-, Worker-, SQL-, Lab- oder Generalprobenlauf.
+
+### Begrenzte Fortsetzung: negative `sys.version_info`-Indizes und Grenzen (14. November 2026)
+
+Der nächste Checkpoint umfasst höchstens ein Arbeitspaket, einen Pull Request
+und zwei synthetische Regressionen. Für das gebundene `sys.version_info`-Tupel
+werden negative konstante Ganzzahlindizes sowie negative Slicegrenzen und
+Schrittweiten ergänzt. Außerhalb liegende Einzelindizes, Bool-Indizes,
+dynamische Grenzen und Schrittweite null bleiben unbekannt. Keine neue
+Produktquelle und keine Interpreter-, Profil-, Worker-, SQL-, Lab- oder
+Generalprobenausführung. Token-/Geldverbrauch bleiben unbekannt; der Umfang
+beträgt ein Paket, einen PR und zwei Kandidaten, kein Provider-Ausgabenlimit.
+PR-Integration ist der Checkpoint; danach wird anhand des aktuellen Status
+weitergearbeitet.
+
+Die fokussierte Suite besteht lokal mit 196 Tests unter Python 3.14. PR-Gates
+stehen noch aus.

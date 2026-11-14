@@ -3817,15 +3817,18 @@ def _target_condition(node, known_names=None, known_call_facts=None):
                         bounds.append(None)
                         continue
                     resolved = value(bound)
-                    if type(resolved) is not int or resolved < 0:
+                    if type(resolved) is not int:
                         return _UNKNOWN
                     bounds.append(resolved)
                 if bounds[2] == 0:
                     return _UNKNOWN
                 return container[slice(*bounds)]
             index = value(expr.slice)
-            if type(index) is int and 0 <= index < len(container):
-                return container[index]
+            if type(index) is int:
+                try:
+                    return container[index]
+                except IndexError:
+                    return _UNKNOWN
             return _UNKNOWN
         if isinstance(expr, ast.List):
             items = [value(item) for item in expr.elts]
@@ -3845,6 +3848,11 @@ def _target_condition(node, known_names=None, known_call_facts=None):
         if isinstance(expr, ast.UnaryOp) and isinstance(expr.op, ast.Not):
             item = value(expr.operand)
             return not item if item is not _UNKNOWN else _UNKNOWN
+        if (isinstance(expr, ast.UnaryOp)
+                and isinstance(expr.op, (ast.UAdd, ast.USub))):
+            item = value(expr.operand)
+            if type(item) is int:
+                return item if isinstance(expr.op, ast.UAdd) else -item
         if isinstance(expr, ast.BoolOp):
             items = [value(item) for item in expr.values]
             if isinstance(expr.op, ast.And):

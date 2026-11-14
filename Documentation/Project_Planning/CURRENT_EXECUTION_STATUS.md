@@ -10447,8 +10447,21 @@ Worker-, SQL-, Lab- und Generalprobenattestation bleiben ausgeschlossen.
 
 Die Zielbedingungsauswertung kann jetzt zusätzlich einfache Slices des
 gebundenen Versions-Tupels mit nichtnegativen konstanten Ganzzahlgrenzen
-und Schrittweiten auswerten. Dynamische oder negative Grenzen/Schrittweiten
-sowie Schrittweite null bleiben unbekannt. Zwei Regressionen prüfen direkte
-Bedingungen und Closure-Zweige.
-Die fokussierte Suite besteht lokal mit 196 Tests unter Python 3.14; PR-Gates
-stehen noch aus.
+und Schrittweiten auswerten. Dynamische Grenzen/Schrittweiten und Schrittweite
+null bleiben unbekannt. Zwei Regressionen prüfen direkte Bedingungen und
+Closure-Zweige. Die fokussierte Suite besteht lokal mit 196 Tests unter Python
+3.14. Alle fünf PR-Gates einschließlich der gepinnten CPython-3.12.16-
+Offlineprüfung bestanden. PR #755 ist als Commit
+`7623d5afef2b1173686e49998af4c8ae5a90882d` integriert; `main` ist synchronisiert
+und lokale/Remote-Branches sind entfernt. Der Workflow enthält keinen
+separaten Zielscanbericht. Runtime-, P11-, Profil-, Worker-, SQL-, Lab- und
+Generalprobenattestation bleiben ausgeschlossen.
+
+## Fortsetzung: negative `sys.version_info`-Indizes und Grenzen
+
+Die Zielbedingungsauswertung akzeptiert nun auch negative konstante
+Ganzzahlindizes und Slicegrenzen/-schrittweiten für das gebundene
+`sys.version_info`-Tupel. Außerhalb liegende Einzelindizes, Bool-Indizes,
+dynamische Grenzen und Schrittweite null bleiben unbekannt. Die bestehende
+fokussierte Suite besteht lokal mit 196 Tests unter Python 3.14; PR-Gates stehen
+noch aus.
