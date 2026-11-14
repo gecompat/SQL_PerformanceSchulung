@@ -221,6 +221,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         tree = ast.parse(
             "if check():\n"
             "    pkg.run(pkg.make())\n"
+            "    pkg.run(pkg.make())\n"
             "    def deferred():\n"
             "        lazy_call()\n"
             "else:\n"
@@ -229,10 +230,12 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(SUBJECT._lexical_call_sites(tree.body[0].body), [
             {"line": 2, "column": 4, "expression": "pkg.run(pkg.make())"},
             {"line": 2, "column": 12, "expression": "pkg.make()"},
-            {"line": 4, "column": 8, "expression": "lazy_call()"},
+            {"line": 3, "column": 4, "expression": "pkg.run(pkg.make())"},
+            {"line": 3, "column": 12, "expression": "pkg.make()"},
+            {"line": 5, "column": 8, "expression": "lazy_call()"},
         ])
         self.assertEqual(SUBJECT._lexical_call_sites(tree.body[0].orelse), [
-            {"line": 6, "column": 4, "expression": "fallback()"}
+            {"line": 7, "column": 4, "expression": "fallback()"}
         ])
 
     def test_lexical_import_inventory_is_deterministic_and_preserves_locations(self):
