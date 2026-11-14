@@ -9415,6 +9415,24 @@ Bedingungen sind aufgelöst, 38 unbekannt. Der getrennte Modulstartscan bleibt
 109/109. Vollständige S15-/P11-Auswahl, operative Inventur und
 Fünf-Formen-/64-KiB-Gate bleiben offen.
 
+
+## Fortsetzung: Alias `_false = 0` im CPython-Quellbaum
+
+Der Zielvorschnitt wertet einen direkten einmaligen Modulalias `_false = 0`
+als false aus, sofern kein früherer Lesezugriff, Rebinding oder erkannter
+dynamischer Namespacezugriff dagegen spricht. Ein Star-Import verwirft ältere
+Fakten; eine nachfolgende direkte Bindung ist zulässig, ein späterer Star-Import
+verwirft sie wieder. Gegenproben bestehen für diese Reihenfolge und die
+Unsicherheitsfälle. Im signaturgeprüften CPython-3.12.16-Archivscan sinkt der
+Linux-Modulkörpervorschnitt auf 56 Kandidaten und 278 Kanten mit Digest
+`9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`; sieben
+Bedingungen sind entschieden und 36 unbekannt. Der getrennte Modulstartscan
+bleibt 93/578/534 mit Digest
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`. Der
+fokussierte Satz besteht 112/112 lokal; vollständige gebundene CI folgt für
+diesen Slice. S15-/P11-Auswahl, operative Inventur und Fünf-Formen-/64-KiB-
+Gate bleiben offen.
+
 Der vollständige DGN-007-Offline-CI-Workflow bestand im digestgebundenen
 CPython-3.12.16-Image: 14 Testmodule, 1.028 Tests ausgeführt, zwei bestehende
 Plattform-Skips, alle übrigen bestanden. Der unabhängige Nachreview schloss

@@ -905,6 +905,7 @@ def _import_names(tree, module, path):
 
 _KNOWN_BUILTIN_NAMES = object()
 _IMPORTED_MODULE_NAME = object()
+_STATIC_FALSE_LITERAL = object()
 # Bounded from the digest-pinned linux/amd64 CPython 3.12.16 config.c/Inittab.
 _TARGET_BUILTIN_MODULE_NAMES = (
     "_abc", "_ast", "_codecs", "_collections", "_functools", "_imp",
@@ -951,7 +952,11 @@ def _target_condition(node, known_names=None):
             name = ast.unparse(expr)
             return target.get(name, _UNKNOWN)
         if isinstance(expr, ast.Name):
-            return known_names.get(expr.id, _UNKNOWN)
+            known = known_names.get(expr.id, _UNKNOWN)
+            if (type(known) is tuple and len(known) == 2
+                    and known[0] is _STATIC_FALSE_LITERAL):
+                return False
+            return known
         if isinstance(expr, ast.UnaryOp) and isinstance(expr.op, ast.Not):
             item = value(expr.operand)
             return not item if item is not _UNKNOWN else _UNKNOWN
@@ -1088,6 +1093,12 @@ def _target_name_aliases(tree, *, imported_module_name=False):
             bind(node.rest)
     known = {}
     module_name_aliases = {"__name__"} if imported_module_name else set()
+    literal_false_aliases = set()
+    first_load = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
+            position = (node.lineno, node.col_offset)
+            first_load[node.id] = min(first_load.get(node.id, position), position)
     deletes_module_name = any(
         isinstance(node, ast.Name) and node.id == "__name__"
         and isinstance(node.ctx, ast.Del)
@@ -1114,6 +1125,8 @@ def _target_name_aliases(tree, *, imported_module_name=False):
             mapped = (_KNOWN_BUILTIN_NAMES
                       if isinstance(value, ast.Attribute)
                       and ast.unparse(value) == "sys.builtin_module_names"
+                      else False if isinstance(value, ast.Constant)
+                      and type(value.value) is int and value.value == 0
                       else known.get(value.id, _UNKNOWN) if isinstance(value, ast.Name) else _UNKNOWN)
             for target in statement.targets:
                 if isinstance(target, ast.Name):
@@ -1126,7 +1139,19 @@ def _target_name_aliases(tree, *, imported_module_name=False):
                     if mapped is _UNKNOWN:
                         known.pop(target.id, None)
                     else:
-                        known[target.id] = mapped
+                        if (mapped is False and target.id != "_false"
+                                or target.id == "_false"
+                                and first_load.get(target.id, (float("inf"), 0))
+                                < (statement.lineno, statement.col_offset)):
+                            known.pop(target.id, None)
+                        else:
+                            known[target.id] = (
+                                (_STATIC_FALSE_LITERAL, statement.lineno)
+                                if target.id == "_false" and mapped is False
+                                else mapped
+                            )
+                            if target.id == "_false" and mapped is False:
+                                literal_false_aliases.add(target.id)
         elif isinstance(statement, ast.AnnAssign) and isinstance(statement.target, ast.Name):
             value = statement.value
             if (statement.target.id == "__name__"
@@ -1145,6 +1170,8 @@ def _target_name_aliases(tree, *, imported_module_name=False):
                 known[statement.target.id] = mapped
     if dynamic_namespace_access:
         for name in module_name_aliases:
+            known.pop(name, None)
+        for name in literal_false_aliases:
             known.pop(name, None)
     return {
         name: value for name, value in known.items()
@@ -1173,7 +1200,14 @@ def _module_body_import_names(
         if isinstance(node, ast.ImportFrom):
             if target_platform and known_names is not None and any(
                     alias.name == "*" for alias in node.names):
+                after_star_false = {
+                    name: value for name, value in known_names.items()
+                    if (type(value) is tuple and len(value) == 2
+                        and value[0] is _STATIC_FALSE_LITERAL
+                        and value[1] > node.lineno)
+                }
                 known_names.clear()
+                known_names.update(after_star_false)
             base = node.module or ""
             if node.level:
                 parts = package.split(".") if package else []

@@ -5564,3 +5564,16 @@ eine Ableitung aus der festgelegten Zielarchitektur, keine Runtimebeobachtung
 und keine Aussage für andere Architekturen oder CPython-Builds. Im gebundenen
 Archivscan wird eine weitere Bedingung entschieden; Kandidatenzeilen und
 Kanten bleiben unverändert.
+
+### Fortsetzung: einfacher falscher Quellalias nach Star-Import
+
+Ein direkter einmaliger Modulalias `_false = 0` wird als false erkannt, wenn
+keine frühere Namensverwendung oder erkannte dynamische Namespaceoperation
+vorliegt. Ein vorheriger `from ... import *` löscht wie zuvor alle älteren
+Namensfakten; ein nachfolgender `_false = 0` darf als spätere direkte Bindung
+erhalten bleiben, bis ein weiterer Star-Import kommt. Rebinding, frühere
+Verwendung und dynamischer Namespacezugriff lassen den Guard unbekannt. Im
+gebundenen CPython-Archiv entfernt dies ausschließlich die beiden Quellmodule
+`encodings` und `encodings.aliases` aus dem Linux-Modulkörpervorschnitt; es
+entscheidet keine weitere If-Bedingung. Die Kandidatenliste bleibt
+`CANDIDATES_ONLY`.
