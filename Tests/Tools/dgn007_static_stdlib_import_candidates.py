@@ -37,6 +37,7 @@ PRECONFIG_C_SHA256 = "837e6e39347c4ded7d053c7f23d3ac751614a8dc135332748af7a4b0fc
 INITCONFIG_C_MEMBER = "Python-3.12.16/Python/initconfig.c"
 INITCONFIG_C_SHA256 = "a50ff760d49e9d1da8a5a998bcedc8c377f12628d7d0426fc4dab89c1abfeff7"
 LOGGING_SOURCE_SHA256 = "43f86bbc08fdd5c7b6e697abffe1381f534a92bb32e1f1aee8360d6a142592a1"
+WEAKREFSET_SOURCE_SHA256 = "91895a451d06e9f521a1171b31b9b19bc9740f35af00d4fa106338ab7167c9ac"
 WARNINGS_SOURCE_SHA256 = "6405e281882932205eae641b2d31fba7776f94517a206d289465a1caffbf310e"
 WARNINGS_C_MEMBER = "Python-3.12.16/Python/_warnings.c"
 WARNINGS_C_SHA256 = "5567817b35e387b6cc5c37074fdcbf0a3978242564a95460ccdc3fe5d6f08019"
@@ -2990,6 +2991,98 @@ def _target_string_template_pattern_guard_line_facts(files):
     return {guards[0].lineno: False}
 
 
+def _target_weakrefset_empty_init_line_facts(files):
+    """Resolve WeakSet's optional-data guard for pinned production callers."""
+    source = files.get("_weakrefset.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != WEAKREFSET_SOURCE_SHA256):
+        return {}
+    try:
+        trees = {
+            path: ast.parse(candidate, filename=path)
+            for path, candidate in files.items()
+            if type(candidate) is bytes and path.endswith(".py")
+            and "test" not in path.split("/")
+        }
+    except SyntaxError:
+        return {}
+    references = []
+    imports = []
+    subclasses = []
+    expected_imports = {
+        ("threading.py", 9), ("weakref.py", 22),
+        ("_py_abc.py", 1), ("multiprocessing/process.py", 22),
+    }
+    for path, tree in trees.items():
+        parents = {child: node for node in ast.walk(tree)
+                   for child in ast.iter_child_nodes(node)}
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.Name, ast.Attribute)) and (
+                    (isinstance(node, ast.Name) and node.id == "WeakSet")
+                    or (isinstance(node, ast.Attribute)
+                        and node.attr == "WeakSet")):
+                kind = "name" if isinstance(node, ast.Name) else "attribute"
+                references.append((path, node.lineno, kind))
+                parent = parents.get(node)
+                if isinstance(parent, ast.Call) and parent.func is node:
+                    if parent.args or parent.keywords:
+                        return {}
+            if (isinstance(node, ast.ImportFrom)
+                    and node.module in ("weakref", "_weakrefset")
+                    and any(alias.name == "WeakSet" for alias in node.names)):
+                imports.append((path, node.lineno))
+            if isinstance(node, ast.ClassDef) and any(
+                    (isinstance(base, ast.Name) and base.id == "WeakSet")
+                    or (isinstance(base, ast.Attribute)
+                        and base.attr == "WeakSet") for base in node.bases):
+                subclasses.append((path, node.lineno))
+    expected_references = {
+        ("threading.py", 849, "name"),
+        ("weakref.py", 36, "name"),
+        ("_py_abc.py", 48, "name"), ("_py_abc.py", 49, "name"),
+        ("_py_abc.py", 50, "name"), ("_py_abc.py", 79, "name"),
+        ("_py_abc.py", 118, "name"),
+        ("asyncio/base_events.py", 434, "attribute"),
+        ("asyncio/tasks.py", 986, "attribute"),
+        ("asyncio/windows_events.py", 254, "attribute"),
+        ("asyncio/windows_events.py", 425, "attribute"),
+        ("asyncio/windows_events.py", 427, "attribute"),
+        ("logging/__init__.py", 260, "attribute"),
+        ("multiprocessing/process.py", 439, "name"),
+    }
+    if (set(references) != expected_references
+            or set(imports) != expected_imports or subclasses):
+        return {}
+    try:
+        tree = ast.parse(source, filename="_weakrefset.py")
+    except SyntaxError:
+        return {}
+    classes = [node for node in tree.body
+               if isinstance(node, ast.ClassDef) and node.name == "WeakSet"]
+    if len(classes) != 1:
+        return {}
+    inits = [node for node in classes[0].body
+             if isinstance(node, ast.FunctionDef) and node.name == "__init__"]
+    if len(inits) != 1:
+        return {}
+    args = inits[0].args
+    guards = [node for node in ast.walk(inits[0])
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "data is not None"]
+    if (len(args.args) != 2 or args.args[0].arg != "self"
+            or args.args[1].arg != "data" or len(args.defaults) != 1
+            or not isinstance(args.defaults[0], ast.Constant)
+            or args.defaults[0].value is not None
+            or len(args.posonlyargs) != 0
+            or args.vararg is not None or args.kwonlyargs or args.kwarg is not None
+            or len(guards) != 1
+            or any(isinstance(node, ast.Name) and node.id == "data"
+                   and isinstance(node.ctx, (ast.Store, ast.Del))
+                   for node in ast.walk(inits[0]))):
+        return {}
+    return {guards[0].lineno: False}
+
+
 def _target_sysconfig_build_setup_guard_line_facts(
         files, image_path_facts, sysconfig_name_facts,
         project_base_env_facts, no_site, no_project_base_override,
@@ -5307,6 +5400,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_string_template_pattern_guard_line_facts = (
         _target_string_template_pattern_guard_line_facts(files)
     )
+    target_weakrefset_empty_init_line_facts = (
+        _target_weakrefset_empty_init_line_facts(files)
+    )
     target_image_config_source = None
     if target_image_config_path is not None:
         with Path(target_image_config_path).open("rb") as stream:
@@ -5538,12 +5634,14 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
                 **target_sysconfig_build_setup_guard_line_facts,
             },
             "string": target_string_template_pattern_guard_line_facts,
+            "_weakrefset": target_weakrefset_empty_init_line_facts,
             "importlib._bootstrap_external": target_importlib_optimize_line_facts,
             "importlib._bootstrap": target_importlib_verbose_line_facts,
         } if (os_createenviron_line_facts or codecs_false_guard_line_facts
               or pickle_buffer_line_facts
               or target_sysconfig_is_python_build_line_facts
               or target_string_template_pattern_guard_line_facts
+              or target_weakrefset_empty_init_line_facts
               or target_sysconfig_build_setup_guard_line_facts
               or target_importlib_optimize_line_facts
               or target_importlib_verbose_line_facts) else {},
@@ -5751,6 +5849,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_string_template_pattern_guard_line_facts": list(
             target_string_template_pattern_guard_line_facts.items()
+        ),
+        "target_platform_weakrefset_empty_init_line_facts": list(
+            target_weakrefset_empty_init_line_facts.items()
         ),
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,

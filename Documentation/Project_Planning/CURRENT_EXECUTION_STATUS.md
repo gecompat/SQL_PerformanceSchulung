@@ -10,12 +10,12 @@ Generalprobe bleibt ausgeschlossen.
 
 ### DGN-007 – Quellenprüfung unbekannter Importzweige
 
-Der nach PR #737 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
+Der nach PR #738 erneut ausgeführte, an CPython 3.12.16, Zielimage und feste
 Workerroute gebundene Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten,
-169 Funktionen, 59 entschiedene und 511 unbekannte Bedingungen. Der
+166 Funktionen, 60 entschiedene und 508 unbekannte Bedingungen. Der
 Zeilendigest ist `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`,
 der Digest der unbekannten Bedingungen
-`1b7ac602282d591cffb1fe2b1dd222da0b333fe9162f181999506f106c11288a`.
+`e6ba3b27571eb54a423b30435df158c4239490956cffbc71c8da2a26709a787f`.
 PR #734 bindet alle 22 gepinnten `_verbose_message`-Aufrufstellen in
 `_bootstrap.py`, `_bootstrap_external.py` und `zipimport.py`; der Guard
 `importlib._bootstrap.py:493` ist für die festgelegte Workerroute falsch.
@@ -10179,3 +10179,27 @@ Unknown-Digest lautet
 S15-/P11-Sollinventur, unabhängiger Quellen-/Aufrufreview, fünf vollständige
 Formen, gemeinsames 64-KiB-Gate und operative Inventur bleiben offen. Kein
 Interpreter-, Profil-, Worker-, SQL- oder Generalprobenlauf.
+
+PR #738 integrierte den `string.Template`-Fact als Commit
+`223bf0f6a4082367ecc2e22fab45b8df38189430`; alle fünf PR-Gates bestanden,
+`main` ist synchronisiert und die zugehörigen lokalen/Remote-Branches wurden
+entfernt.
+
+## Fortsetzung: `_weakrefset.WeakSet`-Leerkonstruktion
+
+Der Fact für `_weakrefset.py:50` prüft die exakt gepinnte `WeakSet`-Klasse und
+inventarisiert alle AST-Verweise, Importe und Unterklassen in der produktiven
+CPython-`Lib`-Quellmenge. Die zwölf Produktionskonstruktionen über
+`threading`, `_py_abc`, `asyncio`, `logging` und `multiprocessing` sind
+argumentlos; die zusätzliche `weakref.py`-Referenz registriert die Klasse als
+`MutableSet`. Zusätzliche Referenzen, Unterklassen oder Konstruktorargumente
+verwerfen den Fact.
+
+Der Scan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten, 166 besuchte
+Funktionen, 60 entschiedene und 508 unbekannte Bedingungen. Der Zeilendigest
+bleibt `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`;
+der Unknown-Digest lautet
+`e6ba3b27571eb54a423b30435df158c4239490956cffbc71c8da2a26709a787f`.
+164 fokussierte Regressionen bestehen lokal. Dies ist keine vollständige
+Importclosure oder P11-/Runtimeattestation. Kein Interpreter-, Profil-,
+Worker-, SQL-, Lab- oder Generalprobenlauf.
