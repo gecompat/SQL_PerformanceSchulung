@@ -9048,6 +9048,22 @@ S15-Felder, P11-Records, operative Inventur und das gemeinsame
 Fünf-Formen-/64-KiB-Gate bleiben offen. Es erfolgte kein Interpreter-, Profil-,
 Worker-, SQL- oder Generalprobenlauf.
 
+## Fortsetzung: DGN-007 – strikte Frozen-Tabellenzeilen
+
+Der Parser für `Python/frozen.c` fordert die benannten Sentinels der drei
+Frozen-Modultabellen und der Alias-Tabelle; jede andere nichtleere
+Nichtkommentarzeile muss vollständig parsebar sein. Dadurch werden fehlende
+Sentinels und defekte Aliaszeilen als Fehler gemeldet statt still aus dem
+Inventar zu verschwinden. Die synthetischen Parsergegenproben decken fehlende
+Sentinels, doppelte Modulnamen und fehlerhafte Aliaszeilen ab; der fokussierte
+Satz besteht 92/92.
+
+Der gebundene CPython-3.12.16-Archivscan bleibt `CANDIDATES_ONLY` mit 93
+Modulen, 578 Kanten, 534 Funktionen und unverändertem Kandidatenzeilendigest
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`. Kein
+S15-/P11-, Zielimage-, Laufzeit-, Profil-, Worker-, SQL- oder Generalprobenclaim
+ändert sich.
+
 ## DGN-007-Profilfixtures: POSIX-Pfade auf Windows-Hosttests
 
 Der synthetische breite Profiltestsatz bildet deklarierte Linuxpfade jetzt mit

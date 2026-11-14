@@ -5216,3 +5216,18 @@ erweitern den fokussierten Scannertestsatz auf 90/90. Der CPython-Archivscan
 bleibt `CANDIDATES_ONLY`; die 93 Quellmodule/578 Kanten/534 Funktionen und der
 Zeilendigest `84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`
 bleiben unverändert.
+
+### Fortsetzung: Frozen-Tabellenparser mit Sentinel- und Zeilenprüfung
+
+Der Parser verlangt jetzt für alle drei Frozen-Modultabellen den jeweils
+benannten `{0, 0, 0}`-Sentinel und für die Alias-Tabelle den `{0, 0}`-Sentinel.
+Jede Nichtkommentarzeile vor dem Sentinel muss vollständig dem erwarteten
+Eintragsmuster entsprechen; unbekannte oder defekte Aliaszeilen werden nicht
+mehr still ausgelassen. Vier fokussierte Parserfälle decken den weiterhin
+zulässigen eindeutigen Tabellensatz, fehlende Sentinels, doppelte Modulnamen und
+defekte Aliaszeilen ab; der gesamte Scannertestsatz besteht 92/92.
+
+Der SHA-gebundene Archivscan bleibt `CANDIDATES_ONLY`: 93 Modulstartkandidaten,
+578 Kanten, 534 Funktionen und derselbe Zeilendigest
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`. Es werden
+weder Quellwerte noch die Grenzen der Build-/Runtime-/P11-Aussage geändert.
