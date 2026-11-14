@@ -42,12 +42,12 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
     def test_current_draft_satisfies_offline_contract(self) -> None:
         self.assertEqual(self.errors(), [])
 
-    def test_runtime_matrix_must_match_locked_profile_order_and_digests(self) -> None:
+    def test_runtime_matrix_must_be_resolved_from_the_image_lock(self) -> None:
         path = self.root / ".github/workflows/qry023-proposed-runtime.yml"
         source = path.read_text(encoding="utf-8")
         changed = source.replace(
-            "year: 2019\n            major: 15\n            image: mcr.microsoft.com/mssql/server@sha256:",
-            "year: 2019\n            major: 16\n            image: mcr.microsoft.com/mssql/server@sha256:",
+            "matrix: ${{ fromJSON(needs.image_lock.outputs.matrix) }}",
+            "matrix: ${{ fromJSON(vars.UNTRUSTED_MATRIX) }}",
             1,
         )
         self.assertNotEqual(changed, source)
@@ -55,7 +55,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("workflow matrix must exactly match the image lock" in error
                             for error in self.errors()))
 
-    def test_image_lock_rejects_duplicate_major_and_malformed_extra_matrix_row(self) -> None:
+    def test_image_lock_rejects_duplicate_major(self) -> None:
         workflow = (validator.ROOT / ".github/workflows/qry023-proposed-runtime.yml")
         source = workflow.read_text(encoding="utf-8")
         lock = validator.json.loads(
@@ -65,14 +65,6 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         duplicate = validator.json.loads(validator.json.dumps(lock["profiles"]))
         duplicate[1]["product_major_version"] = duplicate[0]["product_major_version"]
         self.assertFalse(validator.runtime_matrix_matches_image_lock(source, duplicate))
-        marker = "      matrix:\n        include:\n"
-        head, matrix = source.split(marker, 1)
-        extra_row = head + marker + matrix.replace(
-            "\n    steps:\n", "\n          - year: 2030\n    steps:\n", 1
-        )
-        self.assertFalse(
-            validator.runtime_matrix_matches_image_lock(extra_row, lock["profiles"])
-        )
 
     def test_admin_inventory_phase_is_required_and_uses_admin_profile(self) -> None:
         path = self.demo / "manifest.proposed.json"

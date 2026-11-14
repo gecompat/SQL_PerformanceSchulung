@@ -9957,3 +9957,24 @@ verwendet weiterhin feste Inline-Pins; die statische Parität bindet sie an den
 Lock, macht diesen aber weder zum Runtimeinput noch autorisiert sie einen Lauf.
 QRY-023 bleibt `PROPOSED`, nicht katalogisiert und `runtime_authorized: false`;
 Produkt-/Katalog- und Generalprobenstatus bleiben getrennt.
+
+## Fortsetzung: QRY-023 – isolierte Qualifikation liest den Image-Lock
+
+Der isolierte Drei-Engine-Workflow leitet seine Matrix jetzt mit einem kleinen
+deterministischen Resolver aus `container-images.proposed.json` ab. Er verlangt
+weiterhin genau die geordneten Profile SQL Server 2019/15, 2022/16 und 2025/17,
+Linux/AMD64 sowie einen zum Produktmajor passenden vollständigen Image-Digest.
+Fehlende, zusätzliche, vertauschte oder veränderte Profile und ein Wechsel zu
+`runtime_authorized: true` werden vor den Enginejobs abgewiesen. Der Offline-
+Validator prüft die Bindung des Workflowoutputs; sechs synthetische
+Regressionen decken Profilzahl, Reihenfolge, Digest, CLI-Ausgabe und
+Autorisierungsstatus ab. PR #716 und sein Head-Workflow `43609775554`
+bestanden den neuen Resolverlauf und die vollständigen Harness-Lifecycles auf
+SQL Server 2019, 2022 und 2025 sowie alle übrigen Pflichtchecks.
+
+Der Schritt beseitigt die zuvor dokumentierte doppelte Pflege der Inline-Pins
+und des Locks. Er ändert weder die Ressourcen- noch Produktfreigabe: Der
+Workflow bleibt eine isolierte Qualifikationsroute, QRY-023 bleibt
+`PROPOSED`/nicht katalogisiert und `runtime_authorized: false`. Die frischen
+Engineläufe qualifizieren nur die Lock-Auflösung und den isolierten
+Einzelaufruf. Die menschliche Generalprobe bleibt ausgeschlossen.

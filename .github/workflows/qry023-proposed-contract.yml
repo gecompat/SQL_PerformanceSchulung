@@ -6,6 +6,8 @@ on:
       - 'Demos/05_Query_Patterns/QRY-023_Graph_Tables/**'
       - 'Tests/Static/validate_qry023_proposed_harness.py'
       - 'Tests/Static/test_qry023_proposed_harness.py'
+      - 'Tests/Runtime/qry023_image_matrix.py'
+      - 'Tests/Runtime/test_qry023_image_matrix.py'
       - 'Tests/Static/Qry023SqlParser/**'
       - 'Tests/Fixtures/DGN004_SourcePair/SnapshotPlanCandidates.sql'
       - '.github/workflows/qry023-proposed-contract.yml'
@@ -15,6 +17,8 @@ on:
       - 'Demos/05_Query_Patterns/QRY-023_Graph_Tables/**'
       - 'Tests/Static/validate_qry023_proposed_harness.py'
       - 'Tests/Static/test_qry023_proposed_harness.py'
+      - 'Tests/Runtime/qry023_image_matrix.py'
+      - 'Tests/Runtime/test_qry023_image_matrix.py'
       - 'Tests/Static/Qry023SqlParser/**'
       - 'Tests/Fixtures/DGN004_SourcePair/SnapshotPlanCandidates.sql'
       - '.github/workflows/qry023-proposed-contract.yml'
@@ -41,6 +45,8 @@ jobs:
         run: python Tests/Static/validate_qry023_proposed_harness.py
       - name: Check validator regression cases
         run: python Tests/Static/test_qry023_proposed_harness.py
+      - name: Check image-lock matrix resolver regressions
+        run: python Tests/Runtime/test_qry023_image_matrix.py
       - name: Set up .NET SDK
         uses: actions/setup-dotnet@v6
         with:
