@@ -704,7 +704,8 @@ def _import_names(tree, module, path):
                 if isinstance(value, ast.Constant) and type(value.value) is str:
                     parts.append(value.value)
                 elif (isinstance(value, ast.FormattedValue)
-                      and value.conversion == -1 and value.format_spec is None
+                      and value.conversion in (-1, ord("s"))
+                      and value.format_spec is None
                       and isinstance(value.value, ast.Constant)
                       and type(value.value.value) is str):
                     parts.append(value.value.value)
