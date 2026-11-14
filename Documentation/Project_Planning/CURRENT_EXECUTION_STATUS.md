@@ -9200,3 +9200,20 @@ Synthetische Archiv-/Parsergegenproben und der fokussierte Satz bestehen 88/88.
 Die vollständigen 15 S15-Felder, P11-Records, operative Inventur und das
 Fünf-Formen-/64-KiB-Gate bleiben offen; kein Interpreter, Profil, Worker, SQL
 oder Generalprobe wurde ausgeführt.
+
+## Fortsetzung: DGN-007 – gebundene Bootstrap-Setup-Vorlage
+
+Der Scanner bindet `Modules/Setup.bootstrap.in` mit dem bereits geprüften
+CPython-3.12.16-Quellarchiv und Dateidigest
+`d7a4c34c97f414585c7e8480c106a0f85075fb166d4c82a91c5b0b00df455271`. Die
+statische Vorlage enthält 22 eindeutige Modulzeilen, eine davon bedingt:
+`pwd` unter `MODULE_PWD_TRUE`. Der kanonische Zeilendigest ist
+`c7a4aee7afafc66564299cc149649e936153956c20e75f314f02cd696531e42f`.
+Zwei synthetische Gegenproben prüfen bedingte Auswahl und die Zurückweisung
+defekter/duplizierter Zeilen; der fokussierte Satz besteht 94/94.
+
+Die Vorlage ist keine Configure-/Build-/Imageattestation und belegt keine
+tatsächlich aktivierten Module oder P11-Records. Der CPython-Archivscan bleibt
+`CANDIDATES_ONLY` mit unveränderten 93 Modulen, 578 Kanten, 534 Funktionen und
+unverändertem Kandidatenzeilendigest
+`84f92a01cb9807b1bf35fe37cd1a231642aabf6134fdee82e7fc35dc0df7c091`.
