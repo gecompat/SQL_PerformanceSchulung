@@ -183,8 +183,10 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"if runtime_choice():\n"
                 b"    import selected_branch as selected\n"
                 b"    from package import helper as local_helper\n"
+                b"    selected.run(2)\n"
                 b"else:\n"
                 b"    import fallback_branch\n"
+                b"    fallback_branch.run()\n"
             ),
             "selected_branch.py": b"VALUE = 'selected'\n",
             "fallback_branch.py": b"VALUE = 'fallback'\n",
@@ -204,9 +206,33 @@ class StaticImportCandidateTests(unittest.TestCase):
              "names": [{"name": "helper", "asname": "local_helper"}]},
         ])
         self.assertEqual(unknown[0]["else_imports"], [
-            {"kind": "import", "line": 5, "names": [
+            {"kind": "import", "line": 6, "names": [
                 {"name": "fallback_branch", "asname": None}
             ]}
+        ])
+        self.assertEqual(unknown[0]["body_calls"], [
+            {"line": 4, "column": 4, "expression": "selected.run(2)"}
+        ])
+        self.assertEqual(unknown[0]["else_calls"], [
+            {"line": 7, "column": 4, "expression": "fallback_branch.run()"}
+        ])
+
+    def test_lexical_call_inventory_is_deterministic_and_includes_nested_bodies(self):
+        tree = ast.parse(
+            "if check():\n"
+            "    pkg.run(pkg.make())\n"
+            "    def deferred():\n"
+            "        lazy_call()\n"
+            "else:\n"
+            "    fallback()\n"
+        )
+        self.assertEqual(SUBJECT._lexical_call_sites(tree.body[0].body), [
+            {"line": 2, "column": 4, "expression": "pkg.run(pkg.make())"},
+            {"line": 2, "column": 12, "expression": "pkg.make()"},
+            {"line": 4, "column": 8, "expression": "lazy_call()"},
+        ])
+        self.assertEqual(SUBJECT._lexical_call_sites(tree.body[0].orelse), [
+            {"line": 6, "column": 4, "expression": "fallback()"}
         ])
 
     def test_lexical_import_inventory_is_deterministic_and_preserves_locations(self):

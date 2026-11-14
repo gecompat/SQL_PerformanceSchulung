@@ -3698,6 +3698,23 @@ def _lexical_import_statements(statements):
     ))
 
 
+def _lexical_call_sites(statements):
+    """Return lexical calls with AST line and zero-based UTF-8 byte offset."""
+    rows = [
+        {
+            "line": node.lineno,
+            "column": node.col_offset,
+            "expression": ast.unparse(node),
+        }
+        for statement in statements
+        for node in ast.walk(statement)
+        if isinstance(node, ast.Call)
+    ]
+    return sorted(rows, key=lambda row: (
+        row["line"], row["column"], row["expression"]
+    ))
+
+
 def _imported_module_function_aliases(
         module_aliases, function_index, class_dispatch_index):
     result = {}
@@ -4392,6 +4409,8 @@ def _module_init_call_import_names(tree, module, path, condition_stats=None,
                     "expression": ast.unparse(node.test),
                     "body_imports": _lexical_import_statements(node.body),
                     "else_imports": _lexical_import_statements(node.orelse),
+                    "body_calls": _lexical_call_sites(node.body),
+                    "else_calls": _lexical_call_sites(node.orelse),
                 })
             selected = node.body if decision is True else node.orelse if decision is False else None
             if selected is not None:
