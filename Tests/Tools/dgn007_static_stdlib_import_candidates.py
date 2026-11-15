@@ -42,6 +42,7 @@ COPYREG_SOURCE_SHA256 = "c8eda41f05c6bf95a4da4726a530409d2485ae060b8d019b3a80343
 TYPING_SOURCE_SHA256 = "be92d60fb8382bb29ead21c128825d7c96d0e8c915b44f840791e49f5a8d554c"
 RE_SOURCE_SHA256 = "8ff3c37c63b917fcf8dc8d50993a502292a3dc159e41de4f4018c72a53d1c07b"
 COLLECTIONS_SOURCE_SHA256 = "7fdb04dd248ab37909f46d2085bfee56b32d7e91e49ad3a2fad99c453295659b"
+INSPECT_SOURCE_SHA256 = "5c54ebf0bfdc25397750e5d0f63800751650ee50e65325ff3ea4069c9bfa5f75"
 WARNINGS_SOURCE_SHA256 = "6405e281882932205eae641b2d31fba7776f94517a206d289465a1caffbf310e"
 WARNINGS_C_MEMBER = "Python-3.12.16/Python/_warnings.c"
 WARNINGS_C_SHA256 = "5567817b35e387b6cc5c37074fdcbf0a3978242564a95460ccdc3fe5d6f08019"
@@ -55,6 +56,7 @@ JSON_PACKAGE_SOURCE_SHA256 = "d5d41e2c29049515d295d81a6d40b4890fbec8d8482cfb4016
 HASHLIB_SOURCE_SHA256 = "6dbdebf270868b391080e21dc9687eddfaf321c965ad979f68d3f5c423c613ab"
 FUNCTOOLS_SOURCE_SHA256 = "de4a1d37c795e2a065124b5c49357893433bc6bb111b41277ccc9930ef08d4c9"
 FUNCTOOLS_LRU_CACHE_CALLS_SHA256 = "a9e9c4c387f449547755b88929b8bf482c94b8b77431e336f90b8d91d2420391"
+COLLECTIONS_NAMEDTUPLE_CALLS_SHA256 = "4a9dcf2bf498fe0d68ca0a0b80269d9556d6e47c9b509a5f3df7465596c954bf"
 TOKEN_SOURCE_SHA256 = "1a4d994ce9744f4bfe2d964fc24d112a1e76796a08c2e45a2d73c82a8587f922"
 OS_SOURCE_SHA256 = "6f3888d1a5bd4f1333116dd75ca8f1d2d951e38c8c8426179417aea097a1eef0"
 POSIX_MODULE_C_MEMBER = "Python-3.12.16/Modules/posixmodule.c"
@@ -7434,6 +7436,175 @@ def _target_collections_namedtuple_module_line_facts(
     return {final_guards[0].lineno: True}
 
 
+def _target_collections_namedtuple_field_names_condition_facts(files):
+    """Bind the field-name string/sequence outcomes to all stdlib callers."""
+    if type(files) is not dict:
+        return {}
+    source = files.get("collections/__init__.py")
+    inspect_source = files.get("inspect.py")
+    typing_source = files.get("typing.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != COLLECTIONS_SOURCE_SHA256
+            or type(inspect_source) is not bytes
+            or hashlib.sha256(inspect_source).hexdigest()
+            != INSPECT_SOURCE_SHA256
+            or type(typing_source) is not bytes
+            or hashlib.sha256(typing_source).hexdigest() != TYPING_SOURCE_SHA256):
+        return {}
+    try:
+        trees = {
+            path: ast.parse(data, filename=path)
+            for path, data in files.items()
+            if type(data) is bytes and path.endswith(".py")
+            and "test" not in path.split("/")
+        }
+    except SyntaxError:
+        return {}
+    source_tree = trees.get("collections/__init__.py")
+    function = next((node for node in source_tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name == "namedtuple"), None) if source_tree else None
+    guards = [node for node in ast.walk(function)
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "isinstance(field_names, str)"] if function else []
+    namespace_assignments = [
+        node for node in ast.walk(function)
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name)
+                and target.id == "class_namespace" for target in node.targets)
+        and isinstance(node.value, ast.Dict)
+    ] if function else []
+    type_calls = [node for node in ast.walk(function)
+                  if isinstance(node, ast.Call)
+                  and ast.unparse(node.func) == "type"
+                  and len(node.args) == 3
+                  and ast.unparse(node.args[2]) == "class_namespace"] if function else []
+    fields_entries = [
+        value for assignment in namespace_assignments
+        for key, value in zip(assignment.value.keys, assignment.value.values)
+        if isinstance(key, ast.Constant) and key.value == "_fields"
+    ]
+    if (len(guards) != 1 or len(namespace_assignments) != 1
+            or len(fields_entries) != 1
+            or ast.unparse(fields_entries[0]) != "field_names"
+            or len(type_calls) != 1):
+        return {}
+
+    inspect_tree = trees.get("inspect.py")
+    if inspect_tree is None:
+        return {}
+    expected_assignments = {
+        "_Traceback": "namedtuple('_Traceback', 'filename lineno function code_context index')",
+        "_FrameInfo": "namedtuple('_FrameInfo', ('frame',) + Traceback._fields)",
+    }
+    inspect_assignments = {
+        target.id: ast.unparse(node.value)
+        for node in inspect_tree.body if isinstance(node, ast.Assign)
+        for target in node.targets if isinstance(target, ast.Name)
+        and target.id in expected_assignments
+    }
+    traceback_classes = [node for node in inspect_tree.body
+                         if isinstance(node, ast.ClassDef)
+                         and node.name == "Traceback"]
+    if (inspect_assignments != expected_assignments
+            or len(traceback_classes) != 1
+            or not any(isinstance(base, ast.Name) and base.id == "_Traceback"
+                       for base in traceback_classes[0].bases)):
+        return {}
+    for node in ast.walk(inspect_tree):
+        if (isinstance(node, ast.Attribute) and node.attr == "_fields"
+                and isinstance(node.ctx, (ast.Store, ast.Del))):
+            return {}
+
+    typing_tree = trees.get("typing.py")
+    nmtuple_functions = [node for node in typing_tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "_make_nmtuple"] if typing_tree else []
+    if len(nmtuple_functions) != 1:
+        return {}
+    nmtuple_body = nmtuple_functions[0].body
+    field_lists = [index for index, node in enumerate(nmtuple_body)
+                   if isinstance(node, ast.Assign)
+                   and any(isinstance(target, ast.Name) and target.id == "fields"
+                           for target in node.targets)
+                   and ast.unparse(node.value) == "[n for n, t in types]"]
+    nmtuple_calls = [index for index, node in enumerate(nmtuple_body)
+                     if isinstance(node, ast.Assign)
+                     and ast.unparse(node.value)
+                     == "collections.namedtuple(name, fields, defaults=defaults, module=module)"]
+    if (len(field_lists) != 1 or len(nmtuple_calls) != 1
+            or field_lists[0] >= nmtuple_calls[0]
+            or any(isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign))
+                   and any(isinstance(target, ast.Name) and target.id == "fields"
+                           for target in (node.targets if isinstance(node, ast.Assign)
+                                          else [node.target]))
+                   for node in nmtuple_body[field_lists[0] + 1:nmtuple_calls[0]])):
+        return {}
+
+    callsite_rows = []
+    caller_source_rows = []
+    outcomes = set()
+    for path, tree in trees.items():
+        if any(isinstance(node, ast.ImportFrom) and node.module == "collections"
+               and any(alias.name == "*" for alias in node.names)
+               for node in ast.walk(tree)):
+            return {}
+        aliases = {
+            alias.asname or alias.name
+            for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)
+            and node.module == "collections" for alias in node.names
+            if alias.name == "namedtuple"
+        }
+        module_aliases = {
+            alias.asname or alias.name.split(".")[0]
+            for node in ast.walk(tree) if isinstance(node, ast.Import)
+            for alias in node.names if alias.name == "collections"
+        }
+        if aliases or module_aliases:
+            caller_source_rows.append(
+                [path, hashlib.sha256(files[path]).hexdigest()]
+            )
+
+        def is_namedtuple(expression):
+            return (
+                isinstance(expression, ast.Name) and expression.id in aliases
+                or isinstance(expression, ast.Attribute)
+                and expression.attr == "namedtuple"
+                and isinstance(expression.value, ast.Name)
+                and expression.value.id in module_aliases
+            )
+
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call) or not is_namedtuple(node.func):
+                continue
+            callsite_rows.append([path, node.lineno, ast.unparse(node)])
+            value = (node.args[1] if len(node.args) > 1 else next(
+                (keyword.value for keyword in node.keywords
+                 if keyword.arg == "field_names"), None,
+            ))
+            if isinstance(value, ast.Constant) and type(value.value) is str:
+                outcomes.add(True)
+            elif isinstance(value, (ast.List, ast.Tuple)):
+                outcomes.add(False)
+            elif (path == "inspect.py" and isinstance(value, ast.BinOp)
+                  and ast.unparse(value) == "('frame',) + Traceback._fields"):
+                outcomes.add(False)
+            elif (path == "typing.py" and isinstance(value, ast.Name)
+                  and value.id == "fields"):
+                outcomes.add(False)
+            else:
+                return {}
+    callsite_rows.sort()
+    caller_source_rows.sort()
+    digest = hashlib.sha256(json.dumps(
+        [callsite_rows, caller_source_rows], separators=(",", ":"),
+    ).encode()).hexdigest()
+    if digest != COLLECTIONS_NAMEDTUPLE_CALLS_SHA256 or outcomes != {False, True}:
+        return {}
+    return {("collections", "collections/__init__.py", guards[0].lineno):
+            tuple(sorted(outcomes))}
+
+
 def _target_sysconfig_build_setup_guard_line_facts(
         files, image_path_facts, sysconfig_name_facts,
         project_base_env_facts, no_site, no_project_base_override,
@@ -11108,6 +11279,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_collections_namedtuple_string_type_line_facts = (
         _target_collections_namedtuple_string_type_line_facts(files)
     )
+    target_collections_namedtuple_field_names_condition_facts = (
+        _target_collections_namedtuple_field_names_condition_facts(files)
+    )
     target_image_config_source = None
     if target_image_config_path is not None:
         with Path(target_image_config_path).open("rb") as stream:
@@ -11787,6 +11961,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             **target_json_encoder_argument_condition_facts,
             **target_hashlib_name_condition_facts,
             **target_functools_lru_cache_condition_facts,
+            **target_collections_namedtuple_field_names_condition_facts,
             **target_sysconfig_userbase_env_condition_facts,
         },
         trusted_empty_for_facts={
@@ -12240,6 +12415,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
              "outcomes": list(outcomes)}
             for (module, source_path, line), outcomes
             in target_functools_lru_cache_condition_facts.items()
+        ],
+        "target_platform_collections_namedtuple_field_names_condition_facts": [
+            {"module": module, "source_path": source_path, "line": line,
+             "outcomes": list(outcomes)}
+            for (module, source_path, line), outcomes
+            in target_collections_namedtuple_field_names_condition_facts.items()
         ],
         "target_platform_logging_lock_line_facts": list(
             target_logging_lock_line_facts.items()

@@ -3129,3 +3129,21 @@ wahr; die Zielclosure zählt 95 aufgelöste und 470 unbekannte Bedingungen,
 `6eefb65fb9ebaba0806610fb6beefeaa2ae055f78af74c078726aabf7ea008fe`.
 291 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine Runtime-/P11-
 Attestation.
+
+### Begrenzte Fortsetzung: `collections.namedtuple`-Feldnamen (15. November 2026)
+
+Der nächste Offline-Schnitt bindet den Guard `collections/__init__.py:381`
+über den vollständigen Produktionsaufrufbestand im vorhandenen
+CPython-3.12.16-Archiv. Der Digest umfasst 55 Aufrufe und 50 quellgehashte
+Module; alle Argumente sind statisch als String oder Sequenz klassifiziert.
+Die zwei dynamisch gebildeten Sequenzwerte werden nur unter den geprüften
+`inspect.py`- und `typing.py`-Strukturen akzeptiert. Eine Regression für eine
+zusätzliche unbekannte Argumentform bleibt fail-closed. Der verfügbare
+Zielquellscan ergibt 60 Module, 318 Aufrufkanten, 86 entschiedene und 497
+unbekannte Bedingungen, Unknown-Digest
+`44ceb05a5a18fbc9268439d1ca02fd43add3349ae9134d4c47074af42326a975`;
+`CANDIDATES_ONLY`, 292 fokussierte Tests. Das lokale Docker-Save-Archiv fehlt,
+deshalb ist die direkte `python3.12`-Image-Routenannahme nicht Bestandteil
+dieses Nachweises. Diese Fortsetzung ist auf den Quellenfact und einen
+Integrations-PR begrenzt; keine Runtime-/P11- oder SQL-Ausführung und keine
+menschliche Generalprobe.
