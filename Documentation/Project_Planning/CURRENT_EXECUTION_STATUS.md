@@ -11254,10 +11254,16 @@ Sollwertvergleich, abschließende Aufnahme, Hookprüfung, POST-Prüfungen und
 Reports an die Profilquelle. Alle fünf Pflichtprüfungen bestanden. Der
 Kandidat führt die Funktion nicht aus und begründet keine Runtimeattestation.
 
-## Nächster Schritt: aktuelle Skalaraufnahme statisch binden
+## Abgeschlossen: aktuelle Skalaraufnahme statisch binden
 
-Der nächste Kandidat bindet die frische Recordaufnahme, beide Profilvergleiche,
-beide FileFinder-Hookaufnahmen, die Skalarprojektion und den Fehlerreport des
-inneren Beobachters. Er führt die Beobachtung nicht aus. Eine Regression
-entfernt einen Profilvergleich und muss fail-closed bleiben. Umfang: ein Paket,
-ein PR und höchstens zwei Regressionen.
+PR #833 bindet frische Recordaufnahme, beide Profilvergleiche, beide
+FileFinder-Hookaufnahmen, Skalarprojektion und Fehlerreport an die Profilquelle.
+Alle fünf Pflichtprüfungen bestanden. Die Beobachtung wurde nicht ausgeführt.
+
+## Nächster Schritt: frischen Record-Capture-Ablauf binden
+
+Der nächste Kandidat bindet Vorher-/Nachher-Capture, begrenzte Dateihashreads,
+Gesamt- und Dateikappen, beide Profilvergleiche sowie die Rückgabe des finalen
+Records ausschließlich nach Erfolg. Er führt keine Runtimeaufnahme aus und
+behauptet weder Trust noch Attestation. Eine Regression entfernt den
+Nachher-Vergleich. Umfang: ein Paket, ein PR und höchstens zwei Regressionen.

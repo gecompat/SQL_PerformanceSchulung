@@ -2027,6 +2027,53 @@ def _target_current_scalar_observation_flow_candidate(source_bytes, projection_s
     }
 
 
+def _target_fresh_record_capture_flow_candidate(source_bytes):
+    """Bind current record capture bracketing, bounded hashing and success-only return."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def observe_current_interpreter_records\([^\n]*\)[^\n]*:\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"before = _capture(expected, expected.files)",
+        b"_compare(expected, before)",
+        b"for item in expected.files:",
+        b"stream.read(min(65536, MAX_FILE - size + 1, MAX_TOTAL - total + 1))",
+        b"after = _capture(expected, tuple(rows))",
+        b"_compare(expected, after)",
+        b"except _Failure as error: return ObservationResult(ProfileReport(\"REJECTED_PROFILE\", str(error)))",
+        b"except (OSError, AttributeError, TypeError, ValueError, UnicodeError): return ObservationResult(ProfileReport(\"REJECTED_PROFILE\", \"OBSERVATION_FAILED\"))",
+        b"return ObservationResult(ProfileReport(\"MATCHED_DECLARED_BASELINE\", \"NONE\", True), after)",
+    )
+    if any(normalized.count(fragment) != 1 for fragment in required):
+        return None
+    if not all(normalized.index(left) < normalized.index(right)
+               for left, right in zip(required[:6], required[1:6])):
+        return None
+    if not (normalized.index(required[5]) < normalized.index(required[6])
+            < normalized.index(required[7]) < normalized.index(required[8])):
+        return None
+    return {
+        "capture_order": ("before_files", "after_files"),
+        "bounded_read_chunk_bytes": 65536,
+        "file_and_total_caps_required": True,
+        "failure_returns_observation": False,
+        "success_report": "MATCHED_DECLARED_BASELINE",
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "runtime_capture_claimed": False,
+        "trust_attested_claimed": False,
+        "evidence_scope": "STATIC_FRESH_RECORD_CAPTURE_FLOW_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9164,6 +9211,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_profile_scalar_projection_schema_candidate,
         )
     )
+    target_fresh_record_capture_flow_candidate = (
+        _target_fresh_record_capture_flow_candidate(runtime_profile_source)
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -9631,6 +9681,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_current_scalar_observation_flow_candidate": (
             target_current_scalar_observation_flow_candidate
+        ),
+        "target_fresh_record_capture_flow_candidate": (
+            target_fresh_record_capture_flow_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
