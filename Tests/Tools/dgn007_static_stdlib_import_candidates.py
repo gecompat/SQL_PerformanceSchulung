@@ -5803,6 +5803,54 @@ def _target_threading_os_alias_facts(files):
     return (("hasattr(_os, 'register_at_fork')", True),)
 
 
+def _target_threading_main_constructor_line_facts(files):
+    """Bind Thread.__init__ argument guards to threading's import-time main thread."""
+    source = files.get("threading.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != THREADING_SOURCE_SHA256):
+        return {}
+    try:
+        tree = ast.parse(source, filename="threading.py")
+    except SyntaxError:
+        return {}
+    main_assignments = [node for node in tree.body if isinstance(node, ast.Assign)
+                        and any(isinstance(target, ast.Name)
+                                and target.id == "_main_thread"
+                                for target in node.targets)
+                        and ast.unparse(node.value) == "_MainThread()"]
+    thread_classes = [node for node in tree.body if isinstance(node, ast.ClassDef)
+                      and node.name == "Thread"]
+    main_classes = [node for node in tree.body if isinstance(node, ast.ClassDef)
+                    and node.name == "_MainThread"]
+    if len(main_assignments) != 1 or len(thread_classes) != 1 or len(main_classes) != 1:
+        return {}
+    if [ast.unparse(base) for base in main_classes[0].bases] != ["Thread"]:
+        return {}
+    thread_initializers = [node for node in thread_classes[0].body
+                           if isinstance(node, ast.FunctionDef)
+                           and node.name == "__init__"]
+    main_initializers = [node for node in main_classes[0].body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "__init__"]
+    if len(thread_initializers) != 1 or len(main_initializers) != 1:
+        return {}
+    calls = [node for node in ast.walk(main_initializers[0])
+             if isinstance(node, ast.Call)
+             and ast.unparse(node) == "Thread.__init__(self, name='MainThread', daemon=False)"]
+    guards = {
+        node.lineno: ast.unparse(node.test)
+        for node in ast.walk(thread_initializers[0])
+        if isinstance(node, ast.If) and node.lineno in (910, 925, 926)
+    }
+    if (len(calls) != 1
+            or guards != {
+                910: "name", 925: "daemon is not None",
+                926: "daemon and (not _daemon_threads_allowed())",
+            }):
+        return {}
+    return {910: True, 925: True, 926: False}
+
+
 def _target_threading_native_id_name_facts(
         files, header_source, module_source, pthread_source, pyconfig_source):
     """Bind threading's native-id flag to the pinned Linux CPython build path."""
@@ -11424,6 +11472,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             files, threading_call_name_facts
         ) else {}
     )
+    threading_main_constructor_line_facts = (
+        _target_threading_main_constructor_line_facts(files)
+    )
     target_imported_name_safe_modules = tuple(sorted(
         module for module in ("ast", "dis", "difflib", "getopt", "heapq",
                               "inspect", "os", "pickle", "sysconfig",
@@ -11515,6 +11566,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "os": os_createenviron_line_facts,
             "codecs": codecs_false_guard_line_facts,
             "pickle": pickle_buffer_line_facts,
+            "threading": threading_main_constructor_line_facts,
             "sysconfig": {
                 **target_sysconfig_is_python_build_line_facts,
                 **target_sysconfig_build_setup_guard_line_facts,
@@ -11531,6 +11583,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "importlib._bootstrap": target_importlib_verbose_line_facts,
         } if (os_createenviron_line_facts or codecs_false_guard_line_facts
               or pickle_buffer_line_facts
+              or threading_main_constructor_line_facts
               or target_sysconfig_is_python_build_line_facts
               or target_sysconfig_posix_init_line_facts
               or target_string_template_pattern_guard_line_facts
@@ -12023,6 +12076,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_threading_crlock_name_facts": list(
             threading_crlock_facts.items()
+        ),
+        "target_platform_threading_main_constructor_line_facts": list(
+            threading_main_constructor_line_facts.items()
         ),
         "target_platform_sysconfig_name_facts": list(sysconfig_name_facts.items()),
         "target_profile_no_site_assumption": target_no_site,

@@ -6933,6 +6933,42 @@ class StaticImportCandidateTests(unittest.TestCase):
                     pyconfig,
                 ), {})
 
+    def test_threading_main_constructor_guard_uses_fixed_import_arguments(self):
+        lines = [""] * 935
+        lines[0] = "class Thread:"
+        lines[1] = "    def __init__(self, name=None, daemon=None):"
+        lines[909] = "        if name:"
+        lines[910] = "            pass"
+        lines[924] = "        if daemon is not None:"
+        lines[925] = "            if daemon and not _daemon_threads_allowed():"
+        lines[926] = "                pass"
+        lines[930] = "class _MainThread(Thread):"
+        lines[931] = "    def __init__(self):"
+        lines[932] = "        Thread.__init__(self, name='MainThread', daemon=False)"
+        lines[933] = "_main_thread = _MainThread()"
+        source = ("\n".join(lines) + "\n").encode()
+        expected = {910: True, 925: True, 926: False}
+        with patch.object(
+            SUBJECT, "THREADING_SOURCE_SHA256", hashlib.sha256(source).hexdigest(),
+        ):
+            self.assertEqual(
+                SUBJECT._target_threading_main_constructor_line_facts(
+                    {"threading.py": source},
+                ),
+                expected,
+            )
+            altered = source.replace(b"daemon=False", b"daemon=True")
+            with patch.object(
+                SUBJECT, "THREADING_SOURCE_SHA256",
+                hashlib.sha256(altered).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_threading_main_constructor_line_facts(
+                        {"threading.py": altered},
+                    ),
+                    {},
+                )
+
     def test_sysconfig_user_base_is_present_on_the_bound_posix_branch(self):
         source = (
             b"def _getuserbase():\n"
