@@ -2780,9 +2780,15 @@ Standardcode `INVALID_RECORD` und Ablehnung falscher Bedingungen unter Erhalt
 des Fehlercodes. Zwei Gegenproben lockern je eine Bedingung. Keine
 Profilvalidierung wird behauptet.
 
-## Begrenzte Fortsetzung: Profilreport-Schema binden
+## Abgeschlossen: Profilreport-Schema binden
 
 PR #845 bindet die Felder von `ProfileReport`, insbesondere die
 nicht initialisierbaren Attestierungs-/Freigabefelder mit Standardwert `False`.
 Eine Gegenprobe setzt `runtime_attested` auf `True`; das muss den Kandidaten
 verwerfen. Es wird kein Bericht erzeugt oder Vertrauen attestiert.
+
+## Begrenzte Fortsetzung: Profilmodelle binden
+
+PR #846 bindet die eingefrorenen Dataclass-Feldlayouts von `DeclaredProfile`
+und `Observation` in exakter Reihenfolge. Gegenproben ändern ein Feld bzw.
+entfernen `frozen=True`. Es wird keine Profilinstanz validiert oder aufgenommen.

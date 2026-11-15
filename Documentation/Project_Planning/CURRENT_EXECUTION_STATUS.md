@@ -11335,9 +11335,17 @@ des jeweiligen Fehlercodes. Zwei Gegenproben lockern Defaultcode bzw.
 Fehlerweitergabe; 265 fokussierte Regressionen und alle fünf Pflichtprüfungen
 bestanden. PR #844 ist integriert. Keine Profilvalidierung wird behauptet.
 
-## Begrenzte Fortsetzung: Profilreport-Schema binden
+## Abgeschlossen: Profilreport-Schema binden
 
 PR #845 bindet die Felder von `ProfileReport`, insbesondere die nicht
 initialisierbaren Attestierungs-/Freigabefelder mit Standardwert `False`. Eine
-Gegenprobe setzt `runtime_attested` auf `True`; der Quellkandidat muss dann
-entfallen. Es wird kein Bericht erzeugt oder Vertrauen attestiert.
+Gegenprobe setzt `runtime_attested` auf `True`; der Quellkandidat entfällt.
+266 fokussierte Regressionen und alle fünf Pflichtprüfungen bestanden; PR #845
+ist integriert. Es wird kein Bericht erzeugt oder Vertrauen attestiert.
+
+## Begrenzte Fortsetzung: Profilmodelle binden
+
+PR #846 bindet die eingefrorenen Dataclass-Feldlayouts von `DeclaredProfile`
+und `Observation` in exakter Reihenfolge an den Profilvertrag. Gegenproben
+ändern ein Feld bzw. entfernen `frozen=True`. Es wird keine Profilinstanz
+validiert oder aufgenommen.
