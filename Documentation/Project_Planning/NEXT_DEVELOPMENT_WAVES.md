@@ -2510,11 +2510,27 @@ Gegenproben verwerfen eine geänderte Loaderreihenfolge oder einen geänderten
 Guard. Installierte Runtimeloader und eine erzeugte Hookinstanz bleiben
 unbelegt.
 
-## Begrenzte Fortsetzung: Zipimporter-Attributquelle binden
+## Abgeschlossen: Zipimporter-Attributquelle binden
 
-Der nächste S15-Teilschnitt bindet `zipimport.zipimporter` an die
-digestgeprüfte Top-Level-Klasse und den Literalexport des Moduls. Der Kandidat
-verknüpft den bereits belegten C-seitigen Attributnamen mit seiner deklarierten
-Python-Quellidentität; erfolgreicher Modulimport oder Runtimeverfügbarkeit
-bleiben unbelegt. Umfang: ein Paket, ein PR und höchstens zwei Regressionen;
+PR #804 bindet den C-seitig angeforderten Attributnamen `zipimport.zipimporter`
+an die digestgeprüfte Top-Level-Klasse, den deklarierten Basistyp und den
+Literalexport `__all__`. Der echte Archivlauf und 242 fokussierte Regressionen
+bestanden; Klassenumbenennung und Exportänderung werden fail-closed verworfen.
+Ein erfolgreicher Modulimport oder Runtimewert ist damit nicht belegt.
+
+## Abgeschlossen: Zipimporter-Attributquelle binden
+
+PR #804 bindet den C-seitig angeforderten Attributnamen `zipimport.zipimporter`
+an die digestgeprüfte Top-Level-Klasse, den deklarierten Basistyp und den
+Literalexport `__all__`. Der echte Archivlauf und 242 fokussierte Regressionen
+bestanden; Klassenumbenennung und Exportänderung werden fail-closed verworfen.
+Ein erfolgreicher Modulimport oder Runtimewert ist damit nicht belegt.
+
+## Begrenzte Fortsetzung: Meta-Path-Finderklassen binden
+
+Der nächste S15-Schnitt ordnet die registrierten Labels `BuiltinImporter`,
+`FrozenImporter` und `PathFinder` den eindeutigen Top-Level-Klassen in den
+gepinnten Bootstrapquellen zu und prüft die jeweiligen `find_spec`-
+Klassenmethoden. Das sind Quellfakten, keine Runtimeinstanzen oder
+Auswahlbeobachtungen. Umfang: ein Paket, ein PR und höchstens zwei Regressionen;
 keine Runtime-, P11-, SQL-/Lab- oder menschliche Generalprobenattestation.

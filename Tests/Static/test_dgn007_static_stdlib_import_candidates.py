@@ -3108,6 +3108,55 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertIsNone(check_sources(bootstrap, changed_hook))
 
+    def test_meta_path_finder_labels_bind_to_declared_classes(self):
+        bootstrap = (
+            b"class BuiltinImporter:\n"
+            b"    @classmethod\n    def find_spec(cls, fullname): pass\n"
+            b"class FrozenImporter:\n"
+            b"    @classmethod\n    def find_spec(cls, fullname): pass\n"
+        )
+        external = (
+            b"class PathFinder:\n"
+            b"    @classmethod\n    def find_spec(cls, fullname): pass\n"
+        )
+
+        def check_sources(bootstrap_source, external_source):
+            files = {
+                "importlib/_bootstrap.py": bootstrap_source,
+                "importlib/_bootstrap_external.py": external_source,
+            }
+            with patch.object(
+                SUBJECT, "IMPORTLIB_BOOTSTRAP_SOURCE_SHA256",
+                hashlib.sha256(bootstrap_source).hexdigest(),
+            ), patch.object(
+                SUBJECT, "IMPORTLIB_EXTERNAL_SOURCE_SHA256",
+                hashlib.sha256(external_source).hexdigest(),
+            ):
+                return SUBJECT._target_meta_path_finder_class_candidate(files)
+
+        candidate = check_sources(bootstrap, external)
+        self.assertIsNotNone(candidate)
+        self.assertEqual(
+            [(row["module"], row["class"], row["method_kind"])
+             for row in candidate["registered_finder_declarations"]],
+            [
+                ("importlib._bootstrap", "BuiltinImporter", "classmethod"),
+                ("importlib._bootstrap", "FrozenImporter", "classmethod"),
+                ("importlib._bootstrap_external", "PathFinder", "classmethod"),
+            ],
+        )
+        self.assertFalse(candidate["runtime_instances_claimed"])
+        self.assertFalse(candidate["selection_claimed"])
+
+        changed_class = bootstrap.replace(
+            b"class BuiltinImporter:", b"class BuiltinLoader:"
+        )
+        self.assertIsNone(check_sources(changed_class, external))
+        changed_method = external.replace(
+            b"    @classmethod\n    def find_spec", b"    def find_spec"
+        )
+        self.assertIsNone(check_sources(bootstrap, changed_method))
+
     def test_filefinder_hook_factory_binds_loader_order_and_guard(self):
         source = (
             b"def _get_supported_file_loaders():\n"
