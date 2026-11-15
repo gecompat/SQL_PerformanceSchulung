@@ -2766,6 +2766,66 @@ def _target_selected_profile_result_schemas_candidate(source_bytes, result_model
     }
 
 
+def _target_profile_record_observation_flow_candidate(source_bytes, result_schema):
+    """Bind the ordered guarded file-capture workflow without claiming a run."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(result_schema) is not dict
+            or result_schema.get("observation_claimed") is not False):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def observe_current_interpreter_records\([^\n]*\)[^\n]*:\r?\n"
+        rb"(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    body = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"if type(sys.platform) is not str:",
+        b"if sys.platform != \"linux\":",
+        b"_shape(expected, True)",
+        b"_need(all(os.path.isabs(p) and os.path.isdir(p) for p in expected.roots), \"ROOT_MISMATCH\")",
+        b"_need(all(os.path.realpath(p) == p for p in expected.roots), \"ROOT_MISMATCH\")",
+        b"_need(os.path.isabs(expected.executable) and os.path.isfile(expected.executable), \"INTERPRETER_MISMATCH\")",
+        b"_need(os.path.realpath(expected.executable) == expected.executable_target, \"INTERPRETER_MISMATCH\")",
+        b"_need(os.path.isabs(expected.inert_zip) and not os.path.lexists(expected.inert_zip), \"ZIP_MISMATCH\")",
+        b"before = _capture(expected, expected.files)",
+        b"_compare(expected, before)",
+        b"for item in expected.files:",
+        b"item.path == expected.executable_target or _under(item.path, expected.roots)",
+        b"not os.path.islink(item.path) and os.path.isfile(item.path)",
+        b"os.path.realpath(item.path) == item.path",
+        b"with open(item.path, \"rb\") as stream:",
+        b"_need(size <= MAX_FILE and total <= MAX_TOTAL, \"FILE_LIMIT\")",
+        b"rows.append(FileDigest(item.path, size, digest.hexdigest()))",
+        b"after = _capture(expected, tuple(rows))",
+        b"_compare(expected, after)",
+        b"except _Failure as error:",
+        b"except (OSError, AttributeError, TypeError, ValueError, UnicodeError):",
+        b"return ObservationResult(ProfileReport(\"MATCHED_DECLARED_BASELINE\", \"NONE\", True), after)",
+    )
+    if any(body.count(fragment) != 1 for fragment in required):
+        return None
+    if not all(body.index(left) < body.index(right)
+               for left, right in zip(required, required[1:])):
+        return None
+    return {
+        "capture_guards_and_order": (
+            "linux_platform", "profile_shape", "root_and_executable_identity",
+            "inert_zip_absence", "pre_capture_and_compare", "bounded_regular_file_hashes",
+            "post_capture_and_compare", "fail_closed_reports",
+        ),
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "runtime_observation_claimed": False,
+        "trust_attested": False,
+        "evidence_scope": "STATIC_PROFILE_RECORD_OBSERVATION_FLOW_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9988,6 +10048,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_profile_result_model_schemas_candidate,
         )
     )
+    target_profile_record_observation_flow_candidate = (
+        _target_profile_record_observation_flow_candidate(
+            runtime_profile_source,
+            target_profile_result_model_schemas_candidate,
+        )
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -10500,6 +10566,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_selected_profile_result_schemas_candidate": (
             target_selected_profile_result_schemas_candidate
+        ),
+        "target_profile_record_observation_flow_candidate": (
+            target_profile_record_observation_flow_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,

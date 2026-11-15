@@ -2247,6 +2247,44 @@ class StaticImportCandidateTests(unittest.TestCase):
                     changed, result_model_schema,
                 ))
 
+    def test_profile_record_observation_flow_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        result_schema = {"observation_claimed": False}
+        candidate = SUBJECT._target_profile_record_observation_flow_candidate(
+            profile_source, result_schema,
+        )
+        self.assertEqual(candidate, {
+            "capture_guards_and_order": (
+                "linux_platform", "profile_shape", "root_and_executable_identity",
+                "inert_zip_absence", "pre_capture_and_compare", "bounded_regular_file_hashes",
+                "post_capture_and_compare", "fail_closed_reports",
+            ),
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "runtime_observation_claimed": False,
+            "trust_attested": False,
+            "evidence_scope": "STATIC_PROFILE_RECORD_OBSERVATION_FLOW_CANDIDATE",
+        })
+        for changed in (
+            profile_source.replace(
+                b"not os.path.islink(item.path) and os.path.isfile(item.path)",
+                b"os.path.isfile(item.path)",
+            ),
+            profile_source.replace(
+                b"        _compare(expected, before)", b"        pass",
+            ),
+        ):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(changed),
+            ):
+                self.assertIsNone(SUBJECT._target_profile_record_observation_flow_candidate(
+                    changed, result_schema,
+                ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(
