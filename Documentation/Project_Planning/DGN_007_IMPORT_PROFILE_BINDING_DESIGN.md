@@ -6348,3 +6348,11 @@ geprüfte `_init_posix`-Body in `vars` übernehmen würde. Zusammen mit dem
 Callerargument `_CONFIG_VARS` kann der statische Kandidat diese Werte dem
 Zielmapping zuordnen. Die Aussage bleibt quellen-/imagegebunden und behauptet
 keine zur Laufzeit ausgeführte Dictionarymutation.
+
+### Fortsetzung: Rückgabepfade der öffentlichen Sysconfig-APIs
+
+Die statische Route wird bis zu den digestgebundenen Rückgabeformen
+weitergeführt: `get_config_vars()` liefert ohne Argumente `_CONFIG_VARS` und
+mit Argumenten eine Liste der Mappingwerte; `get_config_var(name)` delegiert
+auf `get_config_vars().get(name)`. Dies ergänzt den statischen Wertfluss, ohne
+einen Aufruf oder beobachtete API-Rückgabe zu behaupten.
