@@ -11215,11 +11215,22 @@ Reihenfolge des `selection`-Tupels und den Controls-Vertrag. Alle fünf
 Pflichtprüfungen bestanden. Das Ergebnis beschreibt zulässige Eingaben, keine
 gewählte Control-Menge oder validierte Profilauswahl.
 
-## Nächster Schritt: Skalarprojektion-Schema binden
+## Abgeschlossen: Skalarprojektion-Schema binden
 
-Der nächste Kandidat bindet die geordnete Rückgabe aus `selection`,
-`installation` und vollständigen Modulzeilen an die bereits gebundenen
-Eingabe- und Installationstupel. Er belegt nur das statische Rückgabeschema;
-projizierte Werte, Runtimeaufnahme und Profilauswahl bleiben unbelegt. Eine
-Regression prüft das Rückgabeschema und eine geänderte Rückgabereihenfolge.
-Umfang: ein Paket, ein PR und höchstens zwei Regressionen.
+PR #827 band die drei Rückgaben `selection`, `installation` und Modulzeilen
+statisch an die Profilquelle. Die Nachprüfung fand eine Verwechslung zwischen
+dem 15-Feld-Profilrecord und dem separaten 12-Feld-Installationsprojektionstupel.
+PR #828 bindet deshalb die vollständige 12-Feld-Zuweisung und führt beide
+Feldordnungen getrennt. Die Gegenprobe änderte sowohl Rückgabe- als auch
+Installationsreihenfolge; alle anwendbaren PR-Prüfungen bestanden. Es sind
+keine projizierten Werte, Runtimeaufnahme oder Profilauswahl belegt.
+
+## Nächster Schritt: Auswahlform statisch binden
+
+Der nächste Kandidat bindet die Größen- und Formgrenzen aus
+`_selected_shapes`: 15 Installationsfelder, 11 Modulzeilenfelder, 32 Tokenbytes,
+höchstens zwei eindeutige Controls, sortierte eindeutige Modulnamen und die
+Übereinstimmung der Controls mit `CONTROL`-Records. Er behauptet keine
+tatsächlich ausgewählten Werte und keine Profilbindung. Eine Regression prüft
+den Vertrag und eine gelockerte Eindeutigkeitsbedingung. Umfang: ein Paket,
+ein PR und höchstens zwei Regressionen.

@@ -1514,6 +1514,48 @@ class StaticImportCandidateTests(unittest.TestCase):
                 )
             )
 
+    def test_selected_profile_shape_contract_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        installation_schema = {
+            "tuple_length": 15, "runtime_schema_claimed": False,
+        }
+        controls_contract = {
+            "maximum_count": 2, "selected_controls_claimed": False,
+        }
+        candidate = SUBJECT._target_selected_profile_shape_contract_candidate(
+            profile_source, installation_schema, controls_contract,
+        )
+        self.assertEqual(candidate, {
+            "installation_arity": 15,
+            "module_row_arity": 11,
+            "token_bytes": 32,
+            "maximum_controls": 2,
+            "control_names_unique": True,
+            "module_names_sorted_unique": True,
+            "controls_equal_control_rows": True,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "selected_values_claimed": False,
+            "profile_bound_claimed": False,
+            "evidence_scope": "STATIC_SELECTED_PROFILE_SHAPE_CONTRACT_CANDIDATE",
+        })
+        changed = profile_source.replace(
+            b"names == tuple(sorted(set(names)))",
+            b"names == tuple(sorted(names))",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed),
+        ):
+            self.assertIsNone(
+                SUBJECT._target_selected_profile_shape_contract_candidate(
+                    changed, installation_schema, controls_contract,
+                )
+            )
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

@@ -2677,11 +2677,19 @@ PR #826 verbindet die festen Auswahlwerte mit der quellgebundenen
 `selection`-Tupelordnung und dem Controls-Vertrag. Der statische Vertrag
 behauptet keine gewählte Control-Menge oder validierte Profilauswahl.
 
-## Begrenzte Fortsetzung: Skalarprojektion-Schema binden
+## Abgeschlossen: Skalarprojektion-Schema binden
 
-Ein Arbeitspaket und ein PR binden die geordnete Rückgabe aus `selection`,
-`installation` und vollständigen Modulzeilen an die vorhandenen statischen
-Eingabe- und Installationstupel. Der Kandidat beschreibt ausschließlich das
-Quellschema; er behauptet weder projizierte Werte noch Runtimeaufnahme oder
-Profilauswahl. Eine positive Regression und eine Rückgabereihenfolge-
-Gegenprobe begrenzen den Schnitt.
+PR #827 band die drei Rückgaben `selection`, `installation` und Modulzeilen
+statisch. PR #828 korrigierte die Feldzuordnung: Das
+Installationsprojektionstupel hat zwölf Felder und bleibt vom 15-Feld-
+Profilrecord getrennt. Es werden keine projizierten Werte, Runtimeaufnahme
+oder Profilauswahl behauptet.
+
+## Begrenzte Fortsetzung: Auswahlform statisch binden
+
+Ein Arbeitspaket und ein PR binden die Formgrenzen aus `_selected_shapes`:
+Installations- und Modulzeilenlängen, Tokenlänge, Control-Obergrenze und
+Eindeutigkeit sowie sortierte eindeutige Modulnamen und deren Control-Record-
+Zuordnung. Der Kandidat beschreibt statische Quellbedingungen, keine tatsächlich
+ausgewählten Werte oder Profilbindung. Eine positive Regression und eine
+gelockerte Eindeutigkeits-Gegenprobe begrenzen den Schnitt.
