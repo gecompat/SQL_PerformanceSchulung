@@ -1,6 +1,7 @@
 # Aktueller Ausführungsstand
 
-Aktualisiert am 14. November 2026: QRY-023s vorgeschlagene CI-Route und die
+Aktualisiert am 15. November 2026: Der QRY-023-Stand vom 14. November 2026
+bestätigt die vorgeschlagene CI-Route und die
 konkreten ADMIN-/READER-Rechtekontrollen sind auf SQL Server 2019/2022/2025
 enginequalifiziert. PRs #586–#588 ergänzten Live-Nachweise für die exakte
 RunToken-, Zielnamen- und Demo-ID-Prüfung, jeweils vor Setup und ohne Erzeugung
@@ -111,6 +112,13 @@ Environment-Override aus. Der lokale Syntax-/Quellscanner besteht mit 224
 Tests unter Python 3.14; die Linux-/CPython-3.12-Prozessgegenprobe wurde auf
 diesem Windows-Host übersprungen und wartet auf den Pflichtworkflow. Es gab
 keine Zielprofil-, DGN-Worker-, SQL-, Lab- oder Generalprobenattestation.
+Der nächste Quellen-/Imagefact bindet `sys.implementation._multiarch` an die
+Nutzung des `MULTIARCH`-Makros in `sysmodule.c` und den digestgeprüften
+Sysconfigdatenwert. Der echte Archiv-/OCI-Scan gibt `x86_64-linux-gnu` aus.
+Der engere Modul-/Klassenkörper-Schnitt bleibt bei 56 Quellen und 278 Kanten;
+seine 42 Bedingungen sind entschieden. Damit sind weder die breitere dynamische
+Kandidatenanalyse noch Runtime- oder P11-Gates geschlossen. Die fokussierte
+Resolver-Suite besteht lokal mit 225 Tests unter Python 3.14.
 Der lokale breitere Bundletest läuft unter CPython 3.14 in einen bereits
 versionsgebundenen Bootstrap-AST-Digest (`BOOTSTRAP_CHANGED`); die gepinnten
 CI-Workflows verwenden CPython 3.12. Die Execution-Edge-Gesamtsuite wurde lokal

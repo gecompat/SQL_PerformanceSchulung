@@ -1231,6 +1231,44 @@ class StaticImportCandidateTests(unittest.TestCase):
                 (("sys.implementation.version", (3, 12, 16, "final", 0)),),
             ), ())
 
+    def test_sys_implementation_multiarch_binds_source_and_target_image(self):
+        source = (
+            b"static PyObject *\nmake_impl_info(PyObject *version_info)\n{\n"
+            b"#ifdef MULTIARCH\n"
+            b"value = PyUnicode_FromString(MULTIARCH);\n"
+            b"if (value == NULL)\n    goto error;\n"
+            b"res = PyDict_SetItemString(impl_info, \"_multiarch\", value);\n"
+            b"Py_DECREF(value);\n"
+            b"if (res < 0)\n    goto error;\n"
+            b"#endif\n"
+            b"return ns;\n}\n#ifdef __EMSCRIPTEN__\n"
+        )
+        image_facts = {
+            "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+            "sysconfigdata_sha256": SUBJECT.TARGET_SYSCONFIGDATA_SHA256,
+            "multiarch": "x86_64-linux-gnu",
+        }
+        with patch.object(
+            SUBJECT, "SYS_MODULE_C_SHA256", hashlib.sha256(source).hexdigest(),
+        ):
+            expected = (("sys.implementation._multiarch", "x86_64-linux-gnu"),)
+            self.assertEqual(
+                SUBJECT._target_sys_implementation_multiarch_fact(source, image_facts),
+                expected,
+            )
+            condition = ast.parse(
+                "sys.implementation._multiarch == 'x86_64-linux-gnu'", mode="eval",
+            ).body
+            self.assertIs(SUBJECT._target_condition(
+                condition, known_call_facts=expected,
+            ), True)
+            self.assertEqual(SUBJECT._target_sys_implementation_multiarch_fact(
+                source, {**image_facts, "multiarch": "aarch64-linux-gnu"},
+            ), ())
+            self.assertEqual(SUBJECT._target_sys_implementation_multiarch_fact(
+                source.replace(b'"_multiarch"', b'"other"'), image_facts,
+            ), ())
+
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
         self.assertEqual(
             SUBJECT._target_importlib_debug_call_facts({17: True}),

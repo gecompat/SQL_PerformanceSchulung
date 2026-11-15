@@ -6215,3 +6215,17 @@ Fact belegt weder Hostisolation noch eine Zielruntime-/Sysconfigaufnahme,
 vollständige Importclosure oder P11-Sollinventur. Die übrige geerbte Umgebung,
 Profil-/Workerattestation und alle SQL-/Lab-/Generalprobengates bleiben
 außerhalb dieses Schnitts.
+
+### Fortsetzung: `sys.implementation._multiarch` als Imagekandidat
+
+Der feste CPython-3.12.16-`sysmodule.c`-Körper weist `_multiarch` nur innerhalb
+von `#ifdef MULTIARCH` aus dem Makro `MULTIARCH` zu. Der statische Scanner
+bindet diese Struktur an den bereits digestgeprüften Zielimagewert des
+Sysconfigdatenmoduls und gibt unter der festen Zielroute
+`sys.implementation._multiarch = "x86_64-linux-gnu"` als Fact aus.
+Abweichende Quellstruktur, Sysconfigdatenpfade oder Digests sowie ein anderer
+Imagewert verwerfen ihn. Der reale Archiv-/OCI-Lauf liefert diesen Wert; der
+engere Modul-/Klassenkörper-Schnitt bleibt bei 56 Quellen, 278 Kanten und 42
+entschiedenen Bedingungen. Das beweist weder eine Zielruntimeaufnahme noch
+`sys.abiflags`, `sys.platform`, den daraus zusammengesetzten
+Sysconfigdatenmodulnamen, eine vollständige Importclosure oder P11-Records.
