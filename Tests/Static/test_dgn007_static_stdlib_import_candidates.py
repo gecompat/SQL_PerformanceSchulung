@@ -1864,15 +1864,27 @@ class StaticImportCandidateTests(unittest.TestCase):
             b'raise _Failure("UNKNOWN_LOADER")',
             b'kind = "SOURCE"',
         )
-        with patch.object(
-            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
-            SUBJECT._normalized_profile_source_sha256(changed),
-        ):
-            self.assertIsNone(
-                SUBJECT._target_profile_module_record_builder_candidate(
-                    changed, capture_schema,
-                )
+        module_start = profile_source.index(b"def _module(")
+        module_source = profile_source[module_start:]
+        early_return = (
+            profile_source[:module_start]
+            + module_source.replace(
+                b"    _need(type(name) is str and type(module) is ModuleType)",
+                b"    return None\n    _need(type(name) is str and type(module) is ModuleType)",
+                1,
             )
+        )
+        self.assertNotEqual(early_return, profile_source)
+        for mutation in (changed, early_return):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(mutation),
+            ):
+                self.assertIsNone(
+                    SUBJECT._target_profile_module_record_builder_candidate(
+                        mutation, capture_schema,
+                    )
+                )
 
     def test_profile_compare_contract_is_source_bound(self):
         profile_source = (

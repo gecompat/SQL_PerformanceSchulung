@@ -2934,8 +2934,15 @@ PR #867 bindet die fünf vorgesehenen Rückgaben von
 vor Nachheraufnahme und Hashvergleich. 279 fokussierte Regressionen und alle
 fünf Gates bestanden. Es wurde keine Aufnahme ausgeführt.
 
-## Begrenzte Fortsetzung: Capture-Schema gegen frühe Rückgabe absichern
+## Abgeschlossen: Capture-Schema gegen frühe Rückgabe absichern
 
-Der nächste Schnitt bindet den einzigen Rückgabepunkt von `_capture` nach
-Modul-/Pfadvalidierung und sortierter Modulprojektion. Es wird kein Snapshot
-aufgenommen.
+PR #868 bindet den einzigen Rückgabepunkt von `_capture` nach Modul-/Pfad-
+validierung und sortierter Modulprojektion. Eine Gegenprobe fügt eine frühe
+Rückgabe ein; 279 fokussierte Regressionen und alle fünf Gates bestanden. Es
+wurde kein Snapshot aufgenommen.
+
+## Begrenzte Fortsetzung: Modulrecord-Builder gegen frühe Rückgabe absichern
+
+Der nächste Schnitt bindet `_module` an genau einen Rückgabepunkt nach
+Identitäts-, Text-, Pfad- und Loaderklassifikation. Es werden keine Module
+beobachtet.
