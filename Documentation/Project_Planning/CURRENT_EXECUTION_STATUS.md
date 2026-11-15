@@ -11101,11 +11101,18 @@ digestgeprüften CPython-`sysmodule.c`-Quelle. Der Feldkandidat wiederholt den
 Quellfaktabgleich und weist den Quellhash aus. 244 fokussierte Regressionen
 und alle fünf PR-Gates bestanden; eine Runtimeaufnahme entsteht nicht.
 
-## S15-Teilschnitt: Versionsfeld aus gemeinsamem version_info-Fakt binden
+## Abgeschlossen: S15-Teilschnitt Versionsfeld
 
-Der nächste Kandidat leitet die S15-Dreierform `(3, 12, 16)` aus dem geprüften
+PR #812 leitet `(3, 12, 16)` aus dem geprüften
 `sys.implementation.version`-Fakt ab, das dieselbe deklarierte
-`version_info`-Referenz wie `sys.version_info` verwendet. Er bleibt statisch
-und behauptet keine Runtimeversion. Umfang: ein Paket, ein PR und höchstens
-zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder menschliche
-Generalprobenattestation.
+`version_info`-Referenz wie `sys.version_info` verwendet. 244 fokussierte
+Regressionen und alle fünf PR-Gates bestanden. Eine Runtimeversion wird nicht
+behauptet.
+
+## S15-Teilschnitt: Executable-Feld an direktes Imageziel binden
+
+Der nächste Kandidat bindet `executable` und `executable_target` an denselben
+regulären, nicht-symlinkten Image-Member `/usr/local/bin/python3.12` samt
+Digest. Er bleibt eine statische Locatorwahl und behauptet keine
+Runtime-Executable. Umfang: ein Paket, ein PR und höchstens zwei Regressionen;
+keine Runtime-, P11-, SQL-/Lab- oder menschliche Generalprobenattestation.

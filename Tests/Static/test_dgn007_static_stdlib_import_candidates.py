@@ -306,6 +306,15 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "/usr/local/lib/python3.12",
                 "/usr/local/lib/python3.12/lib-dynload",
             ],
+            "executable_field_candidate": {
+                "value": "/usr/local/bin/python3.12",
+                "target": "/usr/local/bin/python3.12",
+                "target_sha256": hashlib.sha256(
+                    b"verified executable"
+                ).hexdigest(),
+                "direct_regular_file": True,
+                "runtime_executable_claimed": False,
+            },
             "executable_target_candidate": "/usr/local/bin/python3.12",
             "abi_field_candidate": {
                 "value": "cpython-312-x86_64-linux-gnu",
