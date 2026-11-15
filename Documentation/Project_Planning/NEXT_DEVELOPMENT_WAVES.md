@@ -2990,6 +2990,17 @@ Keine Profilwerte wurden verarbeitet.
 
 ## Begrenzte Fortsetzung: Profilstrecke auf Anschlusslücken prüfen
 
-Als Nächstes wird die bisherige DGN-007-Quellbindung über Builder,
-Validierungshelfer und Berichtsausgänge hinweg auf fehlende Übergänge geprüft.
-Runtime-, P11- und S15-Nachweise bleiben davon unberührt.
+Der neue Kettentest bindet jetzt in `analyze()` die Reihenfolge und
+Vorgängerargumente von Capture-Schema, Modulrecord-Builder, Vergleich,
+Berichtspfad, Shape-/Record-/Pfad-/Primitiveverträgen, Profilmodellen und
+Record-Beobachtungsfluss. Er verlangt außerdem alle 15 Kandidatenausgaben im
+Resultat. Gegenproben brechen eine Übergabekante und entfernen einen
+Resultateintrag; beide werden erkannt. Der gesamte fokussierte Satz besteht
+280/280. Es läuft keine Analyse und keine Runtimebeobachtung.
+
+## Begrenzte Fortsetzung: parallele Beobachtungszweige verbinden
+
+Als Nächstes prüfe ich die separate Skalarbeobachtung und frische
+Recordaufnahme darauf, ob ihre Eingangskandidaten und Ergebnisfelder im
+Analyzer ebenfalls vollständig und geordnet verbunden sind. Runtime-, P11-
+und S15-Nachweise bleiben davon unberührt.
