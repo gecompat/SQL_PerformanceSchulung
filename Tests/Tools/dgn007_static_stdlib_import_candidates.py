@@ -1927,6 +1927,58 @@ def _target_selected_profile_anchor_binding_candidate(source_bytes, binder_flow)
     }
 
 
+def _target_selected_profile_observation_flow_candidate(source_bytes, anchor_binding):
+    """Bind selected observation ordering and reports without making a runtime claim."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(anchor_binding) is not dict
+            or anchor_binding.get("anchor_binding_claimed") is not False):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def observe_selected_profile_scalars\(.*?\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"fingerprints = _selected_shapes(installation, controls, modules, token)",
+        b"expected, held = _bind_selected(installation, controls, modules, token, cache, tuple(finders), tuple(hooks), fingerprints, keys)",
+        b"actual = observe_current_interpreter_scalars(expected, separately_known_filefinder_hook)",
+        b"selected = ((s[0], s[9], s[10], controls), (s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[11], s[8], s[12], s[13], s[14]), modules)",
+        b"_need(actual.scalars == selected, \"PROFILE_MISMATCH\")",
+        b"final = _capture(expected, expected.files)",
+        b"_need(_project_scalars(expected, final) == selected, \"PROFILE_MISMATCH\")",
+        b"_selected_hook_post(hook, _filefinder_hook(final, separately_known_filefinder_hook))",
+        b"return SelectedScalarObservationResult( ProfileReport(\"MATCHED_SELECTED_PROFILE\", \"NONE\", True), expected, actual.scalars)",
+        b"except Exception:",
+        b"ProfileReport(\"REJECTED_SELECTED_OBSERVATION\", \"SELECTED_OBSERVATION_FAILED\")",
+    )
+    if any(normalized.count(fragment) != 1 for fragment in required):
+        return None
+    if not all(normalized.index(left) < normalized.index(right) for left, right in zip(
+            required[:9], required[1:9])):
+        return None
+    if normalized.index(required[9]) > normalized.index(required[10]):
+        return None
+    return {
+        "validation_order": (
+            "selected_shapes", "bind_selected", "observe_current_scalars",
+            "compare_selected_projection", "capture_and_compare_final",
+            "recheck_hooks", "recheck_selected_postconditions",
+        ),
+        "matched_report": "MATCHED_SELECTED_PROFILE",
+        "rejected_report": "REJECTED_SELECTED_OBSERVATION",
+        "selected_profile_observation_claimed": False,
+        "runtime_observation_claimed": False,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "evidence_scope": "STATIC_SELECTED_PROFILE_OBSERVATION_FLOW_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -8973,6 +9025,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_selected_profile_binder_flow_candidate,
         )
     )
+    target_selected_profile_observation_flow_candidate = (
+        _target_selected_profile_observation_flow_candidate(
+            runtime_profile_source,
+            target_selected_profile_anchor_binding_candidate,
+        )
+    )
     target_profile_selection_inputs_candidate = (
         _target_profile_selection_inputs_candidate(
             runtime_profile_source,
@@ -9507,6 +9565,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_selected_profile_anchor_binding_candidate": (
             target_selected_profile_anchor_binding_candidate
+        ),
+        "target_selected_profile_observation_flow_candidate": (
+            target_selected_profile_observation_flow_candidate
         ),
         "target_profile_selection_inputs_candidate": (
             target_profile_selection_inputs_candidate

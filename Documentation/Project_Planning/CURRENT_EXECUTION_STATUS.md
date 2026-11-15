@@ -11240,11 +11240,18 @@ und die Erfolgsrückgabe des reinen Profilbinders an die Profilquelle. Alle fün
 Pflichtprüfungen bestanden. Das behauptet weder eine tatsächlich gebundene
 Auswahl noch eine Runtimebeobachtung.
 
-## Nächster Schritt: Ankerbindung des Profilbinders binden
+## Abgeschlossen: Ankerbindung des Profilbinders binden
 
-Der nächste Kandidat bindet das Cachekopieren, die Zuordnung vollständiger
-Modulzeilen, doppelte Schema- und Projektionsvergleiche sowie die erneute
-Identitätsprüfung der Cacheanker. Er behauptet keine tatsächliche
-Ankeraufnahme oder Runtimebeobachtung. Eine Regression entfernt einen der
-zweifachen Modulprojektionsvergleiche. Umfang: ein Paket, ein PR und höchstens
-zwei Regressionen.
+PR #831 bindet Cachekopie, Modulzeilenabbildung, doppelte Form- und
+Projektionsvergleiche sowie erneute Cacheanker-Identität an die Profilquelle.
+Alle fünf Pflichtprüfungen bestanden. Es entsteht keine tatsächliche
+Ankeraufnahme oder Runtimebeobachtung.
+
+## Nächster Schritt: ausgewählte Beobachtungsfolge statisch binden
+
+Der nächste Kandidat bindet die Reihenfolge von Formprüfung, Ankerbindung,
+frischer Skalarbeobachtung, Sollwertvergleich, abschließender Aufnahme,
+Hookprüfung und POST-Prüfungen samt Erfolgs- und Fehlerreport. Er führt die
+Beobachtungsfunktion nicht aus und behauptet keine Runtimeattestation. Eine
+Regression entfernt den Vergleich der aufgenommenen Skalarwerte. Umfang: ein
+Paket, ein PR und höchstens zwei Regressionen.

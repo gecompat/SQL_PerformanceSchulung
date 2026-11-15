@@ -2697,10 +2697,16 @@ tatsächlich ausgewählten Werte behauptet.
 PR #830 bindet die vorgelagerte Formprüfung, Fehlerabbildungen und
 Erfolgsrückgabe des Profilbinders. Die tatsächliche Profilbindung bleibt offen.
 
-## Begrenzte Fortsetzung: Ankerbindung des Profilbinders binden
+## Abgeschlossen: Ankerbindung des Profilbinders binden
 
-Ein Arbeitspaket und ein PR binden Cachekopie, Modulzeilenabbildung, wiederholte
-Projektions- und Formprüfungen sowie Cacheanker-Identität an die Profilquelle.
-Es entsteht keine Ankeraufnahme oder Runtimebeobachtung. Eine positive
-Regression und eine Gegenprobe mit entferntem Projektionsvergleich begrenzen
-den Schnitt.
+PR #831 bindet Cachekopie, Modulzeilenabbildung, wiederholte Form- und
+Projektionsprüfungen sowie Cacheanker-Identität. Keine Ankeraufnahme oder
+Runtimebeobachtung wird behauptet.
+
+## Begrenzte Fortsetzung: ausgewählte Beobachtungsfolge statisch binden
+
+Ein Arbeitspaket und ein PR binden die geordnete Folge von Formprüfung,
+Ankerbindung, frischer Skalarbeobachtung, Vergleichen, abschließender Aufnahme,
+Hookprüfung, POST-Prüfungen und Reports. Der Kandidat führt keine Beobachtung
+aus und begründet keine Runtimeattestation. Eine positive Regression und eine
+Gegenprobe ohne aufgenommenen Skalarvergleich begrenzen den Schnitt.
