@@ -229,6 +229,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             "destshared": "/usr/local/lib/python3.12/lib-dynload",
             "extension_suffix": ".cpython-312-x86_64-linux-gnu.so",
             "multiarch": "x86_64-linux-gnu",
+            "inert_zip_candidate": "/usr/local/lib/python312.zip",
             "_PYTHON_BUILD": False,
             "setup_parent_paths_verified": True,
             "_pickle_extension": True,
@@ -240,6 +241,12 @@ class StaticImportCandidateTests(unittest.TestCase):
                 SUBJECT._target_image_sysconfigdata_facts(
                     b"build_time_vars = {'SOABI': 'unbound'}"
                 )
+
+    def test_target_image_inert_zip_fact_rejects_present_path(self):
+        with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_INERT_ZIP_PRESENT"):
+            SUBJECT._target_image_inert_zip_fact({
+                SUBJECT.TARGET_INERT_ZIP_PATH: {"file": True},
+            })
 
     def test_target_image_setup_paths_reject_symlinked_probe_parents(self):
         tracked = {
@@ -1972,6 +1979,9 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"venv_prefix = None\n"
             b"ENV_PYTHONPATH = config['pythonpath_env']\n"
             b"def search_up(path):\n    return path\n"
+            b"if os_name == 'posix' or os_name == 'darwin':\n"
+            b"    ZIP_LANDMARK = f'{platlibdir}/python{VERSION_MAJOR}"
+            b"{VERSION_MINOR}.zip'\n"
         )
         with patch.object(
             SUBJECT, "GETPATH_SOURCE_SHA256", hashlib.sha256(getpath).hexdigest()
@@ -1979,6 +1989,10 @@ class StaticImportCandidateTests(unittest.TestCase):
             inventory = SUBJECT._getpath_source_inventory(getpath)
         self.assertEqual(inventory["path_variable_count"], 14)
         self.assertEqual(inventory["config_key_count"], 12)
+        self.assertEqual(
+            inventory["posix_zip_landmark_template"],
+            "f'{platlibdir}/python{VERSION_MAJOR}{VERSION_MINOR}.zip'",
+        )
 
         sysconfig = (
             b"_INSTALL_SCHEMES = {'posix': {'stdlib': 'lib/python', 'purelib': 'site'}}\n"

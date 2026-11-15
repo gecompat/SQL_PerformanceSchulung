@@ -79,6 +79,7 @@ TARGET_EXECUTABLE_SHA256 = "837a48d7afd08447fb43e28b282026fadb59368620072e57e01f
 TARGET_SYSCONFIGDATA_PATH = "usr/local/lib/python3.12/_sysconfigdata__linux_x86_64-linux-gnu.py"
 TARGET_SYSCONFIGDATA_SHA256 = "3ed04335c07aa6311958a3514a807ce1ef5b623cea3f29507c3f20b1330c8187"
 MAX_TARGET_SYSCONFIGDATA_BYTES = 128 * 1024
+TARGET_INERT_ZIP_PATH = "usr/local/lib/python312.zip"
 THREADING_SOURCE_SHA256 = "846f450ae794e4aab823a163f8c71d27751148af33e91dd3de886686a4e8ebfb"
 THREAD_NATIVE_ID_HEADER_MEMBER = "Python-3.12.16/Include/pythread.h"
 THREAD_NATIVE_ID_HEADER_SHA256 = "cd063073710988ea21b54588473542e5f3b2be06f637dc5a028aefd5a7949144"
@@ -629,6 +630,20 @@ def _getpath_source_inventory(source_bytes):
             or hashlib.sha256(source_bytes).hexdigest() != GETPATH_SOURCE_SHA256):
         raise ValueError("GETPATH_SOURCE_DIGEST")
     tree = ast.parse(source_bytes.decode("utf-8"))
+    posix_tests = [node for node in tree.body if isinstance(node, ast.If)
+                   and ast.unparse(node.test)
+                   == "os_name == 'posix' or os_name == 'darwin'"]
+    if len(posix_tests) != 1:
+        raise ValueError("GETPATH_ZIP_LANDMARK_BRANCH")
+    zip_assignments = [node for node in posix_tests[0].body
+                       if isinstance(node, ast.Assign)
+                       and any(isinstance(target, ast.Name)
+                               and target.id == "ZIP_LANDMARK"
+                               for target in node.targets)]
+    if (len(zip_assignments) != 1 or len(zip_assignments[0].targets) != 1
+            or ast.unparse(zip_assignments[0].value)
+            != "f'{platlibdir}/python{VERSION_MAJOR}{VERSION_MINOR}.zip'"):
+        raise ValueError("GETPATH_ZIP_LANDMARK")
     assignments, functions = _top_level_names(tree)
     path_variables = (
         "base_exec_prefix", "base_executable", "base_prefix", "exec_prefix",
@@ -659,6 +674,7 @@ def _getpath_source_inventory(source_bytes):
         "source_bytes": len(source_bytes),
         "path_variable_count": len(path_variables),
         "path_variables": path_variables,
+        "posix_zip_landmark_template": ast.unparse(zip_assignments[0].value),
         "path_variables_sha256": hashlib.sha256(canonical).hexdigest(),
         "config_key_count": len(config_keys),
         "config_keys": tuple(sorted(config_keys)),
@@ -3846,6 +3862,7 @@ def _target_image_save_facts(image_save_path, image_config_source):
                 "usr/local/bin/Modules": None,
                 TARGET_EXECUTABLE_PATH: None,
                 TARGET_SYSCONFIGDATA_PATH: None,
+                TARGET_INERT_ZIP_PATH: None,
                 PICKLE_EXTENSION_PATH: None,
                 "usr/local/bin/python3": None,
                 "usr/local/bin/Modules/Setup": None,
@@ -3950,6 +3967,7 @@ def _target_image_save_facts(image_save_path, image_config_source):
             sysconfig_facts = _target_image_sysconfigdata_facts(
                 sysconfigdata["content"]
             )
+            inert_zip_fact = _target_image_inert_zip_fact(tracked)
     except (tarfile.TarError, KeyError, TypeError, json.JSONDecodeError) as error:
         raise ValueError("TARGET_IMAGE_SAVE_INVALID") from error
     return {
@@ -3960,10 +3978,18 @@ def _target_image_save_facts(image_save_path, image_config_source):
         "sysconfigdata_path": TARGET_SYSCONFIGDATA_PATH,
         "sysconfigdata_sha256": TARGET_SYSCONFIGDATA_SHA256,
         **sysconfig_facts,
+        **inert_zip_fact,
         "_PYTHON_BUILD": False,
         "setup_parent_paths_verified": True,
         "_pickle_extension": True,
     }
+
+
+def _target_image_inert_zip_fact(tracked):
+    """Select the pinned route's absent ZIP landmark without starting Python."""
+    if type(tracked) is not dict or tracked.get(TARGET_INERT_ZIP_PATH) is not None:
+        raise ValueError("TARGET_IMAGE_INERT_ZIP_PRESENT")
+    return {"inert_zip_candidate": "/usr/local/lib/python312.zip"}
 
 
 def _target_image_sysconfigdata_facts(source):
@@ -6792,6 +6818,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "getpath_source_bytes": getpath_inventory["source_bytes"],
         "getpath_path_variable_count": getpath_inventory["path_variable_count"],
         "getpath_path_variables": list(getpath_inventory["path_variables"]),
+        "getpath_posix_zip_landmark_template": getpath_inventory[
+            "posix_zip_landmark_template"
+        ],
         "getpath_path_variables_sha256": getpath_inventory[
             "path_variables_sha256"
         ],

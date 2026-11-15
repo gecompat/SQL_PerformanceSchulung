@@ -75,6 +75,12 @@ enthält statisch die Buildwerte `SOABI=cpython-312-x86_64-linux-gnu`,
 Extension-Suffix und `MULTIARCH=x86_64-linux-gnu`. Diese verifizierten
 Imagewerte sind Sollwertkandidaten für `abi` und Extensionroots, keine
 tatsächliche Sysconfig-Aufnahme oder P11-Recordauswahl.
+`Modules/getpath.py` bindet die POSIX-Landmark-Vorlage
+`{platlibdir}/python{VERSION_MAJOR}{VERSION_MINOR}.zip`. Der gebundene
+Zielimage-Layervergleich bestätigt, dass `/usr/local/lib/python312.zip` in
+keiner Zielimage-Layerdatei existiert. Dieser Pfad ist ein Kandidat für die
+vorab ausgewählte inerte ZIP-Datei; die tatsächliche `sys.path`-Mitgliedschaft
+und die vollständige `inert_zip`-Profilwahl bleiben ungeprüft.
 
 Die separat dokumentierte CPython-3.12.16-Imagekandidatur ist jetzt zusätzlich
 gegen die OCI Registry-Blobbytes nachgerechnet: Childmanifest und Configdigest
