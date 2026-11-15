@@ -2773,9 +2773,16 @@ PR #843 bindet `_text` und `_strings`: exakter String-/Tupletyp, Zeichen- und
 UTF-8-Bytegrenze, maximale Tuplelänge und Textprüfung jedes Elements. Zwei
 Gegenproben lockern je eine Grenze. Es wird keine Profilvalidierung behauptet.
 
-## Begrenzte Fortsetzung: fail-closed Profilfehler binden
+## Abgeschlossen: fail-closed Profilfehler binden
 
 PR #844 bindet `_Failure` und `_need`: Fehlerklasse als `ValueError`-Unterklasse,
 Standardcode `INVALID_RECORD` und Ablehnung falscher Bedingungen unter Erhalt
 des Fehlercodes. Zwei Gegenproben lockern je eine Bedingung. Keine
 Profilvalidierung wird behauptet.
+
+## Begrenzte Fortsetzung: Profilreport-Schema binden
+
+PR #845 bindet die Felder von `ProfileReport`, insbesondere die
+nicht initialisierbaren Attestierungs-/Freigabefelder mit Standardwert `False`.
+Eine Gegenprobe setzt `runtime_attested` auf `True`; das muss den Kandidaten
+verwerfen. Es wird kein Bericht erzeugt oder Vertrauen attestiert.

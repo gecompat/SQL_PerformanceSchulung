@@ -2558,6 +2558,47 @@ def _target_profile_failure_primitive_candidate(source_bytes, primitive_contract
     }
 
 
+def _target_profile_report_schema_candidate(source_bytes, failure_contract):
+    """Bind report fields and the profile's false-attestation defaults."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(failure_contract) is not dict
+            or failure_contract.get("input_validation_claimed") is not False):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^@dataclass\(frozen=True\)\r?\nclass ProfileReport:\r?\n(?P<body>.*?)(?=^class |^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"status: str",
+        b"issue: str",
+        b"trust_assumed: bool = False",
+        b"trust_attested: bool = field(default=False, init=False)",
+        b"runtime_attested: bool = field(default=False, init=False)",
+        b"import_used_bytes_attested: bool = field(default=False, init=False)",
+        b"method_approved: bool = field(default=False, init=False)",
+    )
+    if any(normalized.count(fragment) != 1 for fragment in required):
+        return None
+    return {
+        "report_fields": (
+            "status", "issue", "trust_assumed", "trust_attested",
+            "runtime_attested", "import_used_bytes_attested", "method_approved",
+        ),
+        "attestation_and_approval_defaults_false": True,
+        "attestation_fields_not_init_parameters": True,
+        "profile_validation_claimed": False,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "evidence_scope": "STATIC_PROFILE_REPORT_SCHEMA_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9750,6 +9791,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_profile_primitive_validators_candidate,
         )
     )
+    target_profile_report_schema_candidate = (
+        _target_profile_report_schema_candidate(
+            runtime_profile_source,
+            target_profile_failure_primitive_candidate,
+        )
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -10247,6 +10294,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_profile_failure_primitive_candidate": (
             target_profile_failure_primitive_candidate
+        ),
+        "target_profile_report_schema_candidate": (
+            target_profile_report_schema_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,

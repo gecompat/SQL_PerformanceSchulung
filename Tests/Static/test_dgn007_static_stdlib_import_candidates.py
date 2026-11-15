@@ -2067,6 +2067,39 @@ class StaticImportCandidateTests(unittest.TestCase):
                     changed, primitive_contract,
                 ))
 
+    def test_profile_report_schema_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        failure_contract = {"input_validation_claimed": False}
+        candidate = SUBJECT._target_profile_report_schema_candidate(
+            profile_source, failure_contract,
+        )
+        self.assertEqual(candidate, {
+            "report_fields": (
+                "status", "issue", "trust_assumed", "trust_attested",
+                "runtime_attested", "import_used_bytes_attested", "method_approved",
+            ),
+            "attestation_and_approval_defaults_false": True,
+            "attestation_fields_not_init_parameters": True,
+            "profile_validation_claimed": False,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "evidence_scope": "STATIC_PROFILE_REPORT_SCHEMA_CANDIDATE",
+        })
+        changed = profile_source.replace(
+            b"runtime_attested: bool = field(default=False, init=False)",
+            b"runtime_attested: bool = field(default=True, init=False)",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed),
+        ):
+            self.assertIsNone(SUBJECT._target_profile_report_schema_candidate(
+                changed, failure_contract,
+            ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(
