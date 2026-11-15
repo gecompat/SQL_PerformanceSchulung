@@ -6982,13 +6982,26 @@ class StaticImportCandidateTests(unittest.TestCase):
             expected = {("sysconfig", "sysconfig.py", 3): (False,)}
             self.assertEqual(
                 SUBJECT._target_sysconfig_userbase_env_condition_facts(
-                    files, config, True,
+                    files, config, True, True,
                 ),
                 expected,
             )
             self.assertEqual(
                 SUBJECT._target_sysconfig_userbase_env_condition_facts(
-                    files, config, False,
+                    files, config, True, False,
+                ),
+                {},
+            )
+            self.assertEqual(
+                SUBJECT._target_sysconfig_userbase_env_condition_facts(
+                    files, config, False, True,
+                ),
+                {},
+            )
+            self.assertEqual(
+                SUBJECT._target_sysconfig_userbase_env_condition_facts(
+                    {**files, "extra.py": b"os.environ['PYTHONUSERBASE'] = value\n"},
+                    config, True, True,
                 ),
                 {},
             )
@@ -7002,7 +7015,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             ):
                 self.assertEqual(
                     SUBJECT._target_sysconfig_userbase_env_condition_facts(
-                        files, with_userbase, True,
+                        files, with_userbase, True, True,
                     ),
                     {},
                 )

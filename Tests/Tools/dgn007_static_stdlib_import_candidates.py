@@ -7715,10 +7715,10 @@ def _target_sysconfig_project_base_env_facts(files, image_config_source,
 
 
 def _target_sysconfig_userbase_env_condition_facts(
-        files, image_config_source, no_pythonuserbase_override):
+        files, image_config_source, no_site, no_pythonuserbase_override):
     """Resolve PYTHONUSERBASE lookup only under the explicit clean-env assumption."""
     source = files.get("sysconfig.py") if type(files) is dict else None
-    if (no_pythonuserbase_override is not True
+    if (no_site is not True or no_pythonuserbase_override is not True
             or type(source) is not bytes
             or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256
             or type(image_config_source) is not bytes
@@ -7737,6 +7737,12 @@ def _target_sysconfig_userbase_env_condition_facts(
             or config.get("architecture") != "amd64"
             or type(env) is not list or any(type(item) is not str for item in env)
             or any(item.partition("=")[0] == "PYTHONUSERBASE" for item in env)):
+        return {}
+    if any(
+            name not in ("site.py", "sysconfig.py")
+            and "test" not in name.split("/")
+            and b"PYTHONUSERBASE" in data
+            for name, data in files.items() if type(data) is bytes):
         return {}
     functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)
                  and node.name == "_getuserbase"]
@@ -10878,7 +10884,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     ) if target_image_config_source is not None else ()
     target_sysconfig_userbase_env_condition_facts = (
         _target_sysconfig_userbase_env_condition_facts(
-            files, target_image_config_source,
+            files, target_image_config_source, target_no_site,
             target_no_pythonuserbase_override,
         ) if target_image_config_source is not None else {}
     )

@@ -3077,8 +3077,10 @@ abgewiesen. Der Scan löst `sysconfig.py:235` als falsch auf: 89 aufgelöste,
 
 Ein ergänzender `sysconfig.py:112`-Fact setzt ausdrücklich die
 `--target-no-pythonuserbase-override`-Routenannahme voraus und prüft zugleich,
-dass die gepinnte Image-Config `PYTHONUSERBASE` nicht setzt. Ohne Annahme oder
-bei gesetzter Image-Variable bleibt die Bedingung unbekannt. Mit der Annahme
+dass die gepinnte Image-Config `PYTHONUSERBASE` nicht setzt. Zusätzlich gelten
+`-S` und das Fehlen weiterer Standardbibliotheksquellen mit einem literalen
+Verweis auf die Variable. Ohne diese Voraussetzungen bleibt die Bedingung
+unbekannt. Mit der Annahme
 zählt der Offline-Scan 90 aufgelöste und 477 unbekannte Bedingungen bei 60
 Modulen und 316 Kanten; Unknown-Digest
 `be3628b5dc4aafc50a093de1cf73651cd2f341dce374a94b7678b596200ef172`.
