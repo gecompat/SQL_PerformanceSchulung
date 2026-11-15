@@ -2228,3 +2228,22 @@ Keine Runtime-, Profil-, Worker-, SQL-, Lab- oder Generalprobenausführung.
 Token-/Geldverbrauch bleiben unbekannt; der Checkpoint umfasst ein Paket und
 einen PR. PR-Integration ist der Checkpoint; danach wird anhand des aktuellen
 Status weitergearbeitet.
+
+Der ZIP-Landmark-Kandidat ist mit 221 fokussierten Tests und allen fünf PR-Gates
+bestanden. PR #774 integrierte ihn als
+`d899c971b1658aa219466531dc2755a83a86efcc`; `main` ist synchronisiert,
+lokale und Remote-Branches sind entfernt.
+
+### Begrenzte Fortsetzung: Prefix-Landmarks im Zielimage binden
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR prüfen die gepinnten `getpath.py`-Landmarks für
+`os.py` und `lib-dynload` gegen die OCI-Layer, binden `os.py` bytegenau an das
+Quellarchiv und weisen die Abwesenheit der beiden möglichen `pyvenv.cfg`-Dateien
+sowie des `pybuilddir.txt`-Buildmarkers nach. Zwei Regressionen decken die
+Landmark-Auswahl und die fail-closed-Gegenprobe bei vorhandenem Venvmarker ab.
+Das liefert nur Prefix-/Exec-Prefix-Kandidaten unter der festen Route, keine
+Zielruntimewerte und keine vollständige S15-Auswahl. Keine Runtime-, Profil-,
+Worker-, SQL-, Lab- oder Generalprobenausführung. Token-/Geldverbrauch bleiben
+unbekannt; der Checkpoint umfasst ein Paket und einen PR. PR-Integration ist
+der Checkpoint; danach wird anhand des aktuellen Status weitergearbeitet.
