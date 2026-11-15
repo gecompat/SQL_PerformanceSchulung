@@ -5015,11 +5015,13 @@ class StaticImportCandidateTests(unittest.TestCase):
                     {},
                 )
 
-    def test_namedtuple_field_names_condition_binds_complete_call_domain(self):
+    def test_namedtuple_conditions_bind_complete_call_domain(self):
         collections_source = (
-            b"def namedtuple(typename, field_names):\n"
+            b"def namedtuple(typename, field_names, *, rename=False, defaults=None, module=None):\n"
             b"    if isinstance(field_names, str):\n"
             b"        field_names = field_names.replace(',', ' ').split()\n"
+            b"    if defaults is not None:\n        pass\n"
+            b"    if defaults is not None:\n        pass\n"
             b"    class_namespace = {'_fields': field_names}\n"
             b"    return type(typename, (), class_namespace)\n"
         )
@@ -5033,6 +5035,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"from collections import namedtuple\n"
             b"namedtuple('A', 'x y')\n"
             b"namedtuple('B', ('x', 'y'))\n"
+            b"namedtuple('C', ('x',), defaults=[None])\n"
         )
         typing_source = (
             b"import collections\n"
@@ -5094,10 +5097,14 @@ class StaticImportCandidateTests(unittest.TestCase):
             SUBJECT, "COLLECTIONS_NAMEDTUPLE_CALLS_SHA256", digest,
         ):
             self.assertEqual(
-                (facts := SUBJECT._target_collections_namedtuple_field_names_condition_facts(
+                (facts := SUBJECT._target_collections_namedtuple_call_condition_facts(
                     files,
                 )),
-                {("collections", "collections/__init__.py", 2): (False, True)},
+                {
+                    ("collections", "collections/__init__.py", 2): (False, True),
+                    ("collections", "collections/__init__.py", 4): (False, True),
+                    ("collections", "collections/__init__.py", 6): (False, True),
+                },
             )
             resolved = []
             unknown = []
@@ -5115,13 +5122,29 @@ class StaticImportCandidateTests(unittest.TestCase):
                 row["module"] == "collections" and row["line"] == 2
                 for row in unknown
             ))
+            for line in (4, 6):
+                self.assertEqual(
+                    [row["decisions"] for row in resolved
+                     if row["module"] == "collections" and row["line"] == line],
+                    [[False, True]],
+                )
             unsafe_files = dict(files)
             unsafe_files["caller.py"] = caller_source.replace(
                 b"('x', 'y')", b"unknown_fields",
             )
             self.assertEqual(
-                SUBJECT._target_collections_namedtuple_field_names_condition_facts(
+                SUBJECT._target_collections_namedtuple_call_condition_facts(
                     unsafe_files,
+                ),
+                {},
+            )
+            unsafe_defaults = dict(files)
+            unsafe_defaults["caller.py"] = caller_source.replace(
+                b"defaults=[None]", b"defaults=dynamic_defaults",
+            )
+            self.assertEqual(
+                SUBJECT._target_collections_namedtuple_call_condition_facts(
+                    unsafe_defaults,
                 ),
                 {},
             )

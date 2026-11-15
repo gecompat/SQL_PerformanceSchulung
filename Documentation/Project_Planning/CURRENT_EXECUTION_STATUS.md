@@ -11738,3 +11738,16 @@ Aufrufkanten, 86 entschiedene und 497 unbekannte Bedingungen; Unknown-Digest
 fokussierte Tests bestehen. Der Lauf bleibt `CANDIDATES_ONLY`; das lokale
 Docker-Save-Archiv fehlt, daher wurde `--target-direct-python312` nicht
 behauptet. Keine Runtime-/P11-Attestation.
+
+Die anschließende Erweiterung desselben gebundenen Aufruf-Facts deckt auch
+`collections/__init__.py:416` und `:444` (`defaults is not None`) ab. Die
+Funktionssignatur ist auf `defaults=None` gebunden. Die vollständigen 55
+Aufrufstellen enthalten ausgelassene Defaults, zwei statische Listenwerte
+(`dis.py`, darunter `[None] * 4`) und den bewusst nicht zur Entscheidung
+verwendeten dynamischen `typing.py`-Wert. Beide Guards haben daher belegte
+Outcomes `false` und `true`; eine unbekannte Defaults-Expression verwirft den
+gesamten Fact. Der Zielquellscan zählt nun 60 Module, 318 Kanten, 88
+entschiedene und 495 unbekannte Bedingungen; Unknown-Digest
+`b7e22c5b83fee44f8b73beff4a9442004ebe491fc114a2dc197a924ac66ad105`.
+292 fokussierte Tests bestehen. Weiterhin `CANDIDATES_ONLY`, ohne direkte
+Image-Routen-, Runtime- oder P11-Attestation.

@@ -3147,3 +3147,18 @@ deshalb ist die direkte `python3.12`-Image-Routenannahme nicht Bestandteil
 dieses Nachweises. Diese Fortsetzung ist auf den Quellenfact und einen
 Integrations-PR begrenzt; keine Runtime-/P11- oder SQL-Ausführung und keine
 menschliche Generalprobe.
+
+### Begrenzte Fortsetzung: `collections.namedtuple`-Defaults (15. November 2026)
+
+Ein weiteres Offlinepaket prüft innerhalb eines PRs die beiden
+`defaults is not None`-Guards am gebundenen vollständigen Aufrufbestand. Die
+Default-Signatur `None`, ausgelassene Argumente sowie zwei explizite Listen
+belegen beide Outcomes. Der dynamische Wert aus `typing.py` bleibt unbewertet.
+Das vorhandene CPython-3.12.16-Archiv und die bereits registrierten
+Quellkandidaten genügen; es werden keine neuen Produktquellen benötigt. Die
+Regression verwirft eine nicht abgedeckte Defaults-Expression. Der Scan zählt
+60 Module, 318 Kanten, 88 entschiedene und 495 unbekannte Bedingungen,
+Unknown-Digest
+`b7e22c5b83fee44f8b73beff4a9442004ebe491fc114a2dc197a924ac66ad105`;
+292 fokussierte Tests. `CANDIDATES_ONLY`; keine direkte Image-Route, Runtime,
+P11, SQL-Ausführung oder menschliche Generalprobe.
