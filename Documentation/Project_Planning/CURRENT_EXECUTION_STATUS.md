@@ -10922,3 +10922,14 @@ verworfen. Das ergibt `STATIC_POST_INIT_MAPPING_ENTRY_CANDIDATE`, keine
 beobachtete Funktionsausführung oder Runtimewerte. Die Regression deckt
 Quell-/Plattformbindung und nachträgliche Überschreibungsversuche ab. Umfang:
 ein Paket, ein PR und höchstens zwei Regressionen.
+
+## Fortsetzung: statische Werte bis zur Sysconfig-API projizieren
+
+Der verbundene Kandidat ordnet die 14 post-initialisierten Einträge den
+Rückgabeformen von `get_config_vars()` und `get_config_var(name)` zu. Er
+kennzeichnet explizit, dass dies nur als Wertkandidat gilt, solange zwischen
+Initialisierung und API-Abfrage keine Mappingmutation stattfindet. Damit sind
+Quellroute, Imagewerte, post-initialisiertes Mapping und API-Form statisch
+verbunden; tatsächlicher Getteraufruf, Mutation oder Runtimewert bleiben
+unbelegt. Keine P11-, SQL-/Lab- oder menschliche Generalprobenattestation.
+Umfang: ein Paket, ein PR und höchstens zwei Regressionen.

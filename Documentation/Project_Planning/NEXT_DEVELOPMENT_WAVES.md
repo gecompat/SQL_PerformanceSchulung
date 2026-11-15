@@ -2467,3 +2467,9 @@ Regressionen begrenzt. Er verbindet die 14 post-initialisierten
 `_CONFIG_VARS`-Eintragskandidaten mit den bereits geprüften Rückgabepfaden der
 öffentlichen Sysconfig-APIs. Die Resultate bleiben statische Kandidaten, keine
 beobachteten Runtimewerte oder vollständige Profilattestation.
+
+Der folgende DGN-007-Punkt bleibt auf ein Paket, einen PR und höchstens zwei
+Regressionen beschränkt. Er verbindet die 14 post-initialisierten
+`_CONFIG_VARS`-Wertekandidaten mit den statischen Rückgabeformen der öffentlichen
+Sysconfig-APIs und macht die Annahme keiner intervenierenden Mutation
+explizit. Keine Zielruntime- oder Profilattestation.

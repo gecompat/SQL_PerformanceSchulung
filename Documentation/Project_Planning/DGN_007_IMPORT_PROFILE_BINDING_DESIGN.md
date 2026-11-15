@@ -6366,3 +6366,12 @@ einen Mapping-Methodenaufruf verändert wird. Den späteren Lesezugriff für
 Linux-Plattformfact ausgeschlossen. Damit beschreibt er erwartete Einträge am
 Ende des initialisierten Mappings, ohne eine tatsächliche Ausführung oder
 Runtimeaufnahme zu behaupten.
+
+### Fortsetzung: API-Wertekandidaten aus dem Post-Init-Mapping ableiten
+
+Die 14 Werte des post-initialisierten `_CONFIG_VARS`-Kandidaten werden jetzt
+mit `get_config_vars()` (Mappingrückgabe ohne Argumente) und
+`get_config_var(name)` (Schlüssellookup) zusammengesetzt. Der Kandidat benennt
+die Voraussetzung, dass zwischen Initialisierung und API-Abfrage keine
+Mappingmutation eintritt. Das ist weder ein tatsächlicher API-Aufruf noch ein
+beobachteter Runtimewert.
