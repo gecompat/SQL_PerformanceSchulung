@@ -11751,3 +11751,14 @@ entschiedene und 495 unbekannte Bedingungen; Unknown-Digest
 `b7e22c5b83fee44f8b73beff4a9442004ebe491fc114a2dc197a924ac66ad105`.
 292 fokussierte Tests bestehen. Weiterhin `CANDIDATES_ONLY`, ohne direkte
 Image-Routen-, Runtime- oder P11-Attestation.
+
+Der nächste `namedtuple`-Guard `collections/__init__.py:515` (`module is None`)
+ist ebenfalls an dieselben 55 Aufrufstellen gebunden. Aufrufe ohne
+`module`-Argument verwenden den geprüften Default `None`; `_pydecimal.py`
+übergibt stattdessen ein Stringliteral. Der dynamische Wert aus `typing.py`
+bleibt unbewertet. Damit sind beide Outcomes abgedeckt; unbekannte Formen
+verwerfen den Fact. Der Zielquellscan zählt nun 60 Module, 318 Kanten, 89
+entschiedene und 494 unbekannte Bedingungen; Unknown-Digest
+`f97338e9f4e8fc5f4d0f76356f4992ab212d7e74c698aa430177c61b4d8f1279`.
+292 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`, ohne direkte
+Image-Routen-, Runtime- oder P11-Attestation.

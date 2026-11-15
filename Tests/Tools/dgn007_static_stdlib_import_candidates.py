@@ -7470,6 +7470,9 @@ def _target_collections_namedtuple_call_condition_facts(files):
     defaults_guards = [node for node in ast.walk(function)
                        if isinstance(node, ast.If)
                        and ast.unparse(node.test) == "defaults is not None"] if function else []
+    module_guards = [node for node in ast.walk(function)
+                     if isinstance(node, ast.If)
+                     and ast.unparse(node.test) == "module is None"] if function else []
     signature = function.args if function else None
     if (signature is None
             or [arg.arg for arg in signature.args] != ["typename", "field_names"]
@@ -7496,6 +7499,7 @@ def _target_collections_namedtuple_call_condition_facts(files):
         if isinstance(key, ast.Constant) and key.value == "_fields"
     ]
     if (len(guards) != 1 or len(defaults_guards) != 2
+            or len(module_guards) != 1
             or len(namespace_assignments) != 1
             or len(fields_entries) != 1
             or ast.unparse(fields_entries[0]) != "field_names"
@@ -7557,6 +7561,7 @@ def _target_collections_namedtuple_call_condition_facts(files):
     caller_source_rows = []
     outcomes = set()
     defaults_outcomes = set()
+    module_outcomes = set()
     for path, tree in trees.items():
         if any(isinstance(node, ast.ImportFrom) and node.module == "collections"
                and any(alias.name == "*" for alias in node.names)
@@ -7613,6 +7618,24 @@ def _target_collections_namedtuple_call_condition_facts(files):
                 pass
             else:
                 return {}
+            explicit_module = [keyword.value for keyword in node.keywords
+                               if keyword.arg == "module"]
+            if len(explicit_module) > 1:
+                return {}
+            if not explicit_module:
+                module_outcomes.add(True)
+            elif (isinstance(explicit_module[0], ast.Constant)
+                  and explicit_module[0].value is None):
+                module_outcomes.add(True)
+            elif (isinstance(explicit_module[0], ast.Constant)
+                  and type(explicit_module[0].value) is str):
+                module_outcomes.add(False)
+            elif (path == "typing.py"
+                  and isinstance(explicit_module[0], ast.Name)
+                  and explicit_module[0].id == "module"):
+                pass
+            else:
+                return {}
             value = (node.args[1] if len(node.args) > 1 else next(
                 (keyword.value for keyword in node.keywords
                  if keyword.arg == "field_names"), None,
@@ -7636,7 +7659,8 @@ def _target_collections_namedtuple_call_condition_facts(files):
     ).encode()).hexdigest()
     if (digest != COLLECTIONS_NAMEDTUPLE_CALLS_SHA256
             or outcomes != {False, True}
-            or defaults_outcomes != {False, True}):
+            or defaults_outcomes != {False, True}
+            or module_outcomes != {False, True}):
         return {}
     facts = {
         ("collections", "collections/__init__.py", guards[0].lineno):
@@ -7647,6 +7671,9 @@ def _target_collections_namedtuple_call_condition_facts(files):
         tuple(sorted(defaults_outcomes))
         for guard in defaults_guards
     })
+    facts[("collections", "collections/__init__.py", module_guards[0].lineno)] = (
+        tuple(sorted(module_outcomes))
+    )
     return facts
 
 
