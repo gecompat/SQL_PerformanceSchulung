@@ -11225,12 +11225,18 @@ Feldordnungen getrennt. Die Gegenprobe änderte sowohl Rückgabe- als auch
 Installationsreihenfolge; alle anwendbaren PR-Prüfungen bestanden. Es sind
 keine projizierten Werte, Runtimeaufnahme oder Profilauswahl belegt.
 
-## Nächster Schritt: Auswahlform statisch binden
+## Abgeschlossen: Auswahlform statisch binden
 
-Der nächste Kandidat bindet die Größen- und Formgrenzen aus
-`_selected_shapes`: 15 Installationsfelder, 11 Modulzeilenfelder, 32 Tokenbytes,
-höchstens zwei eindeutige Controls, sortierte eindeutige Modulnamen und die
-Übereinstimmung der Controls mit `CONTROL`-Records. Er behauptet keine
-tatsächlich ausgewählten Werte und keine Profilbindung. Eine Regression prüft
-den Vertrag und eine gelockerte Eindeutigkeitsbedingung. Umfang: ein Paket,
-ein PR und höchstens zwei Regressionen.
+PR #829 bindet die Größen- und Formgrenzen aus `_selected_shapes`: 15
+Installationsfelder, 11 Modulzeilenfelder, 32 Tokenbytes, höchstens zwei
+eindeutige Controls, sortierte eindeutige Modulnamen und deren Übereinstimmung
+mit `CONTROL`-Records. Alle fünf Pflichtprüfungen bestanden. Eine tatsächliche
+Auswahl oder Profilbindung folgt daraus nicht.
+
+## Nächster Schritt: Profilbinder-Ablauf statisch binden
+
+Der nächste Kandidat bindet die Reihenfolge `selected_shapes` vor
+`bind_selected`, beide Fehlerabbildungen und die Erfolgsrückgabe des reinen
+Profilbinders. Er behauptet weder eine tatsächlich gebundene Auswahl noch eine
+Runtimebeobachtung. Eine Regression entfernt den Formcheck und muss fail-closed
+bleiben. Umfang: ein Paket, ein PR und höchstens zwei Regressionen.

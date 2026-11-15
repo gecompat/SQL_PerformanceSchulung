@@ -2685,11 +2685,17 @@ Installationsprojektionstupel hat zwölf Felder und bleibt vom 15-Feld-
 Profilrecord getrennt. Es werden keine projizierten Werte, Runtimeaufnahme
 oder Profilauswahl behauptet.
 
-## Begrenzte Fortsetzung: Auswahlform statisch binden
+## Abgeschlossen: Auswahlform statisch binden
 
-Ein Arbeitspaket und ein PR binden die Formgrenzen aus `_selected_shapes`:
-Installations- und Modulzeilenlängen, Tokenlänge, Control-Obergrenze und
-Eindeutigkeit sowie sortierte eindeutige Modulnamen und deren Control-Record-
-Zuordnung. Der Kandidat beschreibt statische Quellbedingungen, keine tatsächlich
-ausgewählten Werte oder Profilbindung. Eine positive Regression und eine
-gelockerte Eindeutigkeits-Gegenprobe begrenzen den Schnitt.
+PR #829 bindet die Grenzen aus `_selected_shapes`: Installations- und
+Modulzeilenlänge, Tokenlänge, Controls-Obergrenze und Eindeutigkeit sowie
+sortierte eindeutige Modulnamen und Control-Record-Zuordnung. Es werden keine
+tatsächlich ausgewählten Werte behauptet.
+
+## Begrenzte Fortsetzung: Profilbinder-Ablauf statisch binden
+
+Ein Arbeitspaket und ein PR binden die Reihenfolge der Formprüfung vor dem
+Profilbinder, die beiden Fehlerabbildungen und die Erfolgsrückgabe. Der
+Kandidat behauptet weder eine tatsächliche Profilbindung noch Runtimebeobachtung.
+Eine positive Regression und eine Gegenprobe ohne Formprüfung begrenzen den
+Schnitt.
