@@ -4647,6 +4647,53 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {},
             )
 
+    def test_functools_negative_cache_size_guard_requires_all_pinned_callers(self):
+        lines = [""] * 519
+        lines[481] = "def lru_cache(maxsize=128, typed=False):"
+        lines[506] = "    if isinstance(maxsize, int):"
+        lines[507] = "        pass"
+        lines[508] = "        if maxsize < 0:"
+        lines[509] = "            pass"
+        lines[510] = "    elif callable(maxsize) and isinstance(typed, bool):"
+        lines[511] = "        pass"
+        lines[516] = "    elif maxsize is not None:"
+        lines[517] = "        raise TypeError()"
+        source = ("\n".join(lines) + "\n").encode()
+        client = (
+            b"from functools import lru_cache\n"
+            b"@lru_cache(maxsize=4)\n"
+            b"def cached():\n    return None\n"
+        )
+        caller_digest = hashlib.sha256(json.dumps(
+            [
+                [["client.py", 2, "call", "lru_cache(maxsize=4)"]],
+                [
+                    ["client.py", hashlib.sha256(client).hexdigest()],
+                    ["functools.py", hashlib.sha256(source).hexdigest()],
+                ],
+            ],
+            separators=(",", ":"),
+        ).encode()).hexdigest()
+        expected = {("functools", "functools.py", 509): (False,)}
+        with patch.multiple(
+            SUBJECT,
+            FUNCTOOLS_SOURCE_SHA256=hashlib.sha256(source).hexdigest(),
+            FUNCTOOLS_LRU_CACHE_CALLS_SHA256=caller_digest,
+        ):
+            self.assertEqual(
+                SUBJECT._target_functools_lru_cache_condition_facts(
+                    {"functools.py": source, "client.py": client},
+                ),
+                expected,
+            )
+            unsafe = client.replace(b"maxsize=4", b"maxsize=-1")
+            self.assertEqual(
+                SUBJECT._target_functools_lru_cache_condition_facts(
+                    {"functools.py": source, "client.py": unsafe},
+                ),
+                {},
+            )
+
     def test_logging_lock_guards_require_unmutated_truthy_lock_implementations(self):
         logging_lines = {
             232: "_lock = threading.RLock()",
