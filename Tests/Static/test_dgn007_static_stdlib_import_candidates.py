@@ -457,6 +457,70 @@ class StaticImportCandidateTests(unittest.TestCase):
                 image_facts, inventory, True, True, True,
             )
 
+    def test_s15_prefixes_candidate_requires_config_defaults_and_image_roots(self):
+        image_facts = {
+            "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+            "sysconfigdata_sha256": SUBJECT.TARGET_SYSCONFIGDATA_SHA256,
+            "prefix": "/usr/local",
+            "exec_prefix": "/usr/local",
+            "prefix_landmark_candidate": "/usr/local",
+            "exec_prefix_landmark_candidate": "/usr/local",
+            "prefix_venv_markers_absent": list(SUBJECT.TARGET_PREFIX_VENV_MARKERS),
+            "build_marker_absent": SUBJECT.TARGET_BUILD_MARKER,
+            "_PYTHON_BUILD": False,
+            "setup_parent_paths_verified": True,
+            "pth_override_files_absent": list(SUBJECT.TARGET_PTH_OVERRIDE_PATHS),
+        }
+        getpath_inventory = {
+            "source_sha256": SUBJECT.GETPATH_SOURCE_SHA256,
+            "base_prefix_config_read": True,
+            "base_prefix_fallback_bound": True,
+        }
+        path_candidate = {"sys_path_candidate": [
+            "/usr/local/lib/python312.zip",
+            "/usr/local/lib/python3.12",
+            "/usr/local/lib/python3.12/lib-dynload",
+        ]}
+        initconfig = (
+            b"void _PyConfig_InitCompatConfig(PyConfig *config) {\n"
+            b"    memset(config, 0, sizeof(*config));\n}\n"
+            b"static void config_init_defaults(PyConfig *config) {\n"
+            b"    _PyConfig_InitCompatConfig(config);\n"
+            b"    config->isolated = 0;\n}\n"
+            b"void PyConfig_InitPythonConfig(PyConfig *config) {\n"
+            b"    config_init_defaults(config);\n}\n"
+        )
+        with patch.object(
+            SUBJECT, "INITCONFIG_C_SHA256", hashlib.sha256(initconfig).hexdigest(),
+        ):
+            candidate = SUBJECT._target_s15_prefixes_field_candidate(
+                image_facts, getpath_inventory, path_candidate, initconfig,
+                True, True, True,
+            )
+            self.assertEqual(candidate, {
+                "values": ("/usr/local", "/usr/local", "/usr/local", "/usr/local"),
+                "field_order": (
+                    "prefix", "exec_prefix", "base_prefix", "base_exec_prefix",
+                ),
+                "prefix_source": "getpath POSIX landmarks and verified sysconfig defaults",
+                "base_prefix_source": "empty PyConfig defaults and getpath fallback",
+                "getpath_source_sha256": SUBJECT.GETPATH_SOURCE_SHA256,
+                "initconfig_source_sha256": hashlib.sha256(initconfig).hexdigest(),
+                "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+                "sysconfigdata_sha256": SUBJECT.TARGET_SYSCONFIGDATA_SHA256,
+                "runtime_prefixes_claimed": False,
+            })
+            self.assertEqual(SUBJECT._target_s15_prefixes_field_candidate(
+                image_facts, getpath_inventory, path_candidate,
+                initconfig.replace(
+                    b"config_init_defaults(config);", b"unknown_defaults(config);",
+                ), True, True, True,
+            ), {})
+        self.assertEqual(SUBJECT._target_s15_prefixes_field_candidate(
+            {**image_facts, "exec_prefix": "/unexpected"}, getpath_inventory,
+            path_candidate, initconfig, True, True, True,
+        ), {})
+
     def test_target_image_pth_override_fact_rejects_present_path(self):
         with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_PTH_OVERRIDE_PRESENT"):
             SUBJECT._target_image_pth_override_facts({
@@ -3035,11 +3099,23 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"    for p in [library, executable, real_executable]:\n"
             b"        p += '._pth'\n        pth = readlines(p)\n"
             b"if pth_dir:\n    home = pth_dir\n"
+            b"config['base_prefix'] = base_prefix or prefix\n"
+            b"config['base_exec_prefix'] = base_exec_prefix or exec_prefix\n"
         )
         with patch.object(
             SUBJECT, "GETPATH_SOURCE_SHA256", hashlib.sha256(getpath).hexdigest()
         ):
             inventory = SUBJECT._getpath_source_inventory(getpath)
+            altered_getpath = getpath.replace(
+                b"config['base_prefix'] = base_prefix or prefix\n", b"",
+            )
+            with patch.object(
+                SUBJECT, "GETPATH_SOURCE_SHA256",
+                hashlib.sha256(altered_getpath).hexdigest(),
+            ):
+                with self.assertRaisesRegex(
+                        ValueError, "GETPATH_BASE_PREFIX_BINDING"):
+                    SUBJECT._getpath_source_inventory(altered_getpath)
         self.assertEqual(inventory["path_variable_count"], 14)
         self.assertEqual(inventory["config_key_count"], 12)
         self.assertEqual(
@@ -3059,6 +3135,8 @@ class StaticImportCandidateTests(unittest.TestCase):
             ("ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir"),
         )
         self.assertTrue(inventory["pth_override_guard"])
+        self.assertTrue(inventory["base_prefix_config_read"])
+        self.assertTrue(inventory["base_prefix_fallback_bound"])
 
         sysconfig = (
             b"_INSTALL_SCHEMES = {'posix': {'stdlib': 'lib/python', 'purelib': 'site'}}\n"

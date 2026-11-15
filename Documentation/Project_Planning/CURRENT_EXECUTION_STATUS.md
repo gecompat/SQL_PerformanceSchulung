@@ -11109,10 +11109,19 @@ PR #812 leitet `(3, 12, 16)` aus dem geprüften
 Regressionen und alle fünf PR-Gates bestanden. Eine Runtimeversion wird nicht
 behauptet.
 
-## S15-Teilschnitt: Executable-Feld an direktes Imageziel binden
+## Abgeschlossen: S15-Teilschnitt Executable-Feld
 
-Der nächste Kandidat bindet `executable` und `executable_target` an denselben
-regulären, nicht-symlinkten Image-Member `/usr/local/bin/python3.12` samt
-Digest. Er bleibt eine statische Locatorwahl und behauptet keine
-Runtime-Executable. Umfang: ein Paket, ein PR und höchstens zwei Regressionen;
-keine Runtime-, P11-, SQL-/Lab- oder menschliche Generalprobenattestation.
+PR #813 bindet `executable` und `executable_target` an denselben regulären,
+nicht-symlinkten Image-Member `/usr/local/bin/python3.12` samt Digest. 244
+fokussierte Regressionen und alle fünf PR-Gates bestanden. Der Locator ist
+statisch; eine Runtime-Executable wurde nicht beobachtet.
+
+## S15-Teilschnitt: Prefix-Feldkandidat aus Config und GetPath binden
+
+Der nächste Kandidat bindet die vier Prefixwerte an Zielimage-Landmarks,
+digestgeprüfte Sysconfigdaten, leere `PyConfig`-Defaults und die geprüften
+GetPath-Fallbacks. Alle vier Werte müssen zusammen `/usr/local` ergeben;
+fehlende oder widersprüchliche Voraussetzungen unterdrücken den Kandidaten.
+Die Ausgabe bleibt statisch und ist keine Runtimeaufnahme. Umfang: ein Paket,
+ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
+menschliche Generalprobenattestation.
