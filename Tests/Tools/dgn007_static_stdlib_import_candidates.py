@@ -7315,6 +7315,69 @@ def _target_sysconfig_venv_prefix_guard_line_facts(
     return {guards[0].lineno: False}
 
 
+def _target_sysconfig_preferred_scheme_membership_line_facts(
+        files, sysconfig_name_facts):
+    """Resolve preferred-scheme membership from literal mappings and target facts."""
+    source = files.get("sysconfig.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256
+            or type(sysconfig_name_facts) is not dict
+            or sysconfig_name_facts.get("_HAS_USER_BASE") is not True):
+        return {}
+    try:
+        tree = ast.parse(source, filename="sysconfig.py")
+    except SyntaxError:
+        return {}
+    initial = [node.value for node in tree.body if isinstance(node, ast.Assign)
+               and any(isinstance(target, ast.Name)
+                       and target.id == "_INSTALL_SCHEMES"
+                       for target in node.targets)]
+    if len(initial) != 1:
+        return {}
+    try:
+        scheme_names = set(ast.literal_eval(initial[0]))
+    except (ValueError, TypeError):
+        return {}
+    updates = [node for node in ast.walk(tree)
+               if isinstance(node, ast.AugAssign)
+               and isinstance(node.target, ast.Name)
+               and node.target.id == "_INSTALL_SCHEMES"
+               and isinstance(node.op, ast.BitOr)]
+    update_guards = [node for node in tree.body if isinstance(node, ast.If)
+                     and ast.unparse(node.test) == "_HAS_USER_BASE"]
+    if len(updates) != 1 or len(update_guards) != 1 or updates[0] not in ast.walk(update_guards[0]):
+        return {}
+    try:
+        scheme_names.update(ast.literal_eval(updates[0].value))
+    except (ValueError, TypeError):
+        return {}
+    preferred_functions = [node for node in tree.body
+                           if isinstance(node, ast.FunctionDef)
+                           and node.name == "_get_preferred_schemes"]
+    public_functions = [node for node in tree.body
+                        if isinstance(node, ast.FunctionDef)
+                        and node.name == "get_preferred_scheme"]
+    if len(preferred_functions) != 1 or len(public_functions) != 1:
+        return {}
+    preferred_values = []
+    for node in ast.walk(preferred_functions[0]):
+        if isinstance(node, ast.Return):
+            try:
+                value = ast.literal_eval(node.value)
+            except (ValueError, TypeError):
+                return {}
+            if type(value) is not dict or any(type(item) is not str for item in value.values()):
+                return {}
+            preferred_values.extend(value.values())
+    guards = [node for node in ast.walk(public_functions[0])
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "scheme not in _INSTALL_SCHEMES"]
+    if (not preferred_values or not set(preferred_values).issubset(scheme_names)
+            or len(guards) != 1):
+        return {}
+    return {guards[0].lineno: False}
+
+
 def _target_sysconfig_posix_init_line_facts(files, os_name_call_facts):
     """Select sysconfig's POSIX initializer only from the bound os.name fact."""
     source = files.get("sysconfig.py") if type(files) is dict else None
@@ -10785,6 +10848,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     sysconfig_name_facts.update(_target_sysconfig_no_site_facts(
         files, sys_module_c_source, target_no_site,
     ))
+    target_sysconfig_preferred_scheme_membership_line_facts = (
+        _target_sysconfig_preferred_scheme_membership_line_facts(
+            files, sysconfig_name_facts,
+        )
+    )
     target_sysconfig_is_python_build_line_facts = (
         _target_sysconfig_is_python_build_line_facts(files)
     )
@@ -11451,6 +11519,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
                 **target_sysconfig_is_python_build_line_facts,
                 **target_sysconfig_build_setup_guard_line_facts,
                 **target_sysconfig_venv_prefix_guard_line_facts,
+                **target_sysconfig_preferred_scheme_membership_line_facts,
                 **target_sysconfig_posix_init_line_facts,
             },
             "string": target_string_template_pattern_guard_line_facts,
@@ -11471,6 +11540,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
               or target_collections_namedtuple_rename_line_facts
               or target_sysconfig_build_setup_guard_line_facts
               or target_sysconfig_venv_prefix_guard_line_facts
+              or target_sysconfig_preferred_scheme_membership_line_facts
               or target_importlib_optimize_line_facts
               or target_importlib_verbose_line_facts) else {},
         trusted_condition_observations={
@@ -11879,6 +11949,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_sysconfig_venv_prefix_guard_line_facts": list(
             target_sysconfig_venv_prefix_guard_line_facts.items()
+        ),
+        "target_platform_sysconfig_preferred_scheme_membership_line_facts": list(
+            target_sysconfig_preferred_scheme_membership_line_facts.items()
         ),
         "target_platform_sysconfig_posix_init_line_facts": list(
             target_sysconfig_posix_init_line_facts.items()
