@@ -2173,6 +2173,8 @@ def _target_profile_module_record_builder_candidate(source_bytes, capture_schema
     )
     if any(normalized.count(fragment) != 1 for fragment in required):
         return None
+    if len(re.findall(rb"\breturn\b", normalized)) != 1:
+        return None
     if not all(normalized.index(left) < normalized.index(right)
                for left, right in zip(required[:6], required[1:6])):
         return None
