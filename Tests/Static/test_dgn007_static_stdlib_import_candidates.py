@@ -4648,7 +4648,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             )
 
     def test_functools_negative_cache_size_guard_requires_all_pinned_callers(self):
-        lines = [""] * 519
+        lines = [""] * 565
         lines[481] = "def lru_cache(maxsize=128, typed=False):"
         lines[506] = "    if isinstance(maxsize, int):"
         lines[507] = "        pass"
@@ -4658,6 +4658,11 @@ class StaticImportCandidateTests(unittest.TestCase):
         lines[511] = "        pass"
         lines[516] = "    elif maxsize is not None:"
         lines[517] = "        raise TypeError()"
+        lines[527] = "def _lru_cache_wrapper(user_function, maxsize, typed, _CacheInfo):"
+        lines[542] = "    if maxsize == 0:"
+        lines[543] = "        pass"
+        lines[551] = "    elif maxsize is None:"
+        lines[552] = "        pass"
         source = ("\n".join(lines) + "\n").encode()
         client = (
             b"from functools import lru_cache\n"
@@ -4674,7 +4679,14 @@ class StaticImportCandidateTests(unittest.TestCase):
             ],
             separators=(",", ":"),
         ).encode()).hexdigest()
-        expected = {("functools", "functools.py", 509): (False,)}
+        expected = {
+            ("functools", "functools.py", 507): (False, True),
+            ("functools", "functools.py", 509): (False,),
+            ("functools", "functools.py", 511): (False, True),
+            ("functools", "functools.py", 517): (False,),
+            ("functools", "functools.py", 543): (False,),
+            ("functools", "functools.py", 552): (False, True),
+        }
         with patch.multiple(
             SUBJECT,
             FUNCTOOLS_SOURCE_SHA256=hashlib.sha256(source).hexdigest(),
@@ -4690,6 +4702,13 @@ class StaticImportCandidateTests(unittest.TestCase):
             self.assertEqual(
                 SUBJECT._target_functools_lru_cache_condition_facts(
                     {"functools.py": source, "client.py": unsafe},
+                ),
+                {},
+            )
+            zero_size = client.replace(b"maxsize=4", b"maxsize=0")
+            self.assertEqual(
+                SUBJECT._target_functools_lru_cache_condition_facts(
+                    {"functools.py": source, "client.py": zero_size},
                 ),
                 {},
             )
