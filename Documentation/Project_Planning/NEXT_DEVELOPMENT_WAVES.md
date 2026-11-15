@@ -2536,11 +2536,22 @@ Regressionen bestanden. Klassenumbenennung und fehlender Klassenmethoden-
 Descriptor werden fail-closed verworfen. Das sind Quellfakten, keine
 Runtimeinstanzen oder Auswahlbeobachtungen.
 
-## Begrenzte Fortsetzung: `inert_zip`-Feld an Pfadkandidaten binden
+## Abgeschlossen: `inert_zip`-Feld an Pfadkandidaten binden
 
-Der nächste S15-Schnitt verbindet die geordnete POSIX-`sys.path`-
-Sollwertkandidatenliste mit dem als abwesend belegten `ZIP_LANDMARK`-Imagepfad
-und bildet denselben Wert als statischen `inert_zip`-Feldkandidaten ab. Er
-behauptet weder Runtimeaufnahme noch einen vollständigen S15-Record. Umfang:
-ein Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-,
-SQL-/Lab- oder menschliche Generalprobenattestation.
+PR #806 verbindet den als abwesend belegten `ZIP_LANDMARK`-Imagepfad mit dem
+ersten Wert der geordneten `sys.path`-Sollwertkandidatur und weist denselben
+Wert als `inert_zip`-Feldkandidat aus. 244 fokussierte Regressionen und alle
+fünf PR-Gates bestanden. Für diesen Schritt lag lokal kein verifiziertes
+Docker-save-Zielimage vor; die Layer-/Pfadbindung ist durch synthetische
+Imagefixtures geprüft. Eine Runtimeaufnahme oder ein vollständiger S15-Record
+ist damit nicht belegt.
+
+## Begrenzte Fortsetzung: Bibliotheksroots binden
+
+Der nächste S15-Schnitt bindet den Standardbibliotheksroot an den zweiten
+geprüften `sys.path`-Pfadkandidaten und den Extensionroot an den imagegebundenen
+`DESTSHARED`-Wert. Beide Werte müssen zur geordneten Pfadfolge und zum
+verifizierten Extensiondateifakt passen. Die Ausgabe ist nur ein statischer
+`roots`-Feldkandidat. Umfang: ein Paket, ein PR und höchstens zwei
+Regressionen; keine Runtime-, P11-, SQL-/Lab- oder menschliche
+Generalprobenattestation.

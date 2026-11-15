@@ -11050,11 +11050,22 @@ vollständige S15-/P11-Inventur. PR #805 ist integriert; der Archivlauf und 243
 fokussierte Regressionen bestanden. Klassenumbenennung und Verlust der
 `classmethod`-Deklaration werden fail-closed verworfen.
 
-## S15-Teilschnitt: `inert_zip`-Feld an Pfadkandidaten binden
+## Abgeschlossen: S15-Teilschnitt `inert_zip`-Feld
 
-Der nächste Kandidat verbindet die bereits geordnete POSIX-`sys.path`-
-Sollwertliste mit dem abwesenden `ZIP_LANDMARK`-Imagepfad und weist denselben
-Wert als statischen `inert_zip`-Feldkandidaten aus. Er behauptet weder eine
-Runtimeaufnahme in `sys.path` noch einen vollständigen S15-Record. Umfang: ein
-Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab-
-oder menschliche Generalprobenattestation.
+PR #806 verbindet den abwesenden `ZIP_LANDMARK`-Imagepfad mit dem ersten
+Eintrag der geordneten POSIX-`sys.path`-Sollwertkandidatur und weist denselben
+Text als `inert_zip`-Feldkandidaten aus. 244 fokussierte Regressionen und alle
+fünf PR-Gates bestanden. Ein verifiziertes Docker-save-Zielimage lag lokal
+nicht vor; der Image-Layer- und Pfadabgleich wurde über die synthetische
+Layerfixture geprüft. Die Runtimeaufnahme und ein vollständiger S15-Record
+bleiben unbelegt.
+
+## S15-Teilschnitt: Bibliotheksroots binden
+
+Der nächste Kandidat soll den Standardbibliotheksroot aus dem zweiten
+`sys.path`-Pfadkandidaten und den Extensionroot aus dem imagegebundenen
+`DESTSHARED` verbinden. Er verlangt deren exakte Übereinstimmung mit der
+Pfadfolge und dem verifizierten Extensiondateifakt. Die Ausgabe bleibt ein
+statischer `roots`-Feldkandidat, keine Runtimeaufnahme. Umfang: ein Paket, ein
+PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
+menschliche Generalprobenattestation.
