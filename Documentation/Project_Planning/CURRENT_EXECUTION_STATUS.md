@@ -10845,3 +10845,17 @@ Das belegt weder den Aufruf des Initializers noch Import, Dateiausführung oder
 Runtimeübernahme. Keine P11-, Profil-, SQL-/Lab- oder menschliche
 Generalprobenattestation. Token-/Geldverbrauch bleiben unbekannt; Umfang: ein
 Paket, ein PR, höchstens zwei Regressionen.
+
+## Fortsetzung: importiertes `build_time_vars`-Attribut an Imageinhalt binden
+
+Der statische Routen-Kandidat verlangt nun zusätzlich, dass der Digestparser
+der exakten OCI-Datei die eindeutige literale Dictionary-Zuweisung
+`build_time_vars` erkannt und 14 festgelegte Schlüssel-/Wertpaare abgeglichen
+hat; die vollständige Mapping-Eintragszahl wird separat ausgewiesen. Die
+Route führt Attribut, Wertform und Eintragszahl als
+`STATIC_IMAGE_ATTRIBUTE_CANDIDATE` zusammen. Eine Regression prüft die positive
+Verknüpfung und verwirft fehlende Attributfacts. Der Archiv-/OCI-Scan bleibt
+`CANDIDATES_ONLY`; diese Evidenz führt weder die Datei aus noch attestiert sie
+Import, Runtimeübernahme, vollständige Importclosure oder P11. Keine SQL-/Lab-
+Ausführung oder menschliche Generalprobe. Token-/Geldverbrauch bleiben
+unbekannt; Umfang: ein Paket, ein PR und höchstens zwei Regressionen.

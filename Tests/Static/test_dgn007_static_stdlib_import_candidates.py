@@ -253,6 +253,8 @@ class StaticImportCandidateTests(unittest.TestCase):
             ).hexdigest(),
             "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
             "sysconfigdata_sha256": hashlib.sha256(sysconfigdata).hexdigest(),
+            "build_time_vars_literal_dict": True,
+            "build_time_vars_entry_count": 14,
             "soabi": "cpython-312-x86_64-linux-gnu",
             "destshared": "/usr/local/lib/python3.12/lib-dynload",
             "extension_suffix": ".cpython-312-x86_64-linux-gnu.so",
@@ -1380,6 +1382,8 @@ class StaticImportCandidateTests(unittest.TestCase):
         image_facts = {
             "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
             "sysconfigdata_sha256": SUBJECT.TARGET_SYSCONFIGDATA_SHA256,
+            "build_time_vars_literal_dict": True,
+            "build_time_vars_entry_count": 14,
         }
         expected = ((
             "sysconfigdata.image_file_path", SUBJECT.TARGET_SYSCONFIGDATA_PATH,
@@ -1489,6 +1493,8 @@ class StaticImportCandidateTests(unittest.TestCase):
         image_facts = {
             "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
             "sysconfigdata_sha256": SUBJECT.TARGET_SYSCONFIGDATA_SHA256,
+            "build_time_vars_literal_dict": True,
+            "build_time_vars_entry_count": 14,
         }
         candidate = SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, line_facts, import_target, image_facts,
@@ -1496,6 +1502,12 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(candidate["guard_source_line"], 676)
         self.assertEqual(candidate["module_name"], import_target["module_name"])
         self.assertEqual(candidate["imported_attribute"], "build_time_vars")
+        self.assertEqual(candidate["image_attribute_candidate"], {
+            "attribute": "build_time_vars",
+            "value_kind": "literal_dict",
+            "entry_count": 14,
+            "evidence_scope": "STATIC_IMAGE_ATTRIBUTE_CANDIDATE",
+        })
         self.assertEqual(
             candidate["evidence_scope"],
             "STATIC_CONDITIONAL_IMPORT_ROUTE_CANDIDATE",
@@ -1506,6 +1518,11 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, line_facts, import_target,
             {**image_facts, "sysconfigdata_sha256": "0" * 64},
+        ))
+        self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
+            inventory, line_facts, import_target,
+            {key: value for key, value in image_facts.items()
+             if key != "build_time_vars_literal_dict"},
         ))
 
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
