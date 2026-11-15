@@ -1556,6 +1556,40 @@ class StaticImportCandidateTests(unittest.TestCase):
                 )
             )
 
+    def test_selected_profile_binder_flow_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        shape_contract = {"profile_bound_claimed": False}
+        candidate = SUBJECT._target_selected_profile_binder_flow_candidate(
+            profile_source, shape_contract,
+        )
+        self.assertEqual(candidate, {
+            "validation_order": ("selected_shapes", "bind_selected"),
+            "failure_reports": ("REJECTED_SELECTED_PROFILE", "PROFILE_BINDING_FAILED"),
+            "success_report": "BOUND_SELECTED_PROFILE",
+            "success_requires_expected_profile": True,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "profile_binding_claimed": False,
+            "runtime_observation_claimed": False,
+            "evidence_scope": "STATIC_SELECTED_PROFILE_BINDER_FLOW_CANDIDATE",
+        })
+        changed = profile_source.replace(
+            b"fingerprints = _selected_shapes(installation, controls, modules, token)",
+            b"fingerprints = ()",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed),
+        ):
+            self.assertIsNone(
+                SUBJECT._target_selected_profile_binder_flow_candidate(
+                    changed, shape_contract,
+                )
+            )
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

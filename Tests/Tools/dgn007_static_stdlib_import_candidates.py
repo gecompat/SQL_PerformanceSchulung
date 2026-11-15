@@ -1830,6 +1830,51 @@ def _target_selected_profile_shape_contract_candidate(
     }
 
 
+def _target_selected_profile_binder_flow_candidate(source_bytes, shape_contract):
+    """Bind the shape-first selected-profile binder flow and report mapping."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(shape_contract) is not dict
+            or shape_contract.get("profile_bound_claimed") is not False):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def bind_selected_profile\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"fingerprints = _selected_shapes(installation, controls, modules, token)",
+        b"expected, _ = _bind_selected(installation, controls, modules, token, cache, finders, hooks, fingerprints, [0])",
+        b"except _Failure as error: return BoundProfileResult(ProfileReport(\"REJECTED_SELECTED_PROFILE\", str(error)))",
+        b"except (AttributeError, TypeError, ValueError, UnicodeError): return BoundProfileResult(ProfileReport(\"REJECTED_SELECTED_PROFILE\", \"PROFILE_BINDING_FAILED\"))",
+        b"return BoundProfileResult(ProfileReport(\"BOUND_SELECTED_PROFILE\", \"NONE\", True), expected)",
+    )
+    if any(normalized.count(fragment) != 1 for fragment in required):
+        return None
+    if not (normalized.index(required[0]) < normalized.index(required[1])
+            < normalized.index(required[2]) < normalized.index(required[3])
+            < normalized.index(required[4])):
+        return None
+    if any(token in normalized for token in (
+            b"observe_current_interpreter", b"open(", b"subprocess", b"Popen(")):
+        return None
+    return {
+        "validation_order": ("selected_shapes", "bind_selected"),
+        "failure_reports": ("REJECTED_SELECTED_PROFILE", "PROFILE_BINDING_FAILED"),
+        "success_report": "BOUND_SELECTED_PROFILE",
+        "success_requires_expected_profile": True,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "profile_binding_claimed": False,
+        "runtime_observation_claimed": False,
+        "evidence_scope": "STATIC_SELECTED_PROFILE_BINDER_FLOW_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -8864,6 +8909,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_controls_selection_contract_candidate,
         )
     )
+    target_selected_profile_binder_flow_candidate = (
+        _target_selected_profile_binder_flow_candidate(
+            runtime_profile_source,
+            target_selected_profile_shape_contract_candidate,
+        )
+    )
     target_profile_selection_inputs_candidate = (
         _target_profile_selection_inputs_candidate(
             runtime_profile_source,
@@ -9392,6 +9443,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_selected_profile_shape_contract_candidate": (
             target_selected_profile_shape_contract_candidate
+        ),
+        "target_selected_profile_binder_flow_candidate": (
+            target_selected_profile_binder_flow_candidate
         ),
         "target_profile_selection_inputs_candidate": (
             target_profile_selection_inputs_candidate
