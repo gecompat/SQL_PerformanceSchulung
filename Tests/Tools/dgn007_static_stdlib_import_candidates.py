@@ -2927,6 +2927,62 @@ def _target_selected_hook_post_contract_candidate(source_bytes, observation_flow
     }
 
 
+def _target_filefinder_hook_contract_candidate(source_bytes, observation_flow):
+    """Bind the FileFinder hook factory, closure anchors and loader suffix rows."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(observation_flow) is not dict
+            or observation_flow.get("runtime_observation_claimed") is not False):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def _filefinder_hook\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    body = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"type(known) is FunctionType and observation.hooks[1] is known",
+        b'r.name == "_frozen_importlib_external"',
+        b"len(rows) == 1 and rows[0].kind == \"FROZEN\" and rows[0].loader is FrozenImporter",
+        b'finder = namespace.get("FileFinder")',
+        b'descriptor = finder.__dict__.get("path_hook")',
+        b"type(descriptor) is classmethod and type(descriptor.__func__) is FunctionType",
+        b"len(constants) <= MAX_RECORDS and any(known.__code__ is c for c in constants)",
+        b'known.__code__.co_freevars == ("cls", "loader_details")',
+        b"type(known.__closure__) is tuple and len(known.__closure__) == 2",
+        b"cls is finder and type(details) is tuple and len(details) == 3",
+        b'("ExtensionFileLoader", "SourceFileLoader", "SourcelessFileLoader")',
+        b'("EXTENSION_SUFFIXES", "SOURCE_SUFFIXES", "BYTECODE_SUFFIXES")',
+        b"suffixes == configured",
+        b"return (finder, descriptor, factory, factory.__code__, known.__code__, cls, details, tuple((r[0], r[1], tuple(r[1])) for r in details))",
+    )
+    if any(body.count(fragment) != 1 for fragment in required):
+        return None
+    if not all(body.index(left) < body.index(right)
+               for left, right in zip(required, required[1:])):
+        return None
+    return {
+        "finder_hook_anchors": (
+            "frozen_importlib_external_module", "FileFinder_class", "classmethod_path_hook",
+            "factory_code_constant", "known_hook_globals_and_closure",
+        ),
+        "loader_detail_order": (
+            "ExtensionFileLoader", "SourceFileLoader", "SourcelessFileLoader",
+        ),
+        "suffix_lists_bound": (
+            "EXTENSION_SUFFIXES", "SOURCE_SUFFIXES", "BYTECODE_SUFFIXES",
+        ),
+        "runtime_hook_claimed": False,
+        "trust_attested": False,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "evidence_scope": "STATIC_FILEFINDER_HOOK_CONTRACT_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9991,6 +10047,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_selected_profile_observation_flow_candidate,
         )
     )
+    target_filefinder_hook_contract_candidate = (
+        _target_filefinder_hook_contract_candidate(
+            runtime_profile_source,
+            target_selected_profile_observation_flow_candidate,
+        )
+    )
     target_profile_selection_inputs_candidate = (
         _target_profile_selection_inputs_candidate(
             runtime_profile_source,
@@ -10631,6 +10693,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_selected_hook_post_contract_candidate": (
             target_selected_hook_post_contract_candidate
+        ),
+        "target_filefinder_hook_contract_candidate": (
+            target_filefinder_hook_contract_candidate
         ),
         "target_profile_selection_inputs_candidate": (
             target_profile_selection_inputs_candidate
