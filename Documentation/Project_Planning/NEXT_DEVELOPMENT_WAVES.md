@@ -2556,11 +2556,19 @@ bestanden. Für diesen Schnitt lag lokal kein verifiziertes Docker-save-
 Zielimage vor; die feste Pfadbindung wurde mit synthetischen OCI-Layern
 geprüft. Runtime-Roots bleiben unbelegt.
 
-## Begrenzte Fortsetzung: ausgewählte Dateifingerprints binden
+## Abgeschlossen: ausgewählte Dateifingerprints binden
 
-Der nächste S15-Schnitt bildet höchstens zwei `files`-Einträge: zuerst das
-geprüfte Executabletarget, danach die `_pickle`-Datei innerhalb des
-ausgewählten Extensionroots. Er bindet Größe und SHA-256, hält die jeweiligen
-Einzel- und Gesamtkappen ein und behauptet keine vollständige Dateiliste.
-Umfang: ein Paket, ein PR und höchstens zwei Regressionen; keine Runtime-,
-P11-, SQL-/Lab- oder menschliche Generalprobenattestation.
+PR #808 bildet höchstens zwei `files`-Einträge: das geprüfte Executabletarget
+und die `_pickle`-Datei innerhalb des ausgewählten Extensionroots. Größen,
+SHA-256 sowie Einzel- und Gesamtkappen sind gebunden; eine vollständige
+Dateiliste ist nicht behauptet. 244 fokussierte Regressionen und alle fünf
+PR-Gates bestanden. Das lokale Image-Evidence nutzt synthetische OCI-Layer;
+ein verifiziertes Docker-save-Zielimage lag nicht vor.
+
+## Begrenzte Fortsetzung: ABI-Feldkandidat binden
+
+Der nächste S15-Schnitt bindet `abi` ausschließlich an den Literalwert `SOABI`
+aus der digestgeprüften Zielimage-`_sysconfigdata`-Datei. Der resultierende
+Feldkandidat ist statisch und belegt keine Runtime-ABI. Umfang: ein Paket, ein
+PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
+menschliche Generalprobenattestation.

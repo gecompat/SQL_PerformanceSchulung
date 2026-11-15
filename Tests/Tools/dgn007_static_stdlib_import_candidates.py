@@ -5352,9 +5352,22 @@ def _target_image_sys_path_candidate(image_facts, getpath_inventory,
             or executable_size + pickle_size > MAX_S15_FILE_TOTAL_BYTES
             or not extension_path.startswith(image_facts["destshared"].rstrip("/") + "/")):
         raise ValueError("TARGET_IMAGE_S15_FILE_CANDIDATES")
+    if (image_facts.get("sysconfigdata_path") != TARGET_SYSCONFIGDATA_PATH
+            or image_facts.get("sysconfigdata_sha256")
+            != TARGET_SYSCONFIGDATA_SHA256
+            or image_facts.get("soabi")
+            != TARGET_SYSCONFIGDATA_EXPECTED_VALUES["SOABI"]):
+        raise ValueError("TARGET_IMAGE_S15_ABI_CANDIDATE")
     return {
         "sys_path_candidate": paths,
         "executable_target_candidate": executable_path,
+        "abi_field_candidate": {
+            "value": image_facts["soabi"],
+            "source_path": TARGET_SYSCONFIGDATA_PATH,
+            "source_sha256": TARGET_SYSCONFIGDATA_SHA256,
+            "source_key": "SOABI",
+            "runtime_abi_claimed": False,
+        },
         "files_field_candidate": [
             {
                 "path": executable_path,
