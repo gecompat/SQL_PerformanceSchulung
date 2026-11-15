@@ -2473,6 +2473,8 @@ def _target_profile_path_contract_candidate(source_bytes, record_contract):
         return None
     absolute = re.sub(rb"\s+", b" ", absolute_bodies[0])
     under = re.sub(rb"\s+", b" ", under_bodies[0])
+    if re.search(rb"\breturn\b", absolute) is not None:
+        return None
     absolute_requirements = (
         b"_text(value)",
         b"value.startswith(\"/\")",
