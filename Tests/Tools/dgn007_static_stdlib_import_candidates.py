@@ -3350,6 +3350,7 @@ def _target_s15_flags_field_candidate(worker_sys_flag_facts):
         ("sys.flags.bytes_warning", 0),
         ("sys.flags.quiet", 0),
         ("sys.flags.hash_randomization", 1),
+        ("sys.flags.dev_mode", False),
     )
     if (type(worker_sys_flag_facts) is not tuple
             or len(worker_sys_flag_facts) != len(expected)
@@ -4246,7 +4247,18 @@ def _target_worker_sys_flag_facts(
             )):
         return ()
     initconfig_text = initconfig_source.decode("utf-8")
+    preconfig_text = preconfig_source.decode("utf-8")
     sys_module_text = sys_module_source.decode("utf-8")
+    precmdline_reads = re.findall(
+        r"PyStatus\s+_PyPreCmdline_Read\(_PyPreCmdline \*cmdline,\s*"
+        r"const PyPreConfig \*preconfig\)\s*\{(.*?)\n\}",
+        preconfig_text, re.DOTALL,
+    )
+    precmdline_set_configs = re.findall(
+        r"PyStatus\s+_PyPreCmdline_SetConfig\(const _PyPreCmdline \*cmdline,\s*"
+        r"PyConfig \*config\)\s*\{(.*?)\n\}",
+        preconfig_text, re.DOTALL,
+    )
     defaults = re.search(
         r"static void\s+config_init_defaults\(PyConfig \*config\)\s*\{(.*?)\n\}",
         initconfig_text, re.DOTALL,
@@ -4330,6 +4342,29 @@ def _target_worker_sys_flag_facts(
                 r"config->use_hash_seed\s*=\s*0\s*;\s*"
                 r"config->hash_seed\s*=\s*0\s*;",
                 initconfig_text, re.DOTALL,
+            )
+            or len(precmdline_reads) != 1
+            or len(precmdline_set_configs) != 1
+            or not re.search(
+                r"if\s*\(cmdline->isolated\s*>\s*0\)\s*\{\s*"
+                r"cmdline->use_environment\s*=\s*0\s*;\s*\}",
+                precmdline_reads[0],
+            )
+            or not re.search(
+                r"if\s*\(\s*\(cmdline->dev_mode\s*<\s*0\)\s*&&\s*"
+                r"\(_Py_get_xoption\(&cmdline->xoptions,\s*L\"dev\"\)\s*\|\|\s*"
+                r"_Py_GetEnv\(cmdline->use_environment,\s*\"PYTHONDEVMODE\"\)\)\s*\)\s*\{\s*"
+                r"cmdline->dev_mode\s*=\s*1\s*;",
+                precmdline_reads[0],
+            )
+            or not re.search(
+                r"if\s*\(cmdline->dev_mode\s*<\s*0\)\s*\{\s*"
+                r"cmdline->dev_mode\s*=\s*0\s*;\s*\}",
+                precmdline_reads[0],
+            )
+            or not re.search(
+                r"COPY_ATTR\(dev_mode\);",
+                precmdline_set_configs[0],
             )):
         return ()
     flag_body = set_flags.group(0)
@@ -4362,6 +4397,7 @@ def _target_worker_sys_flag_facts(
         r"SetFlag\(config->quiet\);",
         r"SetFlag\(config->use_hash_seed\s*==\s*0\s*\|\|\s*"
         r"config->hash_seed\s*!=\s*0\);",
+        r"SetFlagObj\(PyBool_FromLong\(config->dev_mode\)\);",
     )
     if any(not re.search(pattern, flag_body) for pattern in required_bindings):
         return ()
@@ -4381,6 +4417,7 @@ def _target_worker_sys_flag_facts(
         ("sys.flags.bytes_warning", 0),
         ("sys.flags.quiet", 0),
         ("sys.flags.hash_randomization", 1),
+        ("sys.flags.dev_mode", False),
     )
 
 
