@@ -3043,3 +3043,13 @@ Digest-Gegenprobe wird zurückgewiesen. Im gepinnten CPython-Quelltext fängt
 keinen erfolgreichen Konstruktorimport. Die Cacheguards bleiben offen. Der
 Scan steht weiterhin bei 60 Modulen, 316 Kanten, 82 aufgelösten und 485
 unbekannten Bedingungen; 284 fokussierte Tests bestehen.
+
+Als nächster Fact wurde `functools.py:509` (`maxsize < 0`) an den
+quellgebundenen `lru_cache`-Funktionskörper und den vollständigen Satz von 20
+Standardbibliotheksaufrufen gebunden. Die nachweisbaren ganzzahligen Größen
+sind nicht negativ; `None` und bare Funktionsdekorationen erreichen den
+negativen Größenvergleich nicht. Eine negative Größenmutation verletzt den
+Callsite-Digest. Der Scan steht nun bei 60 Modulen, 316 Kanten, 83 aufgelösten
+und 484 unbekannten Bedingungen; Unknown-Digest
+`69540e632b066aaa37ac80498a564d814358e480bdcc47213068a121f8136904`.
+285 fokussierte Tests bestehen; keine Runtime- oder P11-Attestation.

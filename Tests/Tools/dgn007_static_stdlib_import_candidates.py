@@ -53,6 +53,8 @@ OPCODE_SOURCE_SHA256 = "192f6008508f28d3273bff42eaea9b01c8394dab1607cd36aea778bd
 JSON_ENCODER_SOURCE_SHA256 = "52bfb1b66029cc70fa3bd7fe11df9f2e03922d413407a341b387a22c987f24f8"
 JSON_PACKAGE_SOURCE_SHA256 = "d5d41e2c29049515d295d81a6d40b4890fbec8d8482cfb401630f8ef2f77e4d5"
 HASHLIB_SOURCE_SHA256 = "6dbdebf270868b391080e21dc9687eddfaf321c965ad979f68d3f5c423c613ab"
+FUNCTOOLS_SOURCE_SHA256 = "de4a1d37c795e2a065124b5c49357893433bc6bb111b41277ccc9930ef08d4c9"
+FUNCTOOLS_LRU_CACHE_CALLS_SHA256 = "a9e9c4c387f449547755b88929b8bf482c94b8b77431e336f90b8d91d2420391"
 TOKEN_SOURCE_SHA256 = "1a4d994ce9744f4bfe2d964fc24d112a1e76796a08c2e45a2d73c82a8587f922"
 OS_SOURCE_SHA256 = "6f3888d1a5bd4f1333116dd75ca8f1d2d951e38c8c8426179417aea097a1eef0"
 POSIX_MODULE_C_MEMBER = "Python-3.12.16/Modules/posixmodule.c"
@@ -6839,6 +6841,7 @@ def _target_hashlib_name_condition_facts(files):
         ("__get_openssl_constructor", 127):
             "name in __block_openssl_constructor",
     }
+
     actual_guards = {
         (function.name, node.lineno): ast.unparse(node.test)
         for function in (builtin_functions[0], openssl_functions[0])
@@ -6897,6 +6900,91 @@ def _target_hashlib_name_condition_facts(files):
         ("hashlib", "hashlib.py", line): (False, True)
         for _, line in expected_guards
     }
+
+
+def _target_functools_lru_cache_condition_facts(files):
+    """Resolve the negative-size guard across pinned stdlib call sites."""
+    if type(files) is not dict:
+        return {}
+    source = files.get("functools.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != FUNCTOOLS_SOURCE_SHA256):
+        return {}
+    try:
+        trees = {
+            path: ast.parse(data, filename=path)
+            for path, data in files.items()
+            if type(data) is bytes and path.endswith(".py")
+            and "test" not in path.split("/")
+        }
+    except SyntaxError:
+        return {}
+    tree = trees.get("functools.py")
+    functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+                 and node.name == "lru_cache"] if tree else []
+    if len(functions) != 1:
+        return {}
+    function = functions[0]
+    expected = {
+        507: "isinstance(maxsize, int)",
+        509: "maxsize < 0",
+        511: "callable(maxsize) and isinstance(typed, bool)",
+        517: "maxsize is not None",
+    }
+    guards = {node.lineno: ast.unparse(node.test) for node in ast.walk(function)
+              if isinstance(node, ast.If) and node.lineno in expected}
+    if (guards != expected
+            or [arg.arg for arg in function.args.args] != ["maxsize", "typed"]
+            or [ast.unparse(value) for value in function.args.defaults]
+            != ["128", "False"]):
+        return {}
+    callsite_rows = []
+    caller_source_rows = []
+    for path, other_tree in trees.items():
+        if any(isinstance(node, ast.ImportFrom) and node.module == "functools"
+               and any(alias.name == "*" for alias in node.names)
+               for node in ast.walk(other_tree)):
+            return {}
+        aliases = {"lru_cache"} if path == "functools.py" else {
+            alias.asname or alias.name
+            for node in ast.walk(other_tree)
+            if isinstance(node, ast.ImportFrom) and node.module == "functools"
+            for alias in node.names if alias.name == "lru_cache"
+        }
+        module_aliases = {
+            alias.asname or alias.name.split(".")[0]
+            for node in ast.walk(other_tree) if isinstance(node, ast.Import)
+            for alias in node.names if alias.name == "functools"
+        }
+        if aliases or module_aliases:
+            caller_source_rows.append([
+                path, hashlib.sha256(files[path]).hexdigest(),
+            ])
+        def is_lru_cache(expression):
+            return (
+                isinstance(expression, ast.Name) and expression.id in aliases
+                or isinstance(expression, ast.Attribute)
+                and expression.attr == "lru_cache"
+                and isinstance(expression.value, ast.Name)
+                and expression.value.id in module_aliases
+            )
+        for node in ast.walk(other_tree):
+            if isinstance(node, ast.Call) and is_lru_cache(node.func):
+                callsite_rows.append([path, node.lineno, "call", ast.unparse(node)])
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                for decorator in node.decorator_list:
+                    if is_lru_cache(decorator) and not isinstance(decorator, ast.Call):
+                        callsite_rows.append([
+                            path, decorator.lineno, "bare", ast.unparse(decorator),
+                        ])
+    callsite_rows.sort()
+    caller_source_rows.sort()
+    callsite_digest = hashlib.sha256(json.dumps(
+        [callsite_rows, caller_source_rows], separators=(",", ":"),
+    ).encode()).hexdigest()
+    if callsite_digest != FUNCTOOLS_LRU_CACHE_CALLS_SHA256:
+        return {}
+    return {("functools", "functools.py", 509): (False,)}
 
 
 def _target_logging_lock_line_facts(files, thread_module_source):
@@ -10618,6 +10706,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_hashlib_name_condition_facts = (
         _target_hashlib_name_condition_facts(files)
     )
+    target_functools_lru_cache_condition_facts = (
+        _target_functools_lru_cache_condition_facts(files)
+    )
     target_logging_lock_line_facts = _target_logging_lock_line_facts(
         files, thread_native_id_module,
     )
@@ -11271,6 +11362,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             **target_opcode_pseudo_op_condition_facts,
             **target_json_encoder_argument_condition_facts,
             **target_hashlib_name_condition_facts,
+            **target_functools_lru_cache_condition_facts,
         },
         trusted_empty_for_facts={
             "warnings": target_warning_options_empty_for_facts.get("warnings", {}),
@@ -11711,6 +11803,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
              "runtime_observation_claimed": False}
             for (module, path, line), decisions
             in target_hashlib_name_condition_facts.items()
+        ],
+        "target_platform_functools_lru_cache_condition_facts": [
+            {"module": module, "source_path": source_path, "line": line,
+             "outcomes": list(outcomes)}
+            for (module, source_path, line), outcomes
+            in target_functools_lru_cache_condition_facts.items()
         ],
         "target_platform_logging_lock_line_facts": list(
             target_logging_lock_line_facts.items()

@@ -11621,3 +11621,14 @@ verwirft einen absichtlich verfälschten Digest. Der Scan bleibt bei 60 Modulen,
 bleiben offen, weil `hashlib.py` `ImportError` ausdrücklich abfängt und die
 Image-Mitgliedschaft keinen erfolgreichen Import beweist. 284 fokussierte
 Tests bestehen. Ergebnis weiterhin `CANDIDATES_ONLY`, ohne Interpreterstart.
+
+Der folgende Quellfact bindet den `functools.lru_cache`-Guard `maxsize < 0`
+an den gepinnten Funktionskörper und den vollständigen Satz von 20
+Standardbibliotheksaufrufen. Positive ganzzahlige Größen, `None` und bare
+Funktionsdekorationen lassen diesen Guard jeweils falsch ausfallen. Eine
+Gegenprobe mit negativer Größe ändert den gebundenen Aufrufdigest und wird
+abgewiesen. Der Scan umfasst nun 60 Module, 316 Kanten, 83 aufgelöste und 484
+unbekannte Bedingungen; Kandidatenhash unverändert, Unknown-Digest
+`69540e632b066aaa37ac80498a564d814358e480bdcc47213068a121f8136904`.
+285 fokussierte Tests bestehen. `CANDIDATES_ONLY`; kein Interpreterstart und
+keine P11-/Runtimeattestation.
