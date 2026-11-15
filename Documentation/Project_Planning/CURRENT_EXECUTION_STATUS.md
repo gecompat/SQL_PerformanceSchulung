@@ -11805,3 +11805,17 @@ entschiedene und 487 unbekannte Bedingungen; Unknown-Digest
 `e5431241726d7054aadb72aa9c042f91a677322dcbf7575ae0e2ea19b8d3cb9a`.
 294 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`; keine direkte
 Image-Routen-, Runtime- oder P11-Attestation.
+
+Ein weiterer quellengebundener Fact löst `threading.py:1363`
+(`old_excepthook is None`) für die importzeitliche MainThread-Initialisierung
+als falsch auf. `Thread.__init__` ruft `_make_invoke_excepthook()` auf; die
+gehashte Modulquelle bindet `excepthook` davor entweder an den geprüften
+`_thread._excepthook`-Export oder an die explizite Python-Fallbackfunktion im
+`ImportError`-Zweig. Der C-Quellhash bindet den nativen Export. Ein fehlender
+Export oder eine Modul-Neubindung verwirft den Fact. `sys.excepthook` an Zeile
+1365 bleibt unbekannt. Der Zielscan zählt 60 Module, 318 Kanten, 96
+entschiedene und 485 unbekannte Bedingungen; Unknown-Digest
+`f19e6a388944dbedb4ff0973011d5b60c384a8e568c103b64017ad151d0ed69a`.
+294 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`; keine direkte
+Image-Route, Runtime-/P11- oder SQL-Ausführung und keine menschliche
+Generalprobe.

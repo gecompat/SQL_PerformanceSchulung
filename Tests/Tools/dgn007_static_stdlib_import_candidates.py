@@ -5888,6 +5888,20 @@ def _target_threading_condition_lock_line_facts(files, module_source):
     thread_init = method("Thread", "__init__")
     main_init = method("_MainThread", "__init__")
     set_tstate_lock = method("Thread", "_set_tstate_lock")
+    excepthook_bindings = [node for node in tree.body
+                           if isinstance(node, ast.Try)
+                           and any(isinstance(handler.type, ast.Name)
+                                   and handler.type.id == "ImportError"
+                                   for handler in node.handlers)
+                           and any(isinstance(import_node, ast.ImportFrom)
+                                   and import_node.module == "_thread"
+                                   and any(alias.name == "_excepthook"
+                                           and alias.asname == "excepthook"
+                                           for alias in import_node.names)
+                                   for import_node in ast.walk(node))]
+    invoke_hook_functions = [node for node in tree.body
+                             if isinstance(node, ast.FunctionDef)
+                             and node.name == "_make_invoke_excepthook"]
     daemon_property = [node for node in classes["Thread"][0].body
                        if isinstance(node, ast.FunctionDef)
                        and node.name == "daemon"
@@ -5895,8 +5909,23 @@ def _target_threading_condition_lock_line_facts(files, module_source):
                                for item in node.decorator_list)]
     if any(node is None for node in (
             condition_init, event_init, thread_init, main_init, set_tstate_lock)) \
-            or len(daemon_property) != 1:
+            or len(daemon_property) != 1 \
+            or len(excepthook_bindings) != 1 \
+            or len(invoke_hook_functions) != 1:
         return {}
+    hook_binding = excepthook_bindings[0]
+    thread_hook_imports = [node for node in ast.walk(hook_binding)
+                           if isinstance(node, ast.ImportFrom)
+                           and node.module == "_thread"
+                           and any(alias.name == "_excepthook"
+                                   and alias.asname == "excepthook"
+                                   for alias in node.names)]
+    fallback_hook_defs = [node for handler in hook_binding.handlers
+                          if isinstance(handler.type, ast.Name)
+                          and handler.type.id == "ImportError"
+                          for node in ast.walk(handler)
+                          if isinstance(node, ast.FunctionDef)
+                          and node.name == "excepthook"]
     condition_guards = {
         node.lineno: ast.unparse(node.test)
         for node in ast.walk(condition_init)
@@ -5938,6 +5967,23 @@ def _target_threading_condition_lock_line_facts(files, module_source):
     main_tstate_calls = [node for node in ast.walk(main_init)
                          if isinstance(node, ast.Call)
                          and ast.unparse(node) == "self._set_tstate_lock()"]
+    invoke_hook_guards = [node for node in ast.walk(invoke_hook_functions[0])
+                          if isinstance(node, ast.If) and node.lineno == 1363
+                          and ast.unparse(node.test) == "old_excepthook is None"]
+    old_hook_assignments = [node for node in ast.walk(invoke_hook_functions[0])
+                            if isinstance(node, ast.Assign)
+                            and ast.unparse(node) == "old_excepthook = excepthook"]
+    thread_hook_calls = [node for node in ast.walk(thread_init)
+                         if isinstance(node, ast.Call)
+                         and ast.unparse(node) == "_make_invoke_excepthook()"]
+    module_hook_assignments = [node for node in tree.body
+                               if isinstance(node, (ast.Assign, ast.AnnAssign,
+                                                    ast.AugAssign))
+                               and any(isinstance(target, ast.Name)
+                                       and target.id == "excepthook"
+                                       for target in (
+                                           node.targets if isinstance(node, ast.Assign)
+                                           else [node.target]))]
     if (condition_guards != {
                 278: "lock is None",
                 287: "hasattr(lock, '_release_save')",
@@ -5959,7 +6005,16 @@ def _target_threading_condition_lock_line_facts(files, module_source):
             or len(tstate_guards) != 1
             or len(daemon_returns) != 1
             or len(daemon_assignments) != 1
-            or len(main_tstate_calls) != 1):
+            or len(main_tstate_calls) != 1
+            or len(invoke_hook_guards) != 1
+            or len(old_hook_assignments) != 1
+            or len(thread_hook_calls) != 1
+            or thread_hook_calls[0].lineno != 940
+            or len(thread_hook_imports) != 1
+            or len(fallback_hook_defs) != 1
+            or module_hook_assignments
+            or hook_binding.end_lineno >= invoke_hook_functions[0].lineno
+            or invoke_hook_functions[0].end_lineno >= main_thread_assignments[0].lineno):
         return {}
     for path, data in files.items():
         if (path == "threading.py" or type(data) is not bytes
@@ -6012,6 +6067,8 @@ def _target_threading_condition_lock_line_facts(files, module_source):
                 return {}
     c_text = module_source.decode("utf-8")
     if (not re.search(
+            r'\{"_excepthook",\s*thread_excepthook,', c_text)
+            or not re.search(
             r"(?s)thread_PyThread_allocate_lock\(PyObject \*module,.*?"
             r"return \(PyObject \*\) newlockobject\(module\);", c_text)
             or not re.search(
@@ -6046,7 +6103,8 @@ def _target_threading_condition_lock_line_facts(files, module_source):
                 r"\s*return self;", c_text)):
         return {}
     return {
-        278: False, 287: False, 289: False, 291: False, 1053: True,
+        278: False, 287: False, 289: False, 291: False,
+        1053: True, 1363: False,
     }
 
 

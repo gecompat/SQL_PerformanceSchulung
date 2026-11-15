@@ -5006,17 +5006,31 @@ class StaticImportCandidateTests(unittest.TestCase):
             927: "                pass",
              928: "            self._daemonic = daemon",
             935: "        self._started = Event()",
+             940: "        self._invoke_excepthook = _make_invoke_excepthook()",
              1052: "    def _set_tstate_lock(self):",
              1053: "        if not self.daemon:",
              1054: "            pass",
              1080: "    @property",
              1081: "    def daemon(self):",
              1082: "        return self._daemonic",
-             1100: "class _MainThread(Thread):",
-             1101: "    def __init__(self):",
-             1102: "        Thread.__init__(self, name='MainThread', daemon=False)",
-             1103: "        self._set_tstate_lock()",
-             1200: "_main_thread = _MainThread()",
+             1300: "try:",
+             1301: "    from _thread import _excepthook as excepthook",
+             1302: "except ImportError:",
+             1303: "    def excepthook(args):",
+             1304: "        pass",
+             1356: "def _make_invoke_excepthook():",
+             1361: "    old_excepthook = excepthook",
+             1362: "    old_sys_excepthook = _sys.excepthook",
+             1363: "    if old_excepthook is None:",
+             1364: "        raise RuntimeError('threading.excepthook is None')",
+             1365: "    if old_sys_excepthook is None:",
+             1366: "        raise RuntimeError('sys.excepthook is None')",
+             1404: "    return invoke_excepthook",
+             1439: "class _MainThread(Thread):",
+             1441: "    def __init__(self):",
+             1442: "        Thread.__init__(self, name='MainThread', daemon=False)",
+             1443: "        self._set_tstate_lock()",
+             1470: "_main_thread = _MainThread()",
         }
         content = [""] * max(lines)
         for number, statement in lines.items():
@@ -5029,6 +5043,7 @@ thread_PyThread_allocate_lock(PyObject *module, PyObject *ignored)
     return (PyObject *) newlockobject(module);
 }
 static PyMethodDef thread_methods[] = {
+    {"_excepthook", thread_excepthook,
     {"allocate_lock", thread_PyThread_allocate_lock,
 };
 static PyMethodDef lock_methods[] = {
@@ -5077,7 +5092,7 @@ newlockobject(PyObject *module)
                     files, module_source,
                 ),
                 {278: False, 287: False, 289: False, 291: False,
-                 1053: True},
+                 1053: True, 1363: False},
             )
             mutated = source.replace(b"Condition(Lock())", b"Condition()")
             mutated_files = {"threading.py": mutated}
@@ -5088,6 +5103,36 @@ newlockobject(PyObject *module)
                 self.assertEqual(
                     SUBJECT._target_threading_condition_lock_line_facts(
                         mutated_files, module_source,
+                    ),
+                    {},
+                )
+
+            hook_mutated = source.replace(
+                b"class _MainThread(Thread):",
+                b"excepthook = None\nclass _MainThread(Thread):",
+            )
+            with patch.object(
+                SUBJECT, "THREADING_SOURCE_SHA256",
+                hashlib.sha256(hook_mutated).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_threading_condition_lock_line_facts(
+                        {"threading.py": hook_mutated}, module_source,
+                    ),
+                    {},
+                )
+
+            missing_native_hook = module_source.replace(
+                b'{"_excepthook", thread_excepthook,',
+                b'{"_missing_hook", thread_excepthook,',
+            )
+            with patch.object(
+                SUBJECT, "THREAD_NATIVE_ID_MODULE_SHA256",
+                hashlib.sha256(missing_native_hook).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_threading_condition_lock_line_facts(
+                        files, missing_native_hook,
                     ),
                     {},
                 )
