@@ -11853,3 +11853,5 @@ und 481 unbekannte Bedingungen; Unknown-Digest
 `d8d485d993f0426d8f5e5e38e15bed6e08e195548de5de3b6b71ed0568345750`.
 294 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine direkte Image-Route,
 Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.
+
+Ein weiterer Fact bindet `collections/__init__.py:418` (`len(defaults) > len(field_names)`) und `:427` (`num_fields == 1`) an den gepinnten Modulstart-Aufrufbestand. Unter den 42 statischen Feldlisten sind die nicht-`None`-Defaultlisten nicht länger als ihre Felder; keine Feldliste enthält genau ein Feld. Die Bindung verlangt die geordnete `tuple(defaults)`- und Feldzähltransformation; eine Überzahl an Defaults oder eine Änderung dieser Quellformen verwirft sie. Synthetische Regressionen decken beide Einzelfeldzweige sowie die Überzahl ab. 294 fokussierte Tests bestehen. Der Zielscan bleibt `CANDIDATES_ONLY`: 60 Module, 318 Kanten, 102 entschiedene und 479 unbekannte Bedingungen; Unknown-Digest `d6e8825262bc833a2a9e1c439e787dc1f1ee1ca8b3b031b3f9a2bd594cc01c66`. Keine Interpreter-, Image-, Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.

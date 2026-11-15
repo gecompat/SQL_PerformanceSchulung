@@ -8008,6 +8008,32 @@ def _target_collections_namedtuple_call_condition_facts(files):
     duplicate_field_guards = [node for node in ast.walk(function)
                               if isinstance(node, ast.If)
                               and ast.unparse(node.test) == "name in seen"] if function else []
+    defaults_length_guards = [node for node in ast.walk(function)
+                              if isinstance(node, ast.If)
+                              and ast.unparse(node.test)
+                              == "len(defaults) > len(field_names)"] if function else []
+    one_field_guards = [node for node in ast.walk(function)
+                        if isinstance(node, ast.If)
+                        and ast.unparse(node.test) == "num_fields == 1"] if function else []
+    defaults_tuple_assignments = [node for node in ast.walk(function)
+                                  if isinstance(node, ast.Assign)
+                                  and any(isinstance(target, ast.Name)
+                                          and target.id == "defaults"
+                                          for target in node.targets)
+                                  and ast.unparse(node.value) == "tuple(defaults)"] if function else []
+    field_names_tuple_assignments = [node for node in ast.walk(function)
+                                     if isinstance(node, ast.Assign)
+                                     and any(isinstance(target, ast.Name)
+                                             and target.id == "field_names"
+                                             for target in node.targets)
+                                     and ast.unparse(node.value)
+                                     == "tuple(map(_sys.intern, field_names))"] if function else []
+    num_fields_assignments = [node for node in ast.walk(function)
+                              if isinstance(node, ast.Assign)
+                              and any(isinstance(target, ast.Name)
+                                      and target.id == "num_fields"
+                                      for target in node.targets)
+                              and ast.unparse(node.value) == "len(field_names)"] if function else []
     signature = function.args if function else None
     if (signature is None
             or [arg.arg for arg in signature.args] != ["typename", "field_names"]
@@ -8038,10 +8064,27 @@ def _target_collections_namedtuple_call_condition_facts(files):
             or len(keyword_guards) != 1
             or len(private_field_guards) != 1
             or len(duplicate_field_guards) != 1
+            or len(defaults_length_guards) != 1
+            or len(one_field_guards) != 1
+            or len(defaults_tuple_assignments) != 1
+            or len(field_names_tuple_assignments) != 1
+            or len(num_fields_assignments) != 1
+            or defaults_tuple_assignments[0].lineno >= defaults_length_guards[0].lineno
+            or field_names_tuple_assignments[0].lineno >= num_fields_assignments[0].lineno
+            or num_fields_assignments[0].lineno >= one_field_guards[0].lineno
             or len(namespace_assignments) != 1
             or len(fields_entries) != 1
             or ast.unparse(fields_entries[0]) != "field_names"
             or len(type_calls) != 1):
+        return {}
+    defaults_conversion_guard = next((guard for guard in defaults_guards
+                                      if any(node is defaults_tuple_assignments[0]
+                                             for node in ast.walk(guard))
+                                      and any(node is defaults_length_guards[0]
+                                              for node in ast.walk(guard))), None)
+    if (defaults_conversion_guard is None
+            or defaults_tuple_assignments[0].lineno
+            >= defaults_length_guards[0].lineno):
         return {}
 
     inspect_tree = trees.get("inspect.py")
@@ -8129,6 +8172,8 @@ def _target_collections_namedtuple_call_condition_facts(files):
     keyword_outcomes = set()
     private_field_outcomes = set()
     duplicate_field_outcomes = set()
+    defaults_length_outcomes = set()
+    one_field_outcomes = set()
     defaults_outcomes = set()
     module_outcomes = set()
     for path, tree in trees.items():
@@ -8290,6 +8335,29 @@ def _target_collections_namedtuple_call_condition_facts(files):
             keyword_outcomes.add(False)
             private_field_outcomes.add(False)
             duplicate_field_outcomes.add(False)
+            default_count = 0
+            defaults_is_none = not explicit_defaults
+            if explicit_defaults:
+                default_value = explicit_defaults[0]
+                if isinstance(default_value, (ast.List, ast.Tuple)):
+                    if any(isinstance(item, ast.Starred)
+                           for item in default_value.elts):
+                        return {}
+                    default_count = len(default_value.elts)
+                    defaults_is_none = False
+                elif (path == "dis.py"
+                      and ast.unparse(default_value) == "[None] * 4"):
+                    default_count = 4
+                    defaults_is_none = False
+                elif (isinstance(default_value, ast.Constant)
+                      and default_value.value is None):
+                    default_count = 0
+                    defaults_is_none = True
+                else:
+                    return {}
+            if not defaults_is_none:
+                defaults_length_outcomes.add(default_count > len(field_values))
+            one_field_outcomes.add(len(field_values) == 1)
     callsite_rows.sort()
     caller_source_rows.sort()
     digest = hashlib.sha256(json.dumps(
@@ -8301,6 +8369,8 @@ def _target_collections_namedtuple_call_condition_facts(files):
             or keyword_outcomes != {False}
             or private_field_outcomes != {False}
             or duplicate_field_outcomes != {False}
+            or defaults_length_outcomes != {False}
+            or not one_field_outcomes
             or defaults_outcomes != {False, True}
             or module_outcomes != {False, True}):
         return {}
@@ -8315,6 +8385,10 @@ def _target_collections_namedtuple_call_condition_facts(files):
         tuple(sorted(private_field_outcomes)),
         ("collections", "collections/__init__.py", duplicate_field_guards[0].lineno):
         tuple(sorted(duplicate_field_outcomes)),
+        ("collections", "collections/__init__.py", defaults_length_guards[0].lineno):
+        tuple(sorted(defaults_length_outcomes)),
+        ("collections", "collections/__init__.py", one_field_guards[0].lineno):
+        tuple(sorted(one_field_outcomes)),
     }
     facts.update({
         ("collections", "collections/__init__.py", guard.lineno):

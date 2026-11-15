@@ -3279,3 +3279,9 @@ Unknown-Digest `d8d485d993f0426d8f5e5e38e15bed6e08e195548de5de3b6b71ed0568345750
 294 fokussierte Regressionen bestehen. `CANDIDATES_ONLY`; keine direkte
 Image-Route, Runtime-/P11- oder SQL-Ausführung und keine menschliche
 Generalprobe.
+
+### Begrenzte Fortsetzung: `collections.namedtuple`-Defaultanzahl und Einzelfeldformat (15. November 2026)
+
+Die Facts binden `collections/__init__.py:418` (`len(defaults) > len(field_names)`) und `:427` (`num_fields == 1`) an denselben vollständigen statischen Aufruf- und Quellhash. Unter 42 Modulstartaufrufen übersteigt keine nicht-`None`-Defaultliste die Feldanzahl; keine Feldliste hat genau ein Element. Die Auswertung bindet `tuple(defaults)`, die längenerhaltende Feldtransformation und `num_fields = len(field_names)`. Eine Mutation mit mehr Defaults als Feldern sowie geänderte Konvertierungs-/Zählquellen verwerfen die Fact-Bindung; synthetische Einzelfeldaufrufe erhalten beide Guardzweige.
+
+294 fokussierte Regressionen bestehen. Der Zielscan zählt 60 Module, 318 Kanten, 102 entschiedene und 479 unbekannte Bedingungen; Unknown-Digest `d6e8825262bc833a2a9e1c439e787dc1f1ee1ca8b3b031b3f9a2bd594cc01c66`. `CANDIDATES_ONLY`; keine direkte Image-Route, Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.
