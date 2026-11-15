@@ -11454,8 +11454,14 @@ skalargeprüft werden. 279 fokussierte Regressionen und alle fünf
 Pflichtprüfungen bestanden; PR #859 ist integriert. Es werden keine Modulanker
 gelesen.
 
-## Begrenzte Fortsetzung: Runtime-Profiltexte explizit binden
+## Abgeschlossen: Runtime-Profiltexte explizit binden
 
-Der nächste Schnitt ergänzt Gegenproben für die Skalarprüfung jedes Pfads und
-aller sechs Plattformtexte in `_selected_runtime_post`. Es werden keine
-Runtimewerte gelesen.
+PR #860 ergänzt Gegenproben für die Skalarprüfung jedes Pfads und aller sechs
+Plattformtexte in `_selected_runtime_post`. 279 fokussierte Regressionen und
+alle fünf Pflichtprüfungen bestanden. Es werden keine Runtimewerte gelesen.
+
+## Begrenzte Fortsetzung: Runtime-POST-Projektionen absichern
+
+Der nächste Schnitt schützt das Dreier-Versionsprofil, die Startflagbereiche
+und die Pfadreihenfolge mit gezielten Gegenproben. Runtimewerte bleiben
+unbeobachtet.

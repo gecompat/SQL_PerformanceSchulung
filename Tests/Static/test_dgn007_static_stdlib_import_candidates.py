@@ -2321,6 +2321,17 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"_scalar_text(value)", b"str(value)",
             ),
             profile_source.replace(
+                b"version = tuple(version[:3])",
+                b"version = tuple(version[:2])",
+            ),
+            profile_source.replace(
+                b"all(0 <= number <= 1 for number in values)",
+                b"all(number >= 0 for number in values)",
+            ),
+            profile_source.replace(
+                b"paths = tuple(paths)", b"paths = tuple(sorted(paths))",
+            ),
+            profile_source.replace(
                 b"_need(sys is runtime and os is providers[0] and sysconfig is providers[1], \"PROVIDER_MISMATCH\")",
                 b"pass",
             ),
