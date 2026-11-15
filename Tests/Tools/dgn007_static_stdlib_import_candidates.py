@@ -2346,6 +2346,80 @@ def _target_profile_shape_contract_candidate(
     }
 
 
+def _target_profile_record_validators_candidate(source_bytes, shape_contract):
+    """Bind module and file record invariants delegated by the profile shape check."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(shape_contract) is not dict
+            or shape_contract.get("input_validation_claimed") is not False):
+        return None
+    records_bodies = re.findall(
+        rb"(?ms)^def _records\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    files_bodies = re.findall(
+        rb"(?ms)^def _files\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(records_bodies) != 1 or len(files_bodies) != 1:
+        return None
+    records = re.sub(rb"\s+", b" ", records_bodies[0])
+    files = re.sub(rb"\s+", b" ", files_bodies[0])
+    record_requirements = (
+        b"_need(type(value) is tuple and 0 < len(value) <= MAX_RECORDS)",
+        b"_need(type(row) is ModuleRecord)",
+        b"for item in (row.name, row.origin, row.file, row.kind): _text(item)",
+        b"_strings(row.locations)",
+        b"_need(type(row.module) is ModuleType and (row.spec is None or type(row.spec) is ModuleSpec))",
+        b"_need(row.loader is None or row.loader is BuiltinImporter or row.loader is FrozenImporter or type(row.loader) in (SourceFileLoader, ExtensionFileLoader))",
+        b"_need(row.kind in (\"BUILTIN\", \"FROZEN\", \"SOURCE\", \"EXTENSION\", \"CONTROL\"))",
+        b"_need(type(row.loader.name) is str and row.loader.name == row.name and type(row.loader.path) is str and row.loader.path == row.file, \"MODULE_COHERENCY\")",
+        b"_need(type(d.get(\"__name__\")) is str and d[\"__name__\"] == module_name and d.get(\"__spec__\") is row.spec and d.get(\"__loader__\") is row.loader and type(d.get(\"__file__\", \"\")) is str and d.get(\"__file__\", \"\") == row.file, \"MODULE_COHERENCY\")",
+        b"_need(type(row.spec.name) is str and row.spec.name == spec_name and type(row.spec.origin) is str and row.spec.origin == row.origin and row.spec.loader is row.loader, \"MODULE_COHERENCY\")",
+        b"_need(row.name in (\"__main__\", \"dgn007_import_runtime_profile\") and (row.loader is None or type(row.loader) is SourceFileLoader), \"CONTROL_MISMATCH\")",
+        b"_need(row.loader is BuiltinImporter and row.origin == \"built-in\" and row.locations == (), \"MODULE_COHERENCY\")",
+        b"_need(row.loader is FrozenImporter and row.origin == \"frozen\", \"MODULE_COHERENCY\")",
+        b"_need(type(row.loader) is (SourceFileLoader if row.kind == \"SOURCE\" else ExtensionFileLoader) and row.origin == row.file, \"MODULE_COHERENCY\")",
+        b"_need(names == sorted(set(names)))",
+        b"_need(row.module is by_name[companion].module and row.spec is by_name[companion].spec, \"MODULE_COHERENCY\")",
+    )
+    file_requirements = (
+        b"_need(type(value) is tuple and len(value) <= 2)",
+        b"_need(type(row) is FileDigest)",
+        b"_text(row.path)",
+        b"_absolute(row.path)",
+        b"_need(type(row.size) is int and 0 <= row.size <= MAX_FILE)",
+        b"_need(type(row.sha256) is str and len(row.sha256) == 64 and all(c in \"0123456789abcdef\" for c in row.sha256))",
+        b"_need(total <= MAX_TOTAL and len(paths) == len(set(paths)))",
+    )
+    if (any(records.count(fragment) != 1 for fragment in record_requirements)
+            or any(files.count(fragment) != 1 for fragment in file_requirements)):
+        return None
+    if not all(records.index(left) < records.index(right)
+               for left, right in zip(record_requirements, record_requirements[1:])):
+        return None
+    if not all(files.index(left) < files.index(right)
+               for left, right in zip(file_requirements, file_requirements[1:])):
+        return None
+    return {
+        "module_record_invariants": (
+            "typed_module_and_spec", "loader_kind_and_coherence", "module_namespace_identity",
+            "control_name_constraints", "sorted_unique_names", "frozen_companion_identity",
+        ),
+        "file_record_invariants": (
+            "maximum_two_records", "absolute_unique_paths", "bounded_file_and_total_size",
+            "lowercase_sha256_hex_64",
+        ),
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "records_validated_claimed": False,
+        "runtime_inventory_claimed": False,
+        "evidence_scope": "STATIC_PROFILE_RECORD_VALIDATORS_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9514,6 +9588,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_profile_capture_schema_candidate,
         )
     )
+    target_profile_record_validators_candidate = (
+        _target_profile_record_validators_candidate(
+            runtime_profile_source,
+            target_profile_shape_contract_candidate,
+        )
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -9999,6 +10079,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_profile_shape_contract_candidate": (
             target_profile_shape_contract_candidate
+        ),
+        "target_profile_record_validators_candidate": (
+            target_profile_record_validators_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
