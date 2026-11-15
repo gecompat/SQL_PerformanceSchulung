@@ -2071,6 +2071,8 @@ def _target_fresh_record_capture_flow_candidate(source_bytes):
     )
     if any(normalized.count(fragment) != 1 for fragment in required):
         return None
+    if len(re.findall(rb"\breturn\b", normalized)) != 5:
+        return None
     if not all(normalized.index(left) < normalized.index(right)
                for left, right in zip(required[:6], required[1:6])):
         return None
