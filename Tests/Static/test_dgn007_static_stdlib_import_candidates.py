@@ -1698,6 +1698,36 @@ class StaticImportCandidateTests(unittest.TestCase):
                 )
             )
 
+    def test_fresh_record_capture_flow_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        candidate = SUBJECT._target_fresh_record_capture_flow_candidate(profile_source)
+        self.assertEqual(candidate, {
+            "capture_order": ("before_files", "after_files"),
+            "bounded_read_chunk_bytes": 65536,
+            "file_and_total_caps_required": True,
+            "failure_returns_observation": False,
+            "success_report": "MATCHED_DECLARED_BASELINE",
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "runtime_capture_claimed": False,
+            "trust_attested_claimed": False,
+            "evidence_scope": "STATIC_FRESH_RECORD_CAPTURE_FLOW_CANDIDATE",
+        })
+        changed = profile_source.replace(
+            b"_compare(expected, after)",
+            b"pass",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed),
+        ):
+            self.assertIsNone(
+                SUBJECT._target_fresh_record_capture_flow_candidate(changed)
+            )
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

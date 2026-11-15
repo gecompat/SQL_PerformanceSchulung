@@ -2708,10 +2708,15 @@ Runtimebeobachtung wird behauptet.
 PR #832 bindet Reihenfolge, Projektion, Schlussaufnahme, Hook-/POST-Prüfungen
 und Ergebnisreports des ausgewählten Beobachters. Keine Runtimeattestation.
 
-## Begrenzte Fortsetzung: aktuelle Skalaraufnahme statisch binden
+## Abgeschlossen: aktuelle Skalaraufnahme statisch binden
 
-Ein Arbeitspaket und ein PR binden Recordaufnahme, Profilvergleiche,
-FileFinder-Hookaufnahmen, Skalarprojektion und Fehlerreport des inneren
-Beobachters. Der Kandidat führt ihn nicht aus und begründet keine Runtimeaufnahme.
-Eine positive Regression und eine Gegenprobe ohne zweiten Profilvergleich
-begrenzen den Schnitt.
+PR #833 bindet Recordaufnahme, Profilvergleiche, FileFinder-Hookaufnahmen,
+Skalarprojektion und Fehlerreport des inneren Beobachters. Keine Runtimeaufnahme
+wird behauptet.
+
+## Begrenzte Fortsetzung: frischen Record-Capture-Ablauf binden
+
+Ein Arbeitspaket und ein PR binden Vorher-/Nachher-Capture, begrenzte
+Dateihashreads, Kappen, Profilvergleiche und success-only Recordrückgabe an die
+Profilquelle. Es entsteht keine Runtime- oder Trustattestation. Eine positive
+Regression und eine Gegenprobe ohne Nachher-Vergleich begrenzen den Schnitt.
