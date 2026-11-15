@@ -3,6 +3,7 @@ import ast
 import hashlib
 import gzip
 import importlib.util
+import inspect
 import io
 import json
 from pathlib import Path
@@ -1248,6 +1249,36 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {"warnings.py": warnings_source}, preconfig_source,
                 initconfig_source, env_worker,
             ), {})
+
+    def test_warning_options_empty_fact_is_applied_without_image_save_input(self):
+        tree = ast.parse(inspect.getsource(SUBJECT.analyze))
+        assignments = [
+            node for node in ast.walk(tree)
+            if isinstance(node, ast.Assign)
+            and isinstance(node.value, ast.Call)
+            and isinstance(node.value.func, ast.Name)
+            and node.value.func.id == "_target_warning_options_empty_for_facts"
+            and any(
+                isinstance(target, ast.Name)
+                and target.id == "target_warning_options_empty_for_facts"
+                for target in node.targets
+            )
+        ]
+        image_save_guards = [
+            node for node in ast.walk(tree)
+            if isinstance(node, ast.If)
+            and isinstance(node.test, ast.Compare)
+            and isinstance(node.test.left, ast.Name)
+            and node.test.left.id == "target_image_save_path"
+            and len(node.test.ops) == 1
+            and isinstance(node.test.ops[0], ast.IsNot)
+            and len(node.test.comparators) == 1
+            and isinstance(node.test.comparators[0], ast.Constant)
+            and node.test.comparators[0].value is None
+        ]
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(len(image_save_guards), 1)
+        self.assertLess(assignments[0].lineno, image_save_guards[0].lineno)
 
     def test_importlib_optimize_fact_requires_pinned_isolated_unoptimized_route(self):
         preconfig_source = b"case 'I': cmdline->isolated = 1;"
