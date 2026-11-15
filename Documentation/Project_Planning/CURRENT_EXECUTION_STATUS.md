@@ -11645,3 +11645,15 @@ beiden exakten Funktionskörpern. Der Scan umfasst nun 60 Module, 316 Kanten,
 `604bb985511cb3037bdd61ed94114f96a1a04304854aa5878a1b8af5f19fee5d`.
 285 fokussierte Tests bestehen. Ergebnis bleibt `CANDIDATES_ONLY` ohne
 Interpreterstart oder P11-/Runtimeattestation.
+
+Ein weiterer begrenzter Fix stellt sicher, dass der vorhandene
+`sysconfig.is_python_build`-Fact nur die vier für den Guard erforderlichen
+Imagefelder prüft und zusätzliche unabhängig verifizierte Imagefacts zulässt.
+Der vorherige exakte Gesamt-Dictvergleich verhinderte, dass der Fact bei der
+tatsächlichen Scanner-Ausgabe griff. Die Regression ergänzt ein zusätzliches
+Imagefact und weist zugleich eine Mutation des erforderlichen Setup-Pfadfacts
+zurück. Der gebundene Scan löst `sysconfig.py:235` als falsch auf und zählt
+nun 89 aufgelöste sowie 478 unbekannte Bedingungen; Unknown-Digest
+`2679f8d8756361e27b356bb8c73056df0136b5876716b5bc43f975f26fe6d9d3`.
+285 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`; keine
+Runtime-/P11-Attestation.

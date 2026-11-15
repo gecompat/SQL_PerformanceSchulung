@@ -3064,3 +3064,13 @@ und 316 Kanten. Unknown-Digest:
 `604bb985511cb3037bdd61ed94114f96a1a04304854aa5878a1b8af5f19fee5d`.
 285 fokussierte Tests bestehen; `CANDIDATES_ONLY`, ohne Runtime- oder
 P11-Attestation.
+
+Beim anschließenden Lauf zeigte sich ein Integrationsfehler im bereits
+vorhandenen `sysconfig.is_python_build`-Fact: Ein exakter Vergleich der
+gesamten Image-Faktenmap scheiterte, sobald zusätzliche verifizierte Felder
+hinzukamen. Der Guard vergleicht nun die vier benötigten Felder einzeln und
+akzeptiert additive Facts; Mutationen an den erforderlichen Feldern bleiben
+abgewiesen. Der Scan löst `sysconfig.py:235` als falsch auf: 89 aufgelöste,
+478 unbekannte Bedingungen, Unknown-Digest
+`2679f8d8756361e27b356bb8c73056df0136b5876716b5bc43f975f26fe6d9d3`.
+285 fokussierte Tests bestehen; kein Runtime-/P11-Nachweis.

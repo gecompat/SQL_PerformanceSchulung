@@ -660,6 +660,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             "_PYTHON_BUILD": False,
             "setup_parent_paths_verified": True,
             "_pickle_extension": True,
+            "newly_verified_target_fact": {"sha256": "a" * 64},
         }
         sysconfig_name_facts = {"_sys_home": False}
         env_facts = (("'_PYTHON_PROJECT_BASE' in os.environ", False),)
