@@ -11460,8 +11460,15 @@ PR #860 ergänzt Gegenproben für die Skalarprüfung jedes Pfads und aller sechs
 Plattformtexte in `_selected_runtime_post`. 279 fokussierte Regressionen und
 alle fünf Pflichtprüfungen bestanden. Es werden keine Runtimewerte gelesen.
 
-## Begrenzte Fortsetzung: Runtime-POST-Projektionen absichern
+## Abgeschlossen: Runtime-POST-Projektionen absichern
 
-Der nächste Schnitt schützt das Dreier-Versionsprofil, die Startflagbereiche
-und die Pfadreihenfolge mit gezielten Gegenproben. Runtimewerte bleiben
+PR #861 schützt das Dreier-Versionsprofil, Startflagbereiche, geordnete
+Pfadprojektion und Skalartextprüfung mit gezielten Gegenproben. 279 fokussierte
+Regressionen und alle fünf Pflichtprüfungen bestanden. Runtimewerte bleiben
 unbeobachtet.
+
+## Begrenzte Fortsetzung: Runtime-POST-Reihenfolge absichern
+
+Der nächste Schnitt bindet die Reihenfolge: Provideridentität muss geprüft
+werden, bevor Runtime-Container gelesen werden. Eine Gegenprobe vertauscht
+diese Schritte; Runtimewerte bleiben unbeobachtet.

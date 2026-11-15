@@ -2884,6 +2884,9 @@ def _target_selected_profile_post_contract_candidate(source_bytes, observation_f
     if (any(runtime.count(fragment) != 1 for fragment in runtime_requirements)
             or any(post.count(fragment) != 1 for fragment in post_requirements)):
         return None
+    if not all(post.index(left) < post.index(right)
+               for left, right in zip(post_requirements, post_requirements[1:])):
+        return None
     return {
         "runtime_post_checks": (
             "implementation_namespace", "version_shape_and_range", "startup_flag_types_and_values",

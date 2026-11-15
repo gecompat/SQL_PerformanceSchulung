@@ -2888,8 +2888,14 @@ PR #860 schützt die Skalarprüfung der Pfade und sechs Plattformtexte in
 279 fokussierte Regressionen und alle fünf Gates bestanden; Runtimewerte blieben
 unbeobachtet.
 
-## Begrenzte Fortsetzung: Runtime-POST-Projektionen absichern
+## Abgeschlossen: Runtime-POST-Projektionen absichern
 
-Der nächste Offline-Schnitt bindet Versionprojektion, Startflagbereiche und die
-Reihenfolge der Pfadprojektion mit gezielten Gegenproben. Runtimewerte bleiben
-unbeobachtet; der nächste PR ist der Checkpoint.
+PR #861 bindet Versionprojektion, Startflagbereiche, die geordnete
+Pfadprojektion und die Skalartextprüfungen. 279 fokussierte Regressionen und
+alle fünf Gates bestanden; Runtimewerte blieben unbeobachtet.
+
+## Begrenzte Fortsetzung: Runtime-POST-Reihenfolge absichern
+
+Der nächste Offline-Schnitt sichert, dass die Provideridentität geprüft wird,
+bevor Runtime-Container gelesen werden. Die Gegenprobe vertauscht die Schritte;
+Runtimewerte bleiben unbeobachtet.

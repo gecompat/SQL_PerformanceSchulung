@@ -2309,6 +2309,23 @@ class StaticImportCandidateTests(unittest.TestCase):
             "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
             "evidence_scope": "STATIC_SELECTED_PROFILE_POST_CONTRACT_CANDIDATE",
         })
+        newline = b"\r\n" if b"\r\n" in profile_source else b"\n"
+        provider_check = (
+            b'    _need(sys is runtime and os is providers[0] and sysconfig is providers[1], '
+            b'"PROVIDER_MISMATCH")'
+        )
+        post_order = newline.join((
+            provider_check,
+            b"    keys = [0]",
+            b"    current = _selected_containers(runtime, keys)",
+        ))
+        reordered_post = newline.join((
+            b"    keys = [0]",
+            b"    current = _selected_containers(runtime, keys)",
+            provider_check,
+        ))
+        changed_order = profile_source.replace(post_order, reordered_post, 1)
+        self.assertNotEqual(changed_order, profile_source)
         for changed in (
             profile_source.replace(
                 b"(1, 1, 1, 1, 1, 0), expected.paths",
@@ -2335,6 +2352,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"_need(sys is runtime and os is providers[0] and sysconfig is providers[1], \"PROVIDER_MISMATCH\")",
                 b"pass",
             ),
+            changed_order,
         ):
             with patch.object(
                 SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
