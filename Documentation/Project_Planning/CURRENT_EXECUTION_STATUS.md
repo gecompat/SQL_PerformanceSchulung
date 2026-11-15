@@ -11555,7 +11555,15 @@ Die statischen Verträge für `_text` und `_strings` verwerfen jetzt jeweils
 frühe Rückgaben. Drei Mutationen werden abgewiesen; 279 fokussierte Tests
 bestehen. Es werden keine Profilwerte verarbeitet.
 
-## Begrenzte Fortsetzung: zentralen Ablehnungshelfer absichern
+## Abgeschlossen: zentralen Ablehnungshelfer absichern
 
-Der nächste Schnitt bindet `_need` an die Ablehnung falscher Bedingungen durch
-`_Failure` und schließt vorzeitige Rückgaben aus.
+Der primitive Quellvertrag bindet `_need` jetzt an die Ablehnung falscher
+Bedingungen durch `_Failure` und verwirft zusätzliche Rückgaben. Eine Mutation
+mit vorgezogener Rückgabe wird abgewiesen; 279 fokussierte Tests bestehen.
+Keine Profilwerte wurden verarbeitet.
+
+## Begrenzte Fortsetzung: Profilstrecke auf Anschlusslücken prüfen
+
+Als Nächstes wird die bisherige DGN-007-Quellbindung über Builder,
+Validierungshelfer und Berichtsausgänge hinweg auf fehlende Übergänge geprüft.
+Runtime-, P11- und S15-Nachweise bleiben davon unberührt.
