@@ -1550,6 +1550,14 @@ class StaticImportCandidateTests(unittest.TestCase):
                          public_value_flow_candidate)
         self.assertEqual(candidate["post_update_entries_candidate"],
                          post_update_entries_candidate)
+        self.assertEqual(candidate["public_config_api_entry_candidate"], {
+            "mapping": "_CONFIG_VARS",
+            "get_config_vars_no_arguments_result": "_CONFIG_VARS",
+            "get_config_var_lookup": "_CONFIG_VARS.get(name)",
+            "known_entry_values": SUBJECT.TARGET_SYSCONFIGDATA_EXPECTED_VALUES,
+            "requires_no_intervening_mapping_mutation": True,
+            "evidence_scope": "STATIC_CONFIG_API_ENTRY_VALUE_CANDIDATE",
+        })
         self.assertEqual(candidate["guard_source_line"], 676)
         self.assertEqual(candidate["module_name"], import_target["module_name"])
         self.assertEqual(candidate["imported_attribute"], "build_time_vars")
