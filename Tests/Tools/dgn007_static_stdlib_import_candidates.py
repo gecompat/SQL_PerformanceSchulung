@@ -76,6 +76,9 @@ TARGET_IMAGE_LAYER_NAMES = (
 )
 TARGET_EXECUTABLE_PATH = "usr/local/bin/python3.12"
 TARGET_EXECUTABLE_SHA256 = "837a48d7afd08447fb43e28b282026fadb59368620072e57e01f66d12977e5ce"
+TARGET_SYSCONFIGDATA_PATH = "usr/local/lib/python3.12/_sysconfigdata__linux_x86_64-linux-gnu.py"
+TARGET_SYSCONFIGDATA_SHA256 = "3ed04335c07aa6311958a3514a807ce1ef5b623cea3f29507c3f20b1330c8187"
+MAX_TARGET_SYSCONFIGDATA_BYTES = 128 * 1024
 THREADING_SOURCE_SHA256 = "846f450ae794e4aab823a163f8c71d27751148af33e91dd3de886686a4e8ebfb"
 THREAD_NATIVE_ID_HEADER_MEMBER = "Python-3.12.16/Include/pythread.h"
 THREAD_NATIVE_ID_HEADER_SHA256 = "cd063073710988ea21b54588473542e5f3b2be06f637dc5a028aefd5a7949144"
@@ -3842,6 +3845,7 @@ def _target_image_save_facts(image_save_path, image_config_source):
                 "usr/local/bin": None,
                 "usr/local/bin/Modules": None,
                 TARGET_EXECUTABLE_PATH: None,
+                TARGET_SYSCONFIGDATA_PATH: None,
                 PICKLE_EXTENSION_PATH: None,
                 "usr/local/bin/python3": None,
                 "usr/local/bin/Modules/Setup": None,
@@ -3864,23 +3868,40 @@ def _target_image_save_facts(image_save_path, image_config_source):
                             whiteouts.append((parent + "/" + basename[4:], False))
                         elif name in tracked:
                             content_sha256 = None
+                            content_bytes = None
                             if member.isfile() and name in (
-                                    TARGET_EXECUTABLE_PATH, PICKLE_EXTENSION_PATH):
+                                    TARGET_EXECUTABLE_PATH, PICKLE_EXTENSION_PATH,
+                                    TARGET_SYSCONFIGDATA_PATH):
+                                if (name == TARGET_SYSCONFIGDATA_PATH
+                                        and member.size > MAX_TARGET_SYSCONFIGDATA_BYTES):
+                                    raise ValueError("TARGET_SYSCONFIGDATA_LIMIT")
                                 stream = layer.extractfile(member)
                                 content_digest = hashlib.sha256()
+                                content_parts = []
+                                content_size = 0
                                 while True:
                                     chunk = stream.read(1024 * 1024)
                                     if not chunk:
                                         break
                                     content_digest.update(chunk)
+                                    if name == TARGET_SYSCONFIGDATA_PATH:
+                                        content_size += len(chunk)
+                                        if content_size > MAX_TARGET_SYSCONFIGDATA_BYTES:
+                                            raise ValueError("TARGET_SYSCONFIGDATA_LIMIT")
+                                        content_parts.append(chunk)
                                 content_sha256 = content_digest.hexdigest()
-                            additions.append((name, {
+                                if name == TARGET_SYSCONFIGDATA_PATH:
+                                    content_bytes = b"".join(content_parts)
+                            facts = {
                                 "file": member.isfile(), "directory": member.isdir(),
                                 "symlink": member.issym(),
                                 "linkname": member.linkname if member.issym() else None,
                                 "mode": member.mode & 0o777,
                                 "sha256": content_sha256,
-                            }))
+                            }
+                            if name == TARGET_SYSCONFIGDATA_PATH:
+                                facts["content"] = content_bytes
+                            additions.append((name, facts))
                 if ("sha256:" + compressed_reader.digest.hexdigest()
                         != "sha256:" + layer_name.rsplit("/", 1)[-1]
                         or "sha256:" + uncompressed_reader.digest.hexdigest()
@@ -3919,6 +3940,16 @@ def _target_image_save_facts(image_save_path, image_config_source):
                     "linkname": None,
                     "mode": 0o755, "sha256": PICKLE_EXTENSION_SHA256}:
                 raise ValueError("TARGET_IMAGE_PICKLE_EXTENSION_FACT")
+            sysconfigdata = tracked[TARGET_SYSCONFIGDATA_PATH]
+            if (type(sysconfigdata) is not dict or sysconfigdata.get("file") is not True
+                    or sysconfigdata.get("symlink") is not False
+                    or sysconfigdata.get("mode") != 0o644
+                    or sysconfigdata.get("sha256") != TARGET_SYSCONFIGDATA_SHA256
+                    or type(sysconfigdata.get("content")) is not bytes):
+                raise ValueError("TARGET_IMAGE_SYSCONFIGDATA_FACT")
+            sysconfig_facts = _target_image_sysconfigdata_facts(
+                sysconfigdata["content"]
+            )
     except (tarfile.TarError, KeyError, TypeError, json.JSONDecodeError) as error:
         raise ValueError("TARGET_IMAGE_SAVE_INVALID") from error
     return {
@@ -3926,9 +3957,52 @@ def _target_image_save_facts(image_save_path, image_config_source):
         "executable_sha256": executable["sha256"],
         "python3_symlink_target": tracked["usr/local/bin/python3"]["linkname"],
         "pickle_extension_sha256": tracked[PICKLE_EXTENSION_PATH]["sha256"],
+        "sysconfigdata_path": TARGET_SYSCONFIGDATA_PATH,
+        "sysconfigdata_sha256": TARGET_SYSCONFIGDATA_SHA256,
+        **sysconfig_facts,
         "_PYTHON_BUILD": False,
         "setup_parent_paths_verified": True,
         "_pickle_extension": True,
+    }
+
+
+def _target_image_sysconfigdata_facts(source):
+    """Read fixed ABI and extension-root values from pinned literal build data."""
+    if (type(source) is not bytes or len(source) > MAX_TARGET_SYSCONFIGDATA_BYTES
+            or hashlib.sha256(source).hexdigest() != TARGET_SYSCONFIGDATA_SHA256):
+        raise ValueError("TARGET_SYSCONFIGDATA_DIGEST")
+    try:
+        tree = ast.parse(source)
+        assignments = [node for node in tree.body if isinstance(node, ast.Assign)
+                       and any(isinstance(target, ast.Name)
+                               and target.id == "build_time_vars"
+                               for target in node.targets)]
+        if len(assignments) != 1 or len(assignments[0].targets) != 1:
+            raise ValueError("TARGET_SYSCONFIGDATA_ASSIGNMENT")
+        value_node = assignments[0].value
+        if not isinstance(value_node, ast.Dict):
+            raise ValueError("TARGET_SYSCONFIGDATA_MAPPING")
+        keys = [ast.literal_eval(key) for key in value_node.keys]
+        if len(keys) != len(set(keys)):
+            raise ValueError("TARGET_SYSCONFIGDATA_DUPLICATE_KEY")
+        values = ast.literal_eval(value_node)
+    except (SyntaxError, TypeError, ValueError) as error:
+        raise ValueError("TARGET_SYSCONFIGDATA_LITERAL") from error
+    expected = {
+        "SOABI": "cpython-312-x86_64-linux-gnu",
+        "DESTSHARED": "/usr/local/lib/python3.12/lib-dynload",
+        "EXT_SUFFIX": ".cpython-312-x86_64-linux-gnu.so",
+        "MULTIARCH": "x86_64-linux-gnu",
+    }
+    if type(values) is not dict:
+        raise ValueError("TARGET_SYSCONFIGDATA_MAPPING")
+    if any(values.get(key) != value for key, value in expected.items()):
+        raise ValueError("TARGET_SYSCONFIGDATA_VALUES")
+    return {
+        "soabi": values["SOABI"],
+        "destshared": values["DESTSHARED"],
+        "extension_suffix": values["EXT_SUFFIX"],
+        "multiarch": values["MULTIARCH"],
     }
 
 

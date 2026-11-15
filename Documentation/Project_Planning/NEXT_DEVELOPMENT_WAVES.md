@@ -2189,3 +2189,22 @@ Runtime-, Profil-, Worker-, SQL-, Lab- oder Generalprobenausführung.
 Token-/Geldverbrauch bleiben unbekannt; der Checkpoint umfasst ein Paket und
 einen PR. PR-Integration ist der Checkpoint; danach wird anhand des aktuellen
 Status weitergearbeitet.
+
+Die Dateiidentitäten sind mit 218 fokussierten Tests und allen fünf PR-Gates
+bestanden. PR #772 integrierte den Schritt als
+`659574ac6dae8fa360c3ea09568e4cde7794bd69`; `main` ist synchronisiert,
+lokale und Remote-Branches sind entfernt.
+
+### Begrenzte Fortsetzung: Zielimage-Sysconfigwerte für S15-ABI binden
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR prüfen die aus der gepinnten OCI-Layerdatei
+`_sysconfigdata__linux_x86_64-linux-gnu.py` gelesenen Literalwerte für
+`SOABI`, `DESTSHARED`, `EXT_SUFFIX` und `MULTIARCH`. Zwei Regressionen decken
+die Image-Layerbindung und die Zurückweisung einer ungebundenen oder nicht
+literal interpretierbaren Datei ab. Das liefert statische Sollwertkandidaten
+für `abi` und den Extensionroot; keine Runtime-Sysconfigaufnahme,
+P11-Inventur, Profil- oder Workerattestation. Keine SQL-, Lab- oder
+Generalprobenausführung. Token-/Geldverbrauch bleiben unbekannt; der
+Checkpoint umfasst ein Paket und einen PR. PR-Integration ist der Checkpoint;
+danach wird anhand des aktuellen Status weitergearbeitet.
