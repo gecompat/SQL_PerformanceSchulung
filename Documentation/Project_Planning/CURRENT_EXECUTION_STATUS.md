@@ -10970,3 +10970,7 @@ noch ob die Funktion ausgeführt wird. Ein geänderter Guard, Sperrpfad oder
 Initializer-Aufruf wird verworfen. Keine Runtime-, P11-, SQL-/Lab- oder
 menschliche Generalprobenattestation. Umfang: ein Paket, ein PR und höchstens
 zwei Regressionen.
+
+Die maschinenlesbare Eigenschaft für die Folgeanweisungen heißt
+`actions_if_reinitialization_guard_true`; sie drückt keine ausgewertete
+Zweigbedingung aus.
