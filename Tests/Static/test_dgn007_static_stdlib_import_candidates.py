@@ -2509,6 +2509,43 @@ class StaticImportCandidateTests(unittest.TestCase):
                     changed, shape_primitives,
                 ))
 
+    def test_selected_anchor_contract_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        namespace_contract = {"selected_namespace_validation_claimed": False}
+        candidate = SUBJECT._target_selected_anchor_contract_candidate(
+            profile_source, namespace_contract,
+        )
+        self.assertEqual(candidate, {
+            "module_type": "exact_ModuleType",
+            "spec_type": "exact_ModuleSpec_or_none",
+            "loader_types": ("BuiltinImporter", "FrozenImporter", "SourceFileLoader", "ExtensionFileLoader", "none"),
+            "module_cache": "exact_dict_with_sorted_exact_name_set",
+            "namespace_budget_shared": True,
+            "selected_anchor_validation_claimed": False,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "evidence_scope": "STATIC_SELECTED_ANCHOR_CONTRACT_CANDIDATE",
+        })
+        for changed in (
+            profile_source.replace(
+                b"type(loader) in (SourceFileLoader, ExtensionFileLoader)",
+                b"isinstance(loader, (SourceFileLoader, ExtensionFileLoader))",
+            ),
+            profile_source.replace(
+                b"len(cache) == len(names)", b"len(cache) <= len(names)",
+            ),
+        ):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(changed),
+            ):
+                self.assertIsNone(SUBJECT._target_selected_anchor_contract_candidate(
+                    changed, namespace_contract,
+                ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

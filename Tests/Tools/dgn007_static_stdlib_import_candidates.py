@@ -3152,6 +3152,66 @@ def _target_selected_namespace_contract_candidate(source_bytes, shape_primitives
     }
 
 
+def _target_selected_anchor_contract_candidate(source_bytes, namespace_contract):
+    """Bind local module/spec/loader validation and exact module-cache anchors."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(namespace_contract) is not dict
+            or namespace_contract.get("selected_namespace_validation_claimed") is not False):
+        return None
+    bodies = {}
+    for name in ("_selected_local", "_selected_cache"):
+        matches = re.findall(
+            rb"(?ms)^def " + name.encode("ascii")
+            + rb"\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+            source_bytes,
+        )
+        if len(matches) != 1:
+            return None
+        bodies[name] = re.sub(rb"\s+", b" ", matches[0])
+    local_requirements = (
+        b"type(module) is ModuleType",
+        b"namespace = _selected_namespace(module, budget)",
+        b'for key in ("__name__", "__file__")',
+        b"spec is None or type(spec) is ModuleSpec",
+        b"selected = _selected_namespace(spec, budget)",
+        b"type(locations) in (tuple, list) and len(locations) <= MAX_RECORDS",
+        b"loader is None or loader is BuiltinImporter or loader is FrozenImporter",
+        b"type(loader) in (SourceFileLoader, ExtensionFileLoader)",
+        b"selected = _selected_namespace(loader, budget)",
+        b"return spec, loader",
+    )
+    cache_requirements = (
+        b"type(cache) is dict and len(cache) == len(names)",
+        b"_selected_keys(cache, budget)",
+        b"tuple(sorted(cache)) == names",
+        b'"CACHE_MISMATCH"',
+    )
+    if (any(bodies["_selected_local"].count(fragment) != (
+                2 if fragment == b"type(loader) in (SourceFileLoader, ExtensionFileLoader)" else 1
+            ) for fragment in local_requirements)
+            or any(bodies["_selected_cache"].count(fragment) != 1
+                   for fragment in cache_requirements)):
+        return None
+    if not all(bodies["_selected_local"].index(left)
+               < bodies["_selected_local"].index(right)
+               for left, right in zip(local_requirements, local_requirements[1:])):
+        return None
+    return {
+        "module_type": "exact_ModuleType",
+        "spec_type": "exact_ModuleSpec_or_none",
+        "loader_types": ("BuiltinImporter", "FrozenImporter", "SourceFileLoader", "ExtensionFileLoader", "none"),
+        "module_cache": "exact_dict_with_sorted_exact_name_set",
+        "namespace_budget_shared": True,
+        "selected_anchor_validation_claimed": False,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "evidence_scope": "STATIC_SELECTED_ANCHOR_CONTRACT_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -10198,6 +10258,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_selected_shape_primitives_candidate,
         )
     )
+    target_selected_anchor_contract_candidate = (
+        _target_selected_anchor_contract_candidate(
+            runtime_profile_source,
+            target_selected_namespace_contract_candidate,
+        )
+    )
     target_selected_profile_binder_flow_candidate = (
         _target_selected_profile_binder_flow_candidate(
             runtime_profile_source,
@@ -10871,6 +10937,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_selected_namespace_contract_candidate": (
             target_selected_namespace_contract_candidate
+        ),
+        "target_selected_anchor_contract_candidate": (
+            target_selected_anchor_contract_candidate
         ),
         "target_selected_profile_binder_flow_candidate": (
             target_selected_profile_binder_flow_candidate
