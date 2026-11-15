@@ -1681,6 +1681,29 @@ def _target_s15_roots_field_candidate(path_candidate):
     }
 
 
+def _target_s15_inert_zip_field_candidate(path_candidate):
+    """Expose the absent ZIP landmark as a static S15 field candidate."""
+    expected_path = "/usr/local/lib/python312.zip"
+    inert_zip = (
+        path_candidate.get("inert_zip_field_candidate")
+        if type(path_candidate) is dict else None
+    )
+    if (type(inert_zip) is not dict
+            or inert_zip.get("value") != expected_path
+            or inert_zip.get("path_role") != "ZIP_LANDMARK"
+            or type(inert_zip.get("sys_path_candidate_index")) is not int
+            or inert_zip.get("sys_path_candidate_index") != 0
+            or inert_zip.get("image_member_absent") is not True
+            or inert_zip.get("runtime_membership_claimed") is not False):
+        return None
+    return {
+        "value": expected_path,
+        "image_member_absent": True,
+        "runtime_membership_claimed": False,
+        "evidence_scope": "STATIC_S15_INERT_ZIP_FIELD_CANDIDATE",
+    }
+
+
 def _configure_template_inventory(config_template, configure_source):
     if (type(config_template) is not bytes or not config_template
             or len(config_template) > MAX_CONFIG_C_TEMPLATE_BYTES
@@ -8299,6 +8322,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_s15_prefixes_field_candidate = {}
     target_s15_paths_field_candidate = None
     target_s15_roots_field_candidate = None
+    target_s15_inert_zip_field_candidate = None
     target_warning_options_empty_for_facts = {}
     target_importlib_optimize_line_facts = {}
     target_worker_sys_flag_facts = ()
@@ -8323,6 +8347,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         )
         target_s15_roots_field_candidate = _target_s15_roots_field_candidate(
             target_sys_path_candidate_facts
+        )
+        target_s15_inert_zip_field_candidate = (
+            _target_s15_inert_zip_field_candidate(target_sys_path_candidate_facts)
         )
         target_s15_prefixes_field_candidate = (
             _target_s15_prefixes_field_candidate(
@@ -9052,6 +9079,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_platform_sys_path_candidate_facts": target_sys_path_candidate_facts,
         "target_s15_paths_field_candidate": target_s15_paths_field_candidate,
         "target_s15_roots_field_candidate": target_s15_roots_field_candidate,
+        "target_s15_inert_zip_field_candidate": (
+            target_s15_inert_zip_field_candidate
+        ),
         "target_s15_prefixes_field_candidate": (
             target_s15_prefixes_field_candidate
         ),

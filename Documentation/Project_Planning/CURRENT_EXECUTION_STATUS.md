@@ -11162,10 +11162,18 @@ Pfadabweichungen und ein boolescher Ersatz für den Integerindex werden
 verworfen. 247 fokussierte Regressionen und alle fünf PR-Gates bestanden.
 Die Ausgabe ist eine statische Pfadkandidatur, keine Runtimeliste.
 
-## S15-Teilschnitt: Roots-Feldkandidat
+## Abgeschlossen: S15-Teilschnitt Roots-Feldkandidat
 
-Der nächste Kandidat gibt das geprüfte Standardbibliotheks-/Extensionroot-Paar
-als eigenes S15-Feld aus. Eine Regression prüft den Kandidaten und verwirft
-eine falsche Runtimeattestationsmarke. Die Werte bleiben statische
-Sollwertkandidaten. Umfang: ein Paket, ein PR und höchstens zwei Regressionen;
-keine vollständige S15-/P11-Attestation oder menschliche Generalprobe.
+PR #820 gibt das geprüfte Standardbibliotheks-/Extensionroot-Paar als eigenes
+Feld aus und verlangt die bestätigte Extensiondatei bei ausgeschlossener
+Runtimebehauptung. 247 fokussierte Regressionen und alle fünf PR-Gates
+bestanden; die Werte bleiben statische Sollwertkandidaten.
+
+## S15-Teilschnitt: Inert-ZIP-Feldkandidat
+
+Der nächste Schritt gibt den bereits an Abwesenheit im gebundenen Image und
+Position null der Pfadkandidatur gebundenen ZIP-Landmark-Fact als eigenen
+S15-Berichtsschlüssel aus. Eine Regression prüft den Kandidaten und eine
+vorhandene Image-Datei. Das belegt weder Pfadmitgliedschaft zur Laufzeit noch
+einen vollständigen S15-Record. Umfang: ein Paket, ein PR und höchstens zwei
+Regressionen.
