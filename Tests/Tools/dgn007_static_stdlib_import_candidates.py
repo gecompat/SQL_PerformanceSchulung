@@ -1588,6 +1588,34 @@ def _target_s15_assumption_field_candidate(source_bytes):
     }
 
 
+def _target_s15_flags_field_candidate(worker_sys_flag_facts):
+    """Join the fixed startup-flag facts into a static S15 field candidate."""
+    expected = (
+        ("sys.flags.isolated", 1),
+        ("sys.flags.no_site", 1),
+        ("sys.flags.dont_write_bytecode", 1),
+        ("sys.flags.ignore_environment", 1),
+        ("sys.flags.safe_path", True),
+        ("sys.flags.optimize", 0),
+        ("sys.dont_write_bytecode", True),
+    )
+    if (type(worker_sys_flag_facts) is not tuple
+            or len(worker_sys_flag_facts) != len(expected)
+            or any(type(actual) is not tuple or len(actual) != 2
+                   or actual[0] != wanted[0]
+                   or type(actual[1]) is not type(wanted[1])
+                   or actual[1] != wanted[1]
+                   for actual, wanted in zip(worker_sys_flag_facts, expected))):
+        return None
+    return {
+        "value": (1, 1, 1, 1, 1, 0),
+        "source_fact_names": tuple(name for name, _ in expected[:6]),
+        "worker_route_fact_count": len(expected),
+        "runtime_flags_claimed": False,
+        "evidence_scope": "STATIC_S15_FLAGS_FIELD_CANDIDATE",
+    }
+
+
 def _configure_template_inventory(config_template, configure_source):
     if (type(config_template) is not bytes or not config_template
             or len(config_template) > MAX_CONFIG_C_TEMPLATE_BYTES
@@ -8207,6 +8235,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_warning_options_empty_for_facts = {}
     target_importlib_optimize_line_facts = {}
     target_worker_sys_flag_facts = ()
+    target_s15_flags_field_candidate = None
     target_worker_sysconfigdata_environment_fact = ()
     target_importlib_verbose_line_facts = {}
     if target_image_save_path is not None:
@@ -8245,6 +8274,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_worker_sys_flag_facts = _target_worker_sys_flag_facts(
                 preconfig_c_source, initconfig_c_source, sys_module_c_source,
                 worker_source,
+            )
+            target_s15_flags_field_candidate = (
+                _target_s15_flags_field_candidate(target_worker_sys_flag_facts)
             )
             target_warning_options_empty_for_facts = (
                 _target_warning_options_empty_for_facts(
@@ -8809,6 +8841,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_s15_assumption_field_candidate": (
             target_s15_assumption_field_candidate
         ),
+        "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
         "edge_count": edges,
         "module_count": len(modules),

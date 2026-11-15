@@ -11140,11 +11140,18 @@ Klassendeklarationen. 246 fokussierte Regressionen und alle fünf PR-Gates
 bestanden. Die Reihenfolge bleibt statisch; erzeugte Hookobjekte und die finale
 `sys.path_hooks`-Liste sind unbelegt.
 
-## S15-Teilschnitt: feste Assumption-Textdeklaration binden
+## Abgeschlossen: S15-Teilschnitt Assumption-Feldkandidat
 
-Der nächste Kandidat liest den festen `ASSUMPTION`-Text aus dem vorhandenen
-Runtime-Profilmodul, verlangt eine einzige Top-Level-Literaldefinition und
-verifiziert den Modulhash. Die Ausgabe ist nur eine deklarative Annahme und
-keine Trustattestation. Umfang: ein Paket, ein PR und höchstens zwei
-Regressionen; keine Runtime-, P11-, SQL-/Lab- oder menschliche
-Generalprobenattestation.
+PR #817 bindet den festen `ASSUMPTION`-Text aus dem vorhandenen
+Runtime-Profilmodul an genau eine Top-Level-Literaldefinition und den
+Modulhash. Alle fünf PR-Gates bestanden. Der Kandidat ist nur eine deklarative
+Annahme, keine Trustattestation.
+
+## S15-Teilschnitt: Flags-Feldkandidat
+
+Als nächster Kandidat werden die sechs geordneten S15-Flags aus den bereits
+quell- und Worker-routengebundenen Facts zusammengesetzt. Eine Regression
+prüft die exakte Tupelform und verwirft abweichende Werte. Die Ausgabe bleibt
+statisch und behauptet keine beobachteten Runtimeflags. Umfang: ein Paket,
+ein PR und höchstens zwei Regressionen; keine P11-, SQL-/Lab- oder
+menschliche Generalprobenattestation.
