@@ -2723,6 +2723,49 @@ def _target_profile_result_model_schemas_candidate(source_bytes, record_model_sc
     }
 
 
+def _target_selected_profile_result_schemas_candidate(source_bytes, result_model_schema):
+    """Bind frozen private selected-profile result layouts and scopes."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(result_model_schema) is not dict
+            or result_model_schema.get("observation_claimed") is not False):
+        return None
+    expected_fields = {
+        "BoundProfileResult": ("report", "profile", "validation_scope"),
+        "SelectedScalarObservationResult": (
+            "report", "profile", "scalars", "validation_scope",
+        ),
+    }
+    actual_fields = {}
+    for name, expected in expected_fields.items():
+        bodies = re.findall(
+            rb"(?ms)^@dataclass\(frozen=True, slots=True, repr=False\)\r?\nclass "
+            + name.encode("ascii")
+            + rb":\r?\n(?P<body>.*?)(?=^class |^def |\Z)",
+            source_bytes,
+        )
+        if len(bodies) != 1:
+            return None
+        normalized = re.sub(rb"\s+", b" ", bodies[0])
+        fields = re.findall(rb"(?m)^    ([A-Za-z_][A-Za-z0-9_]*):", bodies[0])
+        actual_fields[name] = tuple(item.decode("ascii") for item in fields)
+        if (actual_fields[name] != expected
+                or normalized.count(b'validation_scope: str = field(default="PROJECT_SEMANTIC", init=False)') != 1):
+            return None
+    return {
+        "bound_profile_result_fields": actual_fields["BoundProfileResult"],
+        "selected_scalar_observation_result_fields": actual_fields["SelectedScalarObservationResult"],
+        "private_dataclasses_frozen_slotted_repr_hidden": True,
+        "validation_scope": "PROJECT_SEMANTIC",
+        "runtime_observation_claimed": False,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "evidence_scope": "STATIC_SELECTED_PROFILE_RESULT_SCHEMAS_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9939,6 +9982,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_profile_record_model_schemas_candidate,
         )
     )
+    target_selected_profile_result_schemas_candidate = (
+        _target_selected_profile_result_schemas_candidate(
+            runtime_profile_source,
+            target_profile_result_model_schemas_candidate,
+        )
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -10448,6 +10497,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_profile_result_model_schemas_candidate": (
             target_profile_result_model_schemas_candidate
+        ),
+        "target_selected_profile_result_schemas_candidate": (
+            target_selected_profile_result_schemas_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
