@@ -11200,12 +11200,19 @@ Quellidentität ergeben; die Quelldatei selbst bleibt unverändert. 248
 fokussierte Regressionen und alle fünf PR-Gates bestanden. Profilvalidierung
 oder Runtimeaufnahme sind nicht belegt.
 
-## Nächster Schritt: Controls-Auswahlvertrag binden
+## Abgeschlossen: Controls-Auswahlvertrag binden
 
-Der Runtime-Profilvalidator erlaubt höchstens zwei eindeutige Controls aus
-`__main__` und `dgn007_import_runtime_profile` und verlangt deren exakte
-Übereinstimmung mit den `CONTROL`-Modulrecords. Der nächste statische
-Kandidat bindet diese Grenzen an dieselbe kanonisch gehashte Quelle. Eine
-Regression prüft die Vertragsform und eine veränderte Obergrenze. Er behauptet
-keine tatsächlich gewählte Controls-Auswahl. Umfang: ein Paket, ein PR und
+PR #825 bindet die beiden erlaubten Control-Namen, die Obergrenze von zwei,
+Eindeutigkeit und die exakte Übereinstimmung mit `CONTROL`-Modulrecords an
+die LF-normalisiert digestgeprüfte Profilquelle. 249 fokussierte Tests und
+alle fünf PR-Gates bestanden. Eine tatsächlich gewählte Menge wird nicht
+behauptet.
+
+## Nächster Schritt: Auswahl-Eingaben zusammensetzen
+
+Der nächste Kandidat verbindet die feste Annahme, Root-Pfade und den
+Inert-ZIP-Wert mit der Reihenfolge des `selection`-Tupels und dem
+Controls-Vertrag. Er beschreibt zulässige Eingaben, keine gewählte
+Control-Menge oder validierte Profilauswahl. Eine Regression prüft die
+Tupelordnung und eine geänderte Reihenfolge. Umfang: ein Paket, ein PR und
 höchstens zwei Regressionen.

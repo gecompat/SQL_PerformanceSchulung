@@ -2665,9 +2665,15 @@ PR #824 bindet die Schemaordnung an die kanonisch gehashte
 `_selected_shapes`-Quelle. LF und CRLF liefern denselben Quellenfingerprint;
 Runtime- oder Profilvalidierung wird nicht behauptet.
 
-## Begrenzte Fortsetzung: Controls-Auswahlvertrag
+## Abgeschlossen: Controls-Auswahlvertrag
 
-Ein Arbeitspaket und ein PR binden die erlaubten Control-Namen, die
-Höchstzahl, Eindeutigkeit und exakte Zuordnung zu `CONTROL`-Modulrecords an
-die Runtime-Profilquelle. Die Kandidatur beschreibt nur den Vertrag, nicht die
-tatsächlich ausgewählte Control-Menge.
+PR #825 bindet erlaubte Namen, Höchstzahl, Eindeutigkeit und
+`CONTROL`-Record-Zuordnung an die Runtime-Profilquelle. Die tatsächlich
+gewählte Menge bleibt unbekannt.
+
+## Begrenzte Fortsetzung: Auswahl-Eingaben zusammensetzen
+
+Ein Arbeitspaket und ein PR verbinden die festen Auswahlwerte mit der
+quellgebundenen `selection`-Tupelordnung und dem Controls-Vertrag. Der
+statische Vertrag behauptet keine gewählte Control-Menge oder validierte
+Profilauswahl.

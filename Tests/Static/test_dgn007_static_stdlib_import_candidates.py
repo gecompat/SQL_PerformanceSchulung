@@ -1406,6 +1406,51 @@ class StaticImportCandidateTests(unittest.TestCase):
             self.assertIsNone(
                 SUBJECT._target_controls_selection_contract_candidate(changed)
             )
+        assumption = {
+            "value": "DECLARED_SETUP_PYTHON_CONTROL_RUNTIME",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "runtime_assumption_attested": False,
+        }
+        roots = {
+            "value": (
+                "/usr/local/lib/python3.12",
+                "/usr/local/lib/python3.12/lib-dynload",
+            ),
+            "runtime_roots_claimed": False,
+        }
+        inert_zip = {
+            "value": "/usr/local/lib/python312.zip",
+            "runtime_membership_claimed": False,
+        }
+        selection = SUBJECT._target_profile_selection_inputs_candidate(
+            profile_source, assumption, roots, inert_zip, candidate,
+        )
+        self.assertEqual(selection, {
+            "field_order": ("assumption", "roots", "inert_zip", "controls"),
+            "fixed_values": (
+                "DECLARED_SETUP_PYTHON_CONTROL_RUNTIME",
+                roots["value"], inert_zip["value"],
+            ),
+            "controls_contract": ("__main__", "dgn007_import_runtime_profile"),
+            "controls_maximum_count": 2,
+            "controls_must_equal_control_module_rows": True,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "selection_tuple_claimed": False,
+            "selected_controls_claimed": False,
+            "evidence_scope": "STATIC_PROFILE_SELECTION_INPUT_CONTRACT_CANDIDATE",
+        })
+        changed_selection_source = profile_source.replace(
+            b"selection = (expected.assumption, expected.roots, expected.inert_zip, expected.controls)",
+            b"selection = (expected.roots, expected.assumption, expected.inert_zip, expected.controls)",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed_selection_source),
+        ):
+            self.assertIsNone(SUBJECT._target_profile_selection_inputs_candidate(
+                changed_selection_source, assumption, roots, inert_zip, candidate,
+            ))
 
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
