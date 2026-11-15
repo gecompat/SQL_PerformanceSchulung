@@ -2480,14 +2480,23 @@ Ende des POSIX-Initialisierungspfads und führt diese Abschlussmarke mit dem
 bereits geprüften Erstaufruf-/API-Kandidaten zusammen. Keine Ausführungs- oder
 Runtimeattestation.
 
-## Begrenzte Fortsetzung: Import-Finder-Registrierungsstellen binden
+## Abgeschlossen: Import-Finder-Registrierungsstellen binden
 
-Der nächste S15-Teilschnitt soll die drei deklarativen
-`sys.meta_path.append`-Stellen in den gepinnten CPython-3.12.16-Importlibquellen
-und die `FileFinder.path_hook`-Registrierung strukturell binden. Die Quelle
-muss fail-closed auf zusätzliche oder veränderte Registrierungen reagieren.
-Der Kandidat darf weder endgültige Runtimelisten noch deren vollständige
-Reihenfolge behaupten, da Bootstrap-Aufrufreihenfolge und weitere
-Hook-Registrierungen außerhalb dieses Scopes liegen. Umfang: ein Paket, ein PR
-und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
-menschliche Generalprobenattestation.
+PR #801 bindet die drei digestgeprüften `sys.meta_path.append`-Stellen für
+`BuiltinImporter`, `FrozenImporter` und `PathFinder` sowie die
+`FileFinder.path_hook`-Registrierung an die geprüften `_install`-Funktionen.
+Der echte CPython-3.12.16-Quellarchivlauf und 239 fokussierte Regressionen
+bestanden. Zusätzliche Meta-Path-Aufrufe und eine geänderte Hook-Registrierung
+werden fail-closed verworfen. Endgültige Runtimelisten und ihre vollständige
+Reihenfolge bleiben unbelegt.
+
+## Begrenzte Fortsetzung: bedingte Zipimport-Hookquelle binden
+
+Der nächste S15-Teilschnitt bindet in der digestgeprüften `Python/import.c`-
+Quelle `init_zipimport()` und dessen Aufruf nach erfolgreichem
+`init_importlib_external()`. Er prüft die bedingte Auflösung von
+`zipimport.zipimporter`, `PyList_Insert(path_hooks, 0, zipimporter)` und die
+Fehlerpfade. Das belegt nur die statische, bedingte Registrierungsquelle und
+keine vorhandene Runtimeklasse, tatsächliche Listenänderung oder vollständige
+Hookliste. Umfang: ein Paket, ein PR und höchstens zwei Regressionen; keine
+Runtime-, P11-, SQL-/Lab- oder menschliche Generalprobenattestation.

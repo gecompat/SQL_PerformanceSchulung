@@ -3108,6 +3108,79 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertIsNone(check_sources(bootstrap, changed_hook))
 
+    def test_zipimport_hook_registration_is_conditional_and_ordered(self):
+        source = (
+            b"static int\ninit_zipimport(PyThreadState *tstate, int verbose)\n{\n"
+            b'    PyObject *path_hooks = _PySys_GetRequiredAttrString("path_hooks");\n'
+            b"    if (path_hooks == NULL) {\n        return -1;\n    }\n\n"
+            b"    if (verbose) {\n"
+            b'        PySys_WriteStderr("# installing zipimport hook\\n");\n'
+            b"    }\n\n"
+            b'    PyObject *zipimporter = _PyImport_GetModuleAttrString("zipimport", "zipimporter");\n'
+            b"    if (zipimporter == NULL) {\n"
+            b"        _PyErr_Clear(tstate); /* No zipimporter object -- okay */\n"
+            b"        if (verbose) {\n"
+            b'            PySys_WriteStderr("# can\'t import zipimport.zipimporter\\n");\n'
+            b"        }\n    }\n    else {\n"
+            b"        /* sys.path_hooks.insert(0, zipimporter) */\n"
+            b"        int err = PyList_Insert(path_hooks, 0, zipimporter);\n"
+            b"        Py_DECREF(zipimporter);\n"
+            b"        if (err < 0) {\n            Py_DECREF(path_hooks);\n"
+            b"            return -1;\n        }\n"
+            b"        if (verbose) {\n"
+            b'            PySys_WriteStderr("# installed zipimport hook\\n");\n'
+            b"        }\n    }\n    Py_DECREF(path_hooks);\n\n"
+            b"    return 0;\n}\n\n"
+            b"PyStatus\n_PyImport_InitExternal(PyThreadState *tstate)\n{\n"
+            b"    int verbose = _PyInterpreterState_GetConfig(tstate->interp)->verbose;\n\n"
+            b"    // XXX Initialize here: sys.path_hooks and sys.path_importer_cache.\n\n"
+            b"    if (init_importlib_external(tstate->interp) != 0) {\n"
+            b"        _PyErr_Print(tstate);\n"
+            b'        return _PyStatus_ERR("external importer setup failed");\n'
+            b"    }\n\n"
+            b"    if (init_zipimport(tstate, verbose) != 0) {\n"
+            b"        PyErr_Print();\n"
+            b'        return _PyStatus_ERR("initializing zipimport failed");\n'
+            b"    }\n\n    return _PyStatus_OK();\n}\n"
+        )
+
+        def check_source(candidate_source):
+            with patch.object(
+                SUBJECT, "PYTHON_IMPORT_C_SHA256",
+                hashlib.sha256(candidate_source).hexdigest(),
+            ):
+                return SUBJECT._target_zipimport_hook_registration_candidate(
+                    candidate_source
+                )
+
+        candidate = check_source(source)
+        self.assertIsNotNone(candidate)
+        self.assertEqual(
+            candidate["registration_operation"],
+            "PyList_Insert(path_hooks, 0, zipimporter)",
+        )
+        self.assertTrue(candidate["registration_conditional_on_attribute"])
+        self.assertTrue(candidate["missing_attribute_skips_registration"])
+        self.assertTrue(candidate["insertion_error_returns_failure"])
+        self.assertTrue(
+            candidate["external_importlib_setup_precedes_zipimport_attempt"]
+        )
+        self.assertFalse(candidate["final_sys_path_hooks_claimed"])
+
+        changed_position = source.replace(
+            b"PyList_Insert(path_hooks, 0, zipimporter)",
+            b"PyList_Insert(path_hooks, 1, zipimporter)",
+        )
+        self.assertIsNone(check_source(changed_position))
+        changed_order = source.replace(
+            b"init_importlib_external(tstate->interp)",
+            b"__ZIPORDER__",
+        ).replace(
+            b"init_zipimport(tstate, verbose)",
+            b"init_importlib_external(tstate->interp)",
+        ).replace(b"__ZIPORDER__", b"init_zipimport(tstate, verbose)")
+        self.assertIsNone(check_source(changed_order))
+
     def test_configure_sources_bind_builtin_template_and_module_block(self):
         config_c = (
             b"/* -- ADDMODULE MARKER 1 -- */\n"
