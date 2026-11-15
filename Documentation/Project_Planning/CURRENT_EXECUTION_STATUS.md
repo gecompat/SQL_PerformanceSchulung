@@ -11842,3 +11842,14 @@ unbekannte Bedingungen; Unknown-Digest
 `5a134d577ec00b2518f47f6df325fac976395d8b604ec30da1c0594d456b9ba9`.
 294 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine direkte Image-Route,
 Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.
+
+Ein weiterer Fact bindet die beiden `namedtuple`-Feldguards `collections/__init__.py:408`
+(`name.startswith('_') and not rename`) und `:411` (`name in seen`) für den
+importzeitlichen Aufrufbestand an falsch. Alle 42 statischen Feldlisten haben
+keine führenden Unterstriche und enthalten keine Duplikate; der vollständige
+Aufruf- und Quellhash bleibt Voraussetzung. Eine `_field`- oder `x x`-Mutation
+verwirft den Fact. Der Zielscan zählt 60 Module, 318 Kanten, 100 entschiedene
+und 481 unbekannte Bedingungen; Unknown-Digest
+`d8d485d993f0426d8f5e5e38e15bed6e08e195548de5de3b6b71ed0568345750`.
+294 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine direkte Image-Route,
+Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.

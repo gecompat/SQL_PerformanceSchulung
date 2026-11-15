@@ -5329,6 +5329,8 @@ newlockobject(PyObject *module)
             b"    if module is None:\n        pass\n"
             b"    if not name.isidentifier():\n        pass\n"
             b"    if _iskeyword(name):\n        pass\n"
+            b"    if name.startswith('_') and not rename:\n        pass\n"
+            b"    if name in seen:\n        pass\n"
             b"    class_namespace = {'_fields': field_names}\n"
             b"    return type(typename, (), class_namespace)\n"
             b"from keyword import iskeyword as _iskeyword\n"
@@ -5395,6 +5397,18 @@ newlockobject(PyObject *module)
                     caller_rows.append([path, node.lineno, ast.unparse(node)])
         caller_rows.sort()
         source_rows.sort()
+
+        def caller_digest(source_bytes, added_rows):
+            call_rows = caller_rows + added_rows
+            call_rows.sort()
+            changed_source_rows = [
+                row for row in source_rows if row[0] != "caller.py"
+            ] + [["caller.py", hashlib.sha256(source_bytes).hexdigest()]]
+            changed_source_rows.sort()
+            return hashlib.sha256(json.dumps(
+                [call_rows, changed_source_rows], separators=(",", ":"),
+            ).encode()).hexdigest()
+
         digest = hashlib.sha256(json.dumps(
             [caller_rows, source_rows], separators=(",", ":"),
         ).encode()).hexdigest()
@@ -5424,6 +5438,8 @@ newlockobject(PyObject *module)
                     ("collections", "collections/__init__.py", 8): (False, True),
                     ("collections", "collections/__init__.py", 10): (False,),
                     ("collections", "collections/__init__.py", 12): (False,),
+                    ("collections", "collections/__init__.py", 14): (False,),
+                    ("collections", "collections/__init__.py", 16): (False,),
                 },
             )
             resolved = []
@@ -5453,6 +5469,12 @@ newlockobject(PyObject *module)
                  if row["module"] == "collections" and row["line"] == 12],
                 [[False]],
             )
+            for line in (14, 16):
+                self.assertEqual(
+                    [row["decisions"] for row in resolved
+                     if row["module"] == "collections" and row["line"] == line],
+                    [[False]],
+                )
             unsafe_files = dict(files)
             unsafe_files["caller.py"] = caller_source.replace(
                 b"('x', 'y')", b"unknown_fields",
@@ -5478,20 +5500,10 @@ newlockobject(PyObject *module)
             )
             invalid_identifier_files = dict(files)
             invalid_identifier_files["caller.py"] = invalid_identifier_source
-            invalid_call_rows = caller_rows + [
-                ["caller.py", 6, "namedtuple('Bad-Type', 'field')"],
-            ]
-            invalid_call_rows.sort()
-            invalid_source_rows = [
-                row for row in source_rows if row[0] != "caller.py"
-            ] + [["caller.py", hashlib.sha256(
+            invalid_digest = caller_digest(
                 invalid_identifier_source,
-            ).hexdigest()]]
-            invalid_source_rows.sort()
-            invalid_digest = hashlib.sha256(json.dumps(
-                [invalid_call_rows, invalid_source_rows],
-                separators=(",", ":"),
-            ).encode()).hexdigest()
+                [["caller.py", 6, "namedtuple('Bad-Type', 'field')"]],
+            )
             with patch.object(
                 SUBJECT, "COLLECTIONS_NAMEDTUPLE_CALLS_SHA256", invalid_digest,
             ):
@@ -5501,6 +5513,28 @@ newlockobject(PyObject *module)
                     ),
                     {},
                 )
+            for invalid_field, expression in (
+                    ("_field", "namedtuple('Bad', '_field')"),
+                    ("x x", "namedtuple('Dup', 'x x')")):
+                invalid_field_source = (
+                    caller_source + f"{expression}\n".encode()
+                )
+                invalid_field_files = dict(files)
+                invalid_field_files["caller.py"] = invalid_field_source
+                invalid_field_digest = caller_digest(
+                    invalid_field_source,
+                    [["caller.py", 6, expression]],
+                )
+                with patch.object(
+                    SUBJECT, "COLLECTIONS_NAMEDTUPLE_CALLS_SHA256",
+                    invalid_field_digest,
+                ):
+                    self.assertEqual(
+                        SUBJECT._target_collections_namedtuple_call_condition_facts(
+                            invalid_field_files,
+                        ),
+                        {},
+                    )
             keyword_mutation = keyword_source.replace(
                 b"'async'", b"'async', 'x'",
             )

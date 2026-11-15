@@ -8001,6 +8001,13 @@ def _target_collections_namedtuple_call_condition_facts(files):
     keyword_guards = [node for node in ast.walk(function)
                       if isinstance(node, ast.If)
                       and ast.unparse(node.test) == "_iskeyword(name)"] if function else []
+    private_field_guards = [node for node in ast.walk(function)
+                            if isinstance(node, ast.If)
+                            and ast.unparse(node.test)
+                            == "name.startswith('_') and (not rename)"] if function else []
+    duplicate_field_guards = [node for node in ast.walk(function)
+                              if isinstance(node, ast.If)
+                              and ast.unparse(node.test) == "name in seen"] if function else []
     signature = function.args if function else None
     if (signature is None
             or [arg.arg for arg in signature.args] != ["typename", "field_names"]
@@ -8029,6 +8036,8 @@ def _target_collections_namedtuple_call_condition_facts(files):
     if (len(guards) != 1 or len(defaults_guards) != 2
             or len(module_guards) != 1 or len(identifier_guards) != 1
             or len(keyword_guards) != 1
+            or len(private_field_guards) != 1
+            or len(duplicate_field_guards) != 1
             or len(namespace_assignments) != 1
             or len(fields_entries) != 1
             or ast.unparse(fields_entries[0]) != "field_names"
@@ -8118,6 +8127,8 @@ def _target_collections_namedtuple_call_condition_facts(files):
     outcomes = set()
     identifier_outcomes = set()
     keyword_outcomes = set()
+    private_field_outcomes = set()
+    duplicate_field_outcomes = set()
     defaults_outcomes = set()
     module_outcomes = set()
     for path, tree in trees.items():
@@ -8271,8 +8282,14 @@ def _target_collections_namedtuple_call_condition_facts(files):
                 return {}
             if any(name in keyword_values for name in type_names + field_values):
                 return {}
+            if any(name.startswith("_") for name in field_values):
+                return {}
+            if len(field_values) != len(set(field_values)):
+                return {}
             identifier_outcomes.add(False)
             keyword_outcomes.add(False)
+            private_field_outcomes.add(False)
+            duplicate_field_outcomes.add(False)
     callsite_rows.sort()
     caller_source_rows.sort()
     digest = hashlib.sha256(json.dumps(
@@ -8282,6 +8299,8 @@ def _target_collections_namedtuple_call_condition_facts(files):
             or outcomes != {False, True}
             or identifier_outcomes != {False}
             or keyword_outcomes != {False}
+            or private_field_outcomes != {False}
+            or duplicate_field_outcomes != {False}
             or defaults_outcomes != {False, True}
             or module_outcomes != {False, True}):
         return {}
@@ -8292,6 +8311,10 @@ def _target_collections_namedtuple_call_condition_facts(files):
         tuple(sorted(identifier_outcomes)),
         ("collections", "collections/__init__.py", keyword_guards[0].lineno):
         tuple(sorted(keyword_outcomes)),
+        ("collections", "collections/__init__.py", private_field_guards[0].lineno):
+        tuple(sorted(private_field_outcomes)),
+        ("collections", "collections/__init__.py", duplicate_field_guards[0].lineno):
+        tuple(sorted(duplicate_field_outcomes)),
     }
     facts.update({
         ("collections", "collections/__init__.py", guard.lineno):
