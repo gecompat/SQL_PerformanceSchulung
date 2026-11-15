@@ -2521,6 +2521,43 @@ def _target_profile_primitive_validators_candidate(source_bytes, path_contract):
     }
 
 
+def _target_profile_failure_primitive_candidate(source_bytes, primitive_contract):
+    """Bind the profile's false-condition rejection and typed failure class."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(primitive_contract) is not dict
+            or primitive_contract.get("profile_input_validation_claimed") is not False):
+        return None
+    failure_defs = re.findall(
+        rb"(?m)^class _Failure\(([^)]+)\):\s*\r?\n\s+pass\s*$",
+        source_bytes,
+    )
+    need_defs = re.findall(
+        rb"(?ms)^def _need\(condition, issue=([^)]*)\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(failure_defs) != 1 or len(need_defs) != 1:
+        return None
+    default_issue = re.sub(rb"\s+", b"", need_defs[0][0])
+    need_body = re.sub(rb"\s+", b" ", need_defs[0][1])
+    if (failure_defs[0] != b"ValueError"
+            or default_issue != b'"INVALID_RECORD"'
+            or need_body.count(b"if not condition:") != 1
+            or need_body.count(b"raise _Failure(issue)") != 1):
+        return None
+    return {
+        "failure_class": "_Failure_subclass_of_ValueError",
+        "default_issue": "INVALID_RECORD",
+        "false_condition_behavior": "raise_failure_with_issue",
+        "input_validation_claimed": False,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "evidence_scope": "STATIC_PROFILE_FAILURE_PRIMITIVE_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9707,6 +9744,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_profile_path_contract_candidate,
         )
     )
+    target_profile_failure_primitive_candidate = (
+        _target_profile_failure_primitive_candidate(
+            runtime_profile_source,
+            target_profile_primitive_validators_candidate,
+        )
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -10201,6 +10244,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_profile_primitive_validators_candidate": (
             target_profile_primitive_validators_candidate
+        ),
+        "target_profile_failure_primitive_candidate": (
+            target_profile_failure_primitive_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,

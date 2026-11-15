@@ -2767,8 +2767,15 @@ PR #842 bindet `_absolute` und `_under` an kanonische
 absolute Pfade ohne Traversal sowie Root-Containment. Zwei Gegenproben lockern
 je eine Bedingung; es gibt keine Runtime-/Hostattestation.
 
-## Begrenzte Fortsetzung: primitive Profilvalidatoren binden
+## Abgeschlossen: primitive Profilvalidatoren binden
 
 PR #843 bindet `_text` und `_strings`: exakter String-/Tupletyp, Zeichen- und
 UTF-8-Bytegrenze, maximale Tuplelänge und Textprüfung jedes Elements. Zwei
 Gegenproben lockern je eine Grenze. Es wird keine Profilvalidierung behauptet.
+
+## Begrenzte Fortsetzung: fail-closed Profilfehler binden
+
+PR #844 bindet `_Failure` und `_need`: Fehlerklasse als `ValueError`-Unterklasse,
+Standardcode `INVALID_RECORD` und Ablehnung falscher Bedingungen unter Erhalt
+des Fehlercodes. Zwei Gegenproben lockern je eine Bedingung. Keine
+Profilvalidierung wird behauptet.
