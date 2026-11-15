@@ -6921,10 +6921,15 @@ def _target_functools_lru_cache_condition_facts(files):
         return {}
     tree = trees.get("functools.py")
     functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)
-                 and node.name == "lru_cache"] if tree else []
-    if len(functions) != 1:
+                 and node.name in {"lru_cache", "_lru_cache_wrapper"}
+                 ] if tree else []
+    if len(functions) != 2:
         return {}
-    function = functions[0]
+    function = next((node for node in functions if node.name == "lru_cache"), None)
+    wrapper = next((node for node in functions
+                    if node.name == "_lru_cache_wrapper"), None)
+    if function is None or wrapper is None:
+        return {}
     expected = {
         507: "isinstance(maxsize, int)",
         509: "maxsize < 0",
@@ -6933,7 +6938,12 @@ def _target_functools_lru_cache_condition_facts(files):
     }
     guards = {node.lineno: ast.unparse(node.test) for node in ast.walk(function)
               if isinstance(node, ast.If) and node.lineno in expected}
+    wrapper_guards = {
+        node.lineno: ast.unparse(node.test) for node in ast.walk(wrapper)
+        if isinstance(node, ast.If) and node.lineno in (543, 552)
+    }
     if (guards != expected
+            or wrapper_guards != {543: "maxsize == 0", 552: "maxsize is None"}
             or [arg.arg for arg in function.args.args] != ["maxsize", "typed"]
             or [ast.unparse(value) for value in function.args.defaults]
             != ["128", "False"]):
@@ -6984,7 +6994,14 @@ def _target_functools_lru_cache_condition_facts(files):
     ).encode()).hexdigest()
     if callsite_digest != FUNCTOOLS_LRU_CACHE_CALLS_SHA256:
         return {}
-    return {("functools", "functools.py", 509): (False,)}
+    return {
+        ("functools", "functools.py", 507): (False, True),
+        ("functools", "functools.py", 509): (False,),
+        ("functools", "functools.py", 511): (False, True),
+        ("functools", "functools.py", 517): (False,),
+        ("functools", "functools.py", 543): (False,),
+        ("functools", "functools.py", 552): (False, True),
+    }
 
 
 def _target_logging_lock_line_facts(files, thread_module_source):

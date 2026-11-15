@@ -11632,3 +11632,16 @@ unbekannte Bedingungen; Kandidatenhash unverändert, Unknown-Digest
 `69540e632b066aaa37ac80498a564d814358e480bdcc47213068a121f8136904`.
 285 fokussierte Tests bestehen. `CANDIDATES_ONLY`; kein Interpreterstart und
 keine P11-/Runtimeattestation.
+
+Die anschließende Erweiterung des Facts wertet den vollständigen
+`lru_cache`-Aufrufbestand aus, nicht nur den negativen Größenvergleich. Für
+die sechs Guards an `functools.py:507, 509, 511, 517, 543, 552` sind die
+zulässigen Outcomes nun vollständig gebunden: Der Vergleich auf negative
+Größe, `maxsize == 0` und `maxsize is not None` sind jeweils falsch; für
+Typprüfung, Callability und `None` sind beide Zweige vertreten. Das folgt aus
+den gepinnten 20 Call-Sites und 40 quellgehashten Importdateien sowie den
+beiden exakten Funktionskörpern. Der Scan umfasst nun 60 Module, 316 Kanten,
+88 aufgelöste und 479 unbekannte Bedingungen; Unknown-Digest
+`604bb985511cb3037bdd61ed94114f96a1a04304854aa5878a1b8af5f19fee5d`.
+285 fokussierte Tests bestehen. Ergebnis bleibt `CANDIDATES_ONLY` ohne
+Interpreterstart oder P11-/Runtimeattestation.

@@ -3053,3 +3053,14 @@ Callsite-Digest. Der Scan steht nun bei 60 Modulen, 316 Kanten, 83 aufgelösten
 und 484 unbekannten Bedingungen; Unknown-Digest
 `69540e632b066aaa37ac80498a564d814358e480bdcc47213068a121f8136904`.
 285 fokussierte Tests bestehen; keine Runtime- oder P11-Attestation.
+
+Eine Erweiterung desselben Facts bindet nun zusätzlich alle sechs
+`lru_cache`-Guards in `functools.py` (Zeilen 507, 509, 511, 517, 543 und 552)
+an die vollständigen 20 Call-Sites, 40 relevanten quellgehashten Dateien und
+beide Funktionskörper. Die Outcomes sind pro Guard vollständig abgedeckt;
+`maxsize < 0`, `maxsize == 0` und `maxsize is not None` fallen falsch aus.
+Der Scan zählt nun 88 aufgelöste und 479 unbekannte Bedingungen bei 60 Modulen
+und 316 Kanten. Unknown-Digest:
+`604bb985511cb3037bdd61ed94114f96a1a04304854aa5878a1b8af5f19fee5d`.
+285 fokussierte Tests bestehen; `CANDIDATES_ONLY`, ohne Runtime- oder
+P11-Attestation.
