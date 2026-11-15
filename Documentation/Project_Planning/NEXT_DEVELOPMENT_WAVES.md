@@ -2164,3 +2164,14 @@ Die fokussierte Suite besteht lokal mit 218 Tests unter Python 3.14. Alle fünf
 PR-Gates einschließlich der gepinnten CPython-3.12.16-Offlineprüfung bestanden.
 PR #769 integrierte den Schnitt als `87dbd9a8e3bde1d8db57a60518a0808cf3896da1`;
 `main` ist synchronisiert und lokale/Remote-Branches sind entfernt.
+
+### Begrenzte Fortsetzung: CPython-Implementierungsfacts an echter Quelle
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR korrigieren die synthetisch angenommene
+Funktionsgrenze in `sysmodule.c` anhand des vorhandenen gepinnten
+CPython-3.12.16-Quellarchivs. Zwei Regressionen decken die echte Deklarations-
+und Präprozessorgrenze sowie die bisherige falsche Grenze ab. Der Lauf muss die
+Versions-, Namens- und Cache-Tag-Facts tatsächlich aus dem Archiv emittieren.
+Keine Runtime-, Profil-, Worker-, SQL-, Lab- oder Generalprobenausführung.
+Token-/Geldverbrauch bleiben unbekannt; PR-Integration ist der Checkpoint.

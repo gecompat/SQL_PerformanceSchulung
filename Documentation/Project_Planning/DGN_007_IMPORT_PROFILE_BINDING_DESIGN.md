@@ -6181,3 +6181,14 @@ beide Fälle. Die fokussierte Suite besteht lokal mit 218 Tests unter Python
 3.14. Alle fünf PR-Gates einschließlich der gepinnten CPython-3.12.16-
 Offlineprüfung bestanden; PR #769 integrierte die Korrektur. Keine Runtime-
 oder Profilbeobachtung.
+
+### Korrektur: Funktionsgrenze gegen CPython-3.12.16-Archiv geprüft
+
+Ein direkter Lauf mit dem vorhandenen, digestgebundenen CPython-Quellarchiv
+zeigte, dass der synthetische Fact-Test `make_abi_info` als nachfolgende
+Funktionsgrenze verwendete. Diese Grenze existiert in `sysmodule.c` 3.12.16
+nicht; dadurch wurden die drei Facts im tatsächlichen Archiv verworfen. Die
+Quellabgrenzung endet jetzt am dort vorhandenen `#ifdef __EMSCRIPTEN__`.
+Der erneute Scan emittiert die erwarteten Versions-, Namens- und Cache-Tag-
+Facts. Er bleibt wegen der fehlenden Docker-save-/Executableeingabe
+`CANDIDATES_ONLY` und ist keine vollständige P11- oder Runtimeattestation.

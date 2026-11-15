@@ -1571,28 +1571,32 @@ def _condition_fact_value_supported(value):
             and all(type(item) in (str, bool, int, type(None)) for item in value))
 
 
-def _target_sys_implementation_version_fact(sys_module_source):
-    """Bind CPython's implementation.version to the shared version_info object."""
+def _target_sys_implementation_info_body(sys_module_source):
     if (type(sys_module_source) is not bytes or not sys_module_source
             or len(sys_module_source) > MAX_SYS_MODULE_C_BYTES
             or hashlib.sha256(sys_module_source).hexdigest() != SYS_MODULE_C_SHA256):
-        return ()
-    source = sys_module_source.decode("utf-8")
+        return None
     implementation = re.search(
         r"static PyObject\s*\*\s*make_impl_info\(PyObject \*version_info\)(.*?)"
-        r"(?=static PyObject\s*\*\s*make_abi_info)",
-        source, re.DOTALL,
+        r"(?=\n#ifdef __EMSCRIPTEN__)",
+        sys_module_source.decode("utf-8"), re.DOTALL,
     )
-    if (implementation is None
+    return implementation.group(1) if implementation is not None else None
+
+
+def _target_sys_implementation_version_fact(sys_module_source):
+    """Bind CPython's implementation.version to the shared version_info object."""
+    body = _target_sys_implementation_info_body(sys_module_source)
+    if (body is None
             or not re.search(
                 r'PyDict_SetItemString\(impl_info,\s*"version",\s*version_info\)',
-                implementation.group(1),
+                body,
             )
             or not re.search(
                 r"version_info\s*=\s*make_version_info\(tstate\);.*?"
                 r'SET_SYS\("version_info",\s*version_info\);.*?'
                 r'SET_SYS\("implementation",\s*make_impl_info\(version_info\)\);',
-                source, re.DOTALL,
+                sys_module_source.decode("utf-8"), re.DOTALL,
             )):
         return ()
     return (("sys.implementation.version", (3, 12, 16, "final", 0)),)
@@ -1600,25 +1604,17 @@ def _target_sys_implementation_version_fact(sys_module_source):
 
 def _target_sys_implementation_name_fact(sys_module_source):
     """Bind CPython's implementation.name to its pinned implementation constant."""
-    if (type(sys_module_source) is not bytes or not sys_module_source
-            or len(sys_module_source) > MAX_SYS_MODULE_C_BYTES
-            or hashlib.sha256(sys_module_source).hexdigest() != SYS_MODULE_C_SHA256):
-        return ()
-    source = sys_module_source.decode("utf-8")
-    implementation = re.search(
-        r"static PyObject\s*\*\s*make_impl_info\(PyObject \*version_info\)(.*?)"
-        r"(?=static PyObject\s*\*\s*make_abi_info)",
-        source, re.DOTALL,
-    )
-    if (implementation is None
+    body = _target_sys_implementation_info_body(sys_module_source)
+    if (body is None
             or not re.search(
                 r'#define NAME "cpython"\s+'
-                r'const char \*_PySys_ImplName\s*=\s*NAME;', source,
+                r'const char \*_PySys_ImplName\s*=\s*NAME;',
+                sys_module_source.decode("utf-8"),
             )
             or not re.search(
                 r'PyUnicode_FromString\(_PySys_ImplName\).*?'
                 r'PyDict_SetItemString\(impl_info,\s*"name",\s*value\)',
-                implementation.group(1), re.DOTALL,
+                body, re.DOTALL,
             )):
         return ()
     return (("sys.implementation.name", "cpython"),)
@@ -1626,17 +1622,11 @@ def _target_sys_implementation_name_fact(sys_module_source):
 
 def _target_sys_implementation_cache_tag_fact(sys_module_source, version_fact):
     """Bind CPython's cache tag from its pinned macros and target version fact."""
+    body = _target_sys_implementation_info_body(sys_module_source)
     if (version_fact != (("sys.implementation.version", (3, 12, 16, "final", 0)),)
-            or type(sys_module_source) is not bytes or not sys_module_source
-            or len(sys_module_source) > MAX_SYS_MODULE_C_BYTES
-            or hashlib.sha256(sys_module_source).hexdigest() != SYS_MODULE_C_SHA256):
+            or body is None):
         return ()
     source = sys_module_source.decode("utf-8")
-    implementation = re.search(
-        r"static PyObject\s*\*\s*make_impl_info\(PyObject \*version_info\)(.*?)"
-        r"(?=static PyObject\s*\*\s*make_abi_info)",
-        source, re.DOTALL,
-    )
     macros = (
         r'#define NAME "cpython"\s+'
         r'const char \*_PySys_ImplName\s*=\s*NAME;\s+'
@@ -1645,11 +1635,11 @@ def _target_sys_implementation_cache_tag_fact(sys_module_source, version_fact):
         r'#define TAG NAME "-" MAJOR MINOR\s+'
         r'const char \*_PySys_ImplCacheTag\s*=\s*TAG;'
     )
-    if (implementation is None or not re.search(macros, source)
+    if (not re.search(macros, source)
             or not re.search(
                 r'PyUnicode_FromString\(_PySys_ImplCacheTag\).*?'
                 r'PyDict_SetItemString\(impl_info,\s*"cache_tag",\s*value\)',
-                implementation.group(1), re.DOTALL,
+                body, re.DOTALL,
             )):
         return ()
     return (("sys.implementation.cache_tag", "cpython-312"),)
