@@ -6331,3 +6331,12 @@ Die quellengebundene `_init_posix`-Form legt fest, dass der Importwert als
 Die separat geprüfte Posix-Aufrufwache wählt `_init_posix(_CONFIG_VARS)` aus;
 der Kandidat kann daher den statischen Zielcontainer benennen. Dies ist keine
 Beobachtung einer Funktionsausführung oder Mappingmutation.
+
+### Fortsetzung: lazy Getter-Aufruf des Sysconfig-Initializers
+
+Die gepinnte `sysconfig.py` bindet den Erstaufruf von `_init_config_vars()` an
+`get_config_vars()`, den Anfangszustand `_CONFIG_VARS=None` /
+`_CONFIG_VARS_INITIALIZED=False`, den Lock `_CONFIG_VARS_LOCK` und den
+Recheck `_CONFIG_VARS is None`. Der strukturierte Kandidat stellt diese
+statische Call-Route vor den POSIX-Zweig dar; er belegt nicht, dass ein Caller
+`get_config_vars()` erreicht oder die Wachen zur Laufzeit durchlaufen werden.

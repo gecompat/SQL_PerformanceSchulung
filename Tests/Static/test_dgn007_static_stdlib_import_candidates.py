@@ -1499,9 +1499,20 @@ class StaticImportCandidateTests(unittest.TestCase):
             "build_time_vars_literal_dict": True,
             "build_time_vars_entry_count": 14,
         }
+        lazy_call_candidate = {
+            "getter": "get_config_vars",
+            "initial_config_vars": None,
+            "initialization_flag": False,
+            "outer_guard": "not _CONFIG_VARS_INITIALIZED",
+            "lock": "_CONFIG_VARS_LOCK",
+            "recheck_guard": "_CONFIG_VARS is None",
+            "selected_call": "_init_config_vars()",
+            "evidence_scope": "STATIC_LAZY_INITIALIZER_CALL_CANDIDATE",
+        }
         candidate = SUBJECT._target_sysconfigdata_initialization_route_candidate(
-            inventory, line_facts, import_target, image_facts,
+            inventory, lazy_call_candidate, line_facts, import_target, image_facts,
         )
+        self.assertEqual(candidate["public_initializer_call_candidate"], lazy_call_candidate)
         self.assertEqual(candidate["guard_source_line"], 676)
         self.assertEqual(candidate["module_name"], import_target["module_name"])
         self.assertEqual(candidate["imported_attribute"], "build_time_vars")
@@ -1525,21 +1536,72 @@ class StaticImportCandidateTests(unittest.TestCase):
             "STATIC_CONDITIONAL_IMPORT_ROUTE_CANDIDATE",
         )
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
-            inventory, {}, import_target, image_facts,
+            inventory, lazy_call_candidate, {}, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
-            {**inventory, "sysconfigdata_initializer_update_receiver": "other"},
+            inventory, {**lazy_call_candidate, "initialization_flag": True},
             line_facts, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
-            inventory, line_facts, import_target,
+            {**inventory, "sysconfigdata_initializer_update_receiver": "other"},
+            lazy_call_candidate, line_facts, import_target, image_facts,
+        ))
+        self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
+            inventory, lazy_call_candidate, line_facts, import_target,
             {**image_facts, "sysconfigdata_sha256": "0" * 64},
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
-            inventory, line_facts, import_target,
+            inventory, lazy_call_candidate, line_facts, import_target,
             {key: value for key, value in image_facts.items()
              if key != "build_time_vars_literal_dict"},
         ))
+
+    def test_sysconfig_lazy_initializer_call_requires_bound_state_and_nested_guards(self):
+        source = (
+            b"_CONFIG_VARS = None\n"
+            b"_CONFIG_VARS_INITIALIZED = False\n"
+            b"def get_config_vars():\n"
+            b"    if not _CONFIG_VARS_INITIALIZED:\n"
+            b"        with _CONFIG_VARS_LOCK:\n"
+            b"            if _CONFIG_VARS is None:\n"
+            b"                _init_config_vars()\n"
+            b"    else:\n"
+            b"        pass\n"
+        )
+        digest_patch = patch.object(
+            SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(source).hexdigest(),
+        )
+        expected = {
+            "getter": "get_config_vars",
+            "initial_config_vars": None,
+            "initialization_flag": False,
+            "outer_guard": "not _CONFIG_VARS_INITIALIZED",
+            "lock": "_CONFIG_VARS_LOCK",
+            "recheck_guard": "_CONFIG_VARS is None",
+            "selected_call": "_init_config_vars()",
+            "evidence_scope": "STATIC_LAZY_INITIALIZER_CALL_CANDIDATE",
+        }
+        with digest_patch:
+            self.assertEqual(SUBJECT._target_sysconfig_lazy_initialization_call_candidate(
+                {"sysconfig.py": source},
+            ), expected)
+            for changed in (
+                    source.replace(b"_CONFIG_VARS_INITIALIZED = False",
+                                   b"_CONFIG_VARS_INITIALIZED = True"),
+                    source.replace(b"_CONFIG_VARS is None",
+                                   b"_CONFIG_VARS is not None"),
+                    source.replace(b"_init_config_vars()",
+                                   b"_init_config_vars('unexpected')"),
+            ):
+                with self.subTest(changed=changed), patch.object(
+                    SUBJECT, "SYSCONFIG_SOURCE_SHA256",
+                    hashlib.sha256(changed).hexdigest(),
+                ):
+                    self.assertIsNone(
+                        SUBJECT._target_sysconfig_lazy_initialization_call_candidate(
+                            {"sysconfig.py": changed},
+                        )
+                    )
 
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
         self.assertEqual(

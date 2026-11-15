@@ -10872,3 +10872,16 @@ geänderte Empfängerfacts. Es bleibt statische Quell-/Imageevidenz: weder
 Funktionsaufruf noch Mappingmutation oder Runtimeübernahme sind beobachtet.
 Keine P11-, SQL-/Lab- oder menschliche Generalprobenattestation. Umfang: ein
 Paket, ein PR und höchstens zwei Regressionen.
+
+## Fortsetzung: lazy sysconfig-Initialisierungsaufruf statisch binden
+
+Der Scanner erkennt nun im digestgeprüften CPython-3.12.16-`sysconfig.py` den
+`get_config_vars()`-Zweig, der bei initialem `_CONFIG_VARS is None` unter
+`_CONFIG_VARS_LOCK` `_init_config_vars()` aufruft; der Modulstartwert ist
+`_CONFIG_VARS=None` und `_CONFIG_VARS_INITIALIZED=False`. Die Regression deckt
+Quellbindung, Zustand und verschachtelte Wachen ab. Der echte gepinnte
+Quellarchiv-Fall liefert `STATIC_LAZY_INITIALIZER_CALL_CANDIDATE`. Zusammen mit
+der bedingten Posix-Importroute beschreibt dies eine statische Aufrufkette,
+keinen Getter- oder Initializerlauf. Keine Zielruntime-, P11-, SQL-/Lab- oder
+menschliche Generalprobenattestation. Umfang: ein Paket, ein PR und höchstens
+zwei Regressionen.
