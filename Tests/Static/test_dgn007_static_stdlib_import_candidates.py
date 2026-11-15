@@ -2401,6 +2401,41 @@ class StaticImportCandidateTests(unittest.TestCase):
                     changed, observation_flow,
                 ))
 
+    def test_profile_scalar_projection_contract_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        filefinder_contract = {"runtime_hook_claimed": False}
+        candidate = SUBJECT._target_profile_scalar_projection_contract_candidate(
+            profile_source, filefinder_contract,
+        )
+        self.assertEqual(candidate, {
+            "scalar_form": ("bounded_text", "no_nul"),
+            "projection_sections": ("selection", "installation", "module_rows"),
+            "control_and_root_checks": True,
+            "loader_and_alias_identity_checks": True,
+            "module_row_field_count": 11,
+            "runtime_projection_claimed": False,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "evidence_scope": "STATIC_PROFILE_SCALAR_PROJECTION_CONTRACT_CANDIDATE",
+        })
+        for changed in (
+            profile_source.replace(b'"\\x00" not in value', b"True"),
+            profile_source.replace(
+                b"a.module is b.module and a.spec is b.spec",
+                b"a.module is b.module",
+            ),
+        ):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(changed),
+            ):
+                self.assertIsNone(SUBJECT._target_profile_scalar_projection_contract_candidate(
+                    changed, filefinder_contract,
+                ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

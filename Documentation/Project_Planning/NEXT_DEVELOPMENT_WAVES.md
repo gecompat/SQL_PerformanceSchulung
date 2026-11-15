@@ -2832,9 +2832,16 @@ PR #852 bindet Vorher-/Nachheridentität der Hookobjekte sowie die drei
 FileFinder-Hookfelder an `_selected_hook_post`. Eine Gegenprobe entfernt den
 Wertvergleich des Pfadfelds. Es wird kein Hook beobachtet.
 
-## Begrenzte Fortsetzung: FileFinder-Hookvertrag binden
+## Abgeschlossen: FileFinder-Hookvertrag binden
 
 PR #853 bindet `_filefinder_hook` an Frozen-Modul-/Klassen-/Descriptor- und
 Closureanker sowie Loaderdetail- und Suffixlistenreihenfolge. Gegenproben
 lockern die Closureform und vertauschen Loaderdetails. Es wird kein Hook
 beobachtet.
+
+## Begrenzte Fortsetzung: Skalarprojektion binden
+
+PR #854 bindet `_scalar_text` und `_project_scalars`: NUL-Ausschluss,
+Kontroll-/Rootprüfungen, Loader-/Aliasanker sowie die geordneten Selection-,
+Installation- und Modulzeilenprojektionen. Gegenproben lockern NUL- bzw.
+Aliasidentitätsprüfung. Es wird keine Projektion ausgeführt.
