@@ -2605,11 +2605,18 @@ Sysconfigdaten, leere `PyConfig`-Defaults und geprüfte GetPath-Fallbacks. 245
 fokussierte Regressionen und alle fünf PR-Gates bestanden; es entsteht keine
 Runtimeaufnahme.
 
-## Begrenzte Fortsetzung: Finder-Feldkandidat binden
+## Abgeschlossen: Finder-Feldkandidat binden
 
-Der nächste S15-Schnitt verbindet die geordneten Meta-Path-Registrierungen mit
-den digestgeprüften `BuiltinImporter`-, `FrozenImporter`- und `PathFinder`-
-Klassendeklarationen samt `find_spec`-Klassenmethoden. Die Ausgabe behauptet
-weder Runtimeinstanzen noch die finale `sys.meta_path`-Liste. Umfang: ein
+PR #815 verbindet die drei Meta-Path-Registrierungen mit den geprüften
+`BuiltinImporter`-, `FrozenImporter`- und `PathFinder`-Klassendeklarationen.
+245 fokussierte Regressionen und alle fünf PR-Gates bestanden; es entsteht
+keine Runtime-Finderliste.
+
+## Begrenzte Fortsetzung: Hook-Feldkandidat binden
+
+Der nächste S15-Schnitt verbindet die bedingte Zipimporter-Einfügung an
+Position null mit der zuvor ausgeführten FileFinder-Registrierung und den
+digestgeprüften Hook-/Klassendeklarationen. Die Reihenfolge bleibt statisch;
+Hookobjekte und die finale `sys.path_hooks`-Liste bleiben unbelegt. Umfang: ein
 Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab-
 oder menschliche Generalprobenattestation.

@@ -3578,6 +3578,69 @@ class StaticImportCandidateTests(unittest.TestCase):
         ).replace(b"__ZIPORDER__", b"init_zipimport(tstate, verbose)")
         self.assertIsNone(check_source(changed_order))
 
+    def test_s15_hooks_candidate_joins_registration_order_and_declarations(self):
+        importlib_registration = {
+            "source_sha256": [
+                SUBJECT.IMPORTLIB_BOOTSTRAP_SOURCE_SHA256,
+                SUBJECT.IMPORTLIB_EXTERNAL_SOURCE_SHA256,
+            ],
+            "file_path_hook_registration_site": [
+                "importlib._bootstrap_external._install", "FileFinder.path_hook",
+            ],
+            "final_sys_path_hooks_claimed": False,
+        }
+        zipimport_registration = {
+            "source_sha256": SUBJECT.PYTHON_IMPORT_C_SHA256,
+            "registration_operation": "PyList_Insert(path_hooks, 0, zipimporter)",
+            "registration_conditional_on_attribute": True,
+            "missing_attribute_skips_registration": True,
+            "external_importlib_setup_precedes_zipimport_attempt": True,
+            "final_sys_path_hooks_claimed": False,
+        }
+        filefinder_factory = {
+            "source_sha256": SUBJECT.IMPORTLIB_EXTERNAL_SOURCE_SHA256,
+            "path_hook_factory": "FileFinder.path_hook",
+            "returned_hook": "path_hook_for_FileFinder",
+            "supported_loader_detail_order": [
+                "ExtensionFileLoader", "SourceFileLoader", "SourcelessFileLoader",
+            ],
+            "evidence_scope": "STATIC_FILEFINDER_HOOK_FACTORY_CANDIDATE",
+        }
+        zipimporter_class = {
+            "source_sha256": SUBJECT.ZIPIMPORT_SOURCE_SHA256,
+            "module": "zipimport",
+            "requested_attribute": "zipimporter",
+            "listed_in_all": True,
+            "runtime_imported": False,
+            "evidence_scope": "STATIC_ZIPIMPORTER_CLASS_DECLARATION_CANDIDATE",
+        }
+        candidate = SUBJECT._target_s15_hooks_field_candidate(
+            importlib_registration, zipimport_registration,
+            filefinder_factory, zipimporter_class,
+        )
+        self.assertEqual(candidate, {
+            "values": ("ZIPIMPORTER", "FILEFINDER"),
+            "registration_order_basis": (
+                "FileFinder appended during external importlib setup",
+                "zipimporter inserted at index zero after that setup",
+            ),
+            "registration_source_sha256": {
+                "importlib": importlib_registration["source_sha256"],
+                "zipimport": zipimport_registration["source_sha256"],
+            },
+            "factory_source_sha256": SUBJECT.IMPORTLIB_EXTERNAL_SOURCE_SHA256,
+            "class_source_sha256": SUBJECT.ZIPIMPORT_SOURCE_SHA256,
+            "runtime_hook_objects_claimed": False,
+            "final_sys_path_hooks_claimed": False,
+            "evidence_scope": "STATIC_S15_HOOKS_FIELD_CANDIDATE",
+        })
+        self.assertIsNone(SUBJECT._target_s15_hooks_field_candidate(
+            importlib_registration,
+            {**zipimport_registration,
+             "registration_operation": "PyList_Insert(path_hooks, 1, zipimporter)"},
+            filefinder_factory, zipimporter_class,
+        ))
+
     def test_configure_sources_bind_builtin_template_and_module_block(self):
         config_c = (
             b"/* -- ADDMODULE MARKER 1 -- */\n"
