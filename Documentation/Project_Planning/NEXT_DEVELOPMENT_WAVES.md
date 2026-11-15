@@ -3013,11 +3013,14 @@ und deren Bedingungen anhand der gepinnten Quellen reduziert. Das Ergebnis
 bleibt `CANDIDATES_ONLY`; daraus folgt keine P11- oder Runtimeattestation.
 
 Der erste Quellschritt bindet alle fünf produktiven `copyreg.pickle`-Aufrufe
-und begrenzt `copyreg.py:19` auf `{False, True}`. Der gebundene Offline-Scan
-reduziert unbekannte Bedingungen von 524 auf 523 (aufgelöste: 61 auf 62), bei
-unverändert 60 Modulen, 318 Kanten und Kandidatenhash `33f55d7c…`.
-281/281 fokussierte Tests bestehen. Nächster Arbeitsschritt: die größeren
-Regex- und sonstigen verbleibenden Bedingungen anhand der gepinnten Quelle
-einzeln auf sichere, vollständige Fakten prüfen; dynamische Fälle bleiben
-unbekannt, solange ihre Ausführungsbedingungen nicht statisch gebunden sind.
-Kein Interpreterstart, keine P11-/Runtimeattestation.
+und begrenzt `copyreg.py:19` auf `{False, True}`. PR #882 integrierte ihn als
+Commit `339d5dc2f18991c706fedb3bbb057c5e9db5b0e7`; alle fünf PR-Gates
+bestanden. Der nächste Fact bindet die elf produktiven `opcode.pseudo_op`-
+Registrierungen sowie deren Funktionskörper und begrenzt `opcode.py:72` auf
+`{False, True}`. Der Scan zählt nun 522 unbekannte und 63 aufgelöste
+Bedingungen, bei unverändert 60 Modulen, 318 Kanten und Kandidatenhash
+`33f55d7c…`. 282/282 fokussierte Tests bestehen. Nächster Arbeitsschritt:
+verbleibende Bedingungen anhand der gepinnten Quelle auf sichere vollständige
+Facts prüfen; dynamische Fälle bleiben ohne statisch belegte
+Ausführungsbedingungen unbekannt. Kein Interpreterstart, keine
+P11-/Runtimeattestation.

@@ -11589,10 +11589,14 @@ bleibt `CANDIDATES_ONLY`; daraus folgt keine P11- oder Runtimeattestation.
 Der gebundene Offline-Scan des gepinnten CPython-3.12.16-Archivs inventarisiert
 nun zusätzlich alle fünf produktiven `copyreg.pickle`-Aufrufe und begrenzt
 `copyreg.py:19` statisch auf die beobachteten Argumentfälle `{False, True}`.
-Die unbekannten Bedingungen sinken von 524 auf 523, die aufgelösten steigen
-von 61 auf 62; Modul-/Kantenzahl und Kandidatenhash bleiben 60/318 und
-`33f55d7c…`. Der fokussierte Satz besteht 281/281. Der Status bleibt
-`CANDIDATES_ONLY`; es gab keinen Interpreterstart und keine P11-/Runtime-
-Attestation. Als nächste Kandidaten sind zuerst die großen Regex-Reste in
-`re._parser`/`re._compiler` dokumentiert; dynamische Cache- und Umgebungszweige
-bleiben nur mit eigener, quellengebundener Voraussetzung reduzierbar.
+PR #882 integrierte den Fact als Commit
+`339d5dc2f18991c706fedb3bbb057c5e9db5b0e7`; alle fünf PR-Gates bestanden.
+Ein weiterer Fact bindet bei `opcode.py:72` alle elf produktiven
+`pseudo_op`-Registrierungen und den unveränderten Funktionskörper. Er begrenzt
+die Bedingungen auf `{False, True}`. Der aktuelle Offline-Scan zählt damit
+522 unbekannte und 63 aufgelöste Bedingungen (ausgehend von 524/61); Module,
+Kanten und Kandidatenhash bleiben 60/318 und `33f55d7c…`. Der fokussierte Satz
+besteht 282/282. Der Status bleibt `CANDIDATES_ONLY`; es gab keinen
+Interpreterstart und keine P11-/Runtimeattestation. Als nächste Kandidaten
+bleiben insbesondere die großen Regex-Reste in `re._parser`/`re._compiler`;
+dynamische Cache- und Umgebungszweige brauchen eigene quellengebundene Fakten.
