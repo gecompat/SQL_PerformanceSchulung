@@ -2983,6 +2983,62 @@ def _target_filefinder_hook_contract_candidate(source_bytes, observation_flow):
     }
 
 
+def _target_profile_scalar_projection_contract_candidate(source_bytes, filefinder_contract):
+    """Bind scalar NUL rejection and the profile's three projection records."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(filefinder_contract) is not dict
+            or filefinder_contract.get("runtime_hook_claimed") is not False):
+        return None
+    scalar_bodies = re.findall(
+        rb"(?ms)^def _scalar_text\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    projection_bodies = re.findall(
+        rb"(?ms)^def _project_scalars\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(scalar_bodies) != 1 or len(projection_bodies) != 1:
+        return None
+    scalar = re.sub(rb"\s+", b" ", scalar_bodies[0])
+    projection = re.sub(rb"\s+", b" ", projection_bodies[0])
+    scalar_requirements = (
+        b"_text(value)", b'"\\x00" not in value', b'"SCALAR_FORM"',
+    )
+    projection_requirements = (
+        b"_scalar_text(value)",
+        b"_absolute(value)",
+        b"set(expected.controls) == {r.name for r in observation.modules if r.kind == \"CONTROL\"}",
+        b"by_name = {r.name: r for r in observation.modules}",
+        b"_need(all(_under(p, expected.roots) for p in (row.origin, row.file) + row.locations), \"PATH_MISMATCH\")",
+        b"_need(a.module is b.module and a.spec is b.spec, \"MODULE_COHERENCY\")",
+        b"aliases = tuple(sorted(pair))",
+        b"modules.append((row.name, module_name, spec_name, row.origin, row.file, row.kind, row.locations, loader, loader_name, loader_path, aliases))",
+        b"selection = (expected.assumption, expected.roots, expected.inert_zip, expected.controls)",
+        b'("BUILTIN", "FROZEN", "PATH"), ("ZIPIMPORTER", "FILEFINDER")',
+        b"return selection, installation, tuple(modules)",
+    )
+    if (any(scalar.count(fragment) != 1 for fragment in scalar_requirements)
+            or any(projection.count(fragment) < 1 for fragment in projection_requirements)):
+        return None
+    if not all(projection.index(left) < projection.index(right)
+               for left, right in zip(projection_requirements, projection_requirements[1:])):
+        return None
+    return {
+        "scalar_form": ("bounded_text", "no_nul"),
+        "projection_sections": ("selection", "installation", "module_rows"),
+        "control_and_root_checks": True,
+        "loader_and_alias_identity_checks": True,
+        "module_row_field_count": 11,
+        "runtime_projection_claimed": False,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "evidence_scope": "STATIC_PROFILE_SCALAR_PROJECTION_CONTRACT_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -10053,6 +10109,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_selected_profile_observation_flow_candidate,
         )
     )
+    target_profile_scalar_projection_contract_candidate = (
+        _target_profile_scalar_projection_contract_candidate(
+            runtime_profile_source,
+            target_filefinder_hook_contract_candidate,
+        )
+    )
     target_profile_selection_inputs_candidate = (
         _target_profile_selection_inputs_candidate(
             runtime_profile_source,
@@ -10696,6 +10758,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_filefinder_hook_contract_candidate": (
             target_filefinder_hook_contract_candidate
+        ),
+        "target_profile_scalar_projection_contract_candidate": (
+            target_profile_scalar_projection_contract_candidate
         ),
         "target_profile_selection_inputs_candidate": (
             target_profile_selection_inputs_candidate
