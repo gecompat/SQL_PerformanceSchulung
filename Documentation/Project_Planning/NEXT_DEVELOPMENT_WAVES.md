@@ -2415,3 +2415,15 @@ keine Funktionsausführung oder Runtimeattestation. Token-/Geldverbrauch bleiben
 unbekannt; harte Grenze: ein Paket, ein PR, höchstens zwei Regressionen.
 PR-Integration ist der Checkpoint; danach wird anhand des offenen Status
 autonom weitergearbeitet.
+
+### Begrenzte Fortsetzung: bedingte Sysconfig-Importroute zusammenführen
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR verbinden den quellengebundenen `_init_posix`-
+Aufruf, den Sysconfigdaten-Modulnamen, das digestgebundene Image-Mitglied und
+den `build_time_vars`-Consumer zu einem `STATIC_CONDITIONAL_IMPORT_ROUTE_CANDIDATE`.
+Eine Regression prüft die Voraussetzungen der Zusammenführung; der echte
+Archiv-/OCI-Lauf muss die Route ausgeben. Der Datensatz belegt keinen
+Initializeraufruf oder Import. Token-/Geldverbrauch bleiben unbekannt; harte
+Grenze: ein Paket, ein PR, höchstens zwei Regressionen. PR-Integration ist der
+Checkpoint; danach wird autonom anhand des offenen Status fortgesetzt.

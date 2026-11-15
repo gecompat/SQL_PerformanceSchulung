@@ -6302,3 +6302,14 @@ separate `os.name`-Quellenfact vorliegt; beim gepinnten CPython 3.12.16 ist
 dies Zeile 676. Dadurch wird nur die ausgewählte statische Aufrufkante
 weiterverfolgt. Die Closure beweist weder den tatsächlichen Aufruf noch einen
 Import oder die Übernahme von Ziel-Laufzeitdaten.
+
+### Fortsetzung: bedingte Sysconfig-Importroute zusammenführen
+
+Der Scanner gibt die verbundene statische Route nur aus, wenn der POSIX-
+Initializeraufruf, das exakte `sysconfig.py`-Importformular, der aus drei
+Facts komponierte Modulname, der Override-freie Workerpfad und die passende
+digestgeprüfte Image-Datei gemeinsam vorliegen. Der Kandidat nennt die
+Fromlist `build_time_vars` und dessen Consumer `vars.update(build_time_vars)`.
+Die Zusammenführung beschreibt die statisch ausgewählte Route; sie attesiert
+weder, dass `_init_config_vars` erreicht wird, noch den Import, die
+Dateiausführung oder eine tatsächliche Profilaufnahme.

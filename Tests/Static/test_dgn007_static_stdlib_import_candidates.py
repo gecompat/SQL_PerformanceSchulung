@@ -1469,6 +1469,45 @@ class StaticImportCandidateTests(unittest.TestCase):
                 (("os.name", "posix"),),
             ), {})
 
+    def test_sysconfig_initialization_route_requires_selected_call_and_image_file(self):
+        inventory = {
+            "source_sha256": SUBJECT.SYSCONFIG_SOURCE_SHA256,
+            "sysconfigdata_name_template": (
+                "_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}"
+            ),
+            "sysconfigdata_importer": "__import__",
+            "sysconfigdata_imported_attribute": "build_time_vars",
+        }
+        line_facts = {676: True}
+        import_target = {
+            "module_name": "_sysconfigdata__linux_x86_64-linux-gnu",
+            "image_file_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+            "importer": "__import__",
+            "imported_attribute": "build_time_vars",
+            "evidence_scope": "STATIC_IMPORT_TARGET_CANDIDATE",
+        }
+        image_facts = {
+            "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+            "sysconfigdata_sha256": SUBJECT.TARGET_SYSCONFIGDATA_SHA256,
+        }
+        candidate = SUBJECT._target_sysconfigdata_initialization_route_candidate(
+            inventory, line_facts, import_target, image_facts,
+        )
+        self.assertEqual(candidate["guard_source_line"], 676)
+        self.assertEqual(candidate["module_name"], import_target["module_name"])
+        self.assertEqual(candidate["imported_attribute"], "build_time_vars")
+        self.assertEqual(
+            candidate["evidence_scope"],
+            "STATIC_CONDITIONAL_IMPORT_ROUTE_CANDIDATE",
+        )
+        self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
+            inventory, {}, import_target, image_facts,
+        ))
+        self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
+            inventory, line_facts, import_target,
+            {**image_facts, "sysconfigdata_sha256": "0" * 64},
+        ))
+
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
         self.assertEqual(
             SUBJECT._target_importlib_debug_call_facts({17: True}),
