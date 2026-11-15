@@ -162,6 +162,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                             b"'EXT_SUFFIX': '.cpython-312-x86_64-linux-gnu.so', "
                             b"'MULTIARCH': 'x86_64-linux-gnu', "
                             b"'ABIFLAGS': '', "
+                            b"'MACHDEP': 'linux', "
                             b"'prefix': '/usr/local', 'exec_prefix': '/usr/local', "
                             b"'PLATLIBDIR': 'lib', 'PYTHONPATH': '', "
                             b"'LIBDIR': '/usr/local/lib', "
@@ -257,6 +258,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             "extension_suffix": ".cpython-312-x86_64-linux-gnu.so",
             "multiarch": "x86_64-linux-gnu",
             "abiflags": "",
+            "machdep": "linux",
             "prefix": "/usr/local",
             "exec_prefix": "/usr/local",
             "platlibdir": "lib",
@@ -1296,6 +1298,45 @@ class StaticImportCandidateTests(unittest.TestCase):
             ), ())
             self.assertEqual(SUBJECT._target_sys_abiflags_fact(
                 source.replace(b'"abiflags"', b'"other"'), image_facts,
+            ), ())
+
+    def test_sys_platform_binds_pinned_sources_and_image_machdep(self):
+        sys_module = b'SET_SYS_FROM_STRING("platform", Py_GetPlatform());\n'
+        getplatform = (
+            b'#ifndef PLATFORM\n#define PLATFORM "unknown"\n#endif\n'
+            b"const char *\nPy_GetPlatform(void)\n{\n    return PLATFORM;\n}\n"
+        )
+        makefile = (
+            b"$(CC) -c $(PY_CORE_CFLAGS) -DPLATFORM='\"$(MACHDEP)\"' "
+            b"-o $@ $(srcdir)/Python/getplatform.c\n"
+        )
+        image_facts = {
+            "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+            "sysconfigdata_sha256": SUBJECT.TARGET_SYSCONFIGDATA_SHA256,
+            "machdep": "linux",
+        }
+        with patch.multiple(
+            SUBJECT,
+            SYS_MODULE_C_SHA256=hashlib.sha256(sys_module).hexdigest(),
+            GETPLATFORM_SOURCE_SHA256=hashlib.sha256(getplatform).hexdigest(),
+            MAKEFILE_PRE_SHA256=hashlib.sha256(makefile).hexdigest(),
+        ):
+            fact = SUBJECT._target_sys_platform_fact(
+                sys_module, getplatform, makefile, image_facts,
+            )
+            self.assertEqual(fact, (("sys.platform", "linux"),))
+            condition = ast.parse("sys.platform == 'linux'", mode="eval").body
+            self.assertIs(SUBJECT._target_condition(
+                condition, known_call_facts=fact,
+            ), True)
+            self.assertIsNone(SUBJECT._target_condition(condition))
+            self.assertEqual(SUBJECT._target_sys_platform_fact(
+                sys_module, getplatform, makefile.replace(b"$(MACHDEP)", b"linux"),
+                image_facts,
+            ), ())
+            self.assertEqual(SUBJECT._target_sys_platform_fact(
+                sys_module, getplatform, makefile,
+                {**image_facts, "machdep": "win32"},
             ), ())
 
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
@@ -2449,7 +2490,9 @@ class StaticImportCandidateTests(unittest.TestCase):
             "pkg/unknown_a.py": b"VALUE = 3\n",
             "pkg/unknown_b.py": b"VALUE = 4\n",
         }
-        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(files, ("pkg",))
+        modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
+            files, ("pkg",), known_call_facts=(("sys.platform", "linux"),),
+        )
         self.assertEqual(
             modules,
             ("pkg", "pkg.linux_helper", "pkg.tuple_correct", "pkg.unknown_a", "pkg.unknown_b"),
@@ -2594,7 +2637,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             "dynamic_b.py": b"VALUE = 2\n",
         }
         modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
-            files, ("pkg",),
+            files, ("pkg",), known_call_facts=(("sys.platform", "linux"),),
         )
         self.assertEqual(modules, (
             "dynamic_a", "dynamic_b", "pkg", "py312",
@@ -2608,7 +2651,9 @@ class StaticImportCandidateTests(unittest.TestCase):
                 ("sys.platform[:3] == 'lin'", True),
                 ("os.name[0] == 'p'", True)):
             condition = ast.parse(expression, mode="eval").body
-            self.assertIs(SUBJECT._target_condition(condition), expected)
+            self.assertIs(SUBJECT._target_condition(
+                condition, known_call_facts=(("sys.platform", "linux"),),
+            ), expected)
         for expression in (
                 "sys.platform[index] == 'l'",
                 "sys.platform[99] == 'l'",
@@ -2631,7 +2676,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             "dynamic_b.py": b"VALUE = 2\n",
         }
         modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
-            files, ("pkg",),
+            files, ("pkg",), known_call_facts=(("sys.platform", "linux"),),
         )
         self.assertEqual(modules, (
             "dynamic_a", "dynamic_b", "linux", "pkg",
@@ -2746,7 +2791,9 @@ class StaticImportCandidateTests(unittest.TestCase):
                 ("os.name.startswith(('nt', 'java'))", False),
                 ("sys.platform.startswith(())", False)):
             condition = ast.parse(expression, mode="eval").body
-            self.assertIs(SUBJECT._target_condition(condition), expected)
+            self.assertIs(SUBJECT._target_condition(
+                condition, known_call_facts=(("sys.platform", "linux"),),
+            ), expected)
         for expression in (
                 "sys.platform.startswith(dynamic_prefix)",
                 "sys.platform.startswith(('linux', dynamic_prefix))",
@@ -2768,7 +2815,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             "dynamic_b.py": b"VALUE = 2\n",
         }
         modules, _, _, conditions = SUBJECT._target_platform_candidate_closure(
-            files, ("pkg",),
+            files, ("pkg",), known_call_facts=(("sys.platform", "linux"),),
         )
         self.assertEqual(modules, (
             "dynamic_a", "dynamic_b", "pkg", "selected",
@@ -2779,9 +2826,13 @@ class StaticImportCandidateTests(unittest.TestCase):
         condition = ast.parse(
             "sys.platform in {'emscripten', 'vxworks', 'wasi'}", mode="eval"
         ).body
-        self.assertIs(SUBJECT._target_condition(condition), False)
+        self.assertIs(SUBJECT._target_condition(
+            condition, known_call_facts=(("sys.platform", "linux"),),
+        ), False)
         non_target = ast.parse("sys.platform in {'linux', 'wasi'}", mode="eval").body
-        self.assertIs(SUBJECT._target_condition(non_target), True)
+        self.assertIs(SUBJECT._target_condition(
+            non_target, known_call_facts=(("sys.platform", "linux"),),
+        ), True)
         dynamic = ast.parse("sys.platform in {'linux', runtime_value}", mode="eval").body
         self.assertIsNone(SUBJECT._target_condition(dynamic))
 
@@ -3916,7 +3967,8 @@ class StaticImportCandidateTests(unittest.TestCase):
             "pkg/unused_only.py": b"VALUE = 6\n",
         }
         modules, edges, function_count, digest, conditions = SUBJECT._module_init_call_candidate_closure(
-            files, ("pkg",)
+            files, ("pkg",),
+            known_call_facts=(("sys.platform", "linux"),),
         )
         self.assertEqual(
             modules,

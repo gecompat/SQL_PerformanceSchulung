@@ -2336,3 +2336,18 @@ Sysconfigaufnahme, vollständige Importclosure, P11-Inventur, SQL-/Lab- oder
 menschliche Generalprobenfreigabe. Token-/Geldverbrauch bleiben unbekannt; der
 Umfang ist ein Paket, ein PR und höchstens zwei Regressionen, kein
 Provider-Ausgabenlimit. PR-Integration ist der Checkpoint.
+
+### Begrenzte Fortsetzung: `sys.platform` aus Quelle und Zielimage binden
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR ersetzen den unbedingten Linux-Wert des
+Bedingungsresolvers durch einen Fact, der die CPython-Zuweisung über
+`Py_GetPlatform()`, dessen Implementierung, die Buildregel für `PLATFORM` und
+`MACHDEP=linux` im verifizierten Zielimage gemeinsam bindet. Eine Regression
+prüft die positive Quellen-/Imagekette, Abweichungen und den unbekannten
+Resolverzustand ohne Fact. Der echte Archiv-/OCI-Lauf muss den Fact ausgeben.
+Der Ergebnisumfang bleibt eine statische Kandidatenanalyse, keine
+Runtimeaufnahme, vollständige Importclosure, P11-Attestation oder menschliche
+Generalprobe. Token-/Geldverbrauch bleiben unbekannt; harte Grenze: ein Paket,
+ein PR, höchstens zwei Regressionen. PR-Integration ist der Checkpoint; danach
+wird anhand des dann offenen Status autonom weitergearbeitet.
