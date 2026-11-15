@@ -2023,6 +2023,7 @@ Token-/Geldverbrauch bleiben unbekannt; der Umfang ist ein Paket, ein PR und
 zwei Kandidaten, kein Provider-Ausgabenlimit. PR-Integration ist der Checkpoint;
 danach wird anhand des aktuellen Status weitergearbeitet.
 
+
 Zwei synthetische Regressionen und die fokussierte Suite bestehen lokal mit 206
 Tests unter Python 3.14. Alle fünf PR-Gates einschließlich der gepinnten
 CPython-3.12.16-Offlineprüfung bestanden. PR #761 integrierte den Schnitt als
@@ -2208,3 +2209,22 @@ P11-Inventur, Profil- oder Workerattestation. Keine SQL-, Lab- oder
 Generalprobenausführung. Token-/Geldverbrauch bleiben unbekannt; der
 Checkpoint umfasst ein Paket und einen PR. PR-Integration ist der Checkpoint;
 danach wird anhand des aktuellen Status weitergearbeitet.
+
+Der Sysconfigdata-Fact ist mit 219 fokussierten Tests und allen fünf PR-Gates
+bestanden. PR #773 integrierte ihn als
+`a5ecf1486b20757f90c40cabe14c12b4be0d88b1`; `main` ist synchronisiert,
+lokale und Remote-Branches sind entfernt.
+
+### Begrenzte Fortsetzung: fehlenden POSIX-ZIP-Landmark-Kandidaten binden
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR binden die exakte `ZIP_LANDMARK`-Vorlage aus dem
+gepinten `Modules/getpath.py` und prüfen die Abwesenheit des ausgewählten
+`/usr/local/lib/python312.zip`-Pfads über alle sieben digest-/DiffID-geprüften
+OCI-Layer. Zwei Regressionen decken die Quellvorlage, die fehlende Zieldatei
+und das fail-closed-Verhalten bei vorhandener Datei ab. Das belegt weder die
+Runtime-`sys.path`-Mitgliedschaft noch eine vollständige `inert_zip`-Auswahl.
+Keine Runtime-, Profil-, Worker-, SQL-, Lab- oder Generalprobenausführung.
+Token-/Geldverbrauch bleiben unbekannt; der Checkpoint umfasst ein Paket und
+einen PR. PR-Integration ist der Checkpoint; danach wird anhand des aktuellen
+Status weitergearbeitet.
