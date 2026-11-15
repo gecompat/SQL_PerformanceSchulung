@@ -2402,3 +2402,16 @@ Archiv-/OCI-Scan muss ihn weiterhin entscheiden. Keine Runtime-, Profil-, P11-,
 SQL-, Lab- oder Generalprobenattestation. Token-/Geldverbrauch bleiben
 unbekannt; harte Grenze: ein Paket, ein PR, höchstens zwei Regressionen.
 PR-Integration ist der Checkpoint; anschließend wird autonom fortgesetzt.
+
+### Begrenzte Fortsetzung: quellengebundener `_init_posix`-Aufruf
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR geben die Zeile `_init_posix(_CONFIG_VARS)` in
+`sysconfig._init_config_vars` nur bei passendem CPython-Quellhash, exakter
+Guardform und bereits belegtem `os.name='posix'` frei. Eine Regression prüft
+die Call-Closure-Auswahl und Quellenabweichung; der echte Archiv-/OCI-Lauf
+bindet den Aufruf an CPython-Zeile 676. Das ist statische Call-Closure-Evidenz,
+keine Funktionsausführung oder Runtimeattestation. Token-/Geldverbrauch bleiben
+unbekannt; harte Grenze: ein Paket, ein PR, höchstens zwei Regressionen.
+PR-Integration ist der Checkpoint; danach wird anhand des offenen Status
+autonom weitergearbeitet.

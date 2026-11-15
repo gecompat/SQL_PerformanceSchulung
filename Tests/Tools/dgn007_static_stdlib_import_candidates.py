@@ -4034,6 +4034,34 @@ def _target_sysconfig_build_setup_guard_line_facts(
     return {guards[0].lineno: False}
 
 
+def _target_sysconfig_posix_init_line_facts(files, os_name_call_facts):
+    """Select sysconfig's POSIX initializer only from the bound os.name fact."""
+    source = files.get("sysconfig.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256
+            or os_name_call_facts != (("os.name", "posix"),)):
+        return {}
+    try:
+        tree = ast.parse(source, filename="sysconfig.py")
+    except SyntaxError:
+        return {}
+    initializers = [node for node in tree.body
+                    if isinstance(node, ast.FunctionDef)
+                    and node.name == "_init_config_vars"]
+    if len(initializers) != 1:
+        return {}
+    guards = [node for node in initializers[0].body
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "os.name == 'posix'"
+              and not node.orelse and len(node.body) == 1
+              and isinstance(node.body[0], ast.Expr)
+              and isinstance(node.body[0].value, ast.Call)
+              and ast.unparse(node.body[0].value) == "_init_posix(_CONFIG_VARS)"]
+    if len(guards) != 1:
+        return {}
+    return {guards[0].lineno: True}
+
+
 def _target_sysconfig_project_base_env_facts(files, image_config_source,
                                              no_project_base_override):
     """Bind the direct os.environ guard to the pinned image ENV and call assumption."""
@@ -7019,6 +7047,13 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     os_name_facts.update(_target_os_posix_boolean_assignment_facts(
         files, posix_module_c_source, posix_module_clinic_source
     ))
+    os_name_call_facts = (
+        (("os.name", os_name_facts["name"]),)
+        if type(os_name_facts.get("name")) is str else ()
+    )
+    target_sysconfig_posix_init_line_facts = (
+        _target_sysconfig_posix_init_line_facts(files, os_name_call_facts)
+    )
     os_function_name_facts = (
         {"supports_bytes_environ": True}
         if os_name_facts.get("supports_bytes_environ") is True
@@ -7089,10 +7124,6 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             or _target_plain_main_guard_name_safe(files, module)
             or module == "os" and bool(os_name_facts))
     ))
-    os_name_call_facts = (
-        (("os.name", os_name_facts["name"]),)
-        if type(os_name_facts.get("name")) is str else ()
-    )
     target_call_facts = tuple(sorted(
         types_descriptor_call_facts + ast_compatibility_call_facts
         + sys_getframe_call_facts + tuple(warnings_default_call_facts.items())
@@ -7174,6 +7205,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "sysconfig": {
                 **target_sysconfig_is_python_build_line_facts,
                 **target_sysconfig_build_setup_guard_line_facts,
+                **target_sysconfig_posix_init_line_facts,
             },
             "string": target_string_template_pattern_guard_line_facts,
             "_weakrefset": target_weakrefset_empty_init_line_facts,
@@ -7185,6 +7217,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         } if (os_createenviron_line_facts or codecs_false_guard_line_facts
               or pickle_buffer_line_facts
               or target_sysconfig_is_python_build_line_facts
+              or target_sysconfig_posix_init_line_facts
               or target_string_template_pattern_guard_line_facts
               or target_weakrefset_empty_init_line_facts
               or target_copyreg_pickle_callable_line_facts
@@ -7436,6 +7469,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_sysconfig_build_setup_guard_line_facts": list(
             target_sysconfig_build_setup_guard_line_facts.items()
+        ),
+        "target_platform_sysconfig_posix_init_line_facts": list(
+            target_sysconfig_posix_init_line_facts.items()
         ),
         "target_platform_string_template_pattern_guard_line_facts": list(
             target_string_template_pattern_guard_line_facts.items()

@@ -1430,6 +1430,45 @@ class StaticImportCandidateTests(unittest.TestCase):
             (("sysconfigdata.image_file_path", "usr/local/other.py"),),
         ))
 
+    def test_sysconfig_posix_initializer_call_uses_bound_os_name_fact(self):
+        source = (
+            b"def _init_config_vars():\n"
+            b"    if os.name == 'nt':\n        _init_non_posix()\n"
+            b"    if os.name == 'posix':\n        _init_posix(_CONFIG_VARS)\n"
+            b"def _init_non_posix():\n    import rejected\n"
+            b"def _init_posix(vars):\n    import selected\n"
+            b"_init_config_vars()\n"
+        )
+        files = {
+            "sysconfig.py": source,
+            "selected.py": b"VALUE = 1\n",
+            "rejected.py": b"VALUE = 2\n",
+        }
+        with patch.object(
+            SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(source).hexdigest(),
+        ):
+            line_facts = SUBJECT._target_sysconfig_posix_init_line_facts(
+                files, (("os.name", "posix"),),
+            )
+            self.assertEqual(line_facts, {4: True})
+            self.assertEqual(SUBJECT._target_sysconfig_posix_init_line_facts(
+                files, (),
+            ), {})
+            modules, _, _, _, _ = SUBJECT._module_init_call_candidate_closure(
+                files, ("sysconfig",),
+                known_call_facts=(("os.name", "posix"),),
+                trusted_line_facts={"sysconfig": line_facts},
+            )
+            self.assertEqual(modules, ("selected", "sysconfig"))
+            changed = source.replace(
+                b"_init_posix(_CONFIG_VARS)",
+                b"_init_non_posix(_CONFIG_VARS)",
+            )
+            self.assertEqual(SUBJECT._target_sysconfig_posix_init_line_facts(
+                {**files, "sysconfig.py": changed},
+                (("os.name", "posix"),),
+            ), {})
+
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
         self.assertEqual(
             SUBJECT._target_importlib_debug_call_facts({17: True}),
