@@ -2826,6 +2826,73 @@ def _target_profile_record_observation_flow_candidate(source_bytes, result_schem
     }
 
 
+def _target_selected_profile_post_contract_candidate(source_bytes, observation_flow):
+    """Bind selected-runtime POST values and object anchors without running them."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(observation_flow) is not dict
+            or observation_flow.get("runtime_observation_claimed") is not False):
+        return None
+    runtime_bodies = re.findall(
+        rb"(?ms)^def _selected_runtime_post\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    post_bodies = re.findall(
+        rb"(?ms)^def _selected_post\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(runtime_bodies) != 1 or len(post_bodies) != 1:
+        return None
+    runtime = re.sub(rb"\s+", b" ", runtime_bodies[0])
+    post = re.sub(rb"\s+", b" ", post_bodies[0])
+    runtime_requirements = (
+        b"type(implementation) is SimpleNamespace",
+        b"type(version) is tuple and len(version) == 3",
+        b"type(version) is _NATIVE_VERSION_INFO_TYPE and len(version) == 5",
+        b"all(type(number) is int and 0 <= number <= 999 for number in version)",
+        b'("isolated", "no_site", "ignore_environment", "safe_path", "optimize")',
+        b"type(flags) is _NATIVE_FLAGS_TYPE",
+        b"type(values[3]) in (int, bool)",
+        b"type(bytecode) in (int, bool) and 0 <= bytecode <= 1",
+        b"flags = (values[0], values[1], int(bytecode), values[2], int(values[3]), values[4])",
+        b"type(paths) in (list, tuple) and len(paths) <= MAX_RECORDS",
+        b'("platform", "executable", "prefix", "exec_prefix", "base_prefix", "base_exec_prefix")',
+        b'("linux", expected.implementation, expected.version, expected.executable, expected.prefixes, (1, 1, 1, 1, 1, 0), expected.paths)',
+    )
+    post_requirements = (
+        b"sys is runtime and os is providers[0] and sysconfig is providers[1]",
+        b"current = _selected_containers(runtime, keys)",
+        b"_selected_runtime_post(runtime, expected, keys)",
+        b"all(a is b for a, b in zip(current, (cache, finders, hooks)))",
+        b"all(a is b for a, b in zip(finders, expected.finders))",
+        b"all(a is b for a, b in zip(hooks, expected.hooks))",
+        b"_selected_cache(cache, names, keys)",
+        b"all(cache[row.name] is row.module for row in expected.modules)",
+        b"_selected_local(row.module, keys)",
+        b"_shape(expected, True)",
+    )
+    if (any(runtime.count(fragment) != 1 for fragment in runtime_requirements)
+            or any(post.count(fragment) != 1 for fragment in post_requirements)):
+        return None
+    return {
+        "runtime_post_checks": (
+            "implementation_namespace", "version_shape_and_range", "startup_flag_types_and_values",
+            "bytecode_flag", "bounded_paths", "linux_profile_tuple_match",
+        ),
+        "selected_post_anchor_checks": (
+            "provider_identity", "runtime_values", "container_identity", "finder_and_hook_identity",
+            "module_cache_identity", "local_module_shape", "profile_shape",
+        ),
+        "post_observation_claimed": False,
+        "runtime_attested": False,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "evidence_scope": "STATIC_SELECTED_PROFILE_POST_CONTRACT_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9878,6 +9945,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_selected_profile_anchor_binding_candidate,
         )
     )
+    target_selected_profile_post_contract_candidate = (
+        _target_selected_profile_post_contract_candidate(
+            runtime_profile_source,
+            target_selected_profile_observation_flow_candidate,
+        )
+    )
     target_profile_selection_inputs_candidate = (
         _target_profile_selection_inputs_candidate(
             runtime_profile_source,
@@ -10512,6 +10585,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_selected_profile_observation_flow_candidate": (
             target_selected_profile_observation_flow_candidate
+        ),
+        "target_selected_profile_post_contract_candidate": (
+            target_selected_profile_post_contract_candidate
         ),
         "target_profile_selection_inputs_candidate": (
             target_profile_selection_inputs_candidate
