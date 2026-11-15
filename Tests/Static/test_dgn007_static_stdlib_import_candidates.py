@@ -355,6 +355,26 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "runtime_membership_claimed": False,
             },
         })
+        self.assertEqual(SUBJECT._target_s15_paths_field_candidate(path_candidate), {
+            "value": (
+                "/usr/local/lib/python312.zip",
+                "/usr/local/lib/python3.12",
+                "/usr/local/lib/python3.12/lib-dynload",
+            ),
+            "inert_zip_candidate_bound": True,
+            "roots_candidate_bound": True,
+            "runtime_sys_path_claimed": False,
+            "evidence_scope": "STATIC_S15_PATHS_FIELD_CANDIDATE",
+        })
+        changed_paths = dict(path_candidate)
+        changed_paths["sys_path_candidate"] = ["/unexpected"]
+        self.assertIsNone(SUBJECT._target_s15_paths_field_candidate(changed_paths))
+        changed_paths = dict(path_candidate)
+        changed_paths["inert_zip_field_candidate"] = dict(
+            path_candidate["inert_zip_field_candidate"],
+            sys_path_candidate_index=False,
+        )
+        self.assertIsNone(SUBJECT._target_s15_paths_field_candidate(changed_paths))
 
     def test_target_sysconfigdata_rejects_unbound_source(self):
         with patch.object(SUBJECT, "TARGET_SYSCONFIGDATA_SHA256", "0" * 64):

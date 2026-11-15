@@ -1616,6 +1616,46 @@ def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     }
 
 
+def _target_s15_paths_field_candidate(path_candidate):
+    """Bind the ordered S15 paths to their inert-zip and root candidates."""
+    expected_paths = (
+        "/usr/local/lib/python312.zip",
+        "/usr/local/lib/python3.12",
+        "/usr/local/lib/python3.12/lib-dynload",
+    )
+    roots = (
+        path_candidate.get("roots_field_candidate")
+        if type(path_candidate) is dict else None
+    )
+    inert_zip = (
+        path_candidate.get("inert_zip_field_candidate")
+        if type(path_candidate) is dict else None
+    )
+    if (type(path_candidate) is not dict
+            or path_candidate.get("sys_path_candidate") != list(expected_paths)
+            or type(roots) is not dict
+            or roots.get("values") != [expected_paths[1], expected_paths[2]]
+            or roots.get("stdlib_root") != expected_paths[1]
+            or roots.get("extension_root") != expected_paths[2]
+            or roots.get("extension_file_verified") is not True
+            or roots.get("runtime_roots_claimed") is not False
+            or type(inert_zip) is not dict
+            or inert_zip.get("value") != expected_paths[0]
+            or inert_zip.get("path_role") != "ZIP_LANDMARK"
+            or type(inert_zip.get("sys_path_candidate_index")) is not int
+            or inert_zip.get("sys_path_candidate_index") != 0
+            or inert_zip.get("image_member_absent") is not True
+            or inert_zip.get("runtime_membership_claimed") is not False):
+        return None
+    return {
+        "value": expected_paths,
+        "inert_zip_candidate_bound": True,
+        "roots_candidate_bound": True,
+        "runtime_sys_path_claimed": False,
+        "evidence_scope": "STATIC_S15_PATHS_FIELD_CANDIDATE",
+    }
+
+
 def _configure_template_inventory(config_template, configure_source):
     if (type(config_template) is not bytes or not config_template
             or len(config_template) > MAX_CONFIG_C_TEMPLATE_BYTES
@@ -8232,6 +8272,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_image_path_facts = {}
     target_sys_path_candidate_facts = {}
     target_s15_prefixes_field_candidate = {}
+    target_s15_paths_field_candidate = None
     target_warning_options_empty_for_facts = {}
     target_importlib_optimize_line_facts = {}
     target_worker_sys_flag_facts = ()
@@ -8250,6 +8291,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_image_path_facts, getpath_inventory,
             target_no_site, target_direct_python312,
             target_no_project_base_override,
+        )
+        target_s15_paths_field_candidate = _target_s15_paths_field_candidate(
+            target_sys_path_candidate_facts
         )
         target_s15_prefixes_field_candidate = (
             _target_s15_prefixes_field_candidate(
@@ -8977,6 +9021,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_image_save_path_facts": target_image_path_facts,
         "target_platform_sys_path_candidate_facts": target_sys_path_candidate_facts,
+        "target_s15_paths_field_candidate": target_s15_paths_field_candidate,
         "target_s15_prefixes_field_candidate": (
             target_s15_prefixes_field_candidate
         ),

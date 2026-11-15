@@ -11147,11 +11147,19 @@ Runtime-Profilmodul an genau eine Top-Level-Literaldefinition und den
 Modulhash. Alle fünf PR-Gates bestanden. Der Kandidat ist nur eine deklarative
 Annahme, keine Trustattestation.
 
-## S15-Teilschnitt: Flags-Feldkandidat
+## Abgeschlossen: S15-Teilschnitt Flags-Feldkandidat
 
-Als nächster Kandidat werden die sechs geordneten S15-Flags aus den bereits
-quell- und Worker-routengebundenen Facts zusammengesetzt. Eine Regression
-prüft die exakte Tupelform und verwirft abweichende Werte. Die Ausgabe bleibt
-statisch und behauptet keine beobachteten Runtimeflags. Umfang: ein Paket,
-ein PR und höchstens zwei Regressionen; keine P11-, SQL-/Lab- oder
-menschliche Generalprobenattestation.
+PR #818 setzt die sechs geordneten Flags aus den quell- und
+Worker-routengebundenen Facts zusammen und prüft zusätzlich
+`sys.dont_write_bytecode`. 247 fokussierte Regressionen und alle fünf
+PR-Gates bestanden. Das Feld bleibt statisch; Runtimeflags wurden nicht
+beobachtet.
+
+## S15-Teilschnitt: Paths-Feldkandidat
+
+Der nächste Kandidat bindet die geordnete `sys.path`-Sollwertkandidatur an
+die bereits abgeleiteten `inert_zip`- und Bibliotheksroot-Facts. Eine
+Regression prüft den vollständigen Kandidaten und eine Pfadabweichung. Die
+Ausgabe behauptet keine beobachtete Runtimeliste. Umfang: ein Paket, ein PR
+und höchstens zwei Regressionen; keine P11-, SQL-/Lab- oder menschliche
+Generalprobenattestation.
