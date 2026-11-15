@@ -5307,9 +5307,19 @@ def _target_image_sys_path_candidate(image_facts, getpath_inventory,
         "/usr/local/lib/python3.12",
         "/usr/local/lib/python3.12/lib-dynload",
     ]
-    if paths[0] != "/" + TARGET_INERT_ZIP_PATH:
+    if (paths[0] != "/" + TARGET_INERT_ZIP_PATH
+            or image_facts.get("inert_zip_candidate") != paths[0]):
         raise ValueError("TARGET_IMAGE_SYS_PATH_ZIP_BINDING")
-    return {"sys_path_candidate": paths}
+    return {
+        "sys_path_candidate": paths,
+        "inert_zip_field_candidate": {
+            "value": paths[0],
+            "path_role": "ZIP_LANDMARK",
+            "sys_path_candidate_index": 0,
+            "image_member_absent": True,
+            "runtime_membership_claimed": False,
+        },
+    }
 
 
 def _target_image_pth_override_facts(tracked):

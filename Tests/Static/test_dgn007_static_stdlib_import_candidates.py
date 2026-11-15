@@ -285,11 +285,20 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir",
             ), "pth_override_guard": True},
             True, True, True,
-        ), {"sys_path_candidate": [
-            "/usr/local/lib/python312.zip",
-            "/usr/local/lib/python3.12",
-            "/usr/local/lib/python3.12/lib-dynload",
-        ]})
+        ), {
+            "sys_path_candidate": [
+                "/usr/local/lib/python312.zip",
+                "/usr/local/lib/python3.12",
+                "/usr/local/lib/python3.12/lib-dynload",
+            ],
+            "inert_zip_field_candidate": {
+                "value": "/usr/local/lib/python312.zip",
+                "path_role": "ZIP_LANDMARK",
+                "sys_path_candidate_index": 0,
+                "image_member_absent": True,
+                "runtime_membership_claimed": False,
+            },
+        })
 
     def test_target_sysconfigdata_rejects_unbound_source(self):
         with patch.object(SUBJECT, "TARGET_SYSCONFIGDATA_SHA256", "0" * 64):
@@ -333,6 +342,26 @@ class StaticImportCandidateTests(unittest.TestCase):
             "ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir",
         )}
         with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_SYS_PATH_CANDIDATE"):
+            SUBJECT._target_image_sys_path_candidate(
+                image_facts, inventory, True, True, True,
+            )
+
+    def test_target_sys_path_candidate_rejects_unbound_inert_zip_path(self):
+        image_facts = {
+            "prefix": "/usr/local", "exec_prefix": "/usr/local",
+            "platlibdir": "lib", "compiled_pythonpath": "",
+            "prefix_landmark_candidate": "/usr/local",
+            "exec_prefix_landmark_candidate": "/usr/local",
+            "pth_override_files_absent": list(SUBJECT.TARGET_PTH_OVERRIDE_PATHS),
+            "inert_zip_candidate": "/unexpected/python312.zip",
+        }
+        inventory = {
+            "posix_default_path_append_order": (
+                "ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir",
+            ),
+            "pth_override_guard": True,
+        }
+        with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_SYS_PATH_ZIP_BINDING"):
             SUBJECT._target_image_sys_path_candidate(
                 image_facts, inventory, True, True, True,
             )
