@@ -11657,3 +11657,13 @@ nun 89 aufgelöste sowie 478 unbekannte Bedingungen; Unknown-Digest
 `2679f8d8756361e27b356bb8c73056df0136b5876716b5bc43f975f26fe6d9d3`.
 285 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`; keine
 Runtime-/P11-Attestation.
+
+Der anschließende `sysconfig`-Schnitt bindet `sysconfig.py:112` nur mit der
+neuen expliziten Routenannahme `--target-no-pythonuserbase-override` auf
+falsch. Die Annahme wird zusätzlich gegen die fest gepinnte Image-Config
+geprüft, die `PYTHONUSERBASE` nicht setzt. Ohne die Annahme oder bei einem
+Image-Override bleibt der Fact leer. 286 fokussierte Tests bestehen; der
+gebundene Scan zählt 90 aufgelöste und 477 unbekannte Bedingungen bei 60
+Modulen und 316 Kanten. Unknown-Digest:
+`be3628b5dc4aafc50a093de1cf73651cd2f341dce374a94b7678b596200ef172`.
+Status `CANDIDATES_ONLY`; keine Runtime-/P11-Attestation.

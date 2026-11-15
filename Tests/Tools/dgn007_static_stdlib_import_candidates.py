@@ -7714,6 +7714,51 @@ def _target_sysconfig_project_base_env_facts(files, image_config_source,
     return (("'_PYTHON_PROJECT_BASE' in os.environ", False),)
 
 
+def _target_sysconfig_userbase_env_condition_facts(
+        files, image_config_source, no_pythonuserbase_override):
+    """Resolve PYTHONUSERBASE lookup only under the explicit clean-env assumption."""
+    source = files.get("sysconfig.py") if type(files) is dict else None
+    if (no_pythonuserbase_override is not True
+            or type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256
+            or type(image_config_source) is not bytes
+            or len(image_config_source) > MAX_TARGET_IMAGE_CONFIG_BYTES
+            or hashlib.sha256(image_config_source).hexdigest()
+            != TARGET_IMAGE_CONFIG_SHA256):
+        return {}
+    try:
+        tree = ast.parse(source, filename="sysconfig.py")
+        config = json.loads(image_config_source)
+    except (SyntaxError, json.JSONDecodeError):
+        return {}
+    runtime_config = config.get("config") if type(config) is dict else None
+    env = runtime_config.get("Env") if type(runtime_config) is dict else None
+    if (type(config) is not dict or config.get("os") != "linux"
+            or config.get("architecture") != "amd64"
+            or type(env) is not list or any(type(item) is not str for item in env)
+            or any(item.partition("=")[0] == "PYTHONUSERBASE" for item in env)):
+        return {}
+    functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+                 and node.name == "_getuserbase"]
+    if len(functions) != 1:
+        return {}
+    function = functions[0]
+    env_reads = [node for node in ast.walk(function)
+                 if isinstance(node, ast.Call)
+                 and ast.unparse(node) == "os.environ.get('PYTHONUSERBASE', None)"]
+    guards = [node for node in ast.walk(function)
+              if isinstance(node, ast.If) and ast.unparse(node.test) == "env_base"]
+    module_init = [node for node in tree.body if isinstance(node, ast.Assign)
+                   and any(isinstance(target, ast.Name)
+                           and target.id == "_HAS_USER_BASE"
+                           for target in node.targets)]
+    if (len(env_reads) != 1 or len(guards) != 1 or len(module_init) != 1
+            or ast.unparse(module_init[0].value)
+            != "_getuserbase() is not None"):
+        return {}
+    return {("sysconfig", "sysconfig.py", guards[0].lineno): (False,)}
+
+
 class _DigestReader:
     """Hash a sequential tar stream without buffering the image layer."""
 
@@ -10662,7 +10707,8 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
 
 def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_image_config_path=None, target_no_project_base_override=False,
-            target_image_save_path=None, target_direct_python312=False):
+            target_image_save_path=None, target_direct_python312=False,
+            target_no_pythonuserbase_override=False):
     (
         files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
         getpath_source, config_c_template, configure_source, ast_asdl,
@@ -10830,6 +10876,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     sysconfig_project_base_env_facts = _target_sysconfig_project_base_env_facts(
         files, target_image_config_source, target_no_project_base_override,
     ) if target_image_config_source is not None else ()
+    target_sysconfig_userbase_env_condition_facts = (
+        _target_sysconfig_userbase_env_condition_facts(
+            files, target_image_config_source,
+            target_no_pythonuserbase_override,
+        ) if target_image_config_source is not None else {}
+    )
     target_sysconfig_build_setup_guard_line_facts = (
         _target_sysconfig_build_setup_guard_line_facts(
             files, target_image_path_facts, sysconfig_name_facts,
@@ -11382,6 +11434,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             **target_json_encoder_argument_condition_facts,
             **target_hashlib_name_condition_facts,
             **target_functools_lru_cache_condition_facts,
+            **target_sysconfig_userbase_env_condition_facts,
         },
         trusted_empty_for_facts={
             "warnings": target_warning_options_empty_for_facts.get("warnings", {}),
@@ -11855,11 +11908,20 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_platform_sysconfig_project_base_env_fact": list(
             sysconfig_project_base_env_facts
         ),
+        "target_platform_sysconfig_userbase_env_condition_facts": [
+            {"module": module, "source_path": source_path, "line": line,
+             "outcomes": list(outcomes)}
+            for (module, source_path, line), outcomes
+            in target_sysconfig_userbase_env_condition_facts.items()
+        ],
         "target_platform_importlib_case_platform_facts": list(
             _target_importlib_case_platform_facts(files)
         ),
         "target_profile_no_project_base_override_assumption": (
             target_no_project_base_override
+        ),
+        "target_profile_no_pythonuserbase_override_assumption": (
+            target_no_pythonuserbase_override
         ),
         "target_profile_direct_python312_executable_assumption": (
             target_direct_python312
@@ -11963,6 +12025,10 @@ def main():
         help="Annahme für die feste Zielroute: kein Override für _PYTHON_PROJECT_BASE",
     )
     parser.add_argument(
+        "--target-no-pythonuserbase-override", action="store_true",
+        help="Annahme für die feste Zielroute: PYTHONUSERBASE ist nicht gesetzt",
+    )
+    parser.add_argument(
         "--target-image-save", type=Path,
         help="Digest- und DiffID-geprüfter Docker-save-Tarball des Zielimages",
     )
@@ -11975,6 +12041,8 @@ def main():
         parser.error("--target-no-site requires --target-pyconfig")
     if args.target_no_project_base_override and args.target_image_config is None:
         parser.error("--target-no-project-base-override requires --target-image-config")
+    if args.target_no_pythonuserbase_override and args.target_image_config is None:
+        parser.error("--target-no-pythonuserbase-override requires --target-image-config")
     if args.target_direct_python312 and args.target_image_save is None:
         parser.error("--target-direct-python312 requires --target-image-save")
     try:
@@ -11982,7 +12050,8 @@ def main():
                          args.target_image_config,
                          args.target_no_project_base_override,
                          args.target_image_save,
-                         args.target_direct_python312)
+                         args.target_direct_python312,
+                         args.target_no_pythonuserbase_override)
     except (OSError, tarfile.TarError, UnicodeError, SyntaxError, ValueError):
         print(json.dumps({"status": "NOT_PROVEN", "issue": "SOURCE_INPUT_REJECTED"},
                          separators=(",", ":")))

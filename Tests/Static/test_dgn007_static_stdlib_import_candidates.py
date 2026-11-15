@@ -6961,6 +6961,52 @@ class StaticImportCandidateTests(unittest.TestCase):
                     files, wrong_platform, True
                 ), ())
 
+    def test_sysconfig_userbase_guard_requires_explicit_clean_environment(self):
+        source = (
+            b"def _getuserbase():\n"
+            b"    env_base = os.environ.get('PYTHONUSERBASE', None)\n"
+            b"    if env_base:\n        return env_base\n"
+            b"    return None\n"
+            b"_HAS_USER_BASE = (_getuserbase() is not None)\n"
+        )
+        config = (
+            b'{"os":"linux","architecture":"amd64","config":'
+            b'{"Env":["PATH=/usr/local/bin"]}}'
+        )
+        files = {"sysconfig.py": source}
+        with patch.multiple(
+            SUBJECT,
+            SYSCONFIG_SOURCE_SHA256=hashlib.sha256(source).hexdigest(),
+            TARGET_IMAGE_CONFIG_SHA256=hashlib.sha256(config).hexdigest(),
+        ):
+            expected = {("sysconfig", "sysconfig.py", 3): (False,)}
+            self.assertEqual(
+                SUBJECT._target_sysconfig_userbase_env_condition_facts(
+                    files, config, True,
+                ),
+                expected,
+            )
+            self.assertEqual(
+                SUBJECT._target_sysconfig_userbase_env_condition_facts(
+                    files, config, False,
+                ),
+                {},
+            )
+            with_userbase = config.replace(
+                b'PATH=/usr/local/bin"]',
+                b'PATH=/usr/local/bin","PYTHONUSERBASE=/tmp/user"]',
+            )
+            with patch.object(
+                SUBJECT, "TARGET_IMAGE_CONFIG_SHA256",
+                hashlib.sha256(with_userbase).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_sysconfig_userbase_env_condition_facts(
+                        files, with_userbase, True,
+                    ),
+                    {},
+                )
+
     def test_importlib_windows_name_fact_requires_digest_and_direct_binding(self):
         source = (
             b"import sys\n"

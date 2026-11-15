@@ -3074,3 +3074,12 @@ abgewiesen. Der Scan löst `sysconfig.py:235` als falsch auf: 89 aufgelöste,
 478 unbekannte Bedingungen, Unknown-Digest
 `2679f8d8756361e27b356bb8c73056df0136b5876716b5bc43f975f26fe6d9d3`.
 285 fokussierte Tests bestehen; kein Runtime-/P11-Nachweis.
+
+Ein ergänzender `sysconfig.py:112`-Fact setzt ausdrücklich die
+`--target-no-pythonuserbase-override`-Routenannahme voraus und prüft zugleich,
+dass die gepinnte Image-Config `PYTHONUSERBASE` nicht setzt. Ohne Annahme oder
+bei gesetzter Image-Variable bleibt die Bedingung unbekannt. Mit der Annahme
+zählt der Offline-Scan 90 aufgelöste und 477 unbekannte Bedingungen bei 60
+Modulen und 316 Kanten; Unknown-Digest
+`be3628b5dc4aafc50a093de1cf73651cd2f341dce374a94b7678b596200ef172`.
+286 fokussierte Tests bestehen. Keine Laufzeit- oder P11-Attestation.
