@@ -247,10 +247,12 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(facts, {
             "executable_path_candidate": "/usr/local/bin/python3.12",
             "executable_sha256": hashlib.sha256(b"verified executable").hexdigest(),
+            "executable_size": len(b"verified executable"),
             "python3_symlink_target": "python3.12",
             "pickle_extension_sha256": hashlib.sha256(
                 b"verified pickle extension"
             ).hexdigest(),
+            "pickle_extension_size": len(b"verified pickle extension"),
             "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
             "sysconfigdata_sha256": hashlib.sha256(sysconfigdata).hexdigest(),
             "build_time_vars_literal_dict": True,
@@ -279,17 +281,42 @@ class StaticImportCandidateTests(unittest.TestCase):
             "setup_parent_paths_verified": True,
             "_pickle_extension": True,
         })
-        self.assertEqual(SUBJECT._target_image_sys_path_candidate(
-            facts,
-            {"posix_default_path_append_order": (
-                "ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir",
-            ), "pth_override_guard": True},
-            True, True, True,
-        ), {
+        with patch.multiple(
+            SUBJECT,
+            TARGET_EXECUTABLE_SHA256=hashlib.sha256(
+                b"verified executable"
+            ).hexdigest(),
+            PICKLE_EXTENSION_SHA256=hashlib.sha256(
+                b"verified pickle extension"
+            ).hexdigest(),
+        ):
+            path_candidate = SUBJECT._target_image_sys_path_candidate(
+                facts,
+                {"posix_default_path_append_order": (
+                    "ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir",
+                ), "pth_override_guard": True},
+                True, True, True,
+            )
+        self.assertEqual(path_candidate, {
             "sys_path_candidate": [
                 "/usr/local/lib/python312.zip",
                 "/usr/local/lib/python3.12",
                 "/usr/local/lib/python3.12/lib-dynload",
+            ],
+            "executable_target_candidate": "/usr/local/bin/python3.12",
+            "files_field_candidate": [
+                {
+                    "path": "/usr/local/bin/python3.12",
+                    "size": len(b"verified executable"),
+                    "sha256": hashlib.sha256(b"verified executable").hexdigest(),
+                },
+                {
+                    "path": "/" + SUBJECT.PICKLE_EXTENSION_PATH,
+                    "size": len(b"verified pickle extension"),
+                    "sha256": hashlib.sha256(
+                        b"verified pickle extension"
+                    ).hexdigest(),
+                },
             ],
             "roots_field_candidate": {
                 "values": [
@@ -382,6 +409,20 @@ class StaticImportCandidateTests(unittest.TestCase):
             "_pickle_extension": True,
         })
         with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_SYS_PATH_ROOT_BINDING"):
+            SUBJECT._target_image_sys_path_candidate(
+                image_facts, inventory, True, True, True,
+            )
+
+        image_facts.update({
+            "destshared": "/usr/local/lib/python3.12/lib-dynload",
+            "_pickle_extension": True,
+            "executable_path_candidate": "/usr/local/bin/python3.12",
+            "executable_sha256": SUBJECT.TARGET_EXECUTABLE_SHA256,
+            "executable_size": SUBJECT.MAX_S15_FILE_BYTES + 1,
+            "pickle_extension_size": 1,
+            "pickle_extension_sha256": SUBJECT.PICKLE_EXTENSION_SHA256,
+        })
+        with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_S15_FILE_CANDIDATES"):
             SUBJECT._target_image_sys_path_candidate(
                 image_facts, inventory, True, True, True,
             )

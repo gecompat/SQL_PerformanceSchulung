@@ -180,6 +180,8 @@ MAX_POSIX_MODULE_CLINIC_BYTES = 384 * 1024
 MAX_TARGET_PYCONFIG_BYTES = 64 * 1024
 MAX_TARGET_IMAGE_CONFIG_BYTES = 16 * 1024
 MAX_TARGET_IMAGE_SAVE_BYTES = 1024 * 1024 * 1024
+MAX_S15_FILE_BYTES = 32 * 1024 * 1024
+MAX_S15_FILE_TOTAL_BYTES = 64 * 1024 * 1024
 ROOTS = (
     "dataclasses", "hashlib", "importlib.machinery", "importlib.util", "json",
     "os", "struct", "sys", "sysconfig", "types", "zipimport", "zlib",
@@ -5151,6 +5153,9 @@ def _target_image_save_facts(image_save_path, image_config_source):
                                     TARGET_EXECUTABLE_PATH, PICKLE_EXTENSION_PATH,
                                     TARGET_SYSCONFIGDATA_PATH,
                                     TARGET_PREFIX_STDLIB_LANDMARK):
+                                if (name in (TARGET_EXECUTABLE_PATH, PICKLE_EXTENSION_PATH)
+                                        and member.size > MAX_S15_FILE_BYTES):
+                                    raise ValueError("TARGET_IMAGE_FILE_FINGERPRINT_LIMIT")
                                 if (name == TARGET_SYSCONFIGDATA_PATH
                                         and member.size > MAX_TARGET_SYSCONFIGDATA_BYTES):
                                     raise ValueError("TARGET_SYSCONFIGDATA_LIMIT")
@@ -5178,6 +5183,8 @@ def _target_image_save_facts(image_save_path, image_config_source):
                                 "mode": member.mode & 0o777,
                                 "sha256": content_sha256,
                             }
+                            if name in (TARGET_EXECUTABLE_PATH, PICKLE_EXTENSION_PATH):
+                                facts["size"] = member.size
                             if name == TARGET_SYSCONFIGDATA_PATH:
                                 facts["content"] = content_bytes
                             additions.append((name, facts))
@@ -5203,9 +5210,16 @@ def _target_image_save_facts(image_save_path, image_config_source):
             if not _target_image_setup_paths_safe(tracked):
                 raise ValueError("TARGET_IMAGE_SAVE_SETUP_PATHS")
             executable = tracked[TARGET_EXECUTABLE_PATH]
-            if (executable != {"file": True, "directory": False, "symlink": False,
-                               "linkname": None,
-                               "mode": 0o755, "sha256": TARGET_EXECUTABLE_SHA256}
+            executable_shape = {
+                "file": True, "directory": False, "symlink": False,
+                "linkname": None, "mode": 0o755,
+                "sha256": TARGET_EXECUTABLE_SHA256,
+            }
+            if (type(executable) is not dict
+                    or any(executable.get(key) != value
+                           for key, value in executable_shape.items())
+                    or type(executable.get("size")) is not int
+                    or not 0 <= executable["size"] <= MAX_S15_FILE_BYTES
                     or tracked["usr/local/bin/python3"] != {
                         "file": False, "directory": False, "symlink": True,
                         "linkname": "python3.12",
@@ -5214,10 +5228,19 @@ def _target_image_save_facts(image_save_path, image_config_source):
                     or tracked["usr/local/bin/Modules/Setup"] is not None
                     or tracked["usr/local/bin/Modules/Setup.local"] is not None):
                 raise ValueError("TARGET_IMAGE_SAVE_PATH_FACTS")
-            if tracked[PICKLE_EXTENSION_PATH] != {
-                    "file": True, "directory": False, "symlink": False,
-                    "linkname": None,
-                    "mode": 0o755, "sha256": PICKLE_EXTENSION_SHA256}:
+            pickle_extension = tracked[PICKLE_EXTENSION_PATH]
+            pickle_shape = {
+                "file": True, "directory": False, "symlink": False,
+                "linkname": None, "mode": 0o755,
+                "sha256": PICKLE_EXTENSION_SHA256,
+            }
+            if (type(pickle_extension) is not dict
+                    or any(pickle_extension.get(key) != value
+                           for key, value in pickle_shape.items())
+                    or type(pickle_extension.get("size")) is not int
+                    or not 0 <= pickle_extension["size"] <= MAX_S15_FILE_BYTES
+                    or executable["size"] + pickle_extension["size"]
+                    > MAX_S15_FILE_TOTAL_BYTES):
                 raise ValueError("TARGET_IMAGE_PICKLE_EXTENSION_FACT")
             sysconfigdata = tracked[TARGET_SYSCONFIGDATA_PATH]
             if (type(sysconfigdata) is not dict or sysconfigdata.get("file") is not True
@@ -5237,8 +5260,10 @@ def _target_image_save_facts(image_save_path, image_config_source):
     return {
         "executable_path_candidate": "/usr/local/bin/python3.12",
         "executable_sha256": executable["sha256"],
+        "executable_size": executable["size"],
         "python3_symlink_target": tracked["usr/local/bin/python3"]["linkname"],
         "pickle_extension_sha256": tracked[PICKLE_EXTENSION_PATH]["sha256"],
+        "pickle_extension_size": tracked[PICKLE_EXTENSION_PATH]["size"],
         "sysconfigdata_path": TARGET_SYSCONFIGDATA_PATH,
         "sysconfigdata_sha256": TARGET_SYSCONFIGDATA_SHA256,
         **sysconfig_facts,
@@ -5313,8 +5338,35 @@ def _target_image_sys_path_candidate(image_facts, getpath_inventory,
     if (image_facts.get("destshared") != paths[2]
             or image_facts.get("_pickle_extension") is not True):
         raise ValueError("TARGET_IMAGE_SYS_PATH_ROOT_BINDING")
+    executable_path = image_facts.get("executable_path_candidate")
+    executable_size = image_facts.get("executable_size")
+    pickle_size = image_facts.get("pickle_extension_size")
+    extension_path = "/" + PICKLE_EXTENSION_PATH
+    if (executable_path != "/usr/local/bin/python3.12"
+            or image_facts.get("executable_sha256") != TARGET_EXECUTABLE_SHA256
+            or type(executable_size) is not int
+            or not 0 <= executable_size <= MAX_S15_FILE_BYTES
+            or image_facts.get("pickle_extension_sha256") != PICKLE_EXTENSION_SHA256
+            or type(pickle_size) is not int
+            or not 0 <= pickle_size <= MAX_S15_FILE_BYTES
+            or executable_size + pickle_size > MAX_S15_FILE_TOTAL_BYTES
+            or not extension_path.startswith(image_facts["destshared"].rstrip("/") + "/")):
+        raise ValueError("TARGET_IMAGE_S15_FILE_CANDIDATES")
     return {
         "sys_path_candidate": paths,
+        "executable_target_candidate": executable_path,
+        "files_field_candidate": [
+            {
+                "path": executable_path,
+                "size": executable_size,
+                "sha256": image_facts["executable_sha256"],
+            },
+            {
+                "path": extension_path,
+                "size": pickle_size,
+                "sha256": image_facts["pickle_extension_sha256"],
+            },
+        ],
         "roots_field_candidate": {
             "values": [paths[1], image_facts["destshared"]],
             "stdlib_root": paths[1],
