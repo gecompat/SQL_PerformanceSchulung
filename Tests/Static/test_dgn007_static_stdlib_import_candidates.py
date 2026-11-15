@@ -2207,6 +2207,46 @@ class StaticImportCandidateTests(unittest.TestCase):
                     changed, record_model_schema,
                 ))
 
+    def test_selected_profile_result_schemas_are_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        result_model_schema = {"observation_claimed": False}
+        candidate = SUBJECT._target_selected_profile_result_schemas_candidate(
+            profile_source, result_model_schema,
+        )
+        self.assertEqual(candidate, {
+            "bound_profile_result_fields": (
+                "report", "profile", "validation_scope",
+            ),
+            "selected_scalar_observation_result_fields": (
+                "report", "profile", "scalars", "validation_scope",
+            ),
+            "private_dataclasses_frozen_slotted_repr_hidden": True,
+            "validation_scope": "PROJECT_SEMANTIC",
+            "runtime_observation_claimed": False,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "evidence_scope": "STATIC_SELECTED_PROFILE_RESULT_SCHEMAS_CANDIDATE",
+        })
+        changed_scope = profile_source.replace(
+            b'validation_scope: str = field(default="PROJECT_SEMANTIC", init=False)',
+            b'validation_scope: str = field(default="TRUSTED", init=False)',
+        )
+        changed_decorator = profile_source.replace(
+            b"@dataclass(frozen=True, slots=True, repr=False)",
+            b"@dataclass(frozen=True, slots=True)",
+        )
+        for changed in (changed_scope, changed_decorator):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(changed),
+            ):
+                self.assertIsNone(SUBJECT._target_selected_profile_result_schemas_candidate(
+                    changed, result_model_schema,
+                ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

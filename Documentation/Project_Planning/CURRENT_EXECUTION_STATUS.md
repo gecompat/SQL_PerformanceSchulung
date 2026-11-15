@@ -11359,8 +11359,16 @@ PR #847 bindet die eingefrorenen Feldlayouts von `ModuleRecord` und
 bestanden. PR #847 ist integriert. Es werden keine Records validiert oder
 beobachtet.
 
-## Begrenzte Fortsetzung: Observation-Ergebnisformen binden
+## Abgeschlossen: Observation-Ergebnisformen binden
 
 PR #848 bindet die eingefrorenen Feldlayouts von `ObservationResult` und
 `ScalarObservationResult`. Gegenproben ändern ein Feld bzw. entfernen
-`frozen=True`. Es werden keine Beobachtungen ausgeführt.
+`frozen=True`; 269 fokussierte Regressionen und alle fünf Pflichtprüfungen
+bestanden. PR #848 ist integriert. Es werden keine Beobachtungen ausgeführt.
+
+## Begrenzte Fortsetzung: ausgewählte Profil-Ergebnisformen binden
+
+PR #849 bindet `BoundProfileResult` und `SelectedScalarObservationResult`,
+einschließlich privater frozen/slotted Form und festem Scope
+`PROJECT_SEMANTIC`. Gegenproben lockern Scope bzw. Repräsentationsgrenze. Es
+wird keine Runtimeaufnahme behauptet.
