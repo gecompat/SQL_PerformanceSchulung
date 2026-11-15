@@ -2637,9 +2637,14 @@ Runtimeaufnahme.
 PR #819 verbindet den geordneten Pfadkandidaten mit `inert_zip` und den
 Bibliotheksroots. Der statische Kandidat behauptet keine Runtime-`sys.path`.
 
-## Begrenzte Fortsetzung: S15-Roots-Feldkandidat
+## Abgeschlossen: S15-Roots-Feldkandidat
 
-Ein Arbeitspaket und ein PR geben das geprüfte Standardbibliotheks- und
-Extensionroot-Paar als eigenes Feld aus. Eine Regression prüft den positiven
-Fall und eine falsche Runtimeattestationsmarke. Die Feldwerte bleiben
-statische Sollwertkandidaten.
+PR #820 gibt das verifizierte Standardbibliotheks- und Extensionroot-Paar als
+eigenes Feld aus; die Werte bleiben statische Sollwertkandidaten.
+
+## Begrenzte Fortsetzung: S15-Inert-ZIP-Feldkandidat
+
+Ein Arbeitspaket und ein PR geben die gebundene Abwesenheit des ZIP-Landmarks
+bei Position null des Pfadkandidaten als eigenes S15-Feld aus. Eine Regression
+prüft eine manipulierte Image-Mitgliedschaft. Das behauptet keine
+Runtime-Pfadmitgliedschaft oder vollständige S15-Auswahl.

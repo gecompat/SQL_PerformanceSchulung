@@ -384,6 +384,20 @@ class StaticImportCandidateTests(unittest.TestCase):
             runtime_roots_claimed=True,
         )
         self.assertIsNone(SUBJECT._target_s15_roots_field_candidate(changed_roots))
+        self.assertEqual(
+            SUBJECT._target_s15_inert_zip_field_candidate(path_candidate),
+            {
+                "value": "/usr/local/lib/python312.zip",
+                "image_member_absent": True,
+                "runtime_membership_claimed": False,
+                "evidence_scope": "STATIC_S15_INERT_ZIP_FIELD_CANDIDATE",
+            },
+        )
+        changed_zip = dict(path_candidate)
+        changed_zip["inert_zip_field_candidate"] = dict(
+            path_candidate["inert_zip_field_candidate"], image_member_absent=False,
+        )
+        self.assertIsNone(SUBJECT._target_s15_inert_zip_field_candidate(changed_zip))
         changed_paths = dict(path_candidate)
         changed_paths["inert_zip_field_candidate"] = dict(
             path_candidate["inert_zip_field_candidate"],
