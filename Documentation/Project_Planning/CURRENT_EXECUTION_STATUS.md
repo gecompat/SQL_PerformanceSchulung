@@ -11184,11 +11184,18 @@ werden geprüft; Hashänderungen werden fail-closed verworfen. 247 fokussierte
 Regressionen und alle fünf PR-Gates bestanden. Die Dateiliste ist ausdrücklich
 unvollständig.
 
-## S15-Teilschnitt: Installationstupel zusammensetzen
+## Abgeschlossen: S15-Teilschnitt Installationstupel
 
-Der nächste Schritt verbindet die 15 bereits einzeln gebundenen Feldkandidaten
-in der Schemaordnung von `installation`. Eine Regression prüft die Tupelgröße,
-Feldordnung und das Fail-closed-Verhalten bei einer falschen Attestationsmarke.
-Der zusammengesetzte Wert bleibt ein statischer Kandidat; insbesondere ist die
-`files`-Teilliste weder vollständig noch beobachtet. Umfang: ein Paket, ein PR
-und höchstens zwei Regressionen.
+PR #823 verbindet alle 15 statischen Feldkandidaten in Schemafolge und hält
+Runtime-, Profilselektions- und vollständige Dateilistenclaims false. 248
+fokussierte Regressionen und alle fünf PR-Gates bestanden. Das Tupel bleibt
+statisch; die zwei `files`-Einträge sind nicht vollständig.
+
+## S15-Teilschnitt: Installationstupel an Profilschema binden
+
+Der nächste Schritt gewinnt die 15 Feldnamen aus der digestgeprüften
+`_selected_shapes`-Deklaration des Runtime-Profilmoduls und bindet diese
+Schemaquelle an den zusammengesetzten Kandidaten. Eine Regression prüft die
+Quellform und eine abweichende Feldreihenfolge. Das belegt weder
+Profilvalidierung noch Runtimeaufnahme. Umfang: ein Paket, ein PR und höchstens
+zwei Regressionen.

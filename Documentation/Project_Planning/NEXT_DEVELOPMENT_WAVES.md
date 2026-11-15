@@ -2653,9 +2653,15 @@ nicht behauptet.
 PR #822 bündelt die gehashten Executable- und `_pickle`-Dateikandidaten unter
 den Einzel- und Gesamtkappen. Die Dateiliste bleibt ausdrücklich unvollständig.
 
-## Begrenzte Fortsetzung: S15-Installationstupel
+## Abgeschlossen: S15-Installationstupel
 
-Ein Arbeitspaket und ein PR ordnen alle 15 einzeln gebundenen statischen
-Feldkandidaten gemäß dem `installation`-Schema an. Regressionen prüfen Länge,
-Feldordnung und Fail-closed-Markierungen. Das Tupel ist keine Runtimeaufnahme;
-die `files`-Teilliste wird nicht als vollständig ausgegeben.
+PR #823 ordnet die 15 statischen Feldkandidaten in ein Installationstupel ein.
+Runtimeaufnahme, Profilselektion und vollständige Dateiliste werden nicht
+behauptet.
+
+## Begrenzte Fortsetzung: S15-Installationstupel an Profilschema binden
+
+Ein Arbeitspaket und ein PR binden die Tupelreihenfolge an die gehashte
+`_selected_shapes`-Deklaration des Runtime-Profilmoduls. Regressionen prüfen
+Quellform und Reihenfolgeabweichung. Es entsteht keine Runtime- oder
+Profilvalidierungsattestation.

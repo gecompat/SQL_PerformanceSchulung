@@ -1267,6 +1267,33 @@ class StaticImportCandidateTests(unittest.TestCase):
 
     def test_s15_installation_tuple_joins_all_fifteen_static_fields(self):
         exe = "/usr/local/bin/python3.12"
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        schema = SUBJECT._target_s15_installation_schema_candidate(profile_source)
+        self.assertIsNotNone(schema)
+        normalized_profile = profile_source.replace(b"\r\n", b"\n")
+        crlf_profile = normalized_profile.replace(b"\n", b"\r\n")
+        self.assertEqual(
+            SUBJECT._normalized_profile_source_sha256(crlf_profile),
+            SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        )
+        self.assertEqual(
+            SUBJECT._target_s15_installation_schema_candidate(crlf_profile),
+            schema,
+        )
+        changed_profile = profile_source.replace(
+            b"assumption, platform, implementation, version, exe, target,",
+            b"platform, assumption, implementation, version, exe, target,",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed_profile),
+        ):
+            self.assertIsNone(
+                SUBJECT._target_s15_installation_schema_candidate(changed_profile)
+            )
         roots = (
             "/usr/local/lib/python3.12",
             "/usr/local/lib/python3.12/lib-dynload",
@@ -1274,6 +1301,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         candidates = {
             "assumption": {
                 "value": "DECLARED_SETUP_PYTHON_CONTROL_RUNTIME",
+                "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
                 "runtime_assumption_attested": False,
             },
             "platform": {"value": "linux", "runtime_platform_claimed": False},
@@ -1330,6 +1358,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "complete_file_list_claimed": False,
                 "runtime_file_selection_claimed": False,
             },
+            "schema": schema,
         }
         candidate = SUBJECT._target_s15_installation_tuple_candidate(candidates)
         self.assertIsNotNone(candidate)
@@ -1339,6 +1368,10 @@ class StaticImportCandidateTests(unittest.TestCase):
             "executable", "executable_target", "prefixes", "abi", "paths",
             "roots", "inert_zip", "flags", "finders", "hooks", "files",
         ))
+        self.assertEqual(
+            candidate["schema_source_sha256"],
+            SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        )
         self.assertFalse(candidate["runtime_record_claimed"])
         altered = dict(candidates)
         altered["flags"] = dict(candidates["flags"], runtime_flags_claimed=True)
