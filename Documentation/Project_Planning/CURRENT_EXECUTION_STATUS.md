@@ -11116,12 +11116,19 @@ nicht-symlinkten Image-Member `/usr/local/bin/python3.12` samt Digest. 244
 fokussierte Regressionen und alle fünf PR-Gates bestanden. Der Locator ist
 statisch; eine Runtime-Executable wurde nicht beobachtet.
 
-## S15-Teilschnitt: Prefix-Feldkandidat aus Config und GetPath binden
+## Abgeschlossen: S15-Teilschnitt Prefix-Feldkandidat
 
-Der nächste Kandidat bindet die vier Prefixwerte an Zielimage-Landmarks,
-digestgeprüfte Sysconfigdaten, leere `PyConfig`-Defaults und die geprüften
-GetPath-Fallbacks. Alle vier Werte müssen zusammen `/usr/local` ergeben;
-fehlende oder widersprüchliche Voraussetzungen unterdrücken den Kandidaten.
-Die Ausgabe bleibt statisch und ist keine Runtimeaufnahme. Umfang: ein Paket,
-ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
-menschliche Generalprobenattestation.
+PR #814 bindet alle vier Prefixwerte an Zielimage-Landmarks, digestgeprüfte
+Sysconfigdaten, leere `PyConfig`-Defaults und die geprüften GetPath-Fallbacks.
+Fehlende oder widersprüchliche Voraussetzungen unterdrücken den Kandidaten.
+245 fokussierte Regressionen und alle fünf PR-Gates bestanden; das Tupel ist
+statisch und keine Runtimeaufnahme.
+
+## S15-Teilschnitt: Finder-Feldkandidat aus Registrierung und Klassen binden
+
+Der nächste Kandidat verbindet die drei geordneten Meta-Path-Registrierungen
+mit den digestgeprüften `BuiltinImporter`-, `FrozenImporter`- und `PathFinder`-
+Klassendeklarationen samt `find_spec`-Klassenmethoden. Er belegt weder
+Runtimeinstanzen noch die abschließende `sys.meta_path`-Liste. Umfang: ein
+Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab-
+oder menschliche Generalprobenattestation.

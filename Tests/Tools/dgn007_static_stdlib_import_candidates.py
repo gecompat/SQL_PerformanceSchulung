@@ -1161,6 +1161,7 @@ def _target_importlib_finder_registration_candidate(files):
                    for path, expected in expected_functions.items())):
         return None
     return {
+        "source_sha256": [digest for _, digest in source_rows],
         "sys_meta_path_registration_sites": [
             ["importlib._bootstrap._install", "BuiltinImporter"],
             ["importlib._bootstrap._install", "FrozenImporter"],
@@ -1223,6 +1224,48 @@ def _target_meta_path_finder_class_candidate(files):
         "runtime_instances_claimed": False,
         "selection_claimed": False,
         "evidence_scope": "STATIC_META_PATH_FINDER_CLASS_CANDIDATE",
+    }
+
+
+def _target_s15_finders_field_candidate(registration_candidate, class_candidate):
+    """Join fixed finder registration sites to their declared class sources."""
+    expected_sites = [
+        ["importlib._bootstrap._install", "BuiltinImporter"],
+        ["importlib._bootstrap._install", "FrozenImporter"],
+        ["importlib._bootstrap_external._install", "PathFinder"],
+    ]
+    expected_declarations = [
+        {"module": "importlib._bootstrap", "class": "BuiltinImporter",
+         "method": "find_spec", "method_kind": "classmethod"},
+        {"module": "importlib._bootstrap", "class": "FrozenImporter",
+         "method": "find_spec", "method_kind": "classmethod"},
+        {"module": "importlib._bootstrap_external", "class": "PathFinder",
+         "method": "find_spec", "method_kind": "classmethod"},
+    ]
+    if (type(registration_candidate) is not dict
+            or type(class_candidate) is not dict
+            or registration_candidate.get("sys_meta_path_registration_sites")
+            != expected_sites
+            or registration_candidate.get("final_sys_meta_path_claimed") is not False
+            or registration_candidate.get("evidence_scope")
+            != "STATIC_IMPORTLIB_REGISTRATION_SITES_CANDIDATE"
+            or type(registration_candidate.get("source_sha256")) is not list
+            or registration_candidate.get("source_sha256")
+            != class_candidate.get("source_sha256")
+            or len(registration_candidate["source_sha256"]) != 2
+            or class_candidate.get("registered_finder_declarations")
+            != expected_declarations
+            or class_candidate.get("runtime_instances_claimed") is not False
+            or class_candidate.get("selection_claimed") is not False):
+        return None
+    return {
+        "values": ("BUILTIN", "FROZEN", "PATH"),
+        "registration_sites": expected_sites,
+        "class_declarations": expected_declarations,
+        "source_sha256": registration_candidate["source_sha256"],
+        "runtime_finder_instances_claimed": False,
+        "runtime_selection_claimed": False,
+        "evidence_scope": "STATIC_S15_FINDERS_FIELD_CANDIDATE",
     }
 
 
@@ -8148,6 +8191,10 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     meta_path_finder_class_candidate = (
         _target_meta_path_finder_class_candidate(files)
     )
+    target_s15_finders_field_candidate = _target_s15_finders_field_candidate(
+        importlib_finder_registration_candidate,
+        meta_path_finder_class_candidate,
+    )
     filefinder_hook_factory_candidate = (
         _target_filefinder_hook_factory_candidate(files)
     )
@@ -8622,6 +8669,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_meta_path_finder_class_candidate": (
             meta_path_finder_class_candidate
+        ),
+        "target_s15_finders_field_candidate": (
+            target_s15_finders_field_candidate
         ),
         "target_filefinder_hook_factory_candidate": (
             filefinder_hook_factory_candidate

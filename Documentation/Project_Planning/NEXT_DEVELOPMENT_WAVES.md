@@ -2598,11 +2598,18 @@ nicht-symlinkten Image-Member `/usr/local/bin/python3.12` samt Digest. 244
 fokussierte Regressionen und alle fünf PR-Gates bestanden; Runtimewerte wurden
 nicht beobachtet.
 
-## Begrenzte Fortsetzung: Prefix-Feldkandidat binden
+## Abgeschlossen: Prefix-Feldkandidat binden
 
-Der nächste S15-Schnitt bindet alle vier Prefixwerte an Zielimage-Landmarks,
-digestgeprüfte Sysconfigdaten, leere `PyConfig`-Defaults und geprüfte
-GetPath-Fallbacks. Nur das vollständige Tupel `/usr/local` wird ausgegeben;
-fehlende Voraussetzungen unterdrücken den statischen Kandidaten. Umfang: ein
+PR #814 bindet alle vier Prefixwerte an Zielimage-Landmarks, digestgeprüfte
+Sysconfigdaten, leere `PyConfig`-Defaults und geprüfte GetPath-Fallbacks. 245
+fokussierte Regressionen und alle fünf PR-Gates bestanden; es entsteht keine
+Runtimeaufnahme.
+
+## Begrenzte Fortsetzung: Finder-Feldkandidat binden
+
+Der nächste S15-Schnitt verbindet die geordneten Meta-Path-Registrierungen mit
+den digestgeprüften `BuiltinImporter`-, `FrozenImporter`- und `PathFinder`-
+Klassendeklarationen samt `find_spec`-Klassenmethoden. Die Ausgabe behauptet
+weder Runtimeinstanzen noch die finale `sys.meta_path`-Liste. Umfang: ein
 Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab-
 oder menschliche Generalprobenattestation.
