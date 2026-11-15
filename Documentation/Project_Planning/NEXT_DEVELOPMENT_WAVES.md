@@ -2267,3 +2267,22 @@ Profil-, Worker-, SQL-, Lab- oder Generalprobenausführung. Token-/Geldverbrauch
 bleiben unbekannt; der Checkpoint umfasst ein Paket und einen PR.
 PR-Integration ist der Checkpoint; danach wird anhand des aktuellen Status
 weitergearbeitet.
+
+Die `sys.path`-Sollwertkandidaten sind mit 222 fokussierten Tests und allen fünf
+PR-Gates bestanden. PR #776 integrierte sie als
+`710ff0089f9507624b620627d1b4f7d1adebb151`; `main` ist synchronisiert,
+lokale und Remote-Branches sind entfernt.
+
+### Begrenzte Fortsetzung: `._pth`-Overrides für den Suchpfad ausschließen
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR binden den `._pth`-Overridezweig im gepinnten
+`getpath.py` und prüfen die drei durch Executable, Library-Namen und verifizierte
+Sysconfigwerte festgelegten Markerorte in allen OCI-Layern. Zwei Regressionen
+decken die Abwesenheit im positiven Imagefall und die Ablehnung bei einem
+vorhandenen Marker ab. Das schließt nur diesen konkreten Suchpfad-Override aus;
+keine Runtime-`sys.path`-Aufnahme, vollständige Overrideinventur oder S15-
+Attestation. Keine Runtime-, Profil-, Worker-, SQL-, Lab- oder
+Generalprobenausführung. Token-/Geldverbrauch bleiben unbekannt; der
+Checkpoint umfasst ein Paket und einen PR. PR-Integration ist der Checkpoint;
+danach wird anhand des aktuellen Status weitergearbeitet.
