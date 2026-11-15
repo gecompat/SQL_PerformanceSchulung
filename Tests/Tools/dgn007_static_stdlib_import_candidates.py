@@ -3039,6 +3039,69 @@ def _target_profile_scalar_projection_contract_candidate(source_bytes, filefinde
     }
 
 
+def _target_selected_shape_primitives_candidate(source_bytes, selected_shape_contract):
+    """Bind recursive primitive traversal and exact tuple/integer validators."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(selected_shape_contract) is not dict
+            or selected_shape_contract.get("selected_values_claimed") is not False):
+        return None
+    bodies = {}
+    for name in ("_selected_tree", "_selected_tuple", "_selected_int"):
+        matches = re.findall(
+            rb"(?ms)^def " + name.encode("ascii")
+            + rb"\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+            source_bytes,
+        )
+        if len(matches) != 1:
+            return None
+        bodies[name] = re.sub(rb"\s+", b" ", matches[0])
+    tree_requirements = (
+        b"pending, count = [(value, 0)], 0",
+        b"while pending:",
+        b"count += 1",
+        b"count <= 16368 and depth <= 8",
+        b"type(item) is tuple",
+        b"len(item) <= MAX_RECORDS",
+        b"pending.extend((child, depth + 1) for child in item)",
+        b"type(item) is str",
+        b"_scalar_text(item)",
+        b"item is None or type(item) is int",
+    )
+    tuple_requirements = (
+        b"type(value) is tuple and len(value) <= MAX_RECORDS",
+        b"size is None or len(value) == size",
+        b'"SELECTION_FORM"',
+    )
+    int_requirements = (
+        b"type(value) is int and 0 <= value <= maximum",
+        b'"SELECTION_FORM"',
+    )
+    if (any(bodies["_selected_tree"].count(fragment) != 1
+            for fragment in tree_requirements)
+            or any(bodies["_selected_tuple"].count(fragment) != 1
+                   for fragment in tuple_requirements)
+            or any(bodies["_selected_int"].count(fragment) != 1
+                   for fragment in int_requirements)):
+        return None
+    if not all(bodies["_selected_tree"].index(left)
+               < bodies["_selected_tree"].index(right)
+               for left, right in zip(tree_requirements, tree_requirements[1:])):
+        return None
+    return {
+        "tree_limits": {"nodes": 16368, "depth": 8, "tuple_items": "MAX_RECORDS"},
+        "accepted_leaf_types": ("str", "NoneType", "int_exact"),
+        "tuple_type": "exact_tuple_with_optional_exact_size",
+        "integer_type": "exact_int_inclusive_range",
+        "selected_shape_validation_claimed": False,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "evidence_scope": "STATIC_SELECTED_SHAPE_PRIMITIVES_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -10073,6 +10136,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_controls_selection_contract_candidate,
         )
     )
+    target_selected_shape_primitives_candidate = (
+        _target_selected_shape_primitives_candidate(
+            runtime_profile_source,
+            target_selected_profile_shape_contract_candidate,
+        )
+    )
     target_selected_profile_binder_flow_candidate = (
         _target_selected_profile_binder_flow_candidate(
             runtime_profile_source,
@@ -10740,6 +10809,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_selected_profile_shape_contract_candidate": (
             target_selected_profile_shape_contract_candidate
+        ),
+        "target_selected_shape_primitives_candidate": (
+            target_selected_shape_primitives_candidate
         ),
         "target_selected_profile_binder_flow_candidate": (
             target_selected_profile_binder_flow_candidate
