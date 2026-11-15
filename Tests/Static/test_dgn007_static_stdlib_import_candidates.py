@@ -1654,15 +1654,36 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"_need(actual.scalars == selected, \"PROFILE_MISMATCH\")",
             b"_need(True, \"PROFILE_MISMATCH\")",
         )
-        with patch.object(
-            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
-            SUBJECT._normalized_profile_source_sha256(changed),
-        ):
-            self.assertIsNone(
-                SUBJECT._target_selected_profile_observation_flow_candidate(
-                    changed, anchor_binding,
-                )
+        post_check = b"_selected_post(expected, runtime, cache, finders, hooks, providers)"
+        final_post_position = profile_source.rfind(post_check)
+        self.assertGreaterEqual(final_post_position, 0)
+        missing_final_post = (
+            profile_source[:final_post_position]
+            + b"pass"
+            + profile_source[final_post_position + len(post_check):]
+        )
+        early_return_anchor = b"fingerprints = _selected_shapes(installation, controls, modules, token)"
+        observation_start = profile_source.index(b"def observe_selected_profile_scalars")
+        early_return_body = profile_source[observation_start:]
+        early_return = (
+            profile_source[:observation_start]
+            + early_return_body.replace(
+                early_return_anchor,
+                early_return_anchor + b"\n        return None",
+                1,
             )
+        )
+        for index, mutation in enumerate((changed, missing_final_post, early_return)):
+            with self.subTest(mutation=index):
+                with patch.object(
+                    SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                    SUBJECT._normalized_profile_source_sha256(mutation),
+                ):
+                    self.assertIsNone(
+                        SUBJECT._target_selected_profile_observation_flow_candidate(
+                            mutation, anchor_binding,
+                        )
+                    )
 
     def test_current_scalar_observation_flow_is_source_bound(self):
         profile_source = (
