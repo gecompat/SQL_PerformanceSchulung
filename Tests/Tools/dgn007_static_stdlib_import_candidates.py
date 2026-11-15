@@ -1875,6 +1875,58 @@ def _target_selected_profile_binder_flow_candidate(source_bytes, shape_contract)
     }
 
 
+def _target_selected_profile_anchor_binding_candidate(source_bytes, binder_flow):
+    """Bind module-row projection and repeated local-anchor checks in binder."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(binder_flow) is not dict
+            or binder_flow.get("profile_binding_claimed") is not False):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def _bind_selected\(.*?\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"_selected_cache(cache, names, keys)",
+        b"held, rows = cache.copy(), []",
+        b"rows.append(ModuleRecord(row[0], row[3], row[4], row[5], row[6], module, spec, loader))",
+        b"expected = DeclaredProfile(s[0], token, s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10], controls, finders, hooks, tuple(rows), fingerprints)",
+        b"_shape(expected, True)",
+        b"_need(_project_scalars(expected, observation)[2] == modules, \"MODULE_MISMATCH\")",
+        b"_need(all(cache[name] is held[name] for name in names), \"CACHE_MISMATCH\")",
+        b"return expected, observation",
+    )
+    if any(normalized.count(fragment) != (
+            2 if fragment in (required[0], required[4], required[5]) else 1)
+           for fragment in required):
+        return None
+    if normalized.index(required[0]) > normalized.index(required[1]):
+        return None
+    if not (normalized.index(required[2]) < normalized.index(required[3])
+            < normalized.index(required[4]) < normalized.index(required[5])
+            < normalized.index(required[6]) < normalized.index(required[7])):
+        return None
+    return {
+        "cache_copy_before_module_rows": True,
+        "module_row_anchor_fields": (
+            "name", "origin", "file", "kind", "locations", "module", "spec", "loader",
+        ),
+        "module_projection_equality_checks": 2,
+        "profile_shape_checks": 2,
+        "cache_anchor_identity_rechecked": True,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "anchor_binding_claimed": False,
+        "runtime_observation_claimed": False,
+        "evidence_scope": "STATIC_SELECTED_PROFILE_ANCHOR_BINDING_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -8915,6 +8967,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_selected_profile_shape_contract_candidate,
         )
     )
+    target_selected_profile_anchor_binding_candidate = (
+        _target_selected_profile_anchor_binding_candidate(
+            runtime_profile_source,
+            target_selected_profile_binder_flow_candidate,
+        )
+    )
     target_profile_selection_inputs_candidate = (
         _target_profile_selection_inputs_candidate(
             runtime_profile_source,
@@ -9446,6 +9504,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_selected_profile_binder_flow_candidate": (
             target_selected_profile_binder_flow_candidate
+        ),
+        "target_selected_profile_anchor_binding_candidate": (
+            target_selected_profile_anchor_binding_candidate
         ),
         "target_profile_selection_inputs_candidate": (
             target_profile_selection_inputs_candidate

@@ -1590,6 +1590,43 @@ class StaticImportCandidateTests(unittest.TestCase):
                 )
             )
 
+    def test_selected_profile_anchor_binding_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        binder_flow = {"profile_binding_claimed": False}
+        candidate = SUBJECT._target_selected_profile_anchor_binding_candidate(
+            profile_source, binder_flow,
+        )
+        self.assertEqual(candidate, {
+            "cache_copy_before_module_rows": True,
+            "module_row_anchor_fields": (
+                "name", "origin", "file", "kind", "locations", "module", "spec", "loader",
+            ),
+            "module_projection_equality_checks": 2,
+            "profile_shape_checks": 2,
+            "cache_anchor_identity_rechecked": True,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "anchor_binding_claimed": False,
+            "runtime_observation_claimed": False,
+            "evidence_scope": "STATIC_SELECTED_PROFILE_ANCHOR_BINDING_CANDIDATE",
+        })
+        changed = profile_source.replace(
+            b'_need(_project_scalars(expected, observation)[2] == modules, "MODULE_MISMATCH")',
+            b'_need(True, "MODULE_MISMATCH")', 1,
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed),
+        ):
+            self.assertIsNone(
+                SUBJECT._target_selected_profile_anchor_binding_candidate(
+                    changed, binder_flow,
+                )
+            )
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(
