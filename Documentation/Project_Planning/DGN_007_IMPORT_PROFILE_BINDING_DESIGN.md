@@ -6254,3 +6254,13 @@ Scan bestätigt den Fact, aber keine Zielruntimeaufnahme oder Profilattestation.
 Der zusammengesetzte `_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}`-
 Name ist jetzt statisch ableitbar, sofern die drei separaten Facts gemeinsam
 vorliegen; tatsächlicher Import, Dateiauflösung und Profilbindung bleiben offen.
+
+### Fortsetzung: Fallbacknamen des Sysconfigdatenmoduls zusammensetzen
+
+Der feste Namensfact `_sysconfigdata__linux_x86_64-linux-gnu` wird aus dem
+geprüften `sysconfig.py`-Template und den getrennt quellen-/imagegebundenen
+Facts für ABI-Flags, Plattform und Multiarch gebildet. Er setzt zusätzlich den
+Workerfact voraus, dass `_PYTHON_SYSCONFIGDATA_NAME` aus der Kindumgebung
+entfernt ist. Damit wird der Fallbackname für die festgelegte Kindroute
+bestimmt; eine Datei mit diesem Namen im Image, deren tatsächliche
+Importauflösung oder eine Runtimeaufnahme ist damit nicht nachgewiesen.

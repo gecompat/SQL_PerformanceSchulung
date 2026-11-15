@@ -1887,6 +1887,35 @@ def _target_sys_platform_fact(
     return (("sys.platform", image_facts["machdep"]),)
 
 
+def _target_sysconfigdata_module_name_fact(
+        sysconfig_inventory, abiflags_fact, platform_fact, multiarch_fact,
+        worker_environment_fact):
+    """Compose the fixed sysconfigdata fallback name from bound target facts."""
+    expected_template = "_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}"
+    if (type(sysconfig_inventory) is not dict
+            or sysconfig_inventory.get("source_sha256") != SYSCONFIG_SOURCE_SHA256
+            or sysconfig_inventory.get("sysconfigdata_name_template")
+            != expected_template):
+        return ()
+    facts = (abiflags_fact, platform_fact, multiarch_fact)
+    expected_keys = (
+        "sys.abiflags", "sys.platform", "sys.implementation._multiarch",
+    )
+    if any(type(fact) is not tuple or len(fact) != 1
+           or type(fact[0]) is not tuple or len(fact[0]) != 2
+           or fact[0][0] != key or type(fact[0][1]) is not str
+           for fact, key in zip(facts, expected_keys)):
+        return ()
+    if (type(worker_environment_fact) is not tuple
+            or worker_environment_fact != (
+                ("_PYTHON_SYSCONFIGDATA_NAME", "absent_from_child_environment"),
+            )):
+        return ()
+    abiflags, platform, multiarch = (fact[0][1] for fact in facts)
+    name = "_sysconfigdata_{}_{}_{}".format(abiflags, platform, multiarch)
+    return (("sysconfigdata.module_name", name),)
+
+
 def _target_importlib_verbose_line_facts(
         files, preconfig_source, initconfig_source, worker_source):
     """Bind importlib's verbose guard across every pinned source call site."""
@@ -6916,6 +6945,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         sys_module_c_source, getplatform_source, makefile_pre_source,
         target_image_path_facts,
     )
+    sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
+        sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
+        sys_implementation_multiarch_fact,
+        target_worker_sysconfigdata_environment_fact,
+    )
     warnings_default_call_facts = _target_warnings_default_call_facts(
         files, warnings_c_source, warnings_clinic_source
     )
@@ -7211,6 +7245,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "sysconfigdata_name_template": sysconfig_inventory[
             "sysconfigdata_name_template"
         ],
+        "target_platform_sysconfigdata_module_name_fact": list(
+            sysconfigdata_module_name_fact
+        ),
         "sysconfigdata_importer": sysconfig_inventory["sysconfigdata_importer"],
         "sysconfigdata_imported_attribute": sysconfig_inventory[
             "sysconfigdata_imported_attribute"
