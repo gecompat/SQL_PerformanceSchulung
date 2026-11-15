@@ -11777,3 +11777,15 @@ unbekannte Bedingungen; Unknown-Digest
 `76512c36e8e69992470da060eaf2daaa92ad264fde75366d9a492c55a71e0146`.
 293 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`; keine direkte
 Image-Routen-, Runtime- oder P11-Attestation.
+
+Ein weiterer quellgebundener Fact löst `threading.py:278` (`lock is None`)
+für die Importinitialisierung als falsch auf. Die gehashte CPython-Quelle bindet
+`_main_thread = _MainThread()` über `Thread.__init__` an `Event.__init__` und
+`Condition(Lock())`. `Lock` ist an `_thread.allocate_lock` gebunden; die
+gehashte C-Implementierung liefert ein Lock-Objekt oder schlägt mit einem
+Fehler fehl. Der Fact gilt nicht für spätere dynamische Condition-Aufrufe.
+Der Zielquellscan zählt 60 Module, 318 Kanten, 91 entschiedene und 490
+unbekannte Bedingungen; Unknown-Digest
+`0cd43797a7ff7a6dc1ebdef0ef71d3e23003e095457cb8e789813369851a918e`.
+294 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`; keine direkte
+Image-Routen-, Runtime- oder P11-Attestation.
