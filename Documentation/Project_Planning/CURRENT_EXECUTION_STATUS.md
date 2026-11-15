@@ -11578,10 +11578,10 @@ Runtimebeobachtung.
 Eine zusätzliche Regression bindet den erfolgreichen CLI-Ausgang an
 `CANDIDATES_ONLY`, den Eingabefehler an `NOT_PROVEN` und den Erfolgscode 0.
 Eine Mutation, die den Erfolg als `PROFILE_VALIDATED` ausgibt, wird verworfen.
-Der Analyzer wurde nicht gestartet.
+280 fokussierte Tests bestehen; der Analyzer wurde nicht gestartet.
 
-## Begrenzte Fortsetzung: Candidate-only-Ausgaben im Bericht prüfen
+## Begrenzte Fortsetzung: DGN-007-Quellclosure verkleinern
 
-Als Nächstes wird die Rückgabe von `analyze()` darauf geprüft, dass jeder
-gebundene Zweig unmittelbar und ohne Umdeutung als Quellkandidat im Bericht
-erscheint. Runtime-, P11- und S15-Nachweise bleiben davon unberührt.
+Als Nächstes wird der dokumentierte Rest von unbekannten CPython-Quellpfaden
+und deren Bedingungen anhand der gepinnten Quellen reduziert. Das Ergebnis
+bleibt `CANDIDATES_ONLY`; daraus folgt keine P11- oder Runtimeattestation.
