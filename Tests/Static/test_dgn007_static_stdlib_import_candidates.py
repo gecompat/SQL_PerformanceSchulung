@@ -2029,9 +2029,11 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {"trust_established": False},
                 {"runtime_observation_claimed": False},
             ))
+        newline = b"\r\n" if b"\r\n" in profile_source else b"\n"
         early_return = profile_source.replace(
-            b"def _shape(value, expected):\r\n    _need(",
-            b"def _shape(value, expected):\r\n    return None\r\n    _need(",
+            b"def _shape(value, expected):" + newline + b"    _need(",
+            b"def _shape(value, expected):" + newline
+            + b"    return None" + newline + b"    _need(",
             1,
         )
         self.assertNotEqual(early_return, profile_source)
