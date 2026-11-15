@@ -2744,9 +2744,14 @@ Matchreport mit `trust_assumed` ausschließlich beim Match. Keine Attestation.
 
 ## Begrenzte Fortsetzung: Profil- und Observation-Formvertrag binden
 
-Ein Arbeitspaket und ein PR binden `_shape` an die getrennten Deklarations- und
-Observationformen einschließlich Feldtypen/-längen, Finder-/Hookinstanzen,
-Modul-/Dateirecords und deklarationsspezifischer Annahme-, Root-, Control- und
-Fingerprintbedingungen. Der Kandidat behauptet keine validierte Eingabe. Eine
-positive Regression und eine gelockerte Grenzbedingung als Gegenprobe begrenzen
-den Schnitt.
+PR #840 bindet `_shape` an die getrennten Deklarations- und Observationformen,
+gemeinsame Feldgrenzen, Finder-/Hookinstanzen, Recordvalidator-Delegation und
+die jeweils branch-spezifischen Annahme-/Root-/Control-/Fingerprint- bzw.
+Plattform-/Flagbedingungen. Es wird keine validierte Eingabe behauptet.
+
+## Geplante Fortsetzung: Modul- und Datei-Recordvalidatoren binden
+
+Ein Arbeitspaket und ein PR binden die Verträge von `_records` und `_files`:
+Modul-/Spec-/Loaderkohärenz, sortierte eindeutige Namen, Frozen-Aliasanker,
+Dateidigestform sowie Größen- und Pfadkappen. Zwei Regressionen lockern je eine
+Grenze. Der Schritt erzeugt keine Beobachtungs- oder Runtimeattestation.

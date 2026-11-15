@@ -11294,11 +11294,20 @@ PR #838 bindet `validate_profile` an den Vergleichsausgang:
 Records und `MATCHED_DECLARED_BASELINE` mit `trust_assumed=True` ausschließlich
 bei Match. Alle fünf Pflichtprüfungen bestanden. Daraus folgt keine Attestation.
 
-## Nächster Schritt: Profil- und Observation-Formvertrag binden
+## Begrenzte Fortsetzung: Profil- und Observation-Formvertrag binden
 
-Der nächste Kandidat bindet `_shape` an die getrennten Deklarations- und
-Observationformen: Feldtypen und Längen, Finder-/Hookinstanzen, Modul- und
-Dateirecords sowie die nur für deklarierte Profile geltenden Annahme-, Root-,
-Control- und Fingerprintbedingungen. Er behauptet keine validierte Eingabe.
-Eine Regression lockert eine dieser Grenzen und muss fail-closed bleiben.
+PR #840 bindet `_shape` an die getrennten Deklarations- und Observationformen:
+gemeinsame Feldtypen/-längen, Finder-/Hookinstanzen und Recordvalidator-
+Delegation sowie deklarationsspezifische Annahme-, Root-, Control- und
+Fingerprintbedingungen und observationsspezifische Plattform-/Flagfelder.
+261 fokussierte Regressionen und die lokalen statischen Validatoren bestanden;
+PR-Gates stehen aus. Eine validierte Eingabe oder Runtimeaufnahme wird nicht
+behauptet.
+
+## Nächster Schritt: Modul- und Datei-Recordvalidatoren binden
+
+Der nächste Kandidat bindet die internen Verträge von `_records` und `_files`,
+auf die `_shape` delegiert: Modul-/Spec-/Loaderkohärenz, sortierte eindeutige
+Namen und Frozen-Aliasanker sowie Dateidigest-, Größen- und Pfadkappen.
+Regressionen lockern je einen dieser Verträge und müssen fail-closed bleiben.
 Umfang: ein Paket, ein PR und höchstens zwei Regressionen.
