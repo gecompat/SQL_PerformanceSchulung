@@ -11562,7 +11562,7 @@ Bedingungen durch `_Failure` und verwirft zusätzliche Rückgaben. Eine Mutation
 mit vorgezogener Rückgabe wird abgewiesen; 279 fokussierte Tests bestehen.
 Keine Profilwerte wurden verarbeitet.
 
-## Begrenzte Fortsetzung: Profilstrecke auf Anschlusslücken prüfen
+## Abgeschlossen: Profilkandidatenkette und parallele Zweige verbinden
 
 Der neue Kettentest bindet in `analyze()` die parallelen skalaren und frischen
 Recordzweige sowie den Capture-/Modulrecord-/Vergleichs-/Berichtspfad mit
@@ -11573,9 +11573,15 @@ und entfernen zwei Ergebniseinträge; alle werden erkannt. Der gesamte
 fokussierte Satz besteht 280/280. Es läuft keine Analyse und keine
 Runtimebeobachtung.
 
-## Begrenzte Fortsetzung: parallele Beobachtungszweige verbinden
+## Abgeschlossen: Kandidatenstatus beim CLI-Ausgang erhalten
 
-Als Nächstes prüfe ich, ob die verbundenen Kandidatenausgaben im erzeugten
-Analyzerbericht unverändert sichtbar und als nicht attestierte
-Quellkandidaten gekennzeichnet bleiben. Runtime-, P11- und S15-Nachweise
-bleiben davon unberührt.
+Eine zusätzliche Regression bindet den erfolgreichen CLI-Ausgang an
+`CANDIDATES_ONLY`, den Eingabefehler an `NOT_PROVEN` und den Erfolgscode 0.
+Eine Mutation, die den Erfolg als `PROFILE_VALIDATED` ausgibt, wird verworfen.
+Der Analyzer wurde nicht gestartet.
+
+## Begrenzte Fortsetzung: Candidate-only-Ausgaben im Bericht prüfen
+
+Als Nächstes wird die Rückgabe von `analyze()` darauf geprüft, dass jeder
+gebundene Zweig unmittelbar und ohne Umdeutung als Quellkandidat im Bericht
+erscheint. Runtime-, P11- und S15-Nachweise bleiben davon unberührt.
