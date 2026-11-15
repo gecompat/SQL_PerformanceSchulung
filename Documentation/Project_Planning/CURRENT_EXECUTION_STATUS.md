@@ -11014,12 +11014,21 @@ Archivlauf und 240 fokussierte Regressionen bestanden; zwei geänderte
 Quellvarianten werden fail-closed abgewiesen. Keine tatsächliche Runtime-
 Listenänderung oder vollständige Hookinventur.
 
-## S15-Teilschnitt: FileFinder-Hookfactory binden
+## Abgeschlossen: S15-Teilschnitt FileFinder-Hookfactory
 
-Der nächste statische Kandidat soll den digestgebundenen Rückgabewert von
-`_get_supported_file_loaders()` mit `FileFinder.path_hook()` verbinden. Zu
-binden sind die deklarative Loaderreihenfolge, die zurückgegebene Closure, der
-Verzeichnisguard und der `ImportError`-Pfad. Die Struktur belegt weder
-installierte Runtimeloader noch eine tatsächlich erzeugte Hookinstanz. Umfang:
-ein Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-,
-SQL-/Lab- oder menschliche Generalprobenattestation.
+PR #803 bindet `_get_supported_file_loaders()` und `FileFinder.path_hook()` an
+die digestgeprüfte Importlib-Quelle. Der Kandidat weist die deklarative
+Reihenfolge `ExtensionFileLoader`, `SourceFileLoader`,
+`SourcelessFileLoader`, die zurückgegebene Closure, den Verzeichnisguard und
+den `ImportError`-Pfad aus. Der CPython-3.12.16-Archivlauf und 241 fokussierte
+Regressionen bestanden; geänderte Loaderreihenfolge und Guard werden
+fail-closed verworfen. Es entsteht keine Runtime-Hookinstanz.
+
+## S15-Teilschnitt: Zipimporter-Attributquelle
+
+Der nächste Kandidat bindet die durch den C-Hook angeforderte
+`zipimport.zipimporter`-Attributquelle an die digestgeprüfte Top-Level-Klasse
+und ihren Modul-Export. Das belegt die deklarative Quellidentität, keinen
+erfolgreichen Modulimport oder verfügbaren Runtimewert. Umfang: ein Paket, ein
+PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
+menschliche Generalprobenattestation.
