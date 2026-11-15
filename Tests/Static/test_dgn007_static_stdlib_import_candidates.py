@@ -1988,6 +1988,79 @@ class StaticImportCandidateTests(unittest.TestCase):
                 )
             )
 
+    def test_profile_candidate_chain_and_result_wiring_are_source_bound(self):
+        scanner_source = TOOL.read_bytes()
+
+        def chain_is_bound(source):
+            bodies = SUBJECT.re.findall(
+                rb"(?ms)^def analyze\(.*?(?=^def main\()",
+                source,
+            )
+            if len(bodies) != 1:
+                return False
+            body = SUBJECT.re.sub(rb"\s+", b" ", bodies[0])
+            assignments = (
+                b"target_profile_capture_schema_candidate = ( _target_profile_capture_schema_candidate(runtime_profile_source) )",
+                b"target_profile_module_record_builder_candidate = ( _target_profile_module_record_builder_candidate( runtime_profile_source, target_profile_capture_schema_candidate, ) )",
+                b"target_profile_compare_contract_candidate = ( _target_profile_compare_contract_candidate( runtime_profile_source, target_profile_module_record_builder_candidate, ) )",
+                b"target_profile_validation_report_flow_candidate = ( _target_profile_validation_report_flow_candidate( runtime_profile_source, target_profile_compare_contract_candidate, ) )",
+                b"target_profile_shape_contract_candidate = ( _target_profile_shape_contract_candidate( runtime_profile_source, target_profile_compare_contract_candidate, target_profile_capture_schema_candidate, ) )",
+                b"target_profile_record_validators_candidate = ( _target_profile_record_validators_candidate( runtime_profile_source, target_profile_shape_contract_candidate, ) )",
+                b"target_profile_path_contract_candidate = ( _target_profile_path_contract_candidate( runtime_profile_source, target_profile_record_validators_candidate, ) )",
+                b"target_profile_primitive_validators_candidate = ( _target_profile_primitive_validators_candidate( runtime_profile_source, target_profile_path_contract_candidate, ) )",
+                b"target_profile_failure_primitive_candidate = ( _target_profile_failure_primitive_candidate( runtime_profile_source, target_profile_primitive_validators_candidate, ) )",
+                b"target_profile_report_schema_candidate = ( _target_profile_report_schema_candidate( runtime_profile_source, target_profile_failure_primitive_candidate, ) )",
+                b"target_profile_model_schemas_candidate = ( _target_profile_model_schemas_candidate( runtime_profile_source, target_profile_report_schema_candidate, ) )",
+                b"target_profile_record_model_schemas_candidate = ( _target_profile_record_model_schemas_candidate( runtime_profile_source, target_profile_model_schemas_candidate, ) )",
+                b"target_profile_result_model_schemas_candidate = ( _target_profile_result_model_schemas_candidate( runtime_profile_source, target_profile_record_model_schemas_candidate, ) )",
+                b"target_selected_profile_result_schemas_candidate = ( _target_selected_profile_result_schemas_candidate( runtime_profile_source, target_profile_result_model_schemas_candidate, ) )",
+                b"target_profile_record_observation_flow_candidate = ( _target_profile_record_observation_flow_candidate( runtime_profile_source, target_profile_result_model_schemas_candidate, ) )",
+            )
+            if any(body.count(item) != 1 for item in assignments):
+                return False
+            if not all(body.index(left) < body.index(right)
+                       for left, right in zip(assignments, assignments[1:])):
+                return False
+            result_fields = (
+                b'"target_profile_capture_schema_candidate": ( target_profile_capture_schema_candidate )',
+                b'"target_profile_module_record_builder_candidate": ( target_profile_module_record_builder_candidate )',
+                b'"target_profile_compare_contract_candidate": ( target_profile_compare_contract_candidate )',
+                b'"target_profile_validation_report_flow_candidate": ( target_profile_validation_report_flow_candidate )',
+                b'"target_profile_shape_contract_candidate": ( target_profile_shape_contract_candidate )',
+                b'"target_profile_record_validators_candidate": ( target_profile_record_validators_candidate )',
+                b'"target_profile_path_contract_candidate": ( target_profile_path_contract_candidate )',
+                b'"target_profile_primitive_validators_candidate": ( target_profile_primitive_validators_candidate )',
+                b'"target_profile_failure_primitive_candidate": ( target_profile_failure_primitive_candidate )',
+                b'"target_profile_report_schema_candidate": ( target_profile_report_schema_candidate )',
+                b'"target_profile_model_schemas_candidate": ( target_profile_model_schemas_candidate )',
+                b'"target_profile_record_model_schemas_candidate": ( target_profile_record_model_schemas_candidate )',
+                b'"target_profile_result_model_schemas_candidate": ( target_profile_result_model_schemas_candidate )',
+                b'"target_selected_profile_result_schemas_candidate": ( target_selected_profile_result_schemas_candidate )',
+                b'"target_profile_record_observation_flow_candidate": ( target_profile_record_observation_flow_candidate )',
+            )
+            return all(body.count(item) == 1 for item in result_fields)
+
+        self.assertTrue(chain_is_bound(scanner_source))
+        newline = b"\r\n" if b"\r\n" in scanner_source else b"\n"
+        broken_edge = scanner_source.replace(
+            b"            target_profile_module_record_builder_candidate,"
+            + newline + b"        )",
+            b"            target_profile_capture_schema_candidate,"
+            + newline + b"        )",
+            1,
+        )
+        self.assertNotEqual(broken_edge, scanner_source)
+        self.assertFalse(chain_is_bound(broken_edge))
+        dropped_result = scanner_source.replace(
+            b'"target_profile_compare_contract_candidate": (' + newline
+            + b"            target_profile_compare_contract_candidate" + newline
+            + b"        ),",
+            b"",
+            1,
+        )
+        self.assertNotEqual(len(dropped_result), len(scanner_source))
+        self.assertFalse(chain_is_bound(dropped_result))
+
     def test_profile_shape_contract_is_source_bound(self):
         profile_source = (
             Path(__file__).resolve().parents[2]
