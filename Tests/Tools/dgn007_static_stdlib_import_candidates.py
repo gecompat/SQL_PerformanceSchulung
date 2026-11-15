@@ -2005,7 +2005,8 @@ def _target_sysconfigdata_import_target_candidate(
 
 def _target_sysconfigdata_initialization_route_candidate(
         sysconfig_inventory, lazy_initialization_call_candidate,
-        public_config_value_flow_candidate, posix_init_line_facts,
+        public_config_value_flow_candidate,
+        post_update_entries_candidate, posix_init_line_facts,
         import_target_candidate, image_facts):
     """Join the guarded POSIX initializer to its verified sysconfigdata file."""
     if (type(sysconfig_inventory) is not dict
@@ -2039,6 +2040,15 @@ def _target_sysconfigdata_initialization_route_candidate(
                 "single_value_return": "get_config_vars().get(name)",
                 "evidence_scope": "STATIC_CONFIG_API_VALUE_FLOW_CANDIDATE",
             }
+            or post_update_entries_candidate != {
+                "mapping": "_CONFIG_VARS",
+                "post_update_direct_overwrites": [],
+                "post_update_customizer": "_osx_support.customize_config_vars",
+                "customizer_guard": "sys.platform == 'darwin'",
+                "customizer_selected": False,
+                "entry_values": TARGET_SYSCONFIGDATA_EXPECTED_VALUES,
+                "evidence_scope": "STATIC_POST_INIT_MAPPING_ENTRY_CANDIDATE",
+            }
             or type(posix_init_line_facts) is not dict
             or len(posix_init_line_facts) != 1
             or any(type(line) is not int or type(value) is not bool or not value
@@ -2064,6 +2074,7 @@ def _target_sysconfigdata_initialization_route_candidate(
     return {
         "public_initializer_call_candidate": lazy_initialization_call_candidate,
         "public_config_value_flow_candidate": public_config_value_flow_candidate,
+        "post_update_entries_candidate": post_update_entries_candidate,
         "initializer": "sysconfig._init_config_vars",
         "guard": "os.name == 'posix'",
         "guard_source_line": line,
@@ -4327,6 +4338,128 @@ def _target_sysconfig_public_config_value_flow_candidate(files):
         "single_value_api": "get_config_var",
         "single_value_return": "get_config_vars().get(name)",
         "evidence_scope": "STATIC_CONFIG_API_VALUE_FLOW_CANDIDATE",
+    }
+
+
+def _target_sysconfig_post_update_entries_candidate(
+        files, posix_init_line_facts, sys_platform_facts, image_facts):
+    """Bind known sysconfigdata keys to the post-update initializer state."""
+    source = files.get("sysconfig.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256
+            or type(posix_init_line_facts) is not dict
+            or len(posix_init_line_facts) != 1
+            or any(type(line) is not int or value is not True
+                   for line, value in posix_init_line_facts.items())
+            or sys_platform_facts != (("sys.platform", "linux"),)
+            or type(image_facts) is not dict
+            or image_facts.get("sysconfigdata_path") != TARGET_SYSCONFIGDATA_PATH
+            or image_facts.get("sysconfigdata_sha256")
+            != TARGET_SYSCONFIGDATA_SHA256
+            or image_facts.get("machdep") != "linux"
+            or any(image_facts.get(TARGET_SYSCONFIGDATA_FACT_FIELDS[key]) != value
+                   for key, value in TARGET_SYSCONFIGDATA_EXPECTED_VALUES.items())):
+        return None
+    try:
+        tree = ast.parse(source, filename="sysconfig.py")
+    except SyntaxError:
+        return None
+    initializers = [node for node in tree.body
+                    if isinstance(node, ast.FunctionDef)
+                    and node.name == "_init_config_vars"]
+    if len(initializers) != 1:
+        return None
+    initializer = initializers[0]
+    selected_line = next(iter(posix_init_line_facts))
+    selected_guards = [node for node in ast.walk(initializer)
+                       if isinstance(node, ast.If)
+                       and node.lineno == selected_line
+                       and ast.unparse(node.test) == "os.name == 'posix'"
+                       and len(node.body) == 1
+                       and isinstance(node.body[0], ast.Expr)
+                       and isinstance(node.body[0].value, ast.Call)
+                       and ast.unparse(node.body[0].value)
+                       == "_init_posix(_CONFIG_VARS)"]
+    if len(selected_guards) != 1:
+        return None
+    selected_call_line = selected_guards[0].body[0].value.lineno
+
+    written_keys = set()
+    for node in ast.walk(initializer):
+        if not isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
+            continue
+        if node.lineno <= selected_call_line:
+            continue
+        targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+        for target in targets:
+            for child in ast.walk(target):
+                if (isinstance(child, ast.Subscript)
+                        and isinstance(child.value, ast.Name)
+                        and child.value.id == "_CONFIG_VARS"
+                        and isinstance(child.slice, ast.Constant)
+                        and type(child.slice.value) is str):
+                    written_keys.add(child.slice.value)
+    if written_keys.intersection(TARGET_SYSCONFIGDATA_EXPECTED_VALUES):
+        return None
+    later_mapping_methods = [node for node in ast.walk(initializer)
+                             if isinstance(node, ast.Call)
+                             and getattr(node, "lineno", -1) > selected_call_line
+                             and isinstance(node.func, ast.Attribute)
+                             and isinstance(node.func.value, ast.Name)
+                             and node.func.value.id == "_CONFIG_VARS"
+                             and ast.unparse(node)
+                             != "_CONFIG_VARS.get('srcdir', _PROJECT_BASE)"]
+    def target_rebinds_config_vars(target):
+        if isinstance(target, ast.Name):
+            return target.id == "_CONFIG_VARS"
+        if isinstance(target, (ast.Tuple, ast.List)):
+            return any(target_rebinds_config_vars(element) for element in target.elts)
+        return False
+
+    later_mapping_rebindings = [node for node in ast.walk(initializer)
+                                if getattr(node, "lineno", -1) > selected_call_line
+                                and isinstance(node, (ast.Assign, ast.AnnAssign,
+                                                     ast.AugAssign, ast.Delete))
+                                and any(target_rebinds_config_vars(target)
+                                        for target in (
+                                            node.targets if isinstance(node, (ast.Assign,
+                                                                              ast.Delete))
+                                            else [node.target]
+                                        ))]
+    if later_mapping_methods or later_mapping_rebindings:
+        return None
+
+    darwin_guards = [node for node in ast.walk(initializer)
+                     if isinstance(node, ast.If)
+                     and ast.unparse(node.test) == "sys.platform == 'darwin'"]
+    if (len(darwin_guards) != 1 or darwin_guards[0].orelse
+            or darwin_guards[0].lineno <= selected_call_line
+            or len(darwin_guards[0].body) != 2
+            or not isinstance(darwin_guards[0].body[0], ast.Import)
+            or ast.unparse(darwin_guards[0].body[1])
+            != "_osx_support.customize_config_vars(_CONFIG_VARS)"):
+        return None
+    later_mapping_calls = [node for node in ast.walk(initializer)
+                           if isinstance(node, ast.Call)
+                           and node.lineno > selected_call_line
+                           and any(isinstance(argument, ast.Name)
+                                   and argument.id == "_CONFIG_VARS"
+                                   for argument in node.args)]
+    if (len(later_mapping_calls) != 1
+            or ast.unparse(later_mapping_calls[0])
+            != "_osx_support.customize_config_vars(_CONFIG_VARS)"):
+        return None
+    return {
+        "mapping": "_CONFIG_VARS",
+        "post_update_direct_overwrites": [],
+        "post_update_customizer": "_osx_support.customize_config_vars",
+        "customizer_guard": "sys.platform == 'darwin'",
+        "customizer_selected": False,
+        "entry_values": {
+            key: image_facts[TARGET_SYSCONFIGDATA_FACT_FIELDS[key]]
+            for key in TARGET_SYSCONFIGDATA_EXPECTED_VALUES
+        },
+        "evidence_scope": "STATIC_POST_INIT_MAPPING_ENTRY_CANDIDATE",
     }
 
 
@@ -7315,11 +7448,18 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_sysconfig_public_config_value_flow_candidate = (
         _target_sysconfig_public_config_value_flow_candidate(files)
     )
+    target_sysconfig_post_update_entries_candidate = (
+        _target_sysconfig_post_update_entries_candidate(
+            files, target_sysconfig_posix_init_line_facts,
+            sys_platform_fact, target_image_path_facts,
+        )
+    )
     sysconfigdata_initialization_route_candidate = (
         _target_sysconfigdata_initialization_route_candidate(
             sysconfig_inventory,
             target_sysconfig_lazy_initialization_call_candidate,
             target_sysconfig_public_config_value_flow_candidate,
+            target_sysconfig_post_update_entries_candidate,
             target_sysconfig_posix_init_line_facts,
             sysconfigdata_import_target_candidate, target_image_path_facts,
         )
@@ -7630,6 +7770,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_sysconfigdata_public_config_value_flow_candidate": (
             target_sysconfig_public_config_value_flow_candidate
+        ),
+        "target_platform_sysconfigdata_post_update_entries_candidate": (
+            target_sysconfig_post_update_entries_candidate
         ),
         "sysconfigdata_importer": sysconfig_inventory["sysconfigdata_importer"],
         "sysconfigdata_imported_attribute": sysconfig_inventory[

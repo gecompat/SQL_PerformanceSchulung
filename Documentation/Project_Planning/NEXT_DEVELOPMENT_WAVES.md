@@ -2461,3 +2461,9 @@ Regressionen begrenzt. Er bindet die geprüften Rückgabepfade von
 `get_config_vars()` und `get_config_var()` an den statischen
 `_CONFIG_VARS`-Datenfluss. Der Status bleibt `CANDIDATES_ONLY`; keine
 Zielruntime-, P11-, SQL-/Lab- oder Generalprobenattestation.
+
+Der nächste DGN-007-Punkt bleibt auf ein Paket, einen PR und höchstens zwei
+Regressionen begrenzt. Er verbindet die 14 post-initialisierten
+`_CONFIG_VARS`-Eintragskandidaten mit den bereits geprüften Rückgabepfaden der
+öffentlichen Sysconfig-APIs. Die Resultate bleiben statische Kandidaten, keine
+beobachteten Runtimewerte oder vollständige Profilattestation.

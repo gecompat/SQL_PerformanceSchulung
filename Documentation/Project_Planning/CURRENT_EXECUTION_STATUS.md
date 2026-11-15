@@ -10909,3 +10909,16 @@ verbunden. Der echte CPython-3.12.16-Quellarchivtest liefert den Kandidaten;
 er belegt keinen API-Aufruf oder zurückgegebenen Runtimewert. Keine P11-, SQL-/
 Lab- oder menschliche Generalprobenattestation. Umfang: ein Paket, ein PR und
 höchstens zwei Regressionen.
+
+## Fortsetzung: Imagewerte bis zum post-initialisierten Mapping binden
+
+Ein neuer Kandidat verfolgt die 14 erwarteten Buildwerte über den geprüften
+`_init_posix(_CONFIG_VARS)`-Aufruf hinaus bis zum Ende von
+`_init_config_vars()`. Er verlangt, dass danach kein direkter Schreibzugriff
+auf diese Schlüssel und kein Mapping-mutierender Methodenaufruf folgt. Der
+spätere `srcdir`-Lesezugriff bleibt erlaubt; die optionale Darwin-Anpassung
+wird nur mit dem quellen-/imagegebundenen `sys.platform='linux'`-Fact
+verworfen. Das ergibt `STATIC_POST_INIT_MAPPING_ENTRY_CANDIDATE`, keine
+beobachtete Funktionsausführung oder Runtimewerte. Die Regression deckt
+Quell-/Plattformbindung und nachträgliche Überschreibungsversuche ab. Umfang:
+ein Paket, ein PR und höchstens zwei Regressionen.
