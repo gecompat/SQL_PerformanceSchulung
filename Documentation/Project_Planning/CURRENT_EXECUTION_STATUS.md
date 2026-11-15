@@ -10974,3 +10974,14 @@ zwei Regressionen.
 Die maschinenlesbare Eigenschaft für die Folgeanweisungen heißt
 `actions_if_reinitialization_guard_true`; sie drückt keine ausgewertete
 Zweigbedingung aus.
+
+## Fortsetzung: Initialisierungsflag als globales Funktionsmerkmal binden
+
+Die Sysconfig-Lazy- und Wiederinitialisierungskandidaten erfordern nun die
+`global _CONFIG_VARS_INITIALIZED`-Deklaration innerhalb von
+`get_config_vars()` vor der Initialisierungswache. Ohne diese Deklaration wäre
+das spätere Zurücksetzen des Flags eine lokale Zuweisung und die bestehende
+Modulstartwert-Faktlage würde den Zweig nicht beschreiben. Die Negativprobe
+entfernt die Deklaration und erwartet fail-closed. Das ist weiter eine
+Quellstrukturaussage, keine Funktionsausführung. Umfang: ein Paket, ein PR und
+höchstens zwei Regressionen.
