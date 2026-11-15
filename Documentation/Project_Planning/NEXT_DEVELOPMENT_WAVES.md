@@ -2565,10 +2565,16 @@ Dateiliste ist nicht behauptet. 244 fokussierte Regressionen und alle fünf
 PR-Gates bestanden. Das lokale Image-Evidence nutzt synthetische OCI-Layer;
 ein verifiziertes Docker-save-Zielimage lag nicht vor.
 
-## Begrenzte Fortsetzung: ABI-Feldkandidat binden
+## Abgeschlossen: ABI-Feldkandidat binden
 
-Der nächste S15-Schnitt bindet `abi` ausschließlich an den Literalwert `SOABI`
-aus der digestgeprüften Zielimage-`_sysconfigdata`-Datei. Der resultierende
-Feldkandidat ist statisch und belegt keine Runtime-ABI. Umfang: ein Paket, ein
-PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
-menschliche Generalprobenattestation.
+PR #809 bindet `abi` an `SOABI` aus der digestgeprüften Zielimage-
+`_sysconfigdata`-Datei. 244 fokussierte Regressionen und alle fünf PR-Gates
+bestanden. Das belegt keine Runtime-ABI oder vollständige S15-Auswahl.
+
+## Begrenzte Fortsetzung: Platform-Feldkandidat binden
+
+Der nächste S15-Schnitt verbindet den quellgebundenen `sys.platform`-Fakt mit
+`MACHDEP=linux` aus der digestgeprüften Zielimage-`_sysconfigdata`-Datei. Die
+Ausgabe enthält die Quellhashes und bleibt ein statischer Feldkandidat. Umfang:
+ein Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-,
+SQL-/Lab- oder menschliche Generalprobenattestation.

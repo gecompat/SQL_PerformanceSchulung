@@ -1438,6 +1438,27 @@ class StaticImportCandidateTests(unittest.TestCase):
                 sys_module, getplatform, makefile, image_facts,
             )
             self.assertEqual(fact, (("sys.platform", "linux"),))
+            self.assertEqual(SUBJECT._target_s15_platform_field_candidate(
+                fact, image_facts,
+            ), {
+                "value": "linux",
+                "sys_platform_fact": "sys.platform",
+                "build_value_key": "MACHDEP",
+                "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+                "sysconfigdata_sha256": SUBJECT.TARGET_SYSCONFIGDATA_SHA256,
+                "sys_module_c_sha256": hashlib.sha256(sys_module).hexdigest(),
+                "getplatform_source_sha256": hashlib.sha256(
+                    getplatform
+                ).hexdigest(),
+                "makefile_pre_sha256": hashlib.sha256(makefile).hexdigest(),
+                "runtime_platform_claimed": False,
+            })
+            self.assertEqual(SUBJECT._target_s15_platform_field_candidate(
+                (("sys.platform", "win32"),), image_facts,
+            ), {})
+            self.assertEqual(SUBJECT._target_s15_platform_field_candidate(
+                fact, {**image_facts, "machdep": "win32"},
+            ), {})
             condition = ast.parse("sys.platform == 'linux'", mode="eval").body
             self.assertIs(SUBJECT._target_condition(
                 condition, known_call_facts=fact,

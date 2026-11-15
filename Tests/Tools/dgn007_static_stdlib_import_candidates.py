@@ -2298,6 +2298,27 @@ def _target_sys_platform_fact(
     return (("sys.platform", image_facts["machdep"]),)
 
 
+def _target_s15_platform_field_candidate(platform_fact, image_facts):
+    """Bind the S15 platform value to checked target build/source facts."""
+    if (platform_fact != (("sys.platform", "linux"),)
+            or type(image_facts) is not dict
+            or image_facts.get("sysconfigdata_path") != TARGET_SYSCONFIGDATA_PATH
+            or image_facts.get("sysconfigdata_sha256") != TARGET_SYSCONFIGDATA_SHA256
+            or image_facts.get("machdep") != "linux"):
+        return {}
+    return {
+        "value": "linux",
+        "sys_platform_fact": "sys.platform",
+        "build_value_key": "MACHDEP",
+        "sysconfigdata_path": TARGET_SYSCONFIGDATA_PATH,
+        "sysconfigdata_sha256": TARGET_SYSCONFIGDATA_SHA256,
+        "sys_module_c_sha256": SYS_MODULE_C_SHA256,
+        "getplatform_source_sha256": GETPLATFORM_SOURCE_SHA256,
+        "makefile_pre_sha256": MAKEFILE_PRE_SHA256,
+        "runtime_platform_claimed": False,
+    }
+
+
 def _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, abiflags_fact, platform_fact, multiarch_fact,
         worker_environment_fact):
@@ -8036,6 +8057,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         sys_module_c_source, getplatform_source, makefile_pre_source,
         target_image_path_facts,
     )
+    target_s15_platform_field_candidate = _target_s15_platform_field_candidate(
+        sys_platform_fact, target_image_path_facts,
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -8512,6 +8536,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_sys_abiflags_fact": list(sys_abiflags_fact),
         "target_platform_sys_platform_fact": list(sys_platform_fact),
+        "target_s15_platform_field_candidate": (
+            target_s15_platform_field_candidate
+        ),
         "target_platform_sys_module_clinic_sha256": SYS_MODULE_CLINIC_SHA256,
         "target_platform_warnings_default_call_facts": list(
             warnings_default_call_facts.items()
