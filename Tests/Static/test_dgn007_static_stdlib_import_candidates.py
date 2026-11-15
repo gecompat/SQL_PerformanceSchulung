@@ -2546,6 +2546,41 @@ class StaticImportCandidateTests(unittest.TestCase):
                     changed, namespace_contract,
                 ))
 
+    def test_selected_container_contract_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        anchor_contract = {"selected_anchor_validation_claimed": False}
+        candidate = SUBJECT._target_selected_container_contract_candidate(
+            profile_source, anchor_contract,
+        )
+        self.assertEqual(candidate, {
+            "runtime_module_type": "exact_ModuleType",
+            "module_cache_type": "exact_dict_bounded_by_MAX_RECORDS",
+            "finder_container": "exact_tuple_or_list_length_3",
+            "hook_container": "exact_tuple_or_list_length_2",
+            "selected_container_validation_claimed": False,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "evidence_scope": "STATIC_SELECTED_CONTAINER_CONTRACT_CANDIDATE",
+        })
+        for changed in (
+            profile_source.replace(
+                b"type(runtime) is ModuleType", b"isinstance(runtime, ModuleType)",
+            ),
+            profile_source.replace(
+                b"len(hooks) == 2", b"len(hooks) <= 2",
+            ),
+        ):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(changed),
+            ):
+                self.assertIsNone(SUBJECT._target_selected_container_contract_candidate(
+                    changed, anchor_contract,
+                ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(
