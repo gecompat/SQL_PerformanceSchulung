@@ -2962,7 +2962,14 @@ Validierungskörpers. Eine Mutation mit Rückgabe vor der ersten Formprüfung
 wird abgewiesen. Der fokussierte Satz besteht 279/279; es werden keine Profile
 verarbeitet.
 
-## Begrenzte Fortsetzung: Record-Validatoren gegen frühe Rückgabe absichern
+## Abgeschlossen: Record-Validatoren gegen frühe Rückgabe absichern
 
-Der nächste Schnitt bindet `_records` und `_files` an ausstiegsfreie
-Validierungspfade. Es werden keine Records verarbeitet.
+Die statischen Verträge für `_records` und `_files` verwerfen jetzt Rückgaben
+innerhalb der Validierungskörper. Zwei getrennte Mutationen fügen je eine frühe
+Rückgabe ein und werden abgewiesen. Der fokussierte Satz besteht 279/279; es
+werden keine Records verarbeitet.
+
+## Begrenzte Fortsetzung: absoluten Pfadvalidator gegen frühe Rückgabe absichern
+
+Der nächste Schnitt bindet `_absolute` an einen ausstiegsfreien
+Validierungspfad. Es werden keine Hostpfade geprüft.

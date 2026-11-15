@@ -2160,6 +2160,21 @@ class StaticImportCandidateTests(unittest.TestCase):
                 self.assertIsNone(SUBJECT._target_profile_path_contract_candidate(
                     changed, record_contract,
                 ))
+        newline = b"\r\n" if b"\r\n" in profile_source else b"\n"
+        early_return = profile_source.replace(
+            b"def _absolute(value):" + newline + b"    _text(value)",
+            b"def _absolute(value):" + newline
+            + b"    return None" + newline + b"    _text(value)",
+            1,
+        )
+        self.assertNotEqual(early_return, profile_source)
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(early_return),
+        ):
+            self.assertIsNone(SUBJECT._target_profile_path_contract_candidate(
+                early_return, record_contract,
+            ))
 
     def test_profile_primitive_validators_are_source_bound(self):
         profile_source = (
