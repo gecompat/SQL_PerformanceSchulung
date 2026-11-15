@@ -2322,3 +2322,17 @@ Token-/Geldverbrauch bleiben unbekannt; die Umfangsgrenze ist ein Paket, ein
 PR und höchstens zwei Regressionen, kein Provider-Ausgabenlimit.
 PR-Integration ist der Checkpoint; danach wird autonom anhand des dann offenen
 Status weitergearbeitet.
+
+### Begrenzte Fortsetzung: `sys.abiflags` quellenbinden
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR binden `sys.abiflags` an die gepinnte
+CPython-3.12.16-`sysmodule.c`-Abbildung von `ABIFLAGS` und den leeren
+Sysconfigdaten-Literalwert. Eine Regression prüft den positiven Fact, seine
+Nutzung durch die Bedingungsauswertung und die Ablehnung geänderter Quelle oder
+Imagefacts. Die Imagefixture wird um den vorhandenen Literalwert ergänzt. Der
+echte Archiv-/OCI-Kandidatenscan muss den Fact ausgeben. Keine Runtime- oder
+Sysconfigaufnahme, vollständige Importclosure, P11-Inventur, SQL-/Lab- oder
+menschliche Generalprobenfreigabe. Token-/Geldverbrauch bleiben unbekannt; der
+Umfang ist ein Paket, ein PR und höchstens zwei Regressionen, kein
+Provider-Ausgabenlimit. PR-Integration ist der Checkpoint.

@@ -1803,6 +1803,27 @@ def _target_sys_implementation_multiarch_fact(sys_module_source, image_facts):
     return (("sys.implementation._multiarch", image_facts["multiarch"]),)
 
 
+def _target_sys_abiflags_fact(sys_module_source, image_facts):
+    """Bind sys.abiflags to the pinned image's generated build variable."""
+    if (type(sys_module_source) is not bytes or not sys_module_source
+            or len(sys_module_source) > MAX_SYS_MODULE_C_BYTES
+            or hashlib.sha256(sys_module_source).hexdigest() != SYS_MODULE_C_SHA256
+            or type(image_facts) is not dict
+            or image_facts.get("sysconfigdata_path") != TARGET_SYSCONFIGDATA_PATH
+            or image_facts.get("sysconfigdata_sha256") != TARGET_SYSCONFIGDATA_SHA256
+            or image_facts.get("abiflags") != ""):
+        return ()
+    source = sys_module_source.decode("utf-8")
+    assignment = re.compile(
+                r"#ifdef ABIFLAGS\s+"
+                r'SET_SYS_FROM_STRING\("abiflags", ABIFLAGS\);\s+'
+                r"#endif",
+    )
+    if len(assignment.findall(source)) != 1:
+        return ()
+    return (("sys.abiflags", image_facts["abiflags"]),)
+
+
 def _target_importlib_verbose_line_facts(
         files, preconfig_source, initconfig_source, worker_source):
     """Bind importlib's verbose guard across every pinned source call site."""
@@ -4231,6 +4252,7 @@ def _target_image_sysconfigdata_facts(source):
         "DESTSHARED": "/usr/local/lib/python3.12/lib-dynload",
         "EXT_SUFFIX": ".cpython-312-x86_64-linux-gnu.so",
         "MULTIARCH": "x86_64-linux-gnu",
+        "ABIFLAGS": "",
         "prefix": "/usr/local",
         "exec_prefix": "/usr/local",
         "PLATLIBDIR": "lib",
@@ -4249,6 +4271,7 @@ def _target_image_sysconfigdata_facts(source):
         "destshared": values["DESTSHARED"],
         "extension_suffix": values["EXT_SUFFIX"],
         "multiarch": values["MULTIARCH"],
+        "abiflags": values["ABIFLAGS"],
         "prefix": values["prefix"],
         "exec_prefix": values["exec_prefix"],
         "platlibdir": values["PLATLIBDIR"],
@@ -6821,6 +6844,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             sys_module_c_source, target_image_path_facts,
         )
     )
+    sys_abiflags_fact = _target_sys_abiflags_fact(
+        sys_module_c_source, target_image_path_facts,
+    )
     warnings_default_call_facts = _target_warnings_default_call_facts(
         files, warnings_c_source, warnings_clinic_source
     )
@@ -6907,6 +6933,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         + sys_implementation_name_fact
         + sys_implementation_cache_tag_fact
         + sys_implementation_multiarch_fact
+        + sys_abiflags_fact
         + target_worker_sys_flag_facts
         + os_fspath_call_facts + os_have_functions_call_facts
         + posix_build_call_facts + os_descriptor_support_facts
@@ -7195,6 +7222,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_platform_sys_implementation_multiarch_fact": list(
             sys_implementation_multiarch_fact
         ),
+        "target_platform_sys_abiflags_fact": list(sys_abiflags_fact),
         "target_platform_sys_module_clinic_sha256": SYS_MODULE_CLINIC_SHA256,
         "target_platform_warnings_default_call_facts": list(
             warnings_default_call_facts.items()
