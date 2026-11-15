@@ -1728,6 +1728,52 @@ def _target_profile_selection_inputs_candidate(
     }
 
 
+def _target_profile_scalar_projection_schema_candidate(
+        source_bytes, selection_inputs, installation_tuple):
+    """Bind the three ordered scalar-projection outputs to existing candidates."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(selection_inputs) is not dict
+            or selection_inputs.get("field_order")
+            != ("assumption", "roots", "inert_zip", "controls")
+            or selection_inputs.get("selection_tuple_claimed") is not False
+            or type(installation_tuple) is not dict
+            or installation_tuple.get("field_order") is None
+            or installation_tuple.get("runtime_record_claimed") is not False):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def _project_scalars\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"selection = (expected.assumption, expected.roots, expected.inert_zip, expected.controls)",
+        b"installation = (observation.platform, observation.implementation, observation.version,",
+        b"modules.append((row.name, module_name, spec_name, row.origin, row.file, row.kind, row.locations, loader, loader_name, loader_path, aliases))",
+        b"return selection, installation, tuple(modules)",
+    )
+    if any(normalized.count(fragment) != 1 for fragment in required):
+        return None
+    return {
+        "output_order": ("selection", "installation", "modules"),
+        "selection_field_order": selection_inputs["field_order"],
+        "installation_field_order": installation_tuple["field_order"],
+        "module_row_field_order": (
+            "name", "module_name", "spec_name", "origin", "file", "kind",
+            "locations", "loader", "loader_name", "loader_path", "aliases",
+        ),
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "projected_values_claimed": False,
+        "runtime_projection_claimed": False,
+        "evidence_scope": "STATIC_PROFILE_SCALAR_PROJECTION_SCHEMA_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -8827,6 +8873,13 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "schema": target_s15_installation_schema_candidate,
         })
     )
+    target_profile_scalar_projection_schema_candidate = (
+        _target_profile_scalar_projection_schema_candidate(
+            runtime_profile_source,
+            target_profile_selection_inputs_candidate,
+            target_s15_installation_tuple_candidate,
+        )
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -9276,6 +9329,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_profile_selection_inputs_candidate": (
             target_profile_selection_inputs_candidate
+        ),
+        "target_profile_scalar_projection_schema_candidate": (
+            target_profile_scalar_projection_schema_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,

@@ -2671,9 +2671,17 @@ PR #825 bindet erlaubte Namen, Höchstzahl, Eindeutigkeit und
 `CONTROL`-Record-Zuordnung an die Runtime-Profilquelle. Die tatsächlich
 gewählte Menge bleibt unbekannt.
 
-## Begrenzte Fortsetzung: Auswahl-Eingaben zusammensetzen
+## Abgeschlossen: Auswahl-Eingaben zusammensetzen
 
-Ein Arbeitspaket und ein PR verbinden die festen Auswahlwerte mit der
-quellgebundenen `selection`-Tupelordnung und dem Controls-Vertrag. Der
-statische Vertrag behauptet keine gewählte Control-Menge oder validierte
-Profilauswahl.
+PR #826 verbindet die festen Auswahlwerte mit der quellgebundenen
+`selection`-Tupelordnung und dem Controls-Vertrag. Der statische Vertrag
+behauptet keine gewählte Control-Menge oder validierte Profilauswahl.
+
+## Begrenzte Fortsetzung: Skalarprojektion-Schema binden
+
+Ein Arbeitspaket und ein PR binden die geordnete Rückgabe aus `selection`,
+`installation` und vollständigen Modulzeilen an die vorhandenen statischen
+Eingabe- und Installationstupel. Der Kandidat beschreibt ausschließlich das
+Quellschema; er behauptet weder projizierte Werte noch Runtimeaufnahme oder
+Profilauswahl. Eine positive Regression und eine Rückgabereihenfolge-
+Gegenprobe begrenzen den Schnitt.
