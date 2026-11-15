@@ -3109,3 +3109,13 @@ den Daemon-Check. Der Scan zählt 93 aufgelöste und 472 unbekannte Bedingungen
 bei 60 Modulen und 316 Kanten; Unknown-Digest
 `255dba30d8c9248fe7391aac6024a79f0f5e1bb74adaea3daa2e677911733117`.
 289 fokussierte Tests bestehen; kein Runtime-/P11-Nachweis.
+
+Der nächste quellgebundene Fact nutzt die zwingende `str(...)`-Normalisierung
+im gepinnten `collections.namedtuple`-Körper, um `collections/__init__.py:397`
+als falsch zu belegen. Eine Mutation der Feldnormalisierung wird abgewiesen.
+Der vollständige Archiv-/OCI-Scan zählt 60 Module, 316 Kanten, 94
+aufgelöste und 471 unbekannte Bedingungen; Unknown-Digest
+`bca4b7390cb584e14732193fe148ea1cb35288e77b1fd5da2dc93e5434af1472`.
+290 fokussierte Tests bestehen. Die weiteren `namedtuple`-Guards hängen von
+variablen Argumenten und bleiben offen; `CANDIDATES_ONLY`, kein
+Runtime-/P11-Nachweis.
