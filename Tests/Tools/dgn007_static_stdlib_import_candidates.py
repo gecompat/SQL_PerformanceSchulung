@@ -12102,6 +12102,18 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_s15_flags_field_candidate = None
     target_worker_sysconfigdata_environment_fact = ()
     target_importlib_verbose_line_facts = {}
+    worker_source_path = (
+        Path(__file__).resolve().parents[2]
+        / "Tests" / "Tools" / "dgn007_import_used_bytes_probe.py"
+    )
+    with worker_source_path.open("rb") as stream:
+        worker_source = stream.read(MAX_WORKER_CONTROL_SOURCE_BYTES + 1)
+    if len(worker_source) <= MAX_WORKER_CONTROL_SOURCE_BYTES:
+        target_importlib_verbose_line_facts = (
+            _target_importlib_verbose_line_facts(
+                files, preconfig_c_source, initconfig_c_source, worker_source,
+            )
+        )
     if target_image_save_path is not None:
         if (not target_direct_python312 or not target_no_site
                 or not target_no_project_base_override
@@ -12135,12 +12147,6 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
                 target_no_project_base_override,
             )
         )
-        worker_source_path = (
-            Path(__file__).resolve().parents[2]
-            / "Tests" / "Tools" / "dgn007_import_used_bytes_probe.py"
-        )
-        with worker_source_path.open("rb") as stream:
-            worker_source = stream.read(MAX_WORKER_CONTROL_SOURCE_BYTES + 1)
         if len(worker_source) <= MAX_WORKER_CONTROL_SOURCE_BYTES:
             target_worker_sysconfigdata_environment_fact = (
                 _target_worker_sysconfigdata_environment_fact(
@@ -12161,11 +12167,6 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             )
             target_importlib_optimize_line_facts = (
                 _target_importlib_optimize_line_facts(
-                    files, preconfig_c_source, initconfig_c_source, worker_source,
-                )
-            )
-            target_importlib_verbose_line_facts = (
-                _target_importlib_verbose_line_facts(
                     files, preconfig_c_source, initconfig_c_source, worker_source,
                 )
             )
