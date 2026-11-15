@@ -3154,6 +3154,38 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertIsNone(check_source(changed_guard))
 
+    def test_zipimporter_attribute_is_bound_to_public_class_source(self):
+        source = (
+            b"__all__ = ['ZipImportError', 'zipimporter']\n"
+            b"class ZipImportError(ImportError):\n    pass\n"
+            b"class zipimporter(_bootstrap_external._LoaderBasics):\n"
+            b"    pass\n"
+        )
+
+        def check_source(candidate_source):
+            files = {"zipimport.py": candidate_source}
+            with patch.object(
+                SUBJECT, "ZIPIMPORT_SOURCE_SHA256",
+                hashlib.sha256(candidate_source).hexdigest(),
+            ):
+                return SUBJECT._target_zipimporter_class_source_candidate(files)
+
+        candidate = check_source(source)
+        self.assertIsNotNone(candidate)
+        self.assertEqual(candidate["module"], "zipimport")
+        self.assertEqual(candidate["requested_attribute"], "zipimporter")
+        self.assertEqual(candidate["class_base"], "_bootstrap_external._LoaderBasics")
+        self.assertTrue(candidate["listed_in_all"])
+        self.assertFalse(candidate["runtime_imported"])
+
+        changed_class = source.replace(b"class zipimporter(", b"class zip_importer(")
+        self.assertIsNone(check_source(changed_class))
+        changed_exports = source.replace(
+            b"__all__ = ['ZipImportError', 'zipimporter']",
+            b"__all__ = ['ZipImportError']",
+        )
+        self.assertIsNone(check_source(changed_exports))
+
     def test_zipimport_hook_registration_is_conditional_and_ordered(self):
         source = (
             b"static int\ninit_zipimport(PyThreadState *tstate, int verbose)\n{\n"

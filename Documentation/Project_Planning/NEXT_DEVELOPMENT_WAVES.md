@@ -2500,11 +2500,21 @@ erfolgreicher Importlib-External-Initialisierung. Der Archivlauf und 240
 fokussierte Regressionen bestanden. Runtimelisten oder tatsächliche
 Listenänderungen sind damit nicht belegt.
 
-## Begrenzte Fortsetzung: FileFinder-Hookfactory binden
+## Abgeschlossen: FileFinder-Hookfactory binden
 
-Der nächste S15-Teilschnitt bindet den digestgeprüften Rückgabewert von
-`_get_supported_file_loaders()` an `FileFinder.path_hook()`: Loaderreihenfolge,
-Closure, Verzeichnisguard und `ImportError`-Pfad. Er weist keine installierten
-Runtimeloader oder tatsächlich erzeugte Hookinstanz aus. Umfang: ein Paket,
-ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
-menschliche Generalprobenattestation.
+PR #803 bindet `_get_supported_file_loaders()` und `FileFinder.path_hook()`
+an die digestgeprüfte Importlib-Quelle. Der Kandidat weist die deklarative
+Loaderreihenfolge, Hook-Closure, Verzeichnisguard und den `ImportError`-Pfad
+aus. Der echte Archivlauf und 241 fokussierte Regressionen bestanden; die
+Gegenproben verwerfen eine geänderte Loaderreihenfolge oder einen geänderten
+Guard. Installierte Runtimeloader und eine erzeugte Hookinstanz bleiben
+unbelegt.
+
+## Begrenzte Fortsetzung: Zipimporter-Attributquelle binden
+
+Der nächste S15-Teilschnitt bindet `zipimport.zipimporter` an die
+digestgeprüfte Top-Level-Klasse und den Literalexport des Moduls. Der Kandidat
+verknüpft den bereits belegten C-seitigen Attributnamen mit seiner deklarierten
+Python-Quellidentität; erfolgreicher Modulimport oder Runtimeverfügbarkeit
+bleiben unbelegt. Umfang: ein Paket, ein PR und höchstens zwei Regressionen;
+keine Runtime-, P11-, SQL-/Lab- oder menschliche Generalprobenattestation.

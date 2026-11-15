@@ -1335,6 +1335,48 @@ def _target_filefinder_hook_factory_candidate(files):
     }
 
 
+def _target_zipimporter_class_source_candidate(files):
+    """Bind zipimport.zipimporter to its digest-checked class declaration."""
+    source = files.get("zipimport.py") if type(files) is dict else None
+    if (type(source) is not bytes or not source or len(source) > MAX_SOURCE_BYTES
+            or hashlib.sha256(source).hexdigest() != ZIPIMPORT_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="zipimport.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    classes = [
+        node for node in tree.body
+        if isinstance(node, ast.ClassDef) and node.name == "zipimporter"
+    ]
+    exports = [
+        node.value for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "__all__"
+                for target in node.targets)
+    ]
+    if (len(classes) != 1 or len(exports) != 1
+            or len(classes[0].bases) != 1
+            or ast.unparse(classes[0].bases[0])
+            != "_bootstrap_external._LoaderBasics"
+            or classes[0].decorator_list
+            or not isinstance(exports[0], ast.List)
+            or any(not isinstance(item, ast.Constant)
+                   or type(item.value) is not str for item in exports[0].elts)
+            or [item.value for item in exports[0].elts]
+            != ["ZipImportError", "zipimporter"]):
+        return None
+    return {
+        "source_sha256": ZIPIMPORT_SOURCE_SHA256,
+        "module": "zipimport",
+        "requested_attribute": "zipimporter",
+        "class_base": "_bootstrap_external._LoaderBasics",
+        "listed_in_all": True,
+        "runtime_imported": False,
+        "evidence_scope": "STATIC_ZIPIMPORTER_CLASS_DECLARATION_CANDIDATE",
+    }
+
+
 def _configure_template_inventory(config_template, configure_source):
     if (type(config_template) is not bytes or not config_template
             or len(config_template) > MAX_CONFIG_C_TEMPLATE_BYTES
@@ -7819,6 +7861,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     filefinder_hook_factory_candidate = (
         _target_filefinder_hook_factory_candidate(files)
     )
+    zipimporter_class_source_candidate = (
+        _target_zipimporter_class_source_candidate(files)
+    )
     configure_inventory = _configure_template_inventory(
         config_c_template, configure_source
     )
@@ -8276,6 +8321,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_filefinder_hook_factory_candidate": (
             filefinder_hook_factory_candidate
+        ),
+        "target_zipimporter_class_source_candidate": (
+            zipimporter_class_source_candidate
         ),
         "target_zipimport_hook_registration_candidate": (
             zipimport_hook_registration_candidate
