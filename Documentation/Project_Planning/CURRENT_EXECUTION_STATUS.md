@@ -11585,3 +11585,14 @@ Eine Mutation, die den Erfolg als `PROFILE_VALIDATED` ausgibt, wird verworfen.
 Als Nächstes wird der dokumentierte Rest von unbekannten CPython-Quellpfaden
 und deren Bedingungen anhand der gepinnten Quellen reduziert. Das Ergebnis
 bleibt `CANDIDATES_ONLY`; daraus folgt keine P11- oder Runtimeattestation.
+
+Der gebundene Offline-Scan des gepinnten CPython-3.12.16-Archivs inventarisiert
+nun zusätzlich alle fünf produktiven `copyreg.pickle`-Aufrufe und begrenzt
+`copyreg.py:19` statisch auf die beobachteten Argumentfälle `{False, True}`.
+Die unbekannten Bedingungen sinken von 524 auf 523, die aufgelösten steigen
+von 61 auf 62; Modul-/Kantenzahl und Kandidatenhash bleiben 60/318 und
+`33f55d7c…`. Der fokussierte Satz besteht 281/281. Der Status bleibt
+`CANDIDATES_ONLY`; es gab keinen Interpreterstart und keine P11-/Runtime-
+Attestation. Als nächste Kandidaten sind zuerst die großen Regex-Reste in
+`re._parser`/`re._compiler` dokumentiert; dynamische Cache- und Umgebungszweige
+bleiben nur mit eigener, quellengebundener Voraussetzung reduzierbar.
