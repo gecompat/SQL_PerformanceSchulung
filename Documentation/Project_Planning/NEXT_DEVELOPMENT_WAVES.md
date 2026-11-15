@@ -2852,9 +2852,16 @@ PR #855 bindet `_selected_tree`, `_selected_tuple` und `_selected_int` an
 Knoten-/Tiefen-/Tupelgrenzen und exakte Blatt-/Zahlentypen. Gegenproben lockern
 die Tiefengrenze bzw. den exakten Tupletyp. Es werden keine Werte traversiert.
 
-## Begrenzte Fortsetzung: ausgewählte Namespaces binden
+## Abgeschlossen: ausgewählte Namespaces binden
 
 PR #856 bindet `_selected_keys` und `_selected_namespace`: exakter
 Dictionary-/Stringtyp, gemeinsame 16.368-Ankerkappe, Budgetzählung und
 Skalarprüfung. Gegenproben lockern die Kappe bzw. den exakten Keytyp. Es werden
 keine Namespaces gelesen.
+
+## Begrenzte Fortsetzung: lokale Modulanker binden
+
+PR #857 bindet `_selected_local` und `_selected_cache`: exakte Modul-, Spec-
+und Loaderformen, Submodulpfadkappen sowie die exakte sortierte Cache-Namensmenge.
+Gegenproben lockern Loaderform bzw. Cachemengengleichheit. Es werden keine
+Modulanker gelesen.
