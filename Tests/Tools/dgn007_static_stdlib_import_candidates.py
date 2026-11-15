@@ -38,6 +38,8 @@ PRECONFIG_HEADER_MEMBER = "Python-3.12.16/Include/internal/pycore_initconfig.h"
 PRECONFIG_HEADER_SHA256 = "caf13e2c290ae8375636d0e1f3b1851a90396b3747da650d058c282b8743b558"
 INITCONFIG_C_MEMBER = "Python-3.12.16/Python/initconfig.c"
 INITCONFIG_C_SHA256 = "a50ff760d49e9d1da8a5a998bcedc8c377f12628d7d0426fc4dab89c1abfeff7"
+LONG_HEADER_MEMBER = "Python-3.12.16/Include/internal/pycore_long.h"
+LONG_HEADER_SHA256 = "84c0c7bd7ba0c2fbbfb106561e32328e478d8350afe756af6a4862c95d921a06"
 LOGGING_SOURCE_SHA256 = "43f86bbc08fdd5c7b6e697abffe1381f534a92bb32e1f1aee8360d6a142592a1"
 LOGGING_LEVEL_CALLS_SHA256 = "537ede4580d6934dc4ef812f20ee175f3123abc3f4cc774db15f5f1b0ba15213"
 WEAKREFSET_SOURCE_SHA256 = "91895a451d06e9f521a1171b31b9b19bc9740f35af00d4fa106338ab7167c9ac"
@@ -190,6 +192,7 @@ MAX_SYS_MODULE_C_BYTES = 256 * 1024
 MAX_SYS_MODULE_CLINIC_BYTES = 64 * 1024
 MAX_PRECONFIG_C_BYTES = 64 * 1024
 MAX_PRECONFIG_HEADER_BYTES = 16 * 1024
+MAX_LONG_HEADER_BYTES = 16 * 1024
 MAX_INITCONFIG_C_BYTES = 128 * 1024
 MAX_WORKER_CONTROL_SOURCE_BYTES = 256 * 1024
 MAX_WARNINGS_C_BYTES = 64 * 1024
@@ -249,6 +252,7 @@ def _source_archive_data(archive_bytes):
     python_import_c_source = None
     thread_native_id_header = None
     preconfig_header_source = None
+    long_header_source = None
     thread_native_id_module = None
     thread_native_id_pthread = None
     thread_source_members = {
@@ -396,6 +400,19 @@ def _source_archive_data(archive_bytes):
                         != PRECONFIG_HEADER_SHA256):
                     raise ValueError("PRECONFIG_HEADER_DIGEST")
                 continue
+            if member.name == LONG_HEADER_MEMBER:
+                if (not member.isfile() or long_header_source is not None
+                        or member.size > MAX_LONG_HEADER_BYTES):
+                    raise ValueError("LONG_HEADER_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("LONG_HEADER_MEMBER")
+                long_header_source = stream.read(member.size + 1)
+                if (len(long_header_source) != member.size
+                        or hashlib.sha256(long_header_source).hexdigest()
+                        != LONG_HEADER_SHA256):
+                    raise ValueError("LONG_HEADER_DIGEST")
+                continue
             if member.name in platform_sources:
                 source_name, expected, limit = platform_sources[member.name]
                 if (not member.isfile() or platform_source_data[source_name] is not None
@@ -537,7 +554,8 @@ def _source_archive_data(archive_bytes):
             pickle_module_c_source,
             thread_native_id_header, thread_native_id_module, thread_native_id_pthread,
             platform_source_data["getplatform"], platform_source_data["makefile_pre"],
-            python_import_c_source, preconfig_header_source, preconfig_c_source,
+            python_import_c_source, preconfig_header_source, long_header_source,
+            preconfig_c_source,
             initconfig_c_source)
 
 
@@ -3370,6 +3388,7 @@ def _target_s15_flags_field_candidate(worker_sys_flag_facts):
         ("sys.flags.hash_randomization", 1),
         ("sys.flags.dev_mode", False),
         ("sys.flags.warn_default_encoding", False),
+        ("sys.flags.int_max_str_digits", 4300),
     )
     if (type(worker_sys_flag_facts) is not tuple
             or len(worker_sys_flag_facts) != len(expected)
@@ -4316,10 +4335,74 @@ def _target_worker_warn_default_encoding_disabled(
     return True
 
 
-def _target_worker_sys_flag_facts(
-        preconfig_header_source, preconfig_source, initconfig_source,
+def _target_worker_int_max_str_digits_default(
+        long_header_source, preconfig_source, initconfig_source,
         sys_module_source, worker_source):
-    """Derive the six startup flags from the exact isolated worker route."""
+    """Bind the default int/string digit limit to the exact isolated worker."""
+    sources = (
+        (long_header_source, LONG_HEADER_SHA256, MAX_LONG_HEADER_BYTES),
+        (preconfig_source, PRECONFIG_C_SHA256, MAX_PRECONFIG_C_BYTES),
+        (initconfig_source, INITCONFIG_C_SHA256, MAX_INITCONFIG_C_BYTES),
+        (sys_module_source, SYS_MODULE_C_SHA256, MAX_SYS_MODULE_C_BYTES),
+        (worker_source, IMPORT_USED_BYTES_PROBE_SHA256,
+         MAX_WORKER_CONTROL_SOURCE_BYTES),
+    )
+    if (any(type(source) is not bytes or not source or len(source) > limit
+            or hashlib.sha256(source).hexdigest() != digest
+            for source, digest, limit in sources)
+            or not _target_isolated_worker_route_valid(
+                preconfig_source, initconfig_source, worker_source,
+            )):
+        return False
+    long_header_text = long_header_source.decode("utf-8")
+    initconfig_text = initconfig_source.decode("utf-8")
+    sys_module_text = sys_module_source.decode("utf-8")
+    digit_init = re.findall(
+        r"static PyStatus\s+config_init_int_max_str_digits"
+        r"\(PyConfig \*config\)\s*\{(.*?)\n\}",
+        initconfig_text, re.DOTALL,
+    )
+    if (len(re.findall(
+            r"^#define _PY_LONG_DEFAULT_MAX_STR_DIGITS (\d+)$",
+            long_header_text, re.MULTILINE,
+    )) != 1
+            or not re.search(
+                r"^#define _PY_LONG_DEFAULT_MAX_STR_DIGITS 4300$",
+                long_header_text, re.MULTILINE,
+            )
+            or len(digit_init) != 1
+            or not re.search(
+                r"config_get_env\(config, \"PYTHONINTMAXSTRDIGITS\"\)",
+                digit_init[0],
+            )
+            or not re.search(
+                r"config_get_xoption\(config, L\"int_max_str_digits\"\)",
+                digit_init[0],
+            )
+            or not re.search(
+                r"if \(config->int_max_str_digits < 0\)\s*\{\s*"
+                r"config->int_max_str_digits = _PY_LONG_DEFAULT_MAX_STR_DIGITS;",
+                digit_init[0],
+            )
+            or not re.search(
+                r"if \(config->int_max_str_digits < 0\)\s*\{\s*"
+                r"status = config_init_int_max_str_digits\(config\);",
+                initconfig_text,
+            )
+            or not re.search(
+                r"static int\s+set_flags_from_config\(.*?"
+                r"SetFlag\(config->int_max_str_digits\);",
+                sys_module_text, re.DOTALL,
+            )):
+        return False
+    return True
+
+
+def _target_worker_sys_flag_facts(
+        preconfig_header_source, long_header_source, preconfig_source,
+        initconfig_source,
+        sys_module_source, worker_source):
+    """Derive source-bound startup flags from the exact isolated worker route."""
     if (type(sys_module_source) is not bytes or not sys_module_source
             or len(sys_module_source) > MAX_SYS_MODULE_C_BYTES
             or hashlib.sha256(sys_module_source).hexdigest() != SYS_MODULE_C_SHA256
@@ -4505,6 +4588,10 @@ def _target_worker_sys_flag_facts(
             preconfig_header_source, preconfig_source, initconfig_source,
             worker_source):
         facts += (("sys.flags.warn_default_encoding", False),)
+    if _target_worker_int_max_str_digits_default(
+            long_header_source, preconfig_source, initconfig_source,
+            sys_module_source, worker_source):
+        facts += (("sys.flags.int_max_str_digits", 4300),)
     return facts
 
 
@@ -12206,7 +12293,8 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         posix_module_clinic_source, pickle_module_c_source,
         thread_native_id_header, thread_native_id_module,
         thread_native_id_pthread, getplatform_source, makefile_pre_source,
-        python_import_c_source, preconfig_header_source, preconfig_c_source,
+        python_import_c_source, preconfig_header_source, long_header_source,
+        preconfig_c_source,
         initconfig_c_source,
     ) = _source_archive_data(_archive_bytes(archive_path))
     if stdlib_header is None:
@@ -12328,7 +12416,8 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             )
         )
         target_worker_sys_flag_facts = _target_worker_sys_flag_facts(
-            preconfig_header_source, preconfig_c_source, initconfig_c_source,
+            preconfig_header_source, long_header_source, preconfig_c_source,
+            initconfig_c_source,
             sys_module_c_source, worker_source,
         )
         target_s15_flags_field_candidate = (

@@ -29,6 +29,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             b".dev_mode=-1}\n"
             b"/* Note: _PyPreCmdline_INIT sets other fields to 0/NULL */\n"
         )
+        long_header_source = b"#define _PY_LONG_DEFAULT_MAX_STR_DIGITS 4300\n"
         preconfig_source = (
             b"case 'I': cmdline->isolated = 1;\n"
             b"PyStatus _PyPreCmdline_Read(_PyPreCmdline *cmdline, "
@@ -57,6 +58,14 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"config->interactive = 0; config->verbose = 0; "
             b"config->bytes_warning = 0; config->quiet = 0;\n"
             b"config->optimization_level = 0;\n}\n"
+            b"static PyStatus config_init_int_max_str_digits(PyConfig *config) {\n"
+            b"const char *env = config_get_env(config, \"PYTHONINTMAXSTRDIGITS\");\n"
+            b"const wchar_t *xoption = config_get_xoption(config, "
+            b"L\"int_max_str_digits\");\n"
+            b"if (config->int_max_str_digits < 0) { "
+            b"config->int_max_str_digits = _PY_LONG_DEFAULT_MAX_STR_DIGITS; }\n}\n"
+            b"if (config->int_max_str_digits < 0) { "
+            b"status = config_init_int_max_str_digits(config); }\n"
             b"case 'd': config->parser_debug++;\n"
             b"case 'i': config->inspect++; config->interactive++;\n"
             b"case 'b': config->bytes_warning++;\n"
@@ -106,6 +115,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"SetFlag(config->use_hash_seed == 0 || config->hash_seed != 0);\n"
             b"SetFlagObj(PyBool_FromLong(config->dev_mode));\n"
             b"SetFlag(config->warn_default_encoding);\n"
+            b"SetFlag(config->int_max_str_digits);\n"
             b"return 0;\n}\n"
             b"int _PySys_UpdateConfig(PyThreadState *tstate) {\n"
             b"if (set_flags_from_config(interp, flags) < 0) { return -1; }\n"
@@ -125,8 +135,8 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"    except OSError:\n"
             b"        return None\n"
         )
-        return (preconfig_header_source, preconfig_source, initconfig_source,
-                sys_module_source, worker_source)
+        return (preconfig_header_source, long_header_source, preconfig_source,
+                initconfig_source, sys_module_source, worker_source)
 
     def test_archive_binding_and_limits_are_fixed(self):
         self.assertEqual(len(SUBJECT.ARCHIVE_SHA256), 64)
@@ -1431,7 +1441,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             ), {})
 
     def test_worker_sys_flag_facts_bind_pinned_startup_values(self):
-        header, preconfig, initconfig, sys_module, worker = (
+        header, long_header, preconfig, initconfig, sys_module, worker = (
             self._worker_sys_flag_fact_fixture()
         )
         expected = (
@@ -1452,17 +1462,19 @@ class StaticImportCandidateTests(unittest.TestCase):
             ("sys.flags.hash_randomization", 1),
             ("sys.flags.dev_mode", False),
             ("sys.flags.warn_default_encoding", False),
+            ("sys.flags.int_max_str_digits", 4300),
         )
         with patch.multiple(
             SUBJECT,
             PRECONFIG_HEADER_SHA256=hashlib.sha256(header).hexdigest(),
+            LONG_HEADER_SHA256=hashlib.sha256(long_header).hexdigest(),
             PRECONFIG_C_SHA256=hashlib.sha256(preconfig).hexdigest(),
             INITCONFIG_C_SHA256=hashlib.sha256(initconfig).hexdigest(),
             SYS_MODULE_C_SHA256=hashlib.sha256(sys_module).hexdigest(),
             IMPORT_USED_BYTES_PROBE_SHA256=hashlib.sha256(worker).hexdigest(),
         ):
             facts = SUBJECT._target_worker_sys_flag_facts(
-                header, preconfig, initconfig, sys_module, worker,
+                header, long_header, preconfig, initconfig, sys_module, worker,
             )
             self.assertEqual(facts, expected)
             changed_header = header.replace(
@@ -1474,8 +1486,8 @@ class StaticImportCandidateTests(unittest.TestCase):
                 hashlib.sha256(changed_header).hexdigest(),
             ):
                 self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
-                    changed_header, preconfig, initconfig, sys_module, worker,
-                ), expected[:-1])
+                    changed_header, long_header, preconfig, initconfig, sys_module, worker,
+                ), expected[:-2] + expected[-1:])
             missing_preconfig_transfer = preconfig.replace(
                 b"COPY_ATTR(warn_default_encoding);", b"",
             )
@@ -1484,7 +1496,28 @@ class StaticImportCandidateTests(unittest.TestCase):
                 hashlib.sha256(missing_preconfig_transfer).hexdigest(),
             ):
                 self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
-                    header, missing_preconfig_transfer, initconfig,
+                    header, long_header, missing_preconfig_transfer, initconfig,
+                    sys_module, worker,
+                ), expected[:-2] + expected[-1:])
+            changed_long_header = long_header.replace(b"4300", b"0")
+            with patch.object(
+                SUBJECT, "LONG_HEADER_SHA256",
+                hashlib.sha256(changed_long_header).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
+                    header, changed_long_header, preconfig, initconfig,
+                    sys_module, worker,
+                ), expected[:-1])
+            changed_digit_default = initconfig.replace(
+                b"config->int_max_str_digits = _PY_LONG_DEFAULT_MAX_STR_DIGITS;",
+                b"config->int_max_str_digits = 0;",
+            )
+            with patch.object(
+                SUBJECT, "INITCONFIG_C_SHA256",
+                hashlib.sha256(changed_digit_default).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
+                    header, long_header, preconfig, changed_digit_default,
                     sys_module, worker,
                 ), expected[:-1])
             missing_sys_attribute = sys_module.replace(
@@ -1497,7 +1530,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 hashlib.sha256(missing_sys_attribute).hexdigest(),
             ):
                 self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
-                    header, preconfig, initconfig, missing_sys_attribute, worker,
+                    header, long_header, preconfig, initconfig, missing_sys_attribute, worker,
                 ), ())
             duplicate_update = sys_module + (
                 b"int _PySys_UpdateConfig(PyThreadState *tstate) {\n"
@@ -1508,12 +1541,12 @@ class StaticImportCandidateTests(unittest.TestCase):
                 hashlib.sha256(duplicate_update).hexdigest(),
             ):
                 self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
-                    header, preconfig, initconfig, duplicate_update, worker,
+                    header, long_header, preconfig, initconfig, duplicate_update, worker,
                 ), ())
             self.assertEqual(SUBJECT._target_s15_flags_field_candidate(facts), {
                 "value": (1, 1, 1, 1, 1, 0),
                 "source_fact_names": tuple(name for name, _ in expected[:6]),
-                "worker_route_fact_count": 17,
+                "worker_route_fact_count": 18,
                 "runtime_flags_claimed": False,
                 "evidence_scope": "STATIC_S15_FLAGS_FIELD_CANDIDATE",
             })
@@ -1532,7 +1565,8 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "sys.flags.quiet == 0 and "
                 "sys.flags.hash_randomization == 1 and "
                 "sys.flags.dev_mode is False and "
-                "sys.flags.warn_default_encoding is False",
+                "sys.flags.warn_default_encoding is False and "
+                "sys.flags.int_max_str_digits == 4300",
                 mode="eval",
             ).body
             self.assertIs(
@@ -3252,7 +3286,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 ))
 
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
-        header, preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
+        header, long_header, preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(
             SUBJECT,
             PRECONFIG_C_SHA256=hashlib.sha256(preconfig).hexdigest(),
@@ -3285,7 +3319,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 )
 
     def test_worker_sys_flag_facts_fail_closed_on_route_or_source_changes(self):
-        header, preconfig, initconfig, sys_module, worker = (
+        header, long_header, preconfig, initconfig, sys_module, worker = (
             self._worker_sys_flag_fact_fixture()
         )
         with patch.multiple(
@@ -3304,18 +3338,18 @@ class StaticImportCandidateTests(unittest.TestCase):
                 hashlib.sha256(changed_dev_mode).hexdigest(),
             ):
                 self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
-                    header, changed_dev_mode, initconfig, sys_module, worker,
+                    header, long_header, changed_dev_mode, initconfig, sys_module, worker,
                 ), ())
             self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
-                header, preconfig, initconfig, sys_module,
+                header, long_header, preconfig, initconfig, sys_module,
                 worker.replace(b"'-I'", b"'-E'"),
             ), ())
             self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
-                header, preconfig, initconfig, sys_module,
+                header, long_header, preconfig, initconfig, sys_module,
                 worker.replace(b"'-B', '-c'", b"'-B', '-v', '-c'"),
             ), ())
             self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
-                header, preconfig, initconfig,
+                header, long_header, preconfig, initconfig,
                 sys_module.replace(b"config->safe_path));", b"config->safe_path = 0));"),
                 worker,
             ), ())
@@ -3328,7 +3362,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 hashlib.sha256(changed_initconfig).hexdigest(),
             ):
                 self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
-                    header, preconfig, changed_initconfig, sys_module, worker,
+                    header, long_header, preconfig, changed_initconfig, sys_module, worker,
                 ), ())
             changed_defaults = initconfig.replace(
                 b"config->parser_debug = 0;",
@@ -3339,7 +3373,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 hashlib.sha256(changed_defaults).hexdigest(),
             ):
                 self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
-                    header, preconfig, changed_defaults, sys_module, worker,
+                    header, long_header, preconfig, changed_defaults, sys_module, worker,
                 ), ())
             changed_hash_default = initconfig.replace(
                 b"config->hash_seed = 0;",
@@ -3350,7 +3384,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 hashlib.sha256(changed_hash_default).hexdigest(),
             ):
                 self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
-                    header, preconfig, changed_hash_default, sys_module, worker,
+                    header, long_header, preconfig, changed_hash_default, sys_module, worker,
                 ), ())
             changed_hash_environment = initconfig.replace(
                 b"_Py_GetEnv(config->use_environment, name)",
@@ -3361,7 +3395,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 hashlib.sha256(changed_hash_environment).hexdigest(),
             ):
                 self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
-                    header, preconfig, changed_hash_environment, sys_module, worker,
+                    header, long_header, preconfig, changed_hash_environment, sys_module, worker,
                 ), ())
 
     def test_sys_implementation_version_binds_shared_version_info(self):
