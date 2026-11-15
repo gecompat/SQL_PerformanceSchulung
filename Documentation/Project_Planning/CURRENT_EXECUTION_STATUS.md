@@ -11260,10 +11260,17 @@ PR #833 bindet frische Recordaufnahme, beide Profilvergleiche, beide
 FileFinder-Hookaufnahmen, Skalarprojektion und Fehlerreport an die Profilquelle.
 Alle fünf Pflichtprüfungen bestanden. Die Beobachtung wurde nicht ausgeführt.
 
-## Nächster Schritt: frischen Record-Capture-Ablauf binden
+## Abgeschlossen: frischen Record-Capture-Ablauf binden
 
-Der nächste Kandidat bindet Vorher-/Nachher-Capture, begrenzte Dateihashreads,
-Gesamt- und Dateikappen, beide Profilvergleiche sowie die Rückgabe des finalen
-Records ausschließlich nach Erfolg. Er führt keine Runtimeaufnahme aus und
-behauptet weder Trust noch Attestation. Eine Regression entfernt den
-Nachher-Vergleich. Umfang: ein Paket, ein PR und höchstens zwei Regressionen.
+PR #834 bindet Vorher-/Nachher-Capture, begrenzte Dateihashreads, Datei- und
+Gesamtkappen, Profilvergleiche und success-only Recordrückgabe an die
+Profilquelle. Alle fünf Pflichtprüfungen bestanden. Keine Runtimeaufnahme,
+Trust oder Attestation wird daraus abgeleitet.
+
+## Nächster Schritt: Capture-Observation-Schema binden
+
+Der nächste Kandidat bindet die begrenzten Modul-/Pfadsnapshots und die
+Feldreihenfolge des `Observation`-Konstruktors in `_capture`. Er behauptet keine
+ausgeführte Aufnahme. Eine Regression entfernt die Sortierung der
+Modulnamenaufnahme und muss fail-closed bleiben. Umfang: ein Paket, ein PR und
+höchstens zwei Regressionen.
