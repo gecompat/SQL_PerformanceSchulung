@@ -4988,6 +4988,12 @@ class StaticImportCandidateTests(unittest.TestCase):
             277: "    def __init__(self, lock=None):",
             278: "        if lock is None:",
             279: "            lock = RLock()",
+            287: "        if hasattr(lock, '_release_save'):",
+            288: "            pass",
+            289: "        if hasattr(lock, '_acquire_restore'):",
+            290: "            pass",
+            291: "        if hasattr(lock, '_is_owned'):",
+            292: "            pass",
             300: "class Event:",
             588: "    def __init__(self):",
             589: "        self._cond = Condition(Lock())",
@@ -5017,6 +5023,23 @@ thread_PyThread_allocate_lock(PyObject *module, PyObject *ignored)
 static PyMethodDef thread_methods[] = {
     {"allocate_lock", thread_PyThread_allocate_lock,
 };
+static PyMethodDef lock_methods[] = {
+    {"acquire", acquire},
+    {"release", release},
+    {NULL, NULL}
+};
+static PyMemberDef lock_type_members[] = {
+    {"__weaklistoffset__", T_PYSSIZET, offsetof(lockobject, weaklist), READONLY},
+    {NULL,}
+};
+static PyType_Slot lock_type_slots[] = {
+    {Py_tp_methods, lock_methods},
+    {0, 0}
+};
+static PyType_Spec lock_type_spec = {
+    .name = "_thread.lock",
+    .slots = lock_type_slots,
+};
 static lockobject *
 newlockobject(PyObject *module)
 {
@@ -5045,7 +5068,7 @@ newlockobject(PyObject *module)
                 SUBJECT._target_threading_condition_lock_line_facts(
                     files, module_source,
                 ),
-                {278: False},
+                {278: False, 287: False, 289: False, 291: False},
             )
             mutated = source.replace(b"Condition(Lock())", b"Condition()")
             mutated_files = {"threading.py": mutated}

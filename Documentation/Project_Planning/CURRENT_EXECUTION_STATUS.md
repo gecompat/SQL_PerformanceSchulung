@@ -11778,14 +11778,16 @@ unbekannte Bedingungen; Unknown-Digest
 293 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`; keine direkte
 Image-Routen-, Runtime- oder P11-Attestation.
 
-Ein weiterer quellgebundener Fact löst `threading.py:278` (`lock is None`)
-für die Importinitialisierung als falsch auf. Die gehashte CPython-Quelle bindet
-`_main_thread = _MainThread()` über `Thread.__init__` an `Event.__init__` und
-`Condition(Lock())`. `Lock` ist an `_thread.allocate_lock` gebunden; die
-gehashte C-Implementierung liefert ein Lock-Objekt oder schlägt mit einem
-Fehler fehl. Der Fact gilt nicht für spätere dynamische Condition-Aufrufe.
-Der Zielquellscan zählt 60 Module, 318 Kanten, 91 entschiedene und 490
-unbekannte Bedingungen; Unknown-Digest
-`0cd43797a7ff7a6dc1ebdef0ef71d3e23003e095457cb8e789813369851a918e`.
+Ein weiterer quellgebundener Fact löst die vier Guards `threading.py:278`,
+`:287`, `:289` und `:291` für die Importinitialisierung auf falsch. Die
+gehashte CPython-Quelle bindet `_main_thread = _MainThread()` über
+`Thread.__init__` an `Event.__init__` und `Condition(Lock())`. `Lock` ist an
+`_thread.allocate_lock` gebunden; die gehashte C-Quelle liefert ein natives
+Lock-Objekt oder schlägt mit einem Fehler fehl. Der Typ besitzt kein
+Instanzwörterbuch und stellt `_release_save`, `_acquire_restore` sowie
+`_is_owned` nicht bereit. Die Facts gelten nicht für spätere dynamische
+Condition-Aufrufe. Der Zielquellscan zählt 60 Module, 318 Kanten, 94
+entschiedene und 487 unbekannte Bedingungen; Unknown-Digest
+`e5431241726d7054aadb72aa9c042f91a677322dcbf7575ae0e2ea19b8d3cb9a`.
 294 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`; keine direkte
 Image-Routen-, Runtime- oder P11-Attestation.

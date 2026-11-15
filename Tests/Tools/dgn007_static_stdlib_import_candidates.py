@@ -5890,9 +5890,11 @@ def _target_threading_condition_lock_line_facts(files, module_source):
     if any(node is None for node in (
             condition_init, event_init, thread_init, main_init)):
         return {}
-    condition_guards = [node for node in ast.walk(condition_init)
-                        if isinstance(node, ast.If) and node.lineno == 278
-                        and ast.unparse(node.test) == "lock is None"]
+    condition_guards = {
+        node.lineno: ast.unparse(node.test)
+        for node in ast.walk(condition_init)
+        if isinstance(node, ast.If) and node.lineno in (278, 287, 289, 291)
+    }
     lock_aliases = [node for node in tree.body if isinstance(node, ast.Assign)
                     and len(node.targets) == 1
                     and isinstance(node.targets[0], ast.Name)
@@ -5917,7 +5919,12 @@ def _target_threading_condition_lock_line_facts(files, module_source):
                                        and target.id == "_main_thread"
                                        for target in node.targets)
                                and ast.unparse(node.value) == "_MainThread()"]
-    if (len(condition_guards) != 1
+    if (condition_guards != {
+                278: "lock is None",
+                287: "hasattr(lock, '_release_save')",
+                289: "hasattr(lock, '_acquire_restore')",
+                291: "hasattr(lock, '_is_owned')",
+            }
             or [arg.arg for arg in condition_init.args.args] != ["self", "lock"]
             or [ast.unparse(value) for value in condition_init.args.defaults] != ["None"]
             or len(lock_aliases) != 1
@@ -5938,12 +5945,35 @@ def _target_threading_condition_lock_line_facts(files, module_source):
             or not re.search(
                 r'\{"allocate_lock",\s*thread_PyThread_allocate_lock,', c_text)
             or not re.search(
+                r"(?s)static PyType_Slot lock_type_slots\[\] = \{.*?"
+                r"\{Py_tp_methods, lock_methods\},.*?\{0, 0\}\s*\};",
+                c_text,
+            )
+            or not re.search(
+                r"(?s)static PyType_Spec lock_type_spec = \{.*?"
+                r"\.name = \"_thread\.lock\".*?\.slots = lock_type_slots,\s*\};",
+                c_text,
+            )
+            or not re.search(
+                r"(?s)static PyMethodDef lock_methods\[\] = \{(.*?)\n\};",
+                c_text,
+            )
+            or any(name in re.search(
+                r"(?s)static PyMethodDef lock_methods\[\] = \{(.*?)\n\};",
+                c_text,
+            ).group(1) for name in (
+                '"_release_save"', '"_acquire_restore"', '"_is_owned"',
+            ))
+            or not re.search(
+                r"(?s)static PyMemberDef lock_type_members\[\] = \{.*?"
+                r"\{NULL,?\s*\},?\s*\};", c_text)
+            or not re.search(
                 r"(?s)newlockobject\(PyObject \*module\)\s*\{.*?"
                 r"if \(self == NULL\) \{\s*return NULL;\s*\}.*?"
                 r"if \(self->lock_lock == NULL\) \{.*?return NULL;\s*\}"
                 r"\s*return self;", c_text)):
         return {}
-    return {278: False}
+    return {278: False, 287: False, 289: False, 291: False}
 
 
 def _target_threading_native_id_name_facts(
