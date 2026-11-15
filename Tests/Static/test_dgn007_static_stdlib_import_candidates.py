@@ -4295,7 +4295,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             1: "def pickle(ob_type, pickle_function, constructor_ob=None):",
             2: "    if not callable(pickle_function):",
             3: "        raise TypeError()",
-            4: "    if constructor_ob is not None:",
+            19: "    if constructor_ob is not None:",
             20: "        constructor(constructor_ob)",
             21: "def constructor(object):",
             22: "    if not callable(object):",
@@ -4349,6 +4349,10 @@ class StaticImportCandidateTests(unittest.TestCase):
                 SUBJECT._target_copyreg_pickle_callable_line_facts(files),
                 {2: False, 22: False},
             )
+            self.assertEqual(
+                SUBJECT._target_copyreg_constructor_observation_facts(files),
+                {("copyreg", "copyreg.py", 19): (False, True)},
+            )
             unsafe_files = dict(files)
             unsafe_files["typing.py"] = files["typing.py"].replace(
                 b"copyreg.pickle(ParamSpecArgs, _pickle_psargs)",
@@ -4372,6 +4376,59 @@ class StaticImportCandidateTests(unittest.TestCase):
             self.assertEqual(
                 SUBJECT._target_copyreg_pickle_callable_line_facts(alias_files),
                 {},
+            )
+            self.assertEqual(
+                SUBJECT._target_copyreg_constructor_observation_facts(alias_files),
+                {},
+            )
+            dynamic_import_files = dict(files)
+            dynamic_import_files["extra.py"] = (
+                b"__import__('copyreg')\n"
+            )
+            self.assertEqual(
+                SUBJECT._target_copyreg_pickle_callable_line_facts(
+                    dynamic_import_files,
+                ),
+                {},
+            )
+            aliased_dynamic_import_files = dict(files)
+            aliased_dynamic_import_files["extra.py"] = (
+                b"from importlib import import_module as load_module\n"
+                b"load_module('copyreg')\n"
+            )
+            self.assertEqual(
+                SUBJECT._target_copyreg_constructor_observation_facts(
+                    aliased_dynamic_import_files,
+                ),
+                {},
+            )
+
+    def test_call_closure_accepts_only_bounded_trusted_condition_observations(self):
+        files = {
+            "pkg/__init__.py": (
+                b"def choose(enabled):\n"
+                b"    if enabled:\n        from . import yes\n"
+                b"    else:\n        from . import no\n"
+                b"choose(True)\nchoose(unknown)\n"
+            ),
+            "pkg/yes.py": b"VALUE = True\n",
+            "pkg/no.py": b"VALUE = False\n",
+        }
+        unknown = []
+        resolved = []
+        trusted = {("pkg", "pkg/__init__.py", 2): (False, True)}
+        result = SUBJECT._module_init_call_candidate_closure(
+            files, ("pkg",), trusted_condition_observations=trusted,
+            unknown_conditions=unknown, resolved_conditions=resolved,
+        )
+        self.assertEqual(result[4], {"resolved": 1, "unknown": 0})
+        self.assertEqual(unknown, [])
+        self.assertEqual(resolved[0]["decisions"], [False, True])
+        with self.assertRaisesRegex(ValueError, "UNTRUSTED_CONDITION_OBSERVATION"):
+            SUBJECT._module_init_call_candidate_closure(
+                files, ("pkg",), trusted_condition_observations={
+                    ("pkg", "pkg/__init__.py", 2): (0, True),
+                },
             )
 
     def test_logging_lock_guards_require_unmutated_truthy_lock_implementations(self):

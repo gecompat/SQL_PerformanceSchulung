@@ -6383,6 +6383,15 @@ def _target_copyreg_pickle_callable_line_facts(files):
     for path, tree in trees.items():
         parents = {child: node for node in ast.walk(tree)
                    for child in ast.iter_child_nodes(node)}
+        dynamic_import_aliases = {
+            alias.asname or alias.name
+            for node in ast.walk(tree)
+            if isinstance(node, ast.ImportFrom)
+            and node.module in ("builtins", "importlib")
+            for alias in node.names
+            if ((node.module == "builtins" and alias.name == "__import__")
+                or (node.module == "importlib" and alias.name == "import_module"))
+        }
         for node in ast.walk(tree):
             if isinstance(node, ast.Import) and any(
                     alias.name == "copyreg" for alias in node.names):
@@ -6393,10 +6402,25 @@ def _target_copyreg_pickle_callable_line_facts(files):
             if isinstance(node, ast.Name) and node.id == "copyreg":
                 module_refs.append((path, node.lineno))
             if (isinstance(node, ast.ImportFrom) and node.module == "copyreg"
-                    and any(alias.name == "pickle" for alias in node.names)):
+                    and (any(alias.name in ("pickle", "constructor", "*")
+                             for alias in node.names))):
                 return {}
-            if (isinstance(node, ast.ImportFrom) and node.module == "copyreg"
-                    and any(alias.name == "constructor" for alias in node.names)):
+            if (isinstance(node, ast.ImportFrom)
+                    and node.module in ("builtins", "importlib")
+                    and any(alias.name == "*" for alias in node.names)):
+                return {}
+            if (isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Name)
+                    and (node.func.id == "__import__"
+                         or node.func.id in dynamic_import_aliases)
+                    and node.args and isinstance(node.args[0], ast.Constant)
+                    and node.args[0].value == "copyreg"):
+                return {}
+            if (isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Attribute)
+                    and node.func.attr in ("__import__", "import_module")
+                    and node.args and isinstance(node.args[0], ast.Constant)
+                    and node.args[0].value == "copyreg"):
                 return {}
             if (isinstance(node, ast.Attribute) and node.attr == "pickle"
                     and isinstance(node.value, ast.Name)
@@ -6512,6 +6536,55 @@ def _target_copyreg_pickle_callable_line_facts(files):
         return {}
     return {guards[0].lineno: False,
             constructor_guards[0].lineno: False}
+
+
+def _target_copyreg_constructor_observation_facts(files):
+    """Bound all source-visible constructor_ob outcomes at copyreg.pickle calls."""
+    callable_facts = _target_copyreg_pickle_callable_line_facts(files)
+    if (type(callable_facts) is not dict or len(callable_facts) != 2
+            or any(type(line) is not int or type(value) is not bool or value
+                   for line, value in callable_facts.items())):
+        return {}
+    expected_calls = (
+        ("copyreg.py", "pickle(complex, pickle_complex, complex)", True),
+        ("copyreg.py", "pickle(type(int | str), pickle_union)", False),
+        ("typing.py", "copyreg.pickle(ParamSpecArgs, _pickle_psargs)", False),
+        ("typing.py", "copyreg.pickle(ParamSpecKwargs, _pickle_pskwargs)", False),
+        ("re/__init__.py", "copyreg.pickle(Pattern, _pickle, _compile)", True),
+    )
+    for path, _, _ in expected_calls:
+        source = files.get(path) if type(files) is dict else None
+        if type(source) is not bytes:
+            return {}
+    try:
+        trees = {
+            path: ast.parse(files[path], filename=path)
+            for path in {row[0] for row in expected_calls}
+        }
+    except SyntaxError:
+        return {}
+    copyreg_tree = trees.get("copyreg.py")
+    if copyreg_tree is None or not any(
+            isinstance(node, ast.If) and node.lineno == 19
+            and ast.unparse(node.test) == "constructor_ob is not None"
+            for node in ast.walk(copyreg_tree)):
+        return {}
+    observations = []
+    for path, expression, expected_non_none in expected_calls:
+        matches = [node for node in ast.walk(trees[path])
+                   if isinstance(node, ast.Call) and ast.unparse(node) == expression]
+        if len(matches) != 1:
+            return {}
+        call = matches[0]
+        non_none = len(call.args) == 3
+        if (call.keywords or non_none != expected_non_none
+                or (non_none and (not isinstance(call.args[2], ast.Name)
+                                  or call.args[2].id not in ("complex", "_compile")))):
+            return {}
+        observations.append(non_none)
+    if tuple(observations) != (True, False, False, False, True):
+        return {}
+    return {("copyreg", "copyreg.py", 19): (False, True)}
 
 
 def _target_logging_lock_line_facts(files, thread_module_source):
@@ -9893,6 +9966,7 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
                                         trusted_function_name_facts=None,
                                         preserve_name_facts_after_star=None,
                                         trusted_line_facts=None,
+                                        trusted_condition_observations=None,
                                         trusted_empty_for_facts=None,
                                         unknown_conditions=None,
                                         resolved_conditions=None):
@@ -9903,6 +9977,15 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
                  or any(type(module) is not str or type(facts) is not dict
                         for module, facts in trusted_empty_for_facts.items()))):
         raise ValueError("UNTRUSTED_EMPTY_FOR_FACT")
+    if (trusted_condition_observations is not None
+            and (type(trusted_condition_observations) is not dict
+                 or any(type(key) is not tuple or len(key) != 3
+                        or type(key[0]) is not str or type(key[1]) is not str
+                        or type(key[2]) is not int or type(values) is not tuple
+                        or not values or any(type(value) is not bool for value in values)
+                        or len(set(values)) != len(values)
+                        for key, values in trusted_condition_observations.items()))):
+        raise ValueError("UNTRUSTED_CONDITION_OBSERVATION")
     if any(type(name) is not str for name in roots) or len(set(roots)) != len(roots):
         raise ValueError("SOURCE_ROOTS")
     lexical_modules, _, _ = _candidate_closure(files, roots)
@@ -10094,6 +10177,13 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
             call_condition_observations.items()):
         node = observation["node"]
         decisions = observation["decisions"]
+        key = (condition_module, condition_path, node.lineno)
+        trusted = (trusted_condition_observations or {}).get(key)
+        if trusted is not None and None in decisions:
+            trusted_set = set(trusted)
+            observed_values = decisions - {None}
+            if observed_values.issubset(trusted_set):
+                decisions = trusted_set
         is_unknown = None in decisions
         conditions["unknown" if is_unknown else "resolved"] += 1
         if not is_unknown and resolved_conditions is not None:
@@ -10178,6 +10268,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     )
     target_copyreg_pickle_callable_line_facts = (
         _target_copyreg_pickle_callable_line_facts(files)
+    )
+    target_copyreg_constructor_observation_facts = (
+        _target_copyreg_constructor_observation_facts(files)
     )
     target_logging_lock_line_facts = _target_logging_lock_line_facts(
         files, thread_native_id_module,
@@ -10827,6 +10920,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
               or target_sysconfig_build_setup_guard_line_facts
               or target_importlib_optimize_line_facts
               or target_importlib_verbose_line_facts) else {},
+        trusted_condition_observations=(
+            target_copyreg_constructor_observation_facts
+        ),
         trusted_empty_for_facts={
             "warnings": target_warning_options_empty_for_facts.get("warnings", {}),
         } if target_warning_options_empty_for_facts else {},
@@ -11235,6 +11331,14 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_platform_copyreg_pickle_callable_line_facts": list(
             target_copyreg_pickle_callable_line_facts.items()
         ),
+        "target_platform_copyreg_constructor_observation_facts": [
+            {"module": module, "source_path": path, "line": line,
+             "decisions": list(decisions),
+             "evidence_scope": "STATIC_CPYTHON_CALL_ARGUMENT_FACT",
+             "runtime_observation_claimed": False}
+            for (module, path, line), decisions
+            in target_copyreg_constructor_observation_facts.items()
+        ],
         "target_platform_logging_lock_line_facts": list(
             target_logging_lock_line_facts.items()
         ),
