@@ -1797,6 +1797,44 @@ class StaticImportCandidateTests(unittest.TestCase):
                 )
             )
 
+    def test_profile_compare_contract_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        module_builder = {"runtime_modules_claimed": False}
+        candidate = SUBJECT._target_profile_compare_contract_candidate(
+            profile_source, module_builder,
+        )
+        self.assertEqual(candidate, {
+            "interpreter_platform_version_flags_checked": True,
+            "expected_observation_fields_compared": (
+                "token", "executable", "executable_target", "prefixes", "abi", "paths", "files",
+            ),
+            "finder_and_hook_identity_checked": True,
+            "module_row_values_and_anchor_identity_checked": True,
+            "owned_modules_rejected": True,
+            "control_and_source_roots_checked": True,
+            "observation_paths_restricted": True,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "trust_established": False,
+            "evidence_scope": "STATIC_PROFILE_COMPARE_CONTRACT_CANDIDATE",
+        })
+        changed = profile_source.replace(
+            b"p == expected.inert_zip",
+            b"True",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed),
+        ):
+            self.assertIsNone(
+                SUBJECT._target_profile_compare_contract_candidate(
+                    changed, module_builder,
+                )
+            )
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

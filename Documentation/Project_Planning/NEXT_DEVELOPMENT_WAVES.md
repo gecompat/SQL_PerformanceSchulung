@@ -2725,10 +2725,15 @@ Runtime- oder Trustattestation.
 PR #835 bindet begrenzte Modul-/Pfadsnapshots, sortierte Modulnamen und die
 Feldreihenfolge des `Observation`-Konstruktors. Keine ausgeführte Aufnahme.
 
-## Begrenzte Fortsetzung: Modulrecord-Builder binden
+## Abgeschlossen: Modulrecord-Builder binden
 
-Ein Arbeitspaket und ein PR binden Modul-/Spec-Identität, Frozen-Aliase,
-Loaderklassifikation, Ablehnung unbekannter Loader und die
-`ModuleRecord`-Feldordnung an die Profilquelle. Es werden keine beobachteten
-Module behauptet. Eine positive Regression und eine Gegenprobe mit unbekanntem
-Loader begrenzen den Schnitt.
+PR #836 bindet Modul-/Spec-Identität, Frozen-Aliase, Loaderklassifikation,
+Ablehnung unbekannter Loader und die `ModuleRecord`-Feldordnung. Beobachtete
+Module werden nicht behauptet.
+
+## Begrenzte Fortsetzung: Profilvergleichsvertrag binden
+
+Ein Arbeitspaket und ein PR binden Interpreter-/Plattform-/Flagvergleiche,
+Modulanker, Projektausschluss, Control-/Rootzuordnung und Pfadbeschränkung in
+`_compare`. Der Vergleich begründet kein Vertrauen. Eine positive Regression
+und eine Gegenprobe mit gelockerter Pfadbeschränkung begrenzen den Schnitt.
