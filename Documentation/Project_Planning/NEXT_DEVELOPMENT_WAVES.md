@@ -2175,3 +2175,17 @@ und Präprozessorgrenze sowie die bisherige falsche Grenze ab. Der Lauf muss die
 Versions-, Namens- und Cache-Tag-Facts tatsächlich aus dem Archiv emittieren.
 Keine Runtime-, Profil-, Worker-, SQL-, Lab- oder Generalprobenausführung.
 Token-/Geldverbrauch bleiben unbekannt; PR-Integration ist der Checkpoint.
+
+### Begrenzte Fortsetzung: Zielimage-Dateiidentitäten ausweisen
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR erweitern die bereits digest- und DiffID-geprüfte
+OCI-Pfadprüfung um explizite Ausgabefelder für den Executable-SHA-256, das
+Symlinkziel `/usr/local/bin/python3` und den `_pickle`-Extension-SHA-256.
+Zwei Regressionen müssen die Werte aus den gehashten Layerbytes prüfen. Diese
+Felder verbessern die spätere S15-Dateiauswahl; sie belegen weder
+`sys.executable` noch die vollständige Dateiauswahl oder P11-Records. Keine
+Runtime-, Profil-, Worker-, SQL-, Lab- oder Generalprobenausführung.
+Token-/Geldverbrauch bleiben unbekannt; der Checkpoint umfasst ein Paket und
+einen PR. PR-Integration ist der Checkpoint; danach wird anhand des aktuellen
+Status weitergearbeitet.

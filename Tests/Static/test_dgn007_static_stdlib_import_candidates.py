@@ -204,6 +204,11 @@ class StaticImportCandidateTests(unittest.TestCase):
                 facts = SUBJECT._target_image_save_facts(image_path, config_bytes)
         self.assertEqual(facts, {
             "executable_path_candidate": "/usr/local/bin/python3.12",
+            "executable_sha256": hashlib.sha256(b"verified executable").hexdigest(),
+            "python3_symlink_target": "python3.12",
+            "pickle_extension_sha256": hashlib.sha256(
+                b"verified pickle extension"
+            ).hexdigest(),
             "_PYTHON_BUILD": False,
             "setup_parent_paths_verified": True,
             "_pickle_extension": True,

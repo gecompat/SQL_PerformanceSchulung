@@ -53,6 +53,22 @@ offen. Daraus folgen weder SQL- noch Incidentfreigabe.
 
 ### DGN-007 – nächste freigegebene Baseline-Prüfung
 
+Der reproduzierte Zielscan mit verifizierter OCI-Imageablage und direkter
+`python3.12`-Routenannahme bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten,
+166 Funktionen, 70 entschiedene und 498 unbekannte Bedingungen. Die drei
+`sys.implementation`-Facts liefern Version `(3, 12, 16, "final", 0)`, Name
+`cpython` und Cache-Tag `cpython-312`. Die Imagepfadprüfung bindet zusätzlich
+`/usr/local/bin/python3.12`, dessen Executable-SHA-256, das Symlinkziel
+`python3.12`. Die SHA-256-Werte sind Executable
+`837a48d7afd08447fb43e28b282026fadb59368620072e57e01f66d12977e5ce` und
+`_pickle`-Extension
+`f6cdd4a784089665d18243b944051052b8a9452f3b1e40be88bdf685b2afb83d`. Das
+belegt statische Dateiidentität für die ausgewählte Imagekandidatur, keine beobachtete
+`sys.executable`-Aufnahme, keine vollständige Importclosure und keine P11-
+oder Runtimeattestation. Der fokussierte Parser-/Quellscan bleibt damit eine
+Kandidatenevidenz; S15-/P11-Sollauswahl und operative Aufnahme sind weiterhin
+offen.
+
 Die separat dokumentierte CPython-3.12.16-Imagekandidatur ist jetzt zusätzlich
 gegen die OCI Registry-Blobbytes nachgerechnet: Childmanifest und Configdigest
 sowie alle sieben komprimierten Layerdigests/-größen und entpackten DiffIDs
