@@ -11438,9 +11438,16 @@ und Loaderformen, Submodulpfadkappen sowie die exakte sortierte Cache-Namensmeng
 Gegenproben lockern den Loadertyp bzw. erlauben eine abweichende Cachemenge. Es
 werden keine Modulanker gelesen.
 
-## Begrenzte Fortsetzung: ausgewählte Runtime-Container binden
+## Abgeschlossen: ausgewählte Runtime-Container binden
 
-Der nächste Schnitt bindet `_selected_containers`: exakter Runtime-Modultyp,
-begrenzter Modulcache und Finder-/Hook-Container mit exakten Typ- und
-Längengrenzen. Gegenproben lockern den Runtimetyp bzw. die Hooklänge. Es werden
-keine Runtime-Container gelesen.
+PR #858 bindet `_selected_containers`: exakter Runtime-Modultyp, begrenzter
+Modulcache und Finder-/Hook-Container mit exakten Typ- und Längengrenzen.
+Gegenproben lockern den Runtimetyp bzw. die Hooklänge; 279 fokussierte
+Regressionen und alle fünf Pflichtprüfungen bestanden. Es werden keine
+Runtime-Container gelesen.
+
+## Begrenzte Fortsetzung: skalare lokale Ankervalidierung absichern
+
+Der Nachaudit von PR #857 ergänzt explizite Anforderungen und eine
+Lockerungsgegenprobe dafür, dass Modul-, Spec-, Suchpfad- und Loadertexte
+skalargeprüft werden. Es werden keine Modulanker gelesen.
