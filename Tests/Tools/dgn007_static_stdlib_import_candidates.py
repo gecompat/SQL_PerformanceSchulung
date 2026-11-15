@@ -1704,6 +1704,39 @@ def _target_s15_inert_zip_field_candidate(path_candidate):
     }
 
 
+def _target_s15_files_field_candidate(path_candidate):
+    """Expose the two bounded image-file candidates without claiming closure."""
+    files = (
+        path_candidate.get("files_field_candidate")
+        if type(path_candidate) is dict else None
+    )
+    expected = (
+        ("/usr/local/bin/python3.12", TARGET_EXECUTABLE_SHA256),
+        ("/" + PICKLE_EXTENSION_PATH, PICKLE_EXTENSION_SHA256),
+    )
+    if type(files) is not list or len(files) != len(expected):
+        return None
+    rows = []
+    for record, (expected_path, expected_digest) in zip(files, expected):
+        if (type(record) is not dict
+                or record.get("path") != expected_path
+                or type(record.get("size")) is not int
+                or not 0 <= record["size"] <= MAX_S15_FILE_BYTES
+                or type(record.get("sha256")) is not str
+                or record["sha256"] != expected_digest):
+            return None
+        rows.append((expected_path, record["size"], expected_digest))
+    if sum(row[1] for row in rows) > MAX_S15_FILE_TOTAL_BYTES:
+        return None
+    return {
+        "value": tuple(rows),
+        "file_count": len(rows),
+        "complete_file_list_claimed": False,
+        "runtime_file_selection_claimed": False,
+        "evidence_scope": "STATIC_S15_FILES_FIELD_CANDIDATE",
+    }
+
+
 def _configure_template_inventory(config_template, configure_source):
     if (type(config_template) is not bytes or not config_template
             or len(config_template) > MAX_CONFIG_C_TEMPLATE_BYTES
@@ -8323,6 +8356,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_s15_paths_field_candidate = None
     target_s15_roots_field_candidate = None
     target_s15_inert_zip_field_candidate = None
+    target_s15_files_field_candidate = None
     target_warning_options_empty_for_facts = {}
     target_importlib_optimize_line_facts = {}
     target_worker_sys_flag_facts = ()
@@ -8350,6 +8384,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         )
         target_s15_inert_zip_field_candidate = (
             _target_s15_inert_zip_field_candidate(target_sys_path_candidate_facts)
+        )
+        target_s15_files_field_candidate = _target_s15_files_field_candidate(
+            target_sys_path_candidate_facts
         )
         target_s15_prefixes_field_candidate = (
             _target_s15_prefixes_field_candidate(
@@ -9082,6 +9119,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_s15_inert_zip_field_candidate": (
             target_s15_inert_zip_field_candidate
         ),
+        "target_s15_files_field_candidate": target_s15_files_field_candidate,
         "target_s15_prefixes_field_candidate": (
             target_s15_prefixes_field_candidate
         ),

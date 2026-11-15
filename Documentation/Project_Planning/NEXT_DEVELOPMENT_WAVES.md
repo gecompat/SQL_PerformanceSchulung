@@ -2642,9 +2642,15 @@ Bibliotheksroots. Der statische Kandidat behauptet keine Runtime-`sys.path`.
 PR #820 gibt das verifizierte Standardbibliotheks- und Extensionroot-Paar als
 eigenes Feld aus; die Werte bleiben statische Sollwertkandidaten.
 
-## Begrenzte Fortsetzung: S15-Inert-ZIP-Feldkandidat
+## Abgeschlossen: S15-Inert-ZIP-Feldkandidat
 
-Ein Arbeitspaket und ein PR geben die gebundene Abwesenheit des ZIP-Landmarks
-bei Position null des Pfadkandidaten als eigenes S15-Feld aus. Eine Regression
-prüft eine manipulierte Image-Mitgliedschaft. Das behauptet keine
-Runtime-Pfadmitgliedschaft oder vollständige S15-Auswahl.
+PR #821 stellt die an Image-Abwesenheit und Pfadposition null gebundene
+ZIP-Landmark-Aussage als eigenes Feld bereit; Runtime-Pfadmitgliedschaft wird
+nicht behauptet.
+
+## Begrenzte Fortsetzung: S15-Files-Feldkandidat
+
+Ein Arbeitspaket und ein PR bündeln die beiden gehashten Image-Dateikandidaten
+unter Beibehaltung der Einzel- und Gesamtkappen. Regressionen prüfen Digests
+und geänderte Dateiwerte. Die Liste bleibt ausdrücklich unvollständig und
+belegt keine Runtimeauswahl.
