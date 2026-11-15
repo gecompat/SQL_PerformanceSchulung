@@ -1280,6 +1280,40 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(len(image_save_guards), 1)
         self.assertLess(assignments[0].lineno, image_save_guards[0].lineno)
 
+    def test_worker_startup_facts_are_applied_without_image_save_input(self):
+        tree = ast.parse(inspect.getsource(SUBJECT.analyze))
+        calls = {
+            node.func.id: node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id in {
+                "_target_worker_sysconfigdata_environment_fact",
+                "_target_worker_sys_flag_facts",
+                "_target_importlib_optimize_line_facts",
+            }
+        }
+        image_save_guards = [
+            node for node in ast.walk(tree)
+            if isinstance(node, ast.If)
+            and isinstance(node.test, ast.Compare)
+            and isinstance(node.test.left, ast.Name)
+            and node.test.left.id == "target_image_save_path"
+            and len(node.test.ops) == 1
+            and isinstance(node.test.ops[0], ast.IsNot)
+            and len(node.test.comparators) == 1
+            and isinstance(node.test.comparators[0], ast.Constant)
+            and node.test.comparators[0].value is None
+        ]
+        self.assertEqual(set(calls), {
+            "_target_worker_sysconfigdata_environment_fact",
+            "_target_worker_sys_flag_facts",
+            "_target_importlib_optimize_line_facts",
+        })
+        self.assertEqual(len(image_save_guards), 1)
+        for call in calls.values():
+            self.assertLess(call.lineno, image_save_guards[0].lineno)
+
     def test_importlib_optimize_fact_requires_pinned_isolated_unoptimized_route(self):
         preconfig_source = b"case 'I': cmdline->isolated = 1;"
         initconfig_source = (
