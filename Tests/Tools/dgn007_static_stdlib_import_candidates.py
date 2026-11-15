@@ -1637,6 +1637,41 @@ def _normalized_profile_source_sha256(source_bytes):
     return hashlib.sha256(source_bytes.replace(b"\r\n", b"\n")).hexdigest()
 
 
+def _target_controls_selection_contract_candidate(source_bytes):
+    """Bind allowed control names and module-row correspondence to source."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def _selected_shapes\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required_fragments = (
+        b"len(controls) <= 2 and len(set(controls)) == len(controls)",
+        b'all(name in ("__main__", "dgn007_import_runtime_profile") '
+        b"for name in controls)",
+        b'set(controls) == {row[0] for row in modules '
+        b'if row[5] == "CONTROL"}',
+    )
+    if any(normalized.count(fragment) != 1 for fragment in required_fragments):
+        return None
+    return {
+        "allowed_names": ("__main__", "dgn007_import_runtime_profile"),
+        "maximum_count": 2,
+        "unique_names_required": True,
+        "must_equal_control_module_rows": True,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "selected_controls_claimed": False,
+        "evidence_scope": "STATIC_PROFILE_CONTROLS_SELECTION_CONTRACT_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -8661,6 +8696,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_s15_installation_schema_candidate = (
         _target_s15_installation_schema_candidate(runtime_profile_source)
     )
+    target_controls_selection_contract_candidate = (
+        _target_controls_selection_contract_candidate(runtime_profile_source)
+    )
     target_s15_installation_tuple_candidate = None
     configure_inventory = _configure_template_inventory(
         config_c_template, configure_source
@@ -9167,6 +9205,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_s15_installation_schema_candidate": (
             target_s15_installation_schema_candidate
+        ),
+        "target_controls_selection_contract_candidate": (
+            target_controls_selection_contract_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
