@@ -1161,6 +1161,57 @@ def _target_importlib_finder_registration_candidate(files):
     }
 
 
+def _target_meta_path_finder_class_candidate(files):
+    """Bind meta_path labels to their declared classes and find_spec methods."""
+    source_rows = (
+        ("importlib/_bootstrap.py", IMPORTLIB_BOOTSTRAP_SOURCE_SHA256,
+         ("BuiltinImporter", "FrozenImporter")),
+        ("importlib/_bootstrap_external.py", IMPORTLIB_EXTERNAL_SOURCE_SHA256,
+         ("PathFinder",)),
+    )
+    if type(files) is not dict:
+        return None
+    finders = []
+    for path, digest, class_names in source_rows:
+        source = files.get(path)
+        if (type(source) is not bytes or not source or len(source) > MAX_SOURCE_BYTES
+                or hashlib.sha256(source).hexdigest() != digest):
+            return None
+        try:
+            tree = ast.parse(source.decode("utf-8"), filename=path)
+        except (UnicodeError, SyntaxError):
+            return None
+        for class_name in class_names:
+            classes = [
+                node for node in tree.body
+                if isinstance(node, ast.ClassDef) and node.name == class_name
+            ]
+            if len(classes) != 1 or classes[0].bases or classes[0].decorator_list:
+                return None
+            find_spec_methods = [
+                node for node in classes[0].body
+                if isinstance(node, ast.FunctionDef) and node.name == "find_spec"
+            ]
+            if (len(find_spec_methods) != 1
+                    or len(find_spec_methods[0].decorator_list) != 1
+                    or ast.unparse(find_spec_methods[0].decorator_list[0])
+                    != "classmethod"):
+                return None
+            finders.append({
+                "module": path.removesuffix(".py").replace("/", "."),
+                "class": class_name,
+                "method": "find_spec",
+                "method_kind": "classmethod",
+            })
+    return {
+        "source_sha256": [digest for _, digest, _ in source_rows],
+        "registered_finder_declarations": finders,
+        "runtime_instances_claimed": False,
+        "selection_claimed": False,
+        "evidence_scope": "STATIC_META_PATH_FINDER_CLASS_CANDIDATE",
+    }
+
+
 def _target_zipimport_hook_registration_candidate(source_bytes):
     """Bind CPython's conditional zipimport hook insertion source route."""
     if (type(source_bytes) is not bytes or not source_bytes
@@ -7858,6 +7909,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     importlib_finder_registration_candidate = (
         _target_importlib_finder_registration_candidate(files)
     )
+    meta_path_finder_class_candidate = (
+        _target_meta_path_finder_class_candidate(files)
+    )
     filefinder_hook_factory_candidate = (
         _target_filefinder_hook_factory_candidate(files)
     )
@@ -8318,6 +8372,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ],
         "target_importlib_finder_registration_candidate": (
             importlib_finder_registration_candidate
+        ),
+        "target_meta_path_finder_class_candidate": (
+            meta_path_finder_class_candidate
         ),
         "target_filefinder_hook_factory_candidate": (
             filefinder_hook_factory_candidate

@@ -11024,11 +11024,28 @@ den `ImportError`-Pfad aus. Der CPython-3.12.16-Archivlauf und 241 fokussierte
 Regressionen bestanden; geänderte Loaderreihenfolge und Guard werden
 fail-closed verworfen. Es entsteht keine Runtime-Hookinstanz.
 
-## S15-Teilschnitt: Zipimporter-Attributquelle
+## Abgeschlossen: S15-Teilschnitt Zipimporter-Attributquelle
 
-Der nächste Kandidat bindet die durch den C-Hook angeforderte
-`zipimport.zipimporter`-Attributquelle an die digestgeprüfte Top-Level-Klasse
-und ihren Modul-Export. Das belegt die deklarative Quellidentität, keinen
-erfolgreichen Modulimport oder verfügbaren Runtimewert. Umfang: ein Paket, ein
-PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
-menschliche Generalprobenattestation.
+PR #804 bindet `zipimport.zipimporter` an die digestgeprüfte Top-Level-Klasse,
+ihren deklarierten Basistyp und den Literalexport `__all__`. Der CPython-
+3.12.16-Archivlauf und 242 fokussierte Regressionen bestanden; geänderter
+Klassenname und geänderte Exportliste werden fail-closed verworfen. Das belegt
+keinen erfolgreichen Modulimport oder verfügbaren Runtimewert.
+
+## Abgeschlossen: S15-Teilschnitt Zipimporter-Attributquelle
+
+PR #804 bindet `zipimport.zipimporter` an die digestgeprüfte Top-Level-Klasse,
+ihren deklarierten Basistyp und den Literalexport `__all__`. Der CPython-
+3.12.16-Archivlauf und 242 fokussierte Regressionen bestanden; geänderter
+Klassenname und geänderte Exportliste werden fail-closed verworfen. Das belegt
+keinen erfolgreichen Modulimport oder verfügbaren Runtimewert.
+
+## S15-Teilschnitt: Meta-Path-Finderklassen benennen
+
+Der neue Kandidat bindet die drei registrierten Labels `BuiltinImporter`,
+`FrozenImporter` und `PathFinder` an ihre eindeutigen Top-Level-Klassen in den
+gepinnten Bootstrapquellen und prüft deren `find_spec`-Klassenmethoden. Er
+beschreibt Deklarationen, keine Klasseninstanzen, tatsächliche Auswahl oder
+vollständige S15-/P11-Inventur. Umfang: ein Paket, ein PR und höchstens zwei
+Regressionen; keine Runtime-, SQL-/Lab- oder menschliche
+Generalprobenattestation.
