@@ -37,6 +37,7 @@ PRECONFIG_C_SHA256 = "837e6e39347c4ded7d053c7f23d3ac751614a8dc135332748af7a4b0fc
 INITCONFIG_C_MEMBER = "Python-3.12.16/Python/initconfig.c"
 INITCONFIG_C_SHA256 = "a50ff760d49e9d1da8a5a998bcedc8c377f12628d7d0426fc4dab89c1abfeff7"
 LOGGING_SOURCE_SHA256 = "43f86bbc08fdd5c7b6e697abffe1381f534a92bb32e1f1aee8360d6a142592a1"
+LOGGING_LEVEL_CALLS_SHA256 = "537ede4580d6934dc4ef812f20ee175f3123abc3f4cc774db15f5f1b0ba15213"
 WEAKREFSET_SOURCE_SHA256 = "91895a451d06e9f521a1171b31b9b19bc9740f35af00d4fa106338ab7167c9ac"
 COPYREG_SOURCE_SHA256 = "c8eda41f05c6bf95a4da4726a530409d2485ae060b8d019b3a8034389a15d3e9"
 TYPING_SOURCE_SHA256 = "be92d60fb8382bb29ead21c128825d7c96d0e8c915b44f840791e49f5a8d554c"
@@ -7166,6 +7167,267 @@ def _target_logging_lock_line_facts(files, thread_module_source):
     return facts
 
 
+def _target_logging_level_line_facts(files):
+    """Resolve the import-time logging level type from pinned constructors."""
+    if type(files) is not dict:
+        return {}
+    source = files.get("logging/__init__.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != LOGGING_SOURCE_SHA256):
+        return {}
+    try:
+        trees = {
+            path: ast.parse(data, filename=path)
+            for path, data in files.items()
+            if type(data) is bytes and path.endswith(".py")
+            and "test" not in path.split("/")
+        }
+    except SyntaxError:
+        return {}
+    tree = trees.get("logging/__init__.py")
+    if tree is None:
+        return {}
+
+    def class_node(name):
+        matches = [node for node in tree.body if isinstance(node, ast.ClassDef)
+                   and node.name == name]
+        return matches[0] if len(matches) == 1 else None
+
+    def method(owner, name):
+        matches = [node for node in owner.body if isinstance(node, ast.FunctionDef)
+                   and node.name == name] if owner else []
+        return matches[0] if len(matches) == 1 else None
+
+    level_functions = [node for node in ast.walk(tree)
+                       if isinstance(node, ast.FunctionDef)
+                       and node.name == "_checkLevel"]
+    if len(level_functions) != 1:
+        return {}
+    level_function = level_functions[0]
+    guards = [node for node in ast.walk(level_function)
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "isinstance(level, int)"]
+    if (len(guards) != 1 or [arg.arg for arg in level_function.args.args]
+            != ["level"]
+            or any(isinstance(node, ast.Name) and node.id == "int"
+                   and isinstance(node.ctx, (ast.Store, ast.Del))
+                   for node in ast.walk(tree))):
+        return {}
+    check_calls = {node.lineno: ast.unparse(node)
+                   for node in ast.walk(tree)
+                   if isinstance(node, ast.Call)
+                   and isinstance(node.func, ast.Name)
+                   and node.func.id == "_checkLevel"}
+    if check_calls != {
+            935: "_checkLevel(level)",
+            986: "_checkLevel(level)",
+            1375: "_checkLevel(value)",
+            1503: "_checkLevel(level)",
+            1514: "_checkLevel(level)",
+    }:
+        return {}
+
+    handler = class_node("Handler")
+    stream_handler = class_node("StreamHandler")
+    stderr_handler = class_node("_StderrHandler")
+    manager = class_node("Manager")
+    logger = class_node("Logger")
+    root_logger = class_node("RootLogger")
+    if any(node is None for node in (
+            handler, stream_handler, stderr_handler, manager, logger, root_logger)):
+        return {}
+    if ([ast.unparse(base) for base in stream_handler.bases] != ["Handler"]
+            or [ast.unparse(base) for base in stderr_handler.bases]
+            != ["StreamHandler"]
+            or [ast.unparse(base) for base in root_logger.bases] != ["Logger"]):
+        return {}
+    handler_init = method(handler, "__init__")
+    stderr_init = method(stderr_handler, "__init__")
+    manager_init = method(manager, "__init__")
+    manager_get_logger = method(manager, "getLogger")
+    logger_init = method(logger, "__init__")
+    root_init = method(root_logger, "__init__")
+    if any(node is None for node in (
+            handler_init, stderr_init, manager_init, manager_get_logger,
+            logger_init, root_init)):
+        return {}
+    if ([ast.unparse(value) for value in handler_init.args.defaults] != ["NOTSET"]
+            or [ast.unparse(value) for value in logger_init.args.defaults]
+            != ["NOTSET"]
+            or not any(isinstance(node, ast.Call)
+                       and ast.unparse(node) == "Handler.__init__(self, level)"
+                       for node in ast.walk(stderr_init))
+            or not any(isinstance(node, ast.Call)
+                       and ast.unparse(node)
+                       == "Logger.__init__(self, 'root', level)"
+                       for node in ast.walk(root_init))
+            or not any(isinstance(node, ast.Call)
+                       and ast.unparse(node.func)
+                       == "self.loggerClass or _loggerClass"
+                       and len(node.args) == 1
+                       and ast.unparse(node.args[0]) == "name"
+                       for node in ast.walk(manager_get_logger))):
+        return {}
+    manager_disable_writes = [
+        node for node in ast.walk(manager_init)
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Attribute)
+                and ast.unparse(target) == "self.disable"
+                for target in node.targets)
+    ]
+    disable_setters = [node for node in manager.body
+                       if isinstance(node, ast.FunctionDef)
+                       and node.name == "disable"
+                       and any(ast.unparse(decorator) == "disable.setter"
+                               for decorator in node.decorator_list)]
+    if (len(manager_disable_writes) != 1
+            or ast.unparse(manager_disable_writes[0].value) != "0"
+            or len(disable_setters) != 1
+            or not any(isinstance(node, ast.Call)
+                       and ast.unparse(node) == "_checkLevel(value)"
+                       for node in ast.walk(disable_setters[0]))):
+        return {}
+
+    constants = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 \
+                and isinstance(node.targets[0], ast.Name):
+            constants[node.targets[0].id] = ast.unparse(node.value)
+    if constants.get("NOTSET") != "0" or constants.get("WARNING") != "30":
+        return {}
+    logger_class_assignments = [node for node in tree.body
+                                if isinstance(node, ast.Assign)
+                                and any(isinstance(target, ast.Name)
+                                        and target.id == "_loggerClass"
+                                        for target in node.targets)]
+    if (len(logger_class_assignments) != 1
+            or ast.unparse(logger_class_assignments[0].value) != "Logger"):
+        return {}
+    manager_logger_class_assignments = [
+        node for node in ast.walk(manager_init)
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Attribute)
+                and ast.unparse(target) == "self.loggerClass"
+                for target in node.targets)
+    ]
+    if (len(manager_logger_class_assignments) != 1
+            or not isinstance(manager_logger_class_assignments[0].value, ast.Constant)
+            or manager_logger_class_assignments[0].value.value is not None):
+        return {}
+    root_assignments = [
+        node for node in tree.body if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "root"
+                for target in node.targets)
+        and isinstance(node.value, ast.Call)
+        and ast.unparse(node.value) == "RootLogger(WARNING)"
+    ]
+    manager_assignments = [
+        node for node in tree.body if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Attribute)
+                and ast.unparse(target) == "Logger.manager"
+                for target in node.targets)
+        and isinstance(node.value, ast.Call)
+        and ast.unparse(node.value) == "Manager(Logger.root)"
+    ]
+    stderr_assignments = [
+        node for node in tree.body if isinstance(node, ast.Assign)
+        and isinstance(node.value, ast.Call)
+        and ast.unparse(node.value) == "_StderrHandler(WARNING)"
+    ]
+    root_bindings = [node for node in tree.body if isinstance(node, ast.Assign)
+                     and any(isinstance(target, ast.Attribute)
+                             and ast.unparse(target) == "Logger.root"
+                             for target in node.targets)
+                     and ast.unparse(node.value) == "root"]
+    if (len(root_assignments) != 1 or len(manager_assignments) != 1
+            or len(stderr_assignments) != 1 or len(root_bindings) != 1
+            or not root_assignments[0].lineno < root_bindings[0].lineno
+            or not root_bindings[0].lineno < manager_assignments[0].lineno):
+        return {}
+
+    module_scope_calls = []
+    caller_source_rows = []
+    module_level_logger_api = {"Logger", "RootLogger", "Manager", "Handler",
+                               "basicConfig", "setLevel", "setLoggerClass"}
+    for path, other_tree in trees.items():
+        parents = {child: parent for parent in ast.walk(other_tree)
+                   for child in ast.iter_child_nodes(parent)}
+
+        def is_module_scope(node):
+            current = node
+            while current in parents:
+                current = parents[current]
+                if isinstance(current, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    return False
+            return True
+
+        logging_aliases = {
+            alias.asname or alias.name.split(".")[0]
+            for node in ast.walk(other_tree) if isinstance(node, ast.Import)
+            for alias in node.names if alias.name == "logging"
+        }
+        imported_api = {
+            alias.asname or alias.name: alias.name
+            for node in ast.walk(other_tree)
+            if isinstance(node, ast.ImportFrom) and node.module == "logging"
+            for alias in node.names
+        }
+        if any(alias.name == "*" for node in ast.walk(other_tree)
+               if isinstance(node, ast.ImportFrom) and node.module == "logging"
+               for alias in node.names):
+            return {}
+        if logging_aliases or imported_api:
+            caller_source_rows.append(
+                [path, hashlib.sha256(files[path]).hexdigest()]
+            )
+        for node in ast.walk(other_tree):
+            if (isinstance(node, ast.Attribute)
+                    and isinstance(node.ctx, (ast.Store, ast.Del))
+                    and isinstance(node.value, ast.Name)
+                    and node.value.id in logging_aliases
+                    and node.attr in {"root", "manager", "_loggerClass"}):
+                return {}
+            if not isinstance(node, ast.Call) or not is_module_scope(node):
+                continue
+            if isinstance(node.func, ast.Attribute) and isinstance(
+                    node.func.value, ast.Name) and node.func.value.id in logging_aliases:
+                if node.func.attr == "_checkLevel":
+                    return {}
+                if node.func.attr in module_level_logger_api:
+                    return {}
+                if node.func.attr == "getLogger":
+                    module_scope_calls.append([path, node.lineno, ast.unparse(node)])
+            elif isinstance(node.func, ast.Name) and node.func.id in imported_api:
+                if imported_api[node.func.id] == "_checkLevel":
+                    return {}
+                if imported_api[node.func.id] in module_level_logger_api:
+                    return {}
+                if imported_api[node.func.id] == "getLogger":
+                    module_scope_calls.append([path, node.lineno, ast.unparse(node)])
+            elif isinstance(node.func, ast.Attribute) and node.func.attr == "setLevel":
+                return {}
+            elif isinstance(node.func, ast.Attribute) \
+                    and node.func.attr == "setLoggerClass":
+                return {}
+    module_scope_calls.sort()
+    caller_source_rows.sort()
+    digest = hashlib.sha256(json.dumps(
+        [module_scope_calls, caller_source_rows], separators=(",", ":"),
+    ).encode()).hexdigest()
+    if digest != LOGGING_LEVEL_CALLS_SHA256:
+        return {}
+    expected_calls = {
+        ("asyncio/log.py", 7, "logging.getLogger(__package__)"),
+        ("concurrent/futures/_base.py", 43,
+         "logging.getLogger('concurrent.futures')"),
+        ("venv/__init__.py", 18, "logging.getLogger(__name__)"),
+    }
+    if {tuple(row) for row in module_scope_calls} != expected_calls:
+        return {}
+
+    return {guards[0].lineno: True}
+
+
 def _target_collections_namedtuple_rename_line_facts(files):
     """Resolve namedtuple's rename guard when all production callers omit it."""
     source = (files.get("collections/__init__.py")
@@ -11345,6 +11607,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_logging_lock_line_facts = _target_logging_lock_line_facts(
         files, thread_native_id_module,
     )
+    target_logging_level_line_facts = _target_logging_level_line_facts(files)
     target_collections_namedtuple_rename_line_facts = (
         _target_collections_namedtuple_rename_line_facts(files)
     )
@@ -12002,7 +12265,10 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "string": target_string_template_pattern_guard_line_facts,
             "_weakrefset": target_weakrefset_empty_init_line_facts,
             "copyreg": target_copyreg_pickle_callable_line_facts,
-            "logging": target_logging_lock_line_facts,
+            "logging": {
+                **target_logging_lock_line_facts,
+                **target_logging_level_line_facts,
+            },
             "collections": {
                 **target_collections_namedtuple_rename_line_facts,
                 **target_collections_namedtuple_string_type_line_facts,
@@ -12019,6 +12285,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
               or target_weakrefset_empty_init_line_facts
               or target_copyreg_pickle_callable_line_facts
               or target_logging_lock_line_facts
+              or target_logging_level_line_facts
               or target_collections_namedtuple_rename_line_facts
               or target_collections_namedtuple_string_type_line_facts
               or target_collections_namedtuple_module_line_facts
@@ -12496,6 +12763,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ],
         "target_platform_logging_lock_line_facts": list(
             target_logging_lock_line_facts.items()
+        ),
+        "target_platform_logging_level_line_facts": list(
+            target_logging_level_line_facts.items()
         ),
         "target_platform_collections_namedtuple_rename_line_facts": list(
             target_collections_namedtuple_rename_line_facts.items()
