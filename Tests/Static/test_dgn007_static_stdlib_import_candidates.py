@@ -36,6 +36,15 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"case 'b': config->bytes_warning++;\n"
             b"case 'v': config->verbose++;\n"
             b"case 'q': config->quiet++;\n"
+            b"if (config->use_hash_seed < 0) { config->use_hash_seed = 0; "
+            b"config->hash_seed = 0; }\n"
+            b"static const char *config_get_env(const PyConfig *config, "
+            b"const char *name) { return _Py_GetEnv(config->use_environment, name); }\n"
+            b"static PyStatus config_init_hash_seed(PyConfig *config) { "
+            b"const char *seed_text = config_get_env(config, \"PYTHONHASHSEED\"); "
+            b"if (seed_text) { config->use_hash_seed = 1; } else { "
+            b"/* Use a random hash */ config->use_hash_seed = 0; "
+            b"config->hash_seed = 0; } }\n"
             b"case 'B': config->write_bytecode = 0;\n"
             b"case 'S': config->site_import = 0;\n"
             b"case 'O': config->optimization_level++;\n"
@@ -68,6 +77,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"SetFlag(config->verbose);\n"
             b"SetFlag(config->bytes_warning);\n"
             b"SetFlag(config->quiet);\n"
+            b"SetFlag(config->use_hash_seed == 0 || config->hash_seed != 0);\n"
             b"return 0;\n}\n"
             b"int _PySys_UpdateConfig(PyThreadState *tstate) {\n"
             b"if (set_flags_from_config(interp, flags) < 0) { return -1; }\n"
@@ -1410,6 +1420,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             ("sys.flags.verbose", 0),
             ("sys.flags.bytes_warning", 0),
             ("sys.flags.quiet", 0),
+            ("sys.flags.hash_randomization", 1),
         )
         with patch.multiple(
             SUBJECT,
@@ -1448,7 +1459,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             self.assertEqual(SUBJECT._target_s15_flags_field_candidate(facts), {
                 "value": (1, 1, 1, 1, 1, 0),
                 "source_fact_names": tuple(name for name, _ in expected[:6]),
-                "worker_route_fact_count": 14,
+                "worker_route_fact_count": 15,
                 "runtime_flags_claimed": False,
                 "evidence_scope": "STATIC_S15_FLAGS_FIELD_CANDIDATE",
             })
@@ -1464,7 +1475,8 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "sys.dont_write_bytecode is True and sys.flags.debug == 0 and "
                 "sys.flags.inspect == 0 and sys.flags.interactive == 0 and "
                 "sys.flags.verbose == 0 and sys.flags.bytes_warning == 0 and "
-                "sys.flags.quiet == 0",
+                "sys.flags.quiet == 0 and "
+                "sys.flags.hash_randomization == 1",
                 mode="eval",
             ).body
             self.assertIs(
@@ -3261,6 +3273,28 @@ class StaticImportCandidateTests(unittest.TestCase):
             ):
                 self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
                     preconfig, changed_defaults, sys_module, worker,
+                ), ())
+            changed_hash_default = initconfig.replace(
+                b"config->hash_seed = 0;",
+                b"config->hash_seed = 1;",
+            )
+            with patch.object(
+                SUBJECT, "INITCONFIG_C_SHA256",
+                hashlib.sha256(changed_hash_default).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
+                    preconfig, changed_hash_default, sys_module, worker,
+                ), ())
+            changed_hash_environment = initconfig.replace(
+                b"_Py_GetEnv(config->use_environment, name)",
+                b"_Py_GetEnv(1, name)",
+            )
+            with patch.object(
+                SUBJECT, "INITCONFIG_C_SHA256",
+                hashlib.sha256(changed_hash_environment).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
+                    preconfig, changed_hash_environment, sys_module, worker,
                 ), ())
 
     def test_sys_implementation_version_binds_shared_version_info(self):
