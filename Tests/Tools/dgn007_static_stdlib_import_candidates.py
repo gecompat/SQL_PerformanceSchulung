@@ -7322,6 +7322,118 @@ def _target_collections_namedtuple_string_type_line_facts(files):
     return {guards[0].lineno: False}
 
 
+def _target_collections_namedtuple_module_line_facts(
+        files, sys_module_source, sys_clinic_source):
+    """Resolve namedtuple's final module guard on the pinned CPython route."""
+    source = (files.get("collections/__init__.py")
+              if type(files) is dict else None)
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest()
+            != COLLECTIONS_SOURCE_SHA256
+            or type(sys_module_source) is not bytes
+            or hashlib.sha256(sys_module_source).hexdigest()
+            != SYS_MODULE_C_SHA256
+            or type(sys_clinic_source) is not bytes
+            or hashlib.sha256(sys_clinic_source).hexdigest()
+            != SYS_MODULE_CLINIC_SHA256
+            or _TARGET_BUILTIN_MEMBERSHIP.get("sys") is not True):
+        return {}
+    try:
+        tree = ast.parse(source, filename="collections/__init__.py")
+    except SyntaxError:
+        return {}
+    sys_aliases = [alias.asname or alias.name
+                   for node in tree.body if isinstance(node, ast.Import)
+                   for alias in node.names if alias.name == "sys"]
+    if (len(sys_aliases) != 1
+            or any(isinstance(node, ast.Name) and node.id == sys_aliases[0]
+                   and isinstance(node.ctx, (ast.Store, ast.Del))
+                   for node in ast.walk(tree))):
+        return {}
+    function_nodes = [node for node in tree.body
+                      if isinstance(node, ast.FunctionDef)
+                      and node.name == "namedtuple"]
+    if len(function_nodes) != 1:
+        return {}
+    function = function_nodes[0]
+    fallback_guards = [node for node in function.body
+                       if isinstance(node, ast.If)
+                       and ast.unparse(node.test) == "module is None"]
+    final_guards = [node for node in function.body
+                    if isinstance(node, ast.If)
+                    and ast.unparse(node.test) == "module is not None"]
+    if len(fallback_guards) != 1 or len(final_guards) != 1:
+        return {}
+    fallback = fallback_guards[0]
+    fallback_calls = [node for node in ast.walk(fallback)
+                      if isinstance(node, ast.Call)
+                      and ast.unparse(node)
+                      == f"{sys_aliases[0]}._getframemodulename(1)"]
+    default_assignments = [node for node in ast.walk(fallback)
+                           if isinstance(node, ast.Assign)
+                           and any(isinstance(target, ast.Name)
+                                   and target.id == "module"
+                                   for target in node.targets)
+                           and ast.unparse(node.value)
+                           == f"{sys_aliases[0]}._getframemodulename(1) or '__main__'"]
+    if len(fallback_calls) != 1 or len(default_assignments) != 1:
+        return {}
+    clinic_text = sys_clinic_source.decode("utf-8", errors="strict")
+    c_text = sys_module_source.decode("utf-8", errors="strict")
+    method_macro = "SYS__GETFRAMEMODULENAME_METHODDEF"
+    clinic_lines = clinic_text.splitlines()
+    clinic_index = next((index for index, line in enumerate(clinic_lines)
+                         if line.startswith(f"#define {method_macro}")), None)
+    methods_start = c_text.find("static PyMethodDef sys_methods[] = {")
+    methods_end = c_text.find("};", methods_start) if methods_start >= 0 else -1
+    module_start = c_text.find("static struct PyModuleDef sysmodule = {")
+    module_end = c_text.find("};", module_start) if module_start >= 0 else -1
+    if (clinic_index is None or clinic_index + 1 >= len(clinic_lines)
+            or '"_getframemodulename"' not in clinic_lines[clinic_index + 1]
+            or "sys__getframemodulename" not in clinic_lines[clinic_index + 1]
+            or '#include "clinic/sysmodule.c.h"' not in c_text
+            or methods_end <= methods_start
+            or method_macro not in c_text[methods_start:methods_end]
+            or module_end <= module_start
+            or "sys_methods," not in c_text[module_start:module_end]
+            or "sys__getframemodulename_impl" not in c_text
+            or "PyFunction_GetModule" not in c_text
+            or "Py_RETURN_NONE" not in c_text):
+        return {}
+    for path, candidate in files.items():
+        if (type(candidate) is not bytes or not path.endswith(".py")
+                or "test" in path.split("/")):
+            continue
+        try:
+            caller_tree = tree if path == "collections/__init__.py" else ast.parse(
+                candidate, filename=path,
+            )
+        except SyntaxError:
+            return {}
+        caller_sys_aliases = {
+            alias.asname or alias.name
+            for node in ast.walk(caller_tree) if isinstance(node, ast.Import)
+            for alias in node.names if alias.name == "sys"
+        }
+        if any(isinstance(node, ast.Attribute)
+               and node.attr == "_getframemodulename"
+               and isinstance(node.ctx, (ast.Store, ast.Del))
+               and isinstance(node.value, ast.Name)
+               and node.value.id in caller_sys_aliases
+               for node in ast.walk(caller_tree)):
+            return {}
+        if any(isinstance(node, ast.Call)
+               and isinstance(node.func, ast.Name)
+               and node.func.id == "setattr" and len(node.args) >= 2
+               and isinstance(node.args[0], ast.Name)
+               and node.args[0].id in caller_sys_aliases
+               and isinstance(node.args[1], ast.Constant)
+               and node.args[1].value == "_getframemodulename"
+               for node in ast.walk(caller_tree)):
+            return {}
+    return {final_guards[0].lineno: True}
+
+
 def _target_sysconfig_build_setup_guard_line_facts(
         files, image_path_facts, sysconfig_name_facts,
         project_base_env_facts, no_site, no_project_base_override,
@@ -11259,6 +11371,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     sys_getframe_call_facts = _target_sys_getframe_call_facts(
         files, sys_module_c_source, sys_module_clinic_source
     )
+    target_collections_namedtuple_module_line_facts = (
+        _target_collections_namedtuple_module_line_facts(
+            files, sys_module_c_source, sys_module_clinic_source,
+        )
+    )
     sys_implementation_version_fact = (
         _target_sys_implementation_version_fact(sys_module_c_source)
     )
@@ -11643,6 +11760,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "collections": {
                 **target_collections_namedtuple_rename_line_facts,
                 **target_collections_namedtuple_string_type_line_facts,
+                **target_collections_namedtuple_module_line_facts,
             },
             "importlib._bootstrap_external": target_importlib_optimize_line_facts,
             "importlib._bootstrap": target_importlib_verbose_line_facts,
@@ -11657,6 +11775,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
               or target_logging_lock_line_facts
               or target_collections_namedtuple_rename_line_facts
               or target_collections_namedtuple_string_type_line_facts
+              or target_collections_namedtuple_module_line_facts
               or target_sysconfig_build_setup_guard_line_facts
               or target_sysconfig_venv_prefix_guard_line_facts
               or target_sysconfig_preferred_scheme_membership_line_facts
@@ -12130,6 +12249,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_collections_namedtuple_string_type_line_facts": list(
             target_collections_namedtuple_string_type_line_facts.items()
+        ),
+        "target_platform_collections_namedtuple_module_line_facts": list(
+            target_collections_namedtuple_module_line_facts.items()
         ),
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,
