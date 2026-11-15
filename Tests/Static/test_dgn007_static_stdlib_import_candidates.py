@@ -1625,15 +1625,27 @@ class StaticImportCandidateTests(unittest.TestCase):
             b'_need(_project_scalars(expected, observation)[2] == modules, "MODULE_MISMATCH")',
             b'_need(True, "MODULE_MISMATCH")', 1,
         )
-        with patch.object(
-            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
-            SUBJECT._normalized_profile_source_sha256(changed),
-        ):
-            self.assertIsNone(
-                SUBJECT._target_selected_profile_anchor_binding_candidate(
-                    changed, binder_flow,
-                )
+        binder_start = profile_source.index(b"def _bind_selected(")
+        binder_body = profile_source[binder_start:]
+        early_return = (
+            profile_source[:binder_start]
+            + binder_body.replace(
+                b"    # Nur nach ",
+                b"    return None\n    # Nur nach ",
+                1,
             )
+        )
+        self.assertNotEqual(early_return, profile_source)
+        for mutation in (changed, early_return):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(mutation),
+            ):
+                self.assertIsNone(
+                    SUBJECT._target_selected_profile_anchor_binding_candidate(
+                        mutation, binder_flow,
+                    )
+                )
 
     def test_selected_profile_observation_flow_is_source_bound(self):
         profile_source = (

@@ -11488,8 +11488,8 @@ PR #864 bindet die exakte Zahl der Fehler- und Erfolgsausgänge von
 setzt sie direkt an den Beginn des Try-Blocks. 279 fokussierte Regressionen
 bestehen. Es wird keine Profilbindung ausgeführt.
 
-## Begrenzte Fortsetzung: internen Profilbinder-Rückgabepfad absichern
+## Abgeschlossen: internen Profilbinder-Rückgabepfad absichern
 
-Der nächste Nachaudit bindet den einzigen Rückgabepunkt von `_bind_selected`
-nach allen Cache-, Shape- und Projektionsprüfungen. Es werden keine Anker
-gelesen.
+PR #865 bindet den einzigen Rückgabepunkt von `_bind_selected` nach den Cache-,
+Shape- und Projektionsprüfungen. Eine Gegenprobe fügt eine frühe Rückgabe ein;
+279 fokussierte Regressionen bestehen. Es werden keine Anker gelesen.
