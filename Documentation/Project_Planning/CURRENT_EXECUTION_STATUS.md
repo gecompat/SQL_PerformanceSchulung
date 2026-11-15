@@ -11689,6 +11689,18 @@ Unknown-Digest
 Interpreterstart und keine Runtime-/P11-Attestation. Die übrigen dynamischen
 `namedtuple`-Guards bleiben unbekannt.
 
+Eine weitere `namedtuple`-Wache ist jetzt an den gepinnten CPython-3.12.16-
+`sys._getframemodulename`-Builtinpfad gebunden. Wenn der Funktionskörper den
+letzten Modulguard erreicht, ist `module` entweder bereits gesetzt oder der
+Fallback `... or '__main__'` hat einen nichtleeren Wert geliefert. Eine
+Überschreibung des Builtins durch Standardbibliotheksquellen lässt den Fact
+scheitern; das Quellenarchiv enthält nur lesende Verwendungen. Damit ist
+`collections/__init__.py:523` wahr. Der Scan zählt 95 aufgelöste und 470
+unbekannte Bedingungen bei 60 Modulen und 316 Kanten; Unknown-Digest
+`6eefb65fb9ebaba0806610fb6beefeaa2ae055f78af74c078726aabf7ea008fe`.
+291 fokussierte Tests bestehen. Status bleibt `CANDIDATES_ONLY`; es gab keinen
+Interpreterstart und keine Runtime-/P11-Attestation.
+
 Der anschließende `sysconfig`-Schnitt bindet `sysconfig.py:112` nur mit der
 neuen expliziten Routenannahme `--target-no-pythonuserbase-override` auf
 falsch. Die Annahme wird zusätzlich gegen die fest gepinnte Image-Config

@@ -4932,6 +4932,89 @@ class StaticImportCandidateTests(unittest.TestCase):
                     {},
                 )
 
+    def test_namedtuple_module_guard_uses_pinned_cpython_fallback(self):
+        collections_source = (
+            b"import sys as _sys\n"
+            b"def namedtuple(module=None):\n"
+            b"    if module is None:\n"
+            b"        try:\n"
+            b"            module = _sys._getframemodulename(1) or '__main__'\n"
+            b"        except AttributeError:\n"
+            b"            try:\n"
+            b"                module = _sys._getframe(1).f_globals.get('__name__', '__main__')\n"
+            b"            except (AttributeError, ValueError):\n"
+            b"                pass\n"
+            b"    if module is not None:\n"
+            b"        pass\n"
+        )
+        sys_source = (
+            b'#include "clinic/sysmodule.c.h"\n'
+            b"static PyMethodDef sys_methods[] = {\n"
+            b"    SYS__GETFRAMEMODULENAME_METHODDEF\n};\n"
+            b"static struct PyModuleDef sysmodule = {\n    sys_methods,\n};\n"
+            b"static PyObject *sys__getframemodulename_impl(void) {\n"
+            b"    PyObject *r = PyFunction_GetModule(frame);\n"
+            b"    Py_RETURN_NONE;\n}\n"
+        )
+        clinic_source = (
+            b"#define SYS__GETFRAMEMODULENAME_METHODDEF    \\\n"
+            b'    {"_getframemodulename", sys__getframemodulename},\n'
+        )
+        files = {"collections/__init__.py": collections_source}
+        with patch.object(
+            SUBJECT, "COLLECTIONS_SOURCE_SHA256",
+            hashlib.sha256(collections_source).hexdigest(),
+        ), patch.object(
+            SUBJECT, "SYS_MODULE_C_SHA256",
+            hashlib.sha256(sys_source).hexdigest(),
+        ), patch.object(
+            SUBJECT, "SYS_MODULE_CLINIC_SHA256",
+            hashlib.sha256(clinic_source).hexdigest(),
+        ), patch.dict(SUBJECT._TARGET_BUILTIN_MEMBERSHIP, {"sys": True}):
+            self.assertEqual(
+                SUBJECT._target_collections_namedtuple_module_line_facts(
+                    files, sys_source, clinic_source,
+                ),
+                {11: True},
+            )
+            unsafe_files = {
+                **files,
+                "extra.py": b"import sys\nsys._getframemodulename = None\n",
+            }
+            self.assertEqual(
+                SUBJECT._target_collections_namedtuple_module_line_facts(
+                    unsafe_files, sys_source, clinic_source,
+                ),
+                {},
+            )
+            mutated_collections = collections_source.replace(
+                b" or '__main__'", b"",
+            )
+            with patch.object(
+                SUBJECT, "COLLECTIONS_SOURCE_SHA256",
+                hashlib.sha256(mutated_collections).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_collections_namedtuple_module_line_facts(
+                        {"collections/__init__.py": mutated_collections},
+                        sys_source, clinic_source,
+                    ),
+                    {},
+                )
+            no_method_source = sys_source.replace(
+                b"SYS__GETFRAMEMODULENAME_METHODDEF", b"UNKNOWN_METHODDEF",
+            )
+            with patch.object(
+                SUBJECT, "SYS_MODULE_C_SHA256",
+                hashlib.sha256(no_method_source).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_collections_namedtuple_module_line_facts(
+                        files, no_method_source, clinic_source,
+                    ),
+                    {},
+                )
+
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
             "entry.py": (

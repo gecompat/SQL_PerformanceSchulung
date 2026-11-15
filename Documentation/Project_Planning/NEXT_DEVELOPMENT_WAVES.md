@@ -3119,3 +3119,13 @@ aufgelöste und 471 unbekannte Bedingungen; Unknown-Digest
 290 fokussierte Tests bestehen. Die weiteren `namedtuple`-Guards hängen von
 variablen Argumenten und bleiben offen; `CANDIDATES_ONLY`, kein
 Runtime-/P11-Nachweis.
+
+Der anschließende Fact bindet den letzten `collections.namedtuple`-Modulguard
+an die im CPython-Ziel exportierte `_getframemodulename`-Methode und den
+`'__main__'`-Fallback. Änderungen am Builtinpfad oder Überschreibungen in
+Standardbibliotheksquellen verwerfen den Fact. Der Guard an Zeile 523 ist
+wahr; die Zielclosure zählt 95 aufgelöste und 470 unbekannte Bedingungen,
+60 Module und 316 Kanten. Unknown-Digest:
+`6eefb65fb9ebaba0806610fb6beefeaa2ae055f78af74c078726aabf7ea008fe`.
+291 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine Runtime-/P11-
+Attestation.
