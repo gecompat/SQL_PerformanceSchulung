@@ -11003,14 +11003,23 @@ Continuity-Validatoren sowie `git diff --check` bestanden. Umfang: ein Paket,
 ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
 menschliche Generalprobenattestation.
 
-## S15-Teilschnitt: bedingte Zipimport-Hookquelle
+## Abgeschlossen: S15-Teilschnitt bedingte Zipimport-Hookquelle
 
-Der nächste statische Kandidat bindet `init_zipimport()` in der gepinnten
-`Python/import.c`-Quelle und dessen Aufruf nach erfolgreichem
-`init_importlib_external()`. Er soll die bedingte Auflösung von
-`zipimport.zipimporter`, die Einfügung durch
-`PyList_Insert(path_hooks, 0, zipimporter)` und den Fehlerpfad fail-closed
-prüfen. Der Beleg gilt nur der Quellroute, nicht einer vorhandenen Runtimeklasse,
-einer tatsächlichen Listenänderung oder der vollständigen Hookliste. Umfang:
+PR #802 bindet `init_zipimport()` und `_PyImport_InitExternal()` an den
+digestgeprüften CPython-3.12.16-Quelltext. Der Kandidat weist die bedingte
+Auflösung von `zipimport.zipimporter`, die Einfügung an Listenposition 0, das
+Ausbleiben einer Registrierung bei fehlendem Attribut, den Fehlerpfad und die
+Reihenfolge nach erfolgreicher Importlib-External-Initialisierung aus. Der
+Archivlauf und 240 fokussierte Regressionen bestanden; zwei geänderte
+Quellvarianten werden fail-closed abgewiesen. Keine tatsächliche Runtime-
+Listenänderung oder vollständige Hookinventur.
+
+## S15-Teilschnitt: FileFinder-Hookfactory binden
+
+Der nächste statische Kandidat soll den digestgebundenen Rückgabewert von
+`_get_supported_file_loaders()` mit `FileFinder.path_hook()` verbinden. Zu
+binden sind die deklarative Loaderreihenfolge, die zurückgegebene Closure, der
+Verzeichnisguard und der `ImportError`-Pfad. Die Struktur belegt weder
+installierte Runtimeloader noch eine tatsächlich erzeugte Hookinstanz. Umfang:
 ein Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-,
 SQL-/Lab- oder menschliche Generalprobenattestation.

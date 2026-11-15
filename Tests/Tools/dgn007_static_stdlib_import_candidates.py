@@ -1242,7 +1242,7 @@ _PyImport_InitExternal(PyThreadState *tstate)
 }""",
         ),
     )
-    for name, pattern, expected in function_sources:
+    for _, pattern, expected in function_sources:
         matches = pattern.findall(source)
         if len(matches) != 1 or matches[0] != expected:
             return None
@@ -1258,6 +1258,80 @@ _PyImport_InitExternal(PyThreadState *tstate)
         "external_importlib_setup_precedes_zipimport_attempt": True,
         "final_sys_path_hooks_claimed": False,
         "evidence_scope": "STATIC_CONDITIONAL_ZIPIMPORT_HOOK_CANDIDATE",
+    }
+
+
+def _target_filefinder_hook_factory_candidate(files):
+    """Bind FileFinder's declared loader tuple and directory-hook factory."""
+    path = "importlib/_bootstrap_external.py"
+    source = files.get(path) if type(files) is dict else None
+    if (type(source) is not bytes or not source or len(source) > MAX_SOURCE_BYTES
+            or hashlib.sha256(source).hexdigest()
+            != IMPORTLIB_EXTERNAL_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename=path)
+    except (UnicodeError, SyntaxError):
+        return None
+
+    def without_docstring(function_node):
+        if (function_node.body and isinstance(function_node.body[0], ast.Expr)
+                and isinstance(function_node.body[0].value, ast.Constant)
+                and type(function_node.body[0].value.value) is str):
+            function_node.body = function_node.body[1:]
+        return function_node
+
+    supported_functions = [
+        node for node in tree.body
+        if isinstance(node, ast.FunctionDef)
+        and node.name == "_get_supported_file_loaders"
+    ]
+    finder_classes = [
+        node for node in tree.body
+        if isinstance(node, ast.ClassDef) and node.name == "FileFinder"
+    ]
+    path_hook_methods = [
+        node for node in finder_classes[0].body
+        if isinstance(node, ast.FunctionDef) and node.name == "path_hook"
+    ] if len(finder_classes) == 1 else []
+    if len(supported_functions) != 1 or len(path_hook_methods) != 1:
+        return None
+
+    expected_supported = ast.parse(
+        "def _get_supported_file_loaders():\n"
+        "    extensions = ExtensionFileLoader, _imp.extension_suffixes()\n"
+        "    source = SourceFileLoader, SOURCE_SUFFIXES\n"
+        "    bytecode = SourcelessFileLoader, BYTECODE_SUFFIXES\n"
+        "    return [extensions, source, bytecode]\n"
+    ).body[0]
+    expected_path_hook = ast.parse(
+        "class FileFinder:\n"
+        "    @classmethod\n"
+        "    def path_hook(cls, *loader_details):\n"
+        "        def path_hook_for_FileFinder(path):\n"
+        "            'Path hook for importlib.machinery.FileFinder.'\n"
+        "            if not _path_isdir(path):\n"
+        "                raise ImportError('only directories are supported', path=path)\n"
+        "            return cls(path, *loader_details)\n"
+        "        return path_hook_for_FileFinder\n"
+    ).body[0].body[0]
+    if (ast.dump(without_docstring(supported_functions[0]), include_attributes=False)
+            != ast.dump(expected_supported, include_attributes=False)
+            or ast.dump(without_docstring(path_hook_methods[0]), include_attributes=False)
+            != ast.dump(expected_path_hook, include_attributes=False)):
+        return None
+    return {
+        "source_sha256": IMPORTLIB_EXTERNAL_SOURCE_SHA256,
+        "path_hook_factory": "FileFinder.path_hook",
+        "path_hook_classmethod": True,
+        "supported_loader_detail_order": [
+            "ExtensionFileLoader", "SourceFileLoader", "SourcelessFileLoader",
+        ],
+        "returned_hook": "path_hook_for_FileFinder",
+        "directory_guard": "_path_isdir(path)",
+        "non_directory_result": "ImportError(path=path)",
+        "finder_constructor": "FileFinder(path, *loader_details)",
+        "evidence_scope": "STATIC_FILEFINDER_HOOK_FACTORY_CANDIDATE",
     }
 
 
@@ -7595,16 +7669,16 @@ def _module_init_call_candidate_closure(files, roots=ROOTS, *,
 def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_image_config_path=None, target_no_project_base_override=False,
             target_image_save_path=None, target_direct_python312=False):
-    (files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
-     getpath_source, config_c_template, configure_source, ast_asdl, ast_c_source,
-     sys_module_c_source, sys_module_clinic_source, warnings_c_source,
-     warnings_clinic_source, posix_module_c_source,
-     posix_module_clinic_source, pickle_module_c_source, thread_native_id_header,
-     thread_native_id_module, thread_native_id_pthread,
-     getplatform_source, makefile_pre_source,
-     python_import_c_source, preconfig_c_source, initconfig_c_source) = _source_archive_data(
-        _archive_bytes(archive_path)
-    )
+    (
+        files, stdlib_header, frozen_source, bootstrap_setup, stdlib_setup,
+        getpath_source, config_c_template, configure_source, ast_asdl,
+        ast_c_source, sys_module_c_source, sys_module_clinic_source,
+        warnings_c_source, warnings_clinic_source, posix_module_c_source,
+        posix_module_clinic_source, pickle_module_c_source,
+        thread_native_id_header, thread_native_id_module,
+        thread_native_id_pthread, getplatform_source, makefile_pre_source,
+        python_import_c_source, preconfig_c_source, initconfig_c_source,
+    ) = _source_archive_data(_archive_bytes(archive_path))
     if stdlib_header is None:
         raise ValueError("STDLIB_MODULE_NAMES_MISSING")
     if frozen_source is None:
@@ -7741,6 +7815,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     )
     importlib_finder_registration_candidate = (
         _target_importlib_finder_registration_candidate(files)
+    )
+    filefinder_hook_factory_candidate = (
+        _target_filefinder_hook_factory_candidate(files)
     )
     configure_inventory = _configure_template_inventory(
         config_c_template, configure_source
@@ -8196,6 +8273,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ],
         "target_importlib_finder_registration_candidate": (
             importlib_finder_registration_candidate
+        ),
+        "target_filefinder_hook_factory_candidate": (
+            filefinder_hook_factory_candidate
         ),
         "target_zipimport_hook_registration_candidate": (
             zipimport_hook_registration_candidate

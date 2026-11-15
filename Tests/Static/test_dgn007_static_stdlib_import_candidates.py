@@ -3108,6 +3108,52 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertIsNone(check_sources(bootstrap, changed_hook))
 
+    def test_filefinder_hook_factory_binds_loader_order_and_guard(self):
+        source = (
+            b"def _get_supported_file_loaders():\n"
+            b"    extensions = ExtensionFileLoader, _imp.extension_suffixes()\n"
+            b"    source = SourceFileLoader, SOURCE_SUFFIXES\n"
+            b"    bytecode = SourcelessFileLoader, BYTECODE_SUFFIXES\n"
+            b"    return [extensions, source, bytecode]\n\n"
+            b"class FileFinder:\n"
+            b"    @classmethod\n"
+            b"    def path_hook(cls, *loader_details):\n"
+            b'        """Hook constructor for FileFinder directories."""\n'
+            b"        def path_hook_for_FileFinder(path):\n"
+            b'            """Path hook for importlib.machinery.FileFinder."""\n'
+            b"            if not _path_isdir(path):\n"
+            b"                raise ImportError('only directories are supported', path=path)\n"
+            b"            return cls(path, *loader_details)\n"
+            b"        return path_hook_for_FileFinder\n"
+        )
+
+        def check_source(candidate_source):
+            files = {"importlib/_bootstrap_external.py": candidate_source}
+            with patch.object(
+                SUBJECT, "IMPORTLIB_EXTERNAL_SOURCE_SHA256",
+                hashlib.sha256(candidate_source).hexdigest(),
+            ):
+                return SUBJECT._target_filefinder_hook_factory_candidate(files)
+
+        candidate = check_source(source)
+        self.assertIsNotNone(candidate)
+        self.assertTrue(candidate["path_hook_classmethod"])
+        self.assertEqual(candidate["supported_loader_detail_order"], [
+            "ExtensionFileLoader", "SourceFileLoader", "SourcelessFileLoader",
+        ])
+        self.assertEqual(candidate["returned_hook"], "path_hook_for_FileFinder")
+        self.assertEqual(candidate["non_directory_result"], "ImportError(path=path)")
+
+        changed_order = source.replace(
+            b"return [extensions, source, bytecode]",
+            b"return [bytecode, source, extensions]",
+        )
+        self.assertIsNone(check_source(changed_order))
+        changed_guard = source.replace(
+            b"if not _path_isdir(path):", b"if _path_isdir(path):"
+        )
+        self.assertIsNone(check_source(changed_guard))
+
     def test_zipimport_hook_registration_is_conditional_and_ordered(self):
         source = (
             b"static int\ninit_zipimport(PyThreadState *tstate, int verbose)\n{\n"
