@@ -4897,6 +4897,41 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {},
             )
 
+    def test_namedtuple_type_guard_follows_string_normalization(self):
+        collections_source = (
+            b"def namedtuple(typename, field_names):\n"
+            b"    typename = _sys.intern(str(typename))\n"
+            b"    field_names = list(map(str, field_names))\n"
+            b"    for name in [typename] + field_names:\n"
+            b"        if type(name) is not str:\n"
+            b"            raise TypeError()\n"
+        )
+        files = {"collections/__init__.py": collections_source}
+        with patch.object(
+            SUBJECT, "COLLECTIONS_SOURCE_SHA256",
+            hashlib.sha256(collections_source).hexdigest(),
+        ):
+            self.assertEqual(
+                SUBJECT._target_collections_namedtuple_string_type_line_facts(
+                    files,
+                ),
+                {5: False},
+            )
+            mutated_source = collections_source.replace(
+                b"list(map(str, field_names))",
+                b"list(map(bytes, field_names))",
+            )
+            with patch.object(
+                SUBJECT, "COLLECTIONS_SOURCE_SHA256",
+                hashlib.sha256(mutated_source).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_collections_namedtuple_string_type_line_facts(
+                        {"collections/__init__.py": mutated_source},
+                    ),
+                    {},
+                )
+
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
             "entry.py": (

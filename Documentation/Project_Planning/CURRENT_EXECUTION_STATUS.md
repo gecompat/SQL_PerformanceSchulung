@@ -11677,6 +11677,18 @@ Unknown-Digest
 `255dba30d8c9248fe7391aac6024a79f0f5e1bb74adaea3daa2e677911733117`.
 289 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine Runtime-/P11-Attestation.
 
+Die nächste abgeschlossene Quellprüfung bindet `collections.namedtuple` an die
+Normalisierung von `typename` und `field_names` mit `str(...)` vor dem
+Typguard. Der Guard `collections/__init__.py:397` ist dadurch im gepinnten
+Funktionskörper falsch; eine Gegenprobe mit veränderter Feldnormalisierung
+wird verworfen. Der gebundene CPython-3.12.16-Archiv-/OCI-Scan zählt weiterhin
+60 Module und 316 Kanten, nun 94 aufgelöste und 471 unbekannte Bedingungen;
+Unknown-Digest
+`bca4b7390cb584e14732193fe148ea1cb35288e77b1fd5da2dc93e5434af1472`.
+290 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`; es gab keinen
+Interpreterstart und keine Runtime-/P11-Attestation. Die übrigen dynamischen
+`namedtuple`-Guards bleiben unbekannt.
+
 Der anschließende `sysconfig`-Schnitt bindet `sysconfig.py:112` nur mit der
 neuen expliziten Routenannahme `--target-no-pythonuserbase-override` auf
 falsch. Die Annahme wird zusätzlich gegen die fest gepinnte Image-Config

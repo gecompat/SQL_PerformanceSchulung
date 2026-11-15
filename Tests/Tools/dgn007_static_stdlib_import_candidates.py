@@ -7263,6 +7263,65 @@ def _target_collections_namedtuple_rename_line_facts(files):
     return {guards[0].lineno: False}
 
 
+def _target_collections_namedtuple_string_type_line_facts(files):
+    """Resolve namedtuple's type guard after its string normalization."""
+    source = (files.get("collections/__init__.py")
+              if type(files) is dict else None)
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest()
+            != COLLECTIONS_SOURCE_SHA256):
+        return {}
+    try:
+        tree = ast.parse(source, filename="collections/__init__.py")
+    except SyntaxError:
+        return {}
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef)
+                 and node.name == "namedtuple"]
+    if len(functions) != 1:
+        return {}
+    function = functions[0]
+    assignments = [node for node in function.body
+                   if isinstance(node, ast.Assign)]
+    field_normalizations = [node for node in assignments
+                            if any(isinstance(target, ast.Name)
+                                   and target.id == "field_names"
+                                   for target in node.targets)
+                            and ast.unparse(node.value)
+                            == "list(map(str, field_names))"]
+    typename_normalizations = [node for node in assignments
+                               if any(isinstance(target, ast.Name)
+                                      and target.id == "typename"
+                                      for target in node.targets)
+                               and ast.unparse(node.value)
+                               == "_sys.intern(str(typename))"]
+    loops = [node for node in function.body
+             if isinstance(node, ast.For)
+             and isinstance(node.target, ast.Name)
+             and node.target.id == "name"
+             and ast.unparse(node.iter) == "[typename] + field_names"]
+    if (len(field_normalizations) != 1
+            or len(typename_normalizations) != 1 or len(loops) != 1
+            or field_normalizations[0].lineno >= loops[0].lineno
+            or typename_normalizations[0].lineno >= loops[0].lineno):
+        return {}
+    guards = [node for node in ast.walk(loops[0])
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "type(name) is not str"]
+    if len(guards) != 1:
+        return {}
+    if any(isinstance(node, ast.Name) and node.id in ("str", "type")
+           and isinstance(node.ctx, (ast.Store, ast.Del))
+           for node in ast.walk(tree)):
+        return {}
+    if not any(isinstance(node, ast.Raise)
+               and isinstance(node.exc, ast.Call)
+               and ast.unparse(node.exc.func) == "TypeError"
+               for node in ast.walk(guards[0])):
+        return {}
+    return {guards[0].lineno: False}
+
+
 def _target_sysconfig_build_setup_guard_line_facts(
         files, image_path_facts, sysconfig_name_facts,
         project_base_env_facts, no_site, no_project_base_override,
@@ -10934,6 +10993,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_collections_namedtuple_rename_line_facts = (
         _target_collections_namedtuple_rename_line_facts(files)
     )
+    target_collections_namedtuple_string_type_line_facts = (
+        _target_collections_namedtuple_string_type_line_facts(files)
+    )
     target_image_config_source = None
     if target_image_config_path is not None:
         with Path(target_image_config_path).open("rb") as stream:
@@ -11578,7 +11640,10 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "_weakrefset": target_weakrefset_empty_init_line_facts,
             "copyreg": target_copyreg_pickle_callable_line_facts,
             "logging": target_logging_lock_line_facts,
-            "collections": target_collections_namedtuple_rename_line_facts,
+            "collections": {
+                **target_collections_namedtuple_rename_line_facts,
+                **target_collections_namedtuple_string_type_line_facts,
+            },
             "importlib._bootstrap_external": target_importlib_optimize_line_facts,
             "importlib._bootstrap": target_importlib_verbose_line_facts,
         } if (os_createenviron_line_facts or codecs_false_guard_line_facts
@@ -11591,6 +11656,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
               or target_copyreg_pickle_callable_line_facts
               or target_logging_lock_line_facts
               or target_collections_namedtuple_rename_line_facts
+              or target_collections_namedtuple_string_type_line_facts
               or target_sysconfig_build_setup_guard_line_facts
               or target_sysconfig_venv_prefix_guard_line_facts
               or target_sysconfig_preferred_scheme_membership_line_facts
@@ -12061,6 +12127,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_collections_namedtuple_rename_line_facts": list(
             target_collections_namedtuple_rename_line_facts.items()
+        ),
+        "target_platform_collections_namedtuple_string_type_line_facts": list(
+            target_collections_namedtuple_string_type_line_facts.items()
         ),
         "target_platform_os_source_sha256": OS_SOURCE_SHA256,
         "target_platform_posix_module_c_sha256": POSIX_MODULE_C_SHA256,
