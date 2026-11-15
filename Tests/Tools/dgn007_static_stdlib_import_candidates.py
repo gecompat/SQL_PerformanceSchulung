@@ -2005,7 +2005,7 @@ def _target_sysconfigdata_import_target_candidate(
 
 def _target_sysconfigdata_initialization_route_candidate(
         sysconfig_inventory, lazy_initialization_call_candidate,
-        public_config_value_flow_candidate,
+        reinitialization_candidate, public_config_value_flow_candidate,
         post_update_entries_candidate, initialization_complete_flag_candidate,
         posix_init_line_facts,
         import_target_candidate, image_facts):
@@ -2032,6 +2032,21 @@ def _target_sysconfigdata_initialization_route_candidate(
                 "recheck_guard": "_CONFIG_VARS is None",
                 "selected_call": "_init_config_vars()",
                 "evidence_scope": "STATIC_LAZY_INITIALIZER_CALL_CANDIDATE",
+            }
+            or reinitialization_candidate != {
+                "getter": "get_config_vars",
+                "initialization_flag_initial_value": False,
+                "first_call_guard": "not _CONFIG_VARS_INITIALIZED",
+                "reinitialization_guard": (
+                    "_CONFIG_VARS['base'] != os.path.normpath(sys.prefix)"
+                ),
+                "reinitialization_guard_is_runtime_dependent": True,
+                "lock": "_CONFIG_VARS_LOCK",
+                "selected_actions": [
+                    "_CONFIG_VARS_INITIALIZED = False",
+                    "_init_config_vars()",
+                ],
+                "evidence_scope": "STATIC_CONFIG_REINITIALIZATION_CANDIDATE",
             }
             or public_config_value_flow_candidate != {
                 "public_mapping_api": "get_config_vars",
@@ -2082,6 +2097,7 @@ def _target_sysconfigdata_initialization_route_candidate(
     line = next(iter(posix_init_line_facts))
     return {
         "public_initializer_call_candidate": lazy_initialization_call_candidate,
+        "reinitialization_candidate": reinitialization_candidate,
         "public_config_value_flow_candidate": public_config_value_flow_candidate,
         "post_update_entries_candidate": post_update_entries_candidate,
         "initialization_complete_flag_candidate": (
@@ -7590,6 +7606,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         _target_sysconfigdata_initialization_route_candidate(
             sysconfig_inventory,
             target_sysconfig_lazy_initialization_call_candidate,
+            target_sysconfig_reinitialization_candidate,
             target_sysconfig_public_config_value_flow_candidate,
             target_sysconfig_post_update_entries_candidate,
             target_sysconfig_initialization_complete_flag_candidate,
