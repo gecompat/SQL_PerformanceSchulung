@@ -3641,6 +3641,31 @@ class StaticImportCandidateTests(unittest.TestCase):
             filefinder_factory, zipimporter_class,
         ))
 
+    def test_s15_assumption_candidate_requires_one_fixed_literal_declaration(self):
+        source = (
+            b'ASSUMPTION = "DECLARED_SETUP_PYTHON_CONTROL_RUNTIME"\n'
+            b"def observe():\n    return ASSUMPTION\n"
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            hashlib.sha256(source).hexdigest(),
+        ):
+            self.assertEqual(SUBJECT._target_s15_assumption_field_candidate(source), {
+                "value": "DECLARED_SETUP_PYTHON_CONTROL_RUNTIME",
+                "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+                "source_sha256": hashlib.sha256(source).hexdigest(),
+                "runtime_assumption_attested": False,
+                "evidence_scope": "STATIC_S15_ASSUMPTION_FIELD_CANDIDATE",
+            })
+            changed = source + b'ASSUMPTION = "OTHER"\n'
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                hashlib.sha256(changed).hexdigest(),
+            ):
+                self.assertIsNone(
+                    SUBJECT._target_s15_assumption_field_candidate(changed)
+                )
+
     def test_configure_sources_bind_builtin_template_and_module_block(self):
         config_c = (
             b"/* -- ADDMODULE MARKER 1 -- */\n"

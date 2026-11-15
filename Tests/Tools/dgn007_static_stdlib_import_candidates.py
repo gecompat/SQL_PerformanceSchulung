@@ -155,6 +155,8 @@ IMPORTLIB_EXTERNAL_SOURCE_SHA256 = "e6ad72f3f0f9b65c99ab52598cd02ab748511dcdce1d
 IMPORTLIB_MACHINERY_SOURCE_SHA256 = "d045cd7ecf2a12b6ecbfbef79eb114e87ef2ebd756f5b705f73e6f3266e3dede"
 IMPORTLIB_UTIL_SOURCE_SHA256 = "671f2995653f673f6d5056a1089debef473bc28ae7114f7a8db71475733d6876"
 ZIPIMPORT_SOURCE_SHA256 = "a96f1d7a7b6aaf421a3cf382b94b1422f4f0ad452fdd0bb61d635b560d7a4e91"
+DGN007_RUNTIME_PROFILE_SOURCE_SHA256 = "c920bd0fff6376ad23eba75a0589962f876fbf0a47bcb2bc5a917229f1f9a760"
+MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES = 512 * 1024
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_FILES = 2048
@@ -1542,6 +1544,47 @@ def _target_s15_hooks_field_candidate(
         "runtime_hook_objects_claimed": False,
         "final_sys_path_hooks_claimed": False,
         "evidence_scope": "STATIC_S15_HOOKS_FIELD_CANDIDATE",
+    }
+
+
+def _target_s15_assumption_field_candidate(source_bytes):
+    """Bind the fixed S15 assumption text without claiming attestation."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or hashlib.sha256(source_bytes).hexdigest()
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source_bytes.decode("utf-8"))
+    except (UnicodeError, SyntaxError):
+        return None
+    assignments = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            assignments.extend(
+                target for target in node.targets
+                if isinstance(target, ast.Name) and target.id == "ASSUMPTION"
+            )
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            if node.target.id == "ASSUMPTION":
+                assignments.append(node.target)
+    top_level = [
+        node for node in tree.body if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "ASSUMPTION"
+                for target in node.targets)
+    ]
+    if (len(assignments) != 1 or len(top_level) != 1
+            or len(top_level[0].targets) != 1
+            or not isinstance(top_level[0].value, ast.Constant)
+            or type(top_level[0].value.value) is not str
+            or top_level[0].value.value != "DECLARED_SETUP_PYTHON_CONTROL_RUNTIME"):
+        return None
+    return {
+        "value": top_level[0].value.value,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "runtime_assumption_attested": False,
+        "evidence_scope": "STATIC_S15_ASSUMPTION_FIELD_CANDIDATE",
     }
 
 
@@ -8267,6 +8310,20 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         filefinder_hook_factory_candidate,
         zipimporter_class_source_candidate,
     )
+    runtime_profile_source_path = (
+        Path(__file__).resolve().parents[2]
+        / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+    )
+    try:
+        with runtime_profile_source_path.open("rb") as stream:
+            runtime_profile_source = stream.read(
+                MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES + 1
+            )
+    except OSError:
+        runtime_profile_source = None
+    target_s15_assumption_field_candidate = (
+        _target_s15_assumption_field_candidate(runtime_profile_source)
+    )
     configure_inventory = _configure_template_inventory(
         config_c_template, configure_source
     )
@@ -8749,6 +8806,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             zipimport_hook_registration_candidate
         ),
         "target_s15_hooks_field_candidate": target_s15_hooks_field_candidate,
+        "target_s15_assumption_field_candidate": (
+            target_s15_assumption_field_candidate
+        ),
         **configure_inventory,
         "edge_count": edges,
         "module_count": len(modules),

@@ -11132,11 +11132,19 @@ Klassendeklarationen samt `find_spec`-Klassenmethoden. 245 fokussierte
 Regressionen und alle fünf PR-Gates bestanden. Runtimeinstanzen, Auswahl und
 die finale `sys.meta_path`-Liste bleiben unbelegt.
 
-## S15-Teilschnitt: Hook-Feldkandidat aus Registrierung und Quellen binden
+## Abgeschlossen: S15-Teilschnitt Hook-Feldkandidat
 
-Der nächste Kandidat verbindet die bedingte Zipimporter-Einfügung an Position
-null mit der zuvor ausgeführten FileFinder-Registrierung und den digestgeprüften
-Hook-/Klassendeklarationen. Die Feldreihenfolge bleibt ein statischer
-Kandidat; erzeugte Hookobjekte und die finale `sys.path_hooks`-Liste sind nicht
-belegt. Umfang: ein Paket, ein PR und höchstens zwei Regressionen; keine
-Runtime-, P11-, SQL-/Lab- oder menschliche Generalprobenattestation.
+PR #816 verbindet die bedingte Zipimporter-Einfügung an Position null mit der
+zuvor ausgeführten FileFinder-Registrierung und den digestgeprüften Hook- und
+Klassendeklarationen. 246 fokussierte Regressionen und alle fünf PR-Gates
+bestanden. Die Reihenfolge bleibt statisch; erzeugte Hookobjekte und die finale
+`sys.path_hooks`-Liste sind unbelegt.
+
+## S15-Teilschnitt: feste Assumption-Textdeklaration binden
+
+Der nächste Kandidat liest den festen `ASSUMPTION`-Text aus dem vorhandenen
+Runtime-Profilmodul, verlangt eine einzige Top-Level-Literaldefinition und
+verifiziert den Modulhash. Die Ausgabe ist nur eine deklarative Annahme und
+keine Trustattestation. Umfang: ein Paket, ein PR und höchstens zwei
+Regressionen; keine Runtime-, P11-, SQL-/Lab- oder menschliche
+Generalprobenattestation.

@@ -2612,11 +2612,17 @@ PR #815 verbindet die drei Meta-Path-Registrierungen mit den geprüften
 245 fokussierte Regressionen und alle fünf PR-Gates bestanden; es entsteht
 keine Runtime-Finderliste.
 
-## Begrenzte Fortsetzung: Hook-Feldkandidat binden
+## Abgeschlossen: Hook-Feldkandidat binden
 
-Der nächste S15-Schnitt verbindet die bedingte Zipimporter-Einfügung an
-Position null mit der zuvor ausgeführten FileFinder-Registrierung und den
-digestgeprüften Hook-/Klassendeklarationen. Die Reihenfolge bleibt statisch;
-Hookobjekte und die finale `sys.path_hooks`-Liste bleiben unbelegt. Umfang: ein
-Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab-
-oder menschliche Generalprobenattestation.
+PR #816 verbindet die bedingte Zipimporter-Einfügung an Position null mit der
+zuvor ausgeführten FileFinder-Registrierung und den digestgeprüften Hook- und
+Klassendeklarationen. 246 fokussierte Regressionen und alle fünf PR-Gates
+bestanden; Runtime-Hookobjekte bleiben unbelegt.
+
+## Begrenzte Fortsetzung: feste Assumption-Textdeklaration binden
+
+Der nächste S15-Schnitt liest `ASSUMPTION` aus dem vorhandenen
+Runtime-Profilmodul, verlangt eine einzige Top-Level-Literaldefinition und
+verifiziert den Quellhash. Die Ausgabe ist eine deklarative Annahme und keine
+Trustattestation. Umfang: ein Paket, ein PR und höchstens zwei Regressionen;
+keine Runtime-, P11-, SQL-/Lab- oder menschliche Generalprobenattestation.
