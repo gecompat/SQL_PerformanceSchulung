@@ -2731,9 +2731,15 @@ PR #836 bindet Modul-/Spec-Identität, Frozen-Aliase, Loaderklassifikation,
 Ablehnung unbekannter Loader und die `ModuleRecord`-Feldordnung. Beobachtete
 Module werden nicht behauptet.
 
-## Begrenzte Fortsetzung: Profilvergleichsvertrag binden
+## Abgeschlossen: Profilvergleichsvertrag binden
 
-Ein Arbeitspaket und ein PR binden Interpreter-/Plattform-/Flagvergleiche,
-Modulanker, Projektausschluss, Control-/Rootzuordnung und Pfadbeschränkung in
-`_compare`. Der Vergleich begründet kein Vertrauen. Eine positive Regression
-und eine Gegenprobe mit gelockerter Pfadbeschränkung begrenzen den Schnitt.
+PR #837 bindet Interpreter-/Plattform-/Flagvergleiche, Modulanker,
+Projektausschluss, Control-/Rootzuordnung und Pfadbeschränkung in `_compare`.
+Der Vergleich begründet kein Vertrauen.
+
+## Begrenzte Fortsetzung: Validierungsreports binden
+
+Ein Arbeitspaket und ein PR binden `validate_profile` an die drei Reportpfade:
+Vertragsablehnung, ungültiger Record und Matchreport mit `trust_assumed` nur
+beim Match. Der Kandidat begründet keine Attestation. Eine positive Regression
+und eine Gegenprobe ohne Matchstatus begrenzen den Schnitt.

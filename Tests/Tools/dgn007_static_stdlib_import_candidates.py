@@ -2232,6 +2232,46 @@ def _target_profile_compare_contract_candidate(source_bytes, module_builder):
     }
 
 
+def _target_profile_validation_report_flow_candidate(source_bytes, compare_contract):
+    """Bind validate_profile report outcomes to compare success and failures."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(compare_contract) is not dict
+            or compare_contract.get("trust_established") is not False):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def validate_profile\([^\n]*\)[^\n]*:\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"_compare(expected, observation)",
+        b"except _Failure as error: return ProfileReport(\"REJECTED_PROFILE\", str(error))",
+        b"except (AttributeError, TypeError, ValueError, UnicodeError): return ProfileReport(\"REJECTED_PROFILE\", \"INVALID_RECORD\")",
+        b"return ProfileReport(\"MATCHED_DECLARED_BASELINE\", \"NONE\", True)",
+    )
+    if any(normalized.count(fragment) != 1 for fragment in required):
+        return None
+    if not all(normalized.index(left) < normalized.index(right)
+               for left, right in zip(required, required[1:])):
+        return None
+    return {
+        "compare_attempts": 1,
+        "comparison_failure_status": "REJECTED_PROFILE",
+        "malformed_record_issue": "INVALID_RECORD",
+        "matched_status": "MATCHED_DECLARED_BASELINE",
+        "trust_assumed_only_on_match": True,
+        "trust_attested": False,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "evidence_scope": "STATIC_PROFILE_VALIDATION_REPORT_FLOW_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9387,6 +9427,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_profile_module_record_builder_candidate,
         )
     )
+    target_profile_validation_report_flow_candidate = (
+        _target_profile_validation_report_flow_candidate(
+            runtime_profile_source,
+            target_profile_compare_contract_candidate,
+        )
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -9866,6 +9912,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_profile_compare_contract_candidate": (
             target_profile_compare_contract_candidate
+        ),
+        "target_profile_validation_report_flow_candidate": (
+            target_profile_validation_report_flow_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
