@@ -11522,7 +11522,14 @@ Vergleichskörper. Eine Mutation fügt vor der ersten Shape-Prüfung `return Non
 ein und wird abgewiesen. Der fokussierte Satz besteht 279/279; es wird kein
 Profilvergleich ausgeführt und keine Runtimeaussage abgeleitet.
 
-## Begrenzte Fortsetzung: Profilvalidierungsbericht prüfen
+## Abgeschlossen: Profilvalidierungsbericht gegen frühe Rückgabe absichern
 
-Als Nächstes wird der Quellvertrag für `validate_profile` auf vollständige
-Fehler- und Erfolgspfade geprüft. Es werden keine Profile validiert.
+Der Quellvertrag bindet `validate_profile` nun an genau drei Ausgänge: zwei
+Fehlerberichte und den abschließenden Erfolg. Eine Mutation mit vorgezogener
+Rückgabe vor dem Vergleich wird abgewiesen. Der fokussierte Satz besteht
+279/279; es werden keine Profile validiert.
+
+## Begrenzte Fortsetzung: Profilform-Vertrag prüfen
+
+Als nächstes wird der bereits quellengebundene `_shape`-Vertrag auf mögliche
+vorzeitige Ausstiege geprüft. Es werden keine Profile verarbeitet.
