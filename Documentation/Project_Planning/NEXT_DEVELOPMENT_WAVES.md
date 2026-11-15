@@ -2737,9 +2737,16 @@ PR #837 bindet Interpreter-/Plattform-/Flagvergleiche, Modulanker,
 Projektausschluss, Control-/Rootzuordnung und Pfadbeschränkung in `_compare`.
 Der Vergleich begründet kein Vertrauen.
 
-## Begrenzte Fortsetzung: Validierungsreports binden
+## Abgeschlossen: Validierungsreports binden
 
-Ein Arbeitspaket und ein PR binden `validate_profile` an die drei Reportpfade:
-Vertragsablehnung, ungültiger Record und Matchreport mit `trust_assumed` nur
-beim Match. Der Kandidat begründet keine Attestation. Eine positive Regression
-und eine Gegenprobe ohne Matchstatus begrenzen den Schnitt.
+PR #838 bindet `validate_profile` an Vertragsablehnung, ungültigen Record und
+Matchreport mit `trust_assumed` ausschließlich beim Match. Keine Attestation.
+
+## Begrenzte Fortsetzung: Profil- und Observation-Formvertrag binden
+
+Ein Arbeitspaket und ein PR binden `_shape` an die getrennten Deklarations- und
+Observationformen einschließlich Feldtypen/-längen, Finder-/Hookinstanzen,
+Modul-/Dateirecords und deklarationsspezifischer Annahme-, Root-, Control- und
+Fingerprintbedingungen. Der Kandidat behauptet keine validierte Eingabe. Eine
+positive Regression und eine gelockerte Grenzbedingung als Gegenprobe begrenzen
+den Schnitt.

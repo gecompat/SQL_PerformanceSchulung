@@ -11287,10 +11287,18 @@ Feld-/Ankeridentität, Projektausschluss, Control-/Rootzuordnung und
 Pfadbeschränkung in `_compare`. Alle fünf Pflichtprüfungen bestanden. Der
 Vergleich stellt kein Vertrauen her.
 
-## Nächster Schritt: Validierungsreports binden
+## Abgeschlossen: Validierungsreports binden
 
-Der nächste Kandidat bindet `validate_profile` an den Vergleichsausgang:
-`REJECTED_PROFILE` für Vertragsabweichungen, `INVALID_RECORD` für fehlerhafte
-Records und `MATCHED_DECLARED_BASELINE` samt `trust_assumed=True` ausschließlich
-bei Match. Er begründet keine Attestation. Eine Regression entfernt den
-Matchstatus. Umfang: ein Paket, ein PR und höchstens zwei Regressionen.
+PR #838 bindet `validate_profile` an den Vergleichsausgang:
+`REJECTED_PROFILE` bei Vertragsabweichungen, `INVALID_RECORD` bei fehlerhaften
+Records und `MATCHED_DECLARED_BASELINE` mit `trust_assumed=True` ausschließlich
+bei Match. Alle fünf Pflichtprüfungen bestanden. Daraus folgt keine Attestation.
+
+## Nächster Schritt: Profil- und Observation-Formvertrag binden
+
+Der nächste Kandidat bindet `_shape` an die getrennten Deklarations- und
+Observationformen: Feldtypen und Längen, Finder-/Hookinstanzen, Modul- und
+Dateirecords sowie die nur für deklarierte Profile geltenden Annahme-, Root-,
+Control- und Fingerprintbedingungen. Er behauptet keine validierte Eingabe.
+Eine Regression lockert eine dieser Grenzen und muss fail-closed bleiben.
+Umfang: ein Paket, ein PR und höchstens zwei Regressionen.
