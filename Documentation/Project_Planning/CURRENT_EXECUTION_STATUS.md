@@ -11480,3 +11480,16 @@ PR #863 bindet in `observe_selected_profile_scalars` alle drei POST-Prüfungen,
 den einzigen Erfolgsausgang sowie das Fehlen vorzeitiger Rückgaben. Gegenproben
 entfernen die Schlussprüfung bzw. fügen eine frühe Rückgabe ein; 279 fokussierte
 Regressionen bestehen. Es wird keine Runtimebeobachtung ausgeführt.
+
+## Abgeschlossen: Profilbinder-Rückgaben absichern
+
+PR #864 bindet die exakte Zahl der Fehler- und Erfolgsausgänge von
+`bind_selected_profile` und verwirft eine vorzeitige Rückgabe; die Gegenprobe
+setzt sie direkt an den Beginn des Try-Blocks. 279 fokussierte Regressionen
+bestehen. Es wird keine Profilbindung ausgeführt.
+
+## Begrenzte Fortsetzung: internen Profilbinder-Rückgabepfad absichern
+
+Der nächste Nachaudit bindet den einzigen Rückgabepunkt von `_bind_selected`
+nach allen Cache-, Shape- und Projektionsprüfungen. Es werden keine Anker
+gelesen.

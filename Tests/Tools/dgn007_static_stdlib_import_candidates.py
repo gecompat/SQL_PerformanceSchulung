@@ -1840,7 +1840,7 @@ def _target_selected_profile_binder_flow_candidate(source_bytes, shape_contract)
             or shape_contract.get("profile_bound_claimed") is not False):
         return None
     bodies = re.findall(
-        rb"(?ms)^def bind_selected_profile\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        rb"(?ms)^def bind_selected_profile\([^\n]*\):\r?\n(?P<body>.*?)(?=^@dataclass|^def |\Z)",
         source_bytes,
     )
     if len(bodies) != 1:
@@ -1853,7 +1853,8 @@ def _target_selected_profile_binder_flow_candidate(source_bytes, shape_contract)
         b"except (AttributeError, TypeError, ValueError, UnicodeError): return BoundProfileResult(ProfileReport(\"REJECTED_SELECTED_PROFILE\", \"PROFILE_BINDING_FAILED\"))",
         b"return BoundProfileResult(ProfileReport(\"BOUND_SELECTED_PROFILE\", \"NONE\", True), expected)",
     )
-    if any(normalized.count(fragment) != 1 for fragment in required):
+    if (any(normalized.count(fragment) != 1 for fragment in required)
+            or len(re.findall(rb"\breturn\b", normalized)) != 3):
         return None
     if not (normalized.index(required[0]) < normalized.index(required[1])
             < normalized.index(required[2]) < normalized.index(required[3])
