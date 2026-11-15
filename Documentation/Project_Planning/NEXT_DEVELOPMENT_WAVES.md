@@ -3035,3 +3035,11 @@ dynamischen Cacheguards bleiben offen. Der aktuelle Scan umfasst 60 Module,
 Bedingungen anhand der gepinnten Quelle auf sichere vollständige Facts prüfen;
 dynamische Fälle bleiben ohne statisch belegte Ausführungsbedingungen
 unbekannt. Kein Interpreterstart, keine P11-/Runtimeattestation.
+
+Die Zielimage-Inventur bindet ergänzend `_blake2`, `_sha1`, `_sha2` und `_sha3`
+an exakte Datei-Hashes, reguläre Dateitypen, Modus und Größenbegrenzung. Eine
+Digest-Gegenprobe wird zurückgewiesen. Im gepinnten CPython-Quelltext fängt
+`hashlib.py` `ImportError` ab; deshalb belegen Image-Dateien für sich genommen
+keinen erfolgreichen Konstruktorimport. Die Cacheguards bleiben offen. Der
+Scan steht weiterhin bei 60 Modulen, 316 Kanten, 82 aufgelösten und 485
+unbekannten Bedingungen; 284 fokussierte Tests bestehen.

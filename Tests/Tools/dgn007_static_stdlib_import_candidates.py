@@ -63,6 +63,12 @@ PYTHON_IMPORT_C_MEMBER = "Python-3.12.16/Python/import.c"
 PYTHON_IMPORT_C_SHA256 = "1cf484fe5a261c742f2da95a720f5d0eb92b10649bf186ca55eedf4557f1b9d0"
 PICKLE_EXTENSION_PATH = "usr/local/lib/python3.12/lib-dynload/_pickle.cpython-312-x86_64-linux-gnu.so"
 PICKLE_EXTENSION_SHA256 = "f6cdd4a784089665d18243b944051052b8a9452f3b1e40be88bdf685b2afb83d"
+HASHLIB_EXTENSION_FACTS = {
+    "usr/local/lib/python3.12/lib-dynload/_blake2.cpython-312-x86_64-linux-gnu.so": "f1731133a22c04dfe02d89cf385cc3cfa408e0996b98956149d319737d576ab3",
+    "usr/local/lib/python3.12/lib-dynload/_sha1.cpython-312-x86_64-linux-gnu.so": "31759cc61e6dec07e895840be99bd960aa0cf62a7e05659b93b80a75a76409eb",
+    "usr/local/lib/python3.12/lib-dynload/_sha2.cpython-312-x86_64-linux-gnu.so": "6dfdfdcd99c8a57a7218fd7f30f50d9b66c143af9793ac5b02aacd11ecb39cb7",
+    "usr/local/lib/python3.12/lib-dynload/_sha3.cpython-312-x86_64-linux-gnu.so": "1cd34c41f43f6f8d93abf79e6d8d2d940062824e57ff778913a1e7bf9b4450f7",
+}
 PICKLE_SOURCE_SHA256 = "7e3447b6d993a6306a7893fd2fba916010ed79f8e09ceb56158a550fa8099a14"
 POSIX_MODULE_CLINIC_MEMBER = "Python-3.12.16/Modules/clinic/posixmodule.c.h"
 POSIX_MODULE_CLINIC_SHA256 = "dd89b7a30073abfad8f082966f135a343ca4e1b7b856e3ba696a6e9c27870747"
@@ -7711,6 +7717,7 @@ def _target_image_save_facts(image_save_path, image_config_source):
                 TARGET_BUILD_MARKER: None,
                 **{path: None for path in TARGET_PTH_OVERRIDE_PATHS},
                 PICKLE_EXTENSION_PATH: None,
+                **{path: None for path in HASHLIB_EXTENSION_FACTS},
                 "usr/local/bin/python3": None,
                 "usr/local/bin/Modules/Setup": None,
                 "usr/local/bin/Modules/Setup.local": None,
@@ -7735,9 +7742,11 @@ def _target_image_save_facts(image_save_path, image_config_source):
                             content_bytes = None
                             if member.isfile() and name in (
                                     TARGET_EXECUTABLE_PATH, PICKLE_EXTENSION_PATH,
+                                    *HASHLIB_EXTENSION_FACTS,
                                     TARGET_SYSCONFIGDATA_PATH,
                                     TARGET_PREFIX_STDLIB_LANDMARK):
-                                if (name in (TARGET_EXECUTABLE_PATH, PICKLE_EXTENSION_PATH)
+                                if (name in (TARGET_EXECUTABLE_PATH, PICKLE_EXTENSION_PATH,
+                                             *HASHLIB_EXTENSION_FACTS)
                                         and member.size > MAX_S15_FILE_BYTES):
                                     raise ValueError("TARGET_IMAGE_FILE_FINGERPRINT_LIMIT")
                                 if (name == TARGET_SYSCONFIGDATA_PATH
@@ -7767,7 +7776,8 @@ def _target_image_save_facts(image_save_path, image_config_source):
                                 "mode": member.mode & 0o777,
                                 "sha256": content_sha256,
                             }
-                            if name in (TARGET_EXECUTABLE_PATH, PICKLE_EXTENSION_PATH):
+                            if name in (TARGET_EXECUTABLE_PATH, PICKLE_EXTENSION_PATH,
+                                        *HASHLIB_EXTENSION_FACTS):
                                 facts["size"] = member.size
                             if name == TARGET_SYSCONFIGDATA_PATH:
                                 facts["content"] = content_bytes
@@ -7826,6 +7836,26 @@ def _target_image_save_facts(image_save_path, image_config_source):
                     or executable["size"] + pickle_extension["size"]
                     > MAX_S15_FILE_TOTAL_BYTES):
                 raise ValueError("TARGET_IMAGE_PICKLE_EXTENSION_FACT")
+            hashlib_extension_facts = {}
+            hashlib_extension_total = 0
+            for extension_path, expected_sha256 in HASHLIB_EXTENSION_FACTS.items():
+                extension = tracked[extension_path]
+                extension_shape = {
+                    "file": True, "directory": False, "symlink": False,
+                    "linkname": None, "mode": 0o755, "sha256": expected_sha256,
+                }
+                if (type(extension) is not dict
+                        or any(extension.get(key) != value
+                               for key, value in extension_shape.items())
+                        or type(extension.get("size")) is not int
+                        or not 0 <= extension["size"] <= MAX_S15_FILE_BYTES):
+                    raise ValueError("TARGET_IMAGE_HASHLIB_EXTENSION_FACT")
+                hashlib_extension_total += extension["size"]
+                if hashlib_extension_total > MAX_S15_FILE_TOTAL_BYTES:
+                    raise ValueError("TARGET_IMAGE_HASHLIB_EXTENSION_TOTAL_LIMIT")
+                hashlib_extension_facts[extension_path] = {
+                    "sha256": expected_sha256, "size": extension["size"],
+                }
             sysconfigdata = tracked[TARGET_SYSCONFIGDATA_PATH]
             if (type(sysconfigdata) is not dict or sysconfigdata.get("file") is not True
                     or sysconfigdata.get("symlink") is not False
@@ -7848,6 +7878,7 @@ def _target_image_save_facts(image_save_path, image_config_source):
         "python3_symlink_target": tracked["usr/local/bin/python3"]["linkname"],
         "pickle_extension_sha256": tracked[PICKLE_EXTENSION_PATH]["sha256"],
         "pickle_extension_size": tracked[PICKLE_EXTENSION_PATH]["size"],
+        "hashlib_extension_facts": hashlib_extension_facts,
         "sysconfigdata_path": TARGET_SYSCONFIGDATA_PATH,
         "sysconfigdata_sha256": TARGET_SYSCONFIGDATA_SHA256,
         **sysconfig_facts,
