@@ -10766,3 +10766,20 @@ Der Fact identifiziert weder eine Datei im Image noch einen tatsächlichen
 Import oder Laufzeitwert. Keine vollständige Importclosure, P11-Inventur,
 SQL-/Lab-Ausführung oder menschliche Generalprobe. Token-/Geldverbrauch bleiben
 unbekannt; Umfang: ein Paket, ein PR und höchstens zwei Regressionen.
+
+## Fortsetzung: Sysconfigdaten-Namenskandidat an Image-Datei binden
+
+Der zusammengesetzte Modulname wird nur dann mit einem Imagepfad verknüpft,
+wenn sein Dateibasisname exakt dem verifizierten Zielimage-Mitglied entspricht
+und dessen Datei-Digest dem gepinnten Sysconfigdaten-Digest entspricht. Eine
+Regression prüft die positive Pfadbindung sowie abweichenden Modulnamen und
+Dateidigest. Die fokussierte Suite besteht lokal mit 229 Tests unter Python
+3.14. Der echte CPython-/OCI-Scan ordnet
+`_sysconfigdata__linux_x86_64-linux-gnu` der Image-Datei
+`usr/local/lib/python3.12/_sysconfigdata__linux_x86_64-linux-gnu.py` mit SHA-256
+`3ed04335c07aa6311958a3514a807ce1ef5b623cea3f29507c3f20b1330c8187` zu. Das
+belegt die statische Image-Dateiidentität, keinen Import oder Interpreterlauf;
+der Scan bleibt `CANDIDATES_ONLY`. Keine vollständige Importclosure,
+P11-Inventur, SQL-/Lab-Ausführung oder menschliche Generalprobe. Token-/
+Geldverbrauch bleiben unbekannt; Umfang: ein Paket, ein PR und höchstens zwei
+Regressionen.

@@ -1916,6 +1916,26 @@ def _target_sysconfigdata_module_name_fact(
     return (("sysconfigdata.module_name", name),)
 
 
+def _target_sysconfigdata_image_file_fact(module_name_fact, image_facts):
+    """Match the composed module candidate to the digest-bound image member."""
+    if (type(module_name_fact) is not tuple or len(module_name_fact) != 1
+            or type(module_name_fact[0]) is not tuple
+            or len(module_name_fact[0]) != 2
+            or module_name_fact[0][0] != "sysconfigdata.module_name"
+            or type(module_name_fact[0][1]) is not str
+            or type(image_facts) is not dict
+            or image_facts.get("sysconfigdata_path") != TARGET_SYSCONFIGDATA_PATH
+            or image_facts.get("sysconfigdata_sha256") != TARGET_SYSCONFIGDATA_SHA256):
+        return ()
+    module_name = module_name_fact[0][1]
+    image_basename = TARGET_SYSCONFIGDATA_PATH.rsplit("/", 1)[-1]
+    if (not module_name.startswith("_sysconfigdata_")
+            or "/" in module_name or "\\" in module_name or "." in module_name
+            or image_basename != module_name + ".py"):
+        return ()
+    return (("sysconfigdata.image_file_path", TARGET_SYSCONFIGDATA_PATH),)
+
+
 def _target_importlib_verbose_line_facts(
         files, preconfig_source, initconfig_source, worker_source):
     """Bind importlib's verbose guard across every pinned source call site."""
@@ -6950,6 +6970,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         sys_implementation_multiarch_fact,
         target_worker_sysconfigdata_environment_fact,
     )
+    sysconfigdata_image_file_fact = _target_sysconfigdata_image_file_fact(
+        sysconfigdata_module_name_fact, target_image_path_facts,
+    )
     warnings_default_call_facts = _target_warnings_default_call_facts(
         files, warnings_c_source, warnings_clinic_source
     )
@@ -7247,6 +7270,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ],
         "target_platform_sysconfigdata_module_name_fact": list(
             sysconfigdata_module_name_fact
+        ),
+        "target_platform_sysconfigdata_image_file_fact": list(
+            sysconfigdata_image_file_fact
         ),
         "sysconfigdata_importer": sysconfig_inventory["sysconfigdata_importer"],
         "sysconfigdata_imported_attribute": sysconfig_inventory[
