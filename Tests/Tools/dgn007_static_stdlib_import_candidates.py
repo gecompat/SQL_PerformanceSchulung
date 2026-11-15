@@ -4275,10 +4275,18 @@ def _target_sysconfig_lazy_initialization_call_candidate(files):
                and node.name == "get_config_vars"]
     if len(getters) != 1:
         return None
+    global_declarations = [node for node in getters[0].body
+                          if isinstance(node, ast.Global)
+                          and "_CONFIG_VARS_INITIALIZED" in node.names]
+    if (len(global_declarations) != 1
+            or global_declarations[0].names != ["_CONFIG_VARS_INITIALIZED"]):
+        return None
     outer_guards = [node for node in getters[0].body
                     if isinstance(node, ast.If)
                     and ast.unparse(node.test) == "not _CONFIG_VARS_INITIALIZED"]
-    if len(outer_guards) != 1 or len(outer_guards[0].body) != 1:
+    if (len(outer_guards) != 1 or len(outer_guards[0].body) != 1
+            or getters[0].body.index(global_declarations[0])
+            > getters[0].body.index(outer_guards[0])):
         return None
     lock_blocks = outer_guards[0].body
     if not isinstance(lock_blocks[0], ast.With) or len(lock_blocks[0].items) != 1:

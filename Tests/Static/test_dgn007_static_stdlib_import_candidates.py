@@ -1685,6 +1685,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"_CONFIG_VARS = None\n"
             b"_CONFIG_VARS_INITIALIZED = False\n"
             b"def get_config_vars():\n"
+            b"    global _CONFIG_VARS_INITIALIZED\n"
             b"    if not _CONFIG_VARS_INITIALIZED:\n"
             b"        with _CONFIG_VARS_LOCK:\n"
             b"            if _CONFIG_VARS is None:\n"
@@ -1716,6 +1717,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                                    b"_CONFIG_VARS is not None"),
                     source.replace(b"_init_config_vars()",
                                    b"_init_config_vars('unexpected')"),
+                    source.replace(b"    global _CONFIG_VARS_INITIALIZED\n", b""),
             ):
                 with self.subTest(changed=changed), patch.object(
                     SUBJECT, "SYSCONFIG_SOURCE_SHA256",
@@ -1776,6 +1778,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"_CONFIG_VARS = None\n"
             b"_CONFIG_VARS_INITIALIZED = False\n"
             b"def get_config_vars(*args):\n"
+            b"    global _CONFIG_VARS_INITIALIZED\n"
             b"    if not _CONFIG_VARS_INITIALIZED:\n"
             b"        with _CONFIG_VARS_LOCK:\n"
             b"            if _CONFIG_VARS is None:\n"
