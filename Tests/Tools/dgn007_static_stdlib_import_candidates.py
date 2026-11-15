@@ -4260,8 +4260,13 @@ def _target_worker_sys_flag_facts(
         r"static int\s+set_flags_from_config\(.*?\n\s*return 0;\n\}",
         sys_module_text, re.DOTALL,
     )
+    update_configs = re.findall(
+        r"int\s+_PySys_UpdateConfig\(PyThreadState \*tstate\)\s*\{(.*?)\n\}",
+        sys_module_text, re.DOTALL,
+    )
+    update_config = update_configs[0] if len(update_configs) == 1 else None
     if (defaults is None or fields is None or actual_fields != expected_fields
-            or set_flags is None
+            or set_flags is None or update_config is None
             or not re.search(r"config->optimization_level\s*=\s*0\s*;", defaults.group(1))
             or not re.search(
                 r"case 'B':\s*config->write_bytecode\s*=\s*0\s*;",
@@ -4282,6 +4287,19 @@ def _target_worker_sys_flag_facts(
             )):
         return ()
     flag_body = set_flags.group(0)
+    update_body = update_config
+    flags_update = re.search(
+        r"if\s*\(set_flags_from_config\(interp,\s*flags\)\s*<\s*0\)\s*\{",
+        update_body,
+    )
+    dont_write_bytecode = list(re.finditer(
+        r'SET_SYS\("dont_write_bytecode",\s*'
+        r"PyBool_FromLong\(!config->write_bytecode\)\);",
+        update_body,
+    ))
+    if (flags_update is None or len(dont_write_bytecode) != 1
+            or flags_update.start() >= dont_write_bytecode[0].start()):
+        return ()
     required_bindings = (
         r"SetFlag\(config->optimization_level\);\s*"
         r"SetFlag\(!config->write_bytecode\);\s*"
@@ -4290,8 +4308,6 @@ def _target_worker_sys_flag_facts(
         r"SetFlag\(!config->use_environment\);",
         r"SetFlag\(config->isolated\);",
         r"SetFlagObj\(PyBool_FromLong\(config->safe_path\)\);",
-        r'SET_SYS\("dont_write_bytecode",\s*'
-        r"PyBool_FromLong\(!config->write_bytecode\)\);",
     )
     if any(not re.search(pattern, flag_body) for pattern in required_bindings):
         return ()
