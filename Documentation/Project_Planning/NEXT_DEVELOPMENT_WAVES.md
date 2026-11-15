@@ -2692,10 +2692,15 @@ Modulzeilenlänge, Tokenlänge, Controls-Obergrenze und Eindeutigkeit sowie
 sortierte eindeutige Modulnamen und Control-Record-Zuordnung. Es werden keine
 tatsächlich ausgewählten Werte behauptet.
 
-## Begrenzte Fortsetzung: Profilbinder-Ablauf statisch binden
+## Abgeschlossen: Profilbinder-Ablauf statisch binden
 
-Ein Arbeitspaket und ein PR binden die Reihenfolge der Formprüfung vor dem
-Profilbinder, die beiden Fehlerabbildungen und die Erfolgsrückgabe. Der
-Kandidat behauptet weder eine tatsächliche Profilbindung noch Runtimebeobachtung.
-Eine positive Regression und eine Gegenprobe ohne Formprüfung begrenzen den
-Schnitt.
+PR #830 bindet die vorgelagerte Formprüfung, Fehlerabbildungen und
+Erfolgsrückgabe des Profilbinders. Die tatsächliche Profilbindung bleibt offen.
+
+## Begrenzte Fortsetzung: Ankerbindung des Profilbinders binden
+
+Ein Arbeitspaket und ein PR binden Cachekopie, Modulzeilenabbildung, wiederholte
+Projektions- und Formprüfungen sowie Cacheanker-Identität an die Profilquelle.
+Es entsteht keine Ankeraufnahme oder Runtimebeobachtung. Eine positive
+Regression und eine Gegenprobe mit entferntem Projektionsvergleich begrenzen
+den Schnitt.

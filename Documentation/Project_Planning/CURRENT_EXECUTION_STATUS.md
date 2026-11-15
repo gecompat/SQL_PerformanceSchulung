@@ -11233,10 +11233,18 @@ eindeutige Controls, sortierte eindeutige Modulnamen und deren Übereinstimmung
 mit `CONTROL`-Records. Alle fünf Pflichtprüfungen bestanden. Eine tatsächliche
 Auswahl oder Profilbindung folgt daraus nicht.
 
-## Nächster Schritt: Profilbinder-Ablauf statisch binden
+## Abgeschlossen: Profilbinder-Ablauf statisch binden
 
-Der nächste Kandidat bindet die Reihenfolge `selected_shapes` vor
-`bind_selected`, beide Fehlerabbildungen und die Erfolgsrückgabe des reinen
-Profilbinders. Er behauptet weder eine tatsächlich gebundene Auswahl noch eine
-Runtimebeobachtung. Eine Regression entfernt den Formcheck und muss fail-closed
-bleiben. Umfang: ein Paket, ein PR und höchstens zwei Regressionen.
+PR #830 bindet `selected_shapes` vor `bind_selected`, beide Fehlerabbildungen
+und die Erfolgsrückgabe des reinen Profilbinders an die Profilquelle. Alle fünf
+Pflichtprüfungen bestanden. Das behauptet weder eine tatsächlich gebundene
+Auswahl noch eine Runtimebeobachtung.
+
+## Nächster Schritt: Ankerbindung des Profilbinders binden
+
+Der nächste Kandidat bindet das Cachekopieren, die Zuordnung vollständiger
+Modulzeilen, doppelte Schema- und Projektionsvergleiche sowie die erneute
+Identitätsprüfung der Cacheanker. Er behauptet keine tatsächliche
+Ankeraufnahme oder Runtimebeobachtung. Eine Regression entfernt einen der
+zweifachen Modulprojektionsvergleiche. Umfang: ein Paket, ein PR und höchstens
+zwei Regressionen.
