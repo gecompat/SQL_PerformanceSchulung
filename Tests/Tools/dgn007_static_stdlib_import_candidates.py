@@ -3342,6 +3342,7 @@ def _target_s15_flags_field_candidate(worker_sys_flag_facts):
         ("sys.flags.safe_path", True),
         ("sys.flags.optimize", 0),
         ("sys.dont_write_bytecode", True),
+        ("sys.flags.no_user_site", 1),
     )
     if (type(worker_sys_flag_facts) is not tuple
             or len(worker_sys_flag_facts) != len(expected)
@@ -4282,7 +4283,8 @@ def _target_worker_sys_flag_facts(
             )
             or not re.search(
                 r"if \(config->isolated\)\s*\{\s*config->safe_path\s*=\s*1\s*;"
-                r"\s*config->use_environment\s*=\s*0\s*;",
+                r"\s*config->use_environment\s*=\s*0\s*;"
+                r"\s*config->user_site_directory\s*=\s*0\s*;",
                 initconfig_text,
             )):
         return ()
@@ -4319,6 +4321,7 @@ def _target_worker_sys_flag_facts(
         ("sys.flags.safe_path", True),
         ("sys.flags.optimize", 0),
         ("sys.dont_write_bytecode", True),
+        ("sys.flags.no_user_site", 1),
     )
 
 

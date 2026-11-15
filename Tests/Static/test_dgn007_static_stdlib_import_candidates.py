@@ -24,7 +24,8 @@ class StaticImportCandidateTests(unittest.TestCase):
         preconfig_source = b"case 'I': cmdline->isolated = 1;"
         initconfig_source = (
             b"if (config->isolated) { config->safe_path = 1; "
-            b"config->use_environment = 0; }\n"
+            b"config->use_environment = 0; "
+            b"config->user_site_directory = 0; }\n"
             b"static void config_init_defaults(PyConfig *config) {\n"
             b"config->optimization_level = 0;\n}\n"
             b"case 'B': config->write_bytecode = 0;\n"
@@ -52,6 +53,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"SetFlag(!config->site_import);\n"
             b"SetFlag(!config->use_environment);\n"
             b"SetFlag(config->isolated);\n"
+            b"SetFlag(!config->user_site_directory);\n"
             b"SetFlagObj(PyBool_FromLong(config->safe_path));\n"
             b"return 0;\n}\n"
             b"int _PySys_UpdateConfig(PyThreadState *tstate) {\n"
@@ -1388,6 +1390,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             ("sys.flags.safe_path", True),
             ("sys.flags.optimize", 0),
             ("sys.dont_write_bytecode", True),
+            ("sys.flags.no_user_site", 1),
         )
         with patch.multiple(
             SUBJECT,
@@ -1426,7 +1429,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             self.assertEqual(SUBJECT._target_s15_flags_field_candidate(facts), {
                 "value": (1, 1, 1, 1, 1, 0),
                 "source_fact_names": tuple(name for name, _ in expected[:6]),
-                "worker_route_fact_count": 7,
+                "worker_route_fact_count": 8,
                 "runtime_flags_claimed": False,
                 "evidence_scope": "STATIC_S15_FLAGS_FIELD_CANDIDATE",
             })
@@ -1436,6 +1439,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             condition = ast.parse(
                 "sys.flags.isolated == 1 and sys.flags.no_site == 1 and "
                 "sys.flags.dont_write_bytecode == 1 and "
+                "sys.flags.no_user_site == 1 and "
                 "sys.flags.ignore_environment == 1 and "
                 "sys.flags.safe_path is True and sys.flags.optimize == 0 and "
                 "sys.dont_write_bytecode is True",
