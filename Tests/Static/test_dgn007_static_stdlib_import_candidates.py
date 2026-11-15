@@ -1151,6 +1151,16 @@ class StaticImportCandidateTests(unittest.TestCase):
                 preconfig, initconfig, sys_module, worker,
             )
             self.assertEqual(facts, expected)
+            self.assertEqual(SUBJECT._target_s15_flags_field_candidate(facts), {
+                "value": (1, 1, 1, 1, 1, 0),
+                "source_fact_names": tuple(name for name, _ in expected[:6]),
+                "worker_route_fact_count": 7,
+                "runtime_flags_claimed": False,
+                "evidence_scope": "STATIC_S15_FLAGS_FIELD_CANDIDATE",
+            })
+            self.assertIsNone(SUBJECT._target_s15_flags_field_candidate(
+                facts[:-1] + (("sys.dont_write_bytecode", 1),)
+            ))
             condition = ast.parse(
                 "sys.flags.isolated == 1 and sys.flags.no_site == 1 and "
                 "sys.flags.dont_write_bytecode == 1 and "

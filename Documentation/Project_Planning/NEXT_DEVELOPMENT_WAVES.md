@@ -2619,10 +2619,16 @@ zuvor ausgeführten FileFinder-Registrierung und den digestgeprüften Hook- und
 Klassendeklarationen. 246 fokussierte Regressionen und alle fünf PR-Gates
 bestanden; Runtime-Hookobjekte bleiben unbelegt.
 
-## Begrenzte Fortsetzung: feste Assumption-Textdeklaration binden
+## Abgeschlossen: S15-Assumption-Feldkandidat
 
-Der nächste S15-Schnitt liest `ASSUMPTION` aus dem vorhandenen
-Runtime-Profilmodul, verlangt eine einzige Top-Level-Literaldefinition und
-verifiziert den Quellhash. Die Ausgabe ist eine deklarative Annahme und keine
-Trustattestation. Umfang: ein Paket, ein PR und höchstens zwei Regressionen;
-keine Runtime-, P11-, SQL-/Lab- oder menschliche Generalprobenattestation.
+PR #817 bindet den festen `ASSUMPTION`-Text an genau eine
+Top-Level-Literaldefinition und den verifizierten Modulhash. Der Kandidat ist
+deklarativ und keine Trustattestation.
+
+## Begrenzte Fortsetzung: S15-Flags-Feldkandidat
+
+Ein Arbeitspaket und ein PR verbinden die sechs geordneten S15-Flags mit den
+bereits quell- und Worker-routengebundenen CPython-Facts. Eine Regression
+prüft den vollständigen Kandidaten und eine abweichende Factform. Die Ausgabe
+bleibt statisch; tatsächliche Runtimeflags, P11, SQL/Lab und menschliche
+Generalprobe sind nicht Teil dieses Schritts.
