@@ -11094,10 +11094,18 @@ Fakt mit `MACHDEP=linux` aus der digestgeprüften Zielimage-`_sysconfigdata`-
 Datei und gibt die Quellhashes aus. 244 fokussierte Regressionen und alle fünf
 PR-Gates bestanden. Es entsteht keine Runtimeaufnahme.
 
-## S15-Teilschnitt: Implementation-Feldkandidat binden
+## Abgeschlossen: S15-Teilschnitt Implementation-Feldkandidat
 
-Der nächste Kandidat bindet `implementation` an `sys.implementation.name` aus
-der digestgeprüften CPython-`sysmodule.c`-Quelle. Er wiederholt den engen
-Quellfaktabgleich und behauptet keine Runtimeaufnahme. Umfang: ein Paket, ein
-PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
-menschliche Generalprobenattestation.
+PR #811 bindet `implementation` an `sys.implementation.name` aus der
+digestgeprüften CPython-`sysmodule.c`-Quelle. Der Feldkandidat wiederholt den
+Quellfaktabgleich und weist den Quellhash aus. 244 fokussierte Regressionen
+und alle fünf PR-Gates bestanden; eine Runtimeaufnahme entsteht nicht.
+
+## S15-Teilschnitt: Versionsfeld aus gemeinsamem version_info-Fakt binden
+
+Der nächste Kandidat leitet die S15-Dreierform `(3, 12, 16)` aus dem geprüften
+`sys.implementation.version`-Fakt ab, das dieselbe deklarierte
+`version_info`-Referenz wie `sys.version_info` verwendet. Er bleibt statisch
+und behauptet keine Runtimeversion. Umfang: ein Paket, ein PR und höchstens
+zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder menschliche
+Generalprobenattestation.

@@ -2177,6 +2177,24 @@ def _target_sys_implementation_version_fact(sys_module_source):
     return (("sys.implementation.version", (3, 12, 16, "final", 0)),)
 
 
+def _target_s15_version_field_candidate(sys_module_source, version_fact):
+    """Derive the three-part S15 version from pinned CPython version_info."""
+    if (type(sys_module_source) is not bytes
+            or version_fact != (
+                ("sys.implementation.version", (3, 12, 16, "final", 0)),
+            )
+            or _target_sys_implementation_version_fact(sys_module_source)
+            != version_fact):
+        return {}
+    return {
+        "value": (3, 12, 16),
+        "source_fact": "sys.implementation.version",
+        "source_sha256": SYS_MODULE_C_SHA256,
+        "version_info_object_shared": True,
+        "runtime_version_claimed": False,
+    }
+
+
 def _target_sys_implementation_name_fact(sys_module_source):
     """Bind CPython's implementation.name to its pinned implementation constant."""
     body = _target_sys_implementation_info_body(sys_module_source)
@@ -8051,6 +8069,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     sys_implementation_version_fact = (
         _target_sys_implementation_version_fact(sys_module_c_source)
     )
+    target_s15_version_field_candidate = _target_s15_version_field_candidate(
+        sys_module_c_source, sys_implementation_version_fact,
+    )
     sys_implementation_name_fact = (
         _target_sys_implementation_name_fact(sys_module_c_source)
     )
@@ -8543,6 +8564,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_platform_sys_module_c_sha256": SYS_MODULE_C_SHA256,
         "target_platform_sys_implementation_version_fact": list(
             sys_implementation_version_fact
+        ),
+        "target_s15_version_field_candidate": (
+            target_s15_version_field_candidate
         ),
         "target_platform_sys_implementation_name_fact": list(
             sys_implementation_name_fact
