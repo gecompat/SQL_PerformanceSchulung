@@ -2442,3 +2442,10 @@ geprüften `vars.update(build_time_vars)`-Schritt an den Aufrufparameter
 `_CONFIG_VARS`. Der Kandidat dokumentiert Quell-/Image-Datenfluss, nicht die
 Ausführung der Mutation. Weiterhin ausgeschlossen sind vollständige
 Importclosure, P11, SQL/Lab und menschliche Generalprobe.
+
+Die nächste DGN-007-Welle bleibt auf ein Paket, einen PR und höchstens zwei
+Regressionen begrenzt. Sie bindet den gepinnten `get_config_vars()`-Erstaufruf
+von `_init_config_vars()` an den initialen Config-Variablenzustand, Lock und
+Null-Recheck und führt ihn mit der bereits statischen POSIX-Importroute
+zusammen. Keine Behauptung eines tatsächlichen Getter-/Initializerlaufs,
+Runtimeprofils, P11, SQL/Lab oder menschlicher Generalprobe.

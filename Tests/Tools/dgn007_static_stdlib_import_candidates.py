@@ -1972,7 +1972,8 @@ def _target_sysconfigdata_import_target_candidate(
 
 
 def _target_sysconfigdata_initialization_route_candidate(
-        sysconfig_inventory, posix_init_line_facts,
+        sysconfig_inventory, lazy_initialization_call_candidate,
+        posix_init_line_facts,
         import_target_candidate, image_facts):
     """Join the guarded POSIX initializer to its verified sysconfigdata file."""
     if (type(sysconfig_inventory) is not dict
@@ -1988,6 +1989,16 @@ def _target_sysconfigdata_initialization_route_candidate(
             != "vars"
             or sysconfig_inventory.get("sysconfigdata_initializer_update_value")
             != "build_time_vars"
+            or lazy_initialization_call_candidate != {
+                "getter": "get_config_vars",
+                "initial_config_vars": None,
+                "initialization_flag": False,
+                "outer_guard": "not _CONFIG_VARS_INITIALIZED",
+                "lock": "_CONFIG_VARS_LOCK",
+                "recheck_guard": "_CONFIG_VARS is None",
+                "selected_call": "_init_config_vars()",
+                "evidence_scope": "STATIC_LAZY_INITIALIZER_CALL_CANDIDATE",
+            }
             or type(posix_init_line_facts) is not dict
             or len(posix_init_line_facts) != 1
             or any(type(line) is not int or type(value) is not bool or not value
@@ -2009,6 +2020,7 @@ def _target_sysconfigdata_initialization_route_candidate(
         return None
     line = next(iter(posix_init_line_facts))
     return {
+        "public_initializer_call_candidate": lazy_initialization_call_candidate,
         "initializer": "sysconfig._init_config_vars",
         "guard": "os.name == 'posix'",
         "guard_source_line": line,
@@ -4130,6 +4142,75 @@ def _target_sysconfig_posix_init_line_facts(files, os_name_call_facts):
     if len(guards) != 1:
         return {}
     return {guards[0].lineno: True}
+
+
+def _target_sysconfig_lazy_initialization_call_candidate(files):
+    """Bind get_config_vars' first-call guard to its initializer edge."""
+    source = files.get("sysconfig.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source, filename="sysconfig.py")
+    except SyntaxError:
+        return None
+
+    initial_values = {}
+    for node in tree.body:
+        if (not isinstance(node, ast.Assign) or len(node.targets) != 1
+                or not isinstance(node.targets[0], ast.Name)
+                or node.targets[0].id not in {
+                    "_CONFIG_VARS", "_CONFIG_VARS_INITIALIZED",
+                }):
+            continue
+        name = node.targets[0].id
+        if name in initial_values:
+            return None
+        try:
+            initial_values[name] = ast.literal_eval(node.value)
+        except (ValueError, TypeError, SyntaxError):
+            return None
+    if initial_values != {
+            "_CONFIG_VARS": None,
+            "_CONFIG_VARS_INITIALIZED": False,
+    }:
+        return None
+
+    getters = [node for node in tree.body
+               if isinstance(node, ast.FunctionDef)
+               and node.name == "get_config_vars"]
+    if len(getters) != 1:
+        return None
+    outer_guards = [node for node in getters[0].body
+                    if isinstance(node, ast.If)
+                    and ast.unparse(node.test) == "not _CONFIG_VARS_INITIALIZED"]
+    if len(outer_guards) != 1 or len(outer_guards[0].body) != 1:
+        return None
+    lock_blocks = outer_guards[0].body
+    if not isinstance(lock_blocks[0], ast.With) or len(lock_blocks[0].items) != 1:
+        return None
+    lock = lock_blocks[0].items[0]
+    if (ast.unparse(lock.context_expr) != "_CONFIG_VARS_LOCK"
+            or lock.optional_vars is not None or len(lock_blocks[0].body) != 1
+            or not isinstance(lock_blocks[0].body[0], ast.If)):
+        return None
+    config_vars_guard = lock_blocks[0].body[0]
+    if (ast.unparse(config_vars_guard.test) != "_CONFIG_VARS is None"
+            or config_vars_guard.orelse or len(config_vars_guard.body) != 1
+            or not isinstance(config_vars_guard.body[0], ast.Expr)
+            or not isinstance(config_vars_guard.body[0].value, ast.Call)
+            or ast.unparse(config_vars_guard.body[0].value) != "_init_config_vars()"):
+        return None
+    return {
+        "getter": "get_config_vars",
+        "initial_config_vars": None,
+        "initialization_flag": False,
+        "outer_guard": "not _CONFIG_VARS_INITIALIZED",
+        "lock": "_CONFIG_VARS_LOCK",
+        "recheck_guard": "_CONFIG_VARS is None",
+        "selected_call": "_init_config_vars()",
+        "evidence_scope": "STATIC_LAZY_INITIALIZER_CALL_CANDIDATE",
+    }
 
 
 def _target_sysconfig_project_base_env_facts(files, image_config_source,
@@ -7126,9 +7207,14 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_sysconfig_posix_init_line_facts = (
         _target_sysconfig_posix_init_line_facts(files, os_name_call_facts)
     )
+    target_sysconfig_lazy_initialization_call_candidate = (
+        _target_sysconfig_lazy_initialization_call_candidate(files)
+    )
     sysconfigdata_initialization_route_candidate = (
         _target_sysconfigdata_initialization_route_candidate(
-            sysconfig_inventory, target_sysconfig_posix_init_line_facts,
+            sysconfig_inventory,
+            target_sysconfig_lazy_initialization_call_candidate,
+            target_sysconfig_posix_init_line_facts,
             sysconfigdata_import_target_candidate, target_image_path_facts,
         )
     )
@@ -7432,6 +7518,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_sysconfigdata_initialization_route_candidate": (
             sysconfigdata_initialization_route_candidate
+        ),
+        "target_platform_sysconfigdata_lazy_initialization_call_candidate": (
+            target_sysconfig_lazy_initialization_call_candidate
         ),
         "sysconfigdata_importer": sysconfig_inventory["sysconfigdata_importer"],
         "sysconfigdata_imported_attribute": sysconfig_inventory[
