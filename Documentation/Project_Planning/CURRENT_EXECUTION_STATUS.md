@@ -11564,17 +11564,18 @@ Keine Profilwerte wurden verarbeitet.
 
 ## Begrenzte Fortsetzung: Profilstrecke auf Anschlusslücken prüfen
 
-Der neue Kettentest bindet jetzt in `analyze()` die Reihenfolge und
-Vorgängerargumente von Capture-Schema, Modulrecord-Builder, Vergleich,
-Berichtspfad, Shape-/Record-/Pfad-/Primitiveverträgen, Profilmodellen und
-Record-Beobachtungsfluss. Er verlangt außerdem alle 15 Kandidatenausgaben im
-Resultat. Gegenproben brechen eine Übergabekante und entfernen einen
-Resultateintrag; beide werden erkannt. Der gesamte fokussierte Satz besteht
-280/280. Es läuft keine Analyse und keine Runtimebeobachtung.
+Der neue Kettentest bindet in `analyze()` die parallelen skalaren und frischen
+Recordzweige sowie den Capture-/Modulrecord-/Vergleichs-/Berichtspfad mit
+Shape-, Record-, Pfad- und Primitiveverträgen, Profilmodellen und
+Record-Beobachtungsfluss. Er prüft die Vorgängerargumente und alle 18
+Kandidatenausgaben im Resultat. Vier Gegenproben brechen zwei Übergabekanten
+und entfernen zwei Ergebniseinträge; alle werden erkannt. Der gesamte
+fokussierte Satz besteht 280/280. Es läuft keine Analyse und keine
+Runtimebeobachtung.
 
 ## Begrenzte Fortsetzung: parallele Beobachtungszweige verbinden
 
-Als Nächstes prüfe ich die separate Skalarbeobachtung und frische
-Recordaufnahme darauf, ob ihre Eingangskandidaten und Ergebnisfelder im
-Analyzer ebenfalls vollständig und geordnet verbunden sind. Runtime-, P11-
-und S15-Nachweise bleiben davon unberührt.
+Als Nächstes prüfe ich, ob die verbundenen Kandidatenausgaben im erzeugten
+Analyzerbericht unverändert sichtbar und als nicht attestierte
+Quellkandidaten gekennzeichnet bleiben. Runtime-, P11- und S15-Nachweise
+bleiben davon unberührt.

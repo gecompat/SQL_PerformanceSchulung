@@ -2000,6 +2000,9 @@ class StaticImportCandidateTests(unittest.TestCase):
                 return False
             body = SUBJECT.re.sub(rb"\s+", b" ", bodies[0])
             assignments = (
+                b"target_profile_scalar_projection_schema_candidate = ( _target_profile_scalar_projection_schema_candidate( runtime_profile_source, target_profile_selection_inputs_candidate, target_s15_installation_tuple_candidate, ) )",
+                b"target_current_scalar_observation_flow_candidate = ( _target_current_scalar_observation_flow_candidate( runtime_profile_source, target_profile_scalar_projection_schema_candidate, ) )",
+                b"target_fresh_record_capture_flow_candidate = ( _target_fresh_record_capture_flow_candidate(runtime_profile_source) )",
                 b"target_profile_capture_schema_candidate = ( _target_profile_capture_schema_candidate(runtime_profile_source) )",
                 b"target_profile_module_record_builder_candidate = ( _target_profile_module_record_builder_candidate( runtime_profile_source, target_profile_capture_schema_candidate, ) )",
                 b"target_profile_compare_contract_candidate = ( _target_profile_compare_contract_candidate( runtime_profile_source, target_profile_module_record_builder_candidate, ) )",
@@ -2022,6 +2025,9 @@ class StaticImportCandidateTests(unittest.TestCase):
                        for left, right in zip(assignments, assignments[1:])):
                 return False
             result_fields = (
+                b'"target_profile_scalar_projection_schema_candidate": ( target_profile_scalar_projection_schema_candidate )',
+                b'"target_current_scalar_observation_flow_candidate": ( target_current_scalar_observation_flow_candidate )',
+                b'"target_fresh_record_capture_flow_candidate": ( target_fresh_record_capture_flow_candidate )',
                 b'"target_profile_capture_schema_candidate": ( target_profile_capture_schema_candidate )',
                 b'"target_profile_module_record_builder_candidate": ( target_profile_module_record_builder_candidate )',
                 b'"target_profile_compare_contract_candidate": ( target_profile_compare_contract_candidate )',
@@ -2051,6 +2057,15 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertNotEqual(broken_edge, scanner_source)
         self.assertFalse(chain_is_bound(broken_edge))
+        broken_scalar_edge = scanner_source.replace(
+            b"            target_profile_scalar_projection_schema_candidate,"
+            + newline + b"        )",
+            b"            target_profile_selection_inputs_candidate,"
+            + newline + b"        )",
+            1,
+        )
+        self.assertNotEqual(len(broken_scalar_edge), len(scanner_source))
+        self.assertFalse(chain_is_bound(broken_scalar_edge))
         dropped_result = scanner_source.replace(
             b'"target_profile_compare_contract_candidate": (' + newline
             + b"            target_profile_compare_contract_candidate" + newline
@@ -2060,6 +2075,15 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertNotEqual(len(dropped_result), len(scanner_source))
         self.assertFalse(chain_is_bound(dropped_result))
+        dropped_parallel_result = scanner_source.replace(
+            b'"target_current_scalar_observation_flow_candidate": (' + newline
+            + b"            target_current_scalar_observation_flow_candidate" + newline
+            + b"        ),",
+            b"",
+            1,
+        )
+        self.assertNotEqual(len(dropped_parallel_result), len(scanner_source))
+        self.assertFalse(chain_is_bound(dropped_parallel_result))
 
     def test_profile_shape_contract_is_source_bound(self):
         profile_source = (
