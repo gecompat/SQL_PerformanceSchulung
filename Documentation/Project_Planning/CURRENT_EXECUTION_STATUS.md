@@ -11320,9 +11320,16 @@ der deklarierten Roots. Die zwei gelockerten Gegenproben und alle fünf
 Pflichtprüfungen bestanden; PR #842 ist integriert. Daraus folgt weder
 Pfadvalidierung noch Hostattestation.
 
-## Begrenzte Fortsetzung: primitive Profilvalidatoren binden
+## Abgeschlossen: primitive Profilvalidatoren binden
 
 PR #843 bindet `_text` und `_strings`: exakter String-/Tupletyp, Zeichen- und
 UTF-8-Bytegrenze, maximale Tuplelänge und Weitergabe jedes Elements an `_text`.
-Zwei Gegenproben lockern die Bytegrenze bzw. den exakten Tupletyp. Keine
-Profilvalidierung wird behauptet.
+264 fokussierte Regressionen und alle fünf Pflichtprüfungen bestanden; PR #843
+ist integriert. Keine Profilvalidierung wird behauptet.
+
+## Begrenzte Fortsetzung: fail-closed Profilfehler binden
+
+PR #844 bindet `_Failure` und `_need`: Fehlerklasse als `ValueError`-Unterklasse,
+Standardcode `INVALID_RECORD` und Ablehnung falscher Bedingungen unter Erhalt
+des jeweiligen Fehlercodes. Zwei Gegenproben lockern Defaultcode bzw.
+Fehlerweitergabe. Keine Profilvalidierung wird behauptet.

@@ -2035,6 +2035,38 @@ class StaticImportCandidateTests(unittest.TestCase):
                     changed, path_contract,
                 ))
 
+    def test_profile_failure_primitive_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        primitive_contract = {"profile_input_validation_claimed": False}
+        candidate = SUBJECT._target_profile_failure_primitive_candidate(
+            profile_source, primitive_contract,
+        )
+        self.assertEqual(candidate, {
+            "failure_class": "_Failure_subclass_of_ValueError",
+            "default_issue": "INVALID_RECORD",
+            "false_condition_behavior": "raise_failure_with_issue",
+            "input_validation_claimed": False,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "evidence_scope": "STATIC_PROFILE_FAILURE_PRIMITIVE_CANDIDATE",
+        })
+        for changed in (
+            profile_source.replace(b'issue="INVALID_RECORD"', b'issue="UNKNOWN"'),
+            profile_source.replace(
+                b"raise _Failure(issue)", b"raise _Failure(\"INVALID_RECORD\")",
+            ),
+        ):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(changed),
+            ):
+                self.assertIsNone(SUBJECT._target_profile_failure_primitive_candidate(
+                    changed, primitive_contract,
+                ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(
