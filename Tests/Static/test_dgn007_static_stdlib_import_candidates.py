@@ -1265,6 +1265,85 @@ class StaticImportCandidateTests(unittest.TestCase):
             self.assertEqual(modules, ("isolated_route", "pkg"))
             self.assertEqual(conditions, {"resolved": 1, "unknown": 0})
 
+    def test_s15_installation_tuple_joins_all_fifteen_static_fields(self):
+        exe = "/usr/local/bin/python3.12"
+        roots = (
+            "/usr/local/lib/python3.12",
+            "/usr/local/lib/python3.12/lib-dynload",
+        )
+        candidates = {
+            "assumption": {
+                "value": "DECLARED_SETUP_PYTHON_CONTROL_RUNTIME",
+                "runtime_assumption_attested": False,
+            },
+            "platform": {"value": "linux", "runtime_platform_claimed": False},
+            "implementation": {
+                "value": "cpython", "runtime_implementation_claimed": False,
+            },
+            "version": {
+                "value": (3, 12, 16), "runtime_version_claimed": False,
+            },
+            "image_paths": {
+                "executable_field_candidate": {
+                    "value": exe, "target": exe, "direct_regular_file": True,
+                    "runtime_executable_claimed": False,
+                },
+                "executable_target_candidate": exe,
+                "abi_field_candidate": {
+                    "value": SUBJECT.TARGET_SYSCONFIGDATA_EXPECTED_VALUES["SOABI"],
+                    "runtime_abi_claimed": False,
+                },
+            },
+            "prefixes": {
+                "values": ("/usr/local",) * 4,
+                "runtime_prefixes_claimed": False,
+            },
+            "paths": {
+                "value": (
+                    "/usr/local/lib/python312.zip", roots[0], roots[1],
+                ),
+                "runtime_sys_path_claimed": False,
+            },
+            "roots": {"value": roots, "runtime_roots_claimed": False},
+            "inert_zip": {
+                "value": "/usr/local/lib/python312.zip",
+                "runtime_membership_claimed": False,
+            },
+            "flags": {
+                "value": (1, 1, 1, 1, 1, 0), "runtime_flags_claimed": False,
+            },
+            "finders": {
+                "values": ("BUILTIN", "FROZEN", "PATH"),
+                "runtime_finder_instances_claimed": False,
+            },
+            "hooks": {
+                "values": ("ZIPIMPORTER", "FILEFINDER"),
+                "runtime_hook_objects_claimed": False,
+            },
+            "files": {
+                "value": (
+                    (exe, 10, SUBJECT.TARGET_EXECUTABLE_SHA256),
+                    ("/" + SUBJECT.PICKLE_EXTENSION_PATH, 20,
+                     SUBJECT.PICKLE_EXTENSION_SHA256),
+                ),
+                "file_count": 2,
+                "complete_file_list_claimed": False,
+                "runtime_file_selection_claimed": False,
+            },
+        }
+        candidate = SUBJECT._target_s15_installation_tuple_candidate(candidates)
+        self.assertIsNotNone(candidate)
+        self.assertEqual(len(candidate["value"]), 15)
+        self.assertEqual(candidate["field_order"], (
+            "assumption", "platform", "implementation", "version",
+            "executable", "executable_target", "prefixes", "abi", "paths",
+            "roots", "inert_zip", "flags", "finders", "hooks", "files",
+        ))
+        self.assertFalse(candidate["runtime_record_claimed"])
+        altered = dict(candidates)
+        altered["flags"] = dict(candidates["flags"], runtime_flags_claimed=True)
+        self.assertIsNone(SUBJECT._target_s15_installation_tuple_candidate(altered))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(
