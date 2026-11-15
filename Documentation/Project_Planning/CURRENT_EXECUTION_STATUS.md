@@ -11494,8 +11494,15 @@ PR #865 bindet den einzigen Rückgabepunkt von `_bind_selected` nach den Cache-,
 Shape- und Projektionsprüfungen. Eine Gegenprobe fügt eine frühe Rückgabe ein;
 279 fokussierte Regressionen bestehen. Es werden keine Anker gelesen.
 
-## Begrenzte Fortsetzung: Skalarbeobachter gegen frühe Rückgabe absichern
+## Abgeschlossen: Skalarbeobachter gegen frühe Rückgabe absichern
 
-Der nächste Nachaudit bindet die vier vorgesehenen Rückgaben von
+PR #866 bindet die vier vorgesehenen Rückgaben von
 `observe_current_interpreter_scalars` und verwirft einen zusätzlichen Ausstieg
-vor den Hook- und Projektionsprüfungen. Es wird keine Beobachtung ausgeführt.
+vor den Hook- und Projektionsprüfungen. 279 fokussierte Regressionen und alle
+fünf Pflichtprüfungen bestanden. Es wird keine Beobachtung ausgeführt.
+
+## Begrenzte Fortsetzung: frische Recordaufnahme gegen frühe Rückgabe absichern
+
+Der nächste Schnitt bindet die fünf vorgesehenen Rückgaben von
+`observe_current_interpreter_records` und verwirft einen zusätzlichen Ausstieg
+vor Nachheraufnahme und Hashvergleich. Es wird keine Aufnahme ausgeführt.

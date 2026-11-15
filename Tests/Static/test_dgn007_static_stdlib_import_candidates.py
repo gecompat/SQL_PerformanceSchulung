@@ -1773,13 +1773,25 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"_compare(expected, after)",
             b"pass",
         )
-        with patch.object(
-            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
-            SUBJECT._normalized_profile_source_sha256(changed),
-        ):
-            self.assertIsNone(
-                SUBJECT._target_fresh_record_capture_flow_candidate(changed)
+        capture_start = profile_source.index(b"def observe_current_interpreter_records")
+        capture_source = profile_source[capture_start:]
+        early_return = (
+            profile_source[:capture_start]
+            + capture_source.replace(
+                b"    try:",
+                b"    try:\n        return None",
+                1,
             )
+        )
+        self.assertNotEqual(early_return, profile_source)
+        for mutation in (changed, early_return):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(mutation),
+            ):
+                self.assertIsNone(
+                    SUBJECT._target_fresh_record_capture_flow_candidate(mutation)
+                )
 
     def test_profile_capture_schema_is_source_bound(self):
         profile_source = (
