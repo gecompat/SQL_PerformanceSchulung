@@ -11327,9 +11327,17 @@ UTF-8-Bytegrenze, maximale Tuplelänge und Weitergabe jedes Elements an `_text`.
 264 fokussierte Regressionen und alle fünf Pflichtprüfungen bestanden; PR #843
 ist integriert. Keine Profilvalidierung wird behauptet.
 
-## Begrenzte Fortsetzung: fail-closed Profilfehler binden
+## Abgeschlossen: fail-closed Profilfehler binden
 
 PR #844 bindet `_Failure` und `_need`: Fehlerklasse als `ValueError`-Unterklasse,
 Standardcode `INVALID_RECORD` und Ablehnung falscher Bedingungen unter Erhalt
 des jeweiligen Fehlercodes. Zwei Gegenproben lockern Defaultcode bzw.
-Fehlerweitergabe. Keine Profilvalidierung wird behauptet.
+Fehlerweitergabe; 265 fokussierte Regressionen und alle fünf Pflichtprüfungen
+bestanden. PR #844 ist integriert. Keine Profilvalidierung wird behauptet.
+
+## Begrenzte Fortsetzung: Profilreport-Schema binden
+
+PR #845 bindet die Felder von `ProfileReport`, insbesondere die nicht
+initialisierbaren Attestierungs-/Freigabefelder mit Standardwert `False`. Eine
+Gegenprobe setzt `runtime_attested` auf `True`; der Quellkandidat muss dann
+entfallen. Es wird kein Bericht erzeugt oder Vertrauen attestiert.
