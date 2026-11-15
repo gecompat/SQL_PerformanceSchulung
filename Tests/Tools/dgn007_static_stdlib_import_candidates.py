@@ -155,7 +155,7 @@ IMPORTLIB_EXTERNAL_SOURCE_SHA256 = "e6ad72f3f0f9b65c99ab52598cd02ab748511dcdce1d
 IMPORTLIB_MACHINERY_SOURCE_SHA256 = "d045cd7ecf2a12b6ecbfbef79eb114e87ef2ebd756f5b705f73e6f3266e3dede"
 IMPORTLIB_UTIL_SOURCE_SHA256 = "671f2995653f673f6d5056a1089debef473bc28ae7114f7a8db71475733d6876"
 ZIPIMPORT_SOURCE_SHA256 = "a96f1d7a7b6aaf421a3cf382b94b1422f4f0ad452fdd0bb61d635b560d7a4e91"
-DGN007_RUNTIME_PROFILE_SOURCE_SHA256 = "c920bd0fff6376ad23eba75a0589962f876fbf0a47bcb2bc5a917229f1f9a760"
+DGN007_RUNTIME_PROFILE_SOURCE_SHA256 = "612d5dc648deb43d7f9993a0b6bde4d50d0cc1276231833f2d336488bb61e8f7"
 MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES = 512 * 1024
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
@@ -1551,7 +1551,7 @@ def _target_s15_assumption_field_candidate(source_bytes):
     """Bind the fixed S15 assumption text without claiming attestation."""
     if (type(source_bytes) is not bytes or not source_bytes
             or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
-            or hashlib.sha256(source_bytes).hexdigest()
+            or _normalized_profile_source_sha256(source_bytes)
             != DGN007_RUNTIME_PROFILE_SOURCE_SHA256):
         return None
     try:
@@ -1592,7 +1592,7 @@ def _target_s15_installation_schema_candidate(source_bytes):
     """Bind S15 field order to the pinned runtime profile shape validator."""
     if (type(source_bytes) is not bytes or not source_bytes
             or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
-            or hashlib.sha256(source_bytes).hexdigest()
+            or _normalized_profile_source_sha256(source_bytes)
             != DGN007_RUNTIME_PROFILE_SOURCE_SHA256):
         return None
     functions = re.findall(
@@ -1630,6 +1630,11 @@ def _target_s15_installation_schema_candidate(source_bytes):
         "runtime_schema_claimed": False,
         "evidence_scope": "STATIC_S15_INSTALLATION_SCHEMA_CANDIDATE",
     }
+
+
+def _normalized_profile_source_sha256(source_bytes):
+    """Hash source text with Git-independent LF line endings."""
+    return hashlib.sha256(source_bytes.replace(b"\r\n", b"\n")).hexdigest()
 
 
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
@@ -1817,6 +1822,7 @@ def _target_s15_installation_tuple_candidate(candidates):
     if (schema.get("field_order") != expected_field_order
             or schema.get("tuple_length") != 15
             or schema.get("source_sha256") != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or assumption.get("source_sha256") != schema.get("source_sha256")
             or schema.get("runtime_schema_claimed") is not False):
         return None
     executable = image_paths.get("executable_field_candidate")

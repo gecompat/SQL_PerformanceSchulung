@@ -1273,13 +1273,23 @@ class StaticImportCandidateTests(unittest.TestCase):
         ).read_bytes()
         schema = SUBJECT._target_s15_installation_schema_candidate(profile_source)
         self.assertIsNotNone(schema)
+        normalized_profile = profile_source.replace(b"\r\n", b"\n")
+        crlf_profile = normalized_profile.replace(b"\n", b"\r\n")
+        self.assertEqual(
+            SUBJECT._normalized_profile_source_sha256(crlf_profile),
+            SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        )
+        self.assertEqual(
+            SUBJECT._target_s15_installation_schema_candidate(crlf_profile),
+            schema,
+        )
         changed_profile = profile_source.replace(
             b"assumption, platform, implementation, version, exe, target,",
             b"platform, assumption, implementation, version, exe, target,",
         )
         with patch.object(
             SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
-            hashlib.sha256(changed_profile).hexdigest(),
+            SUBJECT._normalized_profile_source_sha256(changed_profile),
         ):
             self.assertIsNone(
                 SUBJECT._target_s15_installation_schema_candidate(changed_profile)
@@ -1291,6 +1301,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         candidates = {
             "assumption": {
                 "value": "DECLARED_SETUP_PYTHON_CONTROL_RUNTIME",
+                "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
                 "runtime_assumption_attested": False,
             },
             "platform": {"value": "linux", "runtime_platform_claimed": False},
