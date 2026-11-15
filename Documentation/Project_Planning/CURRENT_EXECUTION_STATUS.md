@@ -11406,9 +11406,17 @@ lockern die Closureform und vertauschen Loaderdetails; 274 fokussierte
 Regressionen und alle fünf Pflichtprüfungen bestanden. PR #853 ist integriert.
 Es wird kein Hook beobachtet.
 
-## Begrenzte Fortsetzung: Skalarprojektion binden
+## Abgeschlossen: Skalarprojektion binden
 
 PR #854 bindet `_scalar_text` und `_project_scalars`: NUL-Ausschluss,
 Kontroll-/Rootprüfungen, Loader-/Aliasanker sowie die geordneten Selection-,
 Installation- und Modulzeilenprojektionen. Gegenproben lockern NUL- bzw.
-Aliasidentitätsprüfung. Es wird keine Projektion ausgeführt.
+Aliasidentitätsprüfung; 275 fokussierte Regressionen und alle fünf
+Pflichtprüfungen bestanden. PR #854 ist integriert. Es wird keine Projektion
+ausgeführt.
+
+## Begrenzte Fortsetzung: ausgewählte Formprimitiven binden
+
+PR #855 bindet `_selected_tree`, `_selected_tuple` und `_selected_int` an
+Knoten-/Tiefen-/Tupelgrenzen und exakte Blatt-/Zahlentypen. Gegenproben lockern
+die Tiefengrenze bzw. den exakten Tupletyp. Es werden keine Werte traversiert.

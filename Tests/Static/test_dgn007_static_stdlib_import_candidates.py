@@ -2436,6 +2436,42 @@ class StaticImportCandidateTests(unittest.TestCase):
                     changed, filefinder_contract,
                 ))
 
+    def test_selected_shape_primitives_are_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        selected_shape_contract = {"selected_values_claimed": False}
+        candidate = SUBJECT._target_selected_shape_primitives_candidate(
+            profile_source, selected_shape_contract,
+        )
+        self.assertEqual(candidate, {
+            "tree_limits": {"nodes": 16368, "depth": 8, "tuple_items": "MAX_RECORDS"},
+            "accepted_leaf_types": ("str", "NoneType", "int_exact"),
+            "tuple_type": "exact_tuple_with_optional_exact_size",
+            "integer_type": "exact_int_inclusive_range",
+            "selected_shape_validation_claimed": False,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "evidence_scope": "STATIC_SELECTED_SHAPE_PRIMITIVES_CANDIDATE",
+        })
+        for changed in (
+            profile_source.replace(
+                b"count <= 16368 and depth <= 8", b"count <= 16368",
+            ),
+            profile_source.replace(
+                b"type(value) is tuple and len(value) <= MAX_RECORDS",
+                b"isinstance(value, tuple) and len(value) <= MAX_RECORDS",
+            ),
+        ):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(changed),
+            ):
+                self.assertIsNone(SUBJECT._target_selected_shape_primitives_candidate(
+                    changed, selected_shape_contract,
+                ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(
