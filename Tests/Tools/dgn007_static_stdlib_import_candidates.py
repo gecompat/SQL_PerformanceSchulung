@@ -7283,6 +7283,38 @@ def _target_sysconfig_build_setup_guard_line_facts(
     return {guards[0].lineno: False}
 
 
+def _target_sysconfig_venv_prefix_guard_line_facts(
+        files, target_prefix_candidate):
+    """Resolve the venv comparison only when candidate prefixes are identical."""
+    source = files.get("sysconfig.py") if type(files) is dict else None
+    expected_prefixes = {
+        "values": ("/usr/local", "/usr/local", "/usr/local", "/usr/local"),
+        "field_order": ("prefix", "exec_prefix", "base_prefix", "base_exec_prefix"),
+        "runtime_prefixes_claimed": False,
+    }
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256
+            or type(target_prefix_candidate) is not dict
+            or any(target_prefix_candidate.get(key) != value
+                   for key, value in expected_prefixes.items())):
+        return {}
+    try:
+        tree = ast.parse(source, filename="sysconfig.py")
+    except SyntaxError:
+        return {}
+    functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+                 and node.name == "get_preferred_scheme"]
+    if len(functions) != 1:
+        return {}
+    guards = [node for node in ast.walk(functions[0])
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test)
+              == "key == 'prefix' and sys.prefix != sys.base_prefix"]
+    if len(guards) != 1:
+        return {}
+    return {guards[0].lineno: False}
+
+
 def _target_sysconfig_posix_init_line_facts(files, os_name_call_facts):
     """Select sysconfig's POSIX initializer only from the bound os.name fact."""
     source = files.get("sysconfig.py") if type(files) is dict else None
@@ -10895,6 +10927,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_no_project_base_override, target_direct_python312,
         )
     )
+    target_sysconfig_venv_prefix_guard_line_facts = (
+        _target_sysconfig_venv_prefix_guard_line_facts(
+            files, target_s15_prefixes_field_candidate,
+        )
+    )
     importlib_bootstrap = files.get("importlib/_bootstrap.py")
     importlib_external = files.get("importlib/_bootstrap_external.py")
     if importlib_bootstrap is None or importlib_external is None:
@@ -11413,6 +11450,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "sysconfig": {
                 **target_sysconfig_is_python_build_line_facts,
                 **target_sysconfig_build_setup_guard_line_facts,
+                **target_sysconfig_venv_prefix_guard_line_facts,
                 **target_sysconfig_posix_init_line_facts,
             },
             "string": target_string_template_pattern_guard_line_facts,
@@ -11432,6 +11470,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
               or target_logging_lock_line_facts
               or target_collections_namedtuple_rename_line_facts
               or target_sysconfig_build_setup_guard_line_facts
+              or target_sysconfig_venv_prefix_guard_line_facts
               or target_importlib_optimize_line_facts
               or target_importlib_verbose_line_facts) else {},
         trusted_condition_observations={
@@ -11837,6 +11876,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_sysconfig_build_setup_guard_line_facts": list(
             target_sysconfig_build_setup_guard_line_facts.items()
+        ),
+        "target_platform_sysconfig_venv_prefix_guard_line_facts": list(
+            target_sysconfig_venv_prefix_guard_line_facts.items()
         ),
         "target_platform_sysconfig_posix_init_line_facts": list(
             target_sysconfig_posix_init_line_facts.items()
