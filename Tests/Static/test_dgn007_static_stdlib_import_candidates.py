@@ -61,7 +61,12 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"    command = [sys.executable, '-I', '-S', '-B', '-c', "
             b"_worker_source(ordinal, worker_nonce)]\n"
             b"def _collect_process(command):\n"
-            b"    return subprocess.Popen(command)\n"
+            b"    child_env = os.environ.copy()\n"
+            b"    child_env.pop('_PYTHON_SYSCONFIGDATA_NAME', None)\n"
+            b"    try:\n"
+            b"        return subprocess.Popen(command, env=child_env)\n"
+            b"    except OSError:\n"
+            b"        return None\n"
         )
         return preconfig_source, initconfig_source, sys_module_source, worker_source
 
@@ -841,7 +846,12 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"    command = [sys.executable, '-I', '-S', '-B', '-c', "
             b"_worker_source(ordinal, worker_nonce)]\n"
             b"def _collect_process(command):\n"
-            b"    return subprocess.Popen(command)\n"
+            b"    child_env = os.environ.copy()\n"
+            b"    child_env.pop('_PYTHON_SYSCONFIGDATA_NAME', None)\n"
+            b"    try:\n"
+            b"        return subprocess.Popen(command, env=child_env)\n"
+            b"    except OSError:\n"
+            b"        return None\n"
         )
         with patch.multiple(
             SUBJECT,
@@ -861,7 +871,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 initconfig_source, changed_worker,
             ), {})
             env_worker = worker_source.replace(
-                b"subprocess.Popen(command)", b"subprocess.Popen(command, env={})"
+                b"env=child_env", b"env={}"
             )
             self.assertEqual(SUBJECT._target_warning_options_empty_for_facts(
                 {"warnings.py": warnings_source}, preconfig_source,
@@ -885,7 +895,12 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"    command = [sys.executable, '-I', '-S', '-B', '-c', "
             b"_worker_source(ordinal, worker_nonce)]\n"
             b"def _collect_process(command):\n"
-            b"    return subprocess.Popen(command)\n"
+            b"    child_env = os.environ.copy()\n"
+            b"    child_env.pop('_PYTHON_SYSCONFIGDATA_NAME', None)\n"
+            b"    try:\n"
+            b"        return subprocess.Popen(command, env=child_env)\n"
+            b"    except OSError:\n"
+            b"        return None\n"
         )
         external_source = (
             b"if sys.flags.optimize == 0:\n"
@@ -915,7 +930,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 preconfig_source, initconfig_source, optimized_worker,
             ), {})
             env_worker = worker_source.replace(
-                b"subprocess.Popen(command)", b"subprocess.Popen(command, env={})"
+                b"env=child_env", b"env={}"
             )
             self.assertEqual(SUBJECT._target_importlib_optimize_line_facts(
                 {"importlib/_bootstrap_external.py": external_source},
@@ -976,6 +991,39 @@ class StaticImportCandidateTests(unittest.TestCase):
             )
             self.assertEqual(modules, ("isolated_route", "pkg"))
             self.assertEqual(conditions, {"resolved": 1, "unknown": 0})
+
+    def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
+        preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
+        with patch.multiple(
+            SUBJECT,
+            PRECONFIG_C_SHA256=hashlib.sha256(preconfig).hexdigest(),
+            INITCONFIG_C_SHA256=hashlib.sha256(initconfig).hexdigest(),
+            IMPORT_USED_BYTES_PROBE_SHA256=hashlib.sha256(worker).hexdigest(),
+        ):
+            self.assertTrue(SUBJECT._target_isolated_worker_route_valid(
+                preconfig, initconfig, worker,
+            ))
+            self.assertEqual(
+                SUBJECT._target_worker_sysconfigdata_environment_fact(
+                    preconfig, initconfig, worker,
+                ),
+                (("_PYTHON_SYSCONFIGDATA_NAME", "absent_from_child_environment"),),
+            )
+            inherited = worker.replace(
+                b"child_env.pop('_PYTHON_SYSCONFIGDATA_NAME', None)\n", b"",
+            )
+            with patch.object(
+                SUBJECT, "IMPORT_USED_BYTES_PROBE_SHA256",
+                hashlib.sha256(inherited).hexdigest(),
+            ):
+                self.assertFalse(SUBJECT._target_isolated_worker_route_valid(
+                    preconfig, initconfig, inherited,
+                ))
+                self.assertEqual(
+                    SUBJECT._target_worker_sysconfigdata_environment_fact(
+                        preconfig, initconfig, inherited,
+                    ), (),
+                )
 
     def test_worker_sys_flag_facts_fail_closed_on_route_or_source_changes(self):
         preconfig, initconfig, sys_module, worker = (
@@ -1230,7 +1278,12 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"    command = [sys.executable, '-I', '-S', '-B', '-c', "
             b"_worker_source(ordinal, worker_nonce)]\n"
             b"def _collect_process(command):\n"
-            b"    return subprocess.Popen(command)\n"
+            b"    child_env = os.environ.copy()\n"
+            b"    child_env.pop('_PYTHON_SYSCONFIGDATA_NAME', None)\n"
+            b"    try:\n"
+            b"        return subprocess.Popen(command, env=child_env)\n"
+            b"    except OSError:\n"
+            b"        return None\n"
         )
         bootstrap_source = (
             b"def _verbose_message(message, *args, verbosity=1):\n"

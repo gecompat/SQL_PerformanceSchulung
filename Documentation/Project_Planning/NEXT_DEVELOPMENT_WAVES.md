@@ -2286,3 +2286,22 @@ Attestation. Keine Runtime-, Profil-, Worker-, SQL-, Lab- oder
 Generalprobenausführung. Token-/Geldverbrauch bleiben unbekannt; der
 Checkpoint umfasst ein Paket und einen PR. PR-Integration ist der Checkpoint;
 danach wird anhand des aktuellen Status weitergearbeitet.
+
+### Begrenzte Fortsetzung: direkten Sysconfig-Umgebungsoverride entfernen
+(15. November 2026)
+
+Die `sysconfig`-Quelle liest `_PYTHON_SYSCONFIGDATA_NAME` unmittelbar über
+`os.environ`; das isolierte Startupflag `-I` schützt diesen direkten Zugriff
+nicht. Ein Arbeitspaket und ein PR ergänzen deshalb den vorhandenen
+Import-Only-Caller um eine Kindumgebungskopie, aus der genau diese Variable vor
+`Popen` entfernt wird. Der quellengebundene Resolver akzeptiert das Routenfact
+nur bei exakter CPython-Quell-, argv- und Filterbindung. Zwei Regressionen
+prüfen die positive/negative statische Routenbindung und die tatsächliche
+Entfernung aus der synthetisch gesetzten Elternumgebung. Andere Variablen
+bleiben erhalten; daraus folgt keine Hostisolation, Zielruntime- oder
+Sysconfigaufnahme. Keine vollständige Importclosure, P11-Inventur,
+Profilattestation, SQL-/Lab-Ausführung oder menschliche Generalprobe.
+Token-/Geldverbrauch bleiben unbekannt; die harte Umfangsgrenze ist ein Paket,
+ein PR und zwei Regressionen, kein Provider-Ausgabenlimit. PR-Integration ist
+der Checkpoint; anschließend wird autonom mit dem nächsten offenen Thema
+fortgefahren.

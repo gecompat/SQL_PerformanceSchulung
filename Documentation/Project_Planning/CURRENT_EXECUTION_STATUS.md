@@ -101,6 +101,21 @@ an der festgelegten Executable-/Libraryroute möglichen Markerdateien
 `python3.12._pth`, `libpython3.12.so.1.0._pth` und `libpython3.12.so._pth`
 fehlen im Zielimage. Damit ist dieser konkrete Override ausgeschlossen, nicht
 aber eine tatsächliche `sys.path`-Aufnahme oder alle weiteren Runtimeeinflüsse.
+Die feste Import-Only-Kindroute entfernt nun außerdem
+`_PYTHON_SYSCONFIGDATA_NAME` aus einer Kopie der geerbten Umgebung. CPython
+liest diese Variable beim Aufbau des Sysconfigdatenmodulnamens direkt über
+`os.environ`; `-I` unterbindet diesen Zugriff nicht. Der Scanner gibt die
+Entfernung nur bei gebundenen CPython-Konfigurationsquellen und exakt geprüfter
+Workerquelle als Routenfact aus. Das schließt nur diesen einzelnen direkten
+Environment-Override aus. Der lokale Syntax-/Quellscanner besteht mit 224
+Tests unter Python 3.14; die Linux-/CPython-3.12-Prozessgegenprobe wurde auf
+diesem Windows-Host übersprungen und wartet auf den Pflichtworkflow. Es gab
+keine Zielprofil-, DGN-Worker-, SQL-, Lab- oder Generalprobenattestation.
+Der lokale breitere Bundletest läuft unter CPython 3.14 in einen bereits
+versionsgebundenen Bootstrap-AST-Digest (`BOOTSTRAP_CHANGED`); die gepinnten
+CI-Workflows verwenden CPython 3.12. Die Execution-Edge-Gesamtsuite wurde lokal
+unter 3.14 nicht abgeschlossen. Beide Integrationsprüfungen stehen deshalb
+weiterhin im erforderlichen CI aus.
 
 Die separat dokumentierte CPython-3.12.16-Imagekandidatur ist jetzt zusätzlich
 gegen die OCI Registry-Blobbytes nachgerechnet: Childmanifest und Configdigest

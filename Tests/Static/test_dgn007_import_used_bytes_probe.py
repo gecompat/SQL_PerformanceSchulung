@@ -1,12 +1,14 @@
 """Synthetische Proben plus gebundene DGN-007 Import-Only-CI-Probe."""
 import hashlib
 import ast
+import os
 from pathlib import Path
 import sys
 import tempfile
 import threading
 import time
 import unittest
+from unittest.mock import patch
 
 TOOLS = Path(__file__).resolve().parents[1] / "Tools"
 ROOT = Path(__file__).resolve().parents[2]
@@ -136,6 +138,17 @@ class ImportWorkerTests(unittest.TestCase):
                     row = next(s for s in source.sources if s.module == receipt.module)
                     self.assertEqual((receipt.member, receipt.size, receipt.sha256),
                                      (row.member, len(row.body), hashlib.sha256(row.body).hexdigest()))
+
+    def test_worker_removes_sysconfigdata_override_from_child_environment(self):
+        code = (
+            "import os; print('_PYTHON_SYSCONFIGDATA_NAME' in os.environ)"
+        )
+        with patch.dict(os.environ, {"_PYTHON_SYSCONFIGDATA_NAME": "synthetic"}):
+            state, stdout, stderr = probe._collect_process(
+                [sys.executable, "-I", "-S", "-B", "-c", code], b"",
+                time.monotonic() + 5.0, 1024,
+            )
+        self.assertEqual((state, stdout, stderr), ("PROCESS_EXIT_0", b"False\n", b""))
 
     def test_worker_rejects_unknown_import_instead_of_using_live_files(self):
         source = source_set("docker_sqlcmd_proxy")
