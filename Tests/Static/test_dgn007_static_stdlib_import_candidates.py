@@ -1452,6 +1452,50 @@ class StaticImportCandidateTests(unittest.TestCase):
                 changed_selection_source, assumption, roots, inert_zip, candidate,
             ))
 
+    def test_profile_scalar_projection_schema_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        selection_inputs = {
+            "field_order": ("assumption", "roots", "inert_zip", "controls"),
+            "selection_tuple_claimed": False,
+        }
+        installation = {
+            "field_order": ("assumption", "platform", "implementation"),
+            "runtime_record_claimed": False,
+        }
+        candidate = SUBJECT._target_profile_scalar_projection_schema_candidate(
+            profile_source, selection_inputs, installation,
+        )
+        self.assertEqual(candidate, {
+            "output_order": ("selection", "installation", "modules"),
+            "selection_field_order": selection_inputs["field_order"],
+            "installation_field_order": installation["field_order"],
+            "module_row_field_order": (
+                "name", "module_name", "spec_name", "origin", "file", "kind",
+                "locations", "loader", "loader_name", "loader_path", "aliases",
+            ),
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "projected_values_claimed": False,
+            "runtime_projection_claimed": False,
+            "evidence_scope": "STATIC_PROFILE_SCALAR_PROJECTION_SCHEMA_CANDIDATE",
+        })
+        changed = profile_source.replace(
+            b"return selection, installation, tuple(modules)",
+            b"return installation, selection, tuple(modules)",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed),
+        ):
+            self.assertIsNone(
+                SUBJECT._target_profile_scalar_projection_schema_candidate(
+                    changed, selection_inputs, installation,
+                )
+            )
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

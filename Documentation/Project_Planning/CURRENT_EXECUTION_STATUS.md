@@ -11208,11 +11208,18 @@ die LF-normalisiert digestgeprüfte Profilquelle. 249 fokussierte Tests und
 alle fünf PR-Gates bestanden. Eine tatsächlich gewählte Menge wird nicht
 behauptet.
 
-## Nächster Schritt: Auswahl-Eingaben zusammensetzen
+## Abgeschlossen: Auswahl-Eingaben zusammensetzen
 
-Der nächste Kandidat verbindet die feste Annahme, Root-Pfade und den
-Inert-ZIP-Wert mit der Reihenfolge des `selection`-Tupels und dem
-Controls-Vertrag. Er beschreibt zulässige Eingaben, keine gewählte
-Control-Menge oder validierte Profilauswahl. Eine Regression prüft die
-Tupelordnung und eine geänderte Reihenfolge. Umfang: ein Paket, ein PR und
-höchstens zwei Regressionen.
+PR #826 bindet die feste Annahme, Root-Pfade und den Inert-ZIP-Wert an die
+Reihenfolge des `selection`-Tupels und den Controls-Vertrag. Alle fünf
+Pflichtprüfungen bestanden. Das Ergebnis beschreibt zulässige Eingaben, keine
+gewählte Control-Menge oder validierte Profilauswahl.
+
+## Nächster Schritt: Skalarprojektion-Schema binden
+
+Der nächste Kandidat bindet die geordnete Rückgabe aus `selection`,
+`installation` und vollständigen Modulzeilen an die bereits gebundenen
+Eingabe- und Installationstupel. Er belegt nur das statische Rückgabeschema;
+projizierte Werte, Runtimeaufnahme und Profilauswahl bleiben unbelegt. Eine
+Regression prüft das Rückgabeschema und eine geänderte Rückgabereihenfolge.
+Umfang: ein Paket, ein PR und höchstens zwei Regressionen.
