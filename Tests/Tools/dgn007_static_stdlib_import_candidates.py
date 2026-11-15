@@ -1595,13 +1595,10 @@ def _target_s15_installation_schema_candidate(source_bytes):
             or hashlib.sha256(source_bytes).hexdigest()
             != DGN007_RUNTIME_PROFILE_SOURCE_SHA256):
         return None
-    try:
-        tree = ast.parse(source_bytes.decode("utf-8"))
-    except (UnicodeError, SyntaxError):
-        return None
-    functions = [node for node in tree.body
-                 if isinstance(node, ast.FunctionDef)
-                 and node.name == "_selected_shapes"]
+    functions = re.findall(
+        rb"(?ms)^def _selected_shapes\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
     expected_fields = (
         "assumption", "platform", "implementation", "version", "exe",
         "target", "prefixes", "abi", "paths", "roots", "inert", "flags",
@@ -1609,30 +1606,17 @@ def _target_s15_installation_schema_candidate(source_bytes):
     )
     if len(functions) != 1:
         return None
-    unpackings = [node for node in ast.walk(functions[0])
-                  if isinstance(node, ast.Assign)
-                  and isinstance(node.value, ast.Name)
-                  and node.value.id == "installation"
-                  and len(node.targets) == 1
-                  and isinstance(node.targets[0], (ast.Tuple, ast.List))]
-    tuple_checks = [
-        node for node in ast.walk(functions[0])
-        if isinstance(node, ast.Call)
-        and isinstance(node.func, ast.Name)
-        and node.func.id == "_selected_tuple"
-        and len(node.args) == 2
-        and not node.keywords
-        and isinstance(node.args[0], ast.Name)
-        and node.args[0].id == "installation"
-        and isinstance(node.args[1], ast.Constant)
-        and type(node.args[1].value) is int
-        and node.args[1].value == 15
-    ]
+    assignments = re.findall(
+        rb"(?m)^\s*([a-z_]+(?:\s*,\s*[a-z_]+){14})\s*=\s*installation\s*$",
+        functions[0],
+    )
+    tuple_checks = re.findall(
+        rb"_selected_tuple\(\s*installation\s*,\s*15\s*\)", functions[0],
+    )
     actual_fields = tuple(
-        item.id for item in unpackings[0].targets[0].elts
-        if isinstance(item, ast.Name)
-    ) if len(unpackings) == 1 else ()
-    if (actual_fields != expected_fields or len(tuple_checks) != 1):
+        item.strip().decode("ascii") for item in assignments[0].split(b",")
+    ) if len(assignments) == 1 else ()
+    if actual_fields != expected_fields or len(tuple_checks) != 1:
         return None
     return {
         "field_order": (
