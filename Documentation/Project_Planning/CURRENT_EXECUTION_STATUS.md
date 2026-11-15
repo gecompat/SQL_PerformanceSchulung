@@ -10631,3 +10631,23 @@ fokussierte Suite besteht lokal mit 218 Tests unter Python 3.14. Alle fünf
 PR-Gates einschließlich der gepinnten CPython-3.12.16-Offlineprüfung bestanden.
 PR #769 ist als Commit `87dbd9a8e3bde1d8db57a60518a0808cf3896da1` integriert;
 `main` ist synchronisiert und lokale/Remote-Branches sind entfernt.
+
+## Fortsetzung: `sys.implementation`-Facts am echten CPython-Quellarchiv
+
+Der direkte Lauf des gebundenen Scanners am vorhandenen CPython-3.12.16-Archiv
+zeigte, dass die synthetischen Tests eine im echten `sysmodule.c` nicht
+existierende `make_abi_info`-Funktionsgrenze verwendeten. Dadurch blieben
+Versions-, Namens- und Cache-Tag-Fact im echten Archiv leer. Der Scanner bindet
+die Funktion nun bis zur tatsächlichen `#ifdef __EMSCRIPTEN__`-Grenze. Der
+erneute Lauf emittiert `(3, 12, 16, "final", 0)`, `cpython` und
+`cpython-312`. Der Zielscan bleibt `CANDIDATES_ONLY`: 56 Kandidaten, 278
+Kanten, 40 entschiedene und zwei unbekannte Bedingungen; Digest der
+Kandidatenzeilen `9a9abd790787099fbc05b319619f3d849ee04d01997c47c1fa8cddba128367dc`,
+Digest der unbekannten Bedingungen
+`442eee0a7ce8d6766818c14d748d02bc4e689cb1a4e9088ce91cf944475d7677`.
+Eingaben: Quellarchiv SHA-256
+`b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c`, pyconfig
+`22a6bfe20214fb395e546edd499f826d9d4be7b7b1289b0d391255145a207ed5`, OCI-Config
+`28d30c15b9e9c3b1d557441aad9592226e852f7716451d6c8df5b4f0c3ce3d1b`. Der
+Lauf enthielt weder Docker-save-Image noch direkte Executableannahme und ist
+keine vollständige Zielinventur, P11-Closure oder Runtimeattestation.

@@ -888,10 +888,10 @@ class StaticImportCandidateTests(unittest.TestCase):
 
     def test_sys_implementation_version_binds_shared_version_info(self):
         sys_module = (
-            b"static PyObject * make_impl_info(PyObject *version_info) {\n"
+            b"static PyObject *\nmake_impl_info(PyObject *version_info)\n{\n"
             b"res = PyDict_SetItemString(impl_info, \"version\", version_info);\n"
             b"return ns;\n}\n"
-            b"static PyObject * make_abi_info(void) { return NULL; }\n"
+            b"#ifdef __EMSCRIPTEN__\n"
             b"version_info = make_version_info(tstate);\n"
             b"SET_SYS(\"version_info\", version_info);\n"
             b"SET_SYS(\"implementation\", make_impl_info(version_info));\n"
@@ -929,10 +929,10 @@ class StaticImportCandidateTests(unittest.TestCase):
 
     def test_sys_implementation_version_rejects_a_separate_version_object(self):
         sys_module = (
-            b"static PyObject * make_impl_info(PyObject *version_info) {\n"
+            b"static PyObject *\nmake_impl_info(PyObject *version_info)\n{\n"
             b"res = PyDict_SetItemString(impl_info, \"version\", other_version);\n"
             b"return ns;\n}\n"
-            b"static PyObject * make_abi_info(void) { return NULL; }\n"
+            b"#ifdef __EMSCRIPTEN__\n"
             b"version_info = make_version_info(tstate);\n"
             b"SET_SYS(\"version_info\", version_info);\n"
             b"SET_SYS(\"implementation\", make_impl_info(version_info));\n"
@@ -948,11 +948,11 @@ class StaticImportCandidateTests(unittest.TestCase):
         sys_module = (
             b'#define NAME "cpython"\n'
             b"const char *_PySys_ImplName = NAME;\n"
-            b"static PyObject * make_impl_info(PyObject *version_info) {\n"
+            b"static PyObject *\nmake_impl_info(PyObject *version_info)\n{\n"
             b"value = PyUnicode_FromString(_PySys_ImplName);\n"
             b'res = PyDict_SetItemString(impl_info, "name", value);\n'
             b"return ns;\n}\n"
-            b"static PyObject * make_abi_info(void) { return NULL; }\n"
+            b"#ifdef __EMSCRIPTEN__\n"
         )
         with patch.object(
             SUBJECT, "SYS_MODULE_C_SHA256", hashlib.sha256(sys_module).hexdigest(),
@@ -985,11 +985,11 @@ class StaticImportCandidateTests(unittest.TestCase):
         sys_module = (
             b'#define NAME "other"\n'
             b"const char *_PySys_ImplName = NAME;\n"
-            b"static PyObject * make_impl_info(PyObject *version_info) {\n"
+            b"static PyObject *\nmake_impl_info(PyObject *version_info)\n{\n"
             b"value = PyUnicode_FromString(_PySys_ImplName);\n"
             b'res = PyDict_SetItemString(impl_info, "name", value);\n'
             b"return ns;\n}\n"
-            b"static PyObject * make_abi_info(void) { return NULL; }\n"
+            b"#ifdef __EMSCRIPTEN__\n"
         )
         with patch.object(
             SUBJECT, "SYS_MODULE_C_SHA256", hashlib.sha256(sys_module).hexdigest(),
@@ -1011,11 +1011,11 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"#define MINOR Py_STRINGIFY(PY_MINOR_VERSION)\n"
             b'#define TAG NAME "-" MAJOR MINOR\n'
             b"const char *_PySys_ImplCacheTag = TAG;\n"
-            b"static PyObject * make_impl_info(PyObject *version_info) {\n"
+            b"static PyObject *\nmake_impl_info(PyObject *version_info)\n{\n"
             b"value = PyUnicode_FromString(_PySys_ImplCacheTag);\n"
             b'res = PyDict_SetItemString(impl_info, "cache_tag", value);\n'
             b"return ns;\n}\n"
-            b"static PyObject * make_abi_info(void) { return NULL; }\n"
+            b"#ifdef __EMSCRIPTEN__\n"
         )
         version_fact = (("sys.implementation.version", (3, 12, 16, "final", 0)),)
         with patch.object(
@@ -1042,11 +1042,11 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"#define MINOR Py_STRINGIFY(PY_MINOR_VERSION)\n"
             b'#define TAG NAME "-" MINOR MAJOR\n'
             b"const char *_PySys_ImplCacheTag = TAG;\n"
-            b"static PyObject * make_impl_info(PyObject *version_info) {\n"
+            b"static PyObject *\nmake_impl_info(PyObject *version_info)\n{\n"
             b"value = PyUnicode_FromString(_PySys_ImplCacheTag);\n"
             b'res = PyDict_SetItemString(impl_info, "cache_tag", value);\n'
             b"return ns;\n}\n"
-            b"static PyObject * make_abi_info(void) { return NULL; }\n"
+            b"#ifdef __EMSCRIPTEN__\n"
         )
         with patch.object(
             SUBJECT, "SYS_MODULE_C_SHA256", hashlib.sha256(sys_module).hexdigest(),
