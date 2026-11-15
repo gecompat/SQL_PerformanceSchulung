@@ -12119,6 +12119,23 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
                 files, preconfig_c_source, initconfig_c_source, worker_source,
             )
         )
+        target_worker_sysconfigdata_environment_fact = (
+            _target_worker_sysconfigdata_environment_fact(
+                preconfig_c_source, initconfig_c_source, worker_source,
+            )
+        )
+        target_worker_sys_flag_facts = _target_worker_sys_flag_facts(
+            preconfig_c_source, initconfig_c_source, sys_module_c_source,
+            worker_source,
+        )
+        target_s15_flags_field_candidate = (
+            _target_s15_flags_field_candidate(target_worker_sys_flag_facts)
+        )
+        target_importlib_optimize_line_facts = (
+            _target_importlib_optimize_line_facts(
+                files, preconfig_c_source, initconfig_c_source, worker_source,
+            )
+        )
     if target_image_save_path is not None:
         if (not target_direct_python312 or not target_no_site
                 or not target_no_project_base_override
@@ -12152,24 +12169,6 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
                 target_no_project_base_override,
             )
         )
-        if len(worker_source) <= MAX_WORKER_CONTROL_SOURCE_BYTES:
-            target_worker_sysconfigdata_environment_fact = (
-                _target_worker_sysconfigdata_environment_fact(
-                    preconfig_c_source, initconfig_c_source, worker_source,
-                )
-            )
-            target_worker_sys_flag_facts = _target_worker_sys_flag_facts(
-                preconfig_c_source, initconfig_c_source, sys_module_c_source,
-                worker_source,
-            )
-            target_s15_flags_field_candidate = (
-                _target_s15_flags_field_candidate(target_worker_sys_flag_facts)
-            )
-            target_importlib_optimize_line_facts = (
-                _target_importlib_optimize_line_facts(
-                    files, preconfig_c_source, initconfig_c_source, worker_source,
-                )
-            )
         sysconfig_name_facts.update({
             "_PYTHON_BUILD": target_image_path_facts["_PYTHON_BUILD"],
         })
