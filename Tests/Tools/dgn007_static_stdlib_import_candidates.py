@@ -5854,6 +5854,98 @@ def _target_threading_main_constructor_line_facts(files):
     return {910: True, 925: True, 926: False}
 
 
+def _target_threading_condition_lock_line_facts(files, module_source):
+    """Bind the import-time Condition lock argument through main-thread setup."""
+    source = files.get("threading.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != THREADING_SOURCE_SHA256
+            or _target_threading_main_constructor_line_facts(files)
+            != {910: True, 925: True, 926: False}
+            or type(module_source) is not bytes
+            or hashlib.sha256(module_source).hexdigest()
+            != THREAD_NATIVE_ID_MODULE_SHA256
+            or _TARGET_BUILTIN_MEMBERSHIP.get("_thread") is not True):
+        return {}
+    try:
+        tree = ast.parse(source, filename="threading.py")
+    except SyntaxError:
+        return {}
+    classes = {
+        name: [node for node in tree.body if isinstance(node, ast.ClassDef)
+               and node.name == name]
+        for name in ("Condition", "Event", "Thread", "_MainThread")
+    }
+    if any(len(nodes) != 1 for nodes in classes.values()):
+        return {}
+
+    def method(owner, name):
+        matches = [node for node in classes[owner][0].body
+                   if isinstance(node, ast.FunctionDef) and node.name == name]
+        return matches[0] if len(matches) == 1 else None
+
+    condition_init = method("Condition", "__init__")
+    event_init = method("Event", "__init__")
+    thread_init = method("Thread", "__init__")
+    main_init = method("_MainThread", "__init__")
+    if any(node is None for node in (
+            condition_init, event_init, thread_init, main_init)):
+        return {}
+    condition_guards = [node for node in ast.walk(condition_init)
+                        if isinstance(node, ast.If) and node.lineno == 278
+                        and ast.unparse(node.test) == "lock is None"]
+    lock_aliases = [node for node in tree.body if isinstance(node, ast.Assign)
+                    and len(node.targets) == 1
+                    and isinstance(node.targets[0], ast.Name)
+                    and node.targets[0].id == "Lock"]
+    allocator_aliases = [node for node in tree.body if isinstance(node, ast.Assign)
+                         and len(node.targets) == 1
+                         and isinstance(node.targets[0], ast.Name)
+                         and node.targets[0].id == "_allocate_lock"]
+    event_condition_calls = [node for node in ast.walk(event_init)
+                             if isinstance(node, ast.Call)
+                             and ast.unparse(node) == "Condition(Lock())"]
+    thread_event_calls = [node for node in ast.walk(thread_init)
+                          if isinstance(node, ast.Call)
+                          and ast.unparse(node) == "Event()"]
+    main_thread_calls = [node for node in ast.walk(main_init)
+                         if isinstance(node, ast.Call)
+                         and ast.unparse(node)
+                         == "Thread.__init__(self, name='MainThread', daemon=False)"]
+    main_thread_assignments = [node for node in tree.body
+                               if isinstance(node, ast.Assign)
+                               and any(isinstance(target, ast.Name)
+                                       and target.id == "_main_thread"
+                                       for target in node.targets)
+                               and ast.unparse(node.value) == "_MainThread()"]
+    if (len(condition_guards) != 1
+            or [arg.arg for arg in condition_init.args.args] != ["self", "lock"]
+            or [ast.unparse(value) for value in condition_init.args.defaults] != ["None"]
+            or len(lock_aliases) != 1
+            or ast.unparse(lock_aliases[0].value) != "_allocate_lock"
+            or len(allocator_aliases) != 1
+            or ast.unparse(allocator_aliases[0].value) != "_thread.allocate_lock"
+            or len(event_condition_calls) != 1
+            or event_condition_calls[0].lineno != 589
+            or len(thread_event_calls) != 1
+            or thread_event_calls[0].lineno != 935
+            or len(main_thread_calls) != 1
+            or len(main_thread_assignments) != 1):
+        return {}
+    c_text = module_source.decode("utf-8")
+    if (not re.search(
+            r"(?s)thread_PyThread_allocate_lock\(PyObject \*module,.*?"
+            r"return \(PyObject \*\) newlockobject\(module\);", c_text)
+            or not re.search(
+                r'\{"allocate_lock",\s*thread_PyThread_allocate_lock,', c_text)
+            or not re.search(
+                r"(?s)newlockobject\(PyObject \*module\)\s*\{.*?"
+                r"if \(self == NULL\) \{\s*return NULL;\s*\}.*?"
+                r"if \(self->lock_lock == NULL\) \{.*?return NULL;\s*\}"
+                r"\s*return self;", c_text)):
+        return {}
+    return {278: False}
+
+
 def _target_threading_native_id_name_facts(
         files, header_source, module_source, pthread_source, pyconfig_source):
     """Bind threading's native-id flag to the pinned Linux CPython build path."""
@@ -12163,6 +12255,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     threading_main_constructor_line_facts = (
         _target_threading_main_constructor_line_facts(files)
     )
+    threading_condition_lock_line_facts = (
+        _target_threading_condition_lock_line_facts(
+            files, thread_native_id_module,
+        )
+    )
     target_imported_name_safe_modules = tuple(sorted(
         module for module in ("ast", "dis", "difflib", "getopt", "heapq",
                               "inspect", "os", "pickle", "sysconfig",
@@ -12254,7 +12351,10 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "os": os_createenviron_line_facts,
             "codecs": codecs_false_guard_line_facts,
             "pickle": pickle_buffer_line_facts,
-            "threading": threading_main_constructor_line_facts,
+            "threading": {
+                **threading_main_constructor_line_facts,
+                **threading_condition_lock_line_facts,
+            },
             "sysconfig": {
                 **target_sysconfig_is_python_build_line_facts,
                 **target_sysconfig_build_setup_guard_line_facts,
@@ -12286,6 +12386,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
               or target_copyreg_pickle_callable_line_facts
               or target_logging_lock_line_facts
               or target_logging_level_line_facts
+              or threading_condition_lock_line_facts
               or target_collections_namedtuple_rename_line_facts
               or target_collections_namedtuple_string_type_line_facts
               or target_collections_namedtuple_module_line_facts
@@ -12793,6 +12894,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_threading_main_constructor_line_facts": list(
             threading_main_constructor_line_facts.items()
+        ),
+        "target_platform_threading_condition_lock_line_facts": list(
+            threading_condition_lock_line_facts.items()
         ),
         "target_platform_sysconfig_name_facts": list(sysconfig_name_facts.items()),
         "target_profile_no_site_assumption": target_no_site,

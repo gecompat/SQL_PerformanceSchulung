@@ -3189,3 +3189,16 @@ unbekannte Bedingungen, Unknown-Digest
 `76512c36e8e69992470da060eaf2daaa92ad264fde75366d9a492c55a71e0146`.
 293 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine direkte Image-Route,
 Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.
+
+### Begrenzte Fortsetzung: `threading.Condition`-Lockargument (15. November 2026)
+
+Der importzeitliche Hauptthreadpfad belegt `threading.py:278`
+(`lock is None`) als falsch: `_MainThread` delegiert an `Thread.__init__`,
+das ein `Event` erzeugt; dieses übergibt `Lock()` an `Condition`. Die
+`Lock`-Aliasbindung führt zu `_thread.allocate_lock`; die gehashte C-Quelle
+gibt ein Lock-Objekt zurück oder meldet einen Fehler. Die Aussage gilt nur
+für diese Importinitialisierung. Der Zielquellscan zählt 60 Module, 318
+Kanten, 91 entschiedene und 490 unbekannte Bedingungen, Unknown-Digest
+`0cd43797a7ff7a6dc1ebdef0ef71d3e23003e095457cb8e789813369851a918e`.
+294 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine direkte Image-Route,
+Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.

@@ -4979,6 +4979,87 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {},
             )
 
+    def test_threading_condition_lock_guard_tracks_main_thread_event(self):
+        lines = {
+            1: "import _thread",
+            37: "_allocate_lock = _thread.allocate_lock",
+            122: "Lock = _allocate_lock",
+            250: "class Condition:",
+            277: "    def __init__(self, lock=None):",
+            278: "        if lock is None:",
+            279: "            lock = RLock()",
+            300: "class Event:",
+            588: "    def __init__(self):",
+            589: "        self._cond = Condition(Lock())",
+            900: "class Thread:",
+            901: "    def __init__(self, name=None, daemon=None):",
+            910: "        if name:",
+            911: "            pass",
+            925: "        if daemon is not None:",
+            926: "            if daemon and (not _daemon_threads_allowed()):",
+            927: "                pass",
+            935: "        self._started = Event()",
+            950: "class _MainThread(Thread):",
+            951: "    def __init__(self):",
+            952: "        Thread.__init__(self, name='MainThread', daemon=False)",
+            1000: "_main_thread = _MainThread()",
+        }
+        content = [""] * max(lines)
+        for number, statement in lines.items():
+            content[number - 1] = statement
+        source = ("\n".join(content) + "\n").encode()
+        module_source = b"""\
+static PyObject *
+thread_PyThread_allocate_lock(PyObject *module, PyObject *ignored)
+{
+    return (PyObject *) newlockobject(module);
+}
+static PyMethodDef thread_methods[] = {
+    {"allocate_lock", thread_PyThread_allocate_lock,
+};
+static lockobject *
+newlockobject(PyObject *module)
+{
+    lockobject *self = allocate();
+    if (self == NULL) {
+        return NULL;
+    }
+    self->lock_lock = PyThread_allocate_lock();
+    if (self->lock_lock == NULL) {
+        PyErr_SetString(ThreadError, "can't allocate lock");
+        return NULL;
+    }
+    return self;
+}
+"""
+        files = {"threading.py": source}
+        with patch.multiple(
+            SUBJECT,
+            THREADING_SOURCE_SHA256=hashlib.sha256(source).hexdigest(),
+            THREAD_NATIVE_ID_MODULE_SHA256=hashlib.sha256(module_source).hexdigest(),
+        ), patch.object(
+            SUBJECT, "_TARGET_BUILTIN_MEMBERSHIP",
+            {**SUBJECT._TARGET_BUILTIN_MEMBERSHIP, "_thread": True},
+        ):
+            self.assertEqual(
+                SUBJECT._target_threading_condition_lock_line_facts(
+                    files, module_source,
+                ),
+                {278: False},
+            )
+            mutated = source.replace(b"Condition(Lock())", b"Condition()")
+            mutated_files = {"threading.py": mutated}
+            with patch.object(
+                SUBJECT, "THREADING_SOURCE_SHA256",
+                hashlib.sha256(mutated).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_threading_condition_lock_line_facts(
+                        mutated_files, module_source,
+                    ),
+                    {},
+                )
+
     def test_namedtuple_rename_guard_requires_all_production_calls_to_omit_it(self):
         collections_source = (
             b"def namedtuple(typename, field_names, *, rename=False, "
