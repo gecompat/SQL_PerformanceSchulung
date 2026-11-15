@@ -2632,9 +2632,14 @@ Worker-routengebundenen CPython-Facts und prüft `sys.dont_write_bytecode` als
 zusätzliche Routenbindung. Das Ergebnis bleibt statisch und ist keine
 Runtimeaufnahme.
 
-## Begrenzte Fortsetzung: S15-Paths-Feldkandidat
+## Abgeschlossen: S15-Paths-Feldkandidat
 
-Ein Arbeitspaket und ein PR verbinden den geordneten Pfadkandidaten mit den
-bereits gebundenen `inert_zip`- und Bibliotheksroot-Kandidaten. Eine Regression
-prüft Kandidat und Abweichung; eine tatsächliche `sys.path`-Aufnahme oder
-vollständige Profilattestation ist nicht Teil des Schritts.
+PR #819 verbindet den geordneten Pfadkandidaten mit `inert_zip` und den
+Bibliotheksroots. Der statische Kandidat behauptet keine Runtime-`sys.path`.
+
+## Begrenzte Fortsetzung: S15-Roots-Feldkandidat
+
+Ein Arbeitspaket und ein PR geben das geprüfte Standardbibliotheks- und
+Extensionroot-Paar als eigenes Feld aus. Eine Regression prüft den positiven
+Fall und eine falsche Runtimeattestationsmarke. Die Feldwerte bleiben
+statische Sollwertkandidaten.

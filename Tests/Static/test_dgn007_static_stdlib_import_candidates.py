@@ -369,6 +369,21 @@ class StaticImportCandidateTests(unittest.TestCase):
         changed_paths = dict(path_candidate)
         changed_paths["sys_path_candidate"] = ["/unexpected"]
         self.assertIsNone(SUBJECT._target_s15_paths_field_candidate(changed_paths))
+        self.assertEqual(SUBJECT._target_s15_roots_field_candidate(path_candidate), {
+            "value": (
+                "/usr/local/lib/python3.12",
+                "/usr/local/lib/python3.12/lib-dynload",
+            ),
+            "extension_file_verified": True,
+            "runtime_roots_claimed": False,
+            "evidence_scope": "STATIC_S15_ROOTS_FIELD_CANDIDATE",
+        })
+        changed_roots = dict(path_candidate)
+        changed_roots["roots_field_candidate"] = dict(
+            path_candidate["roots_field_candidate"],
+            runtime_roots_claimed=True,
+        )
+        self.assertIsNone(SUBJECT._target_s15_roots_field_candidate(changed_roots))
         changed_paths = dict(path_candidate)
         changed_paths["inert_zip_field_candidate"] = dict(
             path_candidate["inert_zip_field_candidate"],
