@@ -1902,9 +1902,10 @@ def _target_selected_profile_anchor_binding_candidate(source_bytes, binder_flow)
         b"_need(all(cache[name] is held[name] for name in names), \"CACHE_MISMATCH\")",
         b"return expected, observation",
     )
-    if any(normalized.count(fragment) != (
-            2 if fragment in (required[0], required[4], required[5]) else 1)
-           for fragment in required):
+    if (any(normalized.count(fragment) != (
+                2 if fragment in (required[0], required[4], required[5]) else 1)
+            for fragment in required)
+            or len(re.findall(rb"\breturn\b", normalized)) != 1):
         return None
     if normalized.index(required[0]) > normalized.index(required[1]):
         return None
