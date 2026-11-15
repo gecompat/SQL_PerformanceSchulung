@@ -2285,6 +2285,48 @@ class StaticImportCandidateTests(unittest.TestCase):
                     changed, result_schema,
                 ))
 
+    def test_selected_profile_post_contract_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        observation_flow = {"runtime_observation_claimed": False}
+        candidate = SUBJECT._target_selected_profile_post_contract_candidate(
+            profile_source, observation_flow,
+        )
+        self.assertEqual(candidate, {
+            "runtime_post_checks": (
+                "implementation_namespace", "version_shape_and_range", "startup_flag_types_and_values",
+                "bytecode_flag", "bounded_paths", "linux_profile_tuple_match",
+            ),
+            "selected_post_anchor_checks": (
+                "provider_identity", "runtime_values", "container_identity", "finder_and_hook_identity",
+                "module_cache_identity", "local_module_shape", "profile_shape",
+            ),
+            "post_observation_claimed": False,
+            "runtime_attested": False,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "evidence_scope": "STATIC_SELECTED_PROFILE_POST_CONTRACT_CANDIDATE",
+        })
+        for changed in (
+            profile_source.replace(
+                b"(1, 1, 1, 1, 1, 0), expected.paths",
+                b"(1, 1, 1, 1, 0, 0), expected.paths",
+            ),
+            profile_source.replace(
+                b"_need(sys is runtime and os is providers[0] and sysconfig is providers[1], \"PROVIDER_MISMATCH\")",
+                b"pass",
+            ),
+        ):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(changed),
+            ):
+                self.assertIsNone(SUBJECT._target_selected_profile_post_contract_candidate(
+                    changed, observation_flow,
+                ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

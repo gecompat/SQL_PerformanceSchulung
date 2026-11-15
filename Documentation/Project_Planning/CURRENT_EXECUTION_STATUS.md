@@ -11374,9 +11374,17 @@ einschließlich privater frozen/slotted Form und festem Scope
 270 fokussierte Regressionen und alle fünf Pflichtprüfungen bestanden. PR #849
 ist integriert. Es wird keine Runtimeaufnahme behauptet.
 
-## Begrenzte Fortsetzung: vollständigen Record-Aufnahmepfad binden
+## Abgeschlossen: vollständigen Record-Aufnahmepfad binden
 
 PR #850 bindet den geordneten Guard-, Vorher-/Nachheraufnahme-, Datei-Hash-
 und Ablehnungspfad von `observe_current_interpreter_records` quellgebunden.
-Gegenproben lockern Symlinkschutz und Vorhervergleich. Es wird keine Aufnahme
-ausgeführt oder attestiert.
+Gegenproben lockern Symlinkschutz und Vorhervergleich; 271 fokussierte
+Regressionen und alle fünf Pflichtprüfungen bestanden. PR #850 ist integriert.
+Es wird keine Aufnahme ausgeführt oder attestiert.
+
+## Begrenzte Fortsetzung: ausgewählte POST-Verträge binden
+
+PR #851 bindet `_selected_runtime_post` und `_selected_post`: Sollwerte,
+Typ-/Bereichsgrenzen und Identität der Runtimeprovider, Container, Finder,
+Hooks und Modulanker. Gegenproben lockern die Flagsollwerte bzw. Provideridentität.
+Es wird keine POST-Prüfung ausgeführt.
