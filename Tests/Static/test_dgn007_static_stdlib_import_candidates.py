@@ -5022,6 +5022,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"        field_names = field_names.replace(',', ' ').split()\n"
             b"    if defaults is not None:\n        pass\n"
             b"    if defaults is not None:\n        pass\n"
+            b"    if module is None:\n        pass\n"
             b"    class_namespace = {'_fields': field_names}\n"
             b"    return type(typename, (), class_namespace)\n"
         )
@@ -5036,6 +5037,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"namedtuple('A', 'x y')\n"
             b"namedtuple('B', ('x', 'y'))\n"
             b"namedtuple('C', ('x',), defaults=[None])\n"
+            b"namedtuple('D', ('x',), module='sample')\n"
         )
         typing_source = (
             b"import collections\n"
@@ -5104,6 +5106,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                     ("collections", "collections/__init__.py", 2): (False, True),
                     ("collections", "collections/__init__.py", 4): (False, True),
                     ("collections", "collections/__init__.py", 6): (False, True),
+                    ("collections", "collections/__init__.py", 8): (False, True),
                 },
             )
             resolved = []
@@ -5122,7 +5125,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 row["module"] == "collections" and row["line"] == 2
                 for row in unknown
             ))
-            for line in (4, 6):
+            for line in (4, 6, 8):
                 self.assertEqual(
                     [row["decisions"] for row in resolved
                      if row["module"] == "collections" and row["line"] == line],
