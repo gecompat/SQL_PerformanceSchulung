@@ -9,6 +9,7 @@ import re
 ROOT = Path(__file__).resolve().parents[2]
 MODULE = ROOT / "Tests/Contracts/dgn007_collector_transport.py"
 ASSEMBLY_MODULE = ROOT / "Tests/Contracts/dgn007_collector_record_assembly.py"
+COORDINATOR_MODULE = ROOT / "Tests/Contracts/dgn007_collector_coordinator.py"
 WORKFLOW = ROOT / ".github/workflows/dgn007-collector-transport.yml"
 TRIGGER_PATHS = {
     "Tests/Contracts/dgn007_collector_transport.py",
@@ -22,11 +23,14 @@ TRIGGER_PATHS = {
     "Tests/Static/test_dgn007_prospective_acceptance.py",
     "Tests/Static/validate_dgn007_prospective_acceptance.py",
     ".github/workflows/dgn007-prospective-acceptance.yml",
+    "Tests/Contracts/dgn007_collector_coordinator.py",
+    "Tests/Static/test_dgn007_collector_coordinator.py",
 }
 COMMANDS = (
     "python Tests/Static/validate_dgn007_collector_transport.py",
     "python Tests/Static/test_dgn007_collector_transport.py",
     "python Tests/Static/test_dgn007_collector_record_assembly.py",
+    "python Tests/Static/test_dgn007_collector_coordinator.py",
     "python Tests/Static/validate_dgn007_prospective_acceptance.py",
     "python Tests/Static/test_dgn007_prospective_acceptance.py",
 )
@@ -95,10 +99,38 @@ def assembly_findings(source: str) -> list[str]:
     return findings
 
 
+def coordinator_findings(source: str) -> list[str]:
+    """The prequalification gate cannot acquire or attest its own inputs."""
+    tree = ast.parse(source)
+    findings = []
+    allowed = {"__future__", "dataclasses", "Tests.Contracts.dgn007_prospective_acceptance"}
+    forbidden = {"open", "print", "input", "eval", "exec", "__import__", "read_text",
+                 "read_bytes", "write_text", "write_bytes", "write", "system", "Popen",
+                 "run_sql", "run_sqlcmd", "decode_capture", "start_sqlcmd"}
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            names = [alias.name for alias in node.names] if isinstance(node, ast.Import) else [node.module or ""]
+            if any(name not in allowed for name in names):
+                findings.append("Coordinator-Präqualifikation darf keine I/O-/SQL-/Prozessmodule importieren")
+        if isinstance(node, ast.Call):
+            name = node.func.id if isinstance(node.func, ast.Name) else node.func.attr if isinstance(node.func, ast.Attribute) else ""
+            if name in forbidden:
+                findings.append("Coordinator-Präqualifikation darf keine Evidenz erfassen oder Ausführung starten")
+    for marker in ("EXPECTED_SEQUENCE", "_run_valid(record, label, contract.schema)",
+                   "source_freeze_verified is not True", "cleanup_independently_confirmed is not True",
+                   "regular_ns > 180_000_000_000", "cleanup_ns > 60_000_000_000",
+                   "does not establish the trustworthiness"):
+        if marker not in source:
+            findings.append(f"Coordinator-Präqualifikation fehlt der gebundene Grenzcheck: {marker}")
+    return findings
+
+
 def main() -> int:
     findings = pure_findings(MODULE.read_text(encoding="utf-8"))
     assembly_source = ASSEMBLY_MODULE.read_text(encoding="utf-8")
     findings.extend(assembly_findings(assembly_source))
+    coordinator_source = COORDINATOR_MODULE.read_text(encoding="utf-8")
+    findings.extend(coordinator_findings(coordinator_source))
     workflow = WORKFLOW.read_text(encoding="utf-8")
     findings.extend(workflow_findings(workflow))
     for before, after in (("timeout-minutes: 5", "timeout-minutes: 0"),
@@ -113,6 +145,9 @@ def main() -> int:
     for mutation in ("import subprocess", "print('synthetic')", "decode_capture('x', c)", "evaluate_version(c, 15, ())"):
         if not assembly_findings(mutation):
             findings.append("Negative Recordmapper-Scope-Kontrolle wurde nicht erkannt")
+    for mutation in ("import subprocess", "print('synthetic')", "open('synthetic')", "run_sqlcmd()"):
+        if not coordinator_findings(mutation):
+            findings.append("Negative Coordinator-Scope-Kontrolle wurde nicht erkannt")
     if findings:
         print("dgn007-collector-transport: FAIL\n" + "\n".join(findings))
         return 1

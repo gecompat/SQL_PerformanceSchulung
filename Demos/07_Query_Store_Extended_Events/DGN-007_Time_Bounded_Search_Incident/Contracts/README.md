@@ -191,7 +191,10 @@ jetzt die reine JSON-Decodierung mit genauer Decimal-/100-ns-Darstellung.
 Fehlende Ergebniszeilen je Request bleiben `NOT_CAPTURED`/`None`; es werden
 keine Erwartungswerte als Messwerte ergänzt. Das ist ausschließlich ein
 Transport-Vorschnitt. Der getrennte SQL-Producer hat eine eigene Prüfgrenze;
-Coordinator und Incident-Runtime-Abnahme bleiben offen.
+die [deklarative Matrixpräqualifikation](COLLECTOR_TRANSPORT.md#deklarative-matrixpräqualifikation)
+prüft Reihenfolge, deklarierte monotone Budgets, Ressourcenfelder und Cleanup-
+Flags für sechs Records. Sie misst oder attestiert diese Eingaben nicht. Der
+vertrauensgebundene Coordinator und die Incident-Runtime-Abnahme bleiben offen.
 
 ## Statische Prüfung
 
