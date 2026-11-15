@@ -11267,10 +11267,16 @@ Gesamtkappen, Profilvergleiche und success-only Recordrückgabe an die
 Profilquelle. Alle fünf Pflichtprüfungen bestanden. Keine Runtimeaufnahme,
 Trust oder Attestation wird daraus abgeleitet.
 
-## Nächster Schritt: Capture-Observation-Schema binden
+## Abgeschlossen: Capture-Observation-Schema binden
 
-Der nächste Kandidat bindet die begrenzten Modul-/Pfadsnapshots und die
-Feldreihenfolge des `Observation`-Konstruktors in `_capture`. Er behauptet keine
-ausgeführte Aufnahme. Eine Regression entfernt die Sortierung der
-Modulnamenaufnahme und muss fail-closed bleiben. Umfang: ein Paket, ein PR und
-höchstens zwei Regressionen.
+PR #835 bindet die begrenzten Modul-/Pfadsnapshots, sortierte Modulnamen und
+die Feldreihenfolge des `Observation`-Konstruktors an `_capture`. Alle fünf
+Pflichtprüfungen bestanden. Es wird keine ausgeführte Aufnahme behauptet.
+
+## Nächster Schritt: Modulrecord-Builder binden
+
+Der nächste Kandidat bindet Modul- und Spec-Identität, Frozen-Aliase,
+Loaderklassifikation, Ablehnung unbekannter Loader und die Feldordnung des
+`ModuleRecord`-Konstruktors. Er behauptet keine beobachteten Module. Eine
+Regression lässt unbekannte Loader zu und muss fail-closed bleiben. Umfang:
+ein Paket, ein PR und höchstens zwei Regressionen.

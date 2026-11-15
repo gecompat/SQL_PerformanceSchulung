@@ -2119,6 +2119,61 @@ def _target_profile_capture_schema_candidate(source_bytes):
     }
 
 
+def _target_profile_module_record_builder_candidate(source_bytes, capture_schema):
+    """Bind module identity, loader classification and record construction."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(capture_schema) is not dict
+            or capture_schema.get("module_rows_delegate_to_module_builder") is not True):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def _module\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"_need(type(name) is str and type(module) is ModuleType)",
+        b"d = module.__dict__",
+        b"_need(spec is None or type(spec) is ModuleSpec)",
+        b"module_name, spec_name = FROZEN_NAMES.get(name, (name, name)) if loader is FrozenImporter else (name, name)",
+        b"_need(d.get(\"__name__\") == module_name and (spec is None or (spec.name == spec_name and spec.loader is loader)), \"MODULE_COHERENCY\")",
+        b"raw_locations = None if spec is None else spec.submodule_search_locations",
+        b"if name in controls: kind = \"CONTROL\"",
+        b"elif loader is BuiltinImporter: kind = \"BUILTIN\"",
+        b"elif loader is FrozenImporter: kind = \"FROZEN\"",
+        b"elif type(loader) is SourceFileLoader: kind = \"SOURCE\"",
+        b"elif type(loader) is ExtensionFileLoader: kind = \"EXTENSION\"",
+        b"else: raise _Failure(\"UNKNOWN_LOADER\")",
+        b"return ModuleRecord(name, origin, file, kind, locations, module, spec, loader)",
+    )
+    if any(normalized.count(fragment) != 1 for fragment in required):
+        return None
+    if not all(normalized.index(left) < normalized.index(right)
+               for left, right in zip(required[:6], required[1:6])):
+        return None
+    if not all(normalized.index(left) < normalized.index(right)
+               for left, right in zip(required[6:], required[7:])):
+        return None
+    return {
+        "accepted_module_type": "ModuleType",
+        "module_name_and_spec_identity_checked": True,
+        "frozen_name_aliases_bound": True,
+        "loader_kinds": ("CONTROL", "BUILTIN", "FROZEN", "SOURCE", "EXTENSION"),
+        "unknown_loader_rejected": True,
+        "record_field_order": (
+            "name", "origin", "file", "kind", "locations", "module", "spec", "loader",
+        ),
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "runtime_modules_claimed": False,
+        "evidence_scope": "STATIC_PROFILE_MODULE_RECORD_BUILDER_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9262,6 +9317,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_profile_capture_schema_candidate = (
         _target_profile_capture_schema_candidate(runtime_profile_source)
     )
+    target_profile_module_record_builder_candidate = (
+        _target_profile_module_record_builder_candidate(
+            runtime_profile_source,
+            target_profile_capture_schema_candidate,
+        )
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -9735,6 +9796,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_profile_capture_schema_candidate": (
             target_profile_capture_schema_candidate
+        ),
+        "target_profile_module_record_builder_candidate": (
+            target_profile_module_record_builder_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,

@@ -2720,9 +2720,15 @@ PR #834 bindet Vorher-/Nachher-Capture, begrenzte Dateihashreads, Caps,
 Profilvergleiche und success-only Recordrückgabe an die Profilquelle. Keine
 Runtime- oder Trustattestation.
 
-## Begrenzte Fortsetzung: Capture-Observation-Schema binden
+## Abgeschlossen: Capture-Observation-Schema binden
 
-Ein Arbeitspaket und ein PR binden begrenzte Modul-/Pfadsnapshots, sortierte
-Modulnamen und die Feldreihenfolge des `Observation`-Konstruktors. Der Kandidat
-behauptet keine ausgeführte Aufnahme. Eine positive Regression und eine
-Gegenprobe ohne Sortierung begrenzen den Schnitt.
+PR #835 bindet begrenzte Modul-/Pfadsnapshots, sortierte Modulnamen und die
+Feldreihenfolge des `Observation`-Konstruktors. Keine ausgeführte Aufnahme.
+
+## Begrenzte Fortsetzung: Modulrecord-Builder binden
+
+Ein Arbeitspaket und ein PR binden Modul-/Spec-Identität, Frozen-Aliase,
+Loaderklassifikation, Ablehnung unbekannter Loader und die
+`ModuleRecord`-Feldordnung an die Profilquelle. Es werden keine beobachteten
+Module behauptet. Eine positive Regression und eine Gegenprobe mit unbekanntem
+Loader begrenzen den Schnitt.

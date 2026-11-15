@@ -1760,6 +1760,43 @@ class StaticImportCandidateTests(unittest.TestCase):
                 SUBJECT._target_profile_capture_schema_candidate(changed)
             )
 
+    def test_profile_module_record_builder_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        capture_schema = {"module_rows_delegate_to_module_builder": True}
+        candidate = SUBJECT._target_profile_module_record_builder_candidate(
+            profile_source, capture_schema,
+        )
+        self.assertEqual(candidate, {
+            "accepted_module_type": "ModuleType",
+            "module_name_and_spec_identity_checked": True,
+            "frozen_name_aliases_bound": True,
+            "loader_kinds": ("CONTROL", "BUILTIN", "FROZEN", "SOURCE", "EXTENSION"),
+            "unknown_loader_rejected": True,
+            "record_field_order": (
+                "name", "origin", "file", "kind", "locations", "module", "spec", "loader",
+            ),
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "runtime_modules_claimed": False,
+            "evidence_scope": "STATIC_PROFILE_MODULE_RECORD_BUILDER_CANDIDATE",
+        })
+        changed = profile_source.replace(
+            b'raise _Failure("UNKNOWN_LOADER")',
+            b'kind = "SOURCE"',
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed),
+        ):
+            self.assertIsNone(
+                SUBJECT._target_profile_module_record_builder_candidate(
+                    changed, capture_schema,
+                )
+            )
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(
