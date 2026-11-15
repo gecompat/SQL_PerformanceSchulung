@@ -219,10 +219,12 @@ def _read_bounded(pipe, buffer, budget, lock, overflow):
 def _collect_process(command, input_bytes, deadline, output_limit):
     if os.name != "posix":
         return "PROCESS_SCOPE_UNKNOWN", b"", b""
+    child_env = os.environ.copy()
+    child_env.pop("_PYTHON_SYSCONFIGDATA_NAME", None)
     try:
         proc = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE, shell=False, close_fds=True,
-                                start_new_session=True)
+                                start_new_session=True, env=child_env)
     except (OSError, ValueError):
         return "PROCESS_START_FAILED", b"", b""
     out, err = bytearray(), bytearray()

@@ -5987,14 +5987,15 @@ Der zielgebundene Callfolger kann nun genau die dynamische Importstelle in
 `warnings.py`, `Python/preconfig.c`, `Python/initconfig.c` und die
 DGN-007-Workerquelle sind an ihre festen SHA-256-Werte gebunden. Die gepinnte
 Workerquelle startet das Kind exakt mit `sys.executable -I -S -B -c ...`, ohne
-`-W`; `subprocess.Popen` setzt kein eigenes `env`. CPython-3.12.16-Quellen
+`-W`. `subprocess.Popen` erhält eine Kopie der Elternumgebung, aus der zuvor
+`_PYTHON_SYSCONFIGDATA_NAME` entfernt wurde. CPython-3.12.16-Quellen
 bestätigen, dass `-I` die Umgebungsnutzung deaktiviert, die Umgebungseinlesung
 für Warnoptionen davon abhängt und `-W` die Kommandozeilen-Warnoptionen ergänzt.
 Der gepinnte `warnings.py`-Modulrumpf übergibt `sys.warnoptions` an die
 eindeutige Funktion, deren einzige Optionsschleife `for arg in args` ist.
 Darum ist nur der Schleifenrumpf leer; ein vorhandener `for ... else`-Zweig
-bleibt Teil der Analyse. Jede Quell-, argv- oder `env`-Abweichung verwirft den
-Fact.
+bleibt Teil der Analyse. Jede Quell-, argv- oder Umgebungsfilterabweichung
+verwirft den Fact.
 
 Der begrenzte Archiv-/OCI-Scan bindet diesen Fact an `warnings.py:209`. Die
 Zielmenge zählt weiterhin 60 Module, nun 317 Kanten und 169 lokale Funktionen;
@@ -6015,7 +6016,7 @@ Dieselbe exakte Kinder-argv bindet nun den `sys.flags.optimize == 0`-Guard in
 CPython setzt `optimization_level` standardmäßig auf null, erhöht ihn nur für
 `-O` und liest `PYTHONOPTIMIZE` über die Umgebungsroute; das festgelegte `-I`
 deaktiviert diese Route, und die gepinnte argv enthält kein `-O`. Der Guardfact
-wird bei abweichenden Quellen, argv oder explizitem `env` verworfen.
+wird bei abweichenden Quellen, argv oder Umgebungsfilter verworfen.
 
 Der aktuelle Modulstart-/Funktionsfolger erreicht diesen Funktionsguard nicht;
 der neue Fact ändert daher keine Kandidaten-, Kanten-, Funktions- oder
@@ -6081,7 +6082,8 @@ offen. Kein Interpreter-, Worker-, Profil-, SQL- oder Generalprobenlauf.
 Der Scanner bindet die sechs `sys.flags`-Werte des festgelegten Kindaufrufs
 `sys.executable -I -S -B -c ...` nur, wenn die CPython-3.12.16-Quellen und die
 Workerquelle ihre bestehenden Digests erfüllen und der AST genau diese argv
-ohne eigenes `env` enthält. `preconfig.c` bindet `-I` an `isolated`; `initconfig.c`
+sowie die Entfernung des direkten `_PYTHON_SYSCONFIGDATA_NAME`-Overrides aus
+der Kindumgebung bindet. `preconfig.c` bindet `-I` an `isolated`; `initconfig.c`
 bindet `-S` an `site_import=0`, `-B` an `write_bytecode=0`, den Default von
 `optimization_level` an null und `isolated` an `safe_path=1` sowie
 `use_environment=0`. `sysmodule.c` muss die vollständigen 18 benannten
@@ -6192,3 +6194,24 @@ Quellabgrenzung endet jetzt am dort vorhandenen `#ifdef __EMSCRIPTEN__`.
 Der erneute Scan emittiert die erwarteten Versions-, Namens- und Cache-Tag-
 Facts. Er bleibt wegen der fehlenden Docker-save-/Executableeingabe
 `CANDIDATES_ONLY` und ist keine vollständige P11- oder Runtimeattestation.
+
+### Fortsetzung: direkter Sysconfig-Umgebungsoverride in der Kindroute
+
+`sysconfig._get_sysconfigdata_name()` liest `_PYTHON_SYSCONFIGDATA_NAME`
+direkt aus `os.environ`. Das isolierte Startupflag `-I` setzt zwar
+`use_environment=0` und deaktiviert die üblichen Python-Environment-Optionen,
+verhindert aber diesen direkten Bibliothekszugriff nicht. Der gebundene
+Import-Only-Caller kopiert daher die Elternumgebung, entfernt genau diesen
+Schlüssel und übergibt die Kopie explizit an `subprocess.Popen`. Alle übrigen
+Environmentwerte bleiben erhalten. Das Quellenfact wird nur ausgegeben, wenn
+`preconfig.c`, `initconfig.c` und der Worker unverändert an ihre Digests sowie
+die exakte argv- und Copy/Pop/Popen-Reihenfolge gebunden sind.
+
+Die statischen Regressionen bestehen mit 224 Tests unter Python 3.14. Die
+Prozessgegenprobe setzt den Schlüssel synthetisch im Elternprozess und prüft,
+dass ein Kindprozess ihn nicht sieht; sie ist im lokalen Windowslauf erwartbar
+übersprungen und muss im Linux-/CPython-3.12-Pflichtworkflow bestehen. Der
+Fact belegt weder Hostisolation noch eine Zielruntime-/Sysconfigaufnahme,
+vollständige Importclosure oder P11-Sollinventur. Die übrige geerbte Umgebung,
+Profil-/Workerattestation und alle SQL-/Lab-/Generalprobengates bleiben
+außerhalb dieses Schnitts.

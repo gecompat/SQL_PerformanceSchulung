@@ -103,7 +103,7 @@ THREAD_NATIVE_ID_MODULE_MEMBER = "Python-3.12.16/Modules/_threadmodule.c"
 THREAD_NATIVE_ID_MODULE_SHA256 = "277217c4a704bc84f9b7caf79123eaed8a45288c3023747e457df5d817cc8bc1"
 THREAD_NATIVE_ID_PTHREAD_MEMBER = "Python-3.12.16/Python/thread_pthread.h"
 THREAD_NATIVE_ID_PTHREAD_SHA256 = "467f48143ba6bd2dc8f139934d46fdaefe48b11ddf19e476a71ad156996f9195"
-IMPORT_USED_BYTES_PROBE_SHA256 = "5b34daec2ff34a474b614caf46719aa9f9778c28533a0fcfa9031e3b466c00bc"
+IMPORT_USED_BYTES_PROBE_SHA256 = "98d6a90cc448629950d0f91f20f05ce9be3b35937dcc057a57bceb67d3bb77b3"
 GETPATH_SOURCE_MEMBER = "Python-3.12.16/Modules/getpath.py"
 GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2"
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
@@ -1562,12 +1562,64 @@ def _target_isolated_worker_route_valid(
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
         and ast.unparse(node.func) == "subprocess.Popen"
     ]
+    collector = collector_functions[0] if len(collector_functions) == 1 else None
+    env_copy = ast.parse("child_env = os.environ.copy()").body[0]
+    env_filter = ast.parse(
+        "child_env.pop('_PYTHON_SYSCONFIGDATA_NAME', None)"
+    ).body[0]
+    ordered_environment = False
+    if collector is not None:
+        body = collector.body
+        copy_indexes = [index for index, node in enumerate(body)
+                        if ast.dump(node, include_attributes=False)
+                        == ast.dump(env_copy, include_attributes=False)]
+        filter_indexes = [index for index, node in enumerate(body)
+                          if ast.dump(node, include_attributes=False)
+                          == ast.dump(env_filter, include_attributes=False)]
+        popen_statement_indexes = [
+            index for index, node in enumerate(body)
+            if isinstance(node, ast.Try)
+            and any(isinstance(call, ast.Call)
+                    and isinstance(call.func, ast.Attribute)
+                    and ast.unparse(call.func) == "subprocess.Popen"
+                    for call in ast.walk(node))
+        ]
+        ordered_environment = (
+            len(copy_indexes) == 1 and len(filter_indexes) == 1
+            and len(popen_statement_indexes) == 1
+            and copy_indexes[0] < filter_indexes[0] < popen_statement_indexes[0]
+        )
     return (len(command_assignments) == 1
             and ast.unparse(command_assignments[0].value) == expected_command
             and len(popen_calls) == 1 and bool(popen_calls[0].args)
             and isinstance(popen_calls[0].args[0], ast.Name)
             and popen_calls[0].args[0].id == "command"
-            and not any(keyword.arg == "env" for keyword in popen_calls[0].keywords))
+            and sum(keyword.arg == "env" for keyword in popen_calls[0].keywords) == 1
+            and any(keyword.arg == "env" and isinstance(keyword.value, ast.Name)
+                    and keyword.value.id == "child_env"
+                    for keyword in popen_calls[0].keywords)
+            and ordered_environment)
+
+
+def _target_worker_sysconfigdata_environment_fact(
+        preconfig_source, initconfig_source, worker_source):
+    """Bind removal of the direct sysconfig environment override in the child."""
+    if (type(worker_source) is not bytes or not worker_source
+            or len(worker_source) > MAX_WORKER_CONTROL_SOURCE_BYTES
+            or hashlib.sha256(worker_source).hexdigest()
+            != IMPORT_USED_BYTES_PROBE_SHA256):
+        return ()
+    try:
+        tree = ast.parse(worker_source)
+    except SyntaxError:
+        return ()
+    collectors = [node for node in tree.body
+                  if isinstance(node, ast.FunctionDef)
+                  and node.name == "_collect_process"]
+    if (len(collectors) != 1 or not _target_isolated_worker_route_valid(
+            preconfig_source, initconfig_source, worker_source)):
+        return ()
+    return (("_PYTHON_SYSCONFIGDATA_NAME", "absent_from_child_environment"),)
 
 
 def _target_worker_sys_flag_facts(
@@ -6649,6 +6701,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_warning_options_empty_for_facts = {}
     target_importlib_optimize_line_facts = {}
     target_worker_sys_flag_facts = ()
+    target_worker_sysconfigdata_environment_fact = ()
     target_importlib_verbose_line_facts = {}
     if target_image_save_path is not None:
         if (not target_direct_python312 or not target_no_site
@@ -6670,6 +6723,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         with worker_source_path.open("rb") as stream:
             worker_source = stream.read(MAX_WORKER_CONTROL_SOURCE_BYTES + 1)
         if len(worker_source) <= MAX_WORKER_CONTROL_SOURCE_BYTES:
+            target_worker_sysconfigdata_environment_fact = (
+                _target_worker_sysconfigdata_environment_fact(
+                    preconfig_c_source, initconfig_c_source, worker_source,
+                )
+            )
             target_worker_sys_flag_facts = _target_worker_sys_flag_facts(
                 preconfig_c_source, initconfig_c_source, sys_module_c_source,
                 worker_source,
@@ -7129,6 +7187,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_worker_sys_flag_facts": list(
             target_worker_sys_flag_facts
+        ),
+        "target_platform_worker_sysconfigdata_environment_fact": list(
+            target_worker_sysconfigdata_environment_fact
         ),
         "target_platform_importlib_verbose_line_facts": list(
             target_importlib_verbose_line_facts.items()
