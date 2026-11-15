@@ -1054,6 +1054,96 @@ def _importlib_public_api_inventory(machinery_bytes, util_bytes):
     }
 
 
+def _target_importlib_finder_registration_candidate(files):
+    """Bind importlib finder-registration sites, not the final runtime lists."""
+    if type(files) is not dict:
+        return None
+    source_rows = (
+        ("importlib/_bootstrap.py", IMPORTLIB_BOOTSTRAP_SOURCE_SHA256),
+        ("importlib/_bootstrap_external.py", IMPORTLIB_EXTERNAL_SOURCE_SHA256),
+    )
+    trees = {}
+    for path, digest in source_rows:
+        source = files.get(path)
+        if (type(source) is not bytes or not source
+                or len(source) > MAX_SOURCE_BYTES
+                or hashlib.sha256(source).hexdigest() != digest):
+            return None
+        try:
+            trees[path] = ast.parse(source.decode("utf-8"), filename=path)
+        except (UnicodeError, SyntaxError):
+            return None
+
+    def function(module_path, name):
+        functions = [node for node in trees[module_path].body
+                     if isinstance(node, ast.FunctionDef) and node.name == name]
+        if len(functions) != 1:
+            return None
+        candidate = functions[0]
+        if (candidate.body and isinstance(candidate.body[0], ast.Expr)
+                and isinstance(candidate.body[0].value, ast.Constant)
+                and type(candidate.body[0].value.value) is str):
+            candidate.body = candidate.body[1:]
+        return candidate
+
+    expected_functions = {
+        "importlib/_bootstrap.py": ast.parse(
+            "def _install(sys_module, _imp_module):\n"
+            "    _setup(sys_module, _imp_module)\n"
+            "    sys.meta_path.append(BuiltinImporter)\n"
+            "    sys.meta_path.append(FrozenImporter)\n"
+        ).body[0],
+        "importlib/_bootstrap_external.py": ast.parse(
+            "def _install(_bootstrap_module):\n"
+            "    _set_bootstrap_module(_bootstrap_module)\n"
+            "    supported_loaders = _get_supported_file_loaders()\n"
+            "    sys.path_hooks.extend([FileFinder.path_hook(*supported_loaders)])\n"
+            "    sys.meta_path.append(PathFinder)\n"
+        ).body[0],
+    }
+    module_order = {path: index for index, (path, _) in enumerate(source_rows)}
+    observed_meta_path_calls = []
+    for path, tree in trees.items():
+        for node in ast.walk(tree):
+            if (isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Attribute)
+                    and ast.unparse(node.func.value) == "sys.meta_path"):
+                observed_meta_path_calls.append((
+                    module_order[path], node.lineno, path, ast.unparse(node),
+                ))
+    observed_meta_path_calls = [
+        (path, expression) for _, _, path, expression
+        in sorted(observed_meta_path_calls)
+    ]
+    expected_meta_path_calls = [
+        ("importlib/_bootstrap.py", "sys.meta_path.append(BuiltinImporter)"),
+        ("importlib/_bootstrap.py", "sys.meta_path.append(FrozenImporter)"),
+        ("importlib/_bootstrap_external.py", "sys.meta_path.append(PathFinder)"),
+    ]
+    actual_functions = {
+        path: function(path, "_install") for path in expected_functions
+    }
+    if (observed_meta_path_calls != expected_meta_path_calls
+            or any(actual_functions[path] is None
+                   or ast.dump(actual_functions[path], include_attributes=False)
+                   != ast.dump(expected, include_attributes=False)
+                   for path, expected in expected_functions.items())):
+        return None
+    return {
+        "sys_meta_path_registration_sites": [
+            ["importlib._bootstrap._install", "BuiltinImporter"],
+            ["importlib._bootstrap._install", "FrozenImporter"],
+            ["importlib._bootstrap_external._install", "PathFinder"],
+        ],
+        "file_path_hook_registration_site": [
+            "importlib._bootstrap_external._install", "FileFinder.path_hook",
+        ],
+        "final_sys_meta_path_claimed": False,
+        "final_sys_path_hooks_claimed": False,
+        "evidence_scope": "STATIC_IMPORTLIB_REGISTRATION_SITES_CANDIDATE",
+    }
+
+
 def _configure_template_inventory(config_template, configure_source):
     if (type(config_template) is not bytes or not config_template
             or len(config_template) > MAX_CONFIG_C_TEMPLATE_BYTES
@@ -7527,6 +7617,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     importlib_api_inventory = _importlib_public_api_inventory(
         machinery_source, util_source
     )
+    importlib_finder_registration_candidate = (
+        _target_importlib_finder_registration_candidate(files)
+    )
     configure_inventory = _configure_template_inventory(
         config_c_template, configure_source
     )
@@ -7979,6 +8072,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "importlib_util_export_count": importlib_api_inventory[
             "util_export_count"
         ],
+        "target_importlib_finder_registration_candidate": (
+            importlib_finder_registration_candidate
+        ),
         **configure_inventory,
         "edge_count": edges,
         "module_count": len(modules),

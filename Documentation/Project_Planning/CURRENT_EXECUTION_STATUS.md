@@ -10986,3 +10986,19 @@ Modulstartwert-Faktlage würde den Zweig nicht beschreiben. Die Negativprobe
 entfernt die Deklaration und erwartet fail-closed. Das ist weiter eine
 Quellstrukturaussage, keine Funktionsausführung. Umfang: ein Paket, ein PR und
 höchstens zwei Regressionen.
+
+## S15-Teilschnitt: Import-Finder-Registrierungsstellen
+
+Der statische CPython-3.12.16-Kandidat bindet die drei deklarativen
+`sys.meta_path.append`-Stellen für `BuiltinImporter`, `FrozenImporter` und
+`PathFinder` sowie die `FileFinder.path_hook`-Registrierung an die geprüften
+`_install`-Funktionsquellen. Eine Gegenprobe verwirft zusätzliche Meta-Path-
+Aufrufe und eine geänderte Hook-Registrierung. Der echte, digest-geprüfte
+Quellarchivlauf weist alle vier Registrierungsstellen aus. Die Aussage umfasst
+weder die endgültigen Runtimelisten noch ihre vollständige Reihenfolge:
+Bootstrap-Aufrufreihenfolge und weitere Hook-Registrierungen liegen außerhalb
+dieses Kandidaten. 239 fokussierte Regressionen, Syntaxprüfung, der
+Datenschutzscan der geänderten Dateien, Identifier- und Continuity-Validatoren sowie
+`git diff --check` bestanden. Umfang: ein Paket, ein PR und höchstens zwei
+Regressionen; keine Runtime-, P11-, SQL-/Lab- oder menschliche
+Generalprobenattestation.

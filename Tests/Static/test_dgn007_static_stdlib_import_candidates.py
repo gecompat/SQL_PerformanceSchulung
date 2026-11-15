@@ -3049,6 +3049,65 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(inventory["machinery_export_count"], 9)
         self.assertEqual(inventory["util_export_count"], 5)
 
+    def test_importlib_finder_registration_candidate_is_source_bounded(self):
+        bootstrap = (
+            b"class BuiltinImporter: pass\nclass FrozenImporter: pass\n"
+            b"def _setup(sys_module, _imp_module): pass\n"
+            b"def _install(sys_module, _imp_module):\n"
+            b"    _setup(sys_module, _imp_module)\n"
+            b"    sys.meta_path.append(BuiltinImporter)\n"
+            b"    sys.meta_path.append(FrozenImporter)\n"
+        )
+        external = (
+            b"class PathFinder: pass\nclass FileFinder:\n"
+            b"    @staticmethod\n    def path_hook(*loaders): pass\n"
+            b"def _set_bootstrap_module(module): pass\n"
+            b"def _get_supported_file_loaders(): return ()\n"
+            b"def _install(_bootstrap_module):\n"
+            b"    _set_bootstrap_module(_bootstrap_module)\n"
+            b"    supported_loaders = _get_supported_file_loaders()\n"
+            b"    sys.path_hooks.extend([FileFinder.path_hook(*supported_loaders)])\n"
+            b"    sys.meta_path.append(PathFinder)\n"
+        )
+
+        def check_sources(bootstrap_source, external_source):
+            files = {
+                "importlib/_bootstrap.py": bootstrap_source,
+                "importlib/_bootstrap_external.py": external_source,
+            }
+            with patch.object(
+                SUBJECT, "IMPORTLIB_BOOTSTRAP_SOURCE_SHA256",
+                hashlib.sha256(bootstrap_source).hexdigest(),
+            ), patch.object(
+                SUBJECT, "IMPORTLIB_EXTERNAL_SOURCE_SHA256",
+                hashlib.sha256(external_source).hexdigest(),
+            ):
+                return SUBJECT._target_importlib_finder_registration_candidate(files)
+
+        candidate = check_sources(bootstrap, external)
+        self.assertIsNotNone(candidate)
+        self.assertEqual(
+            candidate["sys_meta_path_registration_sites"],
+            [
+                ["importlib._bootstrap._install", "BuiltinImporter"],
+                ["importlib._bootstrap._install", "FrozenImporter"],
+                ["importlib._bootstrap_external._install", "PathFinder"],
+            ],
+        )
+        self.assertEqual(candidate["file_path_hook_registration_site"], [
+            "importlib._bootstrap_external._install", "FileFinder.path_hook",
+        ])
+        self.assertFalse(candidate["final_sys_meta_path_claimed"])
+        self.assertFalse(candidate["final_sys_path_hooks_claimed"])
+
+        changed_call = bootstrap + b"\nsys.meta_path.append(UnexpectedFinder)\n"
+        self.assertIsNone(check_sources(changed_call, external))
+        changed_hook = external.replace(
+            b"sys.path_hooks.extend([FileFinder.path_hook(*supported_loaders)])",
+            b"sys.path_hooks.append(FileFinder.path_hook(*supported_loaders))",
+        )
+        self.assertIsNone(check_sources(bootstrap, changed_hook))
+
     def test_configure_sources_bind_builtin_template_and_module_block(self):
         config_c = (
             b"/* -- ADDMODULE MARKER 1 -- */\n"
