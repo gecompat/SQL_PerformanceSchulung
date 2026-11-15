@@ -1817,13 +1817,25 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"sorted(snapshot.items())",
             b"snapshot.items()",
         )
-        with patch.object(
-            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
-            SUBJECT._normalized_profile_source_sha256(changed),
-        ):
-            self.assertIsNone(
-                SUBJECT._target_profile_capture_schema_candidate(changed)
+        capture_start = profile_source.index(b"def _capture(")
+        capture_source = profile_source[capture_start:]
+        early_return = (
+            profile_source[:capture_start]
+            + capture_source.replace(
+                b"    _need(type(sys.modules)",
+                b"    return None\n    _need(type(sys.modules)",
+                1,
             )
+        )
+        self.assertNotEqual(early_return, profile_source)
+        for mutation in (changed, early_return):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(mutation),
+            ):
+                self.assertIsNone(
+                    SUBJECT._target_profile_capture_schema_candidate(mutation)
+                )
 
     def test_profile_module_record_builder_is_source_bound(self):
         profile_source = (

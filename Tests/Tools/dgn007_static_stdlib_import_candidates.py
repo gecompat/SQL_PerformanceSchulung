@@ -2119,6 +2119,8 @@ def _target_profile_capture_schema_candidate(source_bytes):
     )
     if any(normalized.count(fragment) != 1 for fragment in required):
         return None
+    if len(re.findall(rb"\breturn\b", normalized)) != 1:
+        return None
     if not all(normalized.index(left) < normalized.index(right)
                for left, right in zip(required[:7], required[1:7])):
         return None

@@ -2927,8 +2927,15 @@ PR #866 bindet die vier vorgesehenen Rückgaben von
 vor den Hook- und Projektionsprüfungen. 279 fokussierte Regressionen und alle
 fünf Gates bestanden. Es wurde keine Beobachtung ausgeführt.
 
-## Begrenzte Fortsetzung: frische Recordaufnahme gegen frühe Rückgabe absichern
+## Abgeschlossen: frische Recordaufnahme gegen frühe Rückgabe absichern
 
-Der nächste Schnitt bindet die fünf vorgesehenen Rückgaben von
+PR #867 bindet die fünf vorgesehenen Rückgaben von
 `observe_current_interpreter_records` und verwirft einen zusätzlichen Ausstieg
-vor Nachheraufnahme und Hashvergleich. Es wird keine Aufnahme ausgeführt.
+vor Nachheraufnahme und Hashvergleich. 279 fokussierte Regressionen und alle
+fünf Gates bestanden. Es wurde keine Aufnahme ausgeführt.
+
+## Begrenzte Fortsetzung: Capture-Schema gegen frühe Rückgabe absichern
+
+Der nächste Schnitt bindet den einzigen Rückgabepunkt von `_capture` nach
+Modul-/Pfadvalidierung und sortierter Modulprojektion. Es wird kein Snapshot
+aufgenommen.
