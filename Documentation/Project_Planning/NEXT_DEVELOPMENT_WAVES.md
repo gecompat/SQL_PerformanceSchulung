@@ -2881,8 +2881,15 @@ PR #859 schließt die Gegenprobenlücke bei der skalaren Textprüfung von Modul-
 Spec-, Suchpfad- und Loaderankern. 279 fokussierte Regressionen und alle fünf
 Pflichtprüfungen bestanden; die Quellen blieben unbeobachtet.
 
-## Begrenzte Fortsetzung: Runtime-Profiltexte explizit binden
+## Abgeschlossen: Runtime-Profiltexte explizit binden
 
-Der nächste Offline-Schnitt schützt die Skalarprüfung der Pfade und sechs
-Plattformtexte in `_selected_runtime_post` durch explizite Quellanforderungen
-und Gegenproben. Runtimewerte bleiben unbeobachtet; der PR ist der Checkpoint.
+PR #860 schützt die Skalarprüfung der Pfade und sechs Plattformtexte in
+`_selected_runtime_post` durch explizite Quellanforderungen und Gegenproben.
+279 fokussierte Regressionen und alle fünf Gates bestanden; Runtimewerte blieben
+unbeobachtet.
+
+## Begrenzte Fortsetzung: Runtime-POST-Projektionen absichern
+
+Der nächste Offline-Schnitt bindet Versionprojektion, Startflagbereiche und die
+Reihenfolge der Pfadprojektion mit gezielten Gegenproben. Runtimewerte bleiben
+unbeobachtet; der nächste PR ist der Checkpoint.
