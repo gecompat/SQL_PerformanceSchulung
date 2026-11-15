@@ -1729,15 +1729,27 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"_compare(expected, observation)",
             b"pass",
         )
-        with patch.object(
-            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
-            SUBJECT._normalized_profile_source_sha256(changed),
-        ):
-            self.assertIsNone(
-                SUBJECT._target_current_scalar_observation_flow_candidate(
-                    changed, projection_schema,
-                )
+        observer_start = profile_source.index(b"def observe_current_interpreter_scalars")
+        observer_source = profile_source[observer_start:]
+        early_return = (
+            profile_source[:observer_start]
+            + observer_source.replace(
+                b"    try:",
+                b"    try:\n        return ScalarObservationResult(records.report)",
+                1,
             )
+        )
+        self.assertNotEqual(early_return, profile_source)
+        for mutation in (changed, early_return):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(mutation),
+            ):
+                self.assertIsNone(
+                    SUBJECT._target_current_scalar_observation_flow_candidate(
+                        mutation, projection_schema,
+                    )
+                )
 
     def test_fresh_record_capture_flow_is_source_bound(self):
         profile_source = (

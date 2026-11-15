@@ -2022,6 +2022,8 @@ def _target_current_scalar_observation_flow_candidate(source_bytes, projection_s
     if any(normalized.count(fragment) != (2 if fragment in (required[2], required[3]) else 1)
            for fragment in required):
         return None
+    if len(re.findall(rb"\breturn\b", normalized)) != 4:
+        return None
     if not (normalized.index(required[0]) < normalized.index(required[1])
             < normalized.index(required[2]) < normalized.index(required[3])
             < normalized.index(required[4]) < normalized.rindex(required[2])
