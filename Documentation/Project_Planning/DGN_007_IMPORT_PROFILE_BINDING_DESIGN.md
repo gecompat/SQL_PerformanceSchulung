@@ -6292,3 +6292,13 @@ Quellpfad des Posixmoduls sowie dessen Builtinregistrierung im verifizierten
 Linux-Zielimage zusammenpassen. Ohne diese Kette bleiben `os.name`-Bedingungen
 unbekannt. Damit ist der Auswahlwert quellen- und imagegebunden, jedoch keine
 beobachtete Interpreter- oder Profilaufnahme.
+
+### Fortsetzung: `sysconfig._init_posix` nur im gebundenen Posixzweig auswählen
+
+Die festgehashte `_init_config_vars`-Quelle enthält den direkten Aufruf
+`_init_posix(_CONFIG_VARS)` unter `os.name == 'posix'`. Der Scanner markiert
+diese konkrete Zeile für die Modulinitialisierungs-Call-Closure nur, wenn der
+separate `os.name`-Quellenfact vorliegt; beim gepinnten CPython 3.12.16 ist
+dies Zeile 676. Dadurch wird nur die ausgewählte statische Aufrufkante
+weiterverfolgt. Die Closure beweist weder den tatsächlichen Aufruf noch einen
+Import oder die Übernahme von Ziel-Laufzeitdaten.

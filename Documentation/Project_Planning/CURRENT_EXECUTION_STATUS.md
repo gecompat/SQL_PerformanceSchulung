@@ -10812,3 +10812,19 @@ Kandidaten, 278 Kanten, 42 entschiedenen und null unbekannten Bedingungen.
 Keine Runtime-/Profil-, Importclosure-, P11-, SQL-/Lab- oder menschliche
 Generalprobenattestation. Token-/Geldverbrauch bleiben unbekannt; Umfang: ein
 Paket, ein PR und höchstens zwei Regressionen.
+
+## Fortsetzung: Posix-Initializer in `sysconfig` quellengebunden auswählen
+
+Für die unveränderte `sysconfig.py` gibt der Resolver die Zeile des Aufrufs
+`_init_posix(_CONFIG_VARS)` nur dann als wahr frei, wenn der `os.name='posix'`-
+Fact bereits aus dem Posix-Quell-/Imagepfad stammt und die AST-Wache exakt
+gebunden ist. Der echte CPython-3.12.16-Quelltext bindet den Aufruf an Zeile
+676. Eine Regression prüft die Weitergabe in die Modulinitialisierungs-Call-
+Closure und verwirft eine veränderte Aufrufzeile. Die fokussierte Suite besteht
+lokal mit 232 Tests unter Python 3.14. Der OCI-Scan bleibt `CANDIDATES_ONLY`;
+der größere Call-Closure-Schnitt enthält 60 Kandidaten, 316 Kanten, 166
+Funktionen, 69 entschiedene und 498 unbekannte Bedingungen. Das weist keine
+Funktionsausführung, tatsächlichen Import oder Runtimeprofilaufnahme nach.
+Keine P11-, SQL-/Lab- oder menschliche Generalprobenattestation. Token-/
+Geldverbrauch bleiben unbekannt; Umfang: ein Paket, ein PR, höchstens zwei
+Regressionen.
