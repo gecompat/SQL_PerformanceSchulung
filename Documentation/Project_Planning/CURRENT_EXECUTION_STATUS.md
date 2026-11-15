@@ -11415,8 +11415,17 @@ Aliasidentitätsprüfung; 275 fokussierte Regressionen und alle fünf
 Pflichtprüfungen bestanden. PR #854 ist integriert. Es wird keine Projektion
 ausgeführt.
 
-## Begrenzte Fortsetzung: ausgewählte Formprimitiven binden
+## Abgeschlossen: ausgewählte Formprimitiven binden
 
 PR #855 bindet `_selected_tree`, `_selected_tuple` und `_selected_int` an
 Knoten-/Tiefen-/Tupelgrenzen und exakte Blatt-/Zahlentypen. Gegenproben lockern
-die Tiefengrenze bzw. den exakten Tupletyp. Es werden keine Werte traversiert.
+die Tiefengrenze bzw. den exakten Tupletyp; 276 fokussierte Regressionen und
+alle fünf Pflichtprüfungen bestanden. PR #855 ist integriert. Es werden keine
+Werte traversiert.
+
+## Begrenzte Fortsetzung: ausgewählte Namespaces binden
+
+PR #856 bindet `_selected_keys` und `_selected_namespace`: exakter
+Dictionary-/Stringtyp, gemeinsame 16.368-Ankerkappe, Budgetzählung und
+Skalarprüfung. Gegenproben lockern die Kappe bzw. den exakten Keytyp. Es werden
+keine Namespaces gelesen.
