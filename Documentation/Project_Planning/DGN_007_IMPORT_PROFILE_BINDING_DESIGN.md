@@ -6227,5 +6227,17 @@ Abweichende Quellstruktur, Sysconfigdatenpfade oder Digests sowie ein anderer
 Imagewert verwerfen ihn. Der reale Archiv-/OCI-Lauf liefert diesen Wert; der
 engere Modul-/Klassenkörper-Schnitt bleibt bei 56 Quellen, 278 Kanten und 42
 entschiedenen Bedingungen. Das beweist weder eine Zielruntimeaufnahme noch
-`sys.abiflags`, `sys.platform`, den daraus zusammengesetzten
-Sysconfigdatenmodulnamen, eine vollständige Importclosure oder P11-Records.
+`sys.platform`, den daraus zusammengesetzten Sysconfigdatenmodulnamen, eine
+vollständige Importclosure oder P11-Records.
+
+### Fortsetzung: `sys.abiflags` als Imagekandidat
+
+`sysmodule.c` ordnet `sys.abiflags` unter `#ifdef ABIFLAGS` direkt dem
+gleichnamigen Buildmakro zu. Der statische Scanner bindet die genaue Zuweisung
+an den literal- und digestgeprüften Wert `ABIFLAGS=""` aus dem festgelegten
+Sysconfigdatenmodul. Er verwirft den Fact bei abweichender Quellstruktur,
+Dateiidentität oder Buildwert und gibt ihn an die Bedingungsauswertung weiter.
+Das ist eine aus Quelle und Image abgeleitete Kandidatur, keine beobachtete
+`sys.abiflags`-Runtimeaufnahme und keine S15-/P11-Recordauswahl. Die
+Sysconfigdatenmodulnamenfolge bleibt bis zur Bindung von `sys.platform` und
+anschließender Zusammenführung der drei Namenskomponenten offen.

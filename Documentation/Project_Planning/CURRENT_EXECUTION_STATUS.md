@@ -119,6 +119,14 @@ Der engere Modul-/Klassenkörper-Schnitt bleibt bei 56 Quellen und 278 Kanten;
 seine 42 Bedingungen sind entschieden. Damit sind weder die breitere dynamische
 Kandidatenanalyse noch Runtime- oder P11-Gates geschlossen. Die fokussierte
 Resolver-Suite besteht lokal mit 225 Tests unter Python 3.14.
+Der folgende Baustein bindet `sys.abiflags` aus der gepinnten
+`sysmodule.c`-Abbildung des Makros `ABIFLAGS` an den leeren Literalwert im
+digestgeprüften Sysconfigdatenmodul. Die fokussierte Suite besteht lokal mit
+226 Tests unter Python 3.14. Der echte Archiv-/OCI-Scan gibt beide Facts
+`sys.abiflags=""` und `sys.implementation._multiarch="x86_64-linux-gnu"` aus.
+Der Bericht bleibt `CANDIDATES_ONLY`; Runtime-, vollständige Importclosure- und
+P11-Nachweise folgen daraus nicht. `sys.platform`-Quellbindung und die
+zusammengesetzte Sysconfigdatenmodulnamenkandidatur bleiben offen.
 Der lokale breitere Bundletest läuft unter CPython 3.14 in einen bereits
 versionsgebundenen Bootstrap-AST-Digest (`BOOTSTRAP_CHANGED`); die gepinnten
 CI-Workflows verwenden CPython 3.12. Die Execution-Edge-Gesamtsuite wurde lokal

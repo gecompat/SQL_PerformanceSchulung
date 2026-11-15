@@ -161,6 +161,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                             b"'DESTSHARED': '/usr/local/lib/python3.12/lib-dynload', "
                             b"'EXT_SUFFIX': '.cpython-312-x86_64-linux-gnu.so', "
                             b"'MULTIARCH': 'x86_64-linux-gnu', "
+                            b"'ABIFLAGS': '', "
                             b"'prefix': '/usr/local', 'exec_prefix': '/usr/local', "
                             b"'PLATLIBDIR': 'lib', 'PYTHONPATH': '', "
                             b"'LIBDIR': '/usr/local/lib', "
@@ -255,6 +256,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             "destshared": "/usr/local/lib/python3.12/lib-dynload",
             "extension_suffix": ".cpython-312-x86_64-linux-gnu.so",
             "multiarch": "x86_64-linux-gnu",
+            "abiflags": "",
             "prefix": "/usr/local",
             "exec_prefix": "/usr/local",
             "platlibdir": "lib",
@@ -1267,6 +1269,33 @@ class StaticImportCandidateTests(unittest.TestCase):
             ), ())
             self.assertEqual(SUBJECT._target_sys_implementation_multiarch_fact(
                 source.replace(b'"_multiarch"', b'"other"'), image_facts,
+            ), ())
+
+    def test_sys_abiflags_binds_source_and_target_image(self):
+        source = (
+            b"#ifdef ABIFLAGS\n"
+            b'SET_SYS_FROM_STRING("abiflags", ABIFLAGS);\n'
+            b"#endif\n"
+        )
+        image_facts = {
+            "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+            "sysconfigdata_sha256": SUBJECT.TARGET_SYSCONFIGDATA_SHA256,
+            "abiflags": "",
+        }
+        with patch.object(
+            SUBJECT, "SYS_MODULE_C_SHA256", hashlib.sha256(source).hexdigest(),
+        ):
+            expected = (("sys.abiflags", ""),)
+            self.assertEqual(SUBJECT._target_sys_abiflags_fact(source, image_facts), expected)
+            condition = ast.parse('sys.abiflags == ""', mode="eval").body
+            self.assertIs(SUBJECT._target_condition(
+                condition, known_call_facts=expected,
+            ), True)
+            self.assertEqual(SUBJECT._target_sys_abiflags_fact(
+                source, {**image_facts, "abiflags": "d"},
+            ), ())
+            self.assertEqual(SUBJECT._target_sys_abiflags_fact(
+                source.replace(b'"abiflags"', b'"other"'), image_facts,
             ), ())
 
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
