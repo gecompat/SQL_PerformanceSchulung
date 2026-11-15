@@ -10987,7 +10987,7 @@ entfernt die Deklaration und erwartet fail-closed. Das ist weiter eine
 Quellstrukturaussage, keine Funktionsausführung. Umfang: ein Paket, ein PR und
 höchstens zwei Regressionen.
 
-## S15-Teilschnitt: Import-Finder-Registrierungsstellen
+## Abgeschlossen: S15-Teilschnitt Import-Finder-Registrierungsstellen
 
 Der statische CPython-3.12.16-Kandidat bindet die drei deklarativen
 `sys.meta_path.append`-Stellen für `BuiltinImporter`, `FrozenImporter` und
@@ -10997,8 +10997,20 @@ Aufrufe und eine geänderte Hook-Registrierung. Der echte, digest-geprüfte
 Quellarchivlauf weist alle vier Registrierungsstellen aus. Die Aussage umfasst
 weder die endgültigen Runtimelisten noch ihre vollständige Reihenfolge:
 Bootstrap-Aufrufreihenfolge und weitere Hook-Registrierungen liegen außerhalb
-dieses Kandidaten. 239 fokussierte Regressionen, Syntaxprüfung, der
-Datenschutzscan der geänderten Dateien, Identifier- und Continuity-Validatoren sowie
-`git diff --check` bestanden. Umfang: ein Paket, ein PR und höchstens zwei
-Regressionen; keine Runtime-, P11-, SQL-/Lab- oder menschliche
-Generalprobenattestation.
+dieses Kandidaten. PR #801 ist integriert. 239 fokussierte Regressionen,
+Syntaxprüfung, der Datenschutzscan der geänderten Dateien, Identifier- und
+Continuity-Validatoren sowie `git diff --check` bestanden. Umfang: ein Paket,
+ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
+menschliche Generalprobenattestation.
+
+## S15-Teilschnitt: bedingte Zipimport-Hookquelle
+
+Der nächste statische Kandidat bindet `init_zipimport()` in der gepinnten
+`Python/import.c`-Quelle und dessen Aufruf nach erfolgreichem
+`init_importlib_external()`. Er soll die bedingte Auflösung von
+`zipimport.zipimporter`, die Einfügung durch
+`PyList_Insert(path_hooks, 0, zipimporter)` und den Fehlerpfad fail-closed
+prüfen. Der Beleg gilt nur der Quellroute, nicht einer vorhandenen Runtimeklasse,
+einer tatsächlichen Listenänderung oder der vollständigen Hookliste. Umfang:
+ein Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-,
+SQL-/Lab- oder menschliche Generalprobenattestation.

@@ -56,6 +56,8 @@ POSIX_MODULE_C_MEMBER = "Python-3.12.16/Modules/posixmodule.c"
 POSIX_MODULE_C_SHA256 = "a8f1410ad95326648a473672ee3bf8158a5f744b7c032c0142327fb252688ab4"
 PICKLE_MODULE_C_MEMBER = "Python-3.12.16/Modules/_pickle.c"
 PICKLE_MODULE_C_SHA256 = "c3ec3ad77fbb84d902bc7366f9b7cd76f17f9c106cb984ef3e99894cf0f9698b"
+PYTHON_IMPORT_C_MEMBER = "Python-3.12.16/Python/import.c"
+PYTHON_IMPORT_C_SHA256 = "1cf484fe5a261c742f2da95a720f5d0eb92b10649bf186ca55eedf4557f1b9d0"
 PICKLE_EXTENSION_PATH = "usr/local/lib/python3.12/lib-dynload/_pickle.cpython-312-x86_64-linux-gnu.so"
 PICKLE_EXTENSION_SHA256 = "f6cdd4a784089665d18243b944051052b8a9452f3b1e40be88bdf685b2afb83d"
 PICKLE_SOURCE_SHA256 = "7e3447b6d993a6306a7893fd2fba916010ed79f8e09ceb56158a550fa8099a14"
@@ -173,6 +175,7 @@ MAX_WORKER_CONTROL_SOURCE_BYTES = 256 * 1024
 MAX_WARNINGS_C_BYTES = 64 * 1024
 MAX_WARNINGS_CLINIC_BYTES = 16 * 1024
 MAX_POSIX_MODULE_C_BYTES = 512 * 1024
+MAX_PYTHON_IMPORT_C_BYTES = 256 * 1024
 MAX_POSIX_MODULE_CLINIC_BYTES = 384 * 1024
 MAX_TARGET_PYCONFIG_BYTES = 64 * 1024
 MAX_TARGET_IMAGE_CONFIG_BYTES = 16 * 1024
@@ -221,6 +224,7 @@ def _source_archive_data(archive_bytes):
     posix_module_c_source = None
     posix_module_clinic_source = None
     pickle_module_c_source = None
+    python_import_c_source = None
     thread_native_id_header = None
     thread_native_id_module = None
     thread_native_id_pthread = None
@@ -418,6 +422,19 @@ def _source_archive_data(archive_bytes):
                         != PICKLE_MODULE_C_SHA256):
                     raise ValueError("PICKLE_MODULE_SOURCE_DIGEST")
                 continue
+            if member.name == PYTHON_IMPORT_C_MEMBER:
+                if (not member.isfile() or python_import_c_source is not None
+                        or member.size > MAX_PYTHON_IMPORT_C_BYTES):
+                    raise ValueError("PYTHON_IMPORT_SOURCE_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("PYTHON_IMPORT_SOURCE_MEMBER")
+                python_import_c_source = stream.read(member.size + 1)
+                if (len(python_import_c_source) != member.size
+                        or hashlib.sha256(python_import_c_source).hexdigest()
+                        != PYTHON_IMPORT_C_SHA256):
+                    raise ValueError("PYTHON_IMPORT_SOURCE_DIGEST")
+                continue
             if member.name in thread_source_members:
                 source_key = thread_source_members[member.name]
                 current = {
@@ -484,7 +501,7 @@ def _source_archive_data(archive_bytes):
             pickle_module_c_source,
             thread_native_id_header, thread_native_id_module, thread_native_id_pthread,
             platform_source_data["getplatform"], platform_source_data["makefile_pre"],
-            preconfig_c_source, initconfig_c_source)
+            python_import_c_source, preconfig_c_source, initconfig_c_source)
 
 
 def _source_files(archive_path):
@@ -1141,6 +1158,106 @@ def _target_importlib_finder_registration_candidate(files):
         "final_sys_meta_path_claimed": False,
         "final_sys_path_hooks_claimed": False,
         "evidence_scope": "STATIC_IMPORTLIB_REGISTRATION_SITES_CANDIDATE",
+    }
+
+
+def _target_zipimport_hook_registration_candidate(source_bytes):
+    """Bind CPython's conditional zipimport hook insertion source route."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_PYTHON_IMPORT_C_BYTES
+            or hashlib.sha256(source_bytes).hexdigest() != PYTHON_IMPORT_C_SHA256):
+        return None
+    try:
+        source = source_bytes.decode("utf-8")
+    except UnicodeError:
+        return None
+
+    function_sources = (
+        (
+            "init_zipimport",
+            re.compile(
+                r"(?ms)^static int\ninit_zipimport\(PyThreadState \*tstate, "
+                r"int verbose\)\n\{.*?^\}"
+            ),
+            """static int
+init_zipimport(PyThreadState *tstate, int verbose)
+{
+    PyObject *path_hooks = _PySys_GetRequiredAttrString("path_hooks");
+    if (path_hooks == NULL) {
+        return -1;
+    }
+
+    if (verbose) {
+        PySys_WriteStderr("# installing zipimport hook\\n");
+    }
+
+    PyObject *zipimporter = _PyImport_GetModuleAttrString("zipimport", "zipimporter");
+    if (zipimporter == NULL) {
+        _PyErr_Clear(tstate); /* No zipimporter object -- okay */
+        if (verbose) {
+            PySys_WriteStderr("# can't import zipimport.zipimporter\\n");
+        }
+    }
+    else {
+        /* sys.path_hooks.insert(0, zipimporter) */
+        int err = PyList_Insert(path_hooks, 0, zipimporter);
+        Py_DECREF(zipimporter);
+        if (err < 0) {
+            Py_DECREF(path_hooks);
+            return -1;
+        }
+        if (verbose) {
+            PySys_WriteStderr("# installed zipimport hook\\n");
+        }
+    }
+    Py_DECREF(path_hooks);
+
+    return 0;
+}""",
+        ),
+        (
+            "_PyImport_InitExternal",
+            re.compile(
+                r"(?ms)^PyStatus\n_PyImport_InitExternal\(PyThreadState \*tstate\)"
+                r"\n\{.*?^\}"
+            ),
+            """PyStatus
+_PyImport_InitExternal(PyThreadState *tstate)
+{
+    int verbose = _PyInterpreterState_GetConfig(tstate->interp)->verbose;
+
+    // XXX Initialize here: sys.path_hooks and sys.path_importer_cache.
+
+    if (init_importlib_external(tstate->interp) != 0) {
+        _PyErr_Print(tstate);
+        return _PyStatus_ERR("external importer setup failed");
+    }
+
+    if (init_zipimport(tstate, verbose) != 0) {
+        PyErr_Print();
+        return _PyStatus_ERR("initializing zipimport failed");
+    }
+
+    return _PyStatus_OK();
+}""",
+        ),
+    )
+    for name, pattern, expected in function_sources:
+        matches = pattern.findall(source)
+        if len(matches) != 1 or matches[0] != expected:
+            return None
+    return {
+        "source_sha256": PYTHON_IMPORT_C_SHA256,
+        "zipimporter_attribute_source": (
+            "_PyImport_GetModuleAttrString(zipimport, zipimporter)"
+        ),
+        "registration_operation": "PyList_Insert(path_hooks, 0, zipimporter)",
+        "registration_conditional_on_attribute": True,
+        "missing_attribute_skips_registration": True,
+        "insertion_error_returns_failure": True,
+        "external_importlib_setup_precedes_zipimport_attempt": True,
+        "final_sys_path_hooks_claimed": False,
+        "evidence_scope": "STATIC_CONDITIONAL_ZIPIMPORT_HOOK_CANDIDATE",
     }
 
 
@@ -7485,7 +7602,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
      posix_module_clinic_source, pickle_module_c_source, thread_native_id_header,
      thread_native_id_module, thread_native_id_pthread,
      getplatform_source, makefile_pre_source,
-     preconfig_c_source, initconfig_c_source) = _source_archive_data(
+     python_import_c_source, preconfig_c_source, initconfig_c_source) = _source_archive_data(
         _archive_bytes(archive_path)
     )
     if stdlib_header is None:
@@ -7496,6 +7613,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         raise ValueError("BOOTSTRAP_SETUP_MISSING")
     if stdlib_setup is None:
         raise ValueError("STDLIB_SETUP_MISSING")
+    if python_import_c_source is None:
+        raise ValueError("PYTHON_IMPORT_SOURCE_MISSING")
+    zipimport_hook_registration_candidate = (
+        _target_zipimport_hook_registration_candidate(python_import_c_source)
+    )
     if getpath_source is None:
         raise ValueError("GETPATH_SOURCE_MISSING")
     stdlib_names, stdlib_names_sha256 = _stdlib_module_names(stdlib_header)
@@ -8074,6 +8196,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ],
         "target_importlib_finder_registration_candidate": (
             importlib_finder_registration_candidate
+        ),
+        "target_zipimport_hook_registration_candidate": (
+            zipimport_hook_registration_candidate
         ),
         **configure_inventory,
         "edge_count": edges,
