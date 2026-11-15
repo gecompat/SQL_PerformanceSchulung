@@ -82,6 +82,10 @@ MAX_TARGET_SYSCONFIGDATA_BYTES = 128 * 1024
 TARGET_INERT_ZIP_PATH = "usr/local/lib/python312.zip"
 TARGET_PREFIX_STDLIB_LANDMARK = "usr/local/lib/python3.12/os.py"
 TARGET_EXEC_PREFIX_LANDMARK = "usr/local/lib/python3.12/lib-dynload"
+TARGET_PREFIX_PARENT_DIRECTORIES = (
+    "usr/local/lib",
+    "usr/local/lib/python3.12",
+)
 TARGET_PREFIX_VENV_MARKERS = (
     "usr/local/pyvenv.cfg",
     "usr/local/bin/pyvenv.cfg",
@@ -651,6 +655,19 @@ def _getpath_source_inventory(source_bytes):
             or ast.unparse(zip_assignments[0].value)
             != "f'{platlibdir}/python{VERSION_MAJOR}{VERSION_MINOR}.zip'"):
         raise ValueError("GETPATH_ZIP_LANDMARK")
+    source_text = source_bytes.decode("utf-8")
+    path_branch = source_text.rfind("\n    if os_name == 'nt':")
+    path_else = source_text.find("\n    else:", path_branch)
+    zip_append = source_text.find(
+        "pythonpath.append(joinpath(prefix, ZIP_LANDMARK))"
+    )
+    stdlib_append = source_text.find("pythonpath.append(stdlib_dir)", path_else)
+    platstdlib_append = source_text.find(
+        "pythonpath.append(platstdlib_dir)", stdlib_append
+    )
+    if (path_branch < 0 or path_else < 0 or zip_append < 0
+            or not zip_append < path_branch < path_else < stdlib_append < platstdlib_append):
+        raise ValueError("GETPATH_DEFAULT_PATH_ORDER")
     posix_assignments = {
         target.id: node.value
         for node in posix_tests[0].body if isinstance(node, ast.Assign)
@@ -700,6 +717,9 @@ def _getpath_source_inventory(source_bytes):
         "path_variable_count": len(path_variables),
         "path_variables": path_variables,
         "posix_zip_landmark_template": ast.unparse(zip_assignments[0].value),
+        "posix_default_path_append_order": (
+            "ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir",
+        ),
         "posix_stdlib_landmark_template": ast.unparse(
             posix_assignments["STDLIB_LANDMARKS"]
         ),
@@ -3896,6 +3916,7 @@ def _target_image_save_facts(image_save_path, image_config_source):
                 TARGET_INERT_ZIP_PATH: None,
                 TARGET_PREFIX_STDLIB_LANDMARK: None,
                 TARGET_EXEC_PREFIX_LANDMARK: None,
+                **{path: None for path in TARGET_PREFIX_PARENT_DIRECTORIES},
                 **{path: None for path in TARGET_PREFIX_VENV_MARKERS},
                 TARGET_BUILD_MARKER: None,
                 PICKLE_EXTENSION_PATH: None,
@@ -4038,6 +4059,10 @@ def _target_image_prefix_landmark_facts(tracked):
                    "linkname": None, "mode": 0o644, "sha256": OS_SOURCE_SHA256}
             or platstdlib != {"file": False, "directory": True, "symlink": False,
                               "linkname": None, "mode": 0o755, "sha256": None}
+            or any(tracked.get(path) != {
+                "file": False, "directory": True, "symlink": False,
+                "linkname": None, "mode": 0o755, "sha256": None,
+            } for path in TARGET_PREFIX_PARENT_DIRECTORIES)
             or any(tracked.get(path) is not None for path in TARGET_PREFIX_VENV_MARKERS)
             or tracked.get(TARGET_BUILD_MARKER) is not None):
         raise ValueError("TARGET_IMAGE_PREFIX_LANDMARKS")
@@ -4047,6 +4072,34 @@ def _target_image_prefix_landmark_facts(tracked):
         "prefix_venv_markers_absent": list(TARGET_PREFIX_VENV_MARKERS),
         "build_marker_absent": TARGET_BUILD_MARKER,
     }
+
+
+def _target_image_sys_path_candidate(image_facts, getpath_inventory,
+                                    no_site, direct_python312,
+                                    no_project_base_override):
+    """Derive a fixed-route path candidate from pinned source and image facts."""
+    if not image_facts:
+        return {}
+    if (not no_site or not direct_python312 or not no_project_base_override
+            or type(getpath_inventory) is not dict
+            or getpath_inventory.get("posix_default_path_append_order") != (
+                "ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir",
+            )
+            or image_facts.get("prefix") != "/usr/local"
+            or image_facts.get("exec_prefix") != "/usr/local"
+            or image_facts.get("platlibdir") != "lib"
+            or image_facts.get("compiled_pythonpath") != ""
+            or image_facts.get("prefix_landmark_candidate") != "/usr/local"
+            or image_facts.get("exec_prefix_landmark_candidate") != "/usr/local"):
+        raise ValueError("TARGET_IMAGE_SYS_PATH_CANDIDATE")
+    paths = [
+        "/usr/local/lib/python312.zip",
+        "/usr/local/lib/python3.12",
+        "/usr/local/lib/python3.12/lib-dynload",
+    ]
+    if paths[0] != "/" + TARGET_INERT_ZIP_PATH:
+        raise ValueError("TARGET_IMAGE_SYS_PATH_ZIP_BINDING")
+    return {"sys_path_candidate": paths}
 
 
 def _target_image_sysconfigdata_facts(source):
@@ -4076,6 +4129,10 @@ def _target_image_sysconfigdata_facts(source):
         "DESTSHARED": "/usr/local/lib/python3.12/lib-dynload",
         "EXT_SUFFIX": ".cpython-312-x86_64-linux-gnu.so",
         "MULTIARCH": "x86_64-linux-gnu",
+        "prefix": "/usr/local",
+        "exec_prefix": "/usr/local",
+        "PLATLIBDIR": "lib",
+        "PYTHONPATH": "",
     }
     if type(values) is not dict:
         raise ValueError("TARGET_SYSCONFIGDATA_MAPPING")
@@ -4086,6 +4143,10 @@ def _target_image_sysconfigdata_facts(source):
         "destshared": values["DESTSHARED"],
         "extension_suffix": values["EXT_SUFFIX"],
         "multiarch": values["MULTIARCH"],
+        "prefix": values["prefix"],
+        "exec_prefix": values["exec_prefix"],
+        "platlibdir": values["PLATLIBDIR"],
+        "compiled_pythonpath": values["PYTHONPATH"],
     }
 
 
@@ -6547,6 +6608,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     if target_no_project_base_override and target_image_config_source is None:
         raise ValueError("TARGET_IMAGE_CONFIG_REQUIRED")
     target_image_path_facts = {}
+    target_sys_path_candidate_facts = {}
     target_warning_options_empty_for_facts = {}
     target_importlib_optimize_line_facts = {}
     target_worker_sys_flag_facts = ()
@@ -6558,6 +6620,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             raise ValueError("TARGET_IMAGE_PATH_ASSUMPTIONS_REQUIRED")
         target_image_path_facts = _target_image_save_facts(
             target_image_save_path, target_image_config_source,
+        )
+        target_sys_path_candidate_facts = _target_image_sys_path_candidate(
+            target_image_path_facts, getpath_inventory,
+            target_no_site, target_direct_python312,
+            target_no_project_base_override,
         )
         worker_source_path = (
             Path(__file__).resolve().parents[2]
@@ -6884,6 +6951,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "getpath_posix_platstdlib_landmark_template": getpath_inventory[
             "posix_platstdlib_landmark_template"
         ],
+        "getpath_posix_default_path_append_order": list(
+            getpath_inventory["posix_default_path_append_order"]
+        ),
         "getpath_path_variables_sha256": getpath_inventory[
             "path_variables_sha256"
         ],
@@ -7077,6 +7147,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_direct_python312
         ),
         "target_platform_image_save_path_facts": target_image_path_facts,
+        "target_platform_sys_path_candidate_facts": target_sys_path_candidate_facts,
         "target_platform_thread_native_id_source_sha256": {
             "header": THREAD_NATIVE_ID_HEADER_SHA256,
             "module": THREAD_NATIVE_ID_MODULE_SHA256,
