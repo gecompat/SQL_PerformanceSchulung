@@ -1377,6 +1377,36 @@ class StaticImportCandidateTests(unittest.TestCase):
         altered["flags"] = dict(candidates["flags"], runtime_flags_claimed=True)
         self.assertIsNone(SUBJECT._target_s15_installation_tuple_candidate(altered))
 
+    def test_profile_controls_selection_contract_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        candidate = SUBJECT._target_controls_selection_contract_candidate(
+            profile_source
+        )
+        self.assertEqual(candidate, {
+            "allowed_names": ("__main__", "dgn007_import_runtime_profile"),
+            "maximum_count": 2,
+            "unique_names_required": True,
+            "must_equal_control_module_rows": True,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "selected_controls_claimed": False,
+            "evidence_scope": "STATIC_PROFILE_CONTROLS_SELECTION_CONTRACT_CANDIDATE",
+        })
+        changed = profile_source.replace(
+            b"len(controls) <= 2 and len(set(controls)) == len(controls)",
+            b"len(controls) <= 3 and len(set(controls)) == len(controls)",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed),
+        ):
+            self.assertIsNone(
+                SUBJECT._target_controls_selection_contract_candidate(changed)
+            )
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

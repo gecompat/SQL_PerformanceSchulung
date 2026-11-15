@@ -11191,11 +11191,21 @@ Runtime-, Profilselektions- und vollständige Dateilistenclaims false. 248
 fokussierte Regressionen und alle fünf PR-Gates bestanden. Das Tupel bleibt
 statisch; die zwei `files`-Einträge sind nicht vollständig.
 
-## S15-Teilschnitt: Installationstupel an Profilschema binden
+## Abgeschlossen: S15-Teilschnitt Installationstupel an Profilschema binden
 
-Der nächste Schritt gewinnt die 15 Feldnamen aus der digestgeprüften
-`_selected_shapes`-Deklaration des Runtime-Profilmoduls und bindet diese
-Schemaquelle an den zusammengesetzten Kandidaten. Eine Regression prüft die
-Quellform und eine abweichende Feldreihenfolge. Das belegt weder
-Profilvalidierung noch Runtimeaufnahme. Umfang: ein Paket, ein PR und höchstens
-zwei Regressionen.
+PR #824 bindet die geordnete 15-Feld-Entpackung aus `_selected_shapes` an den
+zusammengesetzten Kandidaten. Der Runtime-Profilquellhash wird mit LF-
+normalisierten Bytes geprüft, damit Windows-CRLF und Linux-LF dieselbe
+Quellidentität ergeben; die Quelldatei selbst bleibt unverändert. 248
+fokussierte Regressionen und alle fünf PR-Gates bestanden. Profilvalidierung
+oder Runtimeaufnahme sind nicht belegt.
+
+## Nächster Schritt: Controls-Auswahlvertrag binden
+
+Der Runtime-Profilvalidator erlaubt höchstens zwei eindeutige Controls aus
+`__main__` und `dgn007_import_runtime_profile` und verlangt deren exakte
+Übereinstimmung mit den `CONTROL`-Modulrecords. Der nächste statische
+Kandidat bindet diese Grenzen an dieselbe kanonisch gehashte Quelle. Eine
+Regression prüft die Vertragsform und eine veränderte Obergrenze. Er behauptet
+keine tatsächlich gewählte Controls-Auswahl. Umfang: ein Paket, ein PR und
+höchstens zwei Regressionen.

@@ -2659,9 +2659,15 @@ PR #823 ordnet die 15 statischen Feldkandidaten in ein Installationstupel ein.
 Runtimeaufnahme, Profilselektion und vollständige Dateiliste werden nicht
 behauptet.
 
-## Begrenzte Fortsetzung: S15-Installationstupel an Profilschema binden
+## Abgeschlossen: S15-Installationstupel an Profilschema binden
 
-Ein Arbeitspaket und ein PR binden die Tupelreihenfolge an die gehashte
-`_selected_shapes`-Deklaration des Runtime-Profilmoduls. Regressionen prüfen
-Quellform und Reihenfolgeabweichung. Es entsteht keine Runtime- oder
-Profilvalidierungsattestation.
+PR #824 bindet die Schemaordnung an die kanonisch gehashte
+`_selected_shapes`-Quelle. LF und CRLF liefern denselben Quellenfingerprint;
+Runtime- oder Profilvalidierung wird nicht behauptet.
+
+## Begrenzte Fortsetzung: Controls-Auswahlvertrag
+
+Ein Arbeitspaket und ein PR binden die erlaubten Control-Namen, die
+Höchstzahl, Eindeutigkeit und exakte Zuordnung zu `CONTROL`-Modulrecords an
+die Runtime-Profilquelle. Die Kandidatur beschreibt nur den Vertrag, nicht die
+tatsächlich ausgewählte Control-Menge.
