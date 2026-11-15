@@ -11247,11 +11247,17 @@ Projektionsvergleiche sowie erneute Cacheanker-Identität an die Profilquelle.
 Alle fünf Pflichtprüfungen bestanden. Es entsteht keine tatsächliche
 Ankeraufnahme oder Runtimebeobachtung.
 
-## Nächster Schritt: ausgewählte Beobachtungsfolge statisch binden
+## Abgeschlossen: ausgewählte Beobachtungsfolge statisch binden
 
-Der nächste Kandidat bindet die Reihenfolge von Formprüfung, Ankerbindung,
-frischer Skalarbeobachtung, Sollwertvergleich, abschließender Aufnahme,
-Hookprüfung und POST-Prüfungen samt Erfolgs- und Fehlerreport. Er führt die
-Beobachtungsfunktion nicht aus und behauptet keine Runtimeattestation. Eine
-Regression entfernt den Vergleich der aufgenommenen Skalarwerte. Umfang: ein
-Paket, ein PR und höchstens zwei Regressionen.
+PR #832 bindet Formprüfung, Ankerbindung, frische Skalarbeobachtung,
+Sollwertvergleich, abschließende Aufnahme, Hookprüfung, POST-Prüfungen und
+Reports an die Profilquelle. Alle fünf Pflichtprüfungen bestanden. Der
+Kandidat führt die Funktion nicht aus und begründet keine Runtimeattestation.
+
+## Nächster Schritt: aktuelle Skalaraufnahme statisch binden
+
+Der nächste Kandidat bindet die frische Recordaufnahme, beide Profilvergleiche,
+beide FileFinder-Hookaufnahmen, die Skalarprojektion und den Fehlerreport des
+inneren Beobachters. Er führt die Beobachtung nicht aus. Eine Regression
+entfernt einen Profilvergleich und muss fail-closed bleiben. Umfang: ein Paket,
+ein PR und höchstens zwei Regressionen.
