@@ -6356,3 +6356,13 @@ weitergeführt: `get_config_vars()` liefert ohne Argumente `_CONFIG_VARS` und
 mit Argumenten eine Liste der Mappingwerte; `get_config_var(name)` delegiert
 auf `get_config_vars().get(name)`. Dies ergänzt den statischen Wertfluss, ohne
 einen Aufruf oder beobachtete API-Rückgabe zu behaupten.
+
+### Fortsetzung: Buildwerte nach dem Initializer erhalten
+
+Der Kandidat prüft, dass nach der gebundenen Posix-`vars.update`-Kante keine
+der 14 bekannten Schlüssel in `_CONFIG_VARS` direkt überschrieben oder durch
+einen Mapping-Methodenaufruf verändert wird. Den späteren Lesezugriff für
+`srcdir` erlaubt er; die Darwin-Customizerkante wird nur bei gebundenem
+Linux-Plattformfact ausgeschlossen. Damit beschreibt er erwartete Einträge am
+Ende des initialisierten Mappings, ohne eine tatsächliche Ausführung oder
+Runtimeaufnahme zu behaupten.

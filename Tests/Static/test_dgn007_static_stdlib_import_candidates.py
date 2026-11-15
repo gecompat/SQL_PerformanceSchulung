@@ -1531,13 +1531,25 @@ class StaticImportCandidateTests(unittest.TestCase):
             "single_value_return": "get_config_vars().get(name)",
             "evidence_scope": "STATIC_CONFIG_API_VALUE_FLOW_CANDIDATE",
         }
+        post_update_entries_candidate = {
+            "mapping": "_CONFIG_VARS",
+            "post_update_direct_overwrites": [],
+            "post_update_customizer": "_osx_support.customize_config_vars",
+            "customizer_guard": "sys.platform == 'darwin'",
+            "customizer_selected": False,
+            "entry_values": SUBJECT.TARGET_SYSCONFIGDATA_EXPECTED_VALUES,
+            "evidence_scope": "STATIC_POST_INIT_MAPPING_ENTRY_CANDIDATE",
+        }
         candidate = SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate, public_value_flow_candidate,
+            post_update_entries_candidate,
             line_facts, import_target, image_facts,
         )
         self.assertEqual(candidate["public_initializer_call_candidate"], lazy_call_candidate)
         self.assertEqual(candidate["public_config_value_flow_candidate"],
                          public_value_flow_candidate)
+        self.assertEqual(candidate["post_update_entries_candidate"],
+                         post_update_entries_candidate)
         self.assertEqual(candidate["guard_source_line"], 676)
         self.assertEqual(candidate["module_name"], import_target["module_name"])
         self.assertEqual(candidate["imported_attribute"], "build_time_vars")
@@ -1578,34 +1590,40 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate, public_value_flow_candidate,
+            post_update_entries_candidate,
             {}, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, {**lazy_call_candidate, "initialization_flag": True},
-            public_value_flow_candidate, line_facts, import_target, image_facts,
+            public_value_flow_candidate, post_update_entries_candidate,
+            line_facts, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate,
             {**public_value_flow_candidate, "no_arguments_return": "other"},
-            line_facts, import_target, image_facts,
+            post_update_entries_candidate, line_facts, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             {**inventory, "sysconfigdata_initializer_update_receiver": "other"},
             lazy_call_candidate, public_value_flow_candidate,
+            post_update_entries_candidate,
             line_facts, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate, public_value_flow_candidate,
+            post_update_entries_candidate,
             line_facts, import_target,
             {**image_facts, "sysconfigdata_sha256": "0" * 64},
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate, public_value_flow_candidate,
+            post_update_entries_candidate,
             line_facts, import_target,
             {**image_facts, "soabi": "unbound"},
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate, public_value_flow_candidate,
+            post_update_entries_candidate,
             line_facts, import_target,
             {key: value for key, value in image_facts.items()
              if key != "build_time_vars_literal_dict"},
@@ -1701,6 +1719,89 @@ class StaticImportCandidateTests(unittest.TestCase):
                             {"sysconfig.py": changed},
                         )
                     )
+
+    def test_sysconfigdata_entries_survive_pinned_post_update_initializer_body(self):
+        source = (
+            b"def _init_config_vars():\n"
+            b"    if os.name == 'nt':\n"
+            b"        _init_non_posix(_CONFIG_VARS)\n"
+            b"    if os.name == 'posix':\n"
+            b"        _init_posix(_CONFIG_VARS)\n"
+            b"    if _HAS_USER_BASE:\n"
+            b"        _CONFIG_VARS['userbase'] = _getuserbase()\n"
+            b"    _CONFIG_VARS['srcdir'] = _safe_realpath('src')\n"
+            b"    if sys.platform == 'darwin':\n"
+            b"        import _osx_support\n"
+            b"        _osx_support.customize_config_vars(_CONFIG_VARS)\n"
+        )
+        image_facts = {
+            "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+            "sysconfigdata_sha256": SUBJECT.TARGET_SYSCONFIGDATA_SHA256,
+            "machdep": "linux",
+        }
+        image_facts.update({
+            SUBJECT.TARGET_SYSCONFIGDATA_FACT_FIELDS[key]: value
+            for key, value in SUBJECT.TARGET_SYSCONFIGDATA_EXPECTED_VALUES.items()
+        })
+        with patch.object(
+                SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(source).hexdigest()):
+            posix_facts = SUBJECT._target_sysconfig_posix_init_line_facts(
+                {"sysconfig.py": source}, (("os.name", "posix"),),
+            )
+            expected = {
+                "mapping": "_CONFIG_VARS",
+                "post_update_direct_overwrites": [],
+                "post_update_customizer": "_osx_support.customize_config_vars",
+                "customizer_guard": "sys.platform == 'darwin'",
+                "customizer_selected": False,
+                "entry_values": SUBJECT.TARGET_SYSCONFIGDATA_EXPECTED_VALUES,
+                "evidence_scope": "STATIC_POST_INIT_MAPPING_ENTRY_CANDIDATE",
+            }
+            self.assertEqual(
+                SUBJECT._target_sysconfig_post_update_entries_candidate(
+                    {"sysconfig.py": source}, posix_facts,
+                    (("sys.platform", "linux"),), image_facts,
+                ), expected,
+            )
+            overwritten = source.replace(
+                b"_CONFIG_VARS['userbase']",
+                b"_CONFIG_VARS['SOABI']",
+            )
+            with patch.object(
+                    SUBJECT, "SYSCONFIG_SOURCE_SHA256",
+                    hashlib.sha256(overwritten).hexdigest(),
+            ):
+                overwritten_facts = SUBJECT._target_sysconfig_posix_init_line_facts(
+                    {"sysconfig.py": overwritten}, (("os.name", "posix"),),
+                )
+                self.assertIsNone(
+                    SUBJECT._target_sysconfig_post_update_entries_candidate(
+                        {"sysconfig.py": overwritten}, overwritten_facts,
+                        (("sys.platform", "linux"),), image_facts,
+                    )
+                )
+            updated = source.replace(
+                b"    _CONFIG_VARS['srcdir']",
+                b"    _CONFIG_VARS.update({'SOABI': 'changed'})\n"
+                b"    _CONFIG_VARS['srcdir']",
+            )
+            with patch.object(
+                    SUBJECT, "SYSCONFIG_SOURCE_SHA256",
+                    hashlib.sha256(updated).hexdigest(),
+            ):
+                updated_facts = SUBJECT._target_sysconfig_posix_init_line_facts(
+                    {"sysconfig.py": updated}, (("os.name", "posix"),),
+                )
+                self.assertIsNone(
+                    SUBJECT._target_sysconfig_post_update_entries_candidate(
+                        {"sysconfig.py": updated}, updated_facts,
+                        (("sys.platform", "linux"),), image_facts,
+                    )
+                )
+            self.assertIsNone(SUBJECT._target_sysconfig_post_update_entries_candidate(
+                {"sysconfig.py": source}, posix_facts,
+                (("sys.platform", "darwin"),), image_facts,
+            ))
 
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
         self.assertEqual(
