@@ -1996,6 +1996,45 @@ class StaticImportCandidateTests(unittest.TestCase):
                     changed, record_contract,
                 ))
 
+    def test_profile_primitive_validators_are_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        path_contract = {"path_validation_claimed": False}
+        candidate = SUBJECT._target_profile_primitive_validators_candidate(
+            profile_source, path_contract,
+        )
+        self.assertEqual(candidate, {
+            "text_invariants": (
+                "exact_str_type", "character_length_cap", "utf8_byte_length_cap",
+            ),
+            "string_tuple_invariants": (
+                "exact_tuple_type", "record_count_cap", "each_item_text_validated",
+            ),
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "primitive_validation_claimed": False,
+            "profile_input_validation_claimed": False,
+            "evidence_scope": "STATIC_PROFILE_PRIMITIVE_VALIDATORS_CANDIDATE",
+        })
+        for changed in (
+            profile_source.replace(
+                b'_need(len(value.encode("utf-8")) <= MAX_FIELD)', b"pass",
+            ),
+            profile_source.replace(
+                b"type(value) is tuple and len(value) <= MAX_RECORDS",
+                b"isinstance(value, tuple) and len(value) <= MAX_RECORDS",
+            ),
+        ):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(changed),
+            ):
+                self.assertIsNone(SUBJECT._target_profile_primitive_validators_candidate(
+                    changed, path_contract,
+                ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

@@ -11312,10 +11312,17 @@ Regressionen und die lokalen statischen Validatoren bestanden. Alle fünf
 Pflichtprüfungen bestanden; PR #841 ist integriert. Eine tatsächliche
 Recordvalidierung oder Modulaufnahme wird nicht behauptet.
 
-## Begrenzte Fortsetzung: absolute und eingeschränkte Pfade binden
+## Abgeschlossen: absolute und eingeschränkte Pfade binden
 
-PR #842 bindet `_absolute` und `_under` an die Pfadregeln des
-Profilvertrags: absolute kanonische Werte ohne Traversalsegmente sowie
-Containment unter einem der deklarierten Roots. Zwei Regressionen lockern je
-eine Pfadbedingung und müssen fail-closed bleiben. Der Schritt begründet weder
+PR #842 bindet `_absolute` und `_under` an die Pfadregeln des Profilvertrags:
+absolute kanonische Werte ohne Traversalsegmente sowie Containment unter einem
+der deklarierten Roots. Die zwei gelockerten Gegenproben und alle fünf
+Pflichtprüfungen bestanden; PR #842 ist integriert. Daraus folgt weder
 Pfadvalidierung noch Hostattestation.
+
+## Begrenzte Fortsetzung: primitive Profilvalidatoren binden
+
+PR #843 bindet `_text` und `_strings`: exakter String-/Tupletyp, Zeichen- und
+UTF-8-Bytegrenze, maximale Tuplelänge und Weitergabe jedes Elements an `_text`.
+Zwei Gegenproben lockern die Bytegrenze bzw. den exakten Tupletyp. Keine
+Profilvalidierung wird behauptet.
