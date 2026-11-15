@@ -5327,6 +5327,7 @@ newlockobject(PyObject *module)
             b"    if defaults is not None:\n        pass\n"
             b"    if defaults is not None:\n        pass\n"
             b"    if module is None:\n        pass\n"
+            b"    if not name.isidentifier():\n        pass\n"
             b"    class_namespace = {'_fields': field_names}\n"
             b"    return type(typename, (), class_namespace)\n"
         )
@@ -5411,6 +5412,7 @@ newlockobject(PyObject *module)
                     ("collections", "collections/__init__.py", 4): (False, True),
                     ("collections", "collections/__init__.py", 6): (False, True),
                     ("collections", "collections/__init__.py", 8): (False, True),
+                    ("collections", "collections/__init__.py", 10): (False,),
                 },
             )
             resolved = []
@@ -5455,6 +5457,34 @@ newlockobject(PyObject *module)
                 ),
                 {},
             )
+            invalid_identifier_source = (
+                caller_source + b"namedtuple('Bad-Type', 'field')\n"
+            )
+            invalid_identifier_files = dict(files)
+            invalid_identifier_files["caller.py"] = invalid_identifier_source
+            invalid_call_rows = caller_rows + [
+                ["caller.py", 6, "namedtuple('Bad-Type', 'field')"],
+            ]
+            invalid_call_rows.sort()
+            invalid_source_rows = [
+                row for row in source_rows if row[0] != "caller.py"
+            ] + [["caller.py", hashlib.sha256(
+                invalid_identifier_source,
+            ).hexdigest()]]
+            invalid_source_rows.sort()
+            invalid_digest = hashlib.sha256(json.dumps(
+                [invalid_call_rows, invalid_source_rows],
+                separators=(",", ":"),
+            ).encode()).hexdigest()
+            with patch.object(
+                SUBJECT, "COLLECTIONS_NAMEDTUPLE_CALLS_SHA256", invalid_digest,
+            ):
+                self.assertEqual(
+                    SUBJECT._target_collections_namedtuple_call_condition_facts(
+                        invalid_identifier_files,
+                    ),
+                    {},
+                )
 
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {

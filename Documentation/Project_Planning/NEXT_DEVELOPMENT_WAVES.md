@@ -3237,3 +3237,18 @@ Unknown-Digest `f19e6a388944dbedb4ff0973011d5b60c384a8e568c103b64017ad151d0ed69a
 294 fokussierte Regressionen bestehen. `CANDIDATES_ONLY`; keine direkte
 Image-Route, Runtime-/P11- oder SQL-Ausführung und keine menschliche
 Generalprobe.
+
+### Begrenzte Fortsetzung: `collections.namedtuple`-Identifierguard (15. November 2026)
+
+Der Fact löst `collections/__init__.py:399` (`not name.isidentifier()`) für
+importzeitliche Standardbibliotheksaufrufe als falsch auf. Die vollständige
+gehashte Aufrufinventur enthält 42 modulweit ausgeführte Aufrufe mit statischen
+ASCII-Identifiern; `_FrameInfo` wird über die gebundene `_Traceback`-
+Felddefinition ausgewertet. Dynamische Funktionsaufrufe bleiben unbekannt;
+eine Mutation mit ungültigem Typnamen oder unbekannten Modulargumenten
+verwirft den Fact. Der Zielscan zählt 60 Module, 318 Kanten, 97 entschiedene
+und 484 unbekannte Bedingungen; Unknown-Digest
+`415f5546523f6a8ddaa1223db9549dc7bb7f55936c2ffc7ee313bc94fd750c77`.
+294 fokussierte Regressionen bestehen. `CANDIDATES_ONLY`; keine direkte
+Image-Route, Runtime-/P11- oder SQL-Ausführung und keine menschliche
+Generalprobe.

@@ -7989,6 +7989,9 @@ def _target_collections_namedtuple_call_condition_facts(files):
     module_guards = [node for node in ast.walk(function)
                      if isinstance(node, ast.If)
                      and ast.unparse(node.test) == "module is None"] if function else []
+    identifier_guards = [node for node in ast.walk(function)
+                         if isinstance(node, ast.If)
+                         and ast.unparse(node.test) == "not name.isidentifier()"] if function else []
     signature = function.args if function else None
     if (signature is None
             or [arg.arg for arg in signature.args] != ["typename", "field_names"]
@@ -8015,7 +8018,7 @@ def _target_collections_namedtuple_call_condition_facts(files):
         if isinstance(key, ast.Constant) and key.value == "_fields"
     ]
     if (len(guards) != 1 or len(defaults_guards) != 2
-            or len(module_guards) != 1
+            or len(module_guards) != 1 or len(identifier_guards) != 1
             or len(namespace_assignments) != 1
             or len(fields_entries) != 1
             or ast.unparse(fields_entries[0]) != "field_names"
@@ -8076,9 +8079,12 @@ def _target_collections_namedtuple_call_condition_facts(files):
     callsite_rows = []
     caller_source_rows = []
     outcomes = set()
+    identifier_outcomes = set()
     defaults_outcomes = set()
     module_outcomes = set()
     for path, tree in trees.items():
+        parents = {child: parent for parent in ast.walk(tree)
+                   for child in ast.iter_child_nodes(parent)}
         if any(isinstance(node, ast.ImportFrom) and node.module == "collections"
                and any(alias.name == "*" for alias in node.names)
                for node in ast.walk(tree)):
@@ -8168,6 +8174,64 @@ def _target_collections_namedtuple_call_condition_facts(files):
                 outcomes.add(False)
             else:
                 return {}
+            current = node
+            child = node
+            module_scope = True
+            while current in parents:
+                child = current
+                current = parents[current]
+                if isinstance(current, (ast.FunctionDef, ast.AsyncFunctionDef)) \
+                        and child in current.body:
+                    module_scope = False
+                    break
+                if isinstance(current, ast.Lambda) and child is current.body:
+                    module_scope = False
+                    break
+            if not module_scope:
+                continue
+            if (node.args and not any(keyword.arg == "typename"
+                                      for keyword in node.keywords)):
+                typename_value = node.args[0]
+            else:
+                typename_values = [keyword.value for keyword in node.keywords
+                                   if keyword.arg == "typename"]
+                if len(typename_values) != 1:
+                    return {}
+                typename_value = typename_values[0]
+            if (isinstance(typename_value, ast.Constant)
+                    and type(typename_value.value) is str):
+                type_names = [typename_value.value]
+            else:
+                return {}
+            if isinstance(value, ast.Constant) and type(value.value) is str:
+                field_values = value.value.replace(",", " ").split()
+            elif isinstance(value, (ast.List, ast.Tuple)):
+                if any(not isinstance(item, ast.Constant)
+                       or type(item.value) is not str for item in value.elts):
+                    return {}
+                field_values = [item.value for item in value.elts]
+            elif (path == "inspect.py"
+                  and ast.unparse(value) == "('frame',) + Traceback._fields"):
+                traceback_fields = next((item.value.args[1]
+                                         for item in inspect_tree.body
+                                         if isinstance(item, ast.Assign)
+                                         and any(isinstance(target, ast.Name)
+                                                 and target.id == "_Traceback"
+                                                 for target in item.targets)
+                                         and isinstance(item.value, ast.Call)
+                                         and ast.unparse(item.value.func) == "namedtuple"
+                                         and len(item.value.args) == 2
+                                         and isinstance(item.value.args[1], ast.Constant)
+                                         and type(item.value.args[1].value) is str), None)
+                if traceback_fields is None:
+                    return {}
+                field_values = ["frame"] + traceback_fields.value.split()
+            else:
+                return {}
+            if any(not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name)
+                   for name in type_names + field_values):
+                return {}
+            identifier_outcomes.add(False)
     callsite_rows.sort()
     caller_source_rows.sort()
     digest = hashlib.sha256(json.dumps(
@@ -8175,12 +8239,15 @@ def _target_collections_namedtuple_call_condition_facts(files):
     ).encode()).hexdigest()
     if (digest != COLLECTIONS_NAMEDTUPLE_CALLS_SHA256
             or outcomes != {False, True}
+            or identifier_outcomes != {False}
             or defaults_outcomes != {False, True}
             or module_outcomes != {False, True}):
         return {}
     facts = {
         ("collections", "collections/__init__.py", guards[0].lineno):
         tuple(sorted(outcomes)),
+        ("collections", "collections/__init__.py", identifier_guards[0].lineno):
+        tuple(sorted(identifier_outcomes)),
     }
     facts.update({
         ("collections", "collections/__init__.py", guard.lineno):

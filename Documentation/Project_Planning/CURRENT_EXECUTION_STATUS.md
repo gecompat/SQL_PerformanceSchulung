@@ -11819,3 +11819,14 @@ entschiedene und 485 unbekannte Bedingungen; Unknown-Digest
 294 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`; keine direkte
 Image-Route, Runtime-/P11- oder SQL-Ausführung und keine menschliche
 Generalprobe.
+
+Der anschließende `collections.namedtuple`-Fact bindet `collections/__init__.py:399`
+(`not name.isidentifier()`) für die importzeitlichen Standardbibliotheksaufrufe
+an falsch. Alle 42 modulweit ausgeführten Aufrufe enthalten statische ASCII-
+Identifier; `_FrameInfo` wird über die unveränderte `_Traceback`-Felddefinition
+aufgelöst. Laufzeitaufrufe mit dynamischen Namen bleiben ausgenommen; ein
+unbekannter oder ungültiger Modulaufruf verwirft den Fact. Der Scan zählt 60
+Module, 318 Kanten, 97 entschiedene und 484 unbekannte Bedingungen;
+Unknown-Digest `415f5546523f6a8ddaa1223db9549dc7bb7f55936c2ffc7ee313bc94fd750c77`.
+294 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine direkte Image-Route,
+Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.
