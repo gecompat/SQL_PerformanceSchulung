@@ -2006,7 +2006,8 @@ def _target_sysconfigdata_import_target_candidate(
 def _target_sysconfigdata_initialization_route_candidate(
         sysconfig_inventory, lazy_initialization_call_candidate,
         public_config_value_flow_candidate,
-        post_update_entries_candidate, posix_init_line_facts,
+        post_update_entries_candidate, initialization_complete_flag_candidate,
+        posix_init_line_facts,
         import_target_candidate, image_facts):
     """Join the guarded POSIX initializer to its verified sysconfigdata file."""
     if (type(sysconfig_inventory) is not dict
@@ -2049,6 +2050,14 @@ def _target_sysconfigdata_initialization_route_candidate(
                 "entry_values": TARGET_SYSCONFIGDATA_EXPECTED_VALUES,
                 "evidence_scope": "STATIC_POST_INIT_MAPPING_ENTRY_CANDIDATE",
             }
+            or initialization_complete_flag_candidate != {
+                "initializer": "sysconfig._init_config_vars",
+                "flag": "_CONFIG_VARS_INITIALIZED",
+                "initial_value": False,
+                "completion_assignment": "_CONFIG_VARS_INITIALIZED = True",
+                "assignment_is_final_statement": True,
+                "evidence_scope": "STATIC_CONFIG_INITIALIZED_FLAG_CANDIDATE",
+            }
             or type(posix_init_line_facts) is not dict
             or len(posix_init_line_facts) != 1
             or any(type(line) is not int or type(value) is not bool or not value
@@ -2075,6 +2084,9 @@ def _target_sysconfigdata_initialization_route_candidate(
         "public_initializer_call_candidate": lazy_initialization_call_candidate,
         "public_config_value_flow_candidate": public_config_value_flow_candidate,
         "post_update_entries_candidate": post_update_entries_candidate,
+        "initialization_complete_flag_candidate": (
+            initialization_complete_flag_candidate
+        ),
         "public_config_api_entry_candidate": {
             "mapping": "_CONFIG_VARS",
             "get_config_vars_no_arguments_result": "_CONFIG_VARS",
@@ -4468,6 +4480,59 @@ def _target_sysconfig_post_update_entries_candidate(
             for key in TARGET_SYSCONFIGDATA_EXPECTED_VALUES
         },
         "evidence_scope": "STATIC_POST_INIT_MAPPING_ENTRY_CANDIDATE",
+    }
+
+
+def _target_sysconfig_initialization_complete_flag_candidate(
+        files, posix_init_line_facts):
+    """Bind the config-initialized flag assignment to initializer completion."""
+    source = files.get("sysconfig.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256
+            or type(posix_init_line_facts) is not dict
+            or len(posix_init_line_facts) != 1
+            or any(type(line) is not int or value is not True
+                   for line, value in posix_init_line_facts.items())):
+        return None
+    try:
+        tree = ast.parse(source, filename="sysconfig.py")
+    except SyntaxError:
+        return None
+    initializers = [node for node in tree.body
+                    if isinstance(node, ast.FunctionDef)
+                    and node.name == "_init_config_vars"]
+    if len(initializers) != 1:
+        return None
+    body = initializers[0].body
+    if (len(body) < 3 or not isinstance(body[-2], ast.Global)
+            or body[-2].names != ["_CONFIG_VARS_INITIALIZED"]
+            or not isinstance(body[-1], ast.Assign)
+            or len(body[-1].targets) != 1
+            or not isinstance(body[-1].targets[0], ast.Name)
+            or body[-1].targets[0].id != "_CONFIG_VARS_INITIALIZED"
+            or not isinstance(body[-1].value, ast.Constant)
+            or body[-1].value.value is not True):
+        return None
+    selected_line = next(iter(posix_init_line_facts))
+    selected_guards = [node for node in ast.walk(initializers[0])
+                       if isinstance(node, ast.If)
+                       and node.lineno == selected_line
+                       and ast.unparse(node.test) == "os.name == 'posix'"
+                       and len(node.body) == 1
+                       and isinstance(node.body[0], ast.Expr)
+                       and isinstance(node.body[0].value, ast.Call)
+                       and ast.unparse(node.body[0].value)
+                       == "_init_posix(_CONFIG_VARS)"]
+    if (len(selected_guards) != 1
+            or selected_guards[0].body[0].value.lineno >= body[-1].lineno):
+        return None
+    return {
+        "initializer": "sysconfig._init_config_vars",
+        "flag": "_CONFIG_VARS_INITIALIZED",
+        "initial_value": False,
+        "completion_assignment": "_CONFIG_VARS_INITIALIZED = True",
+        "assignment_is_final_statement": True,
+        "evidence_scope": "STATIC_CONFIG_INITIALIZED_FLAG_CANDIDATE",
     }
 
 
@@ -7462,12 +7527,18 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             sys_platform_fact, target_image_path_facts,
         )
     )
+    target_sysconfig_initialization_complete_flag_candidate = (
+        _target_sysconfig_initialization_complete_flag_candidate(
+            files, target_sysconfig_posix_init_line_facts,
+        )
+    )
     sysconfigdata_initialization_route_candidate = (
         _target_sysconfigdata_initialization_route_candidate(
             sysconfig_inventory,
             target_sysconfig_lazy_initialization_call_candidate,
             target_sysconfig_public_config_value_flow_candidate,
             target_sysconfig_post_update_entries_candidate,
+            target_sysconfig_initialization_complete_flag_candidate,
             target_sysconfig_posix_init_line_facts,
             sysconfigdata_import_target_candidate, target_image_path_facts,
         )
@@ -7781,6 +7852,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_sysconfigdata_post_update_entries_candidate": (
             target_sysconfig_post_update_entries_candidate
+        ),
+        "target_platform_sysconfigdata_initialization_complete_flag_candidate": (
+            target_sysconfig_initialization_complete_flag_candidate
         ),
         "sysconfigdata_importer": sysconfig_inventory["sysconfigdata_importer"],
         "sysconfigdata_imported_attribute": sysconfig_inventory[
