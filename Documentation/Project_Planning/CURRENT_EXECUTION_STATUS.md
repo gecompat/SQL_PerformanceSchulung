@@ -11515,8 +11515,14 @@ validierung und sortierter Modulprojektion. Eine Gegenprobe fügt eine frühe
 Rückgabe ein; 279 fokussierte Regressionen und alle fünf Pflichtprüfungen
 bestanden. Es wird kein Snapshot aufgenommen.
 
-## Begrenzte Fortsetzung: Modulrecord-Builder gegen frühe Rückgabe absichern
+## Abgeschlossen: Profilvergleich gegen frühe Rückgabe absichern
 
-Der nächste Schnitt bindet `_module` an genau einen Rückgabepunkt nach
-Identitäts-, Text-, Pfad- und Loaderklassifikation. Es werden keine Module
-beobachtet.
+Der statische Kandidat für `_compare` verwirft jetzt jeden Rückgabepunkt im
+Vergleichskörper. Eine Mutation fügt vor der ersten Shape-Prüfung `return None`
+ein und wird abgewiesen. Der fokussierte Satz besteht 279/279; es wird kein
+Profilvergleich ausgeführt und keine Runtimeaussage abgeleitet.
+
+## Begrenzte Fortsetzung: Profilvalidierungsbericht prüfen
+
+Als Nächstes wird der Quellvertrag für `validate_profile` auf vollständige
+Fehler- und Erfolgspfade geprüft. Es werden keine Profile validiert.
