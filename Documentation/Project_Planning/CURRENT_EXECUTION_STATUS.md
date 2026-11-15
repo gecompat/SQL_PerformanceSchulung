@@ -11668,6 +11668,15 @@ aufgelöste und 475 unbekannte Bedingungen bei 60 Modulen und 316 Kanten;
 Unknown-Digest `94bfdb97e293122ad9f7978a8c09d86d9cc3c84df05ffaa9634336214e65cca1`.
 288 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine Runtime-/P11-Attestation.
 
+Der folgende `threading`-Fact bindet die Importzeit-Konstruktion `_main_thread`
+an `_MainThread.__init__` und die festen Argumente `name='MainThread'` sowie
+`daemon=False`. Damit sind `threading.py:910` und `:925` wahr und `:926`
+falsch. Ein veränderter Konstruktoraufruf wird abgewiesen. Der Scan zählt nun
+93 aufgelöste und 472 unbekannte Bedingungen bei 60 Modulen und 316 Kanten;
+Unknown-Digest
+`255dba30d8c9248fe7391aac6024a79f0f5e1bb74adaea3daa2e677911733117`.
+289 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine Runtime-/P11-Attestation.
+
 Der anschließende `sysconfig`-Schnitt bindet `sysconfig.py:112` nur mit der
 neuen expliziten Routenannahme `--target-no-pythonuserbase-override` auf
 falsch. Die Annahme wird zusätzlich gegen die fest gepinnte Image-Config

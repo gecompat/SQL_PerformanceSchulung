@@ -3101,3 +3101,11 @@ Aktueller Scan: 92 aufgelöste und 475 unbekannte Bedingungen bei 60 Modulen,
 316 Kanten; Unknown-Digest
 `94bfdb97e293122ad9f7978a8c09d86d9cc3c84df05ffaa9634336214e65cca1`.
 288 fokussierte Tests bestehen; weiterhin keine Runtime-/P11-Attestation.
+
+Ein quellgebundener Importfact deckt die drei Guards in `Thread.__init__`
+für die einzige importzeitige `_MainThread()`-Konstruktion ab: Name ist
+gesetzt, `daemon` ist nicht `None`, und der konkrete Wert `False` short-circuited
+den Daemon-Check. Der Scan zählt 93 aufgelöste und 472 unbekannte Bedingungen
+bei 60 Modulen und 316 Kanten; Unknown-Digest
+`255dba30d8c9248fe7391aac6024a79f0f5e1bb74adaea3daa2e677911733117`.
+289 fokussierte Tests bestehen; kein Runtime-/P11-Nachweis.
