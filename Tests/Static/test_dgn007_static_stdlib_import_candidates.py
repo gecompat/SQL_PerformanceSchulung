@@ -5324,13 +5324,18 @@ newlockobject(PyObject *module)
             b"def namedtuple(typename, field_names, *, rename=False, defaults=None, module=None):\n"
             b"    if isinstance(field_names, str):\n"
             b"        field_names = field_names.replace(',', ' ').split()\n"
-            b"    if defaults is not None:\n        pass\n"
+            b"    if defaults is not None:\n"
+            b"        defaults = tuple(defaults)\n"
+            b"        if len(defaults) > len(field_names):\n            pass\n"
             b"    if defaults is not None:\n        pass\n"
             b"    if module is None:\n        pass\n"
             b"    if not name.isidentifier():\n        pass\n"
             b"    if _iskeyword(name):\n        pass\n"
             b"    if name.startswith('_') and not rename:\n        pass\n"
             b"    if name in seen:\n        pass\n"
+            b"    field_names = tuple(map(_sys.intern, field_names))\n"
+            b"    num_fields = len(field_names)\n"
+            b"    if num_fields == 1:\n        pass\n"
             b"    class_namespace = {'_fields': field_names}\n"
             b"    return type(typename, (), class_namespace)\n"
             b"from keyword import iskeyword as _iskeyword\n"
@@ -5434,12 +5439,14 @@ newlockobject(PyObject *module)
                 {
                     ("collections", "collections/__init__.py", 2): (False, True),
                     ("collections", "collections/__init__.py", 4): (False, True),
-                    ("collections", "collections/__init__.py", 6): (False, True),
                     ("collections", "collections/__init__.py", 8): (False, True),
-                    ("collections", "collections/__init__.py", 10): (False,),
+                    ("collections", "collections/__init__.py", 10): (False, True),
                     ("collections", "collections/__init__.py", 12): (False,),
                     ("collections", "collections/__init__.py", 14): (False,),
                     ("collections", "collections/__init__.py", 16): (False,),
+                    ("collections", "collections/__init__.py", 18): (False,),
+                    ("collections", "collections/__init__.py", 6): (False,),
+                    ("collections", "collections/__init__.py", 22): (False, True),
                 },
             )
             resolved = []
@@ -5458,7 +5465,7 @@ newlockobject(PyObject *module)
                 row["module"] == "collections" and row["line"] == 2
                 for row in unknown
             ))
-            for line in (4, 6, 8):
+            for line in (4, 8, 10):
                 self.assertEqual(
                     [row["decisions"] for row in resolved
                      if row["module"] == "collections" and row["line"] == line],
@@ -5469,12 +5476,17 @@ newlockobject(PyObject *module)
                  if row["module"] == "collections" and row["line"] == 12],
                 [[False]],
             )
-            for line in (14, 16):
+            for line in (12, 14, 16, 18, 6):
                 self.assertEqual(
                     [row["decisions"] for row in resolved
                      if row["module"] == "collections" and row["line"] == line],
                     [[False]],
                 )
+            self.assertEqual(
+                [row["decisions"] for row in resolved
+                 if row["module"] == "collections" and row["line"] == 22],
+                [[False, True]],
+            )
             unsafe_files = dict(files)
             unsafe_files["caller.py"] = caller_source.replace(
                 b"('x', 'y')", b"unknown_fields",
@@ -5495,6 +5507,71 @@ newlockobject(PyObject *module)
                 ),
                 {},
             )
+            too_many_defaults_source = (
+                caller_source
+                + b"namedtuple('TooMany', 'x', defaults=[None, None])\n"
+            )
+            too_many_defaults_files = dict(files)
+            too_many_defaults_files["caller.py"] = too_many_defaults_source
+            too_many_defaults_digest = caller_digest(
+                too_many_defaults_source,
+                [["caller.py", 6,
+                  "namedtuple('TooMany', 'x', defaults=[None, None])"]],
+            )
+            with patch.object(
+                SUBJECT, "COLLECTIONS_NAMEDTUPLE_CALLS_SHA256",
+                too_many_defaults_digest,
+            ):
+                self.assertEqual(
+                    SUBJECT._target_collections_namedtuple_call_condition_facts(
+                        too_many_defaults_files,
+                    ),
+                    {},
+                )
+            starred_defaults_call = (
+                "namedtuple('Star', 'x', defaults=[*unknown_defaults])"
+            )
+            starred_defaults_source = (
+                caller_source + f"{starred_defaults_call}\n".encode()
+            )
+            starred_defaults_files = dict(files)
+            starred_defaults_files["caller.py"] = starred_defaults_source
+            starred_defaults_digest = caller_digest(
+                starred_defaults_source,
+                [["caller.py", 6, starred_defaults_call]],
+            )
+            with patch.object(
+                SUBJECT, "COLLECTIONS_NAMEDTUPLE_CALLS_SHA256",
+                starred_defaults_digest,
+            ):
+                self.assertEqual(
+                    SUBJECT._target_collections_namedtuple_call_condition_facts(
+                        starred_defaults_files,
+                    ),
+                    {},
+                )
+            for before, after in (
+                    (b"defaults = tuple(defaults)",
+                     b"defaults = list(defaults)"),
+                    (b"num_fields = len(field_names)",
+                     b"num_fields = len(field_names) - 1")):
+                changed_collections_source = collections_source.replace(
+                    before, after,
+                )
+                changed_shape_files = dict(files)
+                changed_shape_files[
+                    "collections/__init__.py"
+                ] = changed_collections_source
+                with patch.object(
+                    SUBJECT, "COLLECTIONS_SOURCE_SHA256",
+                    hashlib.sha256(changed_collections_source).hexdigest(),
+                ):
+                    self.assertEqual(
+                        SUBJECT._target_collections_namedtuple_call_condition_facts(
+                            changed_shape_files,
+                        ),
+                        {},
+                    )
             invalid_identifier_source = (
                 caller_source + b"namedtuple('Bad-Type', 'field')\n"
             )
