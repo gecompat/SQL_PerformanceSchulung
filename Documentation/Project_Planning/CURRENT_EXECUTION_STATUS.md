@@ -11366,9 +11366,17 @@ PR #848 bindet die eingefrorenen Feldlayouts von `ObservationResult` und
 `frozen=True`; 269 fokussierte Regressionen und alle fünf Pflichtprüfungen
 bestanden. PR #848 ist integriert. Es werden keine Beobachtungen ausgeführt.
 
-## Begrenzte Fortsetzung: ausgewählte Profil-Ergebnisformen binden
+## Abgeschlossen: ausgewählte Profil-Ergebnisformen binden
 
 PR #849 bindet `BoundProfileResult` und `SelectedScalarObservationResult`,
 einschließlich privater frozen/slotted Form und festem Scope
-`PROJECT_SEMANTIC`. Gegenproben lockern Scope bzw. Repräsentationsgrenze. Es
-wird keine Runtimeaufnahme behauptet.
+`PROJECT_SEMANTIC`. Gegenproben lockern Scope bzw. Repräsentationsgrenze;
+270 fokussierte Regressionen und alle fünf Pflichtprüfungen bestanden. PR #849
+ist integriert. Es wird keine Runtimeaufnahme behauptet.
+
+## Begrenzte Fortsetzung: vollständigen Record-Aufnahmepfad binden
+
+PR #850 bindet den geordneten Guard-, Vorher-/Nachheraufnahme-, Datei-Hash-
+und Ablehnungspfad von `observe_current_interpreter_records` quellgebunden.
+Gegenproben lockern Symlinkschutz und Vorhervergleich. Es wird keine Aufnahme
+ausgeführt oder attestiert.
