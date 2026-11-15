@@ -34,6 +34,8 @@ SYS_MODULE_CLINIC_MEMBER = "Python-3.12.16/Python/clinic/sysmodule.c.h"
 SYS_MODULE_CLINIC_SHA256 = "957a480449ebdd284eae78bf27ef663b0f964ef595eb49208a82f8cb17a93833"
 PRECONFIG_C_MEMBER = "Python-3.12.16/Python/preconfig.c"
 PRECONFIG_C_SHA256 = "837e6e39347c4ded7d053c7f23d3ac751614a8dc135332748af7a4b0fcd46cab"
+PRECONFIG_HEADER_MEMBER = "Python-3.12.16/Include/internal/pycore_initconfig.h"
+PRECONFIG_HEADER_SHA256 = "caf13e2c290ae8375636d0e1f3b1851a90396b3747da650d058c282b8743b558"
 INITCONFIG_C_MEMBER = "Python-3.12.16/Python/initconfig.c"
 INITCONFIG_C_SHA256 = "a50ff760d49e9d1da8a5a998bcedc8c377f12628d7d0426fc4dab89c1abfeff7"
 LOGGING_SOURCE_SHA256 = "43f86bbc08fdd5c7b6e697abffe1381f534a92bb32e1f1aee8360d6a142592a1"
@@ -187,6 +189,7 @@ MAX_AST_C_BYTES = 512 * 1024
 MAX_SYS_MODULE_C_BYTES = 256 * 1024
 MAX_SYS_MODULE_CLINIC_BYTES = 64 * 1024
 MAX_PRECONFIG_C_BYTES = 64 * 1024
+MAX_PRECONFIG_HEADER_BYTES = 16 * 1024
 MAX_INITCONFIG_C_BYTES = 128 * 1024
 MAX_WORKER_CONTROL_SOURCE_BYTES = 256 * 1024
 MAX_WARNINGS_C_BYTES = 64 * 1024
@@ -245,6 +248,7 @@ def _source_archive_data(archive_bytes):
     pickle_module_c_source = None
     python_import_c_source = None
     thread_native_id_header = None
+    preconfig_header_source = None
     thread_native_id_module = None
     thread_native_id_pthread = None
     thread_source_members = {
@@ -378,6 +382,19 @@ def _source_archive_data(archive_bytes):
                     preconfig_c_source = body
                 else:
                     initconfig_c_source = body
+                continue
+            if member.name == PRECONFIG_HEADER_MEMBER:
+                if (not member.isfile() or preconfig_header_source is not None
+                        or member.size > MAX_PRECONFIG_HEADER_BYTES):
+                    raise ValueError("PRECONFIG_HEADER_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("PRECONFIG_HEADER_MEMBER")
+                preconfig_header_source = stream.read(member.size + 1)
+                if (len(preconfig_header_source) != member.size
+                        or hashlib.sha256(preconfig_header_source).hexdigest()
+                        != PRECONFIG_HEADER_SHA256):
+                    raise ValueError("PRECONFIG_HEADER_DIGEST")
                 continue
             if member.name in platform_sources:
                 source_name, expected, limit = platform_sources[member.name]
@@ -520,7 +537,8 @@ def _source_archive_data(archive_bytes):
             pickle_module_c_source,
             thread_native_id_header, thread_native_id_module, thread_native_id_pthread,
             platform_source_data["getplatform"], platform_source_data["makefile_pre"],
-            python_import_c_source, preconfig_c_source, initconfig_c_source)
+            python_import_c_source, preconfig_header_source, preconfig_c_source,
+            initconfig_c_source)
 
 
 def _source_files(archive_path):
@@ -3351,6 +3369,7 @@ def _target_s15_flags_field_candidate(worker_sys_flag_facts):
         ("sys.flags.quiet", 0),
         ("sys.flags.hash_randomization", 1),
         ("sys.flags.dev_mode", False),
+        ("sys.flags.warn_default_encoding", False),
     )
     if (type(worker_sys_flag_facts) is not tuple
             or len(worker_sys_flag_facts) != len(expected)
@@ -4236,8 +4255,70 @@ def _target_worker_sysconfigdata_environment_fact(
     return (("_PYTHON_SYSCONFIGDATA_NAME", "absent_from_child_environment"),)
 
 
+def _target_worker_warn_default_encoding_disabled(
+        preconfig_header_source, preconfig_source, initconfig_source,
+        worker_source):
+    """Bind the default-false preconfig field to the exact isolated worker route."""
+    sources = (
+        (preconfig_header_source, PRECONFIG_HEADER_SHA256,
+         MAX_PRECONFIG_HEADER_BYTES),
+        (preconfig_source, PRECONFIG_C_SHA256, MAX_PRECONFIG_C_BYTES),
+        (initconfig_source, INITCONFIG_C_SHA256, MAX_INITCONFIG_C_BYTES),
+        (worker_source, IMPORT_USED_BYTES_PROBE_SHA256,
+         MAX_WORKER_CONTROL_SOURCE_BYTES),
+    )
+    if (any(type(source) is not bytes or not source or len(source) > limit
+            or hashlib.sha256(source).hexdigest() != digest
+            for source, digest, limit in sources)
+            or not _target_isolated_worker_route_valid(
+                preconfig_source, initconfig_source, worker_source,
+            )):
+        return False
+    header_text = preconfig_header_source.decode("utf-8")
+    preconfig_text = preconfig_source.decode("utf-8")
+    structures = re.findall(
+        r"typedef struct\s*\{(.*?)\}\s*_PyPreCmdline;",
+        header_text, re.DOTALL,
+    )
+    initializers = re.findall(
+        r"#define _PyPreCmdline_INIT\s*\\\s*"
+        r"\(_PyPreCmdline\)\s*\{(.*?)\}",
+        header_text, re.DOTALL,
+    )
+    reads = re.findall(
+        r"PyStatus\s+_PyPreCmdline_Read\(_PyPreCmdline \*cmdline,\s*"
+        r"const PyPreConfig \*preconfig\)\s*\{(.*?)\n\}",
+        preconfig_text, re.DOTALL,
+    )
+    set_configs = re.findall(
+        r"PyStatus\s+_PyPreCmdline_SetConfig\(const _PyPreCmdline \*cmdline,\s*"
+        r"PyConfig \*config\)\s*\{(.*?)\n\}",
+        preconfig_text, re.DOTALL,
+    )
+    if (len(structures) != 1 or len(initializers) != 1
+            or len(reads) != 1 or len(set_configs) != 1
+            or not re.search(r"int\s+warn_default_encoding\s*;", structures[0])
+            or re.search(r"warn_default_encoding", initializers[0])
+            or not re.search(
+                r"_PyPreCmdline_INIT sets other fields to 0/NULL",
+                header_text,
+            )
+            or not re.search(
+                r"if\s*\(\s*_Py_get_xoption\(&cmdline->xoptions,\s*"
+                r"L\"warn_default_encoding\"\)\s*\|\|\s*"
+                r"_Py_GetEnv\(cmdline->use_environment,\s*"
+                r"\"PYTHONWARNDEFAULTENCODING\"\)\s*\)\s*\{\s*"
+                r"cmdline->warn_default_encoding\s*=\s*1\s*;",
+                reads[0],
+            )
+            or not re.search(r"COPY_ATTR\(warn_default_encoding\);", set_configs[0])):
+        return False
+    return True
+
+
 def _target_worker_sys_flag_facts(
-        preconfig_source, initconfig_source, sys_module_source, worker_source):
+        preconfig_header_source, preconfig_source, initconfig_source,
+        sys_module_source, worker_source):
     """Derive the six startup flags from the exact isolated worker route."""
     if (type(sys_module_source) is not bytes or not sys_module_source
             or len(sys_module_source) > MAX_SYS_MODULE_C_BYTES
@@ -4398,10 +4479,11 @@ def _target_worker_sys_flag_facts(
         r"SetFlag\(config->use_hash_seed\s*==\s*0\s*\|\|\s*"
         r"config->hash_seed\s*!=\s*0\);",
         r"SetFlagObj\(PyBool_FromLong\(config->dev_mode\)\);",
+        r"SetFlag\(config->warn_default_encoding\);",
     )
     if any(not re.search(pattern, flag_body) for pattern in required_bindings):
         return ()
-    return (
+    facts = (
         ("sys.flags.isolated", 1),
         ("sys.flags.no_site", 1),
         ("sys.flags.dont_write_bytecode", 1),
@@ -4419,6 +4501,11 @@ def _target_worker_sys_flag_facts(
         ("sys.flags.hash_randomization", 1),
         ("sys.flags.dev_mode", False),
     )
+    if _target_worker_warn_default_encoding_disabled(
+            preconfig_header_source, preconfig_source, initconfig_source,
+            worker_source):
+        facts += (("sys.flags.warn_default_encoding", False),)
+    return facts
 
 
 def _condition_fact_value_supported(value):
@@ -12119,7 +12206,8 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         posix_module_clinic_source, pickle_module_c_source,
         thread_native_id_header, thread_native_id_module,
         thread_native_id_pthread, getplatform_source, makefile_pre_source,
-        python_import_c_source, preconfig_c_source, initconfig_c_source,
+        python_import_c_source, preconfig_header_source, preconfig_c_source,
+        initconfig_c_source,
     ) = _source_archive_data(_archive_bytes(archive_path))
     if stdlib_header is None:
         raise ValueError("STDLIB_MODULE_NAMES_MISSING")
@@ -12240,8 +12328,8 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             )
         )
         target_worker_sys_flag_facts = _target_worker_sys_flag_facts(
-            preconfig_c_source, initconfig_c_source, sys_module_c_source,
-            worker_source,
+            preconfig_header_source, preconfig_c_source, initconfig_c_source,
+            sys_module_c_source, worker_source,
         )
         target_s15_flags_field_candidate = (
             _target_s15_flags_field_candidate(target_worker_sys_flag_facts)
