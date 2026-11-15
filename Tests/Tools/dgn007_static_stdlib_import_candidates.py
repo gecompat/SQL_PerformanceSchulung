@@ -4450,7 +4450,6 @@ def _target_image_setup_paths_safe(tracked):
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
-        "os.name": "posix",
         "sys.version_info": (3, 12, 16, "final", 0),
         "sys.version_info.major": 3,
         "sys.version_info.minor": 12,
@@ -7090,6 +7089,10 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             or _target_plain_main_guard_name_safe(files, module)
             or module == "os" and bool(os_name_facts))
     ))
+    os_name_call_facts = (
+        (("os.name", os_name_facts["name"]),)
+        if type(os_name_facts.get("name")) is str else ()
+    )
     target_call_facts = tuple(sorted(
         types_descriptor_call_facts + ast_compatibility_call_facts
         + sys_getframe_call_facts + tuple(warnings_default_call_facts.items())
@@ -7103,6 +7106,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         + os_fspath_call_facts + os_have_functions_call_facts
         + posix_build_call_facts + os_descriptor_support_facts
         + threading_os_alias_call_facts + sysconfig_project_base_env_facts
+        + os_name_call_facts
         + _target_importlib_case_platform_facts(files)
     ))
     if target_image_path_facts:

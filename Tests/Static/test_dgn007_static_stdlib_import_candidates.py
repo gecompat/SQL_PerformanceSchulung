@@ -2743,7 +2743,9 @@ class StaticImportCandidateTests(unittest.TestCase):
                 ("os.name[0] == 'p'", True)):
             condition = ast.parse(expression, mode="eval").body
             self.assertIs(SUBJECT._target_condition(
-                condition, known_call_facts=(("sys.platform", "linux"),),
+                condition, known_call_facts=(
+                    ("sys.platform", "linux"), ("os.name", "posix"),
+                ),
             ), expected)
         for expression in (
                 "sys.platform[index] == 'l'",
@@ -2883,7 +2885,9 @@ class StaticImportCandidateTests(unittest.TestCase):
                 ("sys.platform.startswith(())", False)):
             condition = ast.parse(expression, mode="eval").body
             self.assertIs(SUBJECT._target_condition(
-                condition, known_call_facts=(("sys.platform", "linux"),),
+                condition, known_call_facts=(
+                    ("sys.platform", "linux"), ("os.name", "posix"),
+                ),
             ), expected)
         for expression in (
                 "sys.platform.startswith(dynamic_prefix)",
@@ -2926,6 +2930,17 @@ class StaticImportCandidateTests(unittest.TestCase):
         ), True)
         dynamic = ast.parse("sys.platform in {'linux', runtime_value}", mode="eval").body
         self.assertIsNone(SUBJECT._target_condition(dynamic))
+
+    def test_os_name_requires_the_digest_bound_posix_export_fact(self):
+        condition = ast.parse("os.name == 'posix'", mode="eval").body
+        self.assertIsNone(SUBJECT._target_condition(condition))
+        self.assertIs(SUBJECT._target_condition(
+            condition, known_call_facts=(("os.name", "posix"),),
+        ), True)
+        self.assertIs(SUBJECT._target_condition(
+            ast.parse("os.name == 'nt'", mode="eval").body,
+            known_call_facts=(("os.name", "posix"),),
+        ), False)
 
     def test_importlib_case_platform_facts_require_pinned_constants(self):
         source = (

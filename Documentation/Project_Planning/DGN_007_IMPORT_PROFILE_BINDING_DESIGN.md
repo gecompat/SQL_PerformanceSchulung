@@ -6283,3 +6283,12 @@ Name passt zur digestgeprüften Image-Datei; der Scanner gibt deshalb
 die statische Namens-/Datei-/Quellroute, belegt jedoch nicht, dass `_init_posix`
 aufgerufen wird, das Modul tatsächlich importiert wird oder `vars.update` die
 Runtimewerte übernimmt.
+
+### Fortsetzung: `os.name` nur nach gebundener Posix-Auswahl entscheiden
+
+`os.name` ist kein unbedingter Zielwert mehr. Das Fact `posix` wird erst
+weitergereicht, wenn die gepinnte `os.py`-Plattformauswahl, der C-/Clinic-
+Quellpfad des Posixmoduls sowie dessen Builtinregistrierung im verifizierten
+Linux-Zielimage zusammenpassen. Ohne diese Kette bleiben `os.name`-Bedingungen
+unbekannt. Damit ist der Auswahlwert quellen- und imagegebunden, jedoch keine
+beobachtete Interpreter- oder Profilaufnahme.
