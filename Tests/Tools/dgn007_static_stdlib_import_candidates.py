@@ -2685,6 +2685,44 @@ def _target_profile_record_model_schemas_candidate(source_bytes, model_schema):
     }
 
 
+def _target_profile_result_model_schemas_candidate(source_bytes, record_model_schema):
+    """Bind frozen full-record and scalar observation result wrappers."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(record_model_schema) is not dict
+            or record_model_schema.get("record_validation_claimed") is not False):
+        return None
+    expected_fields = {
+        "ObservationResult": ("report", "observation"),
+        "ScalarObservationResult": ("report", "scalars"),
+    }
+    actual_fields = {}
+    for name, expected in expected_fields.items():
+        bodies = re.findall(
+            rb"(?ms)^@dataclass\(frozen=True\)\r?\nclass "
+            + name.encode("ascii")
+            + rb":\r?\n(?P<body>.*?)(?=^class |^def |\Z)",
+            source_bytes,
+        )
+        if len(bodies) != 1:
+            return None
+        fields = re.findall(rb"(?m)^    ([A-Za-z_][A-Za-z0-9_]*):", bodies[0])
+        actual_fields[name] = tuple(item.decode("ascii") for item in fields)
+        if actual_fields[name] != expected:
+            return None
+    return {
+        "observation_result_fields": actual_fields["ObservationResult"],
+        "scalar_observation_result_fields": actual_fields["ScalarObservationResult"],
+        "both_dataclasses_frozen": True,
+        "observation_claimed": False,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "evidence_scope": "STATIC_PROFILE_RESULT_MODEL_SCHEMAS_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9895,6 +9933,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_profile_model_schemas_candidate,
         )
     )
+    target_profile_result_model_schemas_candidate = (
+        _target_profile_result_model_schemas_candidate(
+            runtime_profile_source,
+            target_profile_record_model_schemas_candidate,
+        )
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -10401,6 +10445,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_profile_record_model_schemas_candidate": (
             target_profile_record_model_schemas_candidate
+        ),
+        "target_profile_result_model_schemas_candidate": (
+            target_profile_result_model_schemas_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
