@@ -1936,6 +1936,38 @@ def _target_sysconfigdata_image_file_fact(module_name_fact, image_facts):
     return (("sysconfigdata.image_file_path", TARGET_SYSCONFIGDATA_PATH),)
 
 
+def _target_sysconfigdata_import_target_candidate(
+        sysconfig_inventory, module_name_fact, image_file_fact):
+    """Join the pinned dynamic import route to its matching image file candidate."""
+    expected_template = "_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}"
+    if (type(sysconfig_inventory) is not dict
+            or sysconfig_inventory.get("source_sha256") != SYSCONFIG_SOURCE_SHA256
+            or sysconfig_inventory.get("sysconfigdata_name_template")
+            != expected_template
+            or sysconfig_inventory.get("sysconfigdata_importer") != "__import__"
+            or sysconfig_inventory.get("sysconfigdata_imported_attribute")
+            != "build_time_vars"):
+        return None
+    if (type(module_name_fact) is not tuple or len(module_name_fact) != 1
+            or type(module_name_fact[0]) is not tuple or len(module_name_fact[0]) != 2
+            or module_name_fact[0][0] != "sysconfigdata.module_name"
+            or type(module_name_fact[0][1]) is not str
+            or type(image_file_fact) is not tuple or len(image_file_fact) != 1
+            or type(image_file_fact[0]) is not tuple or len(image_file_fact[0]) != 2
+            or image_file_fact[0][0] != "sysconfigdata.image_file_path"
+            or image_file_fact[0][1] != TARGET_SYSCONFIGDATA_PATH
+            or TARGET_SYSCONFIGDATA_PATH.rsplit("/", 1)[-1]
+            != module_name_fact[0][1] + ".py"):
+        return None
+    return {
+        "module_name": module_name_fact[0][1],
+        "image_file_path": image_file_fact[0][1],
+        "importer": "__import__",
+        "imported_attribute": "build_time_vars",
+        "evidence_scope": "STATIC_IMPORT_TARGET_CANDIDATE",
+    }
+
+
 def _target_importlib_verbose_line_facts(
         files, preconfig_source, initconfig_source, worker_source):
     """Bind importlib's verbose guard across every pinned source call site."""
@@ -6973,6 +7005,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     sysconfigdata_image_file_fact = _target_sysconfigdata_image_file_fact(
         sysconfigdata_module_name_fact, target_image_path_facts,
     )
+    sysconfigdata_import_target_candidate = (
+        _target_sysconfigdata_import_target_candidate(
+            sysconfig_inventory, sysconfigdata_module_name_fact,
+            sysconfigdata_image_file_fact,
+        )
+    )
     warnings_default_call_facts = _target_warnings_default_call_facts(
         files, warnings_c_source, warnings_clinic_source
     )
@@ -7273,6 +7311,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_sysconfigdata_image_file_fact": list(
             sysconfigdata_image_file_fact
+        ),
+        "target_platform_sysconfigdata_import_target_candidate": (
+            sysconfigdata_import_target_candidate
         ),
         "sysconfigdata_importer": sysconfig_inventory["sysconfigdata_importer"],
         "sysconfigdata_imported_attribute": sysconfig_inventory[
