@@ -3023,8 +3023,15 @@ Ein weiterer lokaler Fact bindet `JSONEncoder` an die vollständige
 Produktionsquellmenge und wertet die drei Importzeit-Argumentguards für
 `separators`, `indent` und `default` als falsch aus. Der Scan zählt nun 519
 unbekannte und 66 aufgelöste Bedingungen, bei unverändert 60 Modulen, 318
-Kanten und Kandidatenhash `33f55d7c…`. 283/283 fokussierte Tests bestehen.
-Nächster Arbeitsschritt: verbleibende Bedingungen anhand der gepinnten Quelle
-auf sichere vollständige Facts prüfen; dynamische Fälle bleiben ohne statisch
-belegte Ausführungsbedingungen unbekannt. Kein Interpreterstart, keine
-P11-/Runtimeattestation.
+Kanten und Kandidatenhash `33f55d7c…`. PR #884 integrierte den Fact mit allen
+fünf bestandenen PR-Gates. Ein digest- und DiffID-geprüfter OCI-Export des
+lokalen Zielimages aktiviert nun zusätzlich die bestehenden `_pickle`- und
+Plattformfacts, ohne einen Interpreter zu starten. Der neue `hashlib`-Fact
+bindet acht Algorithmusguards an die vollständige Quelltabelle; die beiden
+dynamischen Cacheguards bleiben offen. Der aktuelle Scan umfasst 60 Module,
+316 Kanten, 82 aufgelöste und 485 unbekannte Bedingungen; Unknown-Digest
+`4431f8023aaf2af7b202882d29ac025fe5250ec09cd52e9faa16969d0ef6f3c7`.
+284/284 fokussierte Tests bestehen. Nächster Arbeitsschritt: verbleibende
+Bedingungen anhand der gepinnten Quelle auf sichere vollständige Facts prüfen;
+dynamische Fälle bleiben ohne statisch belegte Ausführungsbedingungen
+unbekannt. Kein Interpreterstart, keine P11-/Runtimeattestation.

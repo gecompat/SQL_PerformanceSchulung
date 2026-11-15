@@ -52,6 +52,7 @@ TOKENIZE_SOURCE_SHA256 = "026f566ac63e60d69c8185a3880831b657accc5eac984fadf271fc
 OPCODE_SOURCE_SHA256 = "192f6008508f28d3273bff42eaea9b01c8394dab1607cd36aea778bdd166c3a6"
 JSON_ENCODER_SOURCE_SHA256 = "52bfb1b66029cc70fa3bd7fe11df9f2e03922d413407a341b387a22c987f24f8"
 JSON_PACKAGE_SOURCE_SHA256 = "d5d41e2c29049515d295d81a6d40b4890fbec8d8482cfb401630f8ef2f77e4d5"
+HASHLIB_SOURCE_SHA256 = "6dbdebf270868b391080e21dc9687eddfaf321c965ad979f68d3f5c423c613ab"
 TOKEN_SOURCE_SHA256 = "1a4d994ce9744f4bfe2d964fc24d112a1e76796a08c2e45a2d73c82a8587f922"
 OS_SOURCE_SHA256 = "6f3888d1a5bd4f1333116dd75ca8f1d2d951e38c8c8426179417aea097a1eef0"
 POSIX_MODULE_C_MEMBER = "Python-3.12.16/Modules/posixmodule.c"
@@ -6757,6 +6758,141 @@ def _target_json_encoder_argument_condition_facts(files):
     }
 
 
+def _target_hashlib_name_condition_facts(files):
+    """Bind hashlib's name guards to its module-init algorithm tuple."""
+    source = files.get("hashlib.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != HASHLIB_SOURCE_SHA256):
+        return {}
+    try:
+        trees = {
+            path: ast.parse(data, filename=path)
+            for path, data in files.items()
+            if type(data) is bytes and path.endswith(".py")
+            and "test" not in path.split("/")
+        }
+    except SyntaxError:
+        return {}
+    tree = trees.get("hashlib.py")
+    if tree is None:
+        return {}
+    supported = (
+        "md5", "sha1", "sha224", "sha256", "sha384", "sha512",
+        "blake2b", "blake2s", "sha3_224", "sha3_256", "sha3_384",
+        "sha3_512", "shake_128", "shake_256",
+    )
+    assignments = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id in (
+                        "__always_supported", "__block_openssl_constructor"):
+                    assignments.setdefault(target.id, []).append(node.value)
+    if (set(assignments) != {"__always_supported", "__block_openssl_constructor"}
+            or any(len(values) != 1 for values in assignments.values())):
+        return {}
+    try:
+        if (ast.literal_eval(assignments["__always_supported"][0]) != supported
+                or ast.literal_eval(assignments["__block_openssl_constructor"][0])
+                != {"blake2b", "blake2s"}):
+            return {}
+    except (ValueError, TypeError):
+        return {}
+    builtin_functions = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "__get_builtin_constructor"]
+    openssl_functions = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "__get_openssl_constructor"]
+    loops = [node for node in tree.body if isinstance(node, ast.For)
+             and ast.unparse(node.target) == "__func_name"
+             and ast.unparse(node.iter) == "__always_supported"]
+    if (len(builtin_functions) != 1 or len(openssl_functions) != 1
+            or len(loops) != 1
+            or [arg.arg for arg in builtin_functions[0].args.args] != ["name"]
+            or [arg.arg for arg in openssl_functions[0].args.args] != ["name"]):
+        return {}
+    loop_calls = [node for node in ast.walk(loops[0])
+                  if isinstance(node, ast.Call)
+                  and isinstance(node.func, ast.Name)
+                  and node.func.id == "__get_hash"]
+    if (len(loop_calls) != 1
+            or ast.unparse(loop_calls[0]) != "__get_hash(__func_name)"):
+        return {}
+    expected_guards = {
+        ("__get_builtin_constructor", 88): "name in {'SHA1', 'sha1'}",
+        ("__get_builtin_constructor", 91): "name in {'MD5', 'md5'}",
+        ("__get_builtin_constructor", 94):
+            "name in {'SHA256', 'sha256', 'SHA224', 'sha224'}",
+        ("__get_builtin_constructor", 98):
+            "name in {'SHA512', 'sha512', 'SHA384', 'sha384'}",
+        ("__get_builtin_constructor", 102): "name in {'blake2b', 'blake2s'}",
+        ("__get_builtin_constructor", 106):
+            "name in {'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512'}",
+        ("__get_builtin_constructor", 112): "name in {'shake_128', 'shake_256'}",
+        ("__get_openssl_constructor", 127):
+            "name in __block_openssl_constructor",
+    }
+    actual_guards = {
+        (function.name, node.lineno): ast.unparse(node.test)
+        for function in (builtin_functions[0], openssl_functions[0])
+        for node in ast.walk(function)
+        if isinstance(node, ast.If)
+        and (function.name, node.lineno) in expected_guards
+    }
+    if actual_guards != expected_guards:
+        return {}
+    private_names = {
+        "__get_builtin_constructor", "__get_openssl_constructor", "__get_hash",
+        "__always_supported", "__block_openssl_constructor",
+    }
+    for path, other_tree in trees.items():
+        if path == "hashlib.py":
+            continue
+        for node in ast.walk(other_tree):
+            if (isinstance(node, ast.ImportFrom) and node.module == "hashlib"
+                    and any(alias.name in private_names for alias in node.names)):
+                return {}
+            if (isinstance(node, ast.Attribute) and node.attr in private_names
+                    or isinstance(node, ast.Name) and node.id in private_names):
+                return {}
+        module_aliases = {
+            alias.asname or alias.name
+            for node in ast.walk(other_tree) if isinstance(node, ast.Import)
+            for alias in node.names if alias.name == "hashlib"
+        }
+        new_aliases = {
+            alias.asname or alias.name
+            for node in ast.walk(other_tree)
+            if isinstance(node, ast.ImportFrom) and node.module == "hashlib"
+            for alias in node.names if alias.name == "new"
+        }
+        parents = {child: parent for parent in ast.walk(other_tree)
+                   for child in ast.iter_child_nodes(parent)}
+        for node in ast.walk(other_tree):
+            if not isinstance(node, ast.Call):
+                continue
+            parent = parents.get(node)
+            inside_function = False
+            while parent is not None:
+                if isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+                    inside_function = True
+                    break
+                parent = parents.get(parent)
+            if inside_function:
+                continue
+            if (isinstance(node.func, ast.Name) and node.func.id in new_aliases
+                    or isinstance(node.func, ast.Attribute)
+                    and node.func.attr == "new"
+                    and isinstance(node.func.value, ast.Name)
+                    and node.func.value.id in module_aliases):
+                return {}
+    return {
+        ("hashlib", "hashlib.py", line): (False, True)
+        for _, line in expected_guards
+    }
+
+
 def _target_logging_lock_line_facts(files, thread_module_source):
     """Resolve logging's lock-presence guards for the pinned import route."""
     logging_source = files.get("logging/__init__.py") if type(files) is dict else None
@@ -10448,6 +10584,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_json_encoder_argument_condition_facts = (
         _target_json_encoder_argument_condition_facts(files)
     )
+    target_hashlib_name_condition_facts = (
+        _target_hashlib_name_condition_facts(files)
+    )
     target_logging_lock_line_facts = _target_logging_lock_line_facts(
         files, thread_native_id_module,
     )
@@ -11100,6 +11239,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             **target_copyreg_constructor_observation_facts,
             **target_opcode_pseudo_op_condition_facts,
             **target_json_encoder_argument_condition_facts,
+            **target_hashlib_name_condition_facts,
         },
         trusted_empty_for_facts={
             "warnings": target_warning_options_empty_for_facts.get("warnings", {}),
@@ -11532,6 +11672,14 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
              "runtime_observation_claimed": False}
             for (module, path, line), decisions
             in target_json_encoder_argument_condition_facts.items()
+        ],
+        "target_platform_hashlib_name_condition_facts": [
+            {"module": module, "source_path": path, "line": line,
+             "decisions": list(decisions),
+             "evidence_scope": "STATIC_MODULE_INIT_ARGUMENT_DOMAIN",
+             "runtime_observation_claimed": False}
+            for (module, path, line), decisions
+            in target_hashlib_name_condition_facts.items()
         ],
         "target_platform_logging_lock_line_facts": list(
             target_logging_lock_line_facts.items()
