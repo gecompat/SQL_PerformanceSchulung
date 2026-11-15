@@ -11382,9 +11382,16 @@ Gegenproben lockern Symlinkschutz und Vorhervergleich; 271 fokussierte
 Regressionen und alle fünf Pflichtprüfungen bestanden. PR #850 ist integriert.
 Es wird keine Aufnahme ausgeführt oder attestiert.
 
-## Begrenzte Fortsetzung: ausgewählte POST-Verträge binden
+## Abgeschlossen: ausgewählte POST-Verträge binden
 
 PR #851 bindet `_selected_runtime_post` und `_selected_post`: Sollwerte,
 Typ-/Bereichsgrenzen und Identität der Runtimeprovider, Container, Finder,
-Hooks und Modulanker. Gegenproben lockern die Flagsollwerte bzw. Provideridentität.
-Es wird keine POST-Prüfung ausgeführt.
+Hooks und Modulanker. Gegenproben lockern die Flagsollwerte bzw. Provideridentität;
+272 fokussierte Regressionen und alle fünf Pflichtprüfungen bestanden. PR #851
+ist integriert. Es wird keine POST-Prüfung ausgeführt.
+
+## Begrenzte Fortsetzung: Hook-POST-Vertrag binden
+
+PR #852 bindet die Vorher-/Nachher-Identität der Hookobjekte sowie die drei
+FileFinder-Hookfelder an `_selected_hook_post`. Eine Gegenprobe entfernt den
+Wertvergleich des Pfadfelds. Es wird kein Hook beobachtet.

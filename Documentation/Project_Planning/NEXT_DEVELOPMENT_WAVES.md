@@ -2819,9 +2819,15 @@ und Ablehnungspfad von `observe_current_interpreter_records` quellgebunden.
 Gegenproben lockern Symlinkschutz und Vorhervergleich. Es wird keine Aufnahme
 ausgeführt oder attestiert.
 
-## Begrenzte Fortsetzung: ausgewählte POST-Verträge binden
+## Abgeschlossen: ausgewählte POST-Verträge binden
 
 PR #851 bindet `_selected_runtime_post` und `_selected_post`: Sollwerte,
 Typ-/Bereichsgrenzen und Identität der Runtimeprovider, Container, Finder,
 Hooks und Modulanker. Gegenproben lockern Flagsollwerte bzw. Provideridentität.
 Es wird keine POST-Prüfung ausgeführt.
+
+## Begrenzte Fortsetzung: Hook-POST-Vertrag binden
+
+PR #852 bindet Vorher-/Nachheridentität der Hookobjekte sowie die drei
+FileFinder-Hookfelder an `_selected_hook_post`. Eine Gegenprobe entfernt den
+Wertvergleich des Pfadfelds. Es wird kein Hook beobachtet.

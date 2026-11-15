@@ -2327,6 +2327,36 @@ class StaticImportCandidateTests(unittest.TestCase):
                     changed, observation_flow,
                 ))
 
+    def test_selected_hook_post_contract_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        observation_flow = {"runtime_observation_claimed": False}
+        candidate = SUBJECT._target_selected_hook_post_contract_candidate(
+            profile_source, observation_flow,
+        )
+        self.assertEqual(candidate, {
+            "hook_identity_fields": ("finder", "loader", "path"),
+            "hook_record_field_comparison": ("identity", "identity", "value"),
+            "hook_mutation_rejected": True,
+            "runtime_hook_observation_claimed": False,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "evidence_scope": "STATIC_SELECTED_HOOK_POST_CONTRACT_CANDIDATE",
+        })
+        changed = profile_source.replace(
+            b"a[0] is b[0] and a[1] is b[1] and a[2] == b[2]",
+            b"a[0] is b[0] and a[1] is b[1]",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed),
+        ):
+            self.assertIsNone(SUBJECT._target_selected_hook_post_contract_candidate(
+                changed, observation_flow,
+            ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(
