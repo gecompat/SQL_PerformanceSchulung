@@ -5328,8 +5328,10 @@ newlockobject(PyObject *module)
             b"    if defaults is not None:\n        pass\n"
             b"    if module is None:\n        pass\n"
             b"    if not name.isidentifier():\n        pass\n"
+            b"    if _iskeyword(name):\n        pass\n"
             b"    class_namespace = {'_fields': field_names}\n"
             b"    return type(typename, (), class_namespace)\n"
+            b"from keyword import iskeyword as _iskeyword\n"
         )
         inspect_source = (
             b"from collections import namedtuple\n"
@@ -5350,11 +5352,16 @@ newlockobject(PyObject *module)
             b"    fields = [n for n, t in types]\n"
             b"    result = collections.namedtuple(name, fields, defaults=defaults, module=module)\n"
         )
+        keyword_source = (
+            b"kwlist = ['False', 'None', 'True', 'and', 'as', 'async']\n"
+            b"iskeyword = frozenset(kwlist).__contains__\n"
+        )
         files = {
             "collections/__init__.py": collections_source,
             "inspect.py": inspect_source,
             "caller.py": caller_source,
             "typing.py": typing_source,
+            "keyword.py": keyword_source,
         }
         caller_rows = []
         source_rows = []
@@ -5401,6 +5408,9 @@ newlockobject(PyObject *module)
             SUBJECT, "TYPING_SOURCE_SHA256",
             hashlib.sha256(typing_source).hexdigest(),
         ), patch.object(
+            SUBJECT, "KEYWORD_SOURCE_SHA256",
+            hashlib.sha256(keyword_source).hexdigest(),
+        ), patch.object(
             SUBJECT, "COLLECTIONS_NAMEDTUPLE_CALLS_SHA256", digest,
         ):
             self.assertEqual(
@@ -5413,6 +5423,7 @@ newlockobject(PyObject *module)
                     ("collections", "collections/__init__.py", 6): (False, True),
                     ("collections", "collections/__init__.py", 8): (False, True),
                     ("collections", "collections/__init__.py", 10): (False,),
+                    ("collections", "collections/__init__.py", 12): (False,),
                 },
             )
             resolved = []
@@ -5437,6 +5448,11 @@ newlockobject(PyObject *module)
                      if row["module"] == "collections" and row["line"] == line],
                     [[False, True]],
                 )
+            self.assertEqual(
+                [row["decisions"] for row in resolved
+                 if row["module"] == "collections" and row["line"] == 12],
+                [[False]],
+            )
             unsafe_files = dict(files)
             unsafe_files["caller.py"] = caller_source.replace(
                 b"('x', 'y')", b"unknown_fields",
@@ -5482,6 +5498,21 @@ newlockobject(PyObject *module)
                 self.assertEqual(
                     SUBJECT._target_collections_namedtuple_call_condition_facts(
                         invalid_identifier_files,
+                    ),
+                    {},
+                )
+            keyword_mutation = keyword_source.replace(
+                b"'async'", b"'async', 'x'",
+            )
+            keyword_mutated_files = dict(files)
+            keyword_mutated_files["keyword.py"] = keyword_mutation
+            with patch.object(
+                SUBJECT, "KEYWORD_SOURCE_SHA256",
+                hashlib.sha256(keyword_mutation).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_collections_namedtuple_call_condition_facts(
+                        keyword_mutated_files,
                     ),
                     {},
                 )

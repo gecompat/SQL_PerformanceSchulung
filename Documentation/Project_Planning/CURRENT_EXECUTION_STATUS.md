@@ -11830,3 +11830,15 @@ Module, 318 Kanten, 97 entschiedene und 484 unbekannte Bedingungen;
 Unknown-Digest `415f5546523f6a8ddaa1223db9549dc7bb7f55936c2ffc7ee313bc94fd750c77`.
 294 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine direkte Image-Route,
 Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.
+
+Der nachfolgende `collections.namedtuple`-Fact bindet `collections/__init__.py:402`
+(`_iskeyword(name)`) für die importzeitlichen Aufrufe an falsch. `collections`
+importiert `keyword.iskeyword`; der gehashte `keyword.py`-Quelltext bindet die
+Literal-`kwlist` an `frozenset(kwlist).__contains__`. Keiner der zuvor
+aufgelösten 42 modulweit ausgeführten Typ- und Feld-Identifier ist ein
+Keyword. Eine geänderte Keywordliste oder ein neuer Aufruf mit Keyword verwirft
+den Fact. Der Scan zählt 60 Module, 318 Kanten, 98 entschiedene und 483
+unbekannte Bedingungen; Unknown-Digest
+`5a134d577ec00b2518f47f6df325fac976395d8b604ec30da1c0594d456b9ba9`.
+294 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine direkte Image-Route,
+Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.

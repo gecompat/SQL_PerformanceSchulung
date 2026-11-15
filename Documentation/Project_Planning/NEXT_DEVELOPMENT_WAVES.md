@@ -3252,3 +3252,17 @@ und 484 unbekannte Bedingungen; Unknown-Digest
 294 fokussierte Regressionen bestehen. `CANDIDATES_ONLY`; keine direkte
 Image-Route, Runtime-/P11- oder SQL-Ausführung und keine menschliche
 Generalprobe.
+
+### Begrenzte Fortsetzung: `collections.namedtuple`-Keywordguard (15. November 2026)
+
+Der Fact löst `collections/__init__.py:402` (`_iskeyword(name)`) für die
+importzeitlichen Aufrufe als falsch auf. `collections` bindet den geprüften
+`keyword.iskeyword`-Import; `keyword.py` bindet seine gehashte Literal-
+`kwlist` an `frozenset(kwlist).__contains__`. Keiner der 42 modulweit
+ausgeführten Typ- oder Feld-Identifier ist ein Keyword. Ein veränderter
+Keywordbestand oder Keyword-Aufruf lässt den Fact scheitern. Der Zielscan
+zählt 60 Module, 318 Kanten, 98 entschiedene und 483 unbekannte Bedingungen;
+Unknown-Digest `5a134d577ec00b2518f47f6df325fac976395d8b604ec30da1c0594d456b9ba9`.
+294 fokussierte Regressionen bestehen. `CANDIDATES_ONLY`; keine direkte
+Image-Route, Runtime-/P11- oder SQL-Ausführung und keine menschliche
+Generalprobe.
