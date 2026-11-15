@@ -2427,3 +2427,11 @@ Archiv-/OCI-Lauf muss die Route ausgeben. Der Datensatz belegt keinen
 Initializeraufruf oder Import. Token-/Geldverbrauch bleiben unbekannt; harte
 Grenze: ein Paket, ein PR, höchstens zwei Regressionen. PR-Integration ist der
 Checkpoint; danach wird autonom anhand des offenen Status fortgesetzt.
+
+Für die anschließende DGN-007-Fortsetzung gilt ein einzelnes Paket mit einem
+PR und höchstens zwei Regressionen. Es verbindet den bereits digestgeprüften
+`build_time_vars`-Literal-Dictionary-Fact aus der OCI-Datei mit der statischen
+Sysconfig-Importroute. Der Scanner bleibt `CANDIDATES_ONLY`; keine Datei- oder
+Interpreterausführung, vollständige Importclosure, P11-, SQL-/Lab- oder
+menschliche Generalprobenattestation. PR-Integration ist der Checkpoint; der
+autonome Auftrag setzt danach mit dem dann offenen Punkt fort.

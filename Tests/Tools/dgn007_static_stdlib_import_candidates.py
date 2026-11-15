@@ -1993,7 +1993,10 @@ def _target_sysconfigdata_initialization_route_candidate(
             or type(image_facts) is not dict
             or image_facts.get("sysconfigdata_path") != TARGET_SYSCONFIGDATA_PATH
             or image_facts.get("sysconfigdata_sha256")
-            != TARGET_SYSCONFIGDATA_SHA256):
+            != TARGET_SYSCONFIGDATA_SHA256
+            or image_facts.get("build_time_vars_literal_dict") is not True
+            or type(image_facts.get("build_time_vars_entry_count")) is not int
+            or image_facts["build_time_vars_entry_count"] <= 0):
         return None
     line = next(iter(posix_init_line_facts))
     return {
@@ -2005,6 +2008,12 @@ def _target_sysconfigdata_initialization_route_candidate(
         "module_name": import_target_candidate["module_name"],
         "image_file_path": import_target_candidate["image_file_path"],
         "image_file_sha256": image_facts["sysconfigdata_sha256"],
+        "image_attribute_candidate": {
+            "attribute": "build_time_vars",
+            "value_kind": "literal_dict",
+            "entry_count": image_facts["build_time_vars_entry_count"],
+            "evidence_scope": "STATIC_IMAGE_ATTRIBUTE_CANDIDATE",
+        },
         "imported_attribute": "build_time_vars",
         "value_consumer": "vars.update(build_time_vars)",
         "evidence_scope": "STATIC_CONDITIONAL_IMPORT_ROUTE_CANDIDATE",
@@ -4483,6 +4492,8 @@ def _target_image_sysconfigdata_facts(source):
     if any(values.get(key) != value for key, value in expected.items()):
         raise ValueError("TARGET_SYSCONFIGDATA_VALUES")
     return {
+        "build_time_vars_literal_dict": True,
+        "build_time_vars_entry_count": len(values),
         "soabi": values["SOABI"],
         "destshared": values["DESTSHARED"],
         "extension_suffix": values["EXT_SUFFIX"],

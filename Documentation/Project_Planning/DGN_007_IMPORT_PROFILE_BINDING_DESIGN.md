@@ -6313,3 +6313,13 @@ Fromlist `build_time_vars` und dessen Consumer `vars.update(build_time_vars)`.
 Die Zusammenführung beschreibt die statisch ausgewählte Route; sie attesiert
 weder, dass `_init_config_vars` erreicht wird, noch den Import, die
 Dateiausführung oder eine tatsächliche Profilaufnahme.
+
+### Fortsetzung: `build_time_vars`-Attribut mit OCI-Dateiinhalt verbinden
+
+Die Routen-Zusammenführung verlangt zusätzlich den Digestparser-Fact, dass die
+gebundene Image-Datei eine eindeutige literale Dictionary-Zuweisung
+`build_time_vars` enthält und deren 14 festgelegte Schlüssel-/Wertpaare mit dem
+Quellvertrag übereinstimmen. Der Kandidat weist Attributform und vollständige
+Mapping-Eintragszahl aus, ohne den Inhalt auszuführen oder einen tatsächlichen
+Import beziehungsweise Runtimewert zu behaupten. Der Umfang endet bei
+`STATIC_IMAGE_ATTRIBUTE_CANDIDATE`.
