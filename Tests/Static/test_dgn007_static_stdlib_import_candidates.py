@@ -1580,15 +1580,23 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"fingerprints = _selected_shapes(installation, controls, modules, token)",
             b"fingerprints = ()",
         )
-        with patch.object(
-            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
-            SUBJECT._normalized_profile_source_sha256(changed),
-        ):
-            self.assertIsNone(
-                SUBJECT._target_selected_profile_binder_flow_candidate(
-                    changed, shape_contract,
+        binder_start = profile_source.index(b"def bind_selected_profile(")
+        binder_source = profile_source[binder_start:]
+        early_return = (
+            profile_source[:binder_start]
+            + binder_source.replace(b"    try:", b"    try:\n        return None", 1)
+        )
+        self.assertNotEqual(early_return, profile_source)
+        for mutation in (changed, early_return):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(mutation),
+            ):
+                self.assertIsNone(
+                    SUBJECT._target_selected_profile_binder_flow_candidate(
+                        mutation, shape_contract,
+                    )
                 )
-            )
 
     def test_selected_profile_anchor_binding_is_source_bound(self):
         profile_source = (
