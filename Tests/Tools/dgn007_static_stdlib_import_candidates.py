@@ -3102,6 +3102,56 @@ def _target_selected_shape_primitives_candidate(source_bytes, selected_shape_con
     }
 
 
+def _target_selected_namespace_contract_candidate(source_bytes, shape_primitives):
+    """Bind namespace size/key budgets and exact dictionary/key types."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(shape_primitives) is not dict
+            or shape_primitives.get("selected_shape_validation_claimed") is not False):
+        return None
+    bodies = {}
+    for name in ("_selected_keys", "_selected_namespace"):
+        matches = re.findall(
+            rb"(?ms)^def " + name.encode("ascii")
+            + rb"\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+            source_bytes,
+        )
+        if len(matches) != 1:
+            return None
+        bodies[name] = re.sub(rb"\s+", b" ", matches[0])
+    key_requirements = (
+        b"budget[0] + len(namespace) <= 16368",
+        b"for key in namespace:",
+        b"budget[0] += 1",
+        b"type(key) is str",
+        b"_scalar_text(key)",
+    )
+    namespace_requirements = (
+        b"namespace = value.__dict__",
+        b"type(namespace) is dict and len(namespace) <= 16368",
+        b"_selected_keys(namespace, budget)",
+        b"return namespace",
+    )
+    if (any(bodies["_selected_keys"].count(fragment) != 1
+            for fragment in key_requirements)
+            or any(bodies["_selected_namespace"].count(fragment) != 1
+                   for fragment in namespace_requirements)):
+        return None
+    return {
+        "namespace_type": "exact_dict",
+        "namespace_and_key_budget": 16368,
+        "key_type": "exact_str",
+        "shared_budget_increment_per_key": True,
+        "scalar_key_validation": True,
+        "selected_namespace_validation_claimed": False,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "evidence_scope": "STATIC_SELECTED_NAMESPACE_CONTRACT_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -10142,6 +10192,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_selected_profile_shape_contract_candidate,
         )
     )
+    target_selected_namespace_contract_candidate = (
+        _target_selected_namespace_contract_candidate(
+            runtime_profile_source,
+            target_selected_shape_primitives_candidate,
+        )
+    )
     target_selected_profile_binder_flow_candidate = (
         _target_selected_profile_binder_flow_candidate(
             runtime_profile_source,
@@ -10812,6 +10868,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_selected_shape_primitives_candidate": (
             target_selected_shape_primitives_candidate
+        ),
+        "target_selected_namespace_contract_candidate": (
+            target_selected_namespace_contract_candidate
         ),
         "target_selected_profile_binder_flow_candidate": (
             target_selected_profile_binder_flow_candidate

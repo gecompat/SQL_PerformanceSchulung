@@ -2472,6 +2472,43 @@ class StaticImportCandidateTests(unittest.TestCase):
                     changed, selected_shape_contract,
                 ))
 
+    def test_selected_namespace_contract_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        shape_primitives = {"selected_shape_validation_claimed": False}
+        candidate = SUBJECT._target_selected_namespace_contract_candidate(
+            profile_source, shape_primitives,
+        )
+        self.assertEqual(candidate, {
+            "namespace_type": "exact_dict",
+            "namespace_and_key_budget": 16368,
+            "key_type": "exact_str",
+            "shared_budget_increment_per_key": True,
+            "scalar_key_validation": True,
+            "selected_namespace_validation_claimed": False,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "evidence_scope": "STATIC_SELECTED_NAMESPACE_CONTRACT_CANDIDATE",
+        })
+        for changed in (
+            profile_source.replace(
+                b"budget[0] + len(namespace) <= 16368",
+                b"budget[0] + len(namespace) <= 16369",
+            ),
+            profile_source.replace(
+                b"type(key) is str", b"isinstance(key, str)",
+            ),
+        ):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(changed),
+            ):
+                self.assertIsNone(SUBJECT._target_selected_namespace_contract_candidate(
+                    changed, shape_primitives,
+                ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(
