@@ -1869,6 +1869,48 @@ class StaticImportCandidateTests(unittest.TestCase):
                 )
             )
 
+    def test_profile_shape_contract_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        candidate = SUBJECT._target_profile_shape_contract_candidate(
+            profile_source,
+            {"trust_established": False},
+            {"runtime_observation_claimed": False},
+        )
+        self.assertEqual(candidate, {
+            "accepted_value_types": ("DeclaredProfile", "Observation"),
+            "shared_field_contracts": (
+                "token_32_bytes", "text_fields", "version_3_ints_0_to_999",
+                "prefixes_4_absolute_paths", "absolute_executable_targets",
+                "three_known_finders", "two_known_hooks", "module_records", "file_records",
+            ),
+            "declared_only_contracts": (
+                "fixed_assumption", "two_unique_roots", "bounded_control_names",
+                "absolute_inert_zip", "file_paths_bound_to_target_or_roots",
+            ),
+            "observation_only_contracts": ("text_platform", "six_binary_flags"),
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "input_validation_claimed": False,
+            "runtime_observation_claimed": False,
+            "evidence_scope": "STATIC_PROFILE_SHAPE_CONTRACT_CANDIDATE",
+        })
+        changed = profile_source.replace(
+            b"len(value.controls) <= 2",
+            b"len(value.controls) <= 3",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed),
+        ):
+            self.assertIsNone(SUBJECT._target_profile_shape_contract_candidate(
+                changed,
+                {"trust_established": False},
+                {"runtime_observation_claimed": False},
+            ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

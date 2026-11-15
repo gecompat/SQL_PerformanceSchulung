@@ -2272,6 +2272,80 @@ def _target_profile_validation_report_flow_candidate(source_bytes, compare_contr
     }
 
 
+def _target_profile_shape_contract_candidate(
+        source_bytes, compare_contract, capture_schema):
+    """Bind shared and branch-specific DeclaredProfile/Observation shape checks."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(compare_contract) is not dict
+            or compare_contract.get("trust_established") is not False
+            or type(capture_schema) is not dict
+            or capture_schema.get("runtime_observation_claimed") is not False):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def _shape\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"_need(type(value) is (DeclaredProfile if expected else Observation))",
+        b"_need(type(value.token) is bytes and len(value.token) == 32)",
+        b"for item in (value.implementation, value.executable, value.abi): _text(item)",
+        b"_need(type(value.version) is tuple and len(value.version) == 3 and all(type(n) is int and 0 <= n <= 999 for n in value.version))",
+        b"_strings(value.prefixes)",
+        b"_need(value.abi != \"\", \"INTERPRETER_MISMATCH\")",
+        b"_need(len(value.prefixes) == 4)",
+        b"_strings(value.paths)",
+        b"_absolute(value.executable)",
+        b"_absolute(value.executable_target)",
+        b"for p in value.paths + value.prefixes: _absolute(p)",
+        b"_need(type(value.finders) is tuple and len(value.finders) == 3 and all(a is b for a, b in zip(value.finders, (BuiltinImporter, FrozenImporter, PathFinder))))",
+        b"_need(type(value.hooks) is tuple and len(value.hooks) == 2 and value.hooks[0] is zipimporter and type(value.hooks[1]) is FunctionType)",
+        b"_records(value.modules)",
+        b"_files(value.files)",
+        b"if expected:",
+        b"_need(value.assumption == ASSUMPTION, \"TRUST_UNDECLARED\")",
+        b"_strings(value.roots)",
+        b"_strings(value.controls)",
+        b"_need(len(value.controls) <= 2 and all(n in (\"__main__\", \"dgn007_import_runtime_profile\") for n in value.controls) and len(value.controls) == len(set(value.controls)), \"CONTROL_MISMATCH\")",
+        b"_text(value.inert_zip)",
+        b"_need(len(value.roots) == 2 and len(set(value.roots)) == 2)",
+        b"for p in value.roots + (value.inert_zip,): _absolute(p)",
+        b"_need(not value.files or value.files[0].path == value.executable_target, \"HASH_PATH_MISMATCH\")",
+        b"_need(len(value.files) < 2 or _under(value.files[1].path, value.roots), \"HASH_PATH_MISMATCH\")",
+        b"else:",
+        b"_text(value.platform)",
+        b"_need(type(value.flags) is tuple and len(value.flags) == 6 and all(type(n) is int and 0 <= n <= 1 for n in value.flags))",
+    )
+    if any(normalized.count(fragment) != 1 for fragment in required):
+        return None
+    if not all(normalized.index(left) < normalized.index(right)
+               for left, right in zip(required, required[1:])):
+        return None
+    return {
+        "accepted_value_types": ("DeclaredProfile", "Observation"),
+        "shared_field_contracts": (
+            "token_32_bytes", "text_fields", "version_3_ints_0_to_999",
+            "prefixes_4_absolute_paths", "absolute_executable_targets",
+            "three_known_finders", "two_known_hooks", "module_records", "file_records",
+        ),
+        "declared_only_contracts": (
+            "fixed_assumption", "two_unique_roots", "bounded_control_names",
+            "absolute_inert_zip", "file_paths_bound_to_target_or_roots",
+        ),
+        "observation_only_contracts": ("text_platform", "six_binary_flags"),
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "input_validation_claimed": False,
+        "runtime_observation_claimed": False,
+        "evidence_scope": "STATIC_PROFILE_SHAPE_CONTRACT_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9433,6 +9507,13 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_profile_compare_contract_candidate,
         )
     )
+    target_profile_shape_contract_candidate = (
+        _target_profile_shape_contract_candidate(
+            runtime_profile_source,
+            target_profile_compare_contract_candidate,
+            target_profile_capture_schema_candidate,
+        )
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -9915,6 +9996,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_profile_validation_report_flow_candidate": (
             target_profile_validation_report_flow_candidate
+        ),
+        "target_profile_shape_contract_candidate": (
+            target_profile_shape_contract_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
