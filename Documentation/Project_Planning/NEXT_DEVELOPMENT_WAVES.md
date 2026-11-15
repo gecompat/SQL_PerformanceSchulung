@@ -2584,10 +2584,17 @@ PR #811 bindet `implementation` an `sys.implementation.name` aus der
 digestgeprüften CPython-`sysmodule.c`-Quelle. 244 fokussierte Regressionen und
 alle fünf PR-Gates bestanden; der Kandidat bleibt statisch.
 
-## Begrenzte Fortsetzung: Versionsfeld binden
+## Abgeschlossen: Versionsfeld binden
 
-Der nächste S15-Schnitt leitet `(3, 12, 16)` aus dem geprüften
-`sys.implementation.version`-Fakt ab, das dieselbe deklarierte
-`version_info`-Referenz wie `sys.version_info` verwendet. Es entsteht keine
-Runtimeversion. Umfang: ein Paket, ein PR und höchstens zwei Regressionen;
-keine Runtime-, P11-, SQL-/Lab- oder menschliche Generalprobenattestation.
+PR #812 leitet `(3, 12, 16)` aus `sys.implementation.version` ab und bindet
+den Quellfakt an dasselbe deklarierte `version_info`-Objekt wie
+`sys.version_info`. 244 fokussierte Regressionen und alle fünf PR-Gates
+bestanden; der Kandidat behauptet keine Runtimeversion.
+
+## Begrenzte Fortsetzung: Executable-Feld binden
+
+Der nächste S15-Schnitt bindet `executable` und `executable_target` an denselben
+regulären, nicht-symlinkten Image-Member `/usr/local/bin/python3.12` samt
+Digest. Die Ausgabe bleibt eine statische Locatorwahl. Umfang: ein Paket, ein
+PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
+menschliche Generalprobenattestation.

@@ -5413,6 +5413,13 @@ def _target_image_sys_path_candidate(image_facts, getpath_inventory,
         raise ValueError("TARGET_IMAGE_S15_ABI_CANDIDATE")
     return {
         "sys_path_candidate": paths,
+        "executable_field_candidate": {
+            "value": executable_path,
+            "target": executable_path,
+            "target_sha256": image_facts["executable_sha256"],
+            "direct_regular_file": True,
+            "runtime_executable_claimed": False,
+        },
         "executable_target_candidate": executable_path,
         "abi_field_candidate": {
             "value": image_facts["soabi"],
