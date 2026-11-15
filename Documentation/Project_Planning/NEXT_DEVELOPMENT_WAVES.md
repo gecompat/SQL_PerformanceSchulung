@@ -2479,3 +2479,15 @@ zwei Regressionen beschränkt. Sie bindet `_CONFIG_VARS_INITIALIZED=True` ans
 Ende des POSIX-Initialisierungspfads und führt diese Abschlussmarke mit dem
 bereits geprüften Erstaufruf-/API-Kandidaten zusammen. Keine Ausführungs- oder
 Runtimeattestation.
+
+## Begrenzte Fortsetzung: Import-Finder-Registrierungsstellen binden
+
+Der nächste S15-Teilschnitt soll die drei deklarativen
+`sys.meta_path.append`-Stellen in den gepinnten CPython-3.12.16-Importlibquellen
+und die `FileFinder.path_hook`-Registrierung strukturell binden. Die Quelle
+muss fail-closed auf zusätzliche oder veränderte Registrierungen reagieren.
+Der Kandidat darf weder endgültige Runtimelisten noch deren vollständige
+Reihenfolge behaupten, da Bootstrap-Aufrufreihenfolge und weitere
+Hook-Registrierungen außerhalb dieses Scopes liegen. Umfang: ein Paket, ein PR
+und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
+menschliche Generalprobenattestation.
