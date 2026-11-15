@@ -21,7 +21,19 @@ SPEC.loader.exec_module(SUBJECT)
 class StaticImportCandidateTests(unittest.TestCase):
     @staticmethod
     def _worker_sys_flag_fact_fixture():
-        preconfig_source = b"case 'I': cmdline->isolated = 1;"
+        preconfig_source = (
+            b"case 'I': cmdline->isolated = 1;\n"
+            b"PyStatus _PyPreCmdline_Read(_PyPreCmdline *cmdline, "
+            b"const PyPreConfig *preconfig) {\n"
+            b"if (cmdline->isolated > 0) { cmdline->use_environment = 0; }\n"
+            b"if ((cmdline->dev_mode < 0) && "
+            b"(_Py_get_xoption(&cmdline->xoptions, L\"dev\") || "
+            b"_Py_GetEnv(cmdline->use_environment, \"PYTHONDEVMODE\"))) { "
+            b"cmdline->dev_mode = 1; }\n"
+            b"if (cmdline->dev_mode < 0) { cmdline->dev_mode = 0; }\n}\n"
+            b"PyStatus _PyPreCmdline_SetConfig(const _PyPreCmdline *cmdline, "
+            b"PyConfig *config) {\nCOPY_ATTR(dev_mode);\n}\n"
+        )
         initconfig_source = (
             b"if (config->isolated) { config->safe_path = 1; "
             b"config->use_environment = 0; "
@@ -78,6 +90,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"SetFlag(config->bytes_warning);\n"
             b"SetFlag(config->quiet);\n"
             b"SetFlag(config->use_hash_seed == 0 || config->hash_seed != 0);\n"
+            b"SetFlagObj(PyBool_FromLong(config->dev_mode));\n"
             b"return 0;\n}\n"
             b"int _PySys_UpdateConfig(PyThreadState *tstate) {\n"
             b"if (set_flags_from_config(interp, flags) < 0) { return -1; }\n"
@@ -1421,6 +1434,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             ("sys.flags.bytes_warning", 0),
             ("sys.flags.quiet", 0),
             ("sys.flags.hash_randomization", 1),
+            ("sys.flags.dev_mode", False),
         )
         with patch.multiple(
             SUBJECT,
@@ -1459,7 +1473,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             self.assertEqual(SUBJECT._target_s15_flags_field_candidate(facts), {
                 "value": (1, 1, 1, 1, 1, 0),
                 "source_fact_names": tuple(name for name, _ in expected[:6]),
-                "worker_route_fact_count": 15,
+                "worker_route_fact_count": 16,
                 "runtime_flags_claimed": False,
                 "evidence_scope": "STATIC_S15_FLAGS_FIELD_CANDIDATE",
             })
@@ -1476,7 +1490,8 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "sys.flags.inspect == 0 and sys.flags.interactive == 0 and "
                 "sys.flags.verbose == 0 and sys.flags.bytes_warning == 0 and "
                 "sys.flags.quiet == 0 and "
-                "sys.flags.hash_randomization == 1",
+                "sys.flags.hash_randomization == 1 and "
+                "sys.flags.dev_mode is False",
                 mode="eval",
             ).body
             self.assertIs(
@@ -3239,6 +3254,17 @@ class StaticImportCandidateTests(unittest.TestCase):
             SYS_MODULE_C_SHA256=hashlib.sha256(sys_module).hexdigest(),
             IMPORT_USED_BYTES_PROBE_SHA256=hashlib.sha256(worker).hexdigest(),
         ):
+            changed_dev_mode = preconfig.replace(
+                b"cmdline->dev_mode = 0;",
+                b"cmdline->dev_mode = 1;",
+            )
+            with patch.object(
+                SUBJECT, "PRECONFIG_C_SHA256",
+                hashlib.sha256(changed_dev_mode).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
+                    changed_dev_mode, initconfig, sys_module, worker,
+                ), ())
             self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
                 preconfig, initconfig, sys_module,
                 worker.replace(b"'-I'", b"'-E'"),
