@@ -1588,6 +1588,56 @@ def _target_s15_assumption_field_candidate(source_bytes):
     }
 
 
+def _target_s15_installation_schema_candidate(source_bytes):
+    """Bind S15 field order to the pinned runtime profile shape validator."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or hashlib.sha256(source_bytes).hexdigest()
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source_bytes.decode("utf-8"))
+    except (UnicodeError, SyntaxError):
+        return None
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef)
+                 and node.name == "_selected_shapes"]
+    expected_fields = (
+        "assumption", "platform", "implementation", "version", "exe",
+        "target", "prefixes", "abi", "paths", "roots", "inert", "flags",
+        "finders", "hooks", "files",
+    )
+    if len(functions) != 1:
+        return None
+    unpackings = [node for node in ast.walk(functions[0])
+                  if isinstance(node, ast.Assign)
+                  and isinstance(node.value, ast.Name)
+                  and node.value.id == "installation"
+                  and len(node.targets) == 1
+                  and isinstance(node.targets[0], (ast.Tuple, ast.List))]
+    tuple_checks = [node for node in ast.walk(functions[0])
+                    if isinstance(node, ast.Call)
+                    and ast.unparse(node) == "_selected_tuple(installation, 15)"]
+    actual_fields = tuple(
+        item.id for item in unpackings[0].targets[0].elts
+        if isinstance(item, ast.Name)
+    ) if len(unpackings) == 1 else ()
+    if (actual_fields != expected_fields or len(tuple_checks) != 1):
+        return None
+    return {
+        "field_order": (
+            "assumption", "platform", "implementation", "version",
+            "executable", "executable_target", "prefixes", "abi", "paths",
+            "roots", "inert_zip", "flags", "finders", "hooks", "files",
+        ),
+        "tuple_length": 15,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "runtime_schema_claimed": False,
+        "evidence_scope": "STATIC_S15_INSTALLATION_SCHEMA_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -1742,7 +1792,7 @@ def _target_s15_installation_tuple_candidate(candidates):
     expected_keys = {
         "assumption", "platform", "implementation", "version", "image_paths",
         "prefixes", "paths", "roots", "inert_zip", "flags", "finders",
-        "hooks", "files",
+        "hooks", "files", "schema",
     }
     if type(candidates) is not dict or set(candidates) != expected_keys:
         return None
@@ -1759,9 +1809,21 @@ def _target_s15_installation_tuple_candidate(candidates):
     finders = candidates["finders"]
     hooks = candidates["hooks"]
     files = candidates["files"]
+    schema = candidates["schema"]
     if any(type(candidate) is not dict for candidate in (
             assumption, platform, implementation, version, image_paths,
-            prefixes, paths, roots, inert_zip, flags, finders, hooks, files)):
+            prefixes, paths, roots, inert_zip, flags, finders, hooks, files,
+            schema)):
+        return None
+    expected_field_order = (
+        "assumption", "platform", "implementation", "version", "executable",
+        "executable_target", "prefixes", "abi", "paths", "roots", "inert_zip",
+        "flags", "finders", "hooks", "files",
+    )
+    if (schema.get("field_order") != expected_field_order
+            or schema.get("tuple_length") != 15
+            or schema.get("source_sha256") != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or schema.get("runtime_schema_claimed") is not False):
         return None
     executable = image_paths.get("executable_field_candidate")
     abi = image_paths.get("abi_field_candidate")
@@ -1831,11 +1893,8 @@ def _target_s15_installation_tuple_candidate(candidates):
     )
     return {
         "value": value,
-        "field_order": (
-            "assumption", "platform", "implementation", "version",
-            "executable", "executable_target", "prefixes", "abi", "paths",
-            "roots", "inert_zip", "flags", "finders", "hooks", "files",
-        ),
+        "field_order": schema["field_order"],
+        "schema_source_sha256": schema["source_sha256"],
         "complete_file_list_claimed": False,
         "runtime_record_claimed": False,
         "profile_selection_claimed": False,
@@ -8599,6 +8658,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_s15_assumption_field_candidate = (
         _target_s15_assumption_field_candidate(runtime_profile_source)
     )
+    target_s15_installation_schema_candidate = (
+        _target_s15_installation_schema_candidate(runtime_profile_source)
+    )
     target_s15_installation_tuple_candidate = None
     configure_inventory = _configure_template_inventory(
         config_c_template, configure_source
@@ -8659,6 +8721,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "finders": target_s15_finders_field_candidate,
             "hooks": target_s15_hooks_field_candidate,
             "files": target_s15_files_field_candidate,
+            "schema": target_s15_installation_schema_candidate,
         })
     )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
@@ -9101,6 +9164,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_s15_hooks_field_candidate": target_s15_hooks_field_candidate,
         "target_s15_assumption_field_candidate": (
             target_s15_assumption_field_candidate
+        ),
+        "target_s15_installation_schema_candidate": (
+            target_s15_installation_schema_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
