@@ -1192,6 +1192,15 @@ class StaticImportCandidateTests(unittest.TestCase):
         ):
             facts = SUBJECT._target_sys_implementation_version_fact(sys_module)
             self.assertEqual(facts, expected)
+            self.assertEqual(SUBJECT._target_s15_version_field_candidate(
+                sys_module, facts,
+            ), {
+                "value": (3, 12, 16),
+                "source_fact": "sys.implementation.version",
+                "source_sha256": hashlib.sha256(sys_module).hexdigest(),
+                "version_info_object_shared": True,
+                "runtime_version_claimed": False,
+            })
             condition = ast.parse(
                 "sys.implementation.version == sys.version_info and "
                 "sys.implementation.version[:2] == (3, 12)",
@@ -1228,9 +1237,13 @@ class StaticImportCandidateTests(unittest.TestCase):
         with patch.object(
             SUBJECT, "SYS_MODULE_C_SHA256", hashlib.sha256(sys_module).hexdigest(),
         ):
+            facts = SUBJECT._target_sys_implementation_version_fact(sys_module)
             self.assertEqual(
-                SUBJECT._target_sys_implementation_version_fact(sys_module), (),
+                facts, (),
             )
+            self.assertEqual(SUBJECT._target_s15_version_field_candidate(
+                sys_module, facts,
+            ), {})
 
     def test_sys_implementation_name_binds_pinned_constant(self):
         sys_module = (

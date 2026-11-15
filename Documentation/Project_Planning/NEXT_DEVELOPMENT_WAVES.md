@@ -2578,10 +2578,16 @@ PR #810 verbindet `sys.platform` aus dem geprüften `Py_GetPlatform`-Pfad mit
 fokussierte Regressionen und alle fünf PR-Gates bestanden; die Ausgabe bleibt
 statisch.
 
-## Begrenzte Fortsetzung: Implementation-Feldkandidat binden
+## Abgeschlossen: Implementation-Feldkandidat binden
 
-Der nächste S15-Schnitt bindet `implementation` an `sys.implementation.name`
-aus der digestgeprüften CPython-`sysmodule.c`-Quelle. Der statische Kandidat
-verwendet den bereits geprüften Quellfakt erneut und behauptet keine
-Runtimeaufnahme. Umfang: ein Paket, ein PR und höchstens zwei Regressionen;
+PR #811 bindet `implementation` an `sys.implementation.name` aus der
+digestgeprüften CPython-`sysmodule.c`-Quelle. 244 fokussierte Regressionen und
+alle fünf PR-Gates bestanden; der Kandidat bleibt statisch.
+
+## Begrenzte Fortsetzung: Versionsfeld binden
+
+Der nächste S15-Schnitt leitet `(3, 12, 16)` aus dem geprüften
+`sys.implementation.version`-Fakt ab, das dieselbe deklarierte
+`version_info`-Referenz wie `sys.version_info` verwendet. Es entsteht keine
+Runtimeversion. Umfang: ein Paket, ein PR und höchstens zwei Regressionen;
 keine Runtime-, P11-, SQL-/Lab- oder menschliche Generalprobenattestation.
