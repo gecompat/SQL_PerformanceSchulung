@@ -155,7 +155,9 @@ class StaticImportCandidateTests(unittest.TestCase):
                             b"'SOABI': 'cpython-312-x86_64-linux-gnu', "
                             b"'DESTSHARED': '/usr/local/lib/python3.12/lib-dynload', "
                             b"'EXT_SUFFIX': '.cpython-312-x86_64-linux-gnu.so', "
-                            b"'MULTIARCH': 'x86_64-linux-gnu'}\n"
+                            b"'MULTIARCH': 'x86_64-linux-gnu', "
+                            b"'prefix': '/usr/local', 'exec_prefix': '/usr/local', "
+                            b"'PLATLIBDIR': 'lib', 'PYTHONPATH': ''}\n"
                         )
                         info = SUBJECT.tarfile.TarInfo(SUBJECT.TARGET_SYSCONFIGDATA_PATH)
                         info.mode = 0o644
@@ -244,6 +246,10 @@ class StaticImportCandidateTests(unittest.TestCase):
             "destshared": "/usr/local/lib/python3.12/lib-dynload",
             "extension_suffix": ".cpython-312-x86_64-linux-gnu.so",
             "multiarch": "x86_64-linux-gnu",
+            "prefix": "/usr/local",
+            "exec_prefix": "/usr/local",
+            "platlibdir": "lib",
+            "compiled_pythonpath": "",
             "inert_zip_candidate": "/usr/local/lib/python312.zip",
             "prefix_landmark_candidate": "/usr/local",
             "exec_prefix_landmark_candidate": "/usr/local",
@@ -253,6 +259,17 @@ class StaticImportCandidateTests(unittest.TestCase):
             "setup_parent_paths_verified": True,
             "_pickle_extension": True,
         })
+        self.assertEqual(SUBJECT._target_image_sys_path_candidate(
+            facts,
+            {"posix_default_path_append_order": (
+                "ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir",
+            )},
+            True, True, True,
+        ), {"sys_path_candidate": [
+            "/usr/local/lib/python312.zip",
+            "/usr/local/lib/python3.12",
+            "/usr/local/lib/python3.12/lib-dynload",
+        ]})
 
     def test_target_sysconfigdata_rejects_unbound_source(self):
         with patch.object(SUBJECT, "TARGET_SYSCONFIGDATA_SHA256", "0" * 64):
@@ -284,6 +301,21 @@ class StaticImportCandidateTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_PREFIX_LANDMARKS"):
             SUBJECT._target_image_prefix_landmark_facts(tracked)
+
+    def test_target_sys_path_candidate_rejects_compiled_extra_path(self):
+        image_facts = {
+            "prefix": "/usr/local", "exec_prefix": "/usr/local",
+            "platlibdir": "lib", "compiled_pythonpath": "/unexpected",
+            "prefix_landmark_candidate": "/usr/local",
+            "exec_prefix_landmark_candidate": "/usr/local",
+        }
+        inventory = {"posix_default_path_append_order": (
+            "ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir",
+        )}
+        with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_SYS_PATH_CANDIDATE"):
+            SUBJECT._target_image_sys_path_candidate(
+                image_facts, inventory, True, True, True,
+            )
 
     def test_target_image_setup_paths_reject_symlinked_probe_parents(self):
         tracked = {
@@ -2025,6 +2057,10 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"f'{STDLIB_SUBDIR}/os.pyc']\n"
             b"    PLATSTDLIB_LANDMARK = f'{platlibdir}/python{VERSION_MAJOR}."
             b"{VERSION_MINOR}/lib-dynload'\n"
+            b"    pythonpath.append(joinpath(prefix, ZIP_LANDMARK))\n"
+            b"    if os_name == 'nt':\n        pythonpath.append(platstdlib_dir)\n"
+            b"    else:\n        pythonpath.append(stdlib_dir)\n"
+            b"        pythonpath.append(platstdlib_dir)\n"
         )
         with patch.object(
             SUBJECT, "GETPATH_SOURCE_SHA256", hashlib.sha256(getpath).hexdigest()
@@ -2043,6 +2079,10 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(
             inventory["posix_platstdlib_landmark_template"],
             "f'{platlibdir}/python{VERSION_MAJOR}.{VERSION_MINOR}/lib-dynload'",
+        )
+        self.assertEqual(
+            inventory["posix_default_path_append_order"],
+            ("ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir"),
         )
 
         sysconfig = (

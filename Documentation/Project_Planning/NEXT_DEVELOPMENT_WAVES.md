@@ -2247,3 +2247,23 @@ Zielruntimewerte und keine vollständige S15-Auswahl. Keine Runtime-, Profil-,
 Worker-, SQL-, Lab- oder Generalprobenausführung. Token-/Geldverbrauch bleiben
 unbekannt; der Checkpoint umfasst ein Paket und einen PR. PR-Integration ist
 der Checkpoint; danach wird anhand des aktuellen Status weitergearbeitet.
+
+Die Prefix-Landmark-Kandidaten sind mit 221 fokussierten Tests und allen fünf
+PR-Gates bestanden. PR #775 integrierte sie als
+`a6af304b9b3a6a5478327cfabab1800200a078db`; `main` ist synchronisiert,
+lokale und Remote-Branches sind entfernt.
+
+### Begrenzte Fortsetzung: geordnete `sys.path`-Kandidaten binden
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR erweitern die gepinnten `getpath.py`-Landmarks um
+ihre POSIX-Anfügereihenfolge und verbinden sie mit den digestgebundenen
+Sysconfig-Buildwerten und den verifizierten Zielimage-Pfaden. Zwei Regressionen
+decken die Kandidatenfolge und die fail-closed-Ablehnung bei einer zusätzlichen
+kompilierten `PYTHONPATH`-Angabe ab. Die ausgegebene Liste bleibt eine
+Sollwertkandidatur; unbekannte Startup-Overrides, die vollständige operative
+Auswahl und eine tatsächliche `sys.path`-Aufnahme bleiben offen. Keine Runtime-,
+Profil-, Worker-, SQL-, Lab- oder Generalprobenausführung. Token-/Geldverbrauch
+bleiben unbekannt; der Checkpoint umfasst ein Paket und einen PR.
+PR-Integration ist der Checkpoint; danach wird anhand des aktuellen Status
+weitergearbeitet.

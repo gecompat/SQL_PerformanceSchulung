@@ -89,6 +89,13 @@ und `/usr/local/pyvenv.cfg`, `/usr/local/bin/pyvenv.cfg` sowie
 und Exec-Prefix als statische Landmark-Kandidaten unter der festgelegten Route;
 `prefix`, `exec_prefix`, `base_prefix` und `base_exec_prefix` wurden nicht in
 einer Zielruntime beobachtet.
+Der Source- und Buildwertvorschnitt bindet außerdem die POSIX-Anfügereihenfolge
+`ZIP_LANDMARK`, `stdlib_dir`, `platstdlib_dir`. Daraus ergibt sich unter der
+festgelegten `-I -S`-/Direct-Executable-Kandidatur die geordnete
+`sys.path`-Sollwertkandidatenliste `/usr/local/lib/python312.zip`,
+`/usr/local/lib/python3.12`, `/usr/local/lib/python3.12/lib-dynload`. Das ist
+keine Zielruntimeaufnahme und keine vollständige Pfadattestation; weitere
+Startup-Overrides und die tatsächlich gehaltene Liste bleiben offen.
 
 Die separat dokumentierte CPython-3.12.16-Imagekandidatur ist jetzt zusätzlich
 gegen die OCI Registry-Blobbytes nachgerechnet: Childmanifest und Configdigest
