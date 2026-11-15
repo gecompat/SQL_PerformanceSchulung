@@ -2749,9 +2749,20 @@ gemeinsame Feldgrenzen, Finder-/Hookinstanzen, Recordvalidator-Delegation und
 die jeweils branch-spezifischen Annahme-/Root-/Control-/Fingerprint- bzw.
 Plattform-/Flagbedingungen. Es wird keine validierte Eingabe behauptet.
 
-## Geplante Fortsetzung: Modul- und Datei-Recordvalidatoren binden
+## Abgeschlossen: Profil- und Observation-Formvertrag binden
 
-Ein Arbeitspaket und ein PR binden die Verträge von `_records` und `_files`:
-Modul-/Spec-/Loaderkohärenz, sortierte eindeutige Namen, Frozen-Aliasanker,
-Dateidigestform sowie Größen- und Pfadkappen. Zwei Regressionen lockern je eine
-Grenze. Der Schritt erzeugt keine Beobachtungs- oder Runtimeattestation.
+PR #840 bindet `_shape` an die getrennten Deklarations- und Observationformen
+einschließlich ihrer gemeinsamen und branch-spezifischen Feldbedingungen.
+Keine validierte Eingabe oder Runtimeaufnahme.
+
+## Begrenzte Fortsetzung: Modul- und Datei-Recordvalidatoren binden
+
+PR #841 bindet `_records` und `_files`: Modul-/Spec-/Loaderkohärenz, sortierte
+eindeutige Namen, Frozen-Aliasanker, Dateidigestform sowie Größen- und
+Pfadkappen. Es entsteht keine tatsächliche Recordvalidierung oder Aufnahme.
+
+## Geplante Fortsetzung: absolute und eingeschränkte Pfade binden
+
+Ein Arbeitspaket und ein PR binden `_absolute` und `_under` an kanonische
+absolute Pfade ohne Traversal sowie Root-Containment. Zwei Gegenproben lockern
+je eine Bedingung; es gibt keine Runtime-/Hostattestation.

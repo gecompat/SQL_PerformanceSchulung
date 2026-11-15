@@ -1911,6 +1911,53 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {"runtime_observation_claimed": False},
             ))
 
+    def test_profile_record_validators_are_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        shape_contract = {"input_validation_claimed": False}
+        candidate = SUBJECT._target_profile_record_validators_candidate(
+            profile_source, shape_contract,
+        )
+        self.assertEqual(candidate, {
+            "module_record_invariants": (
+                "typed_module_and_spec", "loader_kind_and_coherence", "module_namespace_identity",
+                "control_name_constraints", "sorted_unique_names", "frozen_companion_identity",
+            ),
+            "file_record_invariants": (
+                "maximum_two_records", "absolute_unique_paths", "bounded_file_and_total_size",
+                "lowercase_sha256_hex_64",
+            ),
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "records_validated_claimed": False,
+            "runtime_inventory_claimed": False,
+            "evidence_scope": "STATIC_PROFILE_RECORD_VALIDATORS_CANDIDATE",
+        })
+        changed_names = profile_source.replace(
+            b"names == sorted(set(names))",
+            b"names == sorted(names)",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed_names),
+        ):
+            self.assertIsNone(SUBJECT._target_profile_record_validators_candidate(
+                changed_names, shape_contract,
+            ))
+        changed_digest = profile_source.replace(
+            b'0123456789abcdef',
+            b'0123456789ABCDEF',
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed_digest),
+        ):
+            self.assertIsNone(SUBJECT._target_profile_record_validators_candidate(
+                changed_digest, shape_contract,
+            ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(
