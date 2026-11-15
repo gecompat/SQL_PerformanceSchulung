@@ -1656,6 +1656,31 @@ def _target_s15_paths_field_candidate(path_candidate):
     }
 
 
+def _target_s15_roots_field_candidate(path_candidate):
+    """Expose the verified standard-library roots as an explicit S15 field."""
+    expected = (
+        "/usr/local/lib/python3.12",
+        "/usr/local/lib/python3.12/lib-dynload",
+    )
+    roots = (
+        path_candidate.get("roots_field_candidate")
+        if type(path_candidate) is dict else None
+    )
+    if (type(roots) is not dict
+            or roots.get("values") != list(expected)
+            or roots.get("stdlib_root") != expected[0]
+            or roots.get("extension_root") != expected[1]
+            or roots.get("extension_file_verified") is not True
+            or roots.get("runtime_roots_claimed") is not False):
+        return None
+    return {
+        "value": expected,
+        "extension_file_verified": True,
+        "runtime_roots_claimed": False,
+        "evidence_scope": "STATIC_S15_ROOTS_FIELD_CANDIDATE",
+    }
+
+
 def _configure_template_inventory(config_template, configure_source):
     if (type(config_template) is not bytes or not config_template
             or len(config_template) > MAX_CONFIG_C_TEMPLATE_BYTES
@@ -8273,6 +8298,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_sys_path_candidate_facts = {}
     target_s15_prefixes_field_candidate = {}
     target_s15_paths_field_candidate = None
+    target_s15_roots_field_candidate = None
     target_warning_options_empty_for_facts = {}
     target_importlib_optimize_line_facts = {}
     target_worker_sys_flag_facts = ()
@@ -8293,6 +8319,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_no_project_base_override,
         )
         target_s15_paths_field_candidate = _target_s15_paths_field_candidate(
+            target_sys_path_candidate_facts
+        )
+        target_s15_roots_field_candidate = _target_s15_roots_field_candidate(
             target_sys_path_candidate_facts
         )
         target_s15_prefixes_field_candidate = (
@@ -9022,6 +9051,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_platform_image_save_path_facts": target_image_path_facts,
         "target_platform_sys_path_candidate_facts": target_sys_path_candidate_facts,
         "target_s15_paths_field_candidate": target_s15_paths_field_candidate,
+        "target_s15_roots_field_candidate": target_s15_roots_field_candidate,
         "target_s15_prefixes_field_candidate": (
             target_s15_prefixes_field_candidate
         ),

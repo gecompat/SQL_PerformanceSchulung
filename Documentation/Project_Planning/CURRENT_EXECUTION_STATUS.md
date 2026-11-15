@@ -11155,11 +11155,17 @@ Worker-routengebundenen Facts zusammen und prüft zusätzlich
 PR-Gates bestanden. Das Feld bleibt statisch; Runtimeflags wurden nicht
 beobachtet.
 
-## S15-Teilschnitt: Paths-Feldkandidat
+## Abgeschlossen: S15-Teilschnitt Paths-Feldkandidat
 
-Der nächste Kandidat bindet die geordnete `sys.path`-Sollwertkandidatur an
-die bereits abgeleiteten `inert_zip`- und Bibliotheksroot-Facts. Eine
-Regression prüft den vollständigen Kandidaten und eine Pfadabweichung. Die
-Ausgabe behauptet keine beobachtete Runtimeliste. Umfang: ein Paket, ein PR
-und höchstens zwei Regressionen; keine P11-, SQL-/Lab- oder menschliche
-Generalprobenattestation.
+PR #819 bindet die geordnete Dreierliste an die `inert_zip`- und Root-Facts;
+Pfadabweichungen und ein boolescher Ersatz für den Integerindex werden
+verworfen. 247 fokussierte Regressionen und alle fünf PR-Gates bestanden.
+Die Ausgabe ist eine statische Pfadkandidatur, keine Runtimeliste.
+
+## S15-Teilschnitt: Roots-Feldkandidat
+
+Der nächste Kandidat gibt das geprüfte Standardbibliotheks-/Extensionroot-Paar
+als eigenes S15-Feld aus. Eine Regression prüft den Kandidaten und verwirft
+eine falsche Runtimeattestationsmarke. Die Werte bleiben statische
+Sollwertkandidaten. Umfang: ein Paket, ein PR und höchstens zwei Regressionen;
+keine vollständige S15-/P11-Attestation oder menschliche Generalprobe.
