@@ -2591,10 +2591,18 @@ den Quellfakt an dasselbe deklarierte `version_info`-Objekt wie
 `sys.version_info`. 244 fokussierte Regressionen und alle fünf PR-Gates
 bestanden; der Kandidat behauptet keine Runtimeversion.
 
-## Begrenzte Fortsetzung: Executable-Feld binden
+## Abgeschlossen: Executable-Feld binden
 
-Der nächste S15-Schnitt bindet `executable` und `executable_target` an denselben
-regulären, nicht-symlinkten Image-Member `/usr/local/bin/python3.12` samt
-Digest. Die Ausgabe bleibt eine statische Locatorwahl. Umfang: ein Paket, ein
-PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
-menschliche Generalprobenattestation.
+PR #813 bindet `executable` und `executable_target` an denselben regulären,
+nicht-symlinkten Image-Member `/usr/local/bin/python3.12` samt Digest. 244
+fokussierte Regressionen und alle fünf PR-Gates bestanden; Runtimewerte wurden
+nicht beobachtet.
+
+## Begrenzte Fortsetzung: Prefix-Feldkandidat binden
+
+Der nächste S15-Schnitt bindet alle vier Prefixwerte an Zielimage-Landmarks,
+digestgeprüfte Sysconfigdaten, leere `PyConfig`-Defaults und geprüfte
+GetPath-Fallbacks. Nur das vollständige Tupel `/usr/local` wird ausgegeben;
+fehlende Voraussetzungen unterdrücken den statischen Kandidaten. Umfang: ein
+Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab-
+oder menschliche Generalprobenattestation.

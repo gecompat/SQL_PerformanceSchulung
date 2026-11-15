@@ -803,6 +803,16 @@ def _getpath_source_inventory(source_bytes):
         raise ValueError("GETPATH_SOURCE_CONFIG_KEYS")
     canonical = "".join(name + "\n" for name in path_variables).encode("ascii")
     config_canonical = "".join(name + "\n" for name in sorted(config_keys)).encode("ascii")
+    prefix_reads = (
+        "base_prefix = config.get('base_prefix')",
+        "base_exec_prefix = config.get('base_exec_prefix')",
+    )
+    prefix_fallbacks = (
+        "config['base_prefix'] = base_prefix or prefix",
+        "config['base_exec_prefix'] = base_exec_prefix or exec_prefix",
+    )
+    if (any(source_text.count(line) != 1 for line in prefix_reads + prefix_fallbacks)):
+        raise ValueError("GETPATH_BASE_PREFIX_BINDING")
     return {
         "source_sha256": GETPATH_SOURCE_SHA256,
         "source_bytes": len(source_bytes),
@@ -813,6 +823,8 @@ def _getpath_source_inventory(source_bytes):
             "ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir",
         ),
         "pth_override_guard": True,
+        "base_prefix_config_read": True,
+        "base_prefix_fallback_bound": True,
         "posix_stdlib_landmark_template": ast.unparse(
             posix_assignments["STDLIB_LANDMARKS"]
         ),
@@ -5457,6 +5469,76 @@ def _target_image_sys_path_candidate(image_facts, getpath_inventory,
     }
 
 
+def _target_s15_prefixes_field_candidate(
+        image_facts, getpath_inventory, sys_path_candidate,
+        initconfig_source, no_site, direct_python312,
+        no_project_base_override):
+    """Bind four S15 prefixes using pinned config, source, and image facts."""
+    expected_path = [
+        "/usr/local/lib/python312.zip",
+        "/usr/local/lib/python3.12",
+        "/usr/local/lib/python3.12/lib-dynload",
+    ]
+    if (not no_site or not direct_python312 or not no_project_base_override
+            or type(image_facts) is not dict
+            or image_facts.get("sysconfigdata_path") != TARGET_SYSCONFIGDATA_PATH
+            or image_facts.get("sysconfigdata_sha256") != TARGET_SYSCONFIGDATA_SHA256
+            or image_facts.get("prefix") != "/usr/local"
+            or image_facts.get("exec_prefix") != "/usr/local"
+            or image_facts.get("prefix_landmark_candidate") != "/usr/local"
+            or image_facts.get("exec_prefix_landmark_candidate") != "/usr/local"
+            or image_facts.get("prefix_venv_markers_absent")
+            != list(TARGET_PREFIX_VENV_MARKERS)
+            or image_facts.get("build_marker_absent") != TARGET_BUILD_MARKER
+            or image_facts.get("_PYTHON_BUILD") is not False
+            or image_facts.get("setup_parent_paths_verified") is not True
+            or image_facts.get("pth_override_files_absent")
+            != list(TARGET_PTH_OVERRIDE_PATHS)
+            or type(getpath_inventory) is not dict
+            or getpath_inventory.get("source_sha256") != GETPATH_SOURCE_SHA256
+            or getpath_inventory.get("base_prefix_config_read") is not True
+            or getpath_inventory.get("base_prefix_fallback_bound") is not True
+            or type(sys_path_candidate) is not dict
+            or sys_path_candidate.get("sys_path_candidate") != expected_path):
+        return {}
+    if (type(initconfig_source) is not bytes or not initconfig_source
+            or len(initconfig_source) > MAX_INITCONFIG_C_BYTES
+            or hashlib.sha256(initconfig_source).hexdigest() != INITCONFIG_C_SHA256):
+        return {}
+    source = initconfig_source.decode("utf-8")
+
+    def function_body(name):
+        match = re.search(
+            r"\bvoid\s+" + re.escape(name)
+            + r"\s*\([^)]*\)\s*\{(?P<body>.*?)^\}",
+            source, re.DOTALL | re.MULTILINE,
+        )
+        return match.group("body") if match is not None else None
+
+    compat = function_body("_PyConfig_InitCompatConfig")
+    defaults = function_body("config_init_defaults")
+    python_config = function_body("PyConfig_InitPythonConfig")
+    prefix_fields = ("prefix", "base_prefix", "exec_prefix", "base_exec_prefix")
+    if (compat is None or defaults is None or python_config is None
+            or not re.search(r"memset\(config,\s*0,\s*sizeof\(\*config\)\);", compat)
+            or "_PyConfig_InitCompatConfig(config);" not in defaults
+            or "config_init_defaults(config);" not in python_config
+            or any(re.search(r"\bconfig->" + field + r"\s*=", defaults)
+                   for field in prefix_fields)):
+        return {}
+    return {
+        "values": ("/usr/local", "/usr/local", "/usr/local", "/usr/local"),
+        "field_order": ("prefix", "exec_prefix", "base_prefix", "base_exec_prefix"),
+        "prefix_source": "getpath POSIX landmarks and verified sysconfig defaults",
+        "base_prefix_source": "empty PyConfig defaults and getpath fallback",
+        "getpath_source_sha256": GETPATH_SOURCE_SHA256,
+        "initconfig_source_sha256": INITCONFIG_C_SHA256,
+        "sysconfigdata_path": TARGET_SYSCONFIGDATA_PATH,
+        "sysconfigdata_sha256": TARGET_SYSCONFIGDATA_SHA256,
+        "runtime_prefixes_claimed": False,
+    }
+
+
 def _target_image_pth_override_facts(tracked):
     """Reject image-level `._pth` overrides for the fixed direct route."""
     if (type(tracked) is not dict
@@ -7975,6 +8057,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         raise ValueError("TARGET_IMAGE_CONFIG_REQUIRED")
     target_image_path_facts = {}
     target_sys_path_candidate_facts = {}
+    target_s15_prefixes_field_candidate = {}
     target_warning_options_empty_for_facts = {}
     target_importlib_optimize_line_facts = {}
     target_worker_sys_flag_facts = ()
@@ -7992,6 +8075,14 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_image_path_facts, getpath_inventory,
             target_no_site, target_direct_python312,
             target_no_project_base_override,
+        )
+        target_s15_prefixes_field_candidate = (
+            _target_s15_prefixes_field_candidate(
+                target_image_path_facts, getpath_inventory,
+                target_sys_path_candidate_facts, initconfig_c_source,
+                target_no_site, target_direct_python312,
+                target_no_project_base_override,
+            )
         )
         worker_source_path = (
             Path(__file__).resolve().parents[2]
@@ -8676,6 +8767,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_image_save_path_facts": target_image_path_facts,
         "target_platform_sys_path_candidate_facts": target_sys_path_candidate_facts,
+        "target_s15_prefixes_field_candidate": (
+            target_s15_prefixes_field_candidate
+        ),
         "target_platform_thread_native_id_source_sha256": {
             "header": THREAD_NATIVE_ID_HEADER_SHA256,
             "module": THREAD_NATIVE_ID_MODULE_SHA256,
