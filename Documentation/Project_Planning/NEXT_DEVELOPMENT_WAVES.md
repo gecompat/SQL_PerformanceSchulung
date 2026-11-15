@@ -2894,8 +2894,15 @@ PR #861 bindet Versionprojektion, Startflagbereiche, die geordnete
 Pfadprojektion und die Skalartextprüfungen. 279 fokussierte Regressionen und
 alle fünf Gates bestanden; Runtimewerte blieben unbeobachtet.
 
-## Begrenzte Fortsetzung: Runtime-POST-Reihenfolge absichern
+## Abgeschlossen: Runtime-POST-Reihenfolge absichern
 
-Der nächste Offline-Schnitt sichert, dass die Provideridentität geprüft wird,
-bevor Runtime-Container gelesen werden. Die Gegenprobe vertauscht die Schritte;
-Runtimewerte bleiben unbeobachtet.
+PR #862 sichert, dass `_selected_post` die Provideridentität prüft, bevor es
+Runtime-Container liest. Die Gegenprobe vertauscht die Schritte; 279
+Regressionen und alle fünf Gates bestanden. Runtimewerte blieben unbeobachtet.
+
+## Abgeschlossen: vollständige ausgewählte Beobachtungsfolge binden
+
+PR #863 bindet alle drei POST-Prüfungen, den einzigen Erfolgsausgang und den
+Ausschluss vorzeitiger Rückgaben. Gegenproben entfernen die Schlussprüfung und
+fügen eine frühe Rückgabe ein; 279 fokussierte Regressionen bestehen. Es wird
+keine Runtimebeobachtung ausgeführt.

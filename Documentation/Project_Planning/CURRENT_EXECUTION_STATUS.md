@@ -11467,8 +11467,16 @@ Pfadprojektion und Skalartextprüfung mit gezielten Gegenproben. 279 fokussierte
 Regressionen und alle fünf Pflichtprüfungen bestanden. Runtimewerte bleiben
 unbeobachtet.
 
-## Begrenzte Fortsetzung: Runtime-POST-Reihenfolge absichern
+## Abgeschlossen: Runtime-POST-Reihenfolge absichern
 
-Der nächste Schnitt bindet die Reihenfolge: Provideridentität muss geprüft
-werden, bevor Runtime-Container gelesen werden. Eine Gegenprobe vertauscht
-diese Schritte; Runtimewerte bleiben unbeobachtet.
+PR #862 bindet die Reihenfolge in `_selected_post`: Provideridentität wird
+geprüft, bevor Runtime-Container gelesen werden. Eine Gegenprobe vertauscht die
+Schritte; 279 fokussierte Regressionen und alle fünf Pflichtprüfungen bestanden.
+Runtimewerte bleiben unbeobachtet.
+
+## Abgeschlossen: vollständige ausgewählte Beobachtungsfolge binden
+
+PR #863 bindet in `observe_selected_profile_scalars` alle drei POST-Prüfungen,
+den einzigen Erfolgsausgang sowie das Fehlen vorzeitiger Rückgaben. Gegenproben
+entfernen die Schlussprüfung bzw. fügen eine frühe Rückgabe ein; 279 fokussierte
+Regressionen bestehen. Es wird keine Runtimebeobachtung ausgeführt.

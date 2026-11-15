@@ -1946,22 +1946,35 @@ def _target_selected_profile_observation_flow_candidate(source_bytes, anchor_bin
     required = (
         b"fingerprints = _selected_shapes(installation, controls, modules, token)",
         b"expected, held = _bind_selected(installation, controls, modules, token, cache, tuple(finders), tuple(hooks), fingerprints, keys)",
+        b"_selected_post(expected, runtime, cache, finders, hooks, providers)",
         b"actual = observe_current_interpreter_scalars(expected, separately_known_filefinder_hook)",
         b"selected = ((s[0], s[9], s[10], controls), (s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[11], s[8], s[12], s[13], s[14]), modules)",
         b"_need(actual.scalars == selected, \"PROFILE_MISMATCH\")",
+        b"_selected_post(expected, runtime, cache, finders, hooks, providers)",
         b"final = _capture(expected, expected.files)",
         b"_need(_project_scalars(expected, final) == selected, \"PROFILE_MISMATCH\")",
         b"_selected_hook_post(hook, _filefinder_hook(final, separately_known_filefinder_hook))",
+        b"_selected_post(expected, runtime, cache, finders, hooks, providers)",
         b"return SelectedScalarObservationResult( ProfileReport(\"MATCHED_SELECTED_PROFILE\", \"NONE\", True), expected, actual.scalars)",
         b"except Exception:",
-        b"ProfileReport(\"REJECTED_SELECTED_OBSERVATION\", \"SELECTED_OBSERVATION_FAILED\")",
+        b"return SelectedScalarObservationResult( ProfileReport(\"REJECTED_SELECTED_OBSERVATION\", \"SELECTED_OBSERVATION_FAILED\"))",
     )
-    if any(normalized.count(fragment) != 1 for fragment in required):
+    post_check = required[2]
+    if (any(normalized.count(fragment) != 1 for fragment in required if fragment != post_check)
+            or normalized.count(post_check) != 3
+            or len(re.findall(rb"\breturn\b", normalized)) != 2):
         return None
-    if not all(normalized.index(left) < normalized.index(right) for left, right in zip(
-            required[:9], required[1:9])):
+    positions = []
+    cursor = 0
+    for fragment in required[:12]:
+        position = normalized.find(fragment, cursor)
+        if position < 0:
+            return None
+        positions.append(position)
+        cursor = position + len(fragment)
+    if positions != sorted(positions):
         return None
-    if normalized.index(required[9]) > normalized.index(required[10]):
+    if normalized.index(required[12]) > normalized.index(required[13]):
         return None
     return {
         "validation_order": (
