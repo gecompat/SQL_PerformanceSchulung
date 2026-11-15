@@ -58,6 +58,7 @@ HASHLIB_SOURCE_SHA256 = "6dbdebf270868b391080e21dc9687eddfaf321c965ad979f68d3f5c
 FUNCTOOLS_SOURCE_SHA256 = "de4a1d37c795e2a065124b5c49357893433bc6bb111b41277ccc9930ef08d4c9"
 FUNCTOOLS_LRU_CACHE_CALLS_SHA256 = "a9e9c4c387f449547755b88929b8bf482c94b8b77431e336f90b8d91d2420391"
 COLLECTIONS_NAMEDTUPLE_CALLS_SHA256 = "4a9dcf2bf498fe0d68ca0a0b80269d9556d6e47c9b509a5f3df7465596c954bf"
+KEYWORD_SOURCE_SHA256 = "18c2be738c04ad20ad375f6a71db34b3823c7f40b0340f5294d0e89f3c9b093b"
 TOKEN_SOURCE_SHA256 = "1a4d994ce9744f4bfe2d964fc24d112a1e76796a08c2e45a2d73c82a8587f922"
 OS_SOURCE_SHA256 = "6f3888d1a5bd4f1333116dd75ca8f1d2d951e38c8c8426179417aea097a1eef0"
 POSIX_MODULE_C_MEMBER = "Python-3.12.16/Modules/posixmodule.c"
@@ -7959,6 +7960,7 @@ def _target_collections_namedtuple_call_condition_facts(files):
     source = files.get("collections/__init__.py")
     inspect_source = files.get("inspect.py")
     typing_source = files.get("typing.py")
+    keyword_source = files.get("keyword.py")
     if (type(source) is not bytes
             or hashlib.sha256(source).hexdigest() != COLLECTIONS_SOURCE_SHA256
             or type(inspect_source) is not bytes
@@ -7966,6 +7968,10 @@ def _target_collections_namedtuple_call_condition_facts(files):
             != INSPECT_SOURCE_SHA256
             or type(typing_source) is not bytes
             or hashlib.sha256(typing_source).hexdigest() != TYPING_SOURCE_SHA256):
+        return {}
+    if (type(keyword_source) is not bytes
+            or hashlib.sha256(keyword_source).hexdigest()
+            != KEYWORD_SOURCE_SHA256):
         return {}
     try:
         trees = {
@@ -7992,6 +7998,9 @@ def _target_collections_namedtuple_call_condition_facts(files):
     identifier_guards = [node for node in ast.walk(function)
                          if isinstance(node, ast.If)
                          and ast.unparse(node.test) == "not name.isidentifier()"] if function else []
+    keyword_guards = [node for node in ast.walk(function)
+                      if isinstance(node, ast.If)
+                      and ast.unparse(node.test) == "_iskeyword(name)"] if function else []
     signature = function.args if function else None
     if (signature is None
             or [arg.arg for arg in signature.args] != ["typename", "field_names"]
@@ -8019,6 +8028,7 @@ def _target_collections_namedtuple_call_condition_facts(files):
     ]
     if (len(guards) != 1 or len(defaults_guards) != 2
             or len(module_guards) != 1 or len(identifier_guards) != 1
+            or len(keyword_guards) != 1
             or len(namespace_assignments) != 1
             or len(fields_entries) != 1
             or ast.unparse(fields_entries[0]) != "field_names"
@@ -8051,6 +8061,33 @@ def _target_collections_namedtuple_call_condition_facts(files):
                 and isinstance(node.ctx, (ast.Store, ast.Del))):
             return {}
 
+    keyword_tree = trees.get("keyword.py")
+    keyword_lists = [node.value for node in keyword_tree.body
+                     if isinstance(node, ast.Assign)
+                     and any(isinstance(target, ast.Name)
+                             and target.id == "kwlist" for target in node.targets)
+                     and isinstance(node.value, ast.List)] if keyword_tree else []
+    keyword_bindings = [node.value for node in keyword_tree.body
+                        if isinstance(node, ast.Assign)
+                        and any(isinstance(target, ast.Name)
+                                and target.id == "iskeyword" for target in node.targets)] if keyword_tree else []
+    collections_keyword_imports = [node for node in source_tree.body
+                                   if isinstance(node, ast.ImportFrom)
+                                   and node.module == "keyword"
+                                   and any(alias.name == "iskeyword"
+                                           and alias.asname == "_iskeyword"
+                                           for alias in node.names)] if source_tree else []
+    if (len(keyword_lists) != 1
+            or any(not isinstance(value, ast.Constant)
+                   or type(value.value) is not str
+                   for value in keyword_lists[0].elts)
+            or len(keyword_bindings) != 1
+            or ast.unparse(keyword_bindings[0])
+            != "frozenset(kwlist).__contains__"
+            or len(collections_keyword_imports) != 1):
+        return {}
+    keyword_values = {value.value for value in keyword_lists[0].elts}
+
     typing_tree = trees.get("typing.py")
     nmtuple_functions = [node for node in typing_tree.body
                          if isinstance(node, ast.FunctionDef)
@@ -8080,6 +8117,7 @@ def _target_collections_namedtuple_call_condition_facts(files):
     caller_source_rows = []
     outcomes = set()
     identifier_outcomes = set()
+    keyword_outcomes = set()
     defaults_outcomes = set()
     module_outcomes = set()
     for path, tree in trees.items():
@@ -8231,7 +8269,10 @@ def _target_collections_namedtuple_call_condition_facts(files):
             if any(not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name)
                    for name in type_names + field_values):
                 return {}
+            if any(name in keyword_values for name in type_names + field_values):
+                return {}
             identifier_outcomes.add(False)
+            keyword_outcomes.add(False)
     callsite_rows.sort()
     caller_source_rows.sort()
     digest = hashlib.sha256(json.dumps(
@@ -8240,6 +8281,7 @@ def _target_collections_namedtuple_call_condition_facts(files):
     if (digest != COLLECTIONS_NAMEDTUPLE_CALLS_SHA256
             or outcomes != {False, True}
             or identifier_outcomes != {False}
+            or keyword_outcomes != {False}
             or defaults_outcomes != {False, True}
             or module_outcomes != {False, True}):
         return {}
@@ -8248,6 +8290,8 @@ def _target_collections_namedtuple_call_condition_facts(files):
         tuple(sorted(outcomes)),
         ("collections", "collections/__init__.py", identifier_guards[0].lineno):
         tuple(sorted(identifier_outcomes)),
+        ("collections", "collections/__init__.py", keyword_guards[0].lineno):
+        tuple(sorted(keyword_outcomes)),
     }
     facts.update({
         ("collections", "collections/__init__.py", guard.lineno):
