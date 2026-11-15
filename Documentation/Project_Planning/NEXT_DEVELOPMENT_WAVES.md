@@ -2865,3 +2865,12 @@ PR #857 bindet `_selected_local` und `_selected_cache`: exakte Modul-, Spec-
 und Loaderformen, Submodulpfadkappen sowie die exakte sortierte Cache-Namensmenge.
 Gegenproben lockern Loaderform bzw. Cachemengengleichheit. Es werden keine
 Modulanker gelesen.
+
+## Begrenzte Fortsetzung: ausgewählte Runtime-Container binden
+
+Der folgende kleine Kandidat bindet `_selected_containers` an den exakten
+Runtime-Modultyp, den durch `MAX_RECORDS` begrenzten exakten Dictionary-Cache
+sowie Finder- und Hook-Container mit exakt drei bzw. zwei Elementen. Die
+Gegenproben lockern den Runtimetyp und die Hooklängengrenze. Es wird kein
+Runtimezustand gelesen oder attestiert; der PR-Checkpoint bleibt Teil der
+autonomen Fortsetzung.

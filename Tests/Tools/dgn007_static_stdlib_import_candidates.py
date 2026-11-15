@@ -3212,6 +3212,48 @@ def _target_selected_anchor_contract_candidate(source_bytes, namespace_contract)
     }
 
 
+def _target_selected_container_contract_candidate(source_bytes, anchor_contract):
+    """Bind the selected runtime module's bounded cache/finder/hook containers."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(anchor_contract) is not dict
+            or anchor_contract.get("selected_anchor_validation_claimed") is not False):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def _selected_containers\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"_need(type(runtime) is ModuleType, \"ANCHOR_FORM\")",
+        b"namespace = _selected_namespace(runtime, keys)",
+        b'cache = namespace.get("modules")',
+        b'finders, hooks = namespace.get("meta_path"), namespace.get("path_hooks")',
+        b"_need(type(cache) is dict and len(cache) <= MAX_RECORDS, \"ANCHOR_FORM\")",
+        b"_need(type(finders) in (tuple, list) and len(finders) == 3 and type(hooks) in (tuple, list) and len(hooks) == 2, \"ANCHOR_FORM\")",
+        b"return cache, finders, hooks",
+    )
+    if any(normalized.count(fragment) != 1 for fragment in required):
+        return None
+    if not all(normalized.index(left) < normalized.index(right)
+               for left, right in zip(required, required[1:])):
+        return None
+    return {
+        "runtime_module_type": "exact_ModuleType",
+        "module_cache_type": "exact_dict_bounded_by_MAX_RECORDS",
+        "finder_container": "exact_tuple_or_list_length_3",
+        "hook_container": "exact_tuple_or_list_length_2",
+        "selected_container_validation_claimed": False,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "evidence_scope": "STATIC_SELECTED_CONTAINER_CONTRACT_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -10264,6 +10306,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_selected_namespace_contract_candidate,
         )
     )
+    target_selected_container_contract_candidate = (
+        _target_selected_container_contract_candidate(
+            runtime_profile_source,
+            target_selected_anchor_contract_candidate,
+        )
+    )
     target_selected_profile_binder_flow_candidate = (
         _target_selected_profile_binder_flow_candidate(
             runtime_profile_source,
@@ -10940,6 +10988,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_selected_anchor_contract_candidate": (
             target_selected_anchor_contract_candidate
+        ),
+        "target_selected_container_contract_candidate": (
+            target_selected_container_contract_candidate
         ),
         "target_selected_profile_binder_flow_candidate": (
             target_selected_profile_binder_flow_candidate
