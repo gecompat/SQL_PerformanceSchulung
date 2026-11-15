@@ -81,6 +81,14 @@ Zielimage-Layervergleich bestätigt, dass `/usr/local/lib/python312.zip` in
 keiner Zielimage-Layerdatei existiert. Dieser Pfad ist ein Kandidat für die
 vorab ausgewählte inerte ZIP-Datei; die tatsächliche `sys.path`-Mitgliedschaft
 und die vollständige `inert_zip`-Profilwahl bleiben ungeprüft.
+Die getpath-Prüfung bindet zusätzlich die POSIX-Landmarks `os.py` und
+`lib-dynload`. Im OCI-Zielimage liegt die digestgleiche CPython-`os.py` unter
+`/usr/local/lib/python3.12/os.py`, das `lib-dynload`-Verzeichnis ist vorhanden,
+und `/usr/local/pyvenv.cfg`, `/usr/local/bin/pyvenv.cfg` sowie
+`/usr/local/bin/pybuilddir.txt` fehlen. Daraus folgen `/usr/local` für Prefix
+und Exec-Prefix als statische Landmark-Kandidaten unter der festgelegten Route;
+`prefix`, `exec_prefix`, `base_prefix` und `base_exec_prefix` wurden nicht in
+einer Zielruntime beobachtet.
 
 Die separat dokumentierte CPython-3.12.16-Imagekandidatur ist jetzt zusätzlich
 gegen die OCI Registry-Blobbytes nachgerechnet: Childmanifest und Configdigest

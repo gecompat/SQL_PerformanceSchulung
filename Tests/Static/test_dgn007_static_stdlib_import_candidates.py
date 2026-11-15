@@ -121,6 +121,20 @@ class StaticImportCandidateTests(unittest.TestCase):
                             directory.type = SUBJECT.tarfile.DIRTYPE
                             directory.mode = 0o755
                             layer.addfile(directory)
+                        for directory_name in (
+                                "usr/local/lib", "usr/local/lib/python3.12",
+                                "usr/local/lib/python3.12/lib-dynload"):
+                            directory = SUBJECT.tarfile.TarInfo(directory_name)
+                            directory.type = SUBJECT.tarfile.DIRTYPE
+                            directory.mode = 0o755
+                            layer.addfile(directory)
+                        os_source = b"verified os source"
+                        info = SUBJECT.tarfile.TarInfo(
+                            SUBJECT.TARGET_PREFIX_STDLIB_LANDMARK
+                        )
+                        info.mode = 0o644
+                        info.size = len(os_source)
+                        layer.addfile(info, io.BytesIO(os_source))
                         executable = b"verified executable"
                         info = SUBJECT.tarfile.TarInfo("usr/local/bin/python3.12")
                         info.mode = 0o755
@@ -214,6 +228,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 TARGET_SYSCONFIGDATA_SHA256=hashlib.sha256(
                     sysconfigdata
                 ).hexdigest(),
+                OS_SOURCE_SHA256=hashlib.sha256(os_source).hexdigest(),
             ):
                 facts = SUBJECT._target_image_save_facts(image_path, config_bytes)
         self.assertEqual(facts, {
@@ -230,6 +245,10 @@ class StaticImportCandidateTests(unittest.TestCase):
             "extension_suffix": ".cpython-312-x86_64-linux-gnu.so",
             "multiarch": "x86_64-linux-gnu",
             "inert_zip_candidate": "/usr/local/lib/python312.zip",
+            "prefix_landmark_candidate": "/usr/local",
+            "exec_prefix_landmark_candidate": "/usr/local",
+            "prefix_venv_markers_absent": list(SUBJECT.TARGET_PREFIX_VENV_MARKERS),
+            "build_marker_absent": SUBJECT.TARGET_BUILD_MARKER,
             "_PYTHON_BUILD": False,
             "setup_parent_paths_verified": True,
             "_pickle_extension": True,
@@ -247,6 +266,24 @@ class StaticImportCandidateTests(unittest.TestCase):
             SUBJECT._target_image_inert_zip_fact({
                 SUBJECT.TARGET_INERT_ZIP_PATH: {"file": True},
             })
+
+    def test_target_image_prefix_landmarks_reject_venv_marker(self):
+        tracked = {
+            SUBJECT.TARGET_PREFIX_STDLIB_LANDMARK: {
+                "file": True, "directory": False, "symlink": False,
+                "linkname": None, "mode": 0o644,
+                "sha256": SUBJECT.OS_SOURCE_SHA256,
+            },
+            SUBJECT.TARGET_EXEC_PREFIX_LANDMARK: {
+                "file": False, "directory": True, "symlink": False,
+                "linkname": None, "mode": 0o755, "sha256": None,
+            },
+            SUBJECT.TARGET_PREFIX_VENV_MARKERS[0]: {"file": True},
+            SUBJECT.TARGET_PREFIX_VENV_MARKERS[1]: None,
+            SUBJECT.TARGET_BUILD_MARKER: None,
+        }
+        with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_PREFIX_LANDMARKS"):
+            SUBJECT._target_image_prefix_landmark_facts(tracked)
 
     def test_target_image_setup_paths_reject_symlinked_probe_parents(self):
         tracked = {
@@ -1982,6 +2019,12 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"if os_name == 'posix' or os_name == 'darwin':\n"
             b"    ZIP_LANDMARK = f'{platlibdir}/python{VERSION_MAJOR}"
             b"{VERSION_MINOR}.zip'\n"
+            b"    STDLIB_SUBDIR = f'{platlibdir}/python{VERSION_MAJOR}."
+            b"{VERSION_MINOR}'\n"
+            b"    STDLIB_LANDMARKS = [f'{STDLIB_SUBDIR}/os.py', "
+            b"f'{STDLIB_SUBDIR}/os.pyc']\n"
+            b"    PLATSTDLIB_LANDMARK = f'{platlibdir}/python{VERSION_MAJOR}."
+            b"{VERSION_MINOR}/lib-dynload'\n"
         )
         with patch.object(
             SUBJECT, "GETPATH_SOURCE_SHA256", hashlib.sha256(getpath).hexdigest()
@@ -1992,6 +2035,14 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(
             inventory["posix_zip_landmark_template"],
             "f'{platlibdir}/python{VERSION_MAJOR}{VERSION_MINOR}.zip'",
+        )
+        self.assertEqual(
+            inventory["posix_stdlib_landmark_template"],
+            "[f'{STDLIB_SUBDIR}/os.py', f'{STDLIB_SUBDIR}/os.pyc']",
+        )
+        self.assertEqual(
+            inventory["posix_platstdlib_landmark_template"],
+            "f'{platlibdir}/python{VERSION_MAJOR}.{VERSION_MINOR}/lib-dynload'",
         )
 
         sysconfig = (
