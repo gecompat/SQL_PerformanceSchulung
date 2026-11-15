@@ -2787,8 +2787,14 @@ nicht initialisierbaren Attestierungs-/Freigabefelder mit Standardwert `False`.
 Eine Gegenprobe setzt `runtime_attested` auf `True`; das muss den Kandidaten
 verwerfen. Es wird kein Bericht erzeugt oder Vertrauen attestiert.
 
-## Begrenzte Fortsetzung: Profilmodelle binden
+## Abgeschlossen: Profilmodelle binden
 
 PR #846 bindet die eingefrorenen Dataclass-Feldlayouts von `DeclaredProfile`
 und `Observation` in exakter Reihenfolge. Gegenproben ändern ein Feld bzw.
 entfernen `frozen=True`. Es wird keine Profilinstanz validiert oder aufgenommen.
+
+## Begrenzte Fortsetzung: Record-Dataclassschemas binden
+
+PR #847 bindet die eingefrorenen Feldlayouts von `ModuleRecord` und
+`FileDigest` in exakter Reihenfolge. Gegenproben ändern ein Feld bzw. entfernen
+`frozen=True`. Es werden keine Records validiert oder beobachtet.

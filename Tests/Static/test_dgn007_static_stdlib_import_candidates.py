@@ -2141,6 +2141,39 @@ class StaticImportCandidateTests(unittest.TestCase):
                     changed, report_schema,
                 ))
 
+    def test_profile_record_model_schemas_are_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        model_schema = {"profile_validation_claimed": False}
+        candidate = SUBJECT._target_profile_record_model_schemas_candidate(
+            profile_source, model_schema,
+        )
+        self.assertEqual(candidate, {
+            "module_record_fields": (
+                "name", "origin", "file", "kind", "locations", "module", "spec", "loader",
+            ),
+            "file_digest_fields": ("path", "size", "sha256"),
+            "both_dataclasses_frozen": True,
+            "record_validation_claimed": False,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "evidence_scope": "STATIC_PROFILE_RECORD_MODEL_SCHEMAS_CANDIDATE",
+        })
+        changed_field = profile_source.replace(b"    sha256: str", b"    digest: str")
+        changed_decorator = profile_source.replace(
+            b"@dataclass(frozen=True)", b"@dataclass",
+        )
+        for changed in (changed_field, changed_decorator):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(changed),
+            ):
+                self.assertIsNone(SUBJECT._target_profile_record_model_schemas_candidate(
+                    changed, model_schema,
+                ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

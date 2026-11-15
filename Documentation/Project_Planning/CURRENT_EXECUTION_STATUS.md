@@ -11343,9 +11343,16 @@ Gegenprobe setzt `runtime_attested` auf `True`; der Quellkandidat entfällt.
 266 fokussierte Regressionen und alle fünf Pflichtprüfungen bestanden; PR #845
 ist integriert. Es wird kein Bericht erzeugt oder Vertrauen attestiert.
 
-## Begrenzte Fortsetzung: Profilmodelle binden
+## Abgeschlossen: Profilmodelle binden
 
 PR #846 bindet die eingefrorenen Dataclass-Feldlayouts von `DeclaredProfile`
 und `Observation` in exakter Reihenfolge an den Profilvertrag. Gegenproben
-ändern ein Feld bzw. entfernen `frozen=True`. Es wird keine Profilinstanz
-validiert oder aufgenommen.
+ändern ein Feld bzw. entfernen `frozen=True`; 267 fokussierte Regressionen und
+alle fünf Pflichtprüfungen bestanden. PR #846 ist integriert. Es wird keine
+Profilinstanz validiert oder aufgenommen.
+
+## Begrenzte Fortsetzung: Record-Dataclassschemas binden
+
+PR #847 bindet die eingefrorenen Feldlayouts von `ModuleRecord` und
+`FileDigest` in exakter Reihenfolge. Gegenproben ändern ein Feld bzw. entfernen
+`frozen=True`. Es werden keine Records validiert oder beobachtet.
