@@ -1615,9 +1615,19 @@ def _target_s15_installation_schema_candidate(source_bytes):
                   and node.value.id == "installation"
                   and len(node.targets) == 1
                   and isinstance(node.targets[0], (ast.Tuple, ast.List))]
-    tuple_checks = [node for node in ast.walk(functions[0])
-                    if isinstance(node, ast.Call)
-                    and ast.unparse(node) == "_selected_tuple(installation, 15)"]
+    tuple_checks = [
+        node for node in ast.walk(functions[0])
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "_selected_tuple"
+        and len(node.args) == 2
+        and not node.keywords
+        and isinstance(node.args[0], ast.Name)
+        and node.args[0].id == "installation"
+        and isinstance(node.args[1], ast.Constant)
+        and type(node.args[1].value) is int
+        and node.args[1].value == 15
+    ]
     actual_fields = tuple(
         item.id for item in unpackings[0].targets[0].elts
         if isinstance(item, ast.Name)
