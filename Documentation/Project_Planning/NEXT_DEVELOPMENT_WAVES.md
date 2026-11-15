@@ -2625,10 +2625,16 @@ PR #817 bindet den festen `ASSUMPTION`-Text an genau eine
 Top-Level-Literaldefinition und den verifizierten Modulhash. Der Kandidat ist
 deklarativ und keine Trustattestation.
 
-## Begrenzte Fortsetzung: S15-Flags-Feldkandidat
+## Abgeschlossen: S15-Flags-Feldkandidat
 
-Ein Arbeitspaket und ein PR verbinden die sechs geordneten S15-Flags mit den
-bereits quell- und Worker-routengebundenen CPython-Facts. Eine Regression
-prüft den vollständigen Kandidaten und eine abweichende Factform. Die Ausgabe
-bleibt statisch; tatsächliche Runtimeflags, P11, SQL/Lab und menschliche
-Generalprobe sind nicht Teil dieses Schritts.
+PR #818 verbindet die sechs geordneten Flags mit den quell- und
+Worker-routengebundenen CPython-Facts und prüft `sys.dont_write_bytecode` als
+zusätzliche Routenbindung. Das Ergebnis bleibt statisch und ist keine
+Runtimeaufnahme.
+
+## Begrenzte Fortsetzung: S15-Paths-Feldkandidat
+
+Ein Arbeitspaket und ein PR verbinden den geordneten Pfadkandidaten mit den
+bereits gebundenen `inert_zip`- und Bibliotheksroot-Kandidaten. Eine Regression
+prüft Kandidat und Abweichung; eine tatsächliche `sys.path`-Aufnahme oder
+vollständige Profilattestation ist nicht Teil des Schritts.
