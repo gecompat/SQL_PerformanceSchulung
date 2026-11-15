@@ -11611,3 +11611,13 @@ Bedingungen; Kandidatenhash `33f55d7c…`, Unknown-Digest
 keinen Interpreterstart und keine P11-/Runtimeattestation. Die großen
 Regex-Reste in `re._parser`/`re._compiler` und weitere dynamische Cache- oder
 Umgebungszweige bleiben offen.
+
+Die anschließende Zielimage-Inventur prüft nun zusätzlich die vier in der
+gepinnten `hashlib.py` verwendeten Extensions `_blake2`, `_sha1`, `_sha2` und
+`_sha3` als reguläre Dateien mit festem Pfad, Modus, SHA-256 und Größenlimit.
+Die Größen der vier Dateien liegen zusammen unter 2 MiB. Eine Regression
+verwirft einen absichtlich verfälschten Digest. Der Scan bleibt bei 60 Modulen,
+316 Kanten, 82 aufgelösten und 485 unbekannten Bedingungen; die Cacheguards
+bleiben offen, weil `hashlib.py` `ImportError` ausdrücklich abfängt und die
+Image-Mitgliedschaft keinen erfolgreichen Import beweist. 284 fokussierte
+Tests bestehen. Ergebnis weiterhin `CANDIDATES_ONLY`, ohne Interpreterstart.

@@ -155,6 +155,15 @@ class StaticImportCandidateTests(unittest.TestCase):
                         info.mode = 0o755
                         info.size = len(extension)
                         layer.addfile(info, io.BytesIO(extension))
+                        hashlib_extensions = {}
+                        for extension_path in SUBJECT.HASHLIB_EXTENSION_FACTS:
+                            filename = extension_path.rsplit("/", 1)[-1]
+                            extension_content = ("verified " + filename).encode()
+                            hashlib_extensions[extension_path] = extension_content
+                            info = SUBJECT.tarfile.TarInfo(extension_path)
+                            info.mode = 0o755
+                            info.size = len(extension_content)
+                            layer.addfile(info, io.BytesIO(extension_content))
                         sysconfigdata = (
                             b"build_time_vars = {"
                             b"'SOABI': 'cpython-312-x86_64-linux-gnu', "
@@ -238,12 +247,24 @@ class StaticImportCandidateTests(unittest.TestCase):
                 PICKLE_EXTENSION_SHA256=hashlib.sha256(
                     b"verified pickle extension"
                 ).hexdigest(),
+                HASHLIB_EXTENSION_FACTS={
+                    path: hashlib.sha256(content).hexdigest()
+                    for path, content in hashlib_extensions.items()
+                },
                 TARGET_SYSCONFIGDATA_SHA256=hashlib.sha256(
                     sysconfigdata
                 ).hexdigest(),
                 OS_SOURCE_SHA256=hashlib.sha256(os_source).hexdigest(),
             ):
                 facts = SUBJECT._target_image_save_facts(image_path, config_bytes)
+                altered_hashlib_facts = dict(SUBJECT.HASHLIB_EXTENSION_FACTS)
+                first_extension = next(iter(altered_hashlib_facts))
+                altered_hashlib_facts[first_extension] = "0" * 64
+                with patch.object(SUBJECT, "HASHLIB_EXTENSION_FACTS",
+                                  altered_hashlib_facts):
+                    with self.assertRaisesRegex(
+                            ValueError, "TARGET_IMAGE_HASHLIB_EXTENSION_FACT"):
+                        SUBJECT._target_image_save_facts(image_path, config_bytes)
         self.assertEqual(facts, {
             "executable_path_candidate": "/usr/local/bin/python3.12",
             "executable_sha256": hashlib.sha256(b"verified executable").hexdigest(),
@@ -253,6 +274,11 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"verified pickle extension"
             ).hexdigest(),
             "pickle_extension_size": len(b"verified pickle extension"),
+            "hashlib_extension_facts": {
+                path: {"sha256": hashlib.sha256(content).hexdigest(),
+                       "size": len(content)}
+                for path, content in hashlib_extensions.items()
+            },
             "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
             "sysconfigdata_sha256": hashlib.sha256(sysconfigdata).hexdigest(),
             "build_time_vars_literal_dict": True,
