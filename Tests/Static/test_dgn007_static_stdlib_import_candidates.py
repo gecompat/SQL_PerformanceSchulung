@@ -1523,6 +1523,21 @@ class StaticImportCandidateTests(unittest.TestCase):
             "selected_call": "_init_config_vars()",
             "evidence_scope": "STATIC_LAZY_INITIALIZER_CALL_CANDIDATE",
         }
+        reinitialization_candidate = {
+            "getter": "get_config_vars",
+            "initialization_flag_initial_value": False,
+            "first_call_guard": "not _CONFIG_VARS_INITIALIZED",
+            "reinitialization_guard": (
+                "_CONFIG_VARS['base'] != os.path.normpath(sys.prefix)"
+            ),
+            "reinitialization_guard_is_runtime_dependent": True,
+            "lock": "_CONFIG_VARS_LOCK",
+            "selected_actions": [
+                "_CONFIG_VARS_INITIALIZED = False",
+                "_init_config_vars()",
+            ],
+            "evidence_scope": "STATIC_CONFIG_REINITIALIZATION_CANDIDATE",
+        }
         public_value_flow_candidate = {
             "public_mapping_api": "get_config_vars",
             "no_arguments_return": "_CONFIG_VARS",
@@ -1549,11 +1564,13 @@ class StaticImportCandidateTests(unittest.TestCase):
             "evidence_scope": "STATIC_CONFIG_INITIALIZED_FLAG_CANDIDATE",
         }
         candidate = SUBJECT._target_sysconfigdata_initialization_route_candidate(
-            inventory, lazy_call_candidate, public_value_flow_candidate,
+            inventory, lazy_call_candidate, reinitialization_candidate,
+            public_value_flow_candidate,
             post_update_entries_candidate, initialization_complete_flag_candidate,
             line_facts, import_target, image_facts,
         )
         self.assertEqual(candidate["public_initializer_call_candidate"], lazy_call_candidate)
+        self.assertEqual(candidate["reinitialization_candidate"], reinitialization_candidate)
         self.assertEqual(candidate["public_config_value_flow_candidate"],
                          public_value_flow_candidate)
         self.assertEqual(candidate["post_update_entries_candidate"],
@@ -1607,42 +1624,56 @@ class StaticImportCandidateTests(unittest.TestCase):
             "STATIC_CONDITIONAL_IMPORT_ROUTE_CANDIDATE",
         )
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
-            inventory, lazy_call_candidate, public_value_flow_candidate,
+            inventory, lazy_call_candidate, reinitialization_candidate,
+            public_value_flow_candidate,
             post_update_entries_candidate, initialization_complete_flag_candidate,
             {}, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, {**lazy_call_candidate, "initialization_flag": True},
+            reinitialization_candidate,
             public_value_flow_candidate, post_update_entries_candidate,
             initialization_complete_flag_candidate,
             line_facts, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate,
+            {**reinitialization_candidate,
+             "reinitialization_guard_is_runtime_dependent": False},
+            public_value_flow_candidate, post_update_entries_candidate,
+            initialization_complete_flag_candidate,
+            line_facts, import_target, image_facts,
+        ))
+        self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
+            inventory, lazy_call_candidate, reinitialization_candidate,
             {**public_value_flow_candidate, "no_arguments_return": "other"},
             post_update_entries_candidate, initialization_complete_flag_candidate,
             line_facts, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             {**inventory, "sysconfigdata_initializer_update_receiver": "other"},
-            lazy_call_candidate, public_value_flow_candidate,
+            lazy_call_candidate, reinitialization_candidate,
+            public_value_flow_candidate,
             post_update_entries_candidate, initialization_complete_flag_candidate,
             line_facts, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
-            inventory, lazy_call_candidate, public_value_flow_candidate,
+            inventory, lazy_call_candidate, reinitialization_candidate,
+            public_value_flow_candidate,
             post_update_entries_candidate, initialization_complete_flag_candidate,
             line_facts, import_target,
             {**image_facts, "sysconfigdata_sha256": "0" * 64},
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
-            inventory, lazy_call_candidate, public_value_flow_candidate,
+            inventory, lazy_call_candidate, reinitialization_candidate,
+            public_value_flow_candidate,
             post_update_entries_candidate, initialization_complete_flag_candidate,
             line_facts, import_target,
             {**image_facts, "soabi": "unbound"},
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
-            inventory, lazy_call_candidate, public_value_flow_candidate,
+            inventory, lazy_call_candidate, reinitialization_candidate,
+            public_value_flow_candidate,
             post_update_entries_candidate, initialization_complete_flag_candidate,
             line_facts, import_target,
             {key: value for key, value in image_facts.items()
