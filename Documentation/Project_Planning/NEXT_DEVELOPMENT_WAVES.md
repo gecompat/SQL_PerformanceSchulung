@@ -2875,8 +2875,14 @@ Gegenproben lockern den Runtimetyp und die Hooklängengrenze. Es wird kein
 Runtimezustand gelesen oder attestiert; 279 Regressionen und alle fünf Gates
 bestanden.
 
-## Begrenzte Fortsetzung: skalare lokale Ankervalidierung absichern
+## Abgeschlossen: skalare lokale Ankervalidierung absichern
 
-Der Nachaudit von PR #857 schließt die Gegenprobenlücke bei der skalaren
-Textprüfung von Modul-, Spec-, Suchpfad- und Loaderankern. Die Quellen bleiben
-unbeobachtet; der nächste PR ist der Checkpoint.
+PR #859 schließt die Gegenprobenlücke bei der skalaren Textprüfung von Modul-,
+Spec-, Suchpfad- und Loaderankern. 279 fokussierte Regressionen und alle fünf
+Pflichtprüfungen bestanden; die Quellen blieben unbeobachtet.
+
+## Begrenzte Fortsetzung: Runtime-Profiltexte explizit binden
+
+Der nächste Offline-Schnitt schützt die Skalarprüfung der Pfade und sechs
+Plattformtexte in `_selected_runtime_post` durch explizite Quellanforderungen
+und Gegenproben. Runtimewerte bleiben unbeobachtet; der PR ist der Checkpoint.

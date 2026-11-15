@@ -11446,8 +11446,16 @@ Gegenproben lockern den Runtimetyp bzw. die Hooklänge; 279 fokussierte
 Regressionen und alle fünf Pflichtprüfungen bestanden. Es werden keine
 Runtime-Container gelesen.
 
-## Begrenzte Fortsetzung: skalare lokale Ankervalidierung absichern
+## Abgeschlossen: skalare lokale Ankervalidierung absichern
 
 Der Nachaudit von PR #857 ergänzt explizite Anforderungen und eine
 Lockerungsgegenprobe dafür, dass Modul-, Spec-, Suchpfad- und Loadertexte
-skalargeprüft werden. Es werden keine Modulanker gelesen.
+skalargeprüft werden. 279 fokussierte Regressionen und alle fünf
+Pflichtprüfungen bestanden; PR #859 ist integriert. Es werden keine Modulanker
+gelesen.
+
+## Begrenzte Fortsetzung: Runtime-Profiltexte explizit binden
+
+Der nächste Schnitt ergänzt Gegenproben für die Skalarprüfung jedes Pfads und
+aller sechs Plattformtexte in `_selected_runtime_post`. Es werden keine
+Runtimewerte gelesen.

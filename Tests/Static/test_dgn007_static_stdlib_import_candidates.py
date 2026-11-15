@@ -2315,6 +2315,12 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"(1, 1, 1, 1, 0, 0), expected.paths",
             ),
             profile_source.replace(
+                b"_scalar_text(path)", b"str(path)",
+            ),
+            profile_source.replace(
+                b"_scalar_text(value)", b"str(value)",
+            ),
+            profile_source.replace(
                 b"_need(sys is runtime and os is providers[0] and sysconfig is providers[1], \"PROVIDER_MISMATCH\")",
                 b"pass",
             ),
