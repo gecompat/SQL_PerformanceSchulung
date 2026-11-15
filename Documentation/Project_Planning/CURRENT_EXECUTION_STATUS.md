@@ -10798,3 +10798,17 @@ Ausführung der Datei oder Übernahme von `build_time_vars` noch ein Laufzeit-
 Profil. Keine vollständige Importclosure, P11-Inventur, SQL-/Lab-Ausführung
 oder menschliche Generalprobe. Token-/Geldverbrauch bleiben unbekannt; Umfang:
 ein Paket, ein PR und höchstens zwei Regressionen.
+
+## Fortsetzung: `os.name` statt Resolver-Default quellenbinden
+
+Der unbedingte Zielwert `os.name='posix'` ist entfernt. Der Scanner übergibt
+`os.name` nun nur als Fact, wenn `os.py` den digestgebundenen `posix`-Starimport
+und die Plattformauswahl unverändert enthält, die Posix-Quellen das exportierte
+`name`-Mitglied belegen und das Zielimage `posix` statt `nt` als Builtinmodul
+registriert. Eine Regression prüft `unknown` ohne Fact sowie die gebundene
+POSIX-Auswertung. Die fokussierte Suite besteht lokal mit 231 Tests unter
+Python 3.14. Der echte CPython-/OCI-Scan bleibt `CANDIDATES_ONLY` mit 56
+Kandidaten, 278 Kanten, 42 entschiedenen und null unbekannten Bedingungen.
+Keine Runtime-/Profil-, Importclosure-, P11-, SQL-/Lab- oder menschliche
+Generalprobenattestation. Token-/Geldverbrauch bleiben unbekannt; Umfang: ein
+Paket, ein PR und höchstens zwei Regressionen.

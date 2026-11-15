@@ -2390,3 +2390,15 @@ Importziel ausgeben. Das ist ein statischer Importzielkandidat ohne Funktions-
 oder Interpreterausführung. Token-/Geldverbrauch bleiben unbekannt; harte
 Grenze: ein Paket, ein PR und höchstens zwei Regressionen. PR-Integration ist
 der Checkpoint; danach wird autonom anhand des offenen Status fortgesetzt.
+
+### Begrenzte Fortsetzung: `os.name` aus Posix-Quelle und Zielimage ableiten
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR entfernen den unbedingten `os.name='posix'`-Wert
+aus dem Resolver. Der Fact hängt an `os.py`, den Posix-Quellen und der
+Builtinmodulregistrierung des festgelegten Zielimages; ohne diese Kette bleibt
+der Wert unbekannt. Eine Regression deckt Fact und Unbekannt-Fall ab, der echte
+Archiv-/OCI-Scan muss ihn weiterhin entscheiden. Keine Runtime-, Profil-, P11-,
+SQL-, Lab- oder Generalprobenattestation. Token-/Geldverbrauch bleiben
+unbekannt; harte Grenze: ein Paket, ein PR, höchstens zwei Regressionen.
+PR-Integration ist der Checkpoint; anschließend wird autonom fortgesetzt.
