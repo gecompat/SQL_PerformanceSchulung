@@ -11060,12 +11060,21 @@ nicht vor; der Image-Layer- und Pfadabgleich wurde über die synthetische
 Layerfixture geprüft. Die Runtimeaufnahme und ein vollständiger S15-Record
 bleiben unbelegt.
 
-## S15-Teilschnitt: Bibliotheksroots binden
+## Abgeschlossen: S15-Teilschnitt Bibliotheksroots
 
-Der nächste Kandidat soll den Standardbibliotheksroot aus dem zweiten
-`sys.path`-Pfadkandidaten und den Extensionroot aus dem imagegebundenen
-`DESTSHARED` verbinden. Er verlangt deren exakte Übereinstimmung mit der
-Pfadfolge und dem verifizierten Extensiondateifakt. Die Ausgabe bleibt ein
-statischer `roots`-Feldkandidat, keine Runtimeaufnahme. Umfang: ein Paket, ein
-PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
-menschliche Generalprobenattestation.
+PR #807 bindet den Standardbibliotheksroot an den zweiten geordneten
+`sys.path`-Pfadkandidaten und den Extensionroot an `DESTSHARED`. Der Kandidat
+verlangt die Gleichheit mit dem dritten Pfadkandidaten sowie den geprüften
+`_pickle`-Extensionfakt. 244 fokussierte Regressionen und alle fünf PR-Gates
+bestanden. Ein verifiziertes Docker-save-Zielimage lag lokal nicht vor; die
+Image-/Pfadbindung wurde mit der synthetischen Layerfixture geprüft. Es entsteht
+keine Runtime-Roots-Aufnahme.
+
+## S15-Teilschnitt: ausgewählte Dateifingerprints binden
+
+Der nächste Kandidat soll höchstens zwei `files`-Einträge bilden: zuerst den
+geprüften Executabletarget-Fingerprint, danach den `_pickle`-Fingerprint
+innerhalb des ausgewählten Extensionroots. Er bindet Dateigröße und Digest,
+verlangt beide Schemaobergrenzen und behauptet keine vollständige Dateiliste.
+Umfang: ein Paket, ein PR und höchstens zwei Regressionen; keine Runtime-,
+P11-, SQL-/Lab- oder menschliche Generalprobenattestation.

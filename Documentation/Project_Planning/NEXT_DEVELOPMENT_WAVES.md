@@ -2546,12 +2546,21 @@ Docker-save-Zielimage vor; die Layer-/Pfadbindung ist durch synthetische
 Imagefixtures geprüft. Eine Runtimeaufnahme oder ein vollständiger S15-Record
 ist damit nicht belegt.
 
-## Begrenzte Fortsetzung: Bibliotheksroots binden
+## Abgeschlossen: Bibliotheksroots binden
 
-Der nächste S15-Schnitt bindet den Standardbibliotheksroot an den zweiten
-geprüften `sys.path`-Pfadkandidaten und den Extensionroot an den imagegebundenen
-`DESTSHARED`-Wert. Beide Werte müssen zur geordneten Pfadfolge und zum
-verifizierten Extensiondateifakt passen. Die Ausgabe ist nur ein statischer
-`roots`-Feldkandidat. Umfang: ein Paket, ein PR und höchstens zwei
-Regressionen; keine Runtime-, P11-, SQL-/Lab- oder menschliche
-Generalprobenattestation.
+PR #807 bindet den Standardbibliotheksroot an den zweiten geordneten
+`sys.path`-Pfadkandidaten und den Extensionroot an `DESTSHARED`. Der Kandidat
+verlangt die Übereinstimmung mit dem dritten Pfadkandidaten und dem geprüften
+`_pickle`-Extensionfakt. 244 fokussierte Regressionen und alle fünf PR-Gates
+bestanden. Für diesen Schnitt lag lokal kein verifiziertes Docker-save-
+Zielimage vor; die feste Pfadbindung wurde mit synthetischen OCI-Layern
+geprüft. Runtime-Roots bleiben unbelegt.
+
+## Begrenzte Fortsetzung: ausgewählte Dateifingerprints binden
+
+Der nächste S15-Schnitt bildet höchstens zwei `files`-Einträge: zuerst das
+geprüfte Executabletarget, danach die `_pickle`-Datei innerhalb des
+ausgewählten Extensionroots. Er bindet Größe und SHA-256, hält die jeweiligen
+Einzel- und Gesamtkappen ein und behauptet keine vollständige Dateiliste.
+Umfang: ein Paket, ein PR und höchstens zwei Regressionen; keine Runtime-,
+P11-, SQL-/Lab- oder menschliche Generalprobenattestation.
