@@ -2761,8 +2761,14 @@ PR #841 bindet `_records` und `_files`: Modul-/Spec-/Loaderkohärenz, sortierte
 eindeutige Namen, Frozen-Aliasanker, Dateidigestform sowie Größen- und
 Pfadkappen. Es entsteht keine tatsächliche Recordvalidierung oder Aufnahme.
 
-## Begrenzte Fortsetzung: absolute und eingeschränkte Pfade binden
+## Abgeschlossen: absolute und eingeschränkte Pfade binden
 
 PR #842 bindet `_absolute` und `_under` an kanonische
 absolute Pfade ohne Traversal sowie Root-Containment. Zwei Gegenproben lockern
 je eine Bedingung; es gibt keine Runtime-/Hostattestation.
+
+## Begrenzte Fortsetzung: primitive Profilvalidatoren binden
+
+PR #843 bindet `_text` und `_strings`: exakter String-/Tupletyp, Zeichen- und
+UTF-8-Bytegrenze, maximale Tuplelänge und Textprüfung jedes Elements. Zwei
+Gegenproben lockern je eine Grenze. Es wird keine Profilvalidierung behauptet.

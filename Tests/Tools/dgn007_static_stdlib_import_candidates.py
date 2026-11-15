@@ -2474,6 +2474,53 @@ def _target_profile_path_contract_candidate(source_bytes, record_contract):
     }
 
 
+def _target_profile_primitive_validators_candidate(source_bytes, path_contract):
+    """Bind bounded text and tuple-of-string validators used by the profile."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(path_contract) is not dict
+            or path_contract.get("path_validation_claimed") is not False):
+        return None
+    text_bodies = re.findall(
+        rb"(?ms)^def _text\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    strings_bodies = re.findall(
+        rb"(?ms)^def _strings\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(text_bodies) != 1 or len(strings_bodies) != 1:
+        return None
+    text_body = re.sub(rb"\s+", b" ", text_bodies[0])
+    strings_body = re.sub(rb"\s+", b" ", strings_bodies[0])
+    text_requirements = (
+        b"_need(type(value) is str and len(value) <= MAX_FIELD)",
+        b"_need(len(value.encode(\"utf-8\")) <= MAX_FIELD)",
+    )
+    strings_requirements = (
+        b"_need(type(value) is tuple and len(value) <= MAX_RECORDS)",
+        b"for item in value: _text(item)",
+    )
+    if (any(text_body.count(fragment) != 1 for fragment in text_requirements)
+            or any(strings_body.count(fragment) != 1 for fragment in strings_requirements)):
+        return None
+    return {
+        "text_invariants": (
+            "exact_str_type", "character_length_cap", "utf8_byte_length_cap",
+        ),
+        "string_tuple_invariants": (
+            "exact_tuple_type", "record_count_cap", "each_item_text_validated",
+        ),
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "primitive_validation_claimed": False,
+        "profile_input_validation_claimed": False,
+        "evidence_scope": "STATIC_PROFILE_PRIMITIVE_VALIDATORS_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9654,6 +9701,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_profile_record_validators_candidate,
         )
     )
+    target_profile_primitive_validators_candidate = (
+        _target_profile_primitive_validators_candidate(
+            runtime_profile_source,
+            target_profile_path_contract_candidate,
+        )
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -10145,6 +10198,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_profile_path_contract_candidate": (
             target_profile_path_contract_candidate
+        ),
+        "target_profile_primitive_validators_candidate": (
+            target_profile_primitive_validators_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
