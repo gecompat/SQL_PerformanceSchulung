@@ -2714,9 +2714,15 @@ PR #833 bindet Recordaufnahme, Profilvergleiche, FileFinder-Hookaufnahmen,
 Skalarprojektion und Fehlerreport des inneren Beobachters. Keine Runtimeaufnahme
 wird behauptet.
 
-## Begrenzte Fortsetzung: frischen Record-Capture-Ablauf binden
+## Abgeschlossen: frischen Record-Capture-Ablauf binden
 
-Ein Arbeitspaket und ein PR binden Vorher-/Nachher-Capture, begrenzte
-Dateihashreads, Kappen, Profilvergleiche und success-only Recordrückgabe an die
-Profilquelle. Es entsteht keine Runtime- oder Trustattestation. Eine positive
-Regression und eine Gegenprobe ohne Nachher-Vergleich begrenzen den Schnitt.
+PR #834 bindet Vorher-/Nachher-Capture, begrenzte Dateihashreads, Caps,
+Profilvergleiche und success-only Recordrückgabe an die Profilquelle. Keine
+Runtime- oder Trustattestation.
+
+## Begrenzte Fortsetzung: Capture-Observation-Schema binden
+
+Ein Arbeitspaket und ein PR binden begrenzte Modul-/Pfadsnapshots, sortierte
+Modulnamen und die Feldreihenfolge des `Observation`-Konstruktors. Der Kandidat
+behauptet keine ausgeführte Aufnahme. Eine positive Regression und eine
+Gegenprobe ohne Sortierung begrenzen den Schnitt.

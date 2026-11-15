@@ -2074,6 +2074,51 @@ def _target_fresh_record_capture_flow_candidate(source_bytes):
     }
 
 
+def _target_profile_capture_schema_candidate(source_bytes):
+    """Bind bounded module/path snapshots and Observation constructor order."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def _capture\([^\n]*\):\r?\n(?P<body>.*?)(?=^@dataclass|^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"_need(type(sys.modules) is dict and len(sys.modules) <= MAX_RECORDS, \"RECORD_LIMIT\")",
+        b"snapshot = sys.modules.copy()",
+        b"_need(len(snapshot) <= MAX_RECORDS, \"RECORD_LIMIT\")",
+        b"for name in snapshot: _text(name)",
+        b"for sequence in (sys.path, sys.meta_path, sys.path_hooks): _need(type(sequence) in (list, tuple) and len(sequence) <= MAX_RECORDS)",
+        b"for path in sys.path: _text(path)",
+        b"modules = tuple(_module(n, m, expected.controls) for n, m in sorted(snapshot.items()))",
+        b"return Observation(expected.token, sys.platform, sys.implementation.name, tuple(sys.version_info[:3]), sys.executable, os.path.realpath(sys.executable), (sys.prefix, sys.exec_prefix, sys.base_prefix, sys.base_exec_prefix), sysconfig.get_config_var(\"SOABI\") or \"\", (sys.flags.isolated, sys.flags.no_site, int(sys.dont_write_bytecode), sys.flags.ignore_environment, int(sys.flags.safe_path), sys.flags.optimize), tuple(sys.path), tuple(sys.meta_path), tuple(sys.path_hooks), modules, files)",
+    )
+    if any(normalized.count(fragment) != 1 for fragment in required):
+        return None
+    if not all(normalized.index(left) < normalized.index(right)
+               for left, right in zip(required[:7], required[1:7])):
+        return None
+    return {
+        "observation_field_order": (
+            "token", "platform", "implementation", "version", "executable",
+            "executable_target", "prefixes", "abi", "flags", "paths",
+            "finders", "hooks", "modules", "files",
+        ),
+        "module_snapshot_sorted": True,
+        "module_and_path_counts_bounded": True,
+        "module_rows_delegate_to_module_builder": True,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "runtime_observation_claimed": False,
+        "evidence_scope": "STATIC_PROFILE_CAPTURE_SCHEMA_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9214,6 +9259,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_fresh_record_capture_flow_candidate = (
         _target_fresh_record_capture_flow_candidate(runtime_profile_source)
     )
+    target_profile_capture_schema_candidate = (
+        _target_profile_capture_schema_candidate(runtime_profile_source)
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -9684,6 +9732,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_fresh_record_capture_flow_candidate": (
             target_fresh_record_capture_flow_candidate
+        ),
+        "target_profile_capture_schema_candidate": (
+            target_profile_capture_schema_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
