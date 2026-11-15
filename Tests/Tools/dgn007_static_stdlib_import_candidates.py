@@ -2273,6 +2273,8 @@ def _target_profile_validation_report_flow_candidate(source_bytes, compare_contr
     if len(bodies) != 1:
         return None
     normalized = re.sub(rb"\s+", b" ", bodies[0])
+    if len(re.findall(rb"\breturn\b", normalized)) != 3:
+        return None
     required = (
         b"_compare(expected, observation)",
         b"except _Failure as error: return ProfileReport(\"REJECTED_PROFILE\", str(error))",
