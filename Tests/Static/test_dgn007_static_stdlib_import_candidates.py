@@ -289,6 +289,9 @@ class StaticImportCandidateTests(unittest.TestCase):
             PICKLE_EXTENSION_SHA256=hashlib.sha256(
                 b"verified pickle extension"
             ).hexdigest(),
+            TARGET_SYSCONFIGDATA_SHA256=hashlib.sha256(
+                sysconfigdata
+            ).hexdigest(),
         ):
             path_candidate = SUBJECT._target_image_sys_path_candidate(
                 facts,
@@ -304,6 +307,13 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "/usr/local/lib/python3.12/lib-dynload",
             ],
             "executable_target_candidate": "/usr/local/bin/python3.12",
+            "abi_field_candidate": {
+                "value": "cpython-312-x86_64-linux-gnu",
+                "source_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+                "source_sha256": hashlib.sha256(sysconfigdata).hexdigest(),
+                "source_key": "SOABI",
+                "runtime_abi_claimed": False,
+            },
             "files_field_candidate": [
                 {
                     "path": "/usr/local/bin/python3.12",
@@ -423,6 +433,17 @@ class StaticImportCandidateTests(unittest.TestCase):
             "pickle_extension_sha256": SUBJECT.PICKLE_EXTENSION_SHA256,
         })
         with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_S15_FILE_CANDIDATES"):
+            SUBJECT._target_image_sys_path_candidate(
+                image_facts, inventory, True, True, True,
+            )
+
+        image_facts.update({
+            "executable_size": 1,
+            "soabi": "unbound-abi",
+            "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+            "sysconfigdata_sha256": SUBJECT.TARGET_SYSCONFIGDATA_SHA256,
+        })
+        with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_S15_ABI_CANDIDATE"):
             SUBJECT._target_image_sys_path_candidate(
                 image_facts, inventory, True, True, True,
             )
