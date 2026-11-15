@@ -50,6 +50,8 @@ WARNINGS_CLINIC_SHA256 = "8ec95ee20132c6ccd71b56070cd5028e0db877a745b215cc5e3ddf
 DIS_SOURCE_SHA256 = "44c0b389c96124d8fb5cb0bc41c7a2aa7a6848ef4001b4000dcbd858efa4a1a2"
 TOKENIZE_SOURCE_SHA256 = "026f566ac63e60d69c8185a3880831b657accc5eac984fadf271fc99a5e5825d"
 OPCODE_SOURCE_SHA256 = "192f6008508f28d3273bff42eaea9b01c8394dab1607cd36aea778bdd166c3a6"
+JSON_ENCODER_SOURCE_SHA256 = "52bfb1b66029cc70fa3bd7fe11df9f2e03922d413407a341b387a22c987f24f8"
+JSON_PACKAGE_SOURCE_SHA256 = "d5d41e2c29049515d295d81a6d40b4890fbec8d8482cfb401630f8ef2f77e4d5"
 TOKEN_SOURCE_SHA256 = "1a4d994ce9744f4bfe2d964fc24d112a1e76796a08c2e45a2d73c82a8587f922"
 OS_SOURCE_SHA256 = "6f3888d1a5bd4f1333116dd75ca8f1d2d951e38c8c8426179417aea097a1eef0"
 POSIX_MODULE_C_MEMBER = "Python-3.12.16/Modules/posixmodule.c"
@@ -6649,6 +6651,112 @@ def _target_opcode_pseudo_op_condition_facts(files):
     return {("opcode", "opcode.py", 72): (False, True)}
 
 
+def _target_json_encoder_argument_condition_facts(files):
+    """Bind JSONEncoder's import-time separators, indent, and default guards."""
+    if type(files) is not dict:
+        return {}
+    expected_hashes = {
+        "json/encoder.py": JSON_ENCODER_SOURCE_SHA256,
+        "json/__init__.py": JSON_PACKAGE_SOURCE_SHA256,
+    }
+    if any(type(files.get(path)) is not bytes
+           or hashlib.sha256(files[path]).hexdigest() != digest
+           for path, digest in expected_hashes.items()):
+        return {}
+    try:
+        trees = {
+            path: ast.parse(source, filename=path)
+            for path, source in files.items()
+            if type(source) is bytes and path.endswith(".py")
+            and "test" not in path.split("/")
+        }
+    except SyntaxError:
+        return {}
+    imports = []
+    references = []
+    classes = []
+    constructors = []
+    for path, tree in trees.items():
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and any(
+                    alias.name == "JSONEncoder" for alias in node.names):
+                imports.append((path, node.lineno, node.level, node.module,
+                                tuple((alias.name, alias.asname)
+                                      for alias in node.names)))
+            if isinstance(node, ast.Name) and node.id == "JSONEncoder":
+                references.append((path, node.lineno, type(node.ctx)))
+            if isinstance(node, ast.Attribute) and node.attr == "JSONEncoder":
+                references.append((path, node.lineno, ast.Load))
+            if isinstance(node, ast.ClassDef) and node.name == "JSONEncoder":
+                classes.append((path, node))
+            if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                    and node.func.id == "JSONEncoder"):
+                constructors.append((path, node.lineno, ast.unparse(node)))
+            if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                    and node.func.attr == "JSONEncoder"):
+                constructors.append((path, node.lineno, ast.unparse(node)))
+    if (imports != [("json/__init__.py", 107, 1, "encoder",
+                     (("JSONEncoder", None),))]
+            or {path for path, _, _ in references}
+            != {"json/__init__.py"}
+            or len(classes) != 1 or classes[0][0] != "json/encoder.py"
+            or len(classes[0][1].bases) != 1
+            or not isinstance(classes[0][1].bases[0], ast.Name)
+            or classes[0][1].bases[0].id != "object"
+            or len(constructors) != 1
+            or constructors[0][0] != "json/__init__.py"
+            or constructors[0][1] != 110
+            or constructors[0][2] != (
+                "JSONEncoder(skipkeys=False, ensure_ascii=True, "
+                "check_circular=True, allow_nan=True, indent=None, "
+                "separators=None, default=None)")):
+        return {}
+    constructor = ast.parse(constructors[0][2], mode="eval").body
+    expected_keywords = {
+        "skipkeys": False, "ensure_ascii": True,
+        "check_circular": True, "allow_nan": True,
+        "indent": None, "separators": None, "default": None,
+    }
+    if (constructor.args
+            or any(keyword.arg is None for keyword in constructor.keywords)
+            or len(constructor.keywords) != len(expected_keywords)
+            or {keyword.arg: ast.unparse(keyword.value)
+                for keyword in constructor.keywords} != {
+                    name: repr(value) if type(value) is not bool else str(value)
+                    for name, value in expected_keywords.items()}):
+        return {}
+    encoder_class = classes[0][1]
+    initializers = [node for node in encoder_class.body
+                    if isinstance(node, ast.FunctionDef)
+                    and node.name == "__init__"]
+    if len(initializers) != 1:
+        return {}
+    initializer = initializers[0]
+    positional_names = [argument.arg for argument in initializer.args.args]
+    keyword_names = [argument.arg for argument in initializer.args.kwonlyargs]
+    if (positional_names != ["self"]
+            or keyword_names != ["skipkeys", "ensure_ascii", "check_circular",
+                                 "allow_nan", "sort_keys", "indent", "separators",
+                                 "default"]
+            or len(initializer.args.kw_defaults) != 8
+            or any(not isinstance(value, ast.Constant)
+                   for value in initializer.args.kw_defaults)
+            or [value.value for value in initializer.args.kw_defaults]
+            != [False, True, True, True, False, None, None, None]):
+        return {}
+    guard_lines = {node.lineno: ast.unparse(node.test)
+                   for node in ast.walk(initializer)
+                   if isinstance(node, ast.If)}
+    if guard_lines != {
+            154: "separators is not None", 156: "indent is not None",
+            158: "default is not None"}:
+        return {}
+    return {
+        ("json.encoder", "json/encoder.py", line): (False,)
+        for line in (154, 156, 158)
+    }
+
+
 def _target_logging_lock_line_facts(files, thread_module_source):
     """Resolve logging's lock-presence guards for the pinned import route."""
     logging_source = files.get("logging/__init__.py") if type(files) is dict else None
@@ -10337,6 +10445,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_opcode_pseudo_op_condition_facts = (
         _target_opcode_pseudo_op_condition_facts(files)
     )
+    target_json_encoder_argument_condition_facts = (
+        _target_json_encoder_argument_condition_facts(files)
+    )
     target_logging_lock_line_facts = _target_logging_lock_line_facts(
         files, thread_native_id_module,
     )
@@ -10988,6 +11099,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         trusted_condition_observations={
             **target_copyreg_constructor_observation_facts,
             **target_opcode_pseudo_op_condition_facts,
+            **target_json_encoder_argument_condition_facts,
         },
         trusted_empty_for_facts={
             "warnings": target_warning_options_empty_for_facts.get("warnings", {}),
@@ -11412,6 +11524,14 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
              "runtime_observation_claimed": False}
             for (module, path, line), decisions
             in target_opcode_pseudo_op_condition_facts.items()
+        ],
+        "target_platform_json_encoder_argument_condition_facts": [
+            {"module": module, "source_path": path, "line": line,
+             "decisions": list(decisions),
+             "evidence_scope": "STATIC_IMPORT_CALL_ARGUMENT_FACT",
+             "runtime_observation_claimed": False}
+            for (module, path, line), decisions
+            in target_json_encoder_argument_condition_facts.items()
         ],
         "target_platform_logging_lock_line_facts": list(
             target_logging_lock_line_facts.items()

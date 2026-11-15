@@ -3017,10 +3017,14 @@ und begrenzt `copyreg.py:19` auf `{False, True}`. PR #882 integrierte ihn als
 Commit `339d5dc2f18991c706fedb3bbb057c5e9db5b0e7`; alle fünf PR-Gates
 bestanden. Der nächste Fact bindet die elf produktiven `opcode.pseudo_op`-
 Registrierungen sowie deren Funktionskörper und begrenzt `opcode.py:72` auf
-`{False, True}`. Der Scan zählt nun 522 unbekannte und 63 aufgelöste
-Bedingungen, bei unverändert 60 Modulen, 318 Kanten und Kandidatenhash
-`33f55d7c…`. 282/282 fokussierte Tests bestehen. Nächster Arbeitsschritt:
-verbleibende Bedingungen anhand der gepinnten Quelle auf sichere vollständige
-Facts prüfen; dynamische Fälle bleiben ohne statisch belegte
-Ausführungsbedingungen unbekannt. Kein Interpreterstart, keine
+`{False, True}`. PR #883 integrierte ihn als Commit
+`94b2b2d1226ab4cb1c28dd70e6b3d287b4728868`; alle fünf PR-Gates bestanden.
+Ein weiterer lokaler Fact bindet `JSONEncoder` an die vollständige
+Produktionsquellmenge und wertet die drei Importzeit-Argumentguards für
+`separators`, `indent` und `default` als falsch aus. Der Scan zählt nun 519
+unbekannte und 66 aufgelöste Bedingungen, bei unverändert 60 Modulen, 318
+Kanten und Kandidatenhash `33f55d7c…`. 283/283 fokussierte Tests bestehen.
+Nächster Arbeitsschritt: verbleibende Bedingungen anhand der gepinnten Quelle
+auf sichere vollständige Facts prüfen; dynamische Fälle bleiben ohne statisch
+belegte Ausführungsbedingungen unbekannt. Kein Interpreterstart, keine
 P11-/Runtimeattestation.

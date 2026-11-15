@@ -4502,6 +4502,67 @@ class StaticImportCandidateTests(unittest.TestCase):
                     {},
                 )
 
+    def test_json_encoder_import_constructor_arguments_require_complete_sources(self):
+        encoder_lines = {
+            120: "class JSONEncoder(object):",
+            121: "    def __init__(self, *, skipkeys=False, ensure_ascii=True, check_circular=True, allow_nan=True, sort_keys=False, indent=None, separators=None, default=None):",
+            154: "        if separators is not None:",
+            155: "            self.item_separator, self.key_separator = separators",
+            156: "        elif indent is not None:",
+            157: "            self.item_separator = ','",
+            158: "        if default is not None:",
+            159: "            self.default = default",
+        }
+        package_lines = {
+            107: "from .encoder import JSONEncoder",
+            110: "_default_encoder = JSONEncoder(",
+            111: "    skipkeys=False,",
+            112: "    ensure_ascii=True,",
+            113: "    check_circular=True,",
+            114: "    allow_nan=True,",
+            115: "    indent=None,",
+            116: "    separators=None,",
+            117: "    default=None,",
+            118: ")",
+        }
+
+        def make_source(lines):
+            content = [""] * max(lines)
+            for number, statement in lines.items():
+                content[number - 1] = statement
+            return ("\n".join(content) + "\n").encode()
+
+        files = {
+            "json/encoder.py": make_source(encoder_lines),
+            "json/__init__.py": make_source(package_lines),
+        }
+        with patch.multiple(
+            SUBJECT,
+            JSON_ENCODER_SOURCE_SHA256=hashlib.sha256(
+                files["json/encoder.py"],
+            ).hexdigest(),
+            JSON_PACKAGE_SOURCE_SHA256=hashlib.sha256(
+                files["json/__init__.py"],
+            ).hexdigest(),
+        ):
+            self.assertEqual(
+                SUBJECT._target_json_encoder_argument_condition_facts(files),
+                {
+                    ("json.encoder", "json/encoder.py", 154): (False,),
+                    ("json.encoder", "json/encoder.py", 156): (False,),
+                    ("json.encoder", "json/encoder.py", 158): (False,),
+                },
+            )
+            aliased = dict(files)
+            aliased["extra.py"] = (
+                b"from json.encoder import JSONEncoder as Encoder\n"
+                b"Encoder(separators=(',', ':'))\n"
+            )
+            self.assertEqual(
+                SUBJECT._target_json_encoder_argument_condition_facts(aliased),
+                {},
+            )
+
     def test_logging_lock_guards_require_unmutated_truthy_lock_implementations(self):
         logging_lines = {
             232: "_lock = threading.RLock()",
