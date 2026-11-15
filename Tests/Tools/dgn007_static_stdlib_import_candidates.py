@@ -2195,6 +2195,20 @@ def _target_sys_implementation_name_fact(sys_module_source):
     return (("sys.implementation.name", "cpython"),)
 
 
+def _target_s15_implementation_field_candidate(sys_module_source, name_fact):
+    """Bind the S15 implementation field to the pinned CPython source fact."""
+    if (type(sys_module_source) is not bytes
+            or name_fact != (("sys.implementation.name", "cpython"),)
+            or _target_sys_implementation_name_fact(sys_module_source) != name_fact):
+        return {}
+    return {
+        "value": "cpython",
+        "source_fact": "sys.implementation.name",
+        "source_sha256": SYS_MODULE_C_SHA256,
+        "runtime_implementation_claimed": False,
+    }
+
+
 def _target_sys_implementation_cache_tag_fact(sys_module_source, version_fact):
     """Bind CPython's cache tag from its pinned macros and target version fact."""
     body = _target_sys_implementation_info_body(sys_module_source)
@@ -8040,6 +8054,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     sys_implementation_name_fact = (
         _target_sys_implementation_name_fact(sys_module_c_source)
     )
+    target_s15_implementation_field_candidate = (
+        _target_s15_implementation_field_candidate(
+            sys_module_c_source, sys_implementation_name_fact,
+        )
+    )
     sys_implementation_cache_tag_fact = (
         _target_sys_implementation_cache_tag_fact(
             sys_module_c_source, sys_implementation_version_fact,
@@ -8527,6 +8546,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_sys_implementation_name_fact": list(
             sys_implementation_name_fact
+        ),
+        "target_s15_implementation_field_candidate": (
+            target_s15_implementation_field_candidate
         ),
         "target_platform_sys_implementation_cache_tag_fact": list(
             sys_implementation_cache_tag_fact

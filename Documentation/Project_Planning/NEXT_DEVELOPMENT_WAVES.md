@@ -2571,10 +2571,17 @@ PR #809 bindet `abi` an `SOABI` aus der digestgeprüften Zielimage-
 `_sysconfigdata`-Datei. 244 fokussierte Regressionen und alle fünf PR-Gates
 bestanden. Das belegt keine Runtime-ABI oder vollständige S15-Auswahl.
 
-## Begrenzte Fortsetzung: Platform-Feldkandidat binden
+## Abgeschlossen: Platform-Feldkandidat binden
 
-Der nächste S15-Schnitt verbindet den quellgebundenen `sys.platform`-Fakt mit
-`MACHDEP=linux` aus der digestgeprüften Zielimage-`_sysconfigdata`-Datei. Die
-Ausgabe enthält die Quellhashes und bleibt ein statischer Feldkandidat. Umfang:
-ein Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-,
-SQL-/Lab- oder menschliche Generalprobenattestation.
+PR #810 verbindet `sys.platform` aus dem geprüften `Py_GetPlatform`-Pfad mit
+`MACHDEP=linux` der digestgeprüften Zielimage-`_sysconfigdata`-Datei. 244
+fokussierte Regressionen und alle fünf PR-Gates bestanden; die Ausgabe bleibt
+statisch.
+
+## Begrenzte Fortsetzung: Implementation-Feldkandidat binden
+
+Der nächste S15-Schnitt bindet `implementation` an `sys.implementation.name`
+aus der digestgeprüften CPython-`sysmodule.c`-Quelle. Der statische Kandidat
+verwendet den bereits geprüften Quellfakt erneut und behauptet keine
+Runtimeaufnahme. Umfang: ein Paket, ein PR und höchstens zwei Regressionen;
+keine Runtime-, P11-, SQL-/Lab- oder menschliche Generalprobenattestation.

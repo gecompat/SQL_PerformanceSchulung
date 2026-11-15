@@ -1247,6 +1247,16 @@ class StaticImportCandidateTests(unittest.TestCase):
         ):
             facts = SUBJECT._target_sys_implementation_name_fact(sys_module)
             self.assertEqual(facts, (("sys.implementation.name", "cpython"),))
+            self.assertEqual(
+                SUBJECT._target_s15_implementation_field_candidate(
+                    sys_module, facts,
+                ), {
+                    "value": "cpython",
+                    "source_fact": "sys.implementation.name",
+                    "source_sha256": hashlib.sha256(sys_module).hexdigest(),
+                    "runtime_implementation_claimed": False,
+                },
+            )
             condition = ast.parse(
                 'sys.implementation.name == "cpython"', mode="eval",
             ).body
@@ -1284,6 +1294,9 @@ class StaticImportCandidateTests(unittest.TestCase):
         ):
             facts = SUBJECT._target_sys_implementation_name_fact(sys_module)
             self.assertEqual(facts, ())
+            self.assertEqual(SUBJECT._target_s15_implementation_field_candidate(
+                sys_module, facts,
+            ), {})
             condition = ast.parse(
                 'sys.implementation.name == "cpython"', mode="eval",
             ).body
