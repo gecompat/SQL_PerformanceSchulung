@@ -2893,6 +2893,40 @@ def _target_selected_profile_post_contract_candidate(source_bytes, observation_f
     }
 
 
+def _target_selected_hook_post_contract_candidate(source_bytes, observation_flow):
+    """Bind before/after hook identity and record equality checks."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(observation_flow) is not dict
+            or observation_flow.get("runtime_observation_claimed") is not False):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def _selected_hook_post\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    body = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"all(a is b for a, b in zip(before[:7], after[:7]))",
+        b"all(a[0] is b[0] and a[1] is b[1] and a[2] == b[2] for a, b in zip(before[7], after[7]))",
+        b'"FILEFINDER_BINDING"',
+    )
+    if any(body.count(fragment) != 1 for fragment in required):
+        return None
+    return {
+        "hook_identity_fields": ("finder", "loader", "path"),
+        "hook_record_field_comparison": ("identity", "identity", "value"),
+        "hook_mutation_rejected": True,
+        "runtime_hook_observation_claimed": False,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "evidence_scope": "STATIC_SELECTED_HOOK_POST_CONTRACT_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9951,6 +9985,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_selected_profile_observation_flow_candidate,
         )
     )
+    target_selected_hook_post_contract_candidate = (
+        _target_selected_hook_post_contract_candidate(
+            runtime_profile_source,
+            target_selected_profile_observation_flow_candidate,
+        )
+    )
     target_profile_selection_inputs_candidate = (
         _target_profile_selection_inputs_candidate(
             runtime_profile_source,
@@ -10588,6 +10628,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_selected_profile_post_contract_candidate": (
             target_selected_profile_post_contract_candidate
+        ),
+        "target_selected_hook_post_contract_candidate": (
+            target_selected_hook_post_contract_candidate
         ),
         "target_profile_selection_inputs_candidate": (
             target_profile_selection_inputs_candidate
