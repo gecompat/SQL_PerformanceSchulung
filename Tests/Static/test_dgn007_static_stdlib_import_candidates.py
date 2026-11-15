@@ -4431,6 +4431,77 @@ class StaticImportCandidateTests(unittest.TestCase):
                 },
             )
 
+    def test_opcode_pseudo_op_fact_requires_every_pinned_registration(self):
+        calls = {
+            262: "pseudo_op('SETUP_FINALLY', 256, ['NOP'])",
+            264: "pseudo_op('SETUP_CLEANUP', 257, ['NOP'])",
+            266: "pseudo_op('SETUP_WITH', 258, ['NOP'])",
+            268: "pseudo_op('POP_BLOCK', 259, ['NOP'])",
+            270: "pseudo_op('JUMP', 260, ['JUMP_FORWARD', 'JUMP_BACKWARD'])",
+            271: "pseudo_op('JUMP_NO_INTERRUPT', 261, "
+                 "['JUMP_FORWARD', 'JUMP_BACKWARD_NO_INTERRUPT'])",
+            273: "pseudo_op('LOAD_METHOD', 262, ['LOAD_ATTR'])",
+            274: "pseudo_op('LOAD_SUPER_METHOD', 263, ['LOAD_SUPER_ATTR'])",
+            275: "pseudo_op('LOAD_ZERO_SUPER_METHOD', 264, ['LOAD_SUPER_ATTR'])",
+            276: "pseudo_op('LOAD_ZERO_SUPER_ATTR', 265, ['LOAD_SUPER_ATTR'])",
+            278: "pseudo_op('STORE_FAST_MAYBE_NULL', 266, ['STORE_FAST'])",
+        }
+        lines = {
+            42: "oplists = [hasarg, hasconst, hasname, hasjrel, hasjabs, haslocal, hascompare, hasfree, hasexc]",
+            66: "def pseudo_op(name, op, real_ops):",
+            67: "    def_op(name, op)",
+            68: "    _pseudo_ops[name] = real_ops",
+            70: "    for oplist in oplists:",
+            71: "        res = [opmap[rop] in oplist for rop in real_ops]",
+            72: "        if any(res):",
+            73: "            assert all(res)",
+            74: "            oplist.append(op)",
+        }
+        lines.update(calls)
+
+        def make_source(rows):
+            content = [""] * max(rows)
+            for number, statement in rows.items():
+                content[number - 1] = statement
+            return ("\n".join(content) + "\n").encode()
+
+        source = make_source(lines)
+        with patch.object(
+            SUBJECT, "OPCODE_SOURCE_SHA256", hashlib.sha256(source).hexdigest(),
+        ):
+            self.assertEqual(
+                SUBJECT._target_opcode_pseudo_op_condition_facts(
+                    {"opcode.py": source},
+                ),
+                {("opcode", "opcode.py", 72): (False, True)},
+            )
+            mutated = dict(lines)
+            mutated[279] = "pseudo_op('UNEXPECTED', 267, ['NOP'])"
+            mutated_source = make_source(mutated)
+            with patch.object(
+                SUBJECT, "OPCODE_SOURCE_SHA256",
+                hashlib.sha256(mutated_source).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_opcode_pseudo_op_condition_facts(
+                        {"opcode.py": mutated_source},
+                    ),
+                    {},
+                )
+            changed_function = dict(lines)
+            changed_function[73] = "            pass"
+            changed_function_source = make_source(changed_function)
+            with patch.object(
+                SUBJECT, "OPCODE_SOURCE_SHA256",
+                hashlib.sha256(changed_function_source).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_opcode_pseudo_op_condition_facts(
+                        {"opcode.py": changed_function_source},
+                    ),
+                    {},
+                )
+
     def test_logging_lock_guards_require_unmutated_truthy_lock_implementations(self):
         logging_lines = {
             232: "_lock = threading.RLock()",

@@ -6587,6 +6587,68 @@ def _target_copyreg_constructor_observation_facts(files):
     return {("copyreg", "copyreg.py", 19): (False, True)}
 
 
+def _target_opcode_pseudo_op_condition_facts(files):
+    """Bound pseudo_op's any(res) outcomes to all pinned registrations."""
+    source = files.get("opcode.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != OPCODE_SOURCE_SHA256):
+        return {}
+    try:
+        tree = ast.parse(source, filename="opcode.py")
+    except SyntaxError:
+        return {}
+    expected_calls = {
+        (262, "pseudo_op('SETUP_FINALLY', 256, ['NOP'])"),
+        (264, "pseudo_op('SETUP_CLEANUP', 257, ['NOP'])"),
+        (266, "pseudo_op('SETUP_WITH', 258, ['NOP'])"),
+        (268, "pseudo_op('POP_BLOCK', 259, ['NOP'])"),
+        (270, "pseudo_op('JUMP', 260, ['JUMP_FORWARD', 'JUMP_BACKWARD'])"),
+        (271, "pseudo_op('JUMP_NO_INTERRUPT', 261, "
+              "['JUMP_FORWARD', 'JUMP_BACKWARD_NO_INTERRUPT'])"),
+        (273, "pseudo_op('LOAD_METHOD', 262, ['LOAD_ATTR'])"),
+        (274, "pseudo_op('LOAD_SUPER_METHOD', 263, ['LOAD_SUPER_ATTR'])"),
+        (275, "pseudo_op('LOAD_ZERO_SUPER_METHOD', 264, ['LOAD_SUPER_ATTR'])"),
+        (276, "pseudo_op('LOAD_ZERO_SUPER_ATTR', 265, ['LOAD_SUPER_ATTR'])"),
+        (278, "pseudo_op('STORE_FAST_MAYBE_NULL', 266, ['STORE_FAST'])"),
+    }
+    actual_calls = {
+        (node.lineno, ast.unparse(node))
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+        and node.func.id == "pseudo_op"
+    }
+    pseudo_functions = [node for node in tree.body
+                        if isinstance(node, ast.FunctionDef)
+                        and node.name == "pseudo_op"]
+    expected_function = ast.parse(
+        "def pseudo_op(name, op, real_ops):\n"
+        "    def_op(name, op)\n"
+        "    _pseudo_ops[name] = real_ops\n"
+        "    for oplist in oplists:\n"
+        "        res = [opmap[rop] in oplist for rop in real_ops]\n"
+        "        if any(res):\n"
+        "            assert all(res)\n"
+        "            oplist.append(op)\n"
+    ).body[0]
+    opcode_list_assignments = [node for node in tree.body
+                               if isinstance(node, ast.Assign)
+                               and any(isinstance(target, ast.Name)
+                                       and target.id == "oplists"
+                                       for target in node.targets)]
+    guards = [node for node in ast.walk(tree)
+              if isinstance(node, ast.If) and node.lineno == 72
+              and ast.unparse(node.test) == "any(res)"]
+    if (actual_calls != expected_calls or len(pseudo_functions) != 1
+            or ast.dump(pseudo_functions[0], include_attributes=False)
+            != ast.dump(expected_function, include_attributes=False)
+            or len(opcode_list_assignments) != 1 or len(guards) != 1
+            or ast.unparse(opcode_list_assignments[0])
+            != "oplists = [hasarg, hasconst, hasname, hasjrel, hasjabs, "
+               "haslocal, hascompare, hasfree, hasexc]"):
+        return {}
+    return {("opcode", "opcode.py", 72): (False, True)}
+
+
 def _target_logging_lock_line_facts(files, thread_module_source):
     """Resolve logging's lock-presence guards for the pinned import route."""
     logging_source = files.get("logging/__init__.py") if type(files) is dict else None
@@ -10272,6 +10334,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_copyreg_constructor_observation_facts = (
         _target_copyreg_constructor_observation_facts(files)
     )
+    target_opcode_pseudo_op_condition_facts = (
+        _target_opcode_pseudo_op_condition_facts(files)
+    )
     target_logging_lock_line_facts = _target_logging_lock_line_facts(
         files, thread_native_id_module,
     )
@@ -10920,9 +10985,10 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
               or target_sysconfig_build_setup_guard_line_facts
               or target_importlib_optimize_line_facts
               or target_importlib_verbose_line_facts) else {},
-        trusted_condition_observations=(
-            target_copyreg_constructor_observation_facts
-        ),
+        trusted_condition_observations={
+            **target_copyreg_constructor_observation_facts,
+            **target_opcode_pseudo_op_condition_facts,
+        },
         trusted_empty_for_facts={
             "warnings": target_warning_options_empty_for_facts.get("warnings", {}),
         } if target_warning_options_empty_for_facts else {},
@@ -11338,6 +11404,14 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
              "runtime_observation_claimed": False}
             for (module, path, line), decisions
             in target_copyreg_constructor_observation_facts.items()
+        ],
+        "target_platform_opcode_pseudo_op_condition_facts": [
+            {"module": module, "source_path": path, "line": line,
+             "decisions": list(decisions),
+             "evidence_scope": "STATIC_CPYTHON_CALLSITE_INVENTORY",
+             "runtime_observation_claimed": False}
+            for (module, path, line), decisions
+            in target_opcode_pseudo_op_condition_facts.items()
         ],
         "target_platform_logging_lock_line_facts": list(
             target_logging_lock_line_facts.items()
