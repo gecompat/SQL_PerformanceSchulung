@@ -1752,7 +1752,7 @@ def _target_profile_scalar_projection_schema_candidate(
     normalized = re.sub(rb"\s+", b" ", bodies[0])
     required = (
         b"selection = (expected.assumption, expected.roots, expected.inert_zip, expected.controls)",
-        b"installation = (observation.platform, observation.implementation, observation.version,",
+        b"installation = (observation.platform, observation.implementation, observation.version, observation.executable, observation.executable_target, observation.prefixes, observation.abi, observation.flags, observation.paths, (\"BUILTIN\", \"FROZEN\", \"PATH\"), (\"ZIPIMPORTER\", \"FILEFINDER\"), tuple((r.path, r.size, r.sha256) for r in observation.files))",
         b"modules.append((row.name, module_name, spec_name, row.origin, row.file, row.kind, row.locations, loader, loader_name, loader_path, aliases))",
         b"return selection, installation, tuple(modules)",
     )
@@ -1761,7 +1761,12 @@ def _target_profile_scalar_projection_schema_candidate(
     return {
         "output_order": ("selection", "installation", "modules"),
         "selection_field_order": selection_inputs["field_order"],
-        "installation_field_order": installation_tuple["field_order"],
+        "declared_profile_installation_field_order": installation_tuple["field_order"],
+        "installation_projection_field_order": (
+            "platform", "implementation", "version", "executable",
+            "executable_target", "prefixes", "abi", "flags", "paths",
+            "finders", "hooks", "files",
+        ),
         "module_row_field_order": (
             "name", "module_name", "spec_name", "origin", "file", "kind",
             "locations", "loader", "loader_name", "loader_path", "aliases",

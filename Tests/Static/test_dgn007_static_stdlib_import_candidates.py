@@ -1471,7 +1471,12 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(candidate, {
             "output_order": ("selection", "installation", "modules"),
             "selection_field_order": selection_inputs["field_order"],
-            "installation_field_order": installation["field_order"],
+            "declared_profile_installation_field_order": installation["field_order"],
+            "installation_projection_field_order": (
+                "platform", "implementation", "version", "executable",
+                "executable_target", "prefixes", "abi", "flags", "paths",
+                "finders", "hooks", "files",
+            ),
             "module_row_field_order": (
                 "name", "module_name", "spec_name", "origin", "file", "kind",
                 "locations", "loader", "loader_name", "loader_path", "aliases",
@@ -1493,6 +1498,19 @@ class StaticImportCandidateTests(unittest.TestCase):
             self.assertIsNone(
                 SUBJECT._target_profile_scalar_projection_schema_candidate(
                     changed, selection_inputs, installation,
+                )
+            )
+        changed_installation = profile_source.replace(
+            b"installation = (observation.platform, observation.implementation, observation.version,",
+            b"installation = (observation.implementation, observation.platform, observation.version,",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed_installation),
+        ):
+            self.assertIsNone(
+                SUBJECT._target_profile_scalar_projection_schema_candidate(
+                    changed_installation, selection_inputs, installation,
                 )
             )
 
