@@ -12114,6 +12114,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
                 files, preconfig_c_source, initconfig_c_source, worker_source,
             )
         )
+        target_warning_options_empty_for_facts = (
+            _target_warning_options_empty_for_facts(
+                files, preconfig_c_source, initconfig_c_source, worker_source,
+            )
+        )
     if target_image_save_path is not None:
         if (not target_direct_python312 or not target_no_site
                 or not target_no_project_base_override
@@ -12159,11 +12164,6 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             )
             target_s15_flags_field_candidate = (
                 _target_s15_flags_field_candidate(target_worker_sys_flag_facts)
-            )
-            target_warning_options_empty_for_facts = (
-                _target_warning_options_empty_for_facts(
-                    files, preconfig_c_source, initconfig_c_source, worker_source,
-                )
             )
             target_importlib_optimize_line_facts = (
                 _target_importlib_optimize_line_facts(
