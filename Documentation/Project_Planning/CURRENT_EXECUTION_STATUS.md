@@ -10897,3 +10897,15 @@ statische Update-Route, keine beobachtete Änderung von `_CONFIG_VARS` oder
 Runtime-Konfiguration. Keine P11-, SQL-/Lab- oder menschliche
 Generalprobenattestation. Umfang: ein Paket, ein PR und höchstens zwei
 Regressionen.
+
+## Fortsetzung: Sysconfig-Wertefluss bis zur öffentlichen API binden
+
+Der quellengebundene Kandidat prüft nun die abschließenden Rückgabeformen von
+`get_config_vars()`: ohne Argumente `_CONFIG_VARS`, mit Argumenten die
+angeforderten Werte aus diesem Mapping. `get_config_var(name)` wird nur bei
+der exakten Wrapperform `get_config_vars().get(name)` ausgewiesen. Beide
+API-Facts sind mit dem vorherigen Lazy-Initializer- und POSIX-Importkandidaten
+verbunden. Der echte CPython-3.12.16-Quellarchivtest liefert den Kandidaten;
+er belegt keinen API-Aufruf oder zurückgegebenen Runtimewert. Keine P11-, SQL-/
+Lab- oder menschliche Generalprobenattestation. Umfang: ein Paket, ein PR und
+höchstens zwei Regressionen.

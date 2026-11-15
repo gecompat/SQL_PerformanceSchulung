@@ -2005,7 +2005,7 @@ def _target_sysconfigdata_import_target_candidate(
 
 def _target_sysconfigdata_initialization_route_candidate(
         sysconfig_inventory, lazy_initialization_call_candidate,
-        posix_init_line_facts,
+        public_config_value_flow_candidate, posix_init_line_facts,
         import_target_candidate, image_facts):
     """Join the guarded POSIX initializer to its verified sysconfigdata file."""
     if (type(sysconfig_inventory) is not dict
@@ -2031,6 +2031,14 @@ def _target_sysconfigdata_initialization_route_candidate(
                 "selected_call": "_init_config_vars()",
                 "evidence_scope": "STATIC_LAZY_INITIALIZER_CALL_CANDIDATE",
             }
+            or public_config_value_flow_candidate != {
+                "public_mapping_api": "get_config_vars",
+                "no_arguments_return": "_CONFIG_VARS",
+                "arguments_return": "[_CONFIG_VARS.get(name) for name in args]",
+                "single_value_api": "get_config_var",
+                "single_value_return": "get_config_vars().get(name)",
+                "evidence_scope": "STATIC_CONFIG_API_VALUE_FLOW_CANDIDATE",
+            }
             or type(posix_init_line_facts) is not dict
             or len(posix_init_line_facts) != 1
             or any(type(line) is not int or type(value) is not bool or not value
@@ -2055,6 +2063,7 @@ def _target_sysconfigdata_initialization_route_candidate(
     line = next(iter(posix_init_line_facts))
     return {
         "public_initializer_call_candidate": lazy_initialization_call_candidate,
+        "public_config_value_flow_candidate": public_config_value_flow_candidate,
         "initializer": "sysconfig._init_config_vars",
         "guard": "os.name == 'posix'",
         "guard_source_line": line,
@@ -4248,6 +4257,76 @@ def _target_sysconfig_lazy_initialization_call_candidate(files):
         "recheck_guard": "_CONFIG_VARS is None",
         "selected_call": "_init_config_vars()",
         "evidence_scope": "STATIC_LAZY_INITIALIZER_CALL_CANDIDATE",
+    }
+
+
+def _target_sysconfig_public_config_value_flow_candidate(files):
+    """Bind sysconfig's public configuration-value return forms."""
+    source = files.get("sysconfig.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source, filename="sysconfig.py")
+    except SyntaxError:
+        return None
+    functions = {
+        node.name: node for node in tree.body
+        if isinstance(node, ast.FunctionDef)
+    }
+    if (len([node for node in tree.body
+             if isinstance(node, ast.FunctionDef)
+             and node.name == "get_config_vars"]) != 1
+            or len([node for node in tree.body
+                    if isinstance(node, ast.FunctionDef)
+                    and node.name == "get_config_var"]) != 1):
+        return None
+
+    get_config_vars = functions.get("get_config_vars")
+    get_config_var = functions.get("get_config_var")
+    if get_config_vars is None or get_config_var is None:
+        return None
+    getter_body = list(get_config_vars.body)
+    if (getter_body and isinstance(getter_body[0], ast.Expr)
+            and isinstance(getter_body[0].value, ast.Constant)
+            and type(getter_body[0].value.value) is str):
+        getter_body.pop(0)
+    wrapper_body = list(get_config_var.body)
+    if (wrapper_body and isinstance(wrapper_body[0], ast.Expr)
+            and isinstance(wrapper_body[0].value, ast.Constant)
+            and type(wrapper_body[0].value.value) is str):
+        wrapper_body.pop(0)
+    expected_return_block = ast.parse(
+        "def get_config_vars(*args):\n"
+        "    if args:\n"
+        "        vals = []\n"
+        "        for name in args:\n"
+        "            vals.append(_CONFIG_VARS.get(name))\n"
+        "        return vals\n"
+        "    else:\n"
+        "        return _CONFIG_VARS\n"
+    ).body[0].body[0]
+    if (not getter_body or not isinstance(getter_body[-1], ast.If)
+            or ast.dump(getter_body[-1], include_attributes=False)
+            != ast.dump(expected_return_block, include_attributes=False)):
+        return None
+    expected_wrapper = ast.parse(
+        "def get_config_var(name):\n"
+        "    return get_config_vars().get(name)\n"
+    ).body[0]
+    if (len(get_config_var.args.args) != 1
+            or get_config_var.args.args[0].arg != "name"
+            or len(wrapper_body) != 1
+            or ast.dump(wrapper_body[0], include_attributes=False)
+            != ast.dump(expected_wrapper.body[0], include_attributes=False)):
+        return None
+    return {
+        "public_mapping_api": "get_config_vars",
+        "no_arguments_return": "_CONFIG_VARS",
+        "arguments_return": "[_CONFIG_VARS.get(name) for name in args]",
+        "single_value_api": "get_config_var",
+        "single_value_return": "get_config_vars().get(name)",
+        "evidence_scope": "STATIC_CONFIG_API_VALUE_FLOW_CANDIDATE",
     }
 
 
@@ -7233,10 +7312,14 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_sysconfig_lazy_initialization_call_candidate = (
         _target_sysconfig_lazy_initialization_call_candidate(files)
     )
+    target_sysconfig_public_config_value_flow_candidate = (
+        _target_sysconfig_public_config_value_flow_candidate(files)
+    )
     sysconfigdata_initialization_route_candidate = (
         _target_sysconfigdata_initialization_route_candidate(
             sysconfig_inventory,
             target_sysconfig_lazy_initialization_call_candidate,
+            target_sysconfig_public_config_value_flow_candidate,
             target_sysconfig_posix_init_line_facts,
             sysconfigdata_import_target_candidate, target_image_path_facts,
         )
@@ -7544,6 +7627,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_sysconfigdata_lazy_initialization_call_candidate": (
             target_sysconfig_lazy_initialization_call_candidate
+        ),
+        "target_platform_sysconfigdata_public_config_value_flow_candidate": (
+            target_sysconfig_public_config_value_flow_candidate
         ),
         "sysconfigdata_importer": sysconfig_inventory["sysconfigdata_importer"],
         "sysconfigdata_imported_attribute": sysconfig_inventory[

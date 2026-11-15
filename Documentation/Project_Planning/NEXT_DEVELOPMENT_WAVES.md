@@ -2455,3 +2455,9 @@ Regressionen begrenzt. Er ordnet die 14 festgelegten Werte des
 `build_time_vars`-Image-Literals dem statischen `vars.update`-Datenfluss und
 `_CONFIG_VARS` als Zielmapping zu. Es entstehen keine Runtimewerte und keine
 Import-, P11-, SQL-/Lab- oder Generalprobenfreigabe.
+
+Der nächste DGN-007-Schnitt bleibt auf ein Paket, einen PR und höchstens zwei
+Regressionen begrenzt. Er bindet die geprüften Rückgabepfade von
+`get_config_vars()` und `get_config_var()` an den statischen
+`_CONFIG_VARS`-Datenfluss. Der Status bleibt `CANDIDATES_ONLY`; keine
+Zielruntime-, P11-, SQL-/Lab- oder Generalprobenattestation.
