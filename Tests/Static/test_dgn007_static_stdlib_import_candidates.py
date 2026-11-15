@@ -2029,6 +2029,21 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {"trust_established": False},
                 {"runtime_observation_claimed": False},
             ))
+        early_return = profile_source.replace(
+            b"def _shape(value, expected):\r\n    _need(",
+            b"def _shape(value, expected):\r\n    return None\r\n    _need(",
+            1,
+        )
+        self.assertNotEqual(early_return, profile_source)
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(early_return),
+        ):
+            self.assertIsNone(SUBJECT._target_profile_shape_contract_candidate(
+                early_return,
+                {"trust_established": False},
+                {"runtime_observation_claimed": False},
+            ))
 
     def test_profile_record_validators_are_source_bound(self):
         profile_source = (

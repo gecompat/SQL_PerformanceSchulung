@@ -2318,6 +2318,8 @@ def _target_profile_shape_contract_candidate(
     if len(bodies) != 1:
         return None
     normalized = re.sub(rb"\s+", b" ", bodies[0])
+    if re.search(rb"\breturn\b", normalized) is not None:
+        return None
     required = (
         b"_need(type(value) is (DeclaredProfile if expected else Observation))",
         b"_need(type(value.token) is bytes and len(value.token) == 32)",

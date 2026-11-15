@@ -2955,7 +2955,7 @@ Fehlerberichte und den abschließenden Erfolg. Eine Mutation mit vorgezogener
 Rückgabe vor dem Vergleich wird abgewiesen. Der fokussierte Satz besteht
 279/279; es werden keine Profile validiert.
 
-## Begrenzte Fortsetzung: Profilform-Vertrag prüfen
+## Begrenzte Fortsetzung: Profilform-Validator gegen frühe Rückgabe absichern
 
-Als nächstes wird der bereits quellengebundene `_shape`-Vertrag auf mögliche
-vorzeitige Ausstiege geprüft. Es werden keine Profile verarbeitet.
+Der nächste Schnitt bindet `_shape` an einen ausstiegsfreien Validierungspfad.
+Es werden keine Profile verarbeitet.
