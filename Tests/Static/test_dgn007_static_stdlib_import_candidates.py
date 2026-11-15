@@ -3392,6 +3392,31 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertFalse(candidate["runtime_instances_claimed"])
         self.assertFalse(candidate["selection_claimed"])
+        registration = {
+            "source_sha256": candidate["source_sha256"],
+            "sys_meta_path_registration_sites": [
+                ["importlib._bootstrap._install", "BuiltinImporter"],
+                ["importlib._bootstrap._install", "FrozenImporter"],
+                ["importlib._bootstrap_external._install", "PathFinder"],
+            ],
+            "final_sys_meta_path_claimed": False,
+            "evidence_scope": "STATIC_IMPORTLIB_REGISTRATION_SITES_CANDIDATE",
+        }
+        field_candidate = SUBJECT._target_s15_finders_field_candidate(
+            registration, candidate,
+        )
+        self.assertEqual(field_candidate, {
+            "values": ("BUILTIN", "FROZEN", "PATH"),
+            "registration_sites": registration["sys_meta_path_registration_sites"],
+            "class_declarations": candidate["registered_finder_declarations"],
+            "source_sha256": registration["source_sha256"],
+            "runtime_finder_instances_claimed": False,
+            "runtime_selection_claimed": False,
+            "evidence_scope": "STATIC_S15_FINDERS_FIELD_CANDIDATE",
+        })
+        self.assertIsNone(SUBJECT._target_s15_finders_field_candidate(
+            {**registration, "sys_meta_path_registration_sites": []}, candidate,
+        ))
 
         changed_class = bootstrap.replace(
             b"class BuiltinImporter:", b"class BuiltinLoader:"
