@@ -10828,3 +10828,20 @@ Funktionsausführung, tatsächlichen Import oder Runtimeprofilaufnahme nach.
 Keine P11-, SQL-/Lab- oder menschliche Generalprobenattestation. Token-/
 Geldverbrauch bleiben unbekannt; Umfang: ein Paket, ein PR, höchstens zwei
 Regressionen.
+
+## Fortsetzung: Sysconfig-Initialisierungsroute als Kandidat zusammenführen
+
+Der Scanner führt jetzt den quellengebundenen POSIX-Guard und Aufruf aus
+`sysconfig._init_config_vars` mit dem geprüften dynamischen Importziel, dem
+komponierten Modulnamen und der digestgebundenen OCI-Datei zusammen. Das
+Ergebnis ist `STATIC_CONDITIONAL_IMPORT_ROUTE_CANDIDATE` mit Importer
+`__import__`, Attribut `build_time_vars` und Consumer
+`vars.update(build_time_vars)`. Eine Regression verlangt den ausgewählten
+Zeilenfact und die passende Image-Datei. Die fokussierte Suite besteht lokal
+mit 233 Tests unter Python 3.14. Der echte OCI-Scan gibt die vollständige
+Kandidatenroute aus; er bleibt `CANDIDATES_ONLY` mit 60 Call-Closure-Kandidaten,
+316 Kanten, 166 Funktionen, 69 entschiedenen und 498 unbekannten Bedingungen.
+Das belegt weder den Aufruf des Initializers noch Import, Dateiausführung oder
+Runtimeübernahme. Keine P11-, Profil-, SQL-/Lab- oder menschliche
+Generalprobenattestation. Token-/Geldverbrauch bleiben unbekannt; Umfang: ein
+Paket, ein PR, höchstens zwei Regressionen.

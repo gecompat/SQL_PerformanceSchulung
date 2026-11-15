@@ -1968,6 +1968,49 @@ def _target_sysconfigdata_import_target_candidate(
     }
 
 
+def _target_sysconfigdata_initialization_route_candidate(
+        sysconfig_inventory, posix_init_line_facts,
+        import_target_candidate, image_facts):
+    """Join the guarded POSIX initializer to its verified sysconfigdata file."""
+    if (type(sysconfig_inventory) is not dict
+            or sysconfig_inventory.get("source_sha256") != SYSCONFIG_SOURCE_SHA256
+            or sysconfig_inventory.get("sysconfigdata_name_template")
+            != "_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}"
+            or sysconfig_inventory.get("sysconfigdata_importer") != "__import__"
+            or sysconfig_inventory.get("sysconfigdata_imported_attribute")
+            != "build_time_vars"
+            or type(posix_init_line_facts) is not dict
+            or len(posix_init_line_facts) != 1
+            or any(type(line) is not int or type(value) is not bool or not value
+                   for line, value in posix_init_line_facts.items())
+            or import_target_candidate != {
+                "module_name": "_sysconfigdata__linux_x86_64-linux-gnu",
+                "image_file_path": TARGET_SYSCONFIGDATA_PATH,
+                "importer": "__import__",
+                "imported_attribute": "build_time_vars",
+                "evidence_scope": "STATIC_IMPORT_TARGET_CANDIDATE",
+            }
+            or type(image_facts) is not dict
+            or image_facts.get("sysconfigdata_path") != TARGET_SYSCONFIGDATA_PATH
+            or image_facts.get("sysconfigdata_sha256")
+            != TARGET_SYSCONFIGDATA_SHA256):
+        return None
+    line = next(iter(posix_init_line_facts))
+    return {
+        "initializer": "sysconfig._init_config_vars",
+        "guard": "os.name == 'posix'",
+        "guard_source_line": line,
+        "selected_call": "_init_posix(_CONFIG_VARS)",
+        "importer": "__import__",
+        "module_name": import_target_candidate["module_name"],
+        "image_file_path": import_target_candidate["image_file_path"],
+        "image_file_sha256": image_facts["sysconfigdata_sha256"],
+        "imported_attribute": "build_time_vars",
+        "value_consumer": "vars.update(build_time_vars)",
+        "evidence_scope": "STATIC_CONDITIONAL_IMPORT_ROUTE_CANDIDATE",
+    }
+
+
 def _target_importlib_verbose_line_facts(
         files, preconfig_source, initconfig_source, worker_source):
     """Bind importlib's verbose guard across every pinned source call site."""
@@ -7054,6 +7097,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_sysconfig_posix_init_line_facts = (
         _target_sysconfig_posix_init_line_facts(files, os_name_call_facts)
     )
+    sysconfigdata_initialization_route_candidate = (
+        _target_sysconfigdata_initialization_route_candidate(
+            sysconfig_inventory, target_sysconfig_posix_init_line_facts,
+            sysconfigdata_import_target_candidate, target_image_path_facts,
+        )
+    )
     os_function_name_facts = (
         {"supports_bytes_environ": True}
         if os_name_facts.get("supports_bytes_environ") is True
@@ -7351,6 +7400,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_sysconfigdata_import_target_candidate": (
             sysconfigdata_import_target_candidate
+        ),
+        "target_platform_sysconfigdata_initialization_route_candidate": (
+            sysconfigdata_initialization_route_candidate
         ),
         "sysconfigdata_importer": sysconfig_inventory["sysconfigdata_importer"],
         "sysconfigdata_imported_attribute": sysconfig_inventory[
