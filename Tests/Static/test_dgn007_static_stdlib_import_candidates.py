@@ -2357,6 +2357,50 @@ class StaticImportCandidateTests(unittest.TestCase):
                 changed, observation_flow,
             ))
 
+    def test_filefinder_hook_contract_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        observation_flow = {"runtime_observation_claimed": False}
+        candidate = SUBJECT._target_filefinder_hook_contract_candidate(
+            profile_source, observation_flow,
+        )
+        self.assertEqual(candidate, {
+            "finder_hook_anchors": (
+                "frozen_importlib_external_module", "FileFinder_class", "classmethod_path_hook",
+                "factory_code_constant", "known_hook_globals_and_closure",
+            ),
+            "loader_detail_order": (
+                "ExtensionFileLoader", "SourceFileLoader", "SourcelessFileLoader",
+            ),
+            "suffix_lists_bound": (
+                "EXTENSION_SUFFIXES", "SOURCE_SUFFIXES", "BYTECODE_SUFFIXES",
+            ),
+            "runtime_hook_claimed": False,
+            "trust_attested": False,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "evidence_scope": "STATIC_FILEFINDER_HOOK_CONTRACT_CANDIDATE",
+        })
+        for changed in (
+            profile_source.replace(
+                b'known.__code__.co_freevars == ("cls", "loader_details")',
+                b'known.__code__.co_freevars == ("cls",)',
+            ),
+            profile_source.replace(
+                b'("ExtensionFileLoader", "SourceFileLoader", "SourcelessFileLoader")',
+                b'("SourceFileLoader", "ExtensionFileLoader", "SourcelessFileLoader")',
+            ),
+        ):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(changed),
+            ):
+                self.assertIsNone(SUBJECT._target_filefinder_hook_contract_candidate(
+                    changed, observation_flow,
+                ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(
