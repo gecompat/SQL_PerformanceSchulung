@@ -11087,10 +11087,17 @@ Zielimage-`_sysconfigdata`-Datei. 244 fokussierte Regressionen und alle fünf
 PR-Gates bestanden. Der Feldwert bleibt ein statischer Kandidat; Runtime-ABI,
 P11-Auswahl und ein vollständiger S15-Record sind nicht belegt.
 
-## S15-Teilschnitt: Platform-Feldkandidat aus Buildpfad binden
+## Abgeschlossen: S15-Teilschnitt Platform-Feldkandidat
 
-Der nächste Kandidat verbindet den quellgebundenen `sys.platform`-Fakt mit
-`MACHDEP=linux` aus der digestgeprüften Zielimage-`_sysconfigdata`-Datei. Er
-weist Quellhashes aus und behauptet keine Runtimeaufnahme. Umfang: ein Paket,
-ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
+PR #810 verbindet den über `Py_GetPlatform` quellgebundenen `sys.platform`-
+Fakt mit `MACHDEP=linux` aus der digestgeprüften Zielimage-`_sysconfigdata`-
+Datei und gibt die Quellhashes aus. 244 fokussierte Regressionen und alle fünf
+PR-Gates bestanden. Es entsteht keine Runtimeaufnahme.
+
+## S15-Teilschnitt: Implementation-Feldkandidat binden
+
+Der nächste Kandidat bindet `implementation` an `sys.implementation.name` aus
+der digestgeprüften CPython-`sysmodule.c`-Quelle. Er wiederholt den engen
+Quellfaktabgleich und behauptet keine Runtimeaufnahme. Umfang: ein Paket, ein
+PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
 menschliche Generalprobenattestation.
