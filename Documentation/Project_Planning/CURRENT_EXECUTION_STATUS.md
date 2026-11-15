@@ -10886,18 +10886,6 @@ keinen Getter- oder Initializerlauf. Keine Zielruntime-, P11-, SQL-/Lab- oder
 menschliche Generalprobenattestation. Umfang: ein Paket, ein PR und höchstens
 zwei Regressionen.
 
-## Fortsetzung: Erst- und Wiederinitialisierung gemeinsam ausweisen
-
-Der zusammengeführte Sysconfig-Routen-Kandidat enthält jetzt neben der
-gesperrten Erstinitialisierung auch den quellgebundenen Folgepfad für einen
-abweichenden `base`-/`sys.prefix`-Vergleich. Die Route verlangt beide exakt
-geprüften Kandidaten und weist den Vergleich weiter als laufzeitabhängig aus.
-Damit ist der Wiederinitialisierungspfad Bestandteil der statischen
-Routenbeschreibung; seine Bedingungsauswahl und Ausführung sind weiterhin
-nicht belegt. Keine Runtime-, P11-, SQL-/Lab- oder menschliche
-Generalprobenattestation. Umfang: ein Paket, ein PR und höchstens zwei
-Regressionen.
-
 ## Fortsetzung: 14 gebundene Buildwerte dem Mappingkandidaten zuordnen
 
 Der statische `_CONFIG_VARS`-Update-Kandidat enthält nun die 14 festgelegten
@@ -10970,6 +10958,19 @@ noch ob die Funktion ausgeführt wird. Ein geänderter Guard, Sperrpfad oder
 Initializer-Aufruf wird verworfen. Keine Runtime-, P11-, SQL-/Lab- oder
 menschliche Generalprobenattestation. Umfang: ein Paket, ein PR und höchstens
 zwei Regressionen.
+
+## Fortsetzung: Erst- und Wiederinitialisierung gemeinsam ausweisen
+
+Der zusammengeführte Sysconfig-Routen-Kandidat enthält neben der gesperrten
+Erstinitialisierung auch den quellgebundenen Folgepfad für einen abweichenden
+`base`-/`sys.prefix`-Vergleich. Die Route verlangt beide exakt geprüften
+Kandidaten und weist den Vergleich weiter als laufzeitabhängig aus. Damit ist
+der Wiederinitialisierungspfad Bestandteil der statischen Routenbeschreibung;
+seine Bedingungsauswahl und Ausführung sind weiterhin nicht belegt. Keine
+Runtime-, P11-, SQL-/Lab- oder menschliche Generalprobenattestation. Umfang:
+ein Paket, ein PR und höchstens zwei Regressionen.
+
+## Fortsetzung: Laufzeitabhängige Wiederinitialisierung klar benennen
 
 Die maschinenlesbare Eigenschaft für die Folgeanweisungen heißt
 `actions_if_reinitialization_guard_true`; sie drückt keine ausgewertete
