@@ -10731,3 +10731,21 @@ Eingaben: Quellarchiv SHA-256
 `28d30c15b9e9c3b1d557441aad9592226e852f7716451d6c8df5b4f0c3ce3d1b`. Der
 Lauf enthielt weder Docker-save-Image noch direkte Executableannahme und ist
 keine vollständige Zielinventur, P11-Closure oder Runtimeattestation.
+
+## Fortsetzung: `sys.platform` aus CPython-Quelle und Zielimage binden
+
+Der bisher unbedingte Linux-Zielwert ist aus dem Bedingungsresolver entfernt.
+Der neue Fact setzt die gepinnte `sysmodule.c`-Zuweisung über
+`Py_GetPlatform()`, dessen digestgebundene Implementierung in
+`Python/getplatform.c`, die Buildregel in `Makefile.pre.in` und
+`MACHDEP='linux'` aus den verifizierten Zielimage-Sysconfigdaten gemeinsam
+voraus. Eine synthetische Regression prüft positiven Fact, Quell-/Image-
+Abweichungen und `unknown` ohne Fact. Die fokussierte Suite besteht lokal mit
+227 Tests unter Python 3.14. Der echte CPython-/OCI-Scan gibt
+`sys.platform='linux'`, `sys.abiflags=''` und
+`sys.implementation._multiarch='x86_64-linux-gnu'` aus; der Modul-/Klassenkörper-
+Vorschnitt bleibt `CANDIDATES_ONLY` mit 56 Kandidaten, 278 Kanten, 42
+entschiedenen und null unbekannten Bedingungen. Keine Zielruntimeaufnahme,
+vollständige Importclosure, P11-Inventur, SQL-/Lab-Ausführung oder menschliche
+Generalprobe. Token-/Geldverbrauch bleiben unbekannt; der Schnitt umfasst ein
+Paket, einen PR und höchstens zwei Regressionen.

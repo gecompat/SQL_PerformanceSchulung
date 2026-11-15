@@ -6239,5 +6239,18 @@ Sysconfigdatenmodul. Er verwirft den Fact bei abweichender Quellstruktur,
 Dateiidentität oder Buildwert und gibt ihn an die Bedingungsauswertung weiter.
 Das ist eine aus Quelle und Image abgeleitete Kandidatur, keine beobachtete
 `sys.abiflags`-Runtimeaufnahme und keine S15-/P11-Recordauswahl. Die
-Sysconfigdatenmodulnamenfolge bleibt bis zur Bindung von `sys.platform` und
-anschließender Zusammenführung der drei Namenskomponenten offen.
+Sysconfigdatenmodulnamenfolge blieb bis zur nachfolgenden Quellen-/Imagebindung
+von `sys.platform` und Zusammenführung der drei Namenskomponenten offen.
+
+### Fortsetzung: `sys.platform` als Quellen-/Imagekandidat
+
+Der Scanner gibt den Plattformwert nur aus, wenn die unveränderte
+CPython-3.12.16-Quelle `sys.platform` exakt auf `Py_GetPlatform()` abbildet,
+`getplatform.c` den von der Buildregel gesetzten Wert `PLATFORM` zurückgibt
+und die digestgebundenen Sysconfigdaten im festgelegten Zielimage
+`MACHDEP='linux'` enthalten. Ohne vollständige Kette bleibt die Bedingung
+unbekannt; der unbedingte Resolverwert wurde entfernt. Der echte Archiv-/OCI-
+Scan bestätigt den Fact, aber keine Zielruntimeaufnahme oder Profilattestation.
+Der zusammengesetzte `_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}`-
+Name ist jetzt statisch ableitbar, sofern die drei separaten Facts gemeinsam
+vorliegen; tatsächlicher Import, Dateiauflösung und Profilbindung bleiben offen.

@@ -91,6 +91,12 @@ TARGET_PREFIX_VENV_MARKERS = (
     "usr/local/bin/pyvenv.cfg",
 )
 TARGET_BUILD_MARKER = "usr/local/bin/pybuilddir.txt"
+GETPLATFORM_SOURCE_MEMBER = "Python-3.12.16/Python/getplatform.c"
+GETPLATFORM_SOURCE_SHA256 = "9a35aa63fba4355a90a2cdc78c3472afa1b9969a48a8bc7413e00c4fed68bbee"
+MAX_GETPLATFORM_SOURCE_BYTES = 16 * 1024
+MAKEFILE_PRE_MEMBER = "Python-3.12.16/Makefile.pre.in"
+MAKEFILE_PRE_SHA256 = "6057ec109daebf752e125e9045d1a3fe0ce4bd284a063724bf2a6e1c5fac9dcd"
+MAX_MAKEFILE_PRE_BYTES = 256 * 1024
 TARGET_PTH_OVERRIDE_PATHS = (
     "usr/local/bin/python3.12._pth",
     "usr/local/lib/libpython3.12.so.1.0._pth",
@@ -171,6 +177,13 @@ def _source_archive_data(archive_bytes):
     sys_module_clinic_source = None
     preconfig_c_source = None
     initconfig_c_source = None
+    platform_sources = {
+        GETPLATFORM_SOURCE_MEMBER: ("getplatform", GETPLATFORM_SOURCE_SHA256,
+                                   MAX_GETPLATFORM_SOURCE_BYTES),
+        MAKEFILE_PRE_MEMBER: ("makefile_pre", MAKEFILE_PRE_SHA256,
+                              MAX_MAKEFILE_PRE_BYTES),
+    }
+    platform_source_data = {name: None for name, _, _ in platform_sources.values()}
     warnings_c_source = None
     warnings_clinic_source = None
     posix_module_c_source = None
@@ -311,6 +324,19 @@ def _source_archive_data(archive_bytes):
                 else:
                     initconfig_c_source = body
                 continue
+            if member.name in platform_sources:
+                source_name, expected, limit = platform_sources[member.name]
+                if (not member.isfile() or platform_source_data[source_name] is not None
+                        or member.size > limit):
+                    raise ValueError("PLATFORM_SOURCE_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("PLATFORM_SOURCE_MEMBER")
+                body = stream.read(member.size + 1)
+                if len(body) != member.size or hashlib.sha256(body).hexdigest() != expected:
+                    raise ValueError("PLATFORM_SOURCE_DIGEST")
+                platform_source_data[source_name] = body
+                continue
             if member.name in (WARNINGS_C_MEMBER, WARNINGS_CLINIC_MEMBER):
                 is_module = member.name == WARNINGS_C_MEMBER
                 current = warnings_c_source if is_module else warnings_clinic_source
@@ -425,6 +451,7 @@ def _source_archive_data(archive_bytes):
             warnings_clinic_source, posix_module_c_source, posix_module_clinic_source,
             pickle_module_c_source,
             thread_native_id_header, thread_native_id_module, thread_native_id_pthread,
+            platform_source_data["getplatform"], platform_source_data["makefile_pre"],
             preconfig_c_source, initconfig_c_source)
 
 
@@ -1822,6 +1849,42 @@ def _target_sys_abiflags_fact(sys_module_source, image_facts):
     if len(assignment.findall(source)) != 1:
         return ()
     return (("sys.abiflags", image_facts["abiflags"]),)
+
+
+def _target_sys_platform_fact(
+        sys_module_source, getplatform_source, makefile_pre_source, image_facts):
+    """Bind sys.platform through Py_GetPlatform and the target build rule."""
+    sources = (
+        (sys_module_source, SYS_MODULE_C_SHA256, MAX_SYS_MODULE_C_BYTES),
+        (getplatform_source, GETPLATFORM_SOURCE_SHA256,
+         MAX_GETPLATFORM_SOURCE_BYTES),
+        (makefile_pre_source, MAKEFILE_PRE_SHA256, MAX_MAKEFILE_PRE_BYTES),
+    )
+    if (any(type(source) is not bytes or not source or len(source) > limit
+            or hashlib.sha256(source).hexdigest() != digest
+            for source, digest, limit in sources)
+            or type(image_facts) is not dict
+            or image_facts.get("sysconfigdata_path") != TARGET_SYSCONFIGDATA_PATH
+            or image_facts.get("sysconfigdata_sha256") != TARGET_SYSCONFIGDATA_SHA256
+            or image_facts.get("machdep") != "linux"):
+        return ()
+    sys_module_text = sys_module_source.decode("utf-8")
+    getplatform_text = getplatform_source.decode("utf-8")
+    makefile_text = makefile_pre_source.decode("utf-8")
+    platform_call = 'SET_SYS_FROM_STRING("platform", Py_GetPlatform());'
+    platform_rule = (
+        "$(CC) -c $(PY_CORE_CFLAGS) -DPLATFORM='\"$(MACHDEP)\"' "
+        "-o $@ $(srcdir)/Python/getplatform.c"
+    )
+    if (sys_module_text.count(platform_call) != 1
+            or not re.search(
+                r'#ifndef PLATFORM\s+#define PLATFORM "unknown"\s+#endif\s+'
+                r"const char \*\s*Py_GetPlatform\(void\)\s*\{\s*return PLATFORM;\s*\}",
+                getplatform_text,
+            )
+            or makefile_text.count(platform_rule) != 1):
+        return ()
+    return (("sys.platform", image_facts["machdep"]),)
 
 
 def _target_importlib_verbose_line_facts(
@@ -4253,6 +4316,7 @@ def _target_image_sysconfigdata_facts(source):
         "EXT_SUFFIX": ".cpython-312-x86_64-linux-gnu.so",
         "MULTIARCH": "x86_64-linux-gnu",
         "ABIFLAGS": "",
+        "MACHDEP": "linux",
         "prefix": "/usr/local",
         "exec_prefix": "/usr/local",
         "PLATLIBDIR": "lib",
@@ -4272,6 +4336,7 @@ def _target_image_sysconfigdata_facts(source):
         "extension_suffix": values["EXT_SUFFIX"],
         "multiarch": values["MULTIARCH"],
         "abiflags": values["ABIFLAGS"],
+        "machdep": values["MACHDEP"],
         "prefix": values["prefix"],
         "exec_prefix": values["exec_prefix"],
         "platlibdir": values["PLATLIBDIR"],
@@ -4304,7 +4369,6 @@ def _target_image_setup_paths_safe(tracked):
 def _target_condition(node, known_names=None, known_call_facts=None):
     """Resolve only fixed, side-effect-free target platform predicates."""
     target = {
-        "sys.platform": "linux",
         "os.name": "posix",
         "sys.version_info": (3, 12, 16, "final", 0),
         "sys.version_info.major": 3,
@@ -6686,6 +6750,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
      warnings_clinic_source, posix_module_c_source,
      posix_module_clinic_source, pickle_module_c_source, thread_native_id_header,
      thread_native_id_module, thread_native_id_pthread,
+     getplatform_source, makefile_pre_source,
      preconfig_c_source, initconfig_c_source) = _source_archive_data(
         _archive_bytes(archive_path)
     )
@@ -6847,6 +6912,10 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     sys_abiflags_fact = _target_sys_abiflags_fact(
         sys_module_c_source, target_image_path_facts,
     )
+    sys_platform_fact = _target_sys_platform_fact(
+        sys_module_c_source, getplatform_source, makefile_pre_source,
+        target_image_path_facts,
+    )
     warnings_default_call_facts = _target_warnings_default_call_facts(
         files, warnings_c_source, warnings_clinic_source
     )
@@ -6934,6 +7003,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         + sys_implementation_cache_tag_fact
         + sys_implementation_multiarch_fact
         + sys_abiflags_fact
+        + sys_platform_fact
         + target_worker_sys_flag_facts
         + os_fspath_call_facts + os_have_functions_call_facts
         + posix_build_call_facts + os_descriptor_support_facts
@@ -7223,6 +7293,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             sys_implementation_multiarch_fact
         ),
         "target_platform_sys_abiflags_fact": list(sys_abiflags_fact),
+        "target_platform_sys_platform_fact": list(sys_platform_fact),
         "target_platform_sys_module_clinic_sha256": SYS_MODULE_CLINIC_SHA256,
         "target_platform_warnings_default_call_facts": list(
             warnings_default_call_facts.items()
