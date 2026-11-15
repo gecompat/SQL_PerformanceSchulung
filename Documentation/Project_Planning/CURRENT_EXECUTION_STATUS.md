@@ -11595,13 +11595,19 @@ Ein weiterer Fact bindet bei `opcode.py:72` alle elf produktiven
 `pseudo_op`-Registrierungen und den unveränderten Funktionskörper; PR #883
 integrierte ihn als Commit
 `94b2b2d1226ab4cb1c28dd70e6b3d287b4728868`, alle fünf PR-Gates bestanden.
-Der nächste lokale Fact bindet die einzige produktive Konstruktion von
-`JSONEncoder` und deren Schlüsselwortargumente `separators=None`, `indent=None`
-und `default=None`; damit werden die drei Guards in `json/encoder.py` statisch
-falsch. Der Scan zählt 519 unbekannte und 66 aufgelöste Bedingungen (ausgehend
-von 524/61); Module, Kanten und Kandidatenhash bleiben 60/318 und
-`33f55d7c…`. Der fokussierte Satz besteht 283/283. Der Status bleibt
-`CANDIDATES_ONLY`; es gab keinen Interpreterstart und keine P11-/Runtime-
-Attestation. Als nächste Kandidaten bleiben insbesondere die großen Regex-Reste
-in `re._parser`/`re._compiler`; dynamische Cache- und Umgebungszweige brauchen
-eigene quellengebundene Fakten.
+PR #884 bindet die einzige produktive Importzeit-Konstruktion von `JSONEncoder`
+und die Argumente `separators=None`, `indent=None` und `default=None`; alle fünf
+PR-Gates bestanden. Ein aktueller Offline-Scan nutzte außerdem den exakt
+digest- und DiffID-geprüften OCI-Export des lokalen Zielimages sowie die
+festgelegte direkte `python3.12`-Routenannahme. Der Scan bestätigt statisch die
+`_pickle`-Extensiondatei und `sys.platform=linux`; das bleibt Datei-/Quellfact,
+keine Runtimeaufnahme. Der neue `hashlib`-Fact bindet acht Guards an die
+vollständige `__always_supported`-Tabelle und `__block_openssl_constructor`;
+`hashlib.py:85` und `:120` bleiben wegen des dynamischen Konstruktionscaches
+unbekannt. Ergebnis: 60 Module, 316 Kanten, 82 aufgelöste und 485 unbekannte
+Bedingungen; Kandidatenhash `33f55d7c…`, Unknown-Digest
+`4431f8023aaf2af7b202882d29ac025fe5250ec09cd52e9faa16969d0ef6f3c7`.
+284 fokussierte Tests bestehen. Der Status bleibt `CANDIDATES_ONLY`; es gab
+keinen Interpreterstart und keine P11-/Runtimeattestation. Die großen
+Regex-Reste in `re._parser`/`re._compiler` und weitere dynamische Cache- oder
+Umgebungszweige bleiben offen.

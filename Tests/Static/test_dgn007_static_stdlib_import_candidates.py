@@ -4563,6 +4563,64 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {},
             )
 
+    def test_hashlib_algorithm_guards_require_pinned_init_tuple_and_call_route(self):
+        algorithms = (
+            "'md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512', "
+            "'blake2b', 'blake2s', 'sha3_224', 'sha3_256', 'sha3_384', "
+            "'sha3_512', 'shake_128', 'shake_256'")
+        lines = {
+            58: f"__always_supported = ({algorithms})",
+            78: "__block_openssl_constructor = {'blake2b', 'blake2s'}",
+            82: "def __get_builtin_constructor(name):",
+            88: "    if name in {'SHA1', 'sha1'}:",
+            89: "        pass",
+            91: "    elif name in {'MD5', 'md5'}:",
+            92: "        pass",
+            94: "    elif name in {'SHA256', 'sha256', 'SHA224', 'sha224'}:",
+            95: "        pass",
+            98: "    elif name in {'SHA512', 'sha512', 'SHA384', 'sha384'}:",
+            99: "        pass",
+            102: "    elif name in {'blake2b', 'blake2s'}:",
+            103: "        pass",
+            106: "    elif name in {'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512'}:",
+            107: "        pass",
+            112: "    elif name in {'shake_128', 'shake_256'}:",
+            113: "        pass",
+            126: "def __get_openssl_constructor(name):",
+            127: "    if name in __block_openssl_constructor:",
+            128: "        pass",
+            241: "for __func_name in __always_supported:",
+            242: "    __get_hash(__func_name)",
+        }
+
+        def make_source(rows):
+            content = [""] * max(rows)
+            for number, statement in rows.items():
+                content[number - 1] = statement
+            return ("\n".join(content) + "\n").encode()
+
+        source = make_source(lines)
+        expected = {
+            ("hashlib", "hashlib.py", line): (False, True)
+            for line in (88, 91, 94, 98, 102, 106, 112, 127)
+        }
+        with patch.object(
+            SUBJECT, "HASHLIB_SOURCE_SHA256", hashlib.sha256(source).hexdigest(),
+        ):
+            self.assertEqual(
+                SUBJECT._target_hashlib_name_condition_facts(
+                    {"hashlib.py": source},
+                ),
+                expected,
+            )
+            unsafe = {"hashlib.py": source, "extra.py": (
+                b"import hashlib as hashes\nhashes.new('sha256')\n"
+            )}
+            self.assertEqual(
+                SUBJECT._target_hashlib_name_condition_facts(unsafe),
+                {},
+            )
+
     def test_logging_lock_guards_require_unmutated_truthy_lock_implementations(self):
         logging_lines = {
             232: "_lock = threading.RLock()",
