@@ -10945,3 +10945,16 @@ das beweist weder erfolgreiche Ausführung bis zu dieser Zeile noch einen
 Getteraufruf. Keine Runtime-, P11-, SQL-/Lab- oder menschliche
 Generalprobenattestation. Umfang: ein Paket, ein PR und höchstens zwei
 Regressionen.
+
+## Fortsetzung: bedingte Sysconfig-Wiederinitialisierung ausweisen
+
+Der statische Kandidat bindet im digestgeprüften `get_config_vars()`-Quelltext
+den Folgepfad für ein bereits gesetztes Initialisierungsflag: Bei abweichendem
+`_CONFIG_VARS['base']` gegenüber `os.path.normpath(sys.prefix)` setzt der
+Quellzweig das Flag unter `_CONFIG_VARS_LOCK` zurück und ruft
+`_init_config_vars()` auf. Der Prefixvergleich bleibt ausdrücklich
+laufzeitabhängig; der Kandidat sagt weder voraus, ob der Vergleich wahr ist,
+noch ob die Funktion ausgeführt wird. Ein geänderter Guard, Sperrpfad oder
+Initializer-Aufruf wird verworfen. Keine Runtime-, P11-, SQL-/Lab- oder
+menschliche Generalprobenattestation. Umfang: ein Paket, ein PR und höchstens
+zwei Regressionen.
