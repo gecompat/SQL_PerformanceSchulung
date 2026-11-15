@@ -3192,13 +3192,15 @@ Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.
 
 ### Begrenzte Fortsetzung: `threading.Condition`-Lockargument (15. November 2026)
 
-Der importzeitliche Hauptthreadpfad belegt `threading.py:278`
-(`lock is None`) als falsch: `_MainThread` delegiert an `Thread.__init__`,
-das ein `Event` erzeugt; dieses übergibt `Lock()` an `Condition`. Die
-`Lock`-Aliasbindung führt zu `_thread.allocate_lock`; die gehashte C-Quelle
-gibt ein Lock-Objekt zurück oder meldet einen Fehler. Die Aussage gilt nur
-für diese Importinitialisierung. Der Zielquellscan zählt 60 Module, 318
-Kanten, 91 entschiedene und 490 unbekannte Bedingungen, Unknown-Digest
-`0cd43797a7ff7a6dc1ebdef0ef71d3e23003e095457cb8e789813369851a918e`.
+Der importzeitliche Hauptthreadpfad belegt die vier Guards `threading.py:278`,
+`:287`, `:289` und `:291` als falsch: `_MainThread` delegiert an
+`Thread.__init__`, das ein `Event` erzeugt; dieses übergibt `Lock()` an
+`Condition`. Die `Lock`-Aliasbindung führt zu `_thread.allocate_lock`; die
+gehashte C-Quelle liefert ein natives Lock-Objekt oder meldet einen Fehler.
+Der Typ besitzt kein Instanzwörterbuch und stellt die drei von Condition
+geprüften privaten Methoden nicht bereit. Die Aussage gilt nur für diese
+Importinitialisierung. Der Zielquellscan zählt 60 Module, 318 Kanten, 94
+entschiedene und 487 unbekannte Bedingungen, Unknown-Digest
+`e5431241726d7054aadb72aa9c042f91a677322dcbf7575ae0e2ea19b8d3cb9a`.
 294 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine direkte Image-Route,
 Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.
