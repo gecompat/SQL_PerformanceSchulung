@@ -1923,6 +1923,21 @@ class StaticImportCandidateTests(unittest.TestCase):
                     changed, module_builder,
                 )
             )
+        early_return = profile_source.replace(
+            b"    _shape(expected, True)",
+            b"    return None\n    _shape(expected, True)",
+            1,
+        )
+        self.assertNotEqual(early_return, profile_source)
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(early_return),
+        ):
+            self.assertIsNone(
+                SUBJECT._target_profile_compare_contract_candidate(
+                    early_return, module_builder,
+                )
+            )
 
     def test_profile_validation_report_flow_is_source_bound(self):
         profile_source = (

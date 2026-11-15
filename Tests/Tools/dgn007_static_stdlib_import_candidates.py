@@ -2213,6 +2213,8 @@ def _target_profile_compare_contract_candidate(source_bytes, module_builder):
     if len(bodies) != 1:
         return None
     normalized = re.sub(rb"\s+", b" ", bodies[0])
+    if re.search(rb"\breturn\b", normalized) is not None:
+        return None
     required = (
         b"_shape(expected, True)",
         b"_shape(obs, False)",
