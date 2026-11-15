@@ -2305,3 +2305,20 @@ Token-/Geldverbrauch bleiben unbekannt; die harte Umfangsgrenze ist ein Paket,
 ein PR und zwei Regressionen, kein Provider-Ausgabenlimit. PR-Integration ist
 der Checkpoint; anschließend wird autonom mit dem nächsten offenen Thema
 fortgefahren.
+
+### Begrenzte Fortsetzung: `sys.implementation._multiarch` quellenbinden
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR binden das von `sysconfig` genutzte
+`sys.implementation._multiarch` an die digestgeprüfte CPython-3.12.16-
+`sysmodule.c`-Zuweisung aus `MULTIARCH` und den gepinnten Zielimagewert
+`x86_64-linux-gnu`. Der Fact wird nur bei passendem Imagepfad und
+Sysconfigdatenhash ausgegeben; Abweichungen bleiben unbekannt. Eine Regression
+prüft Quell-/Imagebindung und Weitergabe an die Bedingungsauswertung. Der echte
+Archiv-/OCI-Kandidatenscan muss den Wert ausgeben. Das ist weder eine
+Runtimebeobachtung noch eine vollständige Sysconfigmodul-, Importclosure- oder
+P11-Bindung. Keine SQL-, Lab- oder menschliche Generalprobenausführung.
+Token-/Geldverbrauch bleiben unbekannt; die Umfangsgrenze ist ein Paket, ein
+PR und höchstens zwei Regressionen, kein Provider-Ausgabenlimit.
+PR-Integration ist der Checkpoint; danach wird autonom anhand des dann offenen
+Status weitergearbeitet.
