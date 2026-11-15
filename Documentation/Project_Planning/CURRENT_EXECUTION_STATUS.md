@@ -10885,3 +10885,15 @@ der bedingten Posix-Importroute beschreibt dies eine statische Aufrufkette,
 keinen Getter- oder Initializerlauf. Keine Zielruntime-, P11-, SQL-/Lab- oder
 menschliche Generalprobenattestation. Umfang: ein Paket, ein PR und höchstens
 zwei Regressionen.
+
+## Fortsetzung: 14 gebundene Buildwerte dem Mappingkandidaten zuordnen
+
+Der statische `_CONFIG_VARS`-Update-Kandidat enthält nun die 14 festgelegten
+Schlüssel-/Wertpaare aus dem digestgeprüften OCI-`build_time_vars`-Literal:
+ABI-/Plattformwerte, Prefixe und Bibliothekspfade. Die Zusammenführung verlangt
+für jeden Faktennamen den erwarteten Wert und bleibt an den geprüften Quell-
+und Imagepfad gebunden. Die Werte sind damit Eintragskandidaten für die
+statische Update-Route, keine beobachtete Änderung von `_CONFIG_VARS` oder
+Runtime-Konfiguration. Keine P11-, SQL-/Lab- oder menschliche
+Generalprobenattestation. Umfang: ein Paket, ein PR und höchstens zwei
+Regressionen.

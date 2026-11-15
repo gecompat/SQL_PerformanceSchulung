@@ -6340,3 +6340,11 @@ Die gepinnte `sysconfig.py` bindet den Erstaufruf von `_init_config_vars()` an
 Recheck `_CONFIG_VARS is None`. Der strukturierte Kandidat stellt diese
 statische Call-Route vor den POSIX-Zweig dar; er belegt nicht, dass ein Caller
 `get_config_vars()` erreicht oder die Wachen zur Laufzeit durchlaufen werden.
+
+### Fortsetzung: geprüfte Buildwerte in den Update-Kandidaten aufnehmen
+
+Die gebundene Image-Datei liefert 14 festgelegte Schlüssel-/Wertpaare, die der
+geprüfte `_init_posix`-Body in `vars` übernehmen würde. Zusammen mit dem
+Callerargument `_CONFIG_VARS` kann der statische Kandidat diese Werte dem
+Zielmapping zuordnen. Die Aussage bleibt quellen-/imagegebunden und behauptet
+keine zur Laufzeit ausgeführte Dictionarymutation.
