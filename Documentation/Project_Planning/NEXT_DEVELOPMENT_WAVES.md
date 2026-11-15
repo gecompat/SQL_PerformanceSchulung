@@ -2866,11 +2866,17 @@ und Loaderformen, Submodulpfadkappen sowie die exakte sortierte Cache-Namensmeng
 Gegenproben lockern Loaderform bzw. Cachemengengleichheit. Es werden keine
 Modulanker gelesen.
 
-## Begrenzte Fortsetzung: ausgewählte Runtime-Container binden
+## Abgeschlossen: ausgewählte Runtime-Container binden
 
-Der folgende kleine Kandidat bindet `_selected_containers` an den exakten
+PR #858 bindet `_selected_containers` an den exakten
 Runtime-Modultyp, den durch `MAX_RECORDS` begrenzten exakten Dictionary-Cache
 sowie Finder- und Hook-Container mit exakt drei bzw. zwei Elementen. Die
 Gegenproben lockern den Runtimetyp und die Hooklängengrenze. Es wird kein
-Runtimezustand gelesen oder attestiert; der PR-Checkpoint bleibt Teil der
-autonomen Fortsetzung.
+Runtimezustand gelesen oder attestiert; 279 Regressionen und alle fünf Gates
+bestanden.
+
+## Begrenzte Fortsetzung: skalare lokale Ankervalidierung absichern
+
+Der Nachaudit von PR #857 schließt die Gegenprobenlücke bei der skalaren
+Textprüfung von Modul-, Spec-, Suchpfad- und Loaderankern. Die Quellen bleiben
+unbeobachtet; der nächste PR ist der Checkpoint.

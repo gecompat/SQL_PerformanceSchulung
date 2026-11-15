@@ -2535,6 +2535,9 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"isinstance(loader, (SourceFileLoader, ExtensionFileLoader))",
             ),
             profile_source.replace(
+                b"_scalar_text(path)", b"str(path)",
+            ),
+            profile_source.replace(
                 b"len(cache) == len(names)", b"len(cache) <= len(names)",
             ),
         ):

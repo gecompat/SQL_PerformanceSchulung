@@ -3175,12 +3175,16 @@ def _target_selected_anchor_contract_candidate(source_bytes, namespace_contract)
         b"type(module) is ModuleType",
         b"namespace = _selected_namespace(module, budget)",
         b'for key in ("__name__", "__file__")',
+        b"_scalar_text(namespace.get(key, \"\"))",
         b"spec is None or type(spec) is ModuleSpec",
         b"selected = _selected_namespace(spec, budget)",
+        b"_scalar_text(selected.get(\"name\")); _scalar_text(selected.get(\"origin\"))",
         b"type(locations) in (tuple, list) and len(locations) <= MAX_RECORDS",
+        b"for path in locations: _scalar_text(path)",
         b"loader is None or loader is BuiltinImporter or loader is FrozenImporter",
         b"type(loader) in (SourceFileLoader, ExtensionFileLoader)",
         b"selected = _selected_namespace(loader, budget)",
+        b"_scalar_text(selected.get(\"name\")); _scalar_text(selected.get(\"path\"))",
         b"return spec, loader",
     )
     cache_requirements = (
