@@ -1540,9 +1540,17 @@ class StaticImportCandidateTests(unittest.TestCase):
             "entry_values": SUBJECT.TARGET_SYSCONFIGDATA_EXPECTED_VALUES,
             "evidence_scope": "STATIC_POST_INIT_MAPPING_ENTRY_CANDIDATE",
         }
+        initialization_complete_flag_candidate = {
+            "initializer": "sysconfig._init_config_vars",
+            "flag": "_CONFIG_VARS_INITIALIZED",
+            "initial_value": False,
+            "completion_assignment": "_CONFIG_VARS_INITIALIZED = True",
+            "assignment_is_final_statement": True,
+            "evidence_scope": "STATIC_CONFIG_INITIALIZED_FLAG_CANDIDATE",
+        }
         candidate = SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate, public_value_flow_candidate,
-            post_update_entries_candidate,
+            post_update_entries_candidate, initialization_complete_flag_candidate,
             line_facts, import_target, image_facts,
         )
         self.assertEqual(candidate["public_initializer_call_candidate"], lazy_call_candidate)
@@ -1550,6 +1558,8 @@ class StaticImportCandidateTests(unittest.TestCase):
                          public_value_flow_candidate)
         self.assertEqual(candidate["post_update_entries_candidate"],
                          post_update_entries_candidate)
+        self.assertEqual(candidate["initialization_complete_flag_candidate"],
+                         initialization_complete_flag_candidate)
         self.assertEqual(candidate["public_config_api_entry_candidate"], {
             "mapping": "_CONFIG_VARS",
             "get_config_vars_no_arguments_result": "_CONFIG_VARS",
@@ -1598,40 +1608,42 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate, public_value_flow_candidate,
-            post_update_entries_candidate,
+            post_update_entries_candidate, initialization_complete_flag_candidate,
             {}, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, {**lazy_call_candidate, "initialization_flag": True},
             public_value_flow_candidate, post_update_entries_candidate,
+            initialization_complete_flag_candidate,
             line_facts, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate,
             {**public_value_flow_candidate, "no_arguments_return": "other"},
-            post_update_entries_candidate, line_facts, import_target, image_facts,
+            post_update_entries_candidate, initialization_complete_flag_candidate,
+            line_facts, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             {**inventory, "sysconfigdata_initializer_update_receiver": "other"},
             lazy_call_candidate, public_value_flow_candidate,
-            post_update_entries_candidate,
+            post_update_entries_candidate, initialization_complete_flag_candidate,
             line_facts, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate, public_value_flow_candidate,
-            post_update_entries_candidate,
+            post_update_entries_candidate, initialization_complete_flag_candidate,
             line_facts, import_target,
             {**image_facts, "sysconfigdata_sha256": "0" * 64},
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate, public_value_flow_candidate,
-            post_update_entries_candidate,
+            post_update_entries_candidate, initialization_complete_flag_candidate,
             line_facts, import_target,
             {**image_facts, "soabi": "unbound"},
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate, public_value_flow_candidate,
-            post_update_entries_candidate,
+            post_update_entries_candidate, initialization_complete_flag_candidate,
             line_facts, import_target,
             {key: value for key, value in image_facts.items()
              if key != "build_time_vars_literal_dict"},
@@ -1810,6 +1822,59 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {"sysconfig.py": source}, posix_facts,
                 (("sys.platform", "darwin"),), image_facts,
             ))
+
+    def test_sysconfig_initialized_flag_is_bound_to_initializer_completion(self):
+        source = (
+            b"def _init_config_vars():\n"
+            b"    if os.name == 'posix':\n"
+            b"        _init_posix(_CONFIG_VARS)\n"
+            b"    global _CONFIG_VARS_INITIALIZED\n"
+            b"    _CONFIG_VARS_INITIALIZED = True\n"
+        )
+        expected = {
+            "initializer": "sysconfig._init_config_vars",
+            "flag": "_CONFIG_VARS_INITIALIZED",
+            "initial_value": False,
+            "completion_assignment": "_CONFIG_VARS_INITIALIZED = True",
+            "assignment_is_final_statement": True,
+            "evidence_scope": "STATIC_CONFIG_INITIALIZED_FLAG_CANDIDATE",
+        }
+        with patch.object(
+                SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(source).hexdigest()):
+            posix_facts = SUBJECT._target_sysconfig_posix_init_line_facts(
+                {"sysconfig.py": source}, (("os.name", "posix"),),
+            )
+            self.assertEqual(
+                SUBJECT._target_sysconfig_initialization_complete_flag_candidate(
+                    {"sysconfig.py": source}, posix_facts,
+                ), expected,
+            )
+            for changed in (
+                    source.replace(b"_CONFIG_VARS_INITIALIZED = True",
+                                   b"_CONFIG_VARS_INITIALIZED = False"),
+                    source.replace(
+                        b"    if os.name == 'posix':\n"
+                        b"        _init_posix(_CONFIG_VARS)\n"
+                        b"    global _CONFIG_VARS_INITIALIZED\n"
+                        b"    _CONFIG_VARS_INITIALIZED = True\n",
+                        b"    global _CONFIG_VARS_INITIALIZED\n"
+                        b"    _CONFIG_VARS_INITIALIZED = True\n"
+                        b"    if os.name == 'posix':\n"
+                        b"        _init_posix(_CONFIG_VARS)\n",
+                    ),
+            ):
+                with self.subTest(changed=changed), patch.object(
+                    SUBJECT, "SYSCONFIG_SOURCE_SHA256",
+                    hashlib.sha256(changed).hexdigest(),
+                ):
+                    changed_facts = SUBJECT._target_sysconfig_posix_init_line_facts(
+                        {"sysconfig.py": changed}, (("os.name", "posix"),),
+                    )
+                    self.assertIsNone(
+                        SUBJECT._target_sysconfig_initialization_complete_flag_candidate(
+                            {"sysconfig.py": changed}, changed_facts,
+                        )
+                    )
 
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
         self.assertEqual(

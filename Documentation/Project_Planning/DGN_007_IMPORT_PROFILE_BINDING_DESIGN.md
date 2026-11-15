@@ -6375,3 +6375,12 @@ mit `get_config_vars()` (Mappingrückgabe ohne Argumente) und
 die Voraussetzung, dass zwischen Initialisierung und API-Abfrage keine
 Mappingmutation eintritt. Das ist weder ein tatsächlicher API-Aufruf noch ein
 beobachteter Runtimewert.
+
+### Fortsetzung: Abschluss des Sysconfig-Initializers
+
+Die digestgebundene `_init_config_vars`-AST-Form setzt
+`_CONFIG_VARS_INITIALIZED=True` als letzte Funktionsanweisung nach dem
+quellengebundenen POSIX-Aufruf. Gemeinsam mit dem belegten Modulstartwert
+`False` verbindet der Kandidat den Erstaufrufpfad mit den statischen
+`get_config_vars`-Rückgaben. Das belegt keinen erfolgreichen Lauf bis zu dieser
+Zeile.

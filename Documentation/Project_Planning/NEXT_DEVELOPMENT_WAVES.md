@@ -2473,3 +2473,9 @@ Regressionen beschränkt. Er verbindet die 14 post-initialisierten
 `_CONFIG_VARS`-Wertekandidaten mit den statischen Rückgabeformen der öffentlichen
 Sysconfig-APIs und macht die Annahme keiner intervenierenden Mutation
 explizit. Keine Zielruntime- oder Profilattestation.
+
+Die nächste DGN-007-Fortsetzung bleibt auf ein Paket, einen PR und höchstens
+zwei Regressionen beschränkt. Sie bindet `_CONFIG_VARS_INITIALIZED=True` ans
+Ende des POSIX-Initialisierungspfads und führt diese Abschlussmarke mit dem
+bereits geprüften Erstaufruf-/API-Kandidaten zusammen. Keine Ausführungs- oder
+Runtimeattestation.

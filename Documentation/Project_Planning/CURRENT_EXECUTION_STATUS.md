@@ -10933,3 +10933,15 @@ Quellroute, Imagewerte, post-initialisiertes Mapping und API-Form statisch
 verbunden; tatsächlicher Getteraufruf, Mutation oder Runtimewert bleiben
 unbelegt. Keine P11-, SQL-/Lab- oder menschliche Generalprobenattestation.
 Umfang: ein Paket, ein PR und höchstens zwei Regressionen.
+
+## Fortsetzung: Initialisierungsflag ans Ende der gebundenen Route setzen
+
+Der Kandidat prüft, dass `_init_config_vars()` nach dem ausgewählten POSIX-
+Aufruf als letzte Funktionsanweisung `_CONFIG_VARS_INITIALIZED = True` setzt.
+Zusammen mit dem belegten Modulstartwert `False` verbindet dies den
+Lazy-Initializer-Zweig mit der öffentlichen API-Rückgabe im statischen Modell.
+Der echte gepinnte Quellarchiv-Fall liefert den Abschlussflag-Kandidaten;
+das beweist weder erfolgreiche Ausführung bis zu dieser Zeile noch einen
+Getteraufruf. Keine Runtime-, P11-, SQL-/Lab- oder menschliche
+Generalprobenattestation. Umfang: ein Paket, ein PR und höchstens zwei
+Regressionen.
