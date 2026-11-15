@@ -157,7 +157,11 @@ class StaticImportCandidateTests(unittest.TestCase):
                             b"'EXT_SUFFIX': '.cpython-312-x86_64-linux-gnu.so', "
                             b"'MULTIARCH': 'x86_64-linux-gnu', "
                             b"'prefix': '/usr/local', 'exec_prefix': '/usr/local', "
-                            b"'PLATLIBDIR': 'lib', 'PYTHONPATH': ''}\n"
+                            b"'PLATLIBDIR': 'lib', 'PYTHONPATH': '', "
+                            b"'LIBDIR': '/usr/local/lib', "
+                            b"'LDLIBRARY': 'libpython3.12.so', "
+                            b"'INSTSONAME': 'libpython3.12.so.1.0', "
+                            b"'Py_ENABLE_SHARED': 1}\n"
                         )
                         info = SUBJECT.tarfile.TarInfo(SUBJECT.TARGET_SYSCONFIGDATA_PATH)
                         info.mode = 0o644
@@ -250,11 +254,16 @@ class StaticImportCandidateTests(unittest.TestCase):
             "exec_prefix": "/usr/local",
             "platlibdir": "lib",
             "compiled_pythonpath": "",
+            "library_dir": "/usr/local/lib",
+            "library_name": "libpython3.12.so",
+            "library_soname": "libpython3.12.so.1.0",
+            "shared_library_enabled": 1,
             "inert_zip_candidate": "/usr/local/lib/python312.zip",
             "prefix_landmark_candidate": "/usr/local",
             "exec_prefix_landmark_candidate": "/usr/local",
             "prefix_venv_markers_absent": list(SUBJECT.TARGET_PREFIX_VENV_MARKERS),
             "build_marker_absent": SUBJECT.TARGET_BUILD_MARKER,
+            "pth_override_files_absent": list(SUBJECT.TARGET_PTH_OVERRIDE_PATHS),
             "_PYTHON_BUILD": False,
             "setup_parent_paths_verified": True,
             "_pickle_extension": True,
@@ -263,7 +272,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             facts,
             {"posix_default_path_append_order": (
                 "ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir",
-            )},
+            ), "pth_override_guard": True},
             True, True, True,
         ), {"sys_path_candidate": [
             "/usr/local/lib/python312.zip",
@@ -316,6 +325,12 @@ class StaticImportCandidateTests(unittest.TestCase):
             SUBJECT._target_image_sys_path_candidate(
                 image_facts, inventory, True, True, True,
             )
+
+    def test_target_image_pth_override_fact_rejects_present_path(self):
+        with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_PTH_OVERRIDE_PRESENT"):
+            SUBJECT._target_image_pth_override_facts({
+                SUBJECT.TARGET_PTH_OVERRIDE_PATHS[0]: {"file": True},
+            })
 
     def test_target_image_setup_paths_reject_symlinked_probe_parents(self):
         tracked = {
@@ -2061,6 +2076,10 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"    if os_name == 'nt':\n        pythonpath.append(platstdlib_dir)\n"
             b"    else:\n        pythonpath.append(stdlib_dir)\n"
             b"        pythonpath.append(platstdlib_dir)\n"
+            b"if not py_setpath and not home_was_set:\n"
+            b"    for p in [library, executable, real_executable]:\n"
+            b"        p += '._pth'\n        pth = readlines(p)\n"
+            b"if pth_dir:\n    home = pth_dir\n"
         )
         with patch.object(
             SUBJECT, "GETPATH_SOURCE_SHA256", hashlib.sha256(getpath).hexdigest()
@@ -2084,6 +2103,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             inventory["posix_default_path_append_order"],
             ("ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir"),
         )
+        self.assertTrue(inventory["pth_override_guard"])
 
         sysconfig = (
             b"_INSTALL_SCHEMES = {'posix': {'stdlib': 'lib/python', 'purelib': 'site'}}\n"

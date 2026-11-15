@@ -95,7 +95,12 @@ festgelegten `-I -S`-/Direct-Executable-Kandidatur die geordnete
 `sys.path`-Sollwertkandidatenliste `/usr/local/lib/python312.zip`,
 `/usr/local/lib/python3.12`, `/usr/local/lib/python3.12/lib-dynload`. Das ist
 keine Zielruntimeaufnahme und keine vollständige Pfadattestation; weitere
-Startup-Overrides und die tatsächlich gehaltene Liste bleiben offen.
+Startup-Overrides und die tatsächlich gehaltene Liste bleiben offen. Die
+`getpath.py`-Kontrolle bindet zusätzlich den `._pth`-Overridezweig. Die drei
+an der festgelegten Executable-/Libraryroute möglichen Markerdateien
+`python3.12._pth`, `libpython3.12.so.1.0._pth` und `libpython3.12.so._pth`
+fehlen im Zielimage. Damit ist dieser konkrete Override ausgeschlossen, nicht
+aber eine tatsächliche `sys.path`-Aufnahme oder alle weiteren Runtimeeinflüsse.
 
 Die separat dokumentierte CPython-3.12.16-Imagekandidatur ist jetzt zusätzlich
 gegen die OCI Registry-Blobbytes nachgerechnet: Childmanifest und Configdigest

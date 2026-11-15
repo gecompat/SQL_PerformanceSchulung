@@ -91,6 +91,11 @@ TARGET_PREFIX_VENV_MARKERS = (
     "usr/local/bin/pyvenv.cfg",
 )
 TARGET_BUILD_MARKER = "usr/local/bin/pybuilddir.txt"
+TARGET_PTH_OVERRIDE_PATHS = (
+    "usr/local/bin/python3.12._pth",
+    "usr/local/lib/libpython3.12.so.1.0._pth",
+    "usr/local/lib/libpython3.12.so._pth",
+)
 THREADING_SOURCE_SHA256 = "846f450ae794e4aab823a163f8c71d27751148af33e91dd3de886686a4e8ebfb"
 THREAD_NATIVE_ID_HEADER_MEMBER = "Python-3.12.16/Include/pythread.h"
 THREAD_NATIVE_ID_HEADER_SHA256 = "cd063073710988ea21b54588473542e5f3b2be06f637dc5a028aefd5a7949144"
@@ -668,6 +673,15 @@ def _getpath_source_inventory(source_bytes):
     if (path_branch < 0 or path_else < 0 or zip_append < 0
             or not zip_append < path_branch < path_else < stdlib_append < platstdlib_append):
         raise ValueError("GETPATH_DEFAULT_PATH_ORDER")
+    pth_override_guard = all(fragment in source_text for fragment in (
+        "if not py_setpath and not home_was_set:",
+        "for p in [library, executable, real_executable]:",
+        "p += '._pth'",
+        "pth = readlines(p)",
+        "if pth_dir:",
+    ))
+    if not pth_override_guard:
+        raise ValueError("GETPATH_PTH_OVERRIDE_GUARD")
     posix_assignments = {
         target.id: node.value
         for node in posix_tests[0].body if isinstance(node, ast.Assign)
@@ -720,6 +734,7 @@ def _getpath_source_inventory(source_bytes):
         "posix_default_path_append_order": (
             "ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir",
         ),
+        "pth_override_guard": True,
         "posix_stdlib_landmark_template": ast.unparse(
             posix_assignments["STDLIB_LANDMARKS"]
         ),
@@ -3919,6 +3934,7 @@ def _target_image_save_facts(image_save_path, image_config_source):
                 **{path: None for path in TARGET_PREFIX_PARENT_DIRECTORIES},
                 **{path: None for path in TARGET_PREFIX_VENV_MARKERS},
                 TARGET_BUILD_MARKER: None,
+                **{path: None for path in TARGET_PTH_OVERRIDE_PATHS},
                 PICKLE_EXTENSION_PATH: None,
                 "usr/local/bin/python3": None,
                 "usr/local/bin/Modules/Setup": None,
@@ -4026,6 +4042,7 @@ def _target_image_save_facts(image_save_path, image_config_source):
             )
             inert_zip_fact = _target_image_inert_zip_fact(tracked)
             prefix_landmark_facts = _target_image_prefix_landmark_facts(tracked)
+            pth_override_facts = _target_image_pth_override_facts(tracked)
     except (tarfile.TarError, KeyError, TypeError, json.JSONDecodeError) as error:
         raise ValueError("TARGET_IMAGE_SAVE_INVALID") from error
     return {
@@ -4038,6 +4055,7 @@ def _target_image_save_facts(image_save_path, image_config_source):
         **sysconfig_facts,
         **inert_zip_fact,
         **prefix_landmark_facts,
+        **pth_override_facts,
         "_PYTHON_BUILD": False,
         "setup_parent_paths_verified": True,
         "_pickle_extension": True,
@@ -4085,10 +4103,13 @@ def _target_image_sys_path_candidate(image_facts, getpath_inventory,
             or getpath_inventory.get("posix_default_path_append_order") != (
                 "ZIP_LANDMARK", "stdlib_dir", "platstdlib_dir",
             )
+            or getpath_inventory.get("pth_override_guard") is not True
             or image_facts.get("prefix") != "/usr/local"
             or image_facts.get("exec_prefix") != "/usr/local"
             or image_facts.get("platlibdir") != "lib"
             or image_facts.get("compiled_pythonpath") != ""
+            or image_facts.get("pth_override_files_absent")
+            != list(TARGET_PTH_OVERRIDE_PATHS)
             or image_facts.get("prefix_landmark_candidate") != "/usr/local"
             or image_facts.get("exec_prefix_landmark_candidate") != "/usr/local"):
         raise ValueError("TARGET_IMAGE_SYS_PATH_CANDIDATE")
@@ -4100,6 +4121,14 @@ def _target_image_sys_path_candidate(image_facts, getpath_inventory,
     if paths[0] != "/" + TARGET_INERT_ZIP_PATH:
         raise ValueError("TARGET_IMAGE_SYS_PATH_ZIP_BINDING")
     return {"sys_path_candidate": paths}
+
+
+def _target_image_pth_override_facts(tracked):
+    """Reject image-level `._pth` overrides for the fixed direct route."""
+    if (type(tracked) is not dict
+            or any(tracked.get(path) is not None for path in TARGET_PTH_OVERRIDE_PATHS)):
+        raise ValueError("TARGET_IMAGE_PTH_OVERRIDE_PRESENT")
+    return {"pth_override_files_absent": list(TARGET_PTH_OVERRIDE_PATHS)}
 
 
 def _target_image_sysconfigdata_facts(source):
@@ -4133,6 +4162,10 @@ def _target_image_sysconfigdata_facts(source):
         "exec_prefix": "/usr/local",
         "PLATLIBDIR": "lib",
         "PYTHONPATH": "",
+        "LIBDIR": "/usr/local/lib",
+        "LDLIBRARY": "libpython3.12.so",
+        "INSTSONAME": "libpython3.12.so.1.0",
+        "Py_ENABLE_SHARED": 1,
     }
     if type(values) is not dict:
         raise ValueError("TARGET_SYSCONFIGDATA_MAPPING")
@@ -4147,6 +4180,10 @@ def _target_image_sysconfigdata_facts(source):
         "exec_prefix": values["exec_prefix"],
         "platlibdir": values["PLATLIBDIR"],
         "compiled_pythonpath": values["PYTHONPATH"],
+        "library_dir": values["LIBDIR"],
+        "library_name": values["LDLIBRARY"],
+        "library_soname": values["INSTSONAME"],
+        "shared_library_enabled": values["Py_ENABLE_SHARED"],
     }
 
 
