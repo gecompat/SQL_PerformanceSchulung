@@ -11176,10 +11176,19 @@ ZIP-Landmark-Fact als eigenes S15-Feld aus. Eine Image-Mitgliedschaftsänderung
 wird fail-closed verworfen. 247 fokussierte Regressionen und alle fünf
 PR-Gates bestanden; eine Runtime-Pfadmitgliedschaft ist nicht belegt.
 
-## S15-Teilschnitt: Files-Feldkandidat
+## Abgeschlossen: S15-Teilschnitt Files-Feldkandidat
 
-Der nächste Schritt stellt die beiden bereits gehashten Image-Dateien als
-begrenzten S15-`files`-Kandidaten zusammen. Eine Regression prüft die
-Digests und verwirft eine Änderung; Einzel- und Gesamtkappen bleiben aktiv.
-Eine vollständige Dateiliste oder Runtimeauswahl wird nicht behauptet. Umfang:
-ein Paket, ein PR und höchstens zwei Regressionen.
+PR #822 stellt die Executable- und `_pickle`-Image-Datei als begrenzte
+`files`-Kandidatur zusammen. Pfade, SHA-256-Werte und Einzel-/Gesamtkappen
+werden geprüft; Hashänderungen werden fail-closed verworfen. 247 fokussierte
+Regressionen und alle fünf PR-Gates bestanden. Die Dateiliste ist ausdrücklich
+unvollständig.
+
+## S15-Teilschnitt: Installationstupel zusammensetzen
+
+Der nächste Schritt verbindet die 15 bereits einzeln gebundenen Feldkandidaten
+in der Schemaordnung von `installation`. Eine Regression prüft die Tupelgröße,
+Feldordnung und das Fail-closed-Verhalten bei einer falschen Attestationsmarke.
+Der zusammengesetzte Wert bleibt ein statischer Kandidat; insbesondere ist die
+`files`-Teilliste weder vollständig noch beobachtet. Umfang: ein Paket, ein PR
+und höchstens zwei Regressionen.

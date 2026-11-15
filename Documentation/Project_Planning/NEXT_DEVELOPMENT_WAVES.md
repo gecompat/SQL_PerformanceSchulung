@@ -2648,9 +2648,14 @@ PR #821 stellt die an Image-Abwesenheit und Pfadposition null gebundene
 ZIP-Landmark-Aussage als eigenes Feld bereit; Runtime-Pfadmitgliedschaft wird
 nicht behauptet.
 
-## Begrenzte Fortsetzung: S15-Files-Feldkandidat
+## Abgeschlossen: S15-Files-Feldkandidat
 
-Ein Arbeitspaket und ein PR bündeln die beiden gehashten Image-Dateikandidaten
-unter Beibehaltung der Einzel- und Gesamtkappen. Regressionen prüfen Digests
-und geänderte Dateiwerte. Die Liste bleibt ausdrücklich unvollständig und
-belegt keine Runtimeauswahl.
+PR #822 bündelt die gehashten Executable- und `_pickle`-Dateikandidaten unter
+den Einzel- und Gesamtkappen. Die Dateiliste bleibt ausdrücklich unvollständig.
+
+## Begrenzte Fortsetzung: S15-Installationstupel
+
+Ein Arbeitspaket und ein PR ordnen alle 15 einzeln gebundenen statischen
+Feldkandidaten gemäß dem `installation`-Schema an. Regressionen prüfen Länge,
+Feldordnung und Fail-closed-Markierungen. Das Tupel ist keine Runtimeaufnahme;
+die `files`-Teilliste wird nicht als vollständig ausgegeben.

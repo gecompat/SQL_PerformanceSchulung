@@ -1737,6 +1737,112 @@ def _target_s15_files_field_candidate(path_candidate):
     }
 
 
+def _target_s15_installation_tuple_candidate(candidates):
+    """Join all fifteen static S15 field candidates in schema order."""
+    expected_keys = {
+        "assumption", "platform", "implementation", "version", "image_paths",
+        "prefixes", "paths", "roots", "inert_zip", "flags", "finders",
+        "hooks", "files",
+    }
+    if type(candidates) is not dict or set(candidates) != expected_keys:
+        return None
+    assumption = candidates["assumption"]
+    platform = candidates["platform"]
+    implementation = candidates["implementation"]
+    version = candidates["version"]
+    image_paths = candidates["image_paths"]
+    prefixes = candidates["prefixes"]
+    paths = candidates["paths"]
+    roots = candidates["roots"]
+    inert_zip = candidates["inert_zip"]
+    flags = candidates["flags"]
+    finders = candidates["finders"]
+    hooks = candidates["hooks"]
+    files = candidates["files"]
+    if any(type(candidate) is not dict for candidate in (
+            assumption, platform, implementation, version, image_paths,
+            prefixes, paths, roots, inert_zip, flags, finders, hooks, files)):
+        return None
+    executable = image_paths.get("executable_field_candidate")
+    abi = image_paths.get("abi_field_candidate")
+    executable_target = image_paths.get("executable_target_candidate")
+    if (type(executable) is not dict or type(abi) is not dict
+            or assumption.get("value") != "DECLARED_SETUP_PYTHON_CONTROL_RUNTIME"
+            or assumption.get("runtime_assumption_attested") is not False
+            or platform.get("value") != "linux"
+            or platform.get("runtime_platform_claimed") is not False
+            or implementation.get("value") != "cpython"
+            or implementation.get("runtime_implementation_claimed") is not False
+            or version.get("value") != (3, 12, 16)
+            or version.get("runtime_version_claimed") is not False
+            or executable.get("value") != "/usr/local/bin/python3.12"
+            or executable.get("target") != executable_target
+            or executable.get("direct_regular_file") is not True
+            or executable.get("runtime_executable_claimed") is not False
+            or abi.get("value") != TARGET_SYSCONFIGDATA_EXPECTED_VALUES["SOABI"]
+            or abi.get("runtime_abi_claimed") is not False
+            or prefixes.get("values") != ("/usr/local",) * 4
+            or prefixes.get("runtime_prefixes_claimed") is not False
+            or paths.get("value") != (
+                "/usr/local/lib/python312.zip",
+                "/usr/local/lib/python3.12",
+                "/usr/local/lib/python3.12/lib-dynload",
+            )
+            or paths.get("runtime_sys_path_claimed") is not False
+            or roots.get("value") != (
+                "/usr/local/lib/python3.12",
+                "/usr/local/lib/python3.12/lib-dynload",
+            )
+            or roots.get("runtime_roots_claimed") is not False
+            or inert_zip.get("value") != "/usr/local/lib/python312.zip"
+            or inert_zip.get("runtime_membership_claimed") is not False
+            or flags.get("value") != (1, 1, 1, 1, 1, 0)
+            or flags.get("runtime_flags_claimed") is not False
+            or finders.get("values") != ("BUILTIN", "FROZEN", "PATH")
+            or finders.get("runtime_finder_instances_claimed") is not False
+            or hooks.get("values") != ("ZIPIMPORTER", "FILEFINDER")
+            or hooks.get("runtime_hook_objects_claimed") is not False
+            or files.get("file_count") != 2
+            or files.get("complete_file_list_claimed") is not False
+            or files.get("runtime_file_selection_claimed") is not False
+            or type(files.get("value")) is not tuple
+            or len(files["value"]) != 2):
+        return None
+    file_rows = files["value"]
+    if any(type(row) is not tuple or len(row) != 3
+           or type(row[0]) is not str
+           or type(row[1]) is not int
+           or not 0 <= row[1] <= MAX_S15_FILE_BYTES
+           or type(row[2]) is not str
+           for row in file_rows):
+        return None
+    if (file_rows[0][0] != executable_target
+            or file_rows[0][2] != TARGET_EXECUTABLE_SHA256
+            or file_rows[1][0] != "/" + PICKLE_EXTENSION_PATH
+            or file_rows[1][2] != PICKLE_EXTENSION_SHA256
+            or sum(row[1] for row in file_rows) > MAX_S15_FILE_TOTAL_BYTES):
+        return None
+    value = (
+        assumption["value"], platform["value"], implementation["value"],
+        version["value"], executable["value"], executable_target,
+        prefixes["values"], abi["value"], paths["value"], roots["value"],
+        inert_zip["value"], flags["value"], finders["values"],
+        hooks["values"], file_rows,
+    )
+    return {
+        "value": value,
+        "field_order": (
+            "assumption", "platform", "implementation", "version",
+            "executable", "executable_target", "prefixes", "abi", "paths",
+            "roots", "inert_zip", "flags", "finders", "hooks", "files",
+        ),
+        "complete_file_list_claimed": False,
+        "runtime_record_claimed": False,
+        "profile_selection_claimed": False,
+        "evidence_scope": "STATIC_S15_INSTALLATION_TUPLE_CANDIDATE",
+    }
+
+
 def _configure_template_inventory(config_template, configure_source):
     if (type(config_template) is not bytes or not config_template
             or len(config_template) > MAX_CONFIG_C_TEMPLATE_BYTES
@@ -8493,6 +8599,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_s15_assumption_field_candidate = (
         _target_s15_assumption_field_candidate(runtime_profile_source)
     )
+    target_s15_installation_tuple_candidate = None
     configure_inventory = _configure_template_inventory(
         config_c_template, configure_source
     )
@@ -8536,6 +8643,23 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     )
     target_s15_platform_field_candidate = _target_s15_platform_field_candidate(
         sys_platform_fact, target_image_path_facts,
+    )
+    target_s15_installation_tuple_candidate = (
+        _target_s15_installation_tuple_candidate({
+            "assumption": target_s15_assumption_field_candidate,
+            "platform": target_s15_platform_field_candidate,
+            "implementation": target_s15_implementation_field_candidate,
+            "version": target_s15_version_field_candidate,
+            "image_paths": target_sys_path_candidate_facts,
+            "prefixes": target_s15_prefixes_field_candidate,
+            "paths": target_s15_paths_field_candidate,
+            "roots": target_s15_roots_field_candidate,
+            "inert_zip": target_s15_inert_zip_field_candidate,
+            "flags": target_s15_flags_field_candidate,
+            "finders": target_s15_finders_field_candidate,
+            "hooks": target_s15_hooks_field_candidate,
+            "files": target_s15_files_field_candidate,
+        })
     )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
@@ -9029,6 +9153,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_platform_sys_platform_fact": list(sys_platform_fact),
         "target_s15_platform_field_candidate": (
             target_s15_platform_field_candidate
+        ),
+        "target_s15_installation_tuple_candidate": (
+            target_s15_installation_tuple_candidate
         ),
         "target_platform_sys_module_clinic_sha256": SYS_MODULE_CLINIC_SHA256,
         "target_platform_warnings_default_call_facts": list(
