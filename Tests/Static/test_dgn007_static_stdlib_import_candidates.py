@@ -1627,6 +1627,43 @@ class StaticImportCandidateTests(unittest.TestCase):
                 )
             )
 
+    def test_selected_profile_observation_flow_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        anchor_binding = {"anchor_binding_claimed": False}
+        candidate = SUBJECT._target_selected_profile_observation_flow_candidate(
+            profile_source, anchor_binding,
+        )
+        self.assertEqual(candidate, {
+            "validation_order": (
+                "selected_shapes", "bind_selected", "observe_current_scalars",
+                "compare_selected_projection", "capture_and_compare_final",
+                "recheck_hooks", "recheck_selected_postconditions",
+            ),
+            "matched_report": "MATCHED_SELECTED_PROFILE",
+            "rejected_report": "REJECTED_SELECTED_OBSERVATION",
+            "selected_profile_observation_claimed": False,
+            "runtime_observation_claimed": False,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "evidence_scope": "STATIC_SELECTED_PROFILE_OBSERVATION_FLOW_CANDIDATE",
+        })
+        changed = profile_source.replace(
+            b"_need(actual.scalars == selected, \"PROFILE_MISMATCH\")",
+            b"_need(True, \"PROFILE_MISMATCH\")",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed),
+        ):
+            self.assertIsNone(
+                SUBJECT._target_selected_profile_observation_flow_candidate(
+                    changed, anchor_binding,
+                )
+            )
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(
