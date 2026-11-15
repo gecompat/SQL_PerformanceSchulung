@@ -1779,6 +1779,57 @@ def _target_profile_scalar_projection_schema_candidate(
     }
 
 
+def _target_selected_profile_shape_contract_candidate(
+        source_bytes, installation_schema, controls_contract):
+    """Bind bounded selected-profile shape checks without claiming a selection."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(installation_schema) is not dict
+            or installation_schema.get("tuple_length") != 15
+            or installation_schema.get("runtime_schema_claimed") is not False
+            or type(controls_contract) is not dict
+            or controls_contract.get("maximum_count") != 2
+            or controls_contract.get("selected_controls_claimed") is not False):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def _selected_shapes\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"_selected_tree((installation, controls, modules))",
+        b"_need(type(token) is bytes and len(token) == 32, \"SELECTION_FORM\")",
+        b"_selected_tuple(installation, 15)",
+        b"_selected_tuple(row, 11)",
+        b"len(controls) <= 2 and len(set(controls)) == len(controls)",
+        b"names == tuple(sorted(set(names)))",
+        b"set(controls) == {row[0] for row in modules if row[5] == \"CONTROL\"}",
+    )
+    if any(normalized.count(fragment) != 1 for fragment in required):
+        return None
+    if not (normalized.index(required[0]) < normalized.index(required[1])
+            < normalized.index(required[2])):
+        return None
+    return {
+        "installation_arity": 15,
+        "module_row_arity": 11,
+        "token_bytes": 32,
+        "maximum_controls": controls_contract["maximum_count"],
+        "control_names_unique": True,
+        "module_names_sorted_unique": True,
+        "controls_equal_control_rows": True,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "selected_values_claimed": False,
+        "profile_bound_claimed": False,
+        "evidence_scope": "STATIC_SELECTED_PROFILE_SHAPE_CONTRACT_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -8806,6 +8857,13 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_controls_selection_contract_candidate = (
         _target_controls_selection_contract_candidate(runtime_profile_source)
     )
+    target_selected_profile_shape_contract_candidate = (
+        _target_selected_profile_shape_contract_candidate(
+            runtime_profile_source,
+            target_s15_installation_schema_candidate,
+            target_controls_selection_contract_candidate,
+        )
+    )
     target_profile_selection_inputs_candidate = (
         _target_profile_selection_inputs_candidate(
             runtime_profile_source,
@@ -9331,6 +9389,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_controls_selection_contract_candidate": (
             target_controls_selection_contract_candidate
+        ),
+        "target_selected_profile_shape_contract_candidate": (
+            target_selected_profile_shape_contract_candidate
         ),
         "target_profile_selection_inputs_candidate": (
             target_profile_selection_inputs_candidate
