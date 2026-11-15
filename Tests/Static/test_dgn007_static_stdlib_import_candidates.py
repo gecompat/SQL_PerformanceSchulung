@@ -5004,11 +5004,19 @@ class StaticImportCandidateTests(unittest.TestCase):
             925: "        if daemon is not None:",
             926: "            if daemon and (not _daemon_threads_allowed()):",
             927: "                pass",
+             928: "            self._daemonic = daemon",
             935: "        self._started = Event()",
-            950: "class _MainThread(Thread):",
-            951: "    def __init__(self):",
-            952: "        Thread.__init__(self, name='MainThread', daemon=False)",
-            1000: "_main_thread = _MainThread()",
+             1052: "    def _set_tstate_lock(self):",
+             1053: "        if not self.daemon:",
+             1054: "            pass",
+             1080: "    @property",
+             1081: "    def daemon(self):",
+             1082: "        return self._daemonic",
+             1100: "class _MainThread(Thread):",
+             1101: "    def __init__(self):",
+             1102: "        Thread.__init__(self, name='MainThread', daemon=False)",
+             1103: "        self._set_tstate_lock()",
+             1200: "_main_thread = _MainThread()",
         }
         content = [""] * max(lines)
         for number, statement in lines.items():
@@ -5068,7 +5076,8 @@ newlockobject(PyObject *module)
                 SUBJECT._target_threading_condition_lock_line_facts(
                     files, module_source,
                 ),
-                {278: False, 287: False, 289: False, 291: False},
+                {278: False, 287: False, 289: False, 291: False,
+                 1053: True},
             )
             mutated = source.replace(b"Condition(Lock())", b"Condition()")
             mutated_files = {"threading.py": mutated}
@@ -5082,6 +5091,37 @@ newlockobject(PyObject *module)
                     ),
                     {},
                 )
+
+            unsafe_files = dict(files)
+            unsafe_files["client.py"] = (
+                b"import threading\nthreading.Thread()\n"
+            )
+            self.assertEqual(
+                SUBJECT._target_threading_condition_lock_line_facts(
+                    unsafe_files, module_source,
+                ),
+                {},
+            )
+            unsafe_files["client.py"] = (
+                b"import threading\n"
+                b"def create(thread=threading.Thread()):\n"
+                b"    return thread\n"
+            )
+            self.assertEqual(
+                SUBJECT._target_threading_condition_lock_line_facts(
+                    unsafe_files, module_source,
+                ),
+                {},
+            )
+            unsafe_files["client.py"] = (
+                b"from threading import *\nThread()\n"
+            )
+            self.assertEqual(
+                SUBJECT._target_threading_condition_lock_line_facts(
+                    unsafe_files, module_source,
+                ),
+                {},
+            )
 
     def test_namedtuple_rename_guard_requires_all_production_calls_to_omit_it(self):
         collections_source = (

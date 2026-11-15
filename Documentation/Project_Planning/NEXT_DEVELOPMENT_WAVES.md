@@ -3175,6 +3175,23 @@ Kanten, 89 entschiedene und 494 unbekannte Bedingungen; Unknown-Digest
 293 fokussierte Tests. `CANDIDATES_ONLY`; keine direkte Image-Route,
 Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.
 
+### Begrenzte Fortsetzung: `threading.Thread`-Daemon-Guard (15. November 2026)
+
+Der importzeitliche `_MainThread`-Pfad belegt `threading.py:1053`
+(`if not self.daemon`) als wahr: `Thread.__init__` erhält explizit
+`daemon=False`, setzt `_daemonic`, und der `daemon`-Getter liest diesen Wert,
+bevor `_MainThread.__init__` `_set_tstate_lock()` aufruft. Die vollständige
+gehashte Standardbibliotheksquelle wird nach direkten modulweiten
+`Thread()`-Aufrufen durchsucht; ein passender Aufruf über `threading.Thread`,
+`from threading import Thread` oder Sternimport lässt den Fact scheitern.
+Die Aussage gilt nur für diese Importinitialisierung, nicht für spätere
+Thread-Konstruktionen. Der Zielscan zählt 60 Module, 318 Kanten, 95
+entschiedene und 486 unbekannte Bedingungen; Unknown-Digest
+`7f00cc302dba6f1fe3536a99bccb26360bbf42ff25ef1debf0984bfb5a25a24b`.
+294 fokussierte Regressionen bestehen. `CANDIDATES_ONLY`; keine direkte
+Image-Route, Runtime-/P11- oder SQL-Ausführung und keine menschliche
+Generalprobe.
+
 ### Begrenzte Fortsetzung: `logging`-Levelguard (15. November 2026)
 
 Ein quellgebundener Fact löst `logging/__init__.py:209`
