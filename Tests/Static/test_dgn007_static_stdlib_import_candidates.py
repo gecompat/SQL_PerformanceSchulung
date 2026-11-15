@@ -4864,6 +4864,121 @@ class StaticImportCandidateTests(unittest.TestCase):
                     {},
                 )
 
+    def test_logging_level_guard_binds_all_import_time_callers(self):
+        logging_lines = {
+            1: "NOTSET = 0",
+            2: "WARNING = 30",
+            207: "def _checkLevel(level):",
+            209: "    if isinstance(level, int):",
+            210: "        return level",
+            211: "    raise TypeError()",
+            300: "class Handler:",
+            934: "    def __init__(self, level=NOTSET):",
+            935: "        _checkLevel(level)",
+            985: "    def setLevel(self, level):",
+            986: "        _checkLevel(level)",
+            1000: "class StreamHandler(Handler):",
+            1001: "    pass",
+            1005: "class _StderrHandler(StreamHandler):",
+            1010: "    def __init__(self, level):",
+            1011: "        Handler.__init__(self, level)",
+            1200: "class Manager:",
+            1201: "    def __init__(self):",
+            1202: "        self.disable = 0",
+            1203: "        self.loggerClass = None",
+            1250: "    def getLogger(self, name):",
+            1251: "        return (self.loggerClass or _loggerClass)(name)",
+            1365: "    @property",
+            1366: "    def disable(self):",
+            1367: "        return self._disable",
+            1373: "    @disable.setter",
+            1374: "    def disable(self, value):",
+            1375: "        self._disable = _checkLevel(value)",
+            1400: "class Logger:",
+            1502: "    def __init__(self, name, level=NOTSET):",
+            1503: "        _checkLevel(level)",
+            1513: "    def setLevel(self, level):",
+            1514: "        _checkLevel(level)",
+            1520: "class RootLogger(Logger):",
+            1521: "    def __init__(self, level):",
+            1522: "        Logger.__init__(self, 'root', level)",
+            1600: "_loggerClass = Logger",
+            1601: "_defaultLastResort = _StderrHandler(WARNING)",
+            2013: "root = RootLogger(WARNING)",
+            2014: "Logger.root = root",
+            2015: "Logger.manager = Manager(Logger.root)",
+        }
+
+        def make_source(lines):
+            content = [""] * max(lines)
+            for number, statement in lines.items():
+                content[number - 1] = statement
+            return ("\n".join(content) + "\n").encode()
+
+        def caller(path, line, call):
+            lines = [""] * line
+            lines[0] = "import logging"
+            lines[line - 1] = call
+            return make_source({index + 1: value for index, value in enumerate(lines)})
+
+        files = {
+            "logging/__init__.py": make_source(logging_lines),
+            "asyncio/log.py": caller(
+                "asyncio/log.py", 7, "logging.getLogger(__package__)",
+            ),
+            "concurrent/futures/_base.py": caller(
+                "concurrent/futures/_base.py", 43,
+                "logging.getLogger('concurrent.futures')",
+            ),
+            "venv/__init__.py": caller(
+                "venv/__init__.py", 18, "logging.getLogger(__name__)",
+            ),
+        }
+        for source_path, source_bytes in files.items():
+            try:
+                ast.parse(source_bytes, filename=source_path)
+            except SyntaxError as error:
+                self.fail(f"invalid synthetic source {source_path}: {error}")
+        module_calls = [
+            ["asyncio/log.py", 7, "logging.getLogger(__package__)"] ,
+            ["concurrent/futures/_base.py", 43,
+             "logging.getLogger('concurrent.futures')"],
+            ["venv/__init__.py", 18, "logging.getLogger(__name__)"] ,
+        ]
+        source_rows = [
+            [path, hashlib.sha256(files[path]).hexdigest()]
+            for path in sorted(files) if path != "logging/__init__.py"
+        ]
+        call_digest = hashlib.sha256(json.dumps(
+            [module_calls, source_rows], separators=(",", ":"),
+        ).encode()).hexdigest()
+        with patch.multiple(
+            SUBJECT,
+            LOGGING_SOURCE_SHA256=hashlib.sha256(
+                files["logging/__init__.py"],
+            ).hexdigest(),
+            LOGGING_LEVEL_CALLS_SHA256=call_digest,
+        ):
+            self.assertEqual(
+                SUBJECT._target_logging_level_line_facts(files),
+                {209: True},
+            )
+        unsafe_files = dict(files)
+        unsafe_files["logging_mutator.py"] = (
+            b"import logging\nlogging.setLevel(30)\n"
+        )
+        with patch.multiple(
+            SUBJECT,
+            LOGGING_SOURCE_SHA256=hashlib.sha256(
+                files["logging/__init__.py"],
+            ).hexdigest(),
+            LOGGING_LEVEL_CALLS_SHA256=call_digest,
+        ):
+            self.assertEqual(
+                SUBJECT._target_logging_level_line_facts(unsafe_files),
+                {},
+            )
+
     def test_namedtuple_rename_guard_requires_all_production_calls_to_omit_it(self):
         collections_source = (
             b"def namedtuple(typename, field_names, *, rename=False, "

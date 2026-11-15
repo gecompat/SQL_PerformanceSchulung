@@ -11762,3 +11762,18 @@ entschiedene und 494 unbekannte Bedingungen; Unknown-Digest
 `f97338e9f4e8fc5f4d0f76356f4992ab212d7e74c698aa430177c61b4d8f1279`.
 292 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`, ohne direkte
 Image-Routen-, Runtime- oder P11-Attestation.
+
+Der folgende Offline-Fact bindet `logging/__init__.py:209`
+(`isinstance(level, int)`) an die vollständige CPython-3.12.16-
+Standardbibliotheksquelle. Der Nachweis verfolgt die importzeitlichen
+Konstruktoren von `Handler`, `RootLogger` und `Manager`, deren Level-Defaults
+`NOTSET = 0`, `WARNING = 30` sowie die drei Standardbibliotheksaufrufe von
+`logging.getLogger`. Dynamische Laufzeitkonfiguration bleibt ausgeschlossen;
+unbekannte modulweite Logger-API-Aufrufe oder Änderungen am gebundenen
+Quellbestand verwerfen den Fact. Der Quellaufruf-Digest lautet
+`537ede4580d6934dc4ef812f20ee175f3123abc3f4cc774db15f5f1b0ba15213`.
+Der Zielquellscan zählt 60 Module, 318 Kanten, 90 entschiedene und 493
+unbekannte Bedingungen; Unknown-Digest
+`76512c36e8e69992470da060eaf2daaa92ad264fde75366d9a492c55a71e0146`.
+293 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`; keine direkte
+Image-Routen-, Runtime- oder P11-Attestation.

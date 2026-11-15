@@ -3172,5 +3172,20 @@ Outcomes; der dynamische `typing.py`-Wert bleibt unbekannt. Unbekannte
 Argumentformen verwerfen den Fact. Der Zielquellscan zählt 60 Module, 318
 Kanten, 89 entschiedene und 494 unbekannte Bedingungen; Unknown-Digest
 `f97338e9f4e8fc5f4d0f76356f4992ab212d7e74c698aa430177c61b4d8f1279`.
-292 fokussierte Tests. `CANDIDATES_ONLY`; keine direkte Image-Route,
+293 fokussierte Tests. `CANDIDATES_ONLY`; keine direkte Image-Route,
+Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.
+
+### Begrenzte Fortsetzung: `logging`-Levelguard (15. November 2026)
+
+Ein quellgebundener Fact löst `logging/__init__.py:209`
+(`isinstance(level, int)`) für die importzeitliche Standardinitialisierung
+auf. Er bindet die Konstruktorpfade von `Handler`, `RootLogger` und `Manager`,
+die Level-Konstanten und sämtliche modulweiten Standardbibliotheksaufrufe
+von `logging.getLogger`; dynamische Laufzeitkonfiguration bleibt unbekannt.
+Der Digest des vollständigen Aufrufinventars ist
+`537ede4580d6934dc4ef812f20ee175f3123abc3f4cc774db15f5f1b0ba15213`.
+Der Zielquellscan zählt 60 Module, 318 Kanten, 90 entschiedene und 493
+unbekannte Bedingungen, Unknown-Digest
+`76512c36e8e69992470da060eaf2daaa92ad264fde75366d9a492c55a71e0146`.
+293 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine direkte Image-Route,
 Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.
