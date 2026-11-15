@@ -3349,6 +3349,7 @@ def _target_s15_flags_field_candidate(worker_sys_flag_facts):
         ("sys.flags.verbose", 0),
         ("sys.flags.bytes_warning", 0),
         ("sys.flags.quiet", 0),
+        ("sys.flags.hash_randomization", 1),
     )
     if (type(worker_sys_flag_facts) is not tuple
             or len(worker_sys_flag_facts) != len(expected)
@@ -4308,7 +4309,28 @@ def _target_worker_sys_flag_facts(
                 r"case 'b':\s*config->bytes_warning\+\+\s*;",
                 r"case 'v':\s*config->verbose\+\+\s*;",
                 r"case 'q':\s*config->quiet\+\+\s*;",
-            ))):
+            ))
+            or not re.search(
+                r"if\s*\(config->use_hash_seed\s*<\s*0\)\s*\{\s*"
+                r"config->use_hash_seed\s*=\s*0\s*;\s*"
+                r"config->hash_seed\s*=\s*0\s*;\s*\}",
+                initconfig_text,
+            )
+            or not re.search(
+                r"static const char\s*\*\s*config_get_env\("
+                r"const PyConfig \*config, const char \*name\)\s*\{\s*"
+                r"return _Py_GetEnv\(config->use_environment, name\);\s*\}",
+                initconfig_text,
+            )
+            or not re.search(
+                r"static PyStatus\s+config_init_hash_seed\(PyConfig \*config\)\s*"
+                r"\{.*?const char \*seed_text = config_get_env\(config, "
+                r'"PYTHONHASHSEED"\);.*?else\s*\{\s*'
+                r"/\* Use a random hash \*/\s*"
+                r"config->use_hash_seed\s*=\s*0\s*;\s*"
+                r"config->hash_seed\s*=\s*0\s*;",
+                initconfig_text, re.DOTALL,
+            )):
         return ()
     flag_body = set_flags.group(0)
     update_body = update_config
@@ -4338,6 +4360,8 @@ def _target_worker_sys_flag_facts(
         r"SetFlag\(config->verbose\);",
         r"SetFlag\(config->bytes_warning\);",
         r"SetFlag\(config->quiet\);",
+        r"SetFlag\(config->use_hash_seed\s*==\s*0\s*\|\|\s*"
+        r"config->hash_seed\s*!=\s*0\);",
     )
     if any(not re.search(pattern, flag_body) for pattern in required_bindings):
         return ()
@@ -4356,6 +4380,7 @@ def _target_worker_sys_flag_facts(
         ("sys.flags.verbose", 0),
         ("sys.flags.bytes_warning", 0),
         ("sys.flags.quiet", 0),
+        ("sys.flags.hash_randomization", 1),
     )
 
 
