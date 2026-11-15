@@ -11080,10 +11080,17 @@ Regressionen und alle fünf PR-Gates bestanden. Das Image-/Layer-Evidence stammt
 lokal aus synthetischen OCI-Layern; ein verifiziertes Docker-save-Zielimage lag
 nicht vor.
 
-## S15-Teilschnitt: ABI-Feldkandidat aus Sysconfigquelle binden
+## Abgeschlossen: S15-Teilschnitt ABI-Feldkandidat
 
-Der nächste Kandidat bindet `abi` ausschließlich an den Literalwert `SOABI` in
-der digestgeprüften, imagebezogenen `_sysconfigdata`-Datei. Die Runtime-ABI ist
-damit nicht beobachtet. Umfang: ein Paket, ein PR und höchstens zwei
-Regressionen; keine Runtime-, P11-, SQL-/Lab- oder menschliche
-Generalprobenattestation.
+PR #809 bindet `abi` an den Literalwert `SOABI` aus der digestgeprüften
+Zielimage-`_sysconfigdata`-Datei. 244 fokussierte Regressionen und alle fünf
+PR-Gates bestanden. Der Feldwert bleibt ein statischer Kandidat; Runtime-ABI,
+P11-Auswahl und ein vollständiger S15-Record sind nicht belegt.
+
+## S15-Teilschnitt: Platform-Feldkandidat aus Buildpfad binden
+
+Der nächste Kandidat verbindet den quellgebundenen `sys.platform`-Fakt mit
+`MACHDEP=linux` aus der digestgeprüften Zielimage-`_sysconfigdata`-Datei. Er
+weist Quellhashes aus und behauptet keine Runtimeaufnahme. Umfang: ein Paket,
+ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab- oder
+menschliche Generalprobenattestation.
