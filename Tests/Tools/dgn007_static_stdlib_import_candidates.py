@@ -5887,8 +5887,15 @@ def _target_threading_condition_lock_line_facts(files, module_source):
     event_init = method("Event", "__init__")
     thread_init = method("Thread", "__init__")
     main_init = method("_MainThread", "__init__")
+    set_tstate_lock = method("Thread", "_set_tstate_lock")
+    daemon_property = [node for node in classes["Thread"][0].body
+                       if isinstance(node, ast.FunctionDef)
+                       and node.name == "daemon"
+                       and any(ast.unparse(item) == "property"
+                               for item in node.decorator_list)]
     if any(node is None for node in (
-            condition_init, event_init, thread_init, main_init)):
+            condition_init, event_init, thread_init, main_init, set_tstate_lock)) \
+            or len(daemon_property) != 1:
         return {}
     condition_guards = {
         node.lineno: ast.unparse(node.test)
@@ -5919,6 +5926,18 @@ def _target_threading_condition_lock_line_facts(files, module_source):
                                        and target.id == "_main_thread"
                                        for target in node.targets)
                                and ast.unparse(node.value) == "_MainThread()"]
+    tstate_guards = [node for node in ast.walk(set_tstate_lock)
+                     if isinstance(node, ast.If) and node.lineno == 1053
+                     and ast.unparse(node.test) == "not self.daemon"]
+    daemon_returns = [node for node in ast.walk(daemon_property[0])
+                      if isinstance(node, ast.Return)
+                      and ast.unparse(node.value) == "self._daemonic"]
+    daemon_assignments = [node for node in ast.walk(thread_init)
+                          if isinstance(node, ast.Assign)
+                          and ast.unparse(node) == "self._daemonic = daemon"]
+    main_tstate_calls = [node for node in ast.walk(main_init)
+                         if isinstance(node, ast.Call)
+                         and ast.unparse(node) == "self._set_tstate_lock()"]
     if (condition_guards != {
                 278: "lock is None",
                 287: "hasattr(lock, '_release_save')",
@@ -5936,8 +5955,61 @@ def _target_threading_condition_lock_line_facts(files, module_source):
             or len(thread_event_calls) != 1
             or thread_event_calls[0].lineno != 935
             or len(main_thread_calls) != 1
-            or len(main_thread_assignments) != 1):
+            or len(main_thread_assignments) != 1
+            or len(tstate_guards) != 1
+            or len(daemon_returns) != 1
+            or len(daemon_assignments) != 1
+            or len(main_tstate_calls) != 1):
         return {}
+    for path, data in files.items():
+        if (path == "threading.py" or type(data) is not bytes
+                or not path.endswith(".py") or "test" in path.split("/")):
+            continue
+        try:
+            other_tree = ast.parse(data, filename=path)
+        except SyntaxError:
+            return {}
+        parents = {child: parent for parent in ast.walk(other_tree)
+                   for child in ast.iter_child_nodes(parent)}
+        threading_aliases = {
+            "Thread" if alias.name == "*" else alias.asname or alias.name
+            for node in ast.walk(other_tree)
+            if isinstance(node, ast.ImportFrom) and node.module == "threading"
+            for alias in node.names if alias.name in ("Thread", "*")
+        }
+        threading_modules = {
+            alias.asname or alias.name.split(".")[0]
+            for node in ast.walk(other_tree) if isinstance(node, ast.Import)
+            for alias in node.names if alias.name == "threading"
+        }
+        for node in ast.walk(other_tree):
+            if not isinstance(node, ast.Call):
+                continue
+            is_thread_constructor = (
+                isinstance(node.func, ast.Name)
+                and node.func.id in threading_aliases
+                or isinstance(node.func, ast.Attribute)
+                and node.func.attr == "Thread"
+                and isinstance(node.func.value, ast.Name)
+                and node.func.value.id in threading_modules
+            )
+            current = node
+            child = node
+            module_scope = True
+            while current in parents:
+                child = current
+                current = parents[current]
+                if isinstance(current, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                         ast.Lambda)):
+                    body = getattr(current, "body", None)
+                    if isinstance(body, list) and child in body:
+                        module_scope = False
+                        break
+                    if isinstance(current, ast.Lambda) and child is current.body:
+                        module_scope = False
+                        break
+            if is_thread_constructor and module_scope:
+                return {}
     c_text = module_source.decode("utf-8")
     if (not re.search(
             r"(?s)thread_PyThread_allocate_lock\(PyObject \*module,.*?"
@@ -5973,7 +6045,9 @@ def _target_threading_condition_lock_line_facts(files, module_source):
                 r"if \(self->lock_lock == NULL\) \{.*?return NULL;\s*\}"
                 r"\s*return self;", c_text)):
         return {}
-    return {278: False, 287: False, 289: False, 291: False}
+    return {
+        278: False, 287: False, 289: False, 291: False, 1053: True,
+    }
 
 
 def _target_threading_native_id_name_facts(

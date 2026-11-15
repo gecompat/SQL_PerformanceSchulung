@@ -11752,6 +11752,20 @@ entschiedene und 495 unbekannte Bedingungen; Unknown-Digest
 292 fokussierte Tests bestehen. Weiterhin `CANDIDATES_ONLY`, ohne direkte
 Image-Routen-, Runtime- oder P11-Attestation.
 
+Die anschließende, ebenfalls nur statische Fortsetzung bindet
+`threading.py:1053` (`if not self.daemon`) an den importzeitlichen
+`_MainThread`: `Thread.__init__` setzt den expliziten Wert `daemon=False`, der
+Getter liest `_daemonic`, und `_MainThread.__init__` ruft danach
+`_set_tstate_lock()` auf. Die vollständige gepinnte Standardbibliotheksquelle
+wird auf direkte modulweite `Thread()`-Aufrufe geprüft; ein solcher Aufruf
+verwirft den Fact. Der Guard ist für diesen MainThread-Pfad wahr; spätere
+Thread-Konstruktionen und Runtimeverhalten bleiben unbewertet. Der Scan zählt
+60 Module, 318 Kanten, 95 entschiedene und 486 unbekannte Bedingungen,
+Unknown-Digest
+`7f00cc302dba6f1fe3536a99bccb26360bbf42ff25ef1debf0984bfb5a25a24b`.
+294 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine direkte Image-Route,
+Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.
+
 Der nächste `namedtuple`-Guard `collections/__init__.py:515` (`module is None`)
 ist ebenfalls an dieselben 55 Aufrufstellen gebunden. Aufrufe ohne
 `module`-Argument verwenden den geprüften Default `None`; `_pydecimal.py`
