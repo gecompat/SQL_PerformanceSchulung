@@ -2793,8 +2793,14 @@ PR #846 bindet die eingefrorenen Dataclass-Feldlayouts von `DeclaredProfile`
 und `Observation` in exakter Reihenfolge. Gegenproben ändern ein Feld bzw.
 entfernen `frozen=True`. Es wird keine Profilinstanz validiert oder aufgenommen.
 
-## Begrenzte Fortsetzung: Record-Dataclassschemas binden
+## Abgeschlossen: Record-Dataclassschemas binden
 
 PR #847 bindet die eingefrorenen Feldlayouts von `ModuleRecord` und
 `FileDigest` in exakter Reihenfolge. Gegenproben ändern ein Feld bzw. entfernen
 `frozen=True`. Es werden keine Records validiert oder beobachtet.
+
+## Begrenzte Fortsetzung: Observation-Ergebnisformen binden
+
+PR #848 bindet die eingefrorenen Feldlayouts von `ObservationResult` und
+`ScalarObservationResult`. Gegenproben ändern ein Feld bzw. entfernen
+`frozen=True`. Es werden keine Beobachtungen ausgeführt.

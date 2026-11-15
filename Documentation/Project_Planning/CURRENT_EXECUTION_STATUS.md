@@ -11351,8 +11351,16 @@ und `Observation` in exakter Reihenfolge an den Profilvertrag. Gegenproben
 alle fünf Pflichtprüfungen bestanden. PR #846 ist integriert. Es wird keine
 Profilinstanz validiert oder aufgenommen.
 
-## Begrenzte Fortsetzung: Record-Dataclassschemas binden
+## Abgeschlossen: Record-Dataclassschemas binden
 
 PR #847 bindet die eingefrorenen Feldlayouts von `ModuleRecord` und
 `FileDigest` in exakter Reihenfolge. Gegenproben ändern ein Feld bzw. entfernen
-`frozen=True`. Es werden keine Records validiert oder beobachtet.
+`frozen=True`; 268 fokussierte Regressionen und alle fünf Pflichtprüfungen
+bestanden. PR #847 ist integriert. Es werden keine Records validiert oder
+beobachtet.
+
+## Begrenzte Fortsetzung: Observation-Ergebnisformen binden
+
+PR #848 bindet die eingefrorenen Feldlayouts von `ObservationResult` und
+`ScalarObservationResult`. Gegenproben ändern ein Feld bzw. entfernen
+`frozen=True`. Es werden keine Beobachtungen ausgeführt.
