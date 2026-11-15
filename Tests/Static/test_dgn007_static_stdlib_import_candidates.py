@@ -136,6 +136,17 @@ class StaticImportCandidateTests(unittest.TestCase):
                         info.mode = 0o755
                         info.size = len(extension)
                         layer.addfile(info, io.BytesIO(extension))
+                        sysconfigdata = (
+                            b"build_time_vars = {"
+                            b"'SOABI': 'cpython-312-x86_64-linux-gnu', "
+                            b"'DESTSHARED': '/usr/local/lib/python3.12/lib-dynload', "
+                            b"'EXT_SUFFIX': '.cpython-312-x86_64-linux-gnu.so', "
+                            b"'MULTIARCH': 'x86_64-linux-gnu'}\n"
+                        )
+                        info = SUBJECT.tarfile.TarInfo(SUBJECT.TARGET_SYSCONFIGDATA_PATH)
+                        info.mode = 0o644
+                        info.size = len(sysconfigdata)
+                        layer.addfile(info, io.BytesIO(sysconfigdata))
                         whiteout = SUBJECT.tarfile.TarInfo(
                             "usr/local/bin/Modules/.wh.Setup"
                         )
@@ -200,6 +211,9 @@ class StaticImportCandidateTests(unittest.TestCase):
                 PICKLE_EXTENSION_SHA256=hashlib.sha256(
                     b"verified pickle extension"
                 ).hexdigest(),
+                TARGET_SYSCONFIGDATA_SHA256=hashlib.sha256(
+                    sysconfigdata
+                ).hexdigest(),
             ):
                 facts = SUBJECT._target_image_save_facts(image_path, config_bytes)
         self.assertEqual(facts, {
@@ -209,10 +223,23 @@ class StaticImportCandidateTests(unittest.TestCase):
             "pickle_extension_sha256": hashlib.sha256(
                 b"verified pickle extension"
             ).hexdigest(),
+            "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+            "sysconfigdata_sha256": hashlib.sha256(sysconfigdata).hexdigest(),
+            "soabi": "cpython-312-x86_64-linux-gnu",
+            "destshared": "/usr/local/lib/python3.12/lib-dynload",
+            "extension_suffix": ".cpython-312-x86_64-linux-gnu.so",
+            "multiarch": "x86_64-linux-gnu",
             "_PYTHON_BUILD": False,
             "setup_parent_paths_verified": True,
             "_pickle_extension": True,
         })
+
+    def test_target_sysconfigdata_rejects_unbound_source(self):
+        with patch.object(SUBJECT, "TARGET_SYSCONFIGDATA_SHA256", "0" * 64):
+            with self.assertRaisesRegex(ValueError, "TARGET_SYSCONFIGDATA_DIGEST"):
+                SUBJECT._target_image_sysconfigdata_facts(
+                    b"build_time_vars = {'SOABI': 'unbound'}"
+                )
 
     def test_target_image_setup_paths_reject_symlinked_probe_parents(self):
         tracked = {

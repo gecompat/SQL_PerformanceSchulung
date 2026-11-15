@@ -67,7 +67,14 @@ belegt statische Dateiidentität für die ausgewählte Imagekandidatur, keine be
 `sys.executable`-Aufnahme, keine vollständige Importclosure und keine P11-
 oder Runtimeattestation. Der fokussierte Parser-/Quellscan bleibt damit eine
 Kandidatenevidenz; S15-/P11-Sollauswahl und operative Aufnahme sind weiterhin
-offen.
+offen. Die verifizierte OCI-Datei
+`usr/local/lib/python3.12/_sysconfigdata__linux_x86_64-linux-gnu.py`
+(SHA-256 `3ed04335c07aa6311958a3514a807ce1ef5b623cea3f29507c3f20b1330c8187`)
+enthält statisch die Buildwerte `SOABI=cpython-312-x86_64-linux-gnu`,
+`DESTSHARED=/usr/local/lib/python3.12/lib-dynload`, den passenden
+Extension-Suffix und `MULTIARCH=x86_64-linux-gnu`. Diese verifizierten
+Imagewerte sind Sollwertkandidaten für `abi` und Extensionroots, keine
+tatsächliche Sysconfig-Aufnahme oder P11-Recordauswahl.
 
 Die separat dokumentierte CPython-3.12.16-Imagekandidatur ist jetzt zusätzlich
 gegen die OCI Registry-Blobbytes nachgerechnet: Childmanifest und Configdigest
