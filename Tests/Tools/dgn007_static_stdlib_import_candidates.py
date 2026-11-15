@@ -2849,6 +2849,8 @@ def _target_selected_profile_post_contract_candidate(source_bytes, observation_f
     post = re.sub(rb"\s+", b" ", post_bodies[0])
     runtime_requirements = (
         b"type(implementation) is SimpleNamespace",
+        b"implementation = _selected_namespace(implementation, keys).get(\"name\")",
+        b"_scalar_text(implementation)",
         b"type(version) is tuple and len(version) == 3",
         b"type(version) is _NATIVE_VERSION_INFO_TYPE and len(version) == 5",
         b"all(type(number) is int and 0 <= number <= 999 for number in version)",
@@ -2858,7 +2860,9 @@ def _target_selected_profile_post_contract_candidate(source_bytes, observation_f
         b"type(bytecode) in (int, bool) and 0 <= bytecode <= 1",
         b"flags = (values[0], values[1], int(bytecode), values[2], int(values[3]), values[4])",
         b"type(paths) in (list, tuple) and len(paths) <= MAX_RECORDS",
+        b"for path in paths: _scalar_text(path)",
         b'("platform", "executable", "prefix", "exec_prefix", "base_prefix", "base_exec_prefix")',
+        b"for value in values: _scalar_text(value)",
         b'("linux", expected.implementation, expected.version, expected.executable, expected.prefixes, (1, 1, 1, 1, 1, 0), expected.paths)',
     )
     post_requirements = (
