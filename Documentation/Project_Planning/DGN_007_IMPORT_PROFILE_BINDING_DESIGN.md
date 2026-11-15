@@ -6264,3 +6264,12 @@ Workerfact voraus, dass `_PYTHON_SYSCONFIGDATA_NAME` aus der Kindumgebung
 entfernt ist. Damit wird der Fallbackname für die festgelegte Kindroute
 bestimmt; eine Datei mit diesem Namen im Image, deren tatsächliche
 Importauflösung oder eine Runtimeaufnahme ist damit nicht nachgewiesen.
+
+### Fortsetzung: zusammengesetzten Modulnamen mit der Image-Datei abgleichen
+
+Die Quellen-/Imagekette bindet `_sysconfigdata__linux_x86_64-linux-gnu` an
+`usr/local/lib/python3.12/_sysconfigdata__linux_x86_64-linux-gnu.py` und den
+digestgeprüften Inhalt der Datei. Dies stellt fest, dass im OCI-Dateisystem
+eine passende Datei liegt. Es beweist nicht, dass der Interpreter sie öffnet,
+ihre Bytes ausführt oder daraus ein tatsächliches Profil-/Laufzeitrecord
+entsteht.

@@ -1372,6 +1372,29 @@ class StaticImportCandidateTests(unittest.TestCase):
             worker_environment,
         ), ())
 
+    def test_sysconfigdata_module_name_matches_only_pinned_image_file(self):
+        module_name = ((
+            "sysconfigdata.module_name",
+            "_sysconfigdata__linux_x86_64-linux-gnu",
+        ),)
+        image_facts = {
+            "sysconfigdata_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+            "sysconfigdata_sha256": SUBJECT.TARGET_SYSCONFIGDATA_SHA256,
+        }
+        expected = ((
+            "sysconfigdata.image_file_path", SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+        ),)
+        self.assertEqual(SUBJECT._target_sysconfigdata_image_file_fact(
+            module_name, image_facts,
+        ), expected)
+        self.assertEqual(SUBJECT._target_sysconfigdata_image_file_fact(
+            (("sysconfigdata.module_name", "_sysconfigdata__linux_other"),),
+            image_facts,
+        ), ())
+        self.assertEqual(SUBJECT._target_sysconfigdata_image_file_fact(
+            module_name, {**image_facts, "sysconfigdata_sha256": "0" * 64},
+        ), ())
+
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
         self.assertEqual(
             SUBJECT._target_importlib_debug_call_facts({17: True}),

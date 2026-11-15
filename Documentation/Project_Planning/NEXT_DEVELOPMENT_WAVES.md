@@ -2366,3 +2366,15 @@ Namenskandidat, kein Datei-, Import- oder Runtimebeleg. Token-/Geldverbrauch
 bleiben unbekannt; harte Grenze: ein Paket, ein PR, höchstens zwei
 Regressionen. PR-Integration ist der Checkpoint; danach wird autonom anhand des
 aktuellen offenen Status fortgesetzt.
+
+### Begrenzte Fortsetzung: Sysconfigdaten-Modulpfad an Image-Datei binden
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR verbinden den zusammengesetzten Modulnamen mit dem
+konkreten Zielimage-Mitglied nur, wenn Basisname, Pfad und SHA-256 mit dem
+gepinnten Filefact übereinstimmen. Eine Regression deckt Übereinstimmung und
+Abweichungen ab; der echte OCI-Lauf muss Pfad und Digest bestätigen. Das bleibt
+statische Dateiidentität ohne Import oder Interpreterlauf. Token-/Geldverbrauch
+bleiben unbekannt; harte Grenze: ein Paket, ein PR und höchstens zwei
+Regressionen. PR-Integration ist der Checkpoint; danach wird autonom anhand
+des offenen Status weitergearbeitet.
