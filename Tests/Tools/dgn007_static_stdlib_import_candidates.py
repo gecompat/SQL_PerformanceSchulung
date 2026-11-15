@@ -1672,6 +1672,62 @@ def _target_controls_selection_contract_candidate(source_bytes):
     }
 
 
+def _target_profile_selection_inputs_candidate(
+        source_bytes, assumption, roots, inert_zip, controls_contract):
+    """Join fixed selection fields and control constraints without a selection."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(assumption) is not dict
+            or assumption.get("value") != "DECLARED_SETUP_PYTHON_CONTROL_RUNTIME"
+            or assumption.get("source_sha256") != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or assumption.get("runtime_assumption_attested") is not False
+            or type(roots) is not dict
+            or roots.get("value") != (
+                "/usr/local/lib/python3.12",
+                "/usr/local/lib/python3.12/lib-dynload",
+            )
+            or roots.get("runtime_roots_claimed") is not False
+            or type(inert_zip) is not dict
+            or inert_zip.get("value") != "/usr/local/lib/python312.zip"
+            or inert_zip.get("runtime_membership_claimed") is not False
+            or type(controls_contract) is not dict
+            or controls_contract.get("source_sha256")
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or controls_contract.get("selected_controls_claimed") is not False
+            or controls_contract.get("allowed_names")
+            != ("__main__", "dgn007_import_runtime_profile")):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def _project_scalars\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    assignment = (
+        b"selection = (expected.assumption, expected.roots, "
+        b"expected.inert_zip, expected.controls)"
+    )
+    if normalized.count(assignment) != 1:
+        return None
+    return {
+        "field_order": ("assumption", "roots", "inert_zip", "controls"),
+        "fixed_values": (assumption["value"], roots["value"], inert_zip["value"]),
+        "controls_contract": controls_contract["allowed_names"],
+        "controls_maximum_count": controls_contract["maximum_count"],
+        "controls_must_equal_control_module_rows": (
+            controls_contract["must_equal_control_module_rows"]
+        ),
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "selection_tuple_claimed": False,
+        "selected_controls_claimed": False,
+        "evidence_scope": "STATIC_PROFILE_SELECTION_INPUT_CONTRACT_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -8699,6 +8755,15 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_controls_selection_contract_candidate = (
         _target_controls_selection_contract_candidate(runtime_profile_source)
     )
+    target_profile_selection_inputs_candidate = (
+        _target_profile_selection_inputs_candidate(
+            runtime_profile_source,
+            target_s15_assumption_field_candidate,
+            target_s15_roots_field_candidate,
+            target_s15_inert_zip_field_candidate,
+            target_controls_selection_contract_candidate,
+        )
+    )
     target_s15_installation_tuple_candidate = None
     configure_inventory = _configure_template_inventory(
         config_c_template, configure_source
@@ -9208,6 +9273,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_controls_selection_contract_candidate": (
             target_controls_selection_contract_candidate
+        ),
+        "target_profile_selection_inputs_candidate": (
+            target_profile_selection_inputs_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
