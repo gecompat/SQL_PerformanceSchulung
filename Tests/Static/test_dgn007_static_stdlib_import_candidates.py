@@ -1395,6 +1395,41 @@ class StaticImportCandidateTests(unittest.TestCase):
             module_name, {**image_facts, "sysconfigdata_sha256": "0" * 64},
         ), ())
 
+    def test_sysconfigdata_import_target_joins_exact_route_and_image_candidate(self):
+        inventory = {
+            "source_sha256": SUBJECT.SYSCONFIG_SOURCE_SHA256,
+            "sysconfigdata_name_template": (
+                "_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}"
+            ),
+            "sysconfigdata_importer": "__import__",
+            "sysconfigdata_imported_attribute": "build_time_vars",
+        }
+        module_name = ((
+            "sysconfigdata.module_name",
+            "_sysconfigdata__linux_x86_64-linux-gnu",
+        ),)
+        image_file = ((
+            "sysconfigdata.image_file_path", SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+        ),)
+        expected = {
+            "module_name": "_sysconfigdata__linux_x86_64-linux-gnu",
+            "image_file_path": SUBJECT.TARGET_SYSCONFIGDATA_PATH,
+            "importer": "__import__",
+            "imported_attribute": "build_time_vars",
+            "evidence_scope": "STATIC_IMPORT_TARGET_CANDIDATE",
+        }
+        self.assertEqual(SUBJECT._target_sysconfigdata_import_target_candidate(
+            inventory, module_name, image_file,
+        ), expected)
+        self.assertIsNone(SUBJECT._target_sysconfigdata_import_target_candidate(
+            {**inventory, "sysconfigdata_imported_attribute": "other"},
+            module_name, image_file,
+        ))
+        self.assertIsNone(SUBJECT._target_sysconfigdata_import_target_candidate(
+            inventory, module_name,
+            (("sysconfigdata.image_file_path", "usr/local/other.py"),),
+        ))
+
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
         self.assertEqual(
             SUBJECT._target_importlib_debug_call_facts({17: True}),

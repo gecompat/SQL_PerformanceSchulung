@@ -2378,3 +2378,15 @@ statische Dateiidentität ohne Import oder Interpreterlauf. Token-/Geldverbrauch
 bleiben unbekannt; harte Grenze: ein Paket, ein PR und höchstens zwei
 Regressionen. PR-Integration ist der Checkpoint; danach wird autonom anhand
 des offenen Status weitergearbeitet.
+
+### Begrenzte Fortsetzung: Sysconfigdaten-Importziel zusammenführen
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR verbinden die geprüfte `sysconfig.py`-Importform
+`__import__(name, ..., ['build_time_vars'], 0)` mit dem aufgelösten Namensfact
+und dem digestgebundenen Image-Dateikandidaten. Eine Regression prüft Route,
+Attribut, Pfad und fail-closed-Abweichungen; der echte OCI-Lauf muss das
+Importziel ausgeben. Das ist ein statischer Importzielkandidat ohne Funktions-
+oder Interpreterausführung. Token-/Geldverbrauch bleiben unbekannt; harte
+Grenze: ein Paket, ein PR und höchstens zwei Regressionen. PR-Integration ist
+der Checkpoint; danach wird autonom anhand des offenen Status fortgesetzt.

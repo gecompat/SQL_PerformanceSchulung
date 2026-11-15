@@ -6273,3 +6273,13 @@ digestgeprüften Inhalt der Datei. Dies stellt fest, dass im OCI-Dateisystem
 eine passende Datei liegt. Es beweist nicht, dass der Interpreter sie öffnet,
 ihre Bytes ausführt oder daraus ein tatsächliches Profil-/Laufzeitrecord
 entsteht.
+
+### Fortsetzung: statisches Importziel für `build_time_vars`
+
+Die exakt geprüfte `_init_posix`-Quelle ruft `__import__` mit dem Namenfact,
+den Modul-Namespaces und der Fromlist `['build_time_vars']` auf. Der gebundene
+Name passt zur digestgeprüften Image-Datei; der Scanner gibt deshalb
+`STATIC_IMPORT_TARGET_CANDIDATE` mit Importer und Attribut aus. Das schließt
+die statische Namens-/Datei-/Quellroute, belegt jedoch nicht, dass `_init_posix`
+aufgerufen wird, das Modul tatsächlich importiert wird oder `vars.update` die
+Runtimewerte übernimmt.

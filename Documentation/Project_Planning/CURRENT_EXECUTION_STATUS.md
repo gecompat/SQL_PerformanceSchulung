@@ -10783,3 +10783,18 @@ der Scan bleibt `CANDIDATES_ONLY`. Keine vollständige Importclosure,
 P11-Inventur, SQL-/Lab-Ausführung oder menschliche Generalprobe. Token-/
 Geldverbrauch bleiben unbekannt; Umfang: ein Paket, ein PR und höchstens zwei
 Regressionen.
+
+## Fortsetzung: Sysconfigdaten-Importziel statisch zusammenführen
+
+Die digestgebundene `sysconfig.py`-Route importiert den durch den Fact
+bestimmten Namen über `__import__` und liest daraus `build_time_vars`. Der
+Scanner führt diese Route mit dem verifizierten gleichnamigen Zielimage-Mitglied
+als `STATIC_IMPORT_TARGET_CANDIDATE` zusammen. Eine Regression deckt die exakte
+Route und das Image-Mitglied sowie abweichendes Attribut und Pfad ab. Die
+fokussierte Suite besteht lokal mit 230 Tests unter Python 3.14. Der echte
+CPython-/OCI-Scan bestätigt Name, Pfad, Importer und Attribut; er bleibt
+`CANDIDATES_ONLY`. Das attestiert weder Funktionsaufruf, tatsächlichen Import,
+Ausführung der Datei oder Übernahme von `build_time_vars` noch ein Laufzeit-
+Profil. Keine vollständige Importclosure, P11-Inventur, SQL-/Lab-Ausführung
+oder menschliche Generalprobe. Token-/Geldverbrauch bleiben unbekannt; Umfang:
+ein Paket, ein PR und höchstens zwei Regressionen.
