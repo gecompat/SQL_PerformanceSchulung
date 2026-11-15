@@ -2396,6 +2396,9 @@ def _target_profile_record_validators_candidate(source_bytes, shape_contract):
         return None
     records = re.sub(rb"\s+", b" ", records_bodies[0])
     files = re.sub(rb"\s+", b" ", files_bodies[0])
+    if (re.search(rb"\breturn\b", records) is not None
+            or re.search(rb"\breturn\b", files) is not None):
+        return None
     record_requirements = (
         b"_need(type(value) is tuple and 0 < len(value) <= MAX_RECORDS)",
         b"_need(type(row) is ModuleRecord)",

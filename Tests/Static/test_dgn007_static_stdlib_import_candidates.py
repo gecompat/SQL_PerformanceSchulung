@@ -2093,6 +2093,35 @@ class StaticImportCandidateTests(unittest.TestCase):
             self.assertIsNone(SUBJECT._target_profile_record_validators_candidate(
                 changed_digest, shape_contract,
             ))
+        newline = b"\r\n" if b"\r\n" in profile_source else b"\n"
+        early_record_return = profile_source.replace(
+            b"def _records(value):" + newline + b"    _need(",
+            b"def _records(value):" + newline
+            + b"    return None" + newline + b"    _need(",
+            1,
+        )
+        self.assertNotEqual(early_record_return, profile_source)
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(early_record_return),
+        ):
+            self.assertIsNone(SUBJECT._target_profile_record_validators_candidate(
+                early_record_return, shape_contract,
+            ))
+        early_file_return = profile_source.replace(
+            b"def _files(value):" + newline + b"    _need(",
+            b"def _files(value):" + newline
+            + b"    return None" + newline + b"    _need(",
+            1,
+        )
+        self.assertNotEqual(early_file_return, profile_source)
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(early_file_return),
+        ):
+            self.assertIsNone(SUBJECT._target_profile_record_validators_candidate(
+                early_file_return, shape_contract,
+            ))
 
     def test_profile_path_contracts_are_source_bound(self):
         profile_source = (
