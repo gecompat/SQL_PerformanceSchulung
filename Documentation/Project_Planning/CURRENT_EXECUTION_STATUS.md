@@ -11669,3 +11669,13 @@ gebundene Scan zählt 90 aufgelöste und 477 unbekannte Bedingungen bei 60
 Modulen und 316 Kanten. Unknown-Digest:
 `be3628b5dc4aafc50a093de1cf73651cd2f341dce374a94b7678b596200ef172`.
 Status `CANDIDATES_ONLY`; keine Runtime-/P11-Attestation.
+
+Der nächste `sysconfig`-Fact bindet die Venv-Prüfung in Zeile 310 an den
+vollständig quellgebundenen Präfixkandidaten: `prefix` und `base_prefix`
+sind im internen Candidate-Tupel identisch; der Fact akzeptiert keine
+Laufzeitpräfixbehauptung und lehnt abweichende Werte ab. Damit ist der Guard
+falsch. Der Scan zählt 91 aufgelöste und 476 unbekannte Bedingungen bei 60
+Modulen und 316 Kanten. Unknown-Digest:
+`e8bb2ad85abe5748480716051afe9eda61f0676a9d7f35d6bab952f6418e8579`.
+287 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`; keine
+Runtime-/P11-Attestation.

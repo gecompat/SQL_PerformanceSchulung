@@ -684,6 +684,44 @@ class StaticImportCandidateTests(unittest.TestCase):
                 files, image_facts, sysconfig_name_facts, (), True, True, True,
             ), {})
 
+    def test_sysconfig_venv_guard_requires_equal_prefix_candidates(self):
+        source = (
+            b"def get_preferred_scheme(key):\n"
+            b"    if key == 'prefix' and sys.prefix != sys.base_prefix:\n"
+            b"        return 'venv'\n"
+        )
+        prefixes = {
+            "values": ("/usr/local", "/usr/local", "/usr/local", "/usr/local"),
+            "field_order": ("prefix", "exec_prefix", "base_prefix", "base_exec_prefix"),
+            "runtime_prefixes_claimed": False,
+        }
+        with patch.object(
+            SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(source).hexdigest(),
+        ):
+            self.assertEqual(
+                SUBJECT._target_sysconfig_venv_prefix_guard_line_facts(
+                    {"sysconfig.py": source}, prefixes,
+                ),
+                {2: False},
+            )
+            different = dict(prefixes)
+            different["values"] = (
+                "/usr/local", "/usr/local", "/usr", "/usr/local",
+            )
+            self.assertEqual(
+                SUBJECT._target_sysconfig_venv_prefix_guard_line_facts(
+                    {"sysconfig.py": source}, different,
+                ),
+                {},
+            )
+            runtime_claim = {**prefixes, "runtime_prefixes_claimed": True}
+            self.assertEqual(
+                SUBJECT._target_sysconfig_venv_prefix_guard_line_facts(
+                    {"sysconfig.py": source}, runtime_claim,
+                ),
+                {},
+            )
+
     def test_pickle_buffer_line_fact_requires_exact_source_and_target_extension(self):
         source = (
             b"try:\n    from _pickle import PickleBuffer\n"

@@ -3085,3 +3085,11 @@ zählt der Offline-Scan 90 aufgelöste und 477 unbekannte Bedingungen bei 60
 Modulen und 316 Kanten; Unknown-Digest
 `be3628b5dc4aafc50a093de1cf73651cd2f341dce374a94b7678b596200ef172`.
 286 fokussierte Tests bestehen. Keine Laufzeit- oder P11-Attestation.
+
+Der folgende `sysconfig.py:310`-Fact schließt den Venv-Vergleich ausschließlich
+mit dem quellgebundenen S15-Präfixkandidaten: `prefix` und `base_prefix`
+stimmen überein, und der Candidate beansprucht keine Laufzeitpräfixe. Der
+Fact verwirft abweichende Präfixe oder eine Laufzeitbehauptung. Aktueller Scan:
+91 aufgelöste und 476 unbekannte Bedingungen, 60 Module, 316 Kanten;
+Unknown-Digest `e8bb2ad85abe5748480716051afe9eda61f0676a9d7f35d6bab952f6418e8579`.
+287 fokussierte Tests bestehen. Runtime-/P11-Attestation bleibt aus.
