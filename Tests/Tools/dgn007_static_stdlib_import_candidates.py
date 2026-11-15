@@ -3343,6 +3343,12 @@ def _target_s15_flags_field_candidate(worker_sys_flag_facts):
         ("sys.flags.optimize", 0),
         ("sys.dont_write_bytecode", True),
         ("sys.flags.no_user_site", 1),
+        ("sys.flags.debug", 0),
+        ("sys.flags.inspect", 0),
+        ("sys.flags.interactive", 0),
+        ("sys.flags.verbose", 0),
+        ("sys.flags.bytes_warning", 0),
+        ("sys.flags.quiet", 0),
     )
     if (type(worker_sys_flag_facts) is not tuple
             or len(worker_sys_flag_facts) != len(expected)
@@ -4286,7 +4292,23 @@ def _target_worker_sys_flag_facts(
                 r"\s*config->use_environment\s*=\s*0\s*;"
                 r"\s*config->user_site_directory\s*=\s*0\s*;",
                 initconfig_text,
-            )):
+            )
+            or any(not re.search(pattern, defaults.group(1)) for pattern in (
+                r"config->parser_debug\s*=\s*0\s*;",
+                r"config->inspect\s*=\s*0\s*;",
+                r"config->interactive\s*=\s*0\s*;",
+                r"config->verbose\s*=\s*0\s*;",
+                r"config->bytes_warning\s*=\s*0\s*;",
+                r"config->quiet\s*=\s*0\s*;",
+            ))
+            or any(not re.search(pattern, initconfig_text) for pattern in (
+                r"case 'd':\s*config->parser_debug\+\+\s*;",
+                r"case 'i':\s*config->inspect\+\+\s*;\s*"
+                r"config->interactive\+\+\s*;",
+                r"case 'b':\s*config->bytes_warning\+\+\s*;",
+                r"case 'v':\s*config->verbose\+\+\s*;",
+                r"case 'q':\s*config->quiet\+\+\s*;",
+            ))):
         return ()
     flag_body = set_flags.group(0)
     update_body = update_config
@@ -4310,6 +4332,12 @@ def _target_worker_sys_flag_facts(
         r"SetFlag\(!config->use_environment\);",
         r"SetFlag\(config->isolated\);",
         r"SetFlagObj\(PyBool_FromLong\(config->safe_path\)\);",
+        r"SetFlag\(config->parser_debug\);",
+        r"SetFlag\(config->inspect\);",
+        r"SetFlag\(config->interactive\);",
+        r"SetFlag\(config->verbose\);",
+        r"SetFlag\(config->bytes_warning\);",
+        r"SetFlag\(config->quiet\);",
     )
     if any(not re.search(pattern, flag_body) for pattern in required_bindings):
         return ()
@@ -4322,6 +4350,12 @@ def _target_worker_sys_flag_facts(
         ("sys.flags.optimize", 0),
         ("sys.dont_write_bytecode", True),
         ("sys.flags.no_user_site", 1),
+        ("sys.flags.debug", 0),
+        ("sys.flags.inspect", 0),
+        ("sys.flags.interactive", 0),
+        ("sys.flags.verbose", 0),
+        ("sys.flags.bytes_warning", 0),
+        ("sys.flags.quiet", 0),
     )
 
 

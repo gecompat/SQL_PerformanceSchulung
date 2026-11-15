@@ -27,7 +27,15 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"config->use_environment = 0; "
             b"config->user_site_directory = 0; }\n"
             b"static void config_init_defaults(PyConfig *config) {\n"
+            b"config->parser_debug = 0; config->inspect = 0; "
+            b"config->interactive = 0; config->verbose = 0; "
+            b"config->bytes_warning = 0; config->quiet = 0;\n"
             b"config->optimization_level = 0;\n}\n"
+            b"case 'd': config->parser_debug++;\n"
+            b"case 'i': config->inspect++; config->interactive++;\n"
+            b"case 'b': config->bytes_warning++;\n"
+            b"case 'v': config->verbose++;\n"
+            b"case 'q': config->quiet++;\n"
             b"case 'B': config->write_bytecode = 0;\n"
             b"case 'S': config->site_import = 0;\n"
             b"case 'O': config->optimization_level++;\n"
@@ -53,8 +61,13 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"SetFlag(!config->site_import);\n"
             b"SetFlag(!config->use_environment);\n"
             b"SetFlag(config->isolated);\n"
-            b"SetFlag(!config->user_site_directory);\n"
             b"SetFlagObj(PyBool_FromLong(config->safe_path));\n"
+            b"SetFlag(config->parser_debug);\n"
+            b"SetFlag(config->inspect);\n"
+            b"SetFlag(config->interactive);\n"
+            b"SetFlag(config->verbose);\n"
+            b"SetFlag(config->bytes_warning);\n"
+            b"SetFlag(config->quiet);\n"
             b"return 0;\n}\n"
             b"int _PySys_UpdateConfig(PyThreadState *tstate) {\n"
             b"if (set_flags_from_config(interp, flags) < 0) { return -1; }\n"
@@ -1378,7 +1391,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 preconfig_source, initconfig_source, env_worker,
             ), {})
 
-    def test_worker_sys_flag_facts_bind_all_six_s15_values(self):
+    def test_worker_sys_flag_facts_bind_pinned_startup_values(self):
         preconfig, initconfig, sys_module, worker = (
             self._worker_sys_flag_fact_fixture()
         )
@@ -1391,6 +1404,12 @@ class StaticImportCandidateTests(unittest.TestCase):
             ("sys.flags.optimize", 0),
             ("sys.dont_write_bytecode", True),
             ("sys.flags.no_user_site", 1),
+            ("sys.flags.debug", 0),
+            ("sys.flags.inspect", 0),
+            ("sys.flags.interactive", 0),
+            ("sys.flags.verbose", 0),
+            ("sys.flags.bytes_warning", 0),
+            ("sys.flags.quiet", 0),
         )
         with patch.multiple(
             SUBJECT,
@@ -1429,7 +1448,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             self.assertEqual(SUBJECT._target_s15_flags_field_candidate(facts), {
                 "value": (1, 1, 1, 1, 1, 0),
                 "source_fact_names": tuple(name for name, _ in expected[:6]),
-                "worker_route_fact_count": 8,
+                "worker_route_fact_count": 14,
                 "runtime_flags_claimed": False,
                 "evidence_scope": "STATIC_S15_FLAGS_FIELD_CANDIDATE",
             })
@@ -1442,7 +1461,10 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "sys.flags.no_user_site == 1 and "
                 "sys.flags.ignore_environment == 1 and "
                 "sys.flags.safe_path is True and sys.flags.optimize == 0 and "
-                "sys.dont_write_bytecode is True",
+                "sys.dont_write_bytecode is True and sys.flags.debug == 0 and "
+                "sys.flags.inspect == 0 and sys.flags.interactive == 0 and "
+                "sys.flags.verbose == 0 and sys.flags.bytes_warning == 0 and "
+                "sys.flags.quiet == 0",
                 mode="eval",
             ).body
             self.assertIs(
@@ -3210,6 +3232,10 @@ class StaticImportCandidateTests(unittest.TestCase):
                 worker.replace(b"'-I'", b"'-E'"),
             ), ())
             self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
+                preconfig, initconfig, sys_module,
+                worker.replace(b"'-B', '-c'", b"'-B', '-v', '-c'"),
+            ), ())
+            self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
                 preconfig, initconfig,
                 sys_module.replace(b"config->safe_path));", b"config->safe_path = 0));"),
                 worker,
@@ -3224,6 +3250,17 @@ class StaticImportCandidateTests(unittest.TestCase):
             ):
                 self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
                     preconfig, changed_initconfig, sys_module, worker,
+                ), ())
+            changed_defaults = initconfig.replace(
+                b"config->parser_debug = 0;",
+                b"config->parser_debug = 1;",
+            )
+            with patch.object(
+                SUBJECT, "INITCONFIG_C_SHA256",
+                hashlib.sha256(changed_defaults).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
+                    preconfig, changed_defaults, sys_module, worker,
                 ), ())
 
     def test_sys_implementation_version_binds_shared_version_info(self):
