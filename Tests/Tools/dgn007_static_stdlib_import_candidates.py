@@ -2042,7 +2042,7 @@ def _target_sysconfigdata_initialization_route_candidate(
                 ),
                 "reinitialization_guard_is_runtime_dependent": True,
                 "lock": "_CONFIG_VARS_LOCK",
-                "selected_actions": [
+                "actions_if_reinitialization_guard_true": [
                     "_CONFIG_VARS_INITIALIZED = False",
                     "_init_config_vars()",
                 ],
@@ -4350,7 +4350,7 @@ def _target_sysconfig_reinitialization_candidate(files):
         ),
         "reinitialization_guard_is_runtime_dependent": True,
         "lock": "_CONFIG_VARS_LOCK",
-        "selected_actions": [
+        "actions_if_reinitialization_guard_true": [
             "_CONFIG_VARS_INITIALIZED = False",
             "_init_config_vars()",
         ],
