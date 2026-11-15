@@ -11543,7 +11543,13 @@ innerhalb der Validierungskörper. Zwei getrennte Mutationen fügen je eine frü
 Rückgabe ein und werden abgewiesen. Der fokussierte Satz besteht 279/279; es
 werden keine Records verarbeitet.
 
-## Begrenzte Fortsetzung: absoluten Pfadvalidator gegen frühe Rückgabe absichern
+## Abgeschlossen: absoluten Pfadvalidator gegen frühe Rückgabe absichern
 
-Der nächste Schnitt bindet `_absolute` an einen ausstiegsfreien
-Validierungspfad. Es werden keine Hostpfade geprüft.
+Der statische `_absolute`-Vertrag verwirft jetzt eine frühe Rückgabe vor den
+Pfadprüfungen. Der fokussierte Satz besteht 279/279; es werden keine
+Hostpfade geprüft.
+
+## Begrenzte Fortsetzung: primitive Textvalidatoren gegen frühe Rückgabe absichern
+
+Der nächste Schnitt bindet `_text` und `_strings` an ausstiegsfreie
+Validierungspfade. Es werden keine Profilwerte verarbeitet.

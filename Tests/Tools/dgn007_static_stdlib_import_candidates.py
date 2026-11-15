@@ -2529,6 +2529,9 @@ def _target_profile_primitive_validators_candidate(source_bytes, path_contract):
         return None
     text_body = re.sub(rb"\s+", b" ", text_bodies[0])
     strings_body = re.sub(rb"\s+", b" ", strings_bodies[0])
+    if (re.search(rb"\breturn\b", text_body) is not None
+            or re.search(rb"\breturn\b", strings_body) is not None):
+        return None
     text_requirements = (
         b"_need(type(value) is str and len(value) <= MAX_FIELD)",
         b"_need(len(value.encode(\"utf-8\")) <= MAX_FIELD)",
