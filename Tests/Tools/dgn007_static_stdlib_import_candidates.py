@@ -7436,8 +7436,8 @@ def _target_collections_namedtuple_module_line_facts(
     return {final_guards[0].lineno: True}
 
 
-def _target_collections_namedtuple_field_names_condition_facts(files):
-    """Bind the field-name string/sequence outcomes to all stdlib callers."""
+def _target_collections_namedtuple_call_condition_facts(files):
+    """Bind field-name and defaults guard outcomes to all stdlib callers."""
     if type(files) is not dict:
         return {}
     source = files.get("collections/__init__.py")
@@ -7467,6 +7467,17 @@ def _target_collections_namedtuple_field_names_condition_facts(files):
     guards = [node for node in ast.walk(function)
               if isinstance(node, ast.If)
               and ast.unparse(node.test) == "isinstance(field_names, str)"] if function else []
+    defaults_guards = [node for node in ast.walk(function)
+                       if isinstance(node, ast.If)
+                       and ast.unparse(node.test) == "defaults is not None"] if function else []
+    signature = function.args if function else None
+    if (signature is None
+            or [arg.arg for arg in signature.args] != ["typename", "field_names"]
+            or [arg.arg for arg in signature.kwonlyargs]
+            != ["rename", "defaults", "module"]
+            or [ast.unparse(value) for value in signature.kw_defaults]
+            != ["False", "None", "None"]):
+        return {}
     namespace_assignments = [
         node for node in ast.walk(function)
         if isinstance(node, ast.Assign)
@@ -7484,7 +7495,8 @@ def _target_collections_namedtuple_field_names_condition_facts(files):
         for key, value in zip(assignment.value.keys, assignment.value.values)
         if isinstance(key, ast.Constant) and key.value == "_fields"
     ]
-    if (len(guards) != 1 or len(namespace_assignments) != 1
+    if (len(guards) != 1 or len(defaults_guards) != 2
+            or len(namespace_assignments) != 1
             or len(fields_entries) != 1
             or ast.unparse(fields_entries[0]) != "field_names"
             or len(type_calls) != 1):
@@ -7544,6 +7556,7 @@ def _target_collections_namedtuple_field_names_condition_facts(files):
     callsite_rows = []
     caller_source_rows = []
     outcomes = set()
+    defaults_outcomes = set()
     for path, tree in trees.items():
         if any(isinstance(node, ast.ImportFrom) and node.module == "collections"
                and any(alias.name == "*" for alias in node.names)
@@ -7578,6 +7591,28 @@ def _target_collections_namedtuple_field_names_condition_facts(files):
             if not isinstance(node, ast.Call) or not is_namedtuple(node.func):
                 continue
             callsite_rows.append([path, node.lineno, ast.unparse(node)])
+            if len(node.args) > 2:
+                return {}
+            explicit_defaults = [keyword.value for keyword in node.keywords
+                                 if keyword.arg == "defaults"]
+            if len(explicit_defaults) > 1:
+                return {}
+            if not explicit_defaults:
+                defaults_outcomes.add(False)
+            elif isinstance(explicit_defaults[0], (ast.List, ast.Tuple)):
+                defaults_outcomes.add(True)
+            elif (path == "dis.py"
+                  and ast.unparse(explicit_defaults[0]) == "[None] * 4"):
+                defaults_outcomes.add(True)
+            elif (isinstance(explicit_defaults[0], ast.Constant)
+                  and explicit_defaults[0].value is None):
+                defaults_outcomes.add(False)
+            elif (path == "typing.py"
+                  and isinstance(explicit_defaults[0], ast.Name)
+                  and explicit_defaults[0].id == "defaults"):
+                pass
+            else:
+                return {}
             value = (node.args[1] if len(node.args) > 1 else next(
                 (keyword.value for keyword in node.keywords
                  if keyword.arg == "field_names"), None,
@@ -7599,10 +7634,20 @@ def _target_collections_namedtuple_field_names_condition_facts(files):
     digest = hashlib.sha256(json.dumps(
         [callsite_rows, caller_source_rows], separators=(",", ":"),
     ).encode()).hexdigest()
-    if digest != COLLECTIONS_NAMEDTUPLE_CALLS_SHA256 or outcomes != {False, True}:
+    if (digest != COLLECTIONS_NAMEDTUPLE_CALLS_SHA256
+            or outcomes != {False, True}
+            or defaults_outcomes != {False, True}):
         return {}
-    return {("collections", "collections/__init__.py", guards[0].lineno):
-            tuple(sorted(outcomes))}
+    facts = {
+        ("collections", "collections/__init__.py", guards[0].lineno):
+        tuple(sorted(outcomes)),
+    }
+    facts.update({
+        ("collections", "collections/__init__.py", guard.lineno):
+        tuple(sorted(defaults_outcomes))
+        for guard in defaults_guards
+    })
+    return facts
 
 
 def _target_sysconfig_build_setup_guard_line_facts(
@@ -11279,8 +11324,8 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_collections_namedtuple_string_type_line_facts = (
         _target_collections_namedtuple_string_type_line_facts(files)
     )
-    target_collections_namedtuple_field_names_condition_facts = (
-        _target_collections_namedtuple_field_names_condition_facts(files)
+    target_collections_namedtuple_call_condition_facts = (
+        _target_collections_namedtuple_call_condition_facts(files)
     )
     target_image_config_source = None
     if target_image_config_path is not None:
@@ -11961,7 +12006,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             **target_json_encoder_argument_condition_facts,
             **target_hashlib_name_condition_facts,
             **target_functools_lru_cache_condition_facts,
-            **target_collections_namedtuple_field_names_condition_facts,
+            **target_collections_namedtuple_call_condition_facts,
             **target_sysconfig_userbase_env_condition_facts,
         },
         trusted_empty_for_facts={
@@ -12416,11 +12461,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             for (module, source_path, line), outcomes
             in target_functools_lru_cache_condition_facts.items()
         ],
-        "target_platform_collections_namedtuple_field_names_condition_facts": [
+        "target_platform_collections_namedtuple_call_condition_facts": [
             {"module": module, "source_path": source_path, "line": line,
              "outcomes": list(outcomes)}
             for (module, source_path, line), outcomes
-            in target_collections_namedtuple_field_names_condition_facts.items()
+            in target_collections_namedtuple_call_condition_facts.items()
         ],
         "target_platform_logging_lock_line_facts": list(
             target_logging_lock_line_facts.items()
