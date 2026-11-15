@@ -2435,3 +2435,10 @@ Sysconfig-Importroute. Der Scanner bleibt `CANDIDATES_ONLY`; keine Datei- oder
 Interpreterausführung, vollständige Importclosure, P11-, SQL-/Lab- oder
 menschliche Generalprobenattestation. PR-Integration ist der Checkpoint; der
 autonome Auftrag setzt danach mit dem dann offenen Punkt fort.
+
+Die nächste einzelne DGN-007-Fortsetzung bindet im bestehenden Rahmen von
+höchstens einem Arbeitspaket, einem PR und zwei Regressionen den statisch
+geprüften `vars.update(build_time_vars)`-Schritt an den Aufrufparameter
+`_CONFIG_VARS`. Der Kandidat dokumentiert Quell-/Image-Datenfluss, nicht die
+Ausführung der Mutation. Weiterhin ausgeschlossen sind vollständige
+Importclosure, P11, SQL/Lab und menschliche Generalprobe.

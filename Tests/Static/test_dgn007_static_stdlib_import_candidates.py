@@ -1481,6 +1481,9 @@ class StaticImportCandidateTests(unittest.TestCase):
             ),
             "sysconfigdata_importer": "__import__",
             "sysconfigdata_imported_attribute": "build_time_vars",
+            "sysconfigdata_initializer_parameter": "vars",
+            "sysconfigdata_initializer_update_receiver": "vars",
+            "sysconfigdata_initializer_update_value": "build_time_vars",
         }
         line_facts = {676: True}
         import_target = {
@@ -1508,12 +1511,25 @@ class StaticImportCandidateTests(unittest.TestCase):
             "entry_count": 14,
             "evidence_scope": "STATIC_IMAGE_ATTRIBUTE_CANDIDATE",
         })
+        self.assertEqual(candidate["config_vars_update_candidate"], {
+            "source_attribute": "build_time_vars",
+            "local_value_name": "build_time_vars",
+            "initializer_parameter": "vars",
+            "initializer_argument": "_CONFIG_VARS",
+            "update_receiver": "vars",
+            "target_mapping": "_CONFIG_VARS",
+            "evidence_scope": "STATIC_CONFIG_MAPPING_UPDATE_CANDIDATE",
+        })
         self.assertEqual(
             candidate["evidence_scope"],
             "STATIC_CONDITIONAL_IMPORT_ROUTE_CANDIDATE",
         )
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, {}, import_target, image_facts,
+        ))
+        self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
+            {**inventory, "sysconfigdata_initializer_update_receiver": "other"},
+            line_facts, import_target, image_facts,
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, line_facts, import_target,
@@ -2480,6 +2496,9 @@ class StaticImportCandidateTests(unittest.TestCase):
                          "_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}")
         self.assertEqual(scheme_inventory["sysconfigdata_importer"], "__import__")
         self.assertEqual(scheme_inventory["sysconfigdata_imported_attribute"], "build_time_vars")
+        self.assertEqual(scheme_inventory["sysconfigdata_initializer_parameter"], "vars")
+        self.assertEqual(scheme_inventory["sysconfigdata_initializer_update_receiver"], "vars")
+        self.assertEqual(scheme_inventory["sysconfigdata_initializer_update_value"], "build_time_vars")
 
     def test_sysconfig_source_rejects_changed_sysconfigdata_import_route(self):
         source = (
