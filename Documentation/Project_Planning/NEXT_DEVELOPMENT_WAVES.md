@@ -2526,11 +2526,21 @@ Literalexport `__all__`. Der echte Archivlauf und 242 fokussierte Regressionen
 bestanden; Klassenumbenennung und Exportänderung werden fail-closed verworfen.
 Ein erfolgreicher Modulimport oder Runtimewert ist damit nicht belegt.
 
-## Begrenzte Fortsetzung: Meta-Path-Finderklassen binden
+## Abgeschlossen: Meta-Path-Finderklassen binden
 
 Der nächste S15-Schnitt ordnet die registrierten Labels `BuiltinImporter`,
 `FrozenImporter` und `PathFinder` den eindeutigen Top-Level-Klassen in den
 gepinnten Bootstrapquellen zu und prüft die jeweiligen `find_spec`-
-Klassenmethoden. Das sind Quellfakten, keine Runtimeinstanzen oder
-Auswahlbeobachtungen. Umfang: ein Paket, ein PR und höchstens zwei Regressionen;
-keine Runtime-, P11-, SQL-/Lab- oder menschliche Generalprobenattestation.
+Klassenmethoden. PR #805 ist integriert; Archivlauf und 243 fokussierte
+Regressionen bestanden. Klassenumbenennung und fehlender Klassenmethoden-
+Descriptor werden fail-closed verworfen. Das sind Quellfakten, keine
+Runtimeinstanzen oder Auswahlbeobachtungen.
+
+## Begrenzte Fortsetzung: `inert_zip`-Feld an Pfadkandidaten binden
+
+Der nächste S15-Schnitt verbindet die geordnete POSIX-`sys.path`-
+Sollwertkandidatenliste mit dem als abwesend belegten `ZIP_LANDMARK`-Imagepfad
+und bildet denselben Wert als statischen `inert_zip`-Feldkandidaten ab. Er
+behauptet weder Runtimeaufnahme noch einen vollständigen S15-Record. Umfang:
+ein Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-,
+SQL-/Lab- oder menschliche Generalprobenattestation.

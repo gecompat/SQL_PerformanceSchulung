@@ -11040,12 +11040,21 @@ ihren deklarierten Basistyp und den Literalexport `__all__`. Der CPython-
 Klassenname und geänderte Exportliste werden fail-closed verworfen. Das belegt
 keinen erfolgreichen Modulimport oder verfügbaren Runtimewert.
 
-## S15-Teilschnitt: Meta-Path-Finderklassen benennen
+## Abgeschlossen: S15-Teilschnitt Meta-Path-Finderklassen
 
 Der neue Kandidat bindet die drei registrierten Labels `BuiltinImporter`,
 `FrozenImporter` und `PathFinder` an ihre eindeutigen Top-Level-Klassen in den
 gepinnten Bootstrapquellen und prüft deren `find_spec`-Klassenmethoden. Er
 beschreibt Deklarationen, keine Klasseninstanzen, tatsächliche Auswahl oder
-vollständige S15-/P11-Inventur. Umfang: ein Paket, ein PR und höchstens zwei
-Regressionen; keine Runtime-, SQL-/Lab- oder menschliche
-Generalprobenattestation.
+vollständige S15-/P11-Inventur. PR #805 ist integriert; der Archivlauf und 243
+fokussierte Regressionen bestanden. Klassenumbenennung und Verlust der
+`classmethod`-Deklaration werden fail-closed verworfen.
+
+## S15-Teilschnitt: `inert_zip`-Feld an Pfadkandidaten binden
+
+Der nächste Kandidat verbindet die bereits geordnete POSIX-`sys.path`-
+Sollwertliste mit dem abwesenden `ZIP_LANDMARK`-Imagepfad und weist denselben
+Wert als statischen `inert_zip`-Feldkandidaten aus. Er behauptet weder eine
+Runtimeaufnahme in `sys.path` noch einen vollständigen S15-Record. Umfang: ein
+Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab-
+oder menschliche Generalprobenattestation.
