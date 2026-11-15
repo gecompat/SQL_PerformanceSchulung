@@ -78,6 +78,38 @@ TARGET_EXECUTABLE_PATH = "usr/local/bin/python3.12"
 TARGET_EXECUTABLE_SHA256 = "837a48d7afd08447fb43e28b282026fadb59368620072e57e01f66d12977e5ce"
 TARGET_SYSCONFIGDATA_PATH = "usr/local/lib/python3.12/_sysconfigdata__linux_x86_64-linux-gnu.py"
 TARGET_SYSCONFIGDATA_SHA256 = "3ed04335c07aa6311958a3514a807ce1ef5b623cea3f29507c3f20b1330c8187"
+TARGET_SYSCONFIGDATA_EXPECTED_VALUES = {
+    "SOABI": "cpython-312-x86_64-linux-gnu",
+    "DESTSHARED": "/usr/local/lib/python3.12/lib-dynload",
+    "EXT_SUFFIX": ".cpython-312-x86_64-linux-gnu.so",
+    "MULTIARCH": "x86_64-linux-gnu",
+    "ABIFLAGS": "",
+    "MACHDEP": "linux",
+    "prefix": "/usr/local",
+    "exec_prefix": "/usr/local",
+    "PLATLIBDIR": "lib",
+    "PYTHONPATH": "",
+    "LIBDIR": "/usr/local/lib",
+    "LDLIBRARY": "libpython3.12.so",
+    "INSTSONAME": "libpython3.12.so.1.0",
+    "Py_ENABLE_SHARED": 1,
+}
+TARGET_SYSCONFIGDATA_FACT_FIELDS = {
+    "SOABI": "soabi",
+    "DESTSHARED": "destshared",
+    "EXT_SUFFIX": "extension_suffix",
+    "MULTIARCH": "multiarch",
+    "ABIFLAGS": "abiflags",
+    "MACHDEP": "machdep",
+    "prefix": "prefix",
+    "exec_prefix": "exec_prefix",
+    "PLATLIBDIR": "platlibdir",
+    "PYTHONPATH": "compiled_pythonpath",
+    "LIBDIR": "library_dir",
+    "LDLIBRARY": "library_name",
+    "INSTSONAME": "library_soname",
+    "Py_ENABLE_SHARED": "shared_library_enabled",
+}
 MAX_TARGET_SYSCONFIGDATA_BYTES = 128 * 1024
 TARGET_INERT_ZIP_PATH = "usr/local/lib/python312.zip"
 TARGET_PREFIX_STDLIB_LANDMARK = "usr/local/lib/python3.12/os.py"
@@ -2016,7 +2048,9 @@ def _target_sysconfigdata_initialization_route_candidate(
             != TARGET_SYSCONFIGDATA_SHA256
             or image_facts.get("build_time_vars_literal_dict") is not True
             or type(image_facts.get("build_time_vars_entry_count")) is not int
-            or image_facts["build_time_vars_entry_count"] <= 0):
+            or image_facts["build_time_vars_entry_count"] <= 0
+            or any(image_facts.get(TARGET_SYSCONFIGDATA_FACT_FIELDS[key]) != value
+                   for key, value in TARGET_SYSCONFIGDATA_EXPECTED_VALUES.items())):
         return None
     line = next(iter(posix_init_line_facts))
     return {
@@ -2042,6 +2076,10 @@ def _target_sysconfigdata_initialization_route_candidate(
             "initializer_argument": "_CONFIG_VARS",
             "update_receiver": "vars",
             "target_mapping": "_CONFIG_VARS",
+            "known_entry_values": {
+                key: image_facts[TARGET_SYSCONFIGDATA_FACT_FIELDS[key]]
+                for key in TARGET_SYSCONFIGDATA_EXPECTED_VALUES
+            },
             "evidence_scope": "STATIC_CONFIG_MAPPING_UPDATE_CANDIDATE",
         },
         "imported_attribute": "build_time_vars",
@@ -4570,25 +4608,10 @@ def _target_image_sysconfigdata_facts(source):
         values = ast.literal_eval(value_node)
     except (SyntaxError, TypeError, ValueError) as error:
         raise ValueError("TARGET_SYSCONFIGDATA_LITERAL") from error
-    expected = {
-        "SOABI": "cpython-312-x86_64-linux-gnu",
-        "DESTSHARED": "/usr/local/lib/python3.12/lib-dynload",
-        "EXT_SUFFIX": ".cpython-312-x86_64-linux-gnu.so",
-        "MULTIARCH": "x86_64-linux-gnu",
-        "ABIFLAGS": "",
-        "MACHDEP": "linux",
-        "prefix": "/usr/local",
-        "exec_prefix": "/usr/local",
-        "PLATLIBDIR": "lib",
-        "PYTHONPATH": "",
-        "LIBDIR": "/usr/local/lib",
-        "LDLIBRARY": "libpython3.12.so",
-        "INSTSONAME": "libpython3.12.so.1.0",
-        "Py_ENABLE_SHARED": 1,
-    }
     if type(values) is not dict:
         raise ValueError("TARGET_SYSCONFIGDATA_MAPPING")
-    if any(values.get(key) != value for key, value in expected.items()):
+    if any(values.get(key) != value
+           for key, value in TARGET_SYSCONFIGDATA_EXPECTED_VALUES.items()):
         raise ValueError("TARGET_SYSCONFIGDATA_VALUES")
     return {
         "build_time_vars_literal_dict": True,

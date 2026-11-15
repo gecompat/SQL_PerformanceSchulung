@@ -2449,3 +2449,9 @@ von `_init_config_vars()` an den initialen Config-Variablenzustand, Lock und
 Null-Recheck und führt ihn mit der bereits statischen POSIX-Importroute
 zusammen. Keine Behauptung eines tatsächlichen Getter-/Initializerlaufs,
 Runtimeprofils, P11, SQL/Lab oder menschlicher Generalprobe.
+
+Der nächste DGN-007-Punkt bleibt auf ein Paket, einen PR und höchstens zwei
+Regressionen begrenzt. Er ordnet die 14 festgelegten Werte des
+`build_time_vars`-Image-Literals dem statischen `vars.update`-Datenfluss und
+`_CONFIG_VARS` als Zielmapping zu. Es entstehen keine Runtimewerte und keine
+Import-, P11-, SQL-/Lab- oder Generalprobenfreigabe.

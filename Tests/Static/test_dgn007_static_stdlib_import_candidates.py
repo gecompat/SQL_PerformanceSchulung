@@ -1498,6 +1498,20 @@ class StaticImportCandidateTests(unittest.TestCase):
             "sysconfigdata_sha256": SUBJECT.TARGET_SYSCONFIGDATA_SHA256,
             "build_time_vars_literal_dict": True,
             "build_time_vars_entry_count": 14,
+            "soabi": "cpython-312-x86_64-linux-gnu",
+            "destshared": "/usr/local/lib/python3.12/lib-dynload",
+            "extension_suffix": ".cpython-312-x86_64-linux-gnu.so",
+            "multiarch": "x86_64-linux-gnu",
+            "abiflags": "",
+            "machdep": "linux",
+            "prefix": "/usr/local",
+            "exec_prefix": "/usr/local",
+            "platlibdir": "lib",
+            "compiled_pythonpath": "",
+            "library_dir": "/usr/local/lib",
+            "library_name": "libpython3.12.so",
+            "library_soname": "libpython3.12.so.1.0",
+            "shared_library_enabled": 1,
         }
         lazy_call_candidate = {
             "getter": "get_config_vars",
@@ -1529,6 +1543,22 @@ class StaticImportCandidateTests(unittest.TestCase):
             "initializer_argument": "_CONFIG_VARS",
             "update_receiver": "vars",
             "target_mapping": "_CONFIG_VARS",
+            "known_entry_values": {
+                "SOABI": "cpython-312-x86_64-linux-gnu",
+                "DESTSHARED": "/usr/local/lib/python3.12/lib-dynload",
+                "EXT_SUFFIX": ".cpython-312-x86_64-linux-gnu.so",
+                "MULTIARCH": "x86_64-linux-gnu",
+                "ABIFLAGS": "",
+                "MACHDEP": "linux",
+                "prefix": "/usr/local",
+                "exec_prefix": "/usr/local",
+                "PLATLIBDIR": "lib",
+                "PYTHONPATH": "",
+                "LIBDIR": "/usr/local/lib",
+                "LDLIBRARY": "libpython3.12.so",
+                "INSTSONAME": "libpython3.12.so.1.0",
+                "Py_ENABLE_SHARED": 1,
+            },
             "evidence_scope": "STATIC_CONFIG_MAPPING_UPDATE_CANDIDATE",
         })
         self.assertEqual(
@@ -1549,6 +1579,10 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate, line_facts, import_target,
             {**image_facts, "sysconfigdata_sha256": "0" * 64},
+        ))
+        self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
+            inventory, lazy_call_candidate, line_facts, import_target,
+            {**image_facts, "soabi": "unbound"},
         ))
         self.assertIsNone(SUBJECT._target_sysconfigdata_initialization_route_candidate(
             inventory, lazy_call_candidate, line_facts, import_target,
