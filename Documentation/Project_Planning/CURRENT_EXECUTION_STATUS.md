@@ -11592,11 +11592,16 @@ nun zusätzlich alle fünf produktiven `copyreg.pickle`-Aufrufe und begrenzt
 PR #882 integrierte den Fact als Commit
 `339d5dc2f18991c706fedb3bbb057c5e9db5b0e7`; alle fünf PR-Gates bestanden.
 Ein weiterer Fact bindet bei `opcode.py:72` alle elf produktiven
-`pseudo_op`-Registrierungen und den unveränderten Funktionskörper. Er begrenzt
-die Bedingungen auf `{False, True}`. Der aktuelle Offline-Scan zählt damit
-522 unbekannte und 63 aufgelöste Bedingungen (ausgehend von 524/61); Module,
-Kanten und Kandidatenhash bleiben 60/318 und `33f55d7c…`. Der fokussierte Satz
-besteht 282/282. Der Status bleibt `CANDIDATES_ONLY`; es gab keinen
-Interpreterstart und keine P11-/Runtimeattestation. Als nächste Kandidaten
-bleiben insbesondere die großen Regex-Reste in `re._parser`/`re._compiler`;
-dynamische Cache- und Umgebungszweige brauchen eigene quellengebundene Fakten.
+`pseudo_op`-Registrierungen und den unveränderten Funktionskörper; PR #883
+integrierte ihn als Commit
+`94b2b2d1226ab4cb1c28dd70e6b3d287b4728868`, alle fünf PR-Gates bestanden.
+Der nächste lokale Fact bindet die einzige produktive Konstruktion von
+`JSONEncoder` und deren Schlüsselwortargumente `separators=None`, `indent=None`
+und `default=None`; damit werden die drei Guards in `json/encoder.py` statisch
+falsch. Der Scan zählt 519 unbekannte und 66 aufgelöste Bedingungen (ausgehend
+von 524/61); Module, Kanten und Kandidatenhash bleiben 60/318 und
+`33f55d7c…`. Der fokussierte Satz besteht 283/283. Der Status bleibt
+`CANDIDATES_ONLY`; es gab keinen Interpreterstart und keine P11-/Runtime-
+Attestation. Als nächste Kandidaten bleiben insbesondere die großen Regex-Reste
+in `re._parser`/`re._compiler`; dynamische Cache- und Umgebungszweige brauchen
+eigene quellengebundene Fakten.
