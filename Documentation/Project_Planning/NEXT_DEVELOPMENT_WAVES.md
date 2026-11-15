@@ -3266,3 +3266,16 @@ Unknown-Digest `5a134d577ec00b2518f47f6df325fac976395d8b604ec30da1c0594d456b9ba9
 294 fokussierte Regressionen bestehen. `CANDIDATES_ONLY`; keine direkte
 Image-Route, Runtime-/P11- oder SQL-Ausführung und keine menschliche
 Generalprobe.
+
+### Begrenzte Fortsetzung: `collections.namedtuple`-Feldformguards (15. November 2026)
+
+Die Facts binden `collections/__init__.py:408` (`name.startswith('_') and not rename`)
+und `:411` (`name in seen`) für den importzeitlichen Aufrufbestand an falsch.
+Alle 42 statischen Feldlisten haben keine führenden Unterstriche und keine
+Duplikate; ein `_field`- oder `x x`-Aufruf verwirft die gesamte Bindung. Der
+vollständige Aufruf- und Quellhash bleibt Voraussetzung. Der Zielscan zählt 60
+Module, 318 Kanten, 100 entschiedene und 481 unbekannte Bedingungen;
+Unknown-Digest `d8d485d993f0426d8f5e5e38e15bed6e08e195548de5de3b6b71ed0568345750`.
+294 fokussierte Regressionen bestehen. `CANDIDATES_ONLY`; keine direkte
+Image-Route, Runtime-/P11- oder SQL-Ausführung und keine menschliche
+Generalprobe.
