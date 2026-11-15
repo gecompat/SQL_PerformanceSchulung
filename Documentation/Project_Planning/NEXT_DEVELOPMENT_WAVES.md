@@ -3221,3 +3221,19 @@ entschiedene und 487 unbekannte Bedingungen, Unknown-Digest
 `e5431241726d7054aadb72aa9c042f91a677322dcbf7575ae0e2ea19b8d3cb9a`.
 294 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine direkte Image-Route,
 Runtime-/P11- oder SQL-Ausführung und keine menschliche Generalprobe.
+
+### Begrenzte Fortsetzung: `threading.excepthook`-Importguard (15. November 2026)
+
+Der importzeitliche Aufruf von `_make_invoke_excepthook()` während
+`Thread.__init__` bindet den Guard `threading.py:1363`
+(`old_excepthook is None`) an falsch. Der Quellpfad akzeptiert den
+hashgeprüften nativen `_thread._excepthook`-Export oder die definierte
+Python-Fallbackfunktion im `ImportError`-Zweig. Mutationen der Modulbindung
+und ein fehlender nativer Export verwerfen den Fact. Der benachbarte Guard
+`sys.excepthook is None` an Zeile 1365 bleibt offen, weil seine
+Interpreterinitialisierung eine eigene Quellenbindung erfordert. Der Zielscan
+zählt 60 Module, 318 Kanten, 96 entschiedene und 485 unbekannte Bedingungen;
+Unknown-Digest `f19e6a388944dbedb4ff0973011d5b60c384a8e568c103b64017ad151d0ed69a`.
+294 fokussierte Regressionen bestehen. `CANDIDATES_ONLY`; keine direkte
+Image-Route, Runtime-/P11- oder SQL-Ausführung und keine menschliche
+Generalprobe.
