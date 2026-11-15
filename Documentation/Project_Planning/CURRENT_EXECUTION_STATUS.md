@@ -10859,3 +10859,16 @@ Verknüpfung und verwirft fehlende Attributfacts. Der Archiv-/OCI-Scan bleibt
 Import, Runtimeübernahme, vollständige Importclosure oder P11. Keine SQL-/Lab-
 Ausführung oder menschliche Generalprobe. Token-/Geldverbrauch bleiben
 unbekannt; Umfang: ein Paket, ein PR und höchstens zwei Regressionen.
+
+## Fortsetzung: statischen Sysconfigdatenfluss in `_CONFIG_VARS` abbilden
+
+Die quellengebundene `_init_posix`-AST-Inventur gibt nun den Parameter `vars`,
+den `vars.update(build_time_vars)`-Empfänger und den Wert `build_time_vars`
+strukturiert aus. Mit der bereits ausgewählten Aufrufstelle
+`_init_posix(_CONFIG_VARS)` führt der Routen-Kandidat das Imageattribut bis
+zum Zielmapping `_CONFIG_VARS` als `STATIC_CONFIG_MAPPING_UPDATE_CANDIDATE`.
+Eine Regression prüft den vollständigen Datenflusskandidaten und verwirft
+geänderte Empfängerfacts. Es bleibt statische Quell-/Imageevidenz: weder
+Funktionsaufruf noch Mappingmutation oder Runtimeübernahme sind beobachtet.
+Keine P11-, SQL-/Lab- oder menschliche Generalprobenattestation. Umfang: ein
+Paket, ein PR und höchstens zwei Regressionen.

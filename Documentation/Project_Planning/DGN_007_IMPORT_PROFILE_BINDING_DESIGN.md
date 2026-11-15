@@ -6323,3 +6323,11 @@ Quellvertrag übereinstimmen. Der Kandidat weist Attributform und vollständige
 Mapping-Eintragszahl aus, ohne den Inhalt auszuführen oder einen tatsächlichen
 Import beziehungsweise Runtimewert zu behaupten. Der Umfang endet bei
 `STATIC_IMAGE_ATTRIBUTE_CANDIDATE`.
+
+### Fortsetzung: `build_time_vars` bis `_CONFIG_VARS` nachverfolgen
+
+Die quellengebundene `_init_posix`-Form legt fest, dass der Importwert als
+`build_time_vars` lokal gebunden und in den Parameter `vars` übernommen wird.
+Die separat geprüfte Posix-Aufrufwache wählt `_init_posix(_CONFIG_VARS)` aus;
+der Kandidat kann daher den statischen Zielcontainer benennen. Dies ist keine
+Beobachtung einer Funktionsausführung oder Mappingmutation.

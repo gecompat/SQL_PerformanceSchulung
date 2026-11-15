@@ -877,6 +877,9 @@ def _sysconfig_source_inventory(source_bytes):
         "sysconfigdata_name_template": "_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}",
         "sysconfigdata_importer": "__import__",
         "sysconfigdata_imported_attribute": "build_time_vars",
+        "sysconfigdata_initializer_parameter": "vars",
+        "sysconfigdata_initializer_update_receiver": "vars",
+        "sysconfigdata_initializer_update_value": "build_time_vars",
     }
 
 
@@ -1979,6 +1982,12 @@ def _target_sysconfigdata_initialization_route_candidate(
             or sysconfig_inventory.get("sysconfigdata_importer") != "__import__"
             or sysconfig_inventory.get("sysconfigdata_imported_attribute")
             != "build_time_vars"
+            or sysconfig_inventory.get("sysconfigdata_initializer_parameter")
+            != "vars"
+            or sysconfig_inventory.get("sysconfigdata_initializer_update_receiver")
+            != "vars"
+            or sysconfig_inventory.get("sysconfigdata_initializer_update_value")
+            != "build_time_vars"
             or type(posix_init_line_facts) is not dict
             or len(posix_init_line_facts) != 1
             or any(type(line) is not int or type(value) is not bool or not value
@@ -2013,6 +2022,15 @@ def _target_sysconfigdata_initialization_route_candidate(
             "value_kind": "literal_dict",
             "entry_count": image_facts["build_time_vars_entry_count"],
             "evidence_scope": "STATIC_IMAGE_ATTRIBUTE_CANDIDATE",
+        },
+        "config_vars_update_candidate": {
+            "source_attribute": "build_time_vars",
+            "local_value_name": "build_time_vars",
+            "initializer_parameter": "vars",
+            "initializer_argument": "_CONFIG_VARS",
+            "update_receiver": "vars",
+            "target_mapping": "_CONFIG_VARS",
+            "evidence_scope": "STATIC_CONFIG_MAPPING_UPDATE_CANDIDATE",
         },
         "imported_attribute": "build_time_vars",
         "value_consumer": "vars.update(build_time_vars)",
