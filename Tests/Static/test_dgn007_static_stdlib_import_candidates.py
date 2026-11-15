@@ -1835,6 +1835,40 @@ class StaticImportCandidateTests(unittest.TestCase):
                 )
             )
 
+    def test_profile_validation_report_flow_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        compare_contract = {"trust_established": False}
+        candidate = SUBJECT._target_profile_validation_report_flow_candidate(
+            profile_source, compare_contract,
+        )
+        self.assertEqual(candidate, {
+            "compare_attempts": 1,
+            "comparison_failure_status": "REJECTED_PROFILE",
+            "malformed_record_issue": "INVALID_RECORD",
+            "matched_status": "MATCHED_DECLARED_BASELINE",
+            "trust_assumed_only_on_match": True,
+            "trust_attested": False,
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "evidence_scope": "STATIC_PROFILE_VALIDATION_REPORT_FLOW_CANDIDATE",
+        })
+        changed = profile_source.replace(
+            b'ProfileReport("MATCHED_DECLARED_BASELINE", "NONE", True)',
+            b'ProfileReport("MATCHED_DECLARED_BASELINE", "NONE", False)',
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed),
+        ):
+            self.assertIsNone(
+                SUBJECT._target_profile_validation_report_flow_candidate(
+                    changed, compare_contract,
+                )
+            )
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

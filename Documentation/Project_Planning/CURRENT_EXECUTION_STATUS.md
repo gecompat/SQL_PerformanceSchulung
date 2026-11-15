@@ -11280,10 +11280,17 @@ Ablehnung unbekannter Loader und die Feldordnung des `ModuleRecord`-
 Konstruktors. Alle fünf Pflichtprüfungen bestanden. Beobachtete Module folgen
 daraus nicht.
 
-## Nächster Schritt: Profilvergleichsvertrag binden
+## Abgeschlossen: Profilvergleichsvertrag binden
 
-Der nächste Kandidat bindet Plattform-, Interpreter-, Versions- und Flagchecks,
-Feld-/Ankeridentität, Ausschluss eigener Projektmodule, Control-/Rootzuordnung
-und Pfadbeschränkung in `_compare`. Er stellt kein Vertrauen her. Eine
-Regression lockert die Pfadbeschränkung und muss fail-closed bleiben. Umfang:
-ein Paket, ein PR und höchstens zwei Regressionen.
+PR #837 bindet Plattform-, Interpreter-, Versions- und Flagchecks,
+Feld-/Ankeridentität, Projektausschluss, Control-/Rootzuordnung und
+Pfadbeschränkung in `_compare`. Alle fünf Pflichtprüfungen bestanden. Der
+Vergleich stellt kein Vertrauen her.
+
+## Nächster Schritt: Validierungsreports binden
+
+Der nächste Kandidat bindet `validate_profile` an den Vergleichsausgang:
+`REJECTED_PROFILE` für Vertragsabweichungen, `INVALID_RECORD` für fehlerhafte
+Records und `MATCHED_DECLARED_BASELINE` samt `trust_assumed=True` ausschließlich
+bei Match. Er begründet keine Attestation. Eine Regression entfernt den
+Matchstatus. Umfang: ein Paket, ein PR und höchstens zwei Regressionen.
