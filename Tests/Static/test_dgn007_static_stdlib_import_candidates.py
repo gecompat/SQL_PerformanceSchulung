@@ -2085,6 +2085,33 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertNotEqual(len(dropped_parallel_result), len(scanner_source))
         self.assertFalse(chain_is_bound(dropped_parallel_result))
 
+        def report_is_candidate_only(source):
+            bodies = SUBJECT.re.findall(
+                rb"(?ms)^def main\(\):\r?\n(?P<body>.*?)(?=^if __name__|\Z)",
+                source,
+            )
+            if len(bodies) != 1:
+                return False
+            body = SUBJECT.re.sub(rb"\s+", b" ", bodies[0])
+            return (
+                body.count(
+                    b'print(json.dumps({"status": "CANDIDATES_ONLY", **result}, separators=(",", ":")))'
+                ) == 1
+                and body.count(
+                    b'print(json.dumps({"status": "NOT_PROVEN", "issue": "SOURCE_INPUT_REJECTED"}, separators=(",", ":")))'
+                ) == 1
+                and body.count(b"return 0") == 1
+            )
+
+        self.assertTrue(report_is_candidate_only(scanner_source))
+        promoted_report = scanner_source.replace(
+            b'"status": "CANDIDATES_ONLY"',
+            b'"status": "PROFILE_VALIDATED"',
+            1,
+        )
+        self.assertNotEqual(len(promoted_report), len(scanner_source))
+        self.assertFalse(report_is_candidate_only(promoted_report))
+
     def test_profile_shape_contract_is_source_bound(self):
         profile_source = (
             Path(__file__).resolve().parents[2]
