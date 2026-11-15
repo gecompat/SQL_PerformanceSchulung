@@ -53,6 +53,9 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"SetFlag(!config->use_environment);\n"
             b"SetFlag(config->isolated);\n"
             b"SetFlagObj(PyBool_FromLong(config->safe_path));\n"
+            b"return 0;\n}\n"
+            b"int _PySys_UpdateConfig(PyThreadState *tstate) {\n"
+            b"if (set_flags_from_config(interp, flags) < 0) { return -1; }\n"
             b'SET_SYS("dont_write_bytecode", '
             b"PyBool_FromLong(!config->write_bytecode));\n"
             b"return 0;\n}\n"
@@ -1397,6 +1400,29 @@ class StaticImportCandidateTests(unittest.TestCase):
                 preconfig, initconfig, sys_module, worker,
             )
             self.assertEqual(facts, expected)
+            missing_sys_attribute = sys_module.replace(
+                b'SET_SYS("dont_write_bytecode", '
+                b"PyBool_FromLong(!config->write_bytecode));\n",
+                b"",
+            )
+            with patch.object(
+                SUBJECT, "SYS_MODULE_C_SHA256",
+                hashlib.sha256(missing_sys_attribute).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
+                    preconfig, initconfig, missing_sys_attribute, worker,
+                ), ())
+            duplicate_update = sys_module + (
+                b"int _PySys_UpdateConfig(PyThreadState *tstate) {\n"
+                b"return 0;\n}\n"
+            )
+            with patch.object(
+                SUBJECT, "SYS_MODULE_C_SHA256",
+                hashlib.sha256(duplicate_update).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
+                    preconfig, initconfig, duplicate_update, worker,
+                ), ())
             self.assertEqual(SUBJECT._target_s15_flags_field_candidate(facts), {
                 "value": (1, 1, 1, 1, 1, 0),
                 "source_fact_names": tuple(name for name, _ in expected[:6]),
