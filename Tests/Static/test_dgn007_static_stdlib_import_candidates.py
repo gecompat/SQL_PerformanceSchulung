@@ -291,6 +291,16 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "/usr/local/lib/python3.12",
                 "/usr/local/lib/python3.12/lib-dynload",
             ],
+            "roots_field_candidate": {
+                "values": [
+                    "/usr/local/lib/python3.12",
+                    "/usr/local/lib/python3.12/lib-dynload",
+                ],
+                "stdlib_root": "/usr/local/lib/python3.12",
+                "extension_root": "/usr/local/lib/python3.12/lib-dynload",
+                "extension_file_verified": True,
+                "runtime_roots_claimed": False,
+            },
             "inert_zip_field_candidate": {
                 "value": "/usr/local/lib/python312.zip",
                 "path_role": "ZIP_LANDMARK",
@@ -362,6 +372,16 @@ class StaticImportCandidateTests(unittest.TestCase):
             "pth_override_guard": True,
         }
         with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_SYS_PATH_ZIP_BINDING"):
+            SUBJECT._target_image_sys_path_candidate(
+                image_facts, inventory, True, True, True,
+            )
+
+        image_facts.update({
+            "inert_zip_candidate": "/usr/local/lib/python312.zip",
+            "destshared": "/unexpected/lib-dynload",
+            "_pickle_extension": True,
+        })
+        with self.assertRaisesRegex(ValueError, "TARGET_IMAGE_SYS_PATH_ROOT_BINDING"):
             SUBJECT._target_image_sys_path_candidate(
                 image_facts, inventory, True, True, True,
             )

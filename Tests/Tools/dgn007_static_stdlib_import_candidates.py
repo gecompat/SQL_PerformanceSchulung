@@ -5310,8 +5310,18 @@ def _target_image_sys_path_candidate(image_facts, getpath_inventory,
     if (paths[0] != "/" + TARGET_INERT_ZIP_PATH
             or image_facts.get("inert_zip_candidate") != paths[0]):
         raise ValueError("TARGET_IMAGE_SYS_PATH_ZIP_BINDING")
+    if (image_facts.get("destshared") != paths[2]
+            or image_facts.get("_pickle_extension") is not True):
+        raise ValueError("TARGET_IMAGE_SYS_PATH_ROOT_BINDING")
     return {
         "sys_path_candidate": paths,
+        "roots_field_candidate": {
+            "values": [paths[1], image_facts["destshared"]],
+            "stdlib_root": paths[1],
+            "extension_root": image_facts["destshared"],
+            "extension_file_verified": True,
+            "runtime_roots_claimed": False,
+        },
         "inert_zip_field_candidate": {
             "value": paths[0],
             "path_role": "ZIP_LANDMARK",
