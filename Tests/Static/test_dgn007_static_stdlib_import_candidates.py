@@ -5015,6 +5015,117 @@ class StaticImportCandidateTests(unittest.TestCase):
                     {},
                 )
 
+    def test_namedtuple_field_names_condition_binds_complete_call_domain(self):
+        collections_source = (
+            b"def namedtuple(typename, field_names):\n"
+            b"    if isinstance(field_names, str):\n"
+            b"        field_names = field_names.replace(',', ' ').split()\n"
+            b"    class_namespace = {'_fields': field_names}\n"
+            b"    return type(typename, (), class_namespace)\n"
+        )
+        inspect_source = (
+            b"from collections import namedtuple\n"
+            b"_Traceback = namedtuple('_Traceback', 'filename lineno function code_context index')\n"
+            b"class Traceback(_Traceback):\n    pass\n"
+            b"_FrameInfo = namedtuple('_FrameInfo', ('frame',) + Traceback._fields)\n"
+        )
+        caller_source = (
+            b"from collections import namedtuple\n"
+            b"namedtuple('A', 'x y')\n"
+            b"namedtuple('B', ('x', 'y'))\n"
+        )
+        typing_source = (
+            b"import collections\n"
+            b"def _make_nmtuple(name, types, module, defaults=()):\n"
+            b"    fields = [n for n, t in types]\n"
+            b"    result = collections.namedtuple(name, fields, defaults=defaults, module=module)\n"
+        )
+        files = {
+            "collections/__init__.py": collections_source,
+            "inspect.py": inspect_source,
+            "caller.py": caller_source,
+            "typing.py": typing_source,
+        }
+        caller_rows = []
+        source_rows = []
+        for path, content in files.items():
+            tree = ast.parse(content, filename=path)
+            aliases = {
+                alias.asname or alias.name
+                for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)
+                and node.module == "collections" for alias in node.names
+                if alias.name == "namedtuple"
+            }
+            module_aliases = {
+                alias.asname or alias.name.split(".")[0]
+                for node in ast.walk(tree) if isinstance(node, ast.Import)
+                for alias in node.names if alias.name == "collections"
+            }
+            if aliases or module_aliases:
+                source_rows.append([path, hashlib.sha256(content).hexdigest()])
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Call):
+                    continue
+                is_alias_call = (isinstance(node.func, ast.Name)
+                                 and node.func.id in aliases)
+                is_module_call = (
+                    isinstance(node.func, ast.Attribute)
+                    and node.func.attr == "namedtuple"
+                    and isinstance(node.func.value, ast.Name)
+                    and node.func.value.id in module_aliases
+                )
+                if is_alias_call or is_module_call:
+                    caller_rows.append([path, node.lineno, ast.unparse(node)])
+        caller_rows.sort()
+        source_rows.sort()
+        digest = hashlib.sha256(json.dumps(
+            [caller_rows, source_rows], separators=(",", ":"),
+        ).encode()).hexdigest()
+        with patch.object(
+            SUBJECT, "COLLECTIONS_SOURCE_SHA256",
+            hashlib.sha256(collections_source).hexdigest(),
+        ), patch.object(
+            SUBJECT, "INSPECT_SOURCE_SHA256",
+            hashlib.sha256(inspect_source).hexdigest(),
+        ), patch.object(
+            SUBJECT, "TYPING_SOURCE_SHA256",
+            hashlib.sha256(typing_source).hexdigest(),
+        ), patch.object(
+            SUBJECT, "COLLECTIONS_NAMEDTUPLE_CALLS_SHA256", digest,
+        ):
+            self.assertEqual(
+                (facts := SUBJECT._target_collections_namedtuple_field_names_condition_facts(
+                    files,
+                )),
+                {("collections", "collections/__init__.py", 2): (False, True)},
+            )
+            resolved = []
+            unknown = []
+            SUBJECT._module_init_call_candidate_closure(
+                files, roots=("caller",),
+                trusted_condition_observations=facts,
+                resolved_conditions=resolved, unknown_conditions=unknown,
+            )
+            self.assertEqual(
+                [row["decisions"] for row in resolved
+                 if row["module"] == "collections" and row["line"] == 2],
+                [[False, True]],
+            )
+            self.assertFalse(any(
+                row["module"] == "collections" and row["line"] == 2
+                for row in unknown
+            ))
+            unsafe_files = dict(files)
+            unsafe_files["caller.py"] = caller_source.replace(
+                b"('x', 'y')", b"unknown_fields",
+            )
+            self.assertEqual(
+                SUBJECT._target_collections_namedtuple_field_names_condition_facts(
+                    unsafe_files,
+                ),
+                {},
+            )
+
     def test_target_imported_name_fact_does_not_override_function_parameter(self):
         files = {
             "entry.py": (

@@ -11722,3 +11722,19 @@ Modulen und 316 Kanten. Unknown-Digest:
 `e8bb2ad85abe5748480716051afe9eda61f0676a9d7f35d6bab952f6418e8579`.
 287 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`; keine
 Runtime-/P11-Attestation.
+
+Die folgende `collections.namedtuple`-Prüfung bindet den String-/Sequenzguard
+an alle 55 Aufrufe in 50 quellgehashten CPython-3.12.16-Standardbibliotheks-
+Modulen. 32 Aufrufe übergeben Stringliterale, 23 Sequenzformen; der dynamische
+Fall `('frame',) + Traceback._fields` ist durch die gehashte
+`inspect.py`-Definition von `_Traceback` und ihre Basisklasse als Sequenz
+abgesichert. `typing.py` übergibt die unmittelbar zuvor erstellte `fields`-
+Liste. Der Guard `collections/__init__.py:381` hat damit beide Outcomes
+`false` und `true`; eine unbekannte zusätzliche Argumentform ändert den
+gebundenen Digest `4a9dcf2bf498fe0d68ca0a0b80269d9556d6e47c9b509a5f3df7465596c954bf`
+und verwirft den Fact. Die verfügbare Zielquellenroute zählt 60 Module, 318
+Aufrufkanten, 86 entschiedene und 497 unbekannte Bedingungen; Unknown-Digest
+`44ceb05a5a18fbc9268439d1ca02fd43add3349ae9134d4c47074af42326a975`. 292
+fokussierte Tests bestehen. Der Lauf bleibt `CANDIDATES_ONLY`; das lokale
+Docker-Save-Archiv fehlt, daher wurde `--target-direct-python312` nicht
+behauptet. Keine Runtime-/P11-Attestation.
