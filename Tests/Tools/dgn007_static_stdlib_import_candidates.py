@@ -2525,12 +2525,22 @@ def _target_profile_primitive_validators_candidate(source_bytes, path_contract):
         rb"(?ms)^def _strings\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
         source_bytes,
     )
-    if len(text_bodies) != 1 or len(strings_bodies) != 1:
+    need_bodies = re.findall(
+        rb"(?ms)^def _need\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(text_bodies) != 1 or len(strings_bodies) != 1 or len(need_bodies) != 1:
         return None
     text_body = re.sub(rb"\s+", b" ", text_bodies[0])
     strings_body = re.sub(rb"\s+", b" ", strings_bodies[0])
+    need_body = re.sub(rb"\s+", b" ", need_bodies[0])
     if (re.search(rb"\breturn\b", text_body) is not None
-            or re.search(rb"\breturn\b", strings_body) is not None):
+            or re.search(rb"\breturn\b", strings_body) is not None
+            or re.search(rb"\breturn\b", need_body) is not None):
+        return None
+    if (need_body.count(b"if not condition:") != 1
+            or need_body.count(b"raise _Failure(issue)") != 1
+            or need_body.index(b"if not condition:") > need_body.index(b"raise _Failure(issue)")):
         return None
     text_requirements = (
         b"_need(type(value) is str and len(value) <= MAX_FIELD)",
@@ -2550,6 +2560,7 @@ def _target_profile_primitive_validators_candidate(source_bytes, path_contract):
         "string_tuple_invariants": (
             "exact_tuple_type", "record_count_cap", "each_item_text_validated",
         ),
+        "failure_helper_invariants": ("invalid_condition_raises_failure",),
         "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
         "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
         "primitive_validation_claimed": False,

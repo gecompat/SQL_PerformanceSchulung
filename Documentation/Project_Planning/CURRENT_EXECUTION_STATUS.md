@@ -11549,7 +11549,13 @@ Der statische `_absolute`-Vertrag verwirft jetzt eine frühe Rückgabe vor den
 Pfadprüfungen. Der fokussierte Satz besteht 279/279; es werden keine
 Hostpfade geprüft.
 
-## Begrenzte Fortsetzung: primitive Textvalidatoren gegen frühe Rückgabe absichern
+## Abgeschlossen: primitive Textvalidatoren gegen frühe Rückgabe absichern
 
-Der nächste Schnitt bindet `_text` und `_strings` an ausstiegsfreie
-Validierungspfade. Es werden keine Profilwerte verarbeitet.
+Die statischen Verträge für `_text` und `_strings` verwerfen jetzt jeweils
+frühe Rückgaben. Drei Mutationen werden abgewiesen; 279 fokussierte Tests
+bestehen. Es werden keine Profilwerte verarbeitet.
+
+## Begrenzte Fortsetzung: zentralen Ablehnungshelfer absichern
+
+Der nächste Schnitt bindet `_need` an die Ablehnung falscher Bedingungen durch
+`_Failure` und schließt vorzeitige Rückgaben aus.
