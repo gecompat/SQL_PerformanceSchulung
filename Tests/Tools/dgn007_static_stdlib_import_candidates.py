@@ -3923,6 +3923,9 @@ def _target_image_save_facts(image_save_path, image_config_source):
         raise ValueError("TARGET_IMAGE_SAVE_INVALID") from error
     return {
         "executable_path_candidate": "/usr/local/bin/python3.12",
+        "executable_sha256": executable["sha256"],
+        "python3_symlink_target": tracked["usr/local/bin/python3"]["linkname"],
+        "pickle_extension_sha256": tracked[PICKLE_EXTENSION_PATH]["sha256"],
         "_PYTHON_BUILD": False,
         "setup_parent_paths_verified": True,
         "_pickle_extension": True,
