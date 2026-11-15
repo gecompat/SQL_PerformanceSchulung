@@ -1339,6 +1339,39 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {**image_facts, "machdep": "win32"},
             ), ())
 
+    def test_sysconfigdata_module_name_requires_all_bound_components_and_route(self):
+        inventory = {
+            "source_sha256": SUBJECT.SYSCONFIG_SOURCE_SHA256,
+            "sysconfigdata_name_template": (
+                "_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}"
+            ),
+        }
+        abiflags = (("sys.abiflags", ""),)
+        platform = (("sys.platform", "linux"),)
+        multiarch = (("sys.implementation._multiarch", "x86_64-linux-gnu"),)
+        worker_environment = (
+            ("_PYTHON_SYSCONFIGDATA_NAME", "absent_from_child_environment"),
+        )
+        expected = ((
+            "sysconfigdata.module_name",
+            "_sysconfigdata__linux_x86_64-linux-gnu",
+        ),)
+        fact = SUBJECT._target_sysconfigdata_module_name_fact(
+            inventory, abiflags, platform, multiarch, worker_environment,
+        )
+        self.assertEqual(fact, expected)
+        self.assertEqual(SUBJECT._target_sysconfigdata_module_name_fact(
+            {**inventory, "sysconfigdata_name_template": "_other_{multiarch}"},
+            abiflags, platform, multiarch, worker_environment,
+        ), ())
+        self.assertEqual(SUBJECT._target_sysconfigdata_module_name_fact(
+            inventory, abiflags, platform, multiarch, (),
+        ), ())
+        self.assertEqual(SUBJECT._target_sysconfigdata_module_name_fact(
+            inventory, abiflags, ("sys.platform", "linux"), multiarch,
+            worker_environment,
+        ), ())
+
     def test_debug_name_fact_requires_validated_unoptimized_guard(self):
         self.assertEqual(
             SUBJECT._target_importlib_debug_call_facts({17: True}),

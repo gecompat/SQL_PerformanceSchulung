@@ -2351,3 +2351,18 @@ Runtimeaufnahme, vollständige Importclosure, P11-Attestation oder menschliche
 Generalprobe. Token-/Geldverbrauch bleiben unbekannt; harte Grenze: ein Paket,
 ein PR, höchstens zwei Regressionen. PR-Integration ist der Checkpoint; danach
 wird anhand des dann offenen Status autonom weitergearbeitet.
+
+### Begrenzte Fortsetzung: Sysconfigdaten-Modulnamen zusammensetzen
+(15. November 2026)
+
+Ein Arbeitspaket und ein PR ergänzen den festen `sysconfig.py`-Fallbacknamen
+aus `sys.abiflags`, `sys.platform` und `sys.implementation._multiarch`. Die
+Ausgabe erfordert zusätzlich den quellengebundenen Workerfact, dass
+`_PYTHON_SYSCONFIGDATA_NAME` aus der Kindumgebung entfernt wird. Eine
+Regression deckt den positiven Fall und Änderungen an Template, Komponenten
+oder Route ab; der echte Archiv-/OCI-Lauf muss
+`_sysconfigdata__linux_x86_64-linux-gnu` liefern. Das ist nur ein statischer
+Namenskandidat, kein Datei-, Import- oder Runtimebeleg. Token-/Geldverbrauch
+bleiben unbekannt; harte Grenze: ein Paket, ein PR, höchstens zwei
+Regressionen. PR-Integration ist der Checkpoint; danach wird autonom anhand des
+aktuellen offenen Status fortgesetzt.

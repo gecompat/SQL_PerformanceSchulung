@@ -10749,3 +10749,20 @@ entschiedenen und null unbekannten Bedingungen. Keine Zielruntimeaufnahme,
 vollständige Importclosure, P11-Inventur, SQL-/Lab-Ausführung oder menschliche
 Generalprobe. Token-/Geldverbrauch bleiben unbekannt; der Schnitt umfasst ein
 Paket, einen PR und höchstens zwei Regressionen.
+
+## Fortsetzung: Sysconfigdaten-Modulnamen aus gebundenen Facts zusammensetzen
+
+Die gepinnte `sysconfig.py`-Inventur bindet das feste Fallback-Template
+`_sysconfigdata_{sys.abiflags}_{sys.platform}_{multiarch}`. Der Scanner gibt
+den zusammengesetzten Namen nur aus, wenn alle drei CPython-/Imagefacts
+vorliegen und der Worker den direkten Environment-Override
+`_PYTHON_SYSCONFIGDATA_NAME` nachweislich aus seiner Kindumgebung entfernt.
+Eine Regression prüft den Namen und fail-closed-Abweichungen an Template,
+Komponenten und Workerroute. Die fokussierte Suite besteht lokal mit 228 Tests
+unter Python 3.14. Der echte CPython-/OCI-Scan gibt
+`_sysconfigdata__linux_x86_64-linux-gnu` aus; er bleibt `CANDIDATES_ONLY` mit
+56 Kandidaten, 278 Kanten, 42 entschiedenen und null unbekannten Bedingungen.
+Der Fact identifiziert weder eine Datei im Image noch einen tatsächlichen
+Import oder Laufzeitwert. Keine vollständige Importclosure, P11-Inventur,
+SQL-/Lab-Ausführung oder menschliche Generalprobe. Token-/Geldverbrauch bleiben
+unbekannt; Umfang: ein Paket, ein PR und höchstens zwei Regressionen.
