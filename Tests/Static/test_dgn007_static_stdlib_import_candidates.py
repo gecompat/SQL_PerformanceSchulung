@@ -1740,6 +1740,62 @@ class StaticImportCandidateTests(unittest.TestCase):
                         )
                     )
 
+    def test_sysconfig_reinitialization_candidate_binds_dynamic_prefix_guard(self):
+        source = (
+            b"_CONFIG_VARS = None\n"
+            b"_CONFIG_VARS_INITIALIZED = False\n"
+            b"def get_config_vars(*args):\n"
+            b"    if not _CONFIG_VARS_INITIALIZED:\n"
+            b"        with _CONFIG_VARS_LOCK:\n"
+            b"            if _CONFIG_VARS is None:\n"
+            b"                _init_config_vars()\n"
+            b"    elif _CONFIG_VARS['base'] != os.path.normpath(sys.prefix):\n"
+            b"        with _CONFIG_VARS_LOCK:\n"
+            b"            _CONFIG_VARS_INITIALIZED = False\n"
+            b"            _init_config_vars()\n"
+        )
+        expected = {
+            "getter": "get_config_vars",
+            "initialization_flag_initial_value": False,
+            "first_call_guard": "not _CONFIG_VARS_INITIALIZED",
+            "reinitialization_guard": (
+                "_CONFIG_VARS['base'] != os.path.normpath(sys.prefix)"
+            ),
+            "reinitialization_guard_is_runtime_dependent": True,
+            "lock": "_CONFIG_VARS_LOCK",
+            "selected_actions": [
+                "_CONFIG_VARS_INITIALIZED = False",
+                "_init_config_vars()",
+            ],
+            "evidence_scope": "STATIC_CONFIG_REINITIALIZATION_CANDIDATE",
+        }
+        with patch.object(
+                SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(source).hexdigest()):
+            self.assertEqual(
+                SUBJECT._target_sysconfig_reinitialization_candidate(
+                    {"sysconfig.py": source},
+                ), expected,
+            )
+            for changed in (
+                    source.replace(
+                        b"_CONFIG_VARS['base'] != os.path.normpath(sys.prefix)",
+                        b"_CONFIG_VARS['base'] == os.path.normpath(sys.prefix)",
+                    ),
+                    source.replace(b"_CONFIG_VARS_INITIALIZED = False",
+                                   b"_CONFIG_VARS_INITIALIZED = True", 1),
+                    source.replace(b"_init_config_vars()",
+                                   b"_init_config_vars('unexpected')", 1),
+            ):
+                with self.subTest(changed=changed), patch.object(
+                    SUBJECT, "SYSCONFIG_SOURCE_SHA256",
+                    hashlib.sha256(changed).hexdigest(),
+                ):
+                    self.assertIsNone(
+                        SUBJECT._target_sysconfig_reinitialization_candidate(
+                            {"sysconfig.py": changed},
+                        )
+                    )
+
     def test_sysconfigdata_entries_survive_pinned_post_update_initializer_body(self):
         source = (
             b"def _init_config_vars():\n"

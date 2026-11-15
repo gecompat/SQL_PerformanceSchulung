@@ -4291,6 +4291,57 @@ def _target_sysconfig_lazy_initialization_call_candidate(files):
     }
 
 
+def _target_sysconfig_reinitialization_candidate(files):
+    """Bind the guarded sysconfig reinitialization branch without evaluating it."""
+    source = files.get("sysconfig.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256
+            or _target_sysconfig_lazy_initialization_call_candidate(files) is None):
+        return None
+    try:
+        tree = ast.parse(source, filename="sysconfig.py")
+    except SyntaxError:
+        return None
+    getters = [node for node in tree.body
+               if isinstance(node, ast.FunctionDef)
+               and node.name == "get_config_vars"]
+    if len(getters) != 1:
+        return None
+    guards = [node for node in ast.walk(getters[0])
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "not _CONFIG_VARS_INITIALIZED"]
+    if len(guards) != 1:
+        return None
+    expected = ast.parse(
+        "if not _CONFIG_VARS_INITIALIZED:\n"
+        "    with _CONFIG_VARS_LOCK:\n"
+        "        if _CONFIG_VARS is None:\n"
+        "            _init_config_vars()\n"
+        "elif _CONFIG_VARS['base'] != os.path.normpath(sys.prefix):\n"
+        "    with _CONFIG_VARS_LOCK:\n"
+        "        _CONFIG_VARS_INITIALIZED = False\n"
+        "        _init_config_vars()\n"
+    ).body[0]
+    if ast.dump(guards[0], include_attributes=False) != ast.dump(
+            expected, include_attributes=False):
+        return None
+    return {
+        "getter": "get_config_vars",
+        "initialization_flag_initial_value": False,
+        "first_call_guard": "not _CONFIG_VARS_INITIALIZED",
+        "reinitialization_guard": (
+            "_CONFIG_VARS['base'] != os.path.normpath(sys.prefix)"
+        ),
+        "reinitialization_guard_is_runtime_dependent": True,
+        "lock": "_CONFIG_VARS_LOCK",
+        "selected_actions": [
+            "_CONFIG_VARS_INITIALIZED = False",
+            "_init_config_vars()",
+        ],
+        "evidence_scope": "STATIC_CONFIG_REINITIALIZATION_CANDIDATE",
+    }
+
+
 def _target_sysconfig_public_config_value_flow_candidate(files):
     """Bind sysconfig's public configuration-value return forms."""
     source = files.get("sysconfig.py") if type(files) is dict else None
@@ -7518,6 +7569,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_sysconfig_lazy_initialization_call_candidate = (
         _target_sysconfig_lazy_initialization_call_candidate(files)
     )
+    target_sysconfig_reinitialization_candidate = (
+        _target_sysconfig_reinitialization_candidate(files)
+    )
     target_sysconfig_public_config_value_flow_candidate = (
         _target_sysconfig_public_config_value_flow_candidate(files)
     )
@@ -7846,6 +7900,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_sysconfigdata_lazy_initialization_call_candidate": (
             target_sysconfig_lazy_initialization_call_candidate
+        ),
+        "target_platform_sysconfigdata_reinitialization_candidate": (
+            target_sysconfig_reinitialization_candidate
         ),
         "target_platform_sysconfigdata_public_config_value_flow_candidate": (
             target_sysconfig_public_config_value_flow_candidate
