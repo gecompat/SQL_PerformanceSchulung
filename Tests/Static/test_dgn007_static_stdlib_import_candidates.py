@@ -2192,6 +2192,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             "string_tuple_invariants": (
                 "exact_tuple_type", "record_count_cap", "each_item_text_validated",
             ),
+            "failure_helper_invariants": ("invalid_condition_raises_failure",),
             "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
             "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
             "primitive_validation_claimed": False,
@@ -2217,6 +2218,21 @@ class StaticImportCandidateTests(unittest.TestCase):
                 self.assertIsNone(SUBJECT._target_profile_primitive_validators_candidate(
                     early_return, path_contract,
                 ))
+        early_need_return = profile_source.replace(
+            b"def _need(condition, issue=\"INVALID_RECORD\"):" + newline
+            + b"    if not condition:",
+            b"def _need(condition, issue=\"INVALID_RECORD\"):" + newline
+            + b"    return None" + newline + b"    if not condition:",
+            1,
+        )
+        self.assertNotEqual(early_need_return, profile_source)
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(early_need_return),
+        ):
+            self.assertIsNone(SUBJECT._target_profile_primitive_validators_candidate(
+                early_need_return, path_contract,
+            ))
         for changed in (
             profile_source.replace(
                 b'_need(len(value.encode("utf-8")) <= MAX_FIELD)', b"pass",
