@@ -1958,6 +1958,44 @@ class StaticImportCandidateTests(unittest.TestCase):
                 changed_digest, shape_contract,
             ))
 
+    def test_profile_path_contracts_are_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        record_contract = {"records_validated_claimed": False}
+        candidate = SUBJECT._target_profile_path_contract_candidate(
+            profile_source, record_contract,
+        )
+        self.assertEqual(candidate, {
+            "absolute_path_invariants": (
+                "bounded_text", "leading_slash", "no_double_slash", "no_nul",
+                "no_trailing_slash_except_root", "no_dot_segments", "path_mismatch",
+            ),
+            "root_containment_invariants": (
+                "absolute_path", "no_dot_segments", "component_boundary_containment",
+            ),
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "path_validation_claimed": False,
+            "host_attestation_claimed": False,
+            "evidence_scope": "STATIC_PROFILE_PATH_CONTRACT_CANDIDATE",
+        })
+        for changed in (
+            profile_source.replace(b'"//" not in value', b"True"),
+            profile_source.replace(
+                b'path.startswith(root.rstrip("/") + "/")',
+                b'path.startswith(root.rstrip("/"))',
+            ),
+        ):
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(changed),
+            ):
+                self.assertIsNone(SUBJECT._target_profile_path_contract_candidate(
+                    changed, record_contract,
+                ))
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

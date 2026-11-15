@@ -11308,14 +11308,14 @@ Runtimeaufnahme wird nicht behauptet.
 PR #841 bindet die internen Verträge von `_records` und `_files`, auf die
 `_shape` delegiert: Modul-/Spec-/Loaderkohärenz, sortierte eindeutige Namen,
 Frozen-Aliasanker sowie Dateidigest-, Größen- und Pfadkappen. 262 fokussierte
-Regressionen und die lokalen statischen Validatoren bestanden; PR-Gates stehen
-aus. Eine tatsächliche Recordvalidierung oder Modulaufnahme wird nicht
-behauptet.
+Regressionen und die lokalen statischen Validatoren bestanden. Alle fünf
+Pflichtprüfungen bestanden; PR #841 ist integriert. Eine tatsächliche
+Recordvalidierung oder Modulaufnahme wird nicht behauptet.
 
-## Nächster Schritt: absolute und eingeschränkte Pfade binden
+## Begrenzte Fortsetzung: absolute und eingeschränkte Pfade binden
 
-Der nächste Kandidat bindet `_absolute` und `_under` an die Pfadregeln des
+PR #842 bindet `_absolute` und `_under` an die Pfadregeln des
 Profilvertrags: absolute kanonische Werte ohne Traversalsegmente sowie
 Containment unter einem der deklarierten Roots. Zwei Regressionen lockern je
-eine Pfadbedingung und müssen fail-closed bleiben. Umfang: ein Paket, ein PR
-und höchstens zwei Regressionen.
+eine Pfadbedingung und müssen fail-closed bleiben. Der Schritt begründet weder
+Pfadvalidierung noch Hostattestation.

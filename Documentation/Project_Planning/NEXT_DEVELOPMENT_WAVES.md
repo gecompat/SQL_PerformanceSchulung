@@ -2755,14 +2755,14 @@ PR #840 bindet `_shape` an die getrennten Deklarations- und Observationformen
 einschließlich ihrer gemeinsamen und branch-spezifischen Feldbedingungen.
 Keine validierte Eingabe oder Runtimeaufnahme.
 
-## Begrenzte Fortsetzung: Modul- und Datei-Recordvalidatoren binden
+## Abgeschlossen: Modul- und Datei-Recordvalidatoren binden
 
 PR #841 bindet `_records` und `_files`: Modul-/Spec-/Loaderkohärenz, sortierte
 eindeutige Namen, Frozen-Aliasanker, Dateidigestform sowie Größen- und
 Pfadkappen. Es entsteht keine tatsächliche Recordvalidierung oder Aufnahme.
 
-## Geplante Fortsetzung: absolute und eingeschränkte Pfade binden
+## Begrenzte Fortsetzung: absolute und eingeschränkte Pfade binden
 
-Ein Arbeitspaket und ein PR binden `_absolute` und `_under` an kanonische
+PR #842 bindet `_absolute` und `_under` an kanonische
 absolute Pfade ohne Traversal sowie Root-Containment. Zwei Gegenproben lockern
 je eine Bedingung; es gibt keine Runtime-/Hostattestation.

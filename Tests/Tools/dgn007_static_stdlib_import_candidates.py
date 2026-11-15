@@ -2420,6 +2420,60 @@ def _target_profile_record_validators_candidate(source_bytes, shape_contract):
     }
 
 
+def _target_profile_path_contract_candidate(source_bytes, record_contract):
+    """Bind canonical absolute paths and declared-root containment checks."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(record_contract) is not dict
+            or record_contract.get("records_validated_claimed") is not False):
+        return None
+    absolute_bodies = re.findall(
+        rb"(?ms)^def _absolute\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    under_bodies = re.findall(
+        rb"(?ms)^def _under\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(absolute_bodies) != 1 or len(under_bodies) != 1:
+        return None
+    absolute = re.sub(rb"\s+", b" ", absolute_bodies[0])
+    under = re.sub(rb"\s+", b" ", under_bodies[0])
+    absolute_requirements = (
+        b"_text(value)",
+        b"value.startswith(\"/\")",
+        b'"//" not in value',
+        b'"\\x00" not in value',
+        b'(value == "/" or not value.endswith("/"))',
+        b"all(p not in (\".\", \"..\") for p in value.split(\"/\"))",
+        b'"PATH_MISMATCH"',
+    )
+    under_requirements = (
+        b"path.startswith(\"/\")",
+        b"all(part not in (\".\", \"..\") for part in path.split(\"/\"))",
+        b"any(path == root or path.startswith(root.rstrip(\"/\") + \"/\") for root in roots)",
+    )
+    if (any(absolute.count(fragment) != 1 for fragment in absolute_requirements)
+            or any(under.count(fragment) != 1 for fragment in under_requirements)):
+        return None
+    return {
+        "absolute_path_invariants": (
+            "bounded_text", "leading_slash", "no_double_slash", "no_nul",
+            "no_trailing_slash_except_root", "no_dot_segments", "path_mismatch",
+        ),
+        "root_containment_invariants": (
+            "absolute_path", "no_dot_segments", "component_boundary_containment",
+        ),
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "path_validation_claimed": False,
+        "host_attestation_claimed": False,
+        "evidence_scope": "STATIC_PROFILE_PATH_CONTRACT_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9594,6 +9648,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_profile_shape_contract_candidate,
         )
     )
+    target_profile_path_contract_candidate = (
+        _target_profile_path_contract_candidate(
+            runtime_profile_source,
+            target_profile_record_validators_candidate,
+        )
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -10082,6 +10142,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_profile_record_validators_candidate": (
             target_profile_record_validators_candidate
+        ),
+        "target_profile_path_contract_candidate": (
+            target_profile_path_contract_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
