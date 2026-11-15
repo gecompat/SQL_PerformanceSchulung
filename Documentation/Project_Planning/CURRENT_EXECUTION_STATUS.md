@@ -11169,11 +11169,17 @@ Feld aus und verlangt die bestätigte Extensiondatei bei ausgeschlossener
 Runtimebehauptung. 247 fokussierte Regressionen und alle fünf PR-Gates
 bestanden; die Werte bleiben statische Sollwertkandidaten.
 
-## S15-Teilschnitt: Inert-ZIP-Feldkandidat
+## Abgeschlossen: S15-Teilschnitt Inert-ZIP-Feldkandidat
 
-Der nächste Schritt gibt den bereits an Abwesenheit im gebundenen Image und
-Position null der Pfadkandidatur gebundenen ZIP-Landmark-Fact als eigenen
-S15-Berichtsschlüssel aus. Eine Regression prüft den Kandidaten und eine
-vorhandene Image-Datei. Das belegt weder Pfadmitgliedschaft zur Laufzeit noch
-einen vollständigen S15-Record. Umfang: ein Paket, ein PR und höchstens zwei
-Regressionen.
+PR #821 gibt den an Image-Abwesenheit und Pfadposition null gebundenen
+ZIP-Landmark-Fact als eigenes S15-Feld aus. Eine Image-Mitgliedschaftsänderung
+wird fail-closed verworfen. 247 fokussierte Regressionen und alle fünf
+PR-Gates bestanden; eine Runtime-Pfadmitgliedschaft ist nicht belegt.
+
+## S15-Teilschnitt: Files-Feldkandidat
+
+Der nächste Schritt stellt die beiden bereits gehashten Image-Dateien als
+begrenzten S15-`files`-Kandidaten zusammen. Eine Regression prüft die
+Digests und verwirft eine Änderung; Einzel- und Gesamtkappen bleiben aktiv.
+Eine vollständige Dateiliste oder Runtimeauswahl wird nicht behauptet. Umfang:
+ein Paket, ein PR und höchstens zwei Regressionen.

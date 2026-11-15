@@ -300,6 +300,30 @@ class StaticImportCandidateTests(unittest.TestCase):
                 ), "pth_override_guard": True},
                 True, True, True,
             )
+            self.assertEqual(SUBJECT._target_s15_files_field_candidate(path_candidate), {
+                "value": (
+                    (
+                        "/usr/local/bin/python3.12",
+                        len(b"verified executable"),
+                        hashlib.sha256(b"verified executable").hexdigest(),
+                    ),
+                    (
+                        "/" + SUBJECT.PICKLE_EXTENSION_PATH,
+                        len(b"verified pickle extension"),
+                        hashlib.sha256(b"verified pickle extension").hexdigest(),
+                    ),
+                ),
+                "file_count": 2,
+                "complete_file_list_claimed": False,
+                "runtime_file_selection_claimed": False,
+                "evidence_scope": "STATIC_S15_FILES_FIELD_CANDIDATE",
+            })
+            changed_files = dict(path_candidate)
+            changed_files["files_field_candidate"] = [
+                *path_candidate["files_field_candidate"][:1],
+                dict(path_candidate["files_field_candidate"][1], sha256="0" * 64),
+            ]
+            self.assertIsNone(SUBJECT._target_s15_files_field_candidate(changed_files))
         self.assertEqual(path_candidate, {
             "sys_path_candidate": [
                 "/usr/local/lib/python312.zip",
