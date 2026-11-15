@@ -11658,6 +11658,16 @@ nun 89 aufgelöste sowie 478 unbekannte Bedingungen; Unknown-Digest
 285 fokussierte Tests bestehen. Status `CANDIDATES_ONLY`; keine
 Runtime-/P11-Attestation.
 
+Der nächste `sysconfig`-Schnitt bindet `sysconfig.py:313` an die literal
+geprüften `_INSTALL_SCHEMES`- und `_get_preferred_schemes`-Tabellen. Die
+bedingten User-Schemes werden nur bei dem bereits belegten
+`_HAS_USER_BASE=True` eingerechnet; alle möglichen Rückgabewerte sind dann
+gültige Schlüssel. Eine unbekannte Scheme-Rückgabe oder fehlender
+User-Base-Fact bleibt unaufgelöst. Der Guard ist falsch. Der Scan zählt 92
+aufgelöste und 475 unbekannte Bedingungen bei 60 Modulen und 316 Kanten;
+Unknown-Digest `94bfdb97e293122ad9f7978a8c09d86d9cc3c84df05ffaa9634336214e65cca1`.
+288 fokussierte Tests bestehen. `CANDIDATES_ONLY`; keine Runtime-/P11-Attestation.
+
 Der anschließende `sysconfig`-Schnitt bindet `sysconfig.py:112` nur mit der
 neuen expliziten Routenannahme `--target-no-pythonuserbase-override` auf
 falsch. Die Annahme wird zusätzlich gegen die fest gepinnte Image-Config

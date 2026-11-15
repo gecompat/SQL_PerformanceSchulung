@@ -3093,3 +3093,11 @@ Fact verwirft abweichende Präfixe oder eine Laufzeitbehauptung. Aktueller Scan:
 91 aufgelöste und 476 unbekannte Bedingungen, 60 Module, 316 Kanten;
 Unknown-Digest `e8bb2ad85abe5748480716051afe9eda61f0676a9d7f35d6bab952f6418e8579`.
 287 fokussierte Tests bestehen. Runtime-/P11-Attestation bleibt aus.
+
+`sysconfig.py:313` ist zusätzlich gegen die literal geparsten Scheme-Tabellen
+gebunden. Der Fact nimmt die bedingten User-Schemes nur bei belegtem
+`_HAS_USER_BASE=True` auf und löst die Membership-Prüfung auf falsch auf.
+Aktueller Scan: 92 aufgelöste und 475 unbekannte Bedingungen bei 60 Modulen,
+316 Kanten; Unknown-Digest
+`94bfdb97e293122ad9f7978a8c09d86d9cc3c84df05ffaa9634336214e65cca1`.
+288 fokussierte Tests bestehen; weiterhin keine Runtime-/P11-Attestation.

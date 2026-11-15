@@ -722,6 +722,49 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {},
             )
 
+    def test_sysconfig_preferred_scheme_guard_requires_literal_valid_schemes(self):
+        source = (
+            b"_INSTALL_SCHEMES = {'posix_prefix': {}, 'posix_home': {}}\n"
+            b"if _HAS_USER_BASE:\n"
+            b"    _INSTALL_SCHEMES |= {'posix_user': {}}\n"
+            b"def _get_preferred_schemes():\n"
+            b"    return {'prefix': 'posix_prefix', 'home': 'posix_home', "
+            b"'user': 'posix_user'}\n"
+            b"def get_preferred_scheme(key):\n"
+            b"    scheme = _get_preferred_schemes()[key]\n"
+            b"    if scheme not in _INSTALL_SCHEMES:\n"
+            b"        raise ValueError()\n"
+            b"    return scheme\n"
+        )
+        files = {"sysconfig.py": source}
+        target_facts = {"_HAS_USER_BASE": True}
+        with patch.object(
+            SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(source).hexdigest(),
+        ):
+            self.assertEqual(
+                SUBJECT._target_sysconfig_preferred_scheme_membership_line_facts(
+                    files, target_facts,
+                ),
+                {8: False},
+            )
+            self.assertEqual(
+                SUBJECT._target_sysconfig_preferred_scheme_membership_line_facts(
+                    files, {"_HAS_USER_BASE": False},
+                ),
+                {},
+            )
+            invalid = source.replace(b"'user': 'posix_user'",
+                                     b"'user': 'missing_scheme'")
+            with patch.object(
+                SUBJECT, "SYSCONFIG_SOURCE_SHA256", hashlib.sha256(invalid).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_sysconfig_preferred_scheme_membership_line_facts(
+                        {"sysconfig.py": invalid}, target_facts,
+                    ),
+                    {},
+                )
+
     def test_pickle_buffer_line_fact_requires_exact_source_and_target_extension(self):
         source = (
             b"try:\n    from _pickle import PickleBuffer\n"
