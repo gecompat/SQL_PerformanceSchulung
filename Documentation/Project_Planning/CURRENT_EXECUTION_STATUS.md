@@ -11273,10 +11273,17 @@ PR #835 bindet die begrenzten Modul-/Pfadsnapshots, sortierte Modulnamen und
 die Feldreihenfolge des `Observation`-Konstruktors an `_capture`. Alle fünf
 Pflichtprüfungen bestanden. Es wird keine ausgeführte Aufnahme behauptet.
 
-## Nächster Schritt: Modulrecord-Builder binden
+## Abgeschlossen: Modulrecord-Builder binden
 
-Der nächste Kandidat bindet Modul- und Spec-Identität, Frozen-Aliase,
-Loaderklassifikation, Ablehnung unbekannter Loader und die Feldordnung des
-`ModuleRecord`-Konstruktors. Er behauptet keine beobachteten Module. Eine
-Regression lässt unbekannte Loader zu und muss fail-closed bleiben. Umfang:
+PR #836 bindet Modul-/Spec-Identität, Frozen-Aliase, Loaderklassifikation,
+Ablehnung unbekannter Loader und die Feldordnung des `ModuleRecord`-
+Konstruktors. Alle fünf Pflichtprüfungen bestanden. Beobachtete Module folgen
+daraus nicht.
+
+## Nächster Schritt: Profilvergleichsvertrag binden
+
+Der nächste Kandidat bindet Plattform-, Interpreter-, Versions- und Flagchecks,
+Feld-/Ankeridentität, Ausschluss eigener Projektmodule, Control-/Rootzuordnung
+und Pfadbeschränkung in `_compare`. Er stellt kein Vertrauen her. Eine
+Regression lockert die Pfadbeschränkung und muss fail-closed bleiben. Umfang:
 ein Paket, ein PR und höchstens zwei Regressionen.

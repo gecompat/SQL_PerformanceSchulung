@@ -2174,6 +2174,64 @@ def _target_profile_module_record_builder_candidate(source_bytes, capture_schema
     }
 
 
+def _target_profile_compare_contract_candidate(source_bytes, module_builder):
+    """Bind the declared-profile versus observation comparison obligations."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(module_builder) is not dict
+            or module_builder.get("runtime_modules_claimed") is not False):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def _compare\([^\n]*\):\r?\n(?P<body>.*?)(?=^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"_shape(expected, True)",
+        b"_shape(obs, False)",
+        b"_need(obs.platform == \"linux\", \"UNSUPPORTED_PLATFORM\")",
+        b"_need(expected.implementation == obs.implementation == \"cpython\" and expected.version == obs.version and expected.version[:2] == (3, 12), \"INTERPRETER_MISMATCH\")",
+        b"_need(obs.flags == (1, 1, 1, 1, 1, 0), \"FLAGS_MISMATCH\")",
+        b"for name in (\"token\", \"executable\", \"executable_target\", \"prefixes\", \"abi\", \"paths\", \"files\"): _need(getattr(expected, name) == getattr(obs, name), \"PROFILE_MISMATCH\")",
+        b"_need(all(a is b for a, b in zip(expected.finders, obs.finders)) and all(a is b for a, b in zip(expected.hooks, obs.hooks)), \"HOOK_MISMATCH\")",
+        b"_need(len(expected.modules) == len(obs.modules), \"MODULE_MISMATCH\")",
+        b"for a, b in zip(expected.modules, obs.modules):",
+        b"_need((a.name, a.origin, a.file, a.kind, a.locations) == (b.name, b.origin, b.file, b.kind, b.locations) and a.module is b.module and a.spec is b.spec and a.loader is b.loader, \"MODULE_MISMATCH\")",
+        b"b.name == \"Tests\" or b.name.startswith(\"Tests.\")",
+        b"run_dgn007_automated_setup", b"execution_target", b"docker_sqlcmd_proxy",
+        b"run_demo", b"orchestrate_sessions", b"sqlcmd_process",
+        b"if b.kind == \"CONTROL\":",
+        b"_need(b.name in expected.controls, \"CONTROL_MISMATCH\")",
+        b"elif b.kind in (\"SOURCE\", \"EXTENSION\"):",
+        b"_need(_under(b.origin, expected.roots) and _under(b.file, expected.roots) and all(_under(p, expected.roots) for p in b.locations), \"ORIGIN_MISMATCH\")",
+        b"_need(all(p in expected.roots or p == expected.inert_zip for p in obs.paths), \"PATH_MISMATCH\")",
+    )
+    if any(normalized.count(fragment) != 1 for fragment in required):
+        return None
+    if not all(normalized.index(left) < normalized.index(right)
+               for left, right in zip(required, required[1:])):
+        return None
+    return {
+        "interpreter_platform_version_flags_checked": True,
+        "expected_observation_fields_compared": (
+            "token", "executable", "executable_target", "prefixes", "abi", "paths", "files",
+        ),
+        "finder_and_hook_identity_checked": True,
+        "module_row_values_and_anchor_identity_checked": True,
+        "owned_modules_rejected": True,
+        "control_and_source_roots_checked": True,
+        "observation_paths_restricted": True,
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "trust_established": False,
+        "evidence_scope": "STATIC_PROFILE_COMPARE_CONTRACT_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9323,6 +9381,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_profile_capture_schema_candidate,
         )
     )
+    target_profile_compare_contract_candidate = (
+        _target_profile_compare_contract_candidate(
+            runtime_profile_source,
+            target_profile_module_record_builder_candidate,
+        )
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -9799,6 +9863,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_profile_module_record_builder_candidate": (
             target_profile_module_record_builder_candidate
+        ),
+        "target_profile_compare_contract_candidate": (
+            target_profile_compare_contract_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
