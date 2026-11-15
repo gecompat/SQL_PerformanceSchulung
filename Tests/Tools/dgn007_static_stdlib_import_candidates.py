@@ -7229,7 +7229,9 @@ def _target_sysconfig_build_setup_guard_line_facts(
     }
     if (type(source) is not bytes
             or hashlib.sha256(source).hexdigest() != SYSCONFIG_SOURCE_SHA256
-            or image_path_facts != expected_image_facts
+            or type(image_path_facts) is not dict
+            or any(image_path_facts.get(key) != value
+                   for key, value in expected_image_facts.items())
             or type(sysconfig_name_facts) is not dict
             or sysconfig_name_facts.get("_sys_home") is not False
             or project_base_env_facts != (
