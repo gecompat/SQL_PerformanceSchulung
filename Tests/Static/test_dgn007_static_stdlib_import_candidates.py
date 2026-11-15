@@ -1664,6 +1664,40 @@ class StaticImportCandidateTests(unittest.TestCase):
                 )
             )
 
+    def test_current_scalar_observation_flow_is_source_bound(self):
+        profile_source = (
+            Path(__file__).resolve().parents[2]
+            / "Tests" / "Tools" / "dgn007_import_runtime_profile.py"
+        ).read_bytes()
+        projection_schema = {"runtime_projection_claimed": False}
+        candidate = SUBJECT._target_current_scalar_observation_flow_candidate(
+            profile_source, projection_schema,
+        )
+        self.assertEqual(candidate, {
+            "fresh_records_required": True,
+            "profile_comparisons": 2,
+            "filefinder_hook_observations": 2,
+            "scalar_projection_returned_only_after_checks": True,
+            "rejected_status": "REJECTED_PROFILE",
+            "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+            "source_sha256": SUBJECT.DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+            "runtime_observation_claimed": False,
+            "evidence_scope": "STATIC_CURRENT_SCALAR_OBSERVATION_FLOW_CANDIDATE",
+        })
+        changed = profile_source.replace(
+            b"_compare(expected, observation)",
+            b"pass",
+        )
+        with patch.object(
+            SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+            SUBJECT._normalized_profile_source_sha256(changed),
+        ):
+            self.assertIsNone(
+                SUBJECT._target_current_scalar_observation_flow_candidate(
+                    changed, projection_schema,
+                )
+            )
+
     def test_worker_route_binds_and_enforces_sysconfigdata_environment(self):
         preconfig, initconfig, _, worker = self._worker_sys_flag_fact_fixture()
         with patch.multiple(

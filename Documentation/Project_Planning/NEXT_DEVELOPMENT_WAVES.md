@@ -2703,10 +2703,15 @@ PR #831 bindet Cachekopie, Modulzeilenabbildung, wiederholte Form- und
 Projektionsprüfungen sowie Cacheanker-Identität. Keine Ankeraufnahme oder
 Runtimebeobachtung wird behauptet.
 
-## Begrenzte Fortsetzung: ausgewählte Beobachtungsfolge statisch binden
+## Abgeschlossen: ausgewählte Beobachtungsfolge statisch binden
 
-Ein Arbeitspaket und ein PR binden die geordnete Folge von Formprüfung,
-Ankerbindung, frischer Skalarbeobachtung, Vergleichen, abschließender Aufnahme,
-Hookprüfung, POST-Prüfungen und Reports. Der Kandidat führt keine Beobachtung
-aus und begründet keine Runtimeattestation. Eine positive Regression und eine
-Gegenprobe ohne aufgenommenen Skalarvergleich begrenzen den Schnitt.
+PR #832 bindet Reihenfolge, Projektion, Schlussaufnahme, Hook-/POST-Prüfungen
+und Ergebnisreports des ausgewählten Beobachters. Keine Runtimeattestation.
+
+## Begrenzte Fortsetzung: aktuelle Skalaraufnahme statisch binden
+
+Ein Arbeitspaket und ein PR binden Recordaufnahme, Profilvergleiche,
+FileFinder-Hookaufnahmen, Skalarprojektion und Fehlerreport des inneren
+Beobachters. Der Kandidat führt ihn nicht aus und begründet keine Runtimeaufnahme.
+Eine positive Regression und eine Gegenprobe ohne zweiten Profilvergleich
+begrenzen den Schnitt.

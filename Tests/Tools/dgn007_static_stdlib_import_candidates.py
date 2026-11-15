@@ -1979,6 +1979,54 @@ def _target_selected_profile_observation_flow_candidate(source_bytes, anchor_bin
     }
 
 
+def _target_current_scalar_observation_flow_candidate(source_bytes, projection_schema):
+    """Bind the current scalar observer's record, hook, projection and report flow."""
+    if (type(source_bytes) is not bytes or not source_bytes
+            or len(source_bytes) > MAX_DGN007_RUNTIME_PROFILE_SOURCE_BYTES
+            or _normalized_profile_source_sha256(source_bytes)
+            != DGN007_RUNTIME_PROFILE_SOURCE_SHA256
+            or type(projection_schema) is not dict
+            or projection_schema.get("runtime_projection_claimed") is not False):
+        return None
+    bodies = re.findall(
+        rb"(?ms)^def observe_current_interpreter_scalars\([^\n]*,\r?\n[^\n]*\)[^\n]*:\r?\n(?P<body>.*?)(?=^@dataclass|^def |\Z)",
+        source_bytes,
+    )
+    if len(bodies) != 1:
+        return None
+    normalized = re.sub(rb"\s+", b" ", bodies[0])
+    required = (
+        b"records = observe_current_interpreter_records(expected)",
+        b"if records.observation is None: return ScalarObservationResult(records.report)",
+        b"_compare(expected, observation)",
+        b"hook = _filefinder_hook(observation, separately_known_filefinder_hook)",
+        b"scalars = _project_scalars(expected, observation)",
+        b"after_hook = _filefinder_hook(observation, separately_known_filefinder_hook)",
+        b"return ScalarObservationResult(records.report, scalars)",
+    )
+    if any(normalized.count(fragment) != (2 if fragment in (required[2], required[3]) else 1)
+           for fragment in required):
+        return None
+    if not (normalized.index(required[0]) < normalized.index(required[1])
+            < normalized.index(required[2]) < normalized.index(required[3])
+            < normalized.index(required[4]) < normalized.rindex(required[2])
+            < normalized.index(required[5]) < normalized.index(required[6])):
+        return None
+    if b"except _Failure as error: return ScalarObservationResult(ProfileReport(\"REJECTED_PROFILE\", str(error)))" not in normalized:
+        return None
+    return {
+        "fresh_records_required": True,
+        "profile_comparisons": 2,
+        "filefinder_hook_observations": 2,
+        "scalar_projection_returned_only_after_checks": True,
+        "rejected_status": "REJECTED_PROFILE",
+        "source_path": "Tests/Tools/dgn007_import_runtime_profile.py",
+        "source_sha256": DGN007_RUNTIME_PROFILE_SOURCE_SHA256,
+        "runtime_observation_claimed": False,
+        "evidence_scope": "STATIC_CURRENT_SCALAR_OBSERVATION_FLOW_CANDIDATE",
+    }
+
+
 def _target_s15_flags_field_candidate(worker_sys_flag_facts):
     """Join the fixed startup-flag facts into a static S15 field candidate."""
     expected = (
@@ -9110,6 +9158,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_s15_installation_tuple_candidate,
         )
     )
+    target_current_scalar_observation_flow_candidate = (
+        _target_current_scalar_observation_flow_candidate(
+            runtime_profile_source,
+            target_profile_scalar_projection_schema_candidate,
+        )
+    )
     sysconfigdata_module_name_fact = _target_sysconfigdata_module_name_fact(
         sysconfig_inventory, sys_abiflags_fact, sys_platform_fact,
         sys_implementation_multiarch_fact,
@@ -9574,6 +9628,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_profile_scalar_projection_schema_candidate": (
             target_profile_scalar_projection_schema_candidate
+        ),
+        "target_current_scalar_observation_flow_candidate": (
+            target_current_scalar_observation_flow_candidate
         ),
         "target_s15_flags_field_candidate": target_s15_flags_field_candidate,
         **configure_inventory,
