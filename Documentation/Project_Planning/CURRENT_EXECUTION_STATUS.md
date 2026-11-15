@@ -11124,11 +11124,19 @@ Fehlende oder widersprüchliche Voraussetzungen unterdrücken den Kandidaten.
 245 fokussierte Regressionen und alle fünf PR-Gates bestanden; das Tupel ist
 statisch und keine Runtimeaufnahme.
 
-## S15-Teilschnitt: Finder-Feldkandidat aus Registrierung und Klassen binden
+## Abgeschlossen: S15-Teilschnitt Finder-Feldkandidat
 
-Der nächste Kandidat verbindet die drei geordneten Meta-Path-Registrierungen
-mit den digestgeprüften `BuiltinImporter`-, `FrozenImporter`- und `PathFinder`-
-Klassendeklarationen samt `find_spec`-Klassenmethoden. Er belegt weder
-Runtimeinstanzen noch die abschließende `sys.meta_path`-Liste. Umfang: ein
-Paket, ein PR und höchstens zwei Regressionen; keine Runtime-, P11-, SQL-/Lab-
-oder menschliche Generalprobenattestation.
+PR #815 verbindet die drei geordneten Meta-Path-Registrierungen mit den
+digestgeprüften `BuiltinImporter`-, `FrozenImporter`- und `PathFinder`-
+Klassendeklarationen samt `find_spec`-Klassenmethoden. 245 fokussierte
+Regressionen und alle fünf PR-Gates bestanden. Runtimeinstanzen, Auswahl und
+die finale `sys.meta_path`-Liste bleiben unbelegt.
+
+## S15-Teilschnitt: Hook-Feldkandidat aus Registrierung und Quellen binden
+
+Der nächste Kandidat verbindet die bedingte Zipimporter-Einfügung an Position
+null mit der zuvor ausgeführten FileFinder-Registrierung und den digestgeprüften
+Hook-/Klassendeklarationen. Die Feldreihenfolge bleibt ein statischer
+Kandidat; erzeugte Hookobjekte und die finale `sys.path_hooks`-Liste sind nicht
+belegt. Umfang: ein Paket, ein PR und höchstens zwei Regressionen; keine
+Runtime-, P11-, SQL-/Lab- oder menschliche Generalprobenattestation.

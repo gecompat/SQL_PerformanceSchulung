@@ -1485,6 +1485,66 @@ def _target_zipimporter_class_source_candidate(files):
     }
 
 
+def _target_s15_hooks_field_candidate(
+        importlib_registration, zipimport_registration,
+        filefinder_factory, zipimporter_class):
+    """Join hook registration and factory/class sources into an S15 candidate."""
+    if (type(importlib_registration) is not dict
+            or importlib_registration.get("file_path_hook_registration_site")
+            != ["importlib._bootstrap_external._install", "FileFinder.path_hook"]
+            or importlib_registration.get("final_sys_path_hooks_claimed") is not False
+            or importlib_registration.get("source_sha256") != [
+                IMPORTLIB_BOOTSTRAP_SOURCE_SHA256,
+                IMPORTLIB_EXTERNAL_SOURCE_SHA256,
+            ]
+            or type(zipimport_registration) is not dict
+            or zipimport_registration.get("registration_operation")
+            != "PyList_Insert(path_hooks, 0, zipimporter)"
+            or zipimport_registration.get("registration_conditional_on_attribute")
+            is not True
+            or zipimport_registration.get("missing_attribute_skips_registration")
+            is not True
+            or zipimport_registration.get("external_importlib_setup_precedes_zipimport_attempt")
+            is not True
+            or zipimport_registration.get("final_sys_path_hooks_claimed") is not False
+            or zipimport_registration.get("source_sha256") != PYTHON_IMPORT_C_SHA256
+            or type(filefinder_factory) is not dict
+            or filefinder_factory.get("source_sha256")
+            != IMPORTLIB_EXTERNAL_SOURCE_SHA256
+            or filefinder_factory.get("path_hook_factory") != "FileFinder.path_hook"
+            or filefinder_factory.get("returned_hook") != "path_hook_for_FileFinder"
+            or filefinder_factory.get("supported_loader_detail_order") != [
+                "ExtensionFileLoader", "SourceFileLoader", "SourcelessFileLoader",
+            ]
+            or filefinder_factory.get("evidence_scope")
+            != "STATIC_FILEFINDER_HOOK_FACTORY_CANDIDATE"
+            or type(zipimporter_class) is not dict
+            or zipimporter_class.get("source_sha256") != ZIPIMPORT_SOURCE_SHA256
+            or zipimporter_class.get("module") != "zipimport"
+            or zipimporter_class.get("requested_attribute") != "zipimporter"
+            or zipimporter_class.get("listed_in_all") is not True
+            or zipimporter_class.get("runtime_imported") is not False
+            or zipimporter_class.get("evidence_scope")
+            != "STATIC_ZIPIMPORTER_CLASS_DECLARATION_CANDIDATE"):
+        return None
+    return {
+        "values": ("ZIPIMPORTER", "FILEFINDER"),
+        "registration_order_basis": (
+            "FileFinder appended during external importlib setup",
+            "zipimporter inserted at index zero after that setup",
+        ),
+        "registration_source_sha256": {
+            "importlib": importlib_registration["source_sha256"],
+            "zipimport": zipimport_registration["source_sha256"],
+        },
+        "factory_source_sha256": filefinder_factory["source_sha256"],
+        "class_source_sha256": zipimporter_class["source_sha256"],
+        "runtime_hook_objects_claimed": False,
+        "final_sys_path_hooks_claimed": False,
+        "evidence_scope": "STATIC_S15_HOOKS_FIELD_CANDIDATE",
+    }
+
+
 def _configure_template_inventory(config_template, configure_source):
     if (type(config_template) is not bytes or not config_template
             or len(config_template) > MAX_CONFIG_C_TEMPLATE_BYTES
@@ -8201,6 +8261,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     zipimporter_class_source_candidate = (
         _target_zipimporter_class_source_candidate(files)
     )
+    target_s15_hooks_field_candidate = _target_s15_hooks_field_candidate(
+        importlib_finder_registration_candidate,
+        zipimport_hook_registration_candidate,
+        filefinder_hook_factory_candidate,
+        zipimporter_class_source_candidate,
+    )
     configure_inventory = _configure_template_inventory(
         config_c_template, configure_source
     )
@@ -8682,6 +8748,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         "target_zipimport_hook_registration_candidate": (
             zipimport_hook_registration_candidate
         ),
+        "target_s15_hooks_field_candidate": target_s15_hooks_field_candidate,
         **configure_inventory,
         "edge_count": edges,
         "module_count": len(modules),
