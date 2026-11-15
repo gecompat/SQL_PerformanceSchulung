@@ -2198,6 +2198,25 @@ class StaticImportCandidateTests(unittest.TestCase):
             "profile_input_validation_claimed": False,
             "evidence_scope": "STATIC_PROFILE_PRIMITIVE_VALIDATORS_CANDIDATE",
         })
+        newline = b"\r\n" if b"\r\n" in profile_source else b"\n"
+        for name, expected_shape in (
+            (b"_text", b"_need(type(value) is str"),
+            (b"_strings", b"_need(type(value) is tuple"),
+        ):
+            early_return = profile_source.replace(
+                b"def " + name + b"(value):" + newline + b"    " + expected_shape,
+                b"def " + name + b"(value):" + newline
+                + b"    return None" + newline + b"    " + expected_shape,
+                1,
+            )
+            self.assertNotEqual(early_return, profile_source)
+            with patch.object(
+                SUBJECT, "DGN007_RUNTIME_PROFILE_SOURCE_SHA256",
+                SUBJECT._normalized_profile_source_sha256(early_return),
+            ):
+                self.assertIsNone(SUBJECT._target_profile_primitive_validators_candidate(
+                    early_return, path_contract,
+                ))
         for changed in (
             profile_source.replace(
                 b'_need(len(value.encode("utf-8")) <= MAX_FIELD)', b"pass",
