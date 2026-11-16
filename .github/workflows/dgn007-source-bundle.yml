@@ -151,21 +151,6 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12.14'
-      - name: Gebundenes Quellenprofil diagnostizieren
-        run: |
-          python - <<'PY'
-          import ast
-          import hashlib
-          from pathlib import Path
-          import sys
-          sys.path.insert(0, str(Path("Tests/Tools").resolve()))
-          import dgn007_source_bundle as bundle
-          print("python", sys.version)
-          for path in bundle.PYTHON_MEMBERS:
-              tree = ast.parse(Path(path).read_bytes())
-              digest = hashlib.sha256(ast.dump(tree, include_attributes=False).encode("utf-8")).hexdigest()
-              print(path, digest)
-          PY
       - name: Lexikalische Quellkandidaten und Grenzen prüfen
         run: python -B Tests/Static/test_dgn007_static_stdlib_import_candidates.py
       - name: Gebundene Kandidaten und Manipulationen prüfen

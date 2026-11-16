@@ -294,7 +294,7 @@ class CurrentCandidateTests(unittest.TestCase):
                 p.write_bytes(git(ROOT, "cat-file", "blob", commit + ":" + member))
             report = bundle.verify_bundle(ROOT, commit, root)
             self.assertEqual(report.status, "PASS_STATIC_CANDIDATE", report.issue)
-        self.assertEqual(report.members, 27)
+            self.assertEqual(report.members, 27)
             self.assertFalse(report.runtime_attested)
             # Neuer Commit mit geändertem Bootstrap wird separat als kontrollierte
             # In-memory-Graphgegenprobe geprüft; keine Runtimequellenänderung.
