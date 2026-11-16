@@ -182,6 +182,14 @@ def runner_findings(text: str) -> list[str]:
     if not any(isinstance(node, ast.Import) and any(alias.name == "execution_target" for alias in node.names) for node in ast.walk(tree)):
         findings.append("Runner muss das bestehende execution_target verwenden")
     functions = {node.name: node for node in tree.body if isinstance(node, ast.FunctionDef)}
+    receipt = next((node for node in tree.body if isinstance(node, ast.ClassDef)
+                    and node.name == "_CaptureReceipt"), None)
+    receipt_text = " ".join((ast.get_source_segment(text, receipt) or "").split()) if receipt is not None else ""
+    for marker in ("lifecycle_started_ns", "cleanup_started_ns", "lifecycle_finished_ns",
+                   "0 <= self.lifecycle_started_ns <= self.cleanup_started_ns",
+                   "<= self.lifecycle_finished_ns"):
+        if marker not in receipt_text:
+            findings.append(f"Interner Capturebeleg fehlt monotone Lifecyclegrenze: {marker}")
     for name in ("validate_manifest", "assert_empty_instance", "assert_absent", "run_harness", "check_harness", "recover", "run_one", "main"):
         if name not in functions:
             findings.append(f"Runner-Vertragsprüfung fehlt: {name}")
@@ -200,6 +208,10 @@ return RunResult(repetition)''').body
         if [ast.dump(node) for node in wrapper] != [ast.dump(node) for node in expected]:
             findings.append("Der öffentliche Runner muss unverändert an den gemeinsamen Lifecyclekern delegieren")
     core = functions.get("_run_one")
+    monotonic_calls = [node for node in ast.walk(core) if isinstance(node, ast.Call)
+                       and isinstance(node.func, ast.Attribute) and node.func.attr == "monotonic_ns"] if core else []
+    if len(monotonic_calls) != 3:
+        findings.append("Capture-Lifecycle muss Start-, Cleanupstart- und Endticks aus monotonic_ns binden")
     lifecycle = next((node for node in core.body if isinstance(node, ast.Try)), None) if core else None
     final_checks = [node for statement in lifecycle.finalbody for node in ast.walk(statement) if isinstance(node, ast.Call)] if lifecycle else []
     calls = [node.func.id for node in final_checks if isinstance(node.func, ast.Name)]

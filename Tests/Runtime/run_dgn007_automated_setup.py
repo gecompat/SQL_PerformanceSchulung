@@ -200,6 +200,17 @@ class _CaptureReceipt:
     phases: tuple[tuple[str, str, str], ...]
     first_absence_outcome: str
     first_absence_code: str
+    lifecycle_started_ns: int
+    cleanup_started_ns: int
+    lifecycle_finished_ns: int
+
+    def __post_init__(self) -> None:
+        if (type(self.lifecycle_started_ns) is not int
+                or type(self.cleanup_started_ns) is not int
+                or type(self.lifecycle_finished_ns) is not int
+                or not (0 <= self.lifecycle_started_ns <= self.cleanup_started_ns
+                        <= self.lifecycle_finished_ns)):
+            raise RunnerFailure("FAIL_CONTRACT")
 
 
 def validate_manifest(*, contract: RunContract = DATA_MODEL_CONTRACT) -> None:
@@ -749,6 +760,7 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
              check_capture_projection: bool = False, expected_major: int | None = None,
              expected_contract=None, check_phase_diagnostics: bool = False) -> _CaptureReceipt | None:
     """Ein gemeinsamer Lifecycle einschließlich unveränderter Ausgabe/Recovery."""
+    lifecycle_started_ns = time.monotonic_ns()
     failure: RunnerFailure | None = None
     result: SqlcmdResult | None = None
     capture: _CheckedCapture | None = None
@@ -780,6 +792,7 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
     except (ExecutionTargetError, OSError, ValueError, KeyboardInterrupt):
         failure = RunnerFailure("FAIL_EXECUTION")
     finally:
+        cleanup_started_ns = time.monotonic_ns()
         cleanup_failed = False
         try:
             assert_absent(target)
@@ -800,6 +813,7 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
             failure = RunnerFailure("FAIL_CLEANUP")
         cleanup_outcome = "FAIL|FAIL_CLEANUP" if failure and failure.code == "FAIL_CLEANUP" else "PASS|OK"
         print(f"DGN007_CLEANUP|RUN_{repetition}|{cleanup_outcome}")
+    lifecycle_finished_ns = time.monotonic_ns()
     if failure:
         if result is not None:
             for diagnostic in capture_failure_diagnostics(result, contract=contract):
@@ -808,7 +822,8 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
         raise failure
     print(f"DGN007_STAGE|{contract.scope}|RUN_{repetition}|PASS|OK")
     if capture is not None and first_absence_confirmed:
-        return _CaptureReceipt(repetition, capture.body, capture.phases, "PASS", "OK")
+        return _CaptureReceipt(repetition, capture.body, capture.phases, "PASS", "OK",
+                               lifecycle_started_ns, cleanup_started_ns, lifecycle_finished_ns)
     return None
 
 

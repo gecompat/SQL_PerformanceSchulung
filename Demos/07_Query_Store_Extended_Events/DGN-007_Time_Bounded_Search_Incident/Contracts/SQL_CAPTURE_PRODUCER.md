@@ -106,6 +106,15 @@ Ressourcen, Budgets, Freeze, Reihenfolge und vollständige Herkunft sind damit
 nicht attestiert. Der [Integrationsreview](../../../../Documentation/Project_Planning/DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md)
 führt den aktuellen Prüfstand und die Abgrenzung zur Coordinator-Folgearbeit.
 
+Der interne `_CaptureReceipt` bindet zusätzlich die tatsächlichen
+Lifecycle-Start-, Cleanup-Start- und Lifecycle-Endpunkte des überwachenden
+Runnerprozesses mit `time.monotonic_ns()`. Diese drei Ticks werden erst nach
+der Cleanup-/Abwesenheitssequenz zurückgegeben und streng auf ganzzahlige,
+nicht rückläufige Reihenfolge geprüft. Sie belegen nur diese äußeren
+Runnergrenzen: keine einzelnen SQL-Phasenzeiten, effektiven Ressourcen,
+Source-/Hostfreeze oder Prozess-/Zielidentität. Die bisherige Erfolgs- und
+Fehlerpriorität bleibt unverändert.
+
 Der additive Runner-Modus `--check-capture-projection` ist ausschließlich
 für `control-ab`, `control-ba` und `control-aa` vorgesehen. Er übernimmt die
 Frames aus `CONTROL_EVIDENCE` im Speicher, prüft den tatsächlichen Body gegen
