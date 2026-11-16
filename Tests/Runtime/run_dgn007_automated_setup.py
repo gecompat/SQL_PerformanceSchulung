@@ -52,6 +52,7 @@ RECOVERY_TIMEOUT = 60
 VERIFY_TIMEOUT = 30
 SUMMARY = re.compile(r"^SQLPERF_SUMMARY\|(PASS|WARN|SKIP|FAIL)\|([A-Z][A-Z0-9_]*)$", re.MULTILINE)
 PHASE = re.compile(r"^([A-Z][A-Z0-9_]*): (PASS|WARN|SKIP|FAIL)/([A-Z][A-Z0-9_]*) \(", re.MULTILINE)
+PHASE_TIME = re.compile(r"^SQLPERF_PHASE_TIME\|1\|([A-Z][A-Z0-9_]*)\|([0-9]{1,19})\|([0-9]{1,19})$")
 CAPTURE_CONTRACT = AUTOMATED.parent / "Contracts" / "incident-acceptance.contract.json"
 MAX_CAPTURE_OUTPUT_BYTES = 262144
 MAX_CAPTURE_LINE_CHARS = 8192
@@ -192,8 +193,9 @@ class _CheckedCapture:
 class _CaptureReceipt:
     """Interner Erfolgsbeleg nach Cleanup und erster unabhängiger Absenz.
 
-    Keine Ressourcen-, Budget-, Freeze- oder Lifecycle-Reihenfolgeattestation.
-    Der enthaltene CaptureBody bleibt PROJECT_SEMANTIC/runtime_attested=False.
+    Enthält tatsächliche Harness-Phasenzeiten und äußere Lifecyclegrenzen,
+    aber keine Ressourcen-, Freeze- oder Runtimeattestation. Der CaptureBody
+    bleibt PROJECT_SEMANTIC/runtime_attested=False.
     """
 
     repetition: int
@@ -205,6 +207,7 @@ class _CaptureReceipt:
     cleanup_started_ns: int
     lifecycle_finished_ns: int
     g13_boundary_diagnostics: tuple[str, ...] = ()
+    phase_timing: tuple[tuple[str, int, int], ...] = ()
 
     def __post_init__(self) -> None:
         if (type(self.lifecycle_started_ns) is not int
@@ -213,6 +216,18 @@ class _CaptureReceipt:
                 or not (0 <= self.lifecycle_started_ns <= self.cleanup_started_ns
                         <= self.lifecycle_finished_ns)):
             raise RunnerFailure("FAIL_CONTRACT")
+        wanted = ("PREFLIGHT", "SETUP", "DATA_ASSERTION", "CONTROL_CONFIG",
+                  "CONTROL_WINDOWS", "PROFILE_COMPARISON", "CONTROL_EVIDENCE")
+        if type(self.phase_timing) is not tuple or len(self.phase_timing) != len(wanted):
+            raise RunnerFailure("FAIL_CONTRACT")
+        previous = self.lifecycle_started_ns
+        for row, phase_id in zip(self.phase_timing, wanted):
+            if (type(row) is not tuple or len(row) != 3 or row[0] != phase_id
+                    or type(row[1]) is not int or type(row[2]) is not int
+                    or row[1] < previous or row[2] <= row[1]
+                    or row[2] > self.cleanup_started_ns):
+                raise RunnerFailure("FAIL_CONTRACT")
+            previous = row[2]
 
 
 def validate_manifest(*, contract: RunContract = DATA_MODEL_CONTRACT) -> None:
@@ -276,14 +291,19 @@ def assert_absent(target: ExecutionTarget) -> None:
 
 def run_harness(target: ExecutionTarget, *, contract: RunContract = DATA_MODEL_CONTRACT,
                 check_capture_projection: bool = False,
-                check_phase_diagnostics: bool = False) -> SqlcmdResult:
+                check_phase_diagnostics: bool = False,
+                phase_timing_protocol: bool = False) -> SqlcmdResult:
     command = [sys.executable, str(FRAMEWORK / "run_demo.py"), str(contract.manifest),
                *target.connection_arguments(), "--confirm-isolated-lab"]
+    if phase_timing_protocol and (not check_capture_projection or contract.scope not in CONTROL_SCOPES):
+        raise RunnerFailure("FAIL_CONTRACT")
     if check_capture_projection or check_phase_diagnostics:
         if (contract not in KNOWN_CONTRACTS
                 or (check_capture_projection and contract.scope not in CONTROL_SCOPES)):
             raise RunnerFailure("FAIL_CONTRACT")
         command.append("--show-output")
+        if phase_timing_protocol:
+            command.append("--emit-phase-timing-protocol")
         command.insert(1, "-u")
         environment = dict(target.child_environment())
         environment["PYTHONUNBUFFERED"] = "1"
@@ -795,6 +815,29 @@ def _check_capture_body(result: SqlcmdResult, *, contract: RunContract, expected
                            _g13_boundary_diagnostics(result, contract=contract))
 
 
+def _capture_phase_timing(result: SqlcmdResult, *, contract: RunContract) -> tuple[tuple[str, int, int], ...]:
+    """Prüft die tatsächlichen, monotonen Harness-Grenzen der äußeren Phasen."""
+    if contract not in KNOWN_CONTRACTS or contract.scope not in CONTROL_SCOPES:
+        raise RunnerFailure("FAIL_CONTRACT")
+    combined = "\n".join((result.stdout, result.stderr)).replace("\r\n", "\n")
+    lines = [line for line in combined.splitlines() if line.startswith("SQLPERF_PHASE_TIME|")]
+    rows = []
+    for line in lines:
+        match = PHASE_TIME.fullmatch(line)
+        if match is None:
+            raise RunnerFailure("FAIL_CONTRACT")
+        phase_id, started, finished = match.groups()
+        rows.append((phase_id, int(started), int(finished)))
+    if tuple(row[0] for row in rows) != contract.expected_phases:
+        raise RunnerFailure("FAIL_CONTRACT")
+    previous = -1
+    for _phase_id, started, finished in rows:
+        if started < previous or finished <= started:
+            raise RunnerFailure("FAIL_CONTRACT")
+        previous = finished
+    return tuple(rows[:-1])
+
+
 def _capture_counts(body: CaptureBody) -> tuple[int, int, int, int, int]:
     return (len(body.windows), len(body.requests), len(body.families), len(body.plans), len(body.plan_union))
 
@@ -858,9 +901,10 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
                 raise RunnerFailure("FAIL_CONTRACT")
             if check_phase_diagnostics:
                 result = run_harness(target, contract=contract, check_capture_projection=True,
-                                     check_phase_diagnostics=True)
+                                     check_phase_diagnostics=True, phase_timing_protocol=True)
             else:
-                result = run_harness(target, contract=contract, check_capture_projection=True)
+                result = run_harness(target, contract=contract, check_capture_projection=True,
+                                     phase_timing_protocol=True)
             capture = _check_capture_body(result, contract=contract, expected_major=expected_major,
                                           expected_contract=expected_contract)
             counts = _capture_counts(capture.body)
@@ -910,7 +954,8 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
     if capture is not None and first_absence_confirmed:
         return _CaptureReceipt(repetition, capture.body, capture.phases, "PASS", "OK",
                                lifecycle_started_ns, cleanup_started_ns, lifecycle_finished_ns,
-                               capture.g13_boundary_diagnostics)
+                               capture.g13_boundary_diagnostics,
+                               _capture_phase_timing(result, contract=contract))
     return None
 
 

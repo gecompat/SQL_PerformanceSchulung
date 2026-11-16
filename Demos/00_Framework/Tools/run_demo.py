@@ -102,6 +102,8 @@ class PhaseResult:
     code: str
     message: str
     duration_seconds: float
+    started_ns: int | None = None
+    finished_ns: int | None = None
 
 
 @dataclass(frozen=True)
@@ -509,8 +511,13 @@ def run_demo(
     confirm_isolated_lab: bool,
     allow_red: bool,
     show_output: bool,
+    emit_phase_timing_protocol: bool = False,
 ) -> HarnessResult:
     manifest = load_manifest(manifest_path.resolve())
+
+    if (emit_phase_timing_protocol
+            and (manifest.demo_id != "DGN-007" or manifest.run_token != "AUTO")):
+        raise ValueError("phase timing protocol is reserved for DGN-007 AUTO runs")
 
     if manifest.safety_level == "YELLOW" and not confirm_isolated_lab:
         return HarnessResult("FAIL", "FAIL_SAFETY", "Gelbe Demo benötigt --confirm-isolated-lab.", ())
@@ -550,6 +557,7 @@ def run_demo(
     for phase in manifest.phases:
         if stop_regular_phases:
             break
+        phase_started_ns = time.monotonic_ns() if emit_phase_timing_protocol else None
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             result = PhaseResult(phase.phase_id, "FAIL", "FAIL_TIMEOUT", "Das globale Harness-Zeitbudget ist abgelaufen.", 0.0)
@@ -586,6 +594,9 @@ def run_demo(
                 )
                 result = PhaseResult(phase.phase_id, orchestration.outcome, orchestration.code, orchestration.message, 0.0)
 
+        if emit_phase_timing_protocol:
+            result = PhaseResult(result.phase_id, result.outcome, result.code, result.message,
+                                 result.duration_seconds, phase_started_ns, time.monotonic_ns())
         phase_results.append(result)
         aggregate = _combine_result(aggregate, (result.outcome, result.code))
         if manifest.demo_id == "QRY-023" and result.code == "FAIL_TIMEOUT":
@@ -601,6 +612,7 @@ def run_demo(
                 0.0,
             )
         else:
+            cleanup_started_ns = time.monotonic_ns() if emit_phase_timing_protocol else None
             cleanup_username, cleanup_environment = _phase_connection(
                 manifest.cleanup, username=username, credentials=credentials
             )
@@ -616,6 +628,10 @@ def run_demo(
                 variables=variables,
                 show_output=show_output,
             )
+            if emit_phase_timing_protocol:
+                cleanup = PhaseResult(cleanup.phase_id, cleanup.outcome, cleanup.code,
+                                      cleanup.message, cleanup.duration_seconds,
+                                      cleanup_started_ns, time.monotonic_ns())
         if cleanup.outcome != "PASS" and cleanup.code != "FAIL_CLEANUP":
             cleanup = PhaseResult(cleanup.phase_id, "FAIL", "FAIL_CLEANUP", f"Cleanup nicht erfolgreich; ursprünglicher Code: {cleanup.code}.", cleanup.duration_seconds)
         phase_results.append(cleanup)
@@ -643,6 +659,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--confirm-isolated-lab", action="store_true")
     parser.add_argument("--allow-red", action="store_true")
     parser.add_argument("--show-output", action="store_true")
+    parser.add_argument("--emit-phase-timing-protocol", action="store_true")
     return parser
 
 
@@ -662,6 +679,7 @@ def main() -> int:
             confirm_isolated_lab=args.confirm_isolated_lab,
             allow_red=args.allow_red,
             show_output=args.show_output,
+            emit_phase_timing_protocol=args.emit_phase_timing_protocol,
         )
     except FileNotFoundError as exc:
         print(f"SQLPERF_SUMMARY|SKIP|SKIP_TOOL_MISSING\n{exc}")
@@ -674,6 +692,10 @@ def main() -> int:
     print(result.message)
     for phase in result.phases:
         print(f"{phase.phase_id}: {phase.outcome}/{phase.code} ({phase.duration_seconds:.3f}s) - {phase.message}")
+    if args.emit_phase_timing_protocol:
+        for phase in result.phases:
+            if type(phase.started_ns) is int and type(phase.finished_ns) is int:
+                print(f"SQLPERF_PHASE_TIME|1|{phase.phase_id}|{phase.started_ns}|{phase.finished_ns}")
     return result.exit_code
 
 

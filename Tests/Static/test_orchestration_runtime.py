@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import ast
+from contextlib import redirect_stdout
+import io
 import json
 import os
 from pathlib import Path
@@ -1669,6 +1671,52 @@ def test_harness_pass(base: Path, executable: Path) -> None:
     assert_equal(result.phases[-1].phase_id, "CLEANUP", "cleanup executed")
 
 
+def test_phase_timing_protocol_is_scoped_and_emitted(base: Path, executable: Path) -> None:
+    qry_manifest = demo_manifest(base / "phase_time_qry", demo_id="QRY-001", run_token="TEST")
+    with patch.object(run_demo_module, "resolve_sqlcmd") as resolve:
+        try:
+            run_demo(manifest_path=qry_manifest, server="synthetic", auth="integrated",
+                     username=None, sqlcmd_path="synthetic", confirm_isolated_lab=False,
+                     allow_red=False, show_output=False, emit_phase_timing_protocol=True)
+        except ValueError as exc:
+            assert_equal(str(exc), "phase timing protocol is reserved for DGN-007 AUTO runs",
+                         "phase timing protocol scope")
+        else:
+            raise AssertionError("phase timing protocol escaped its DGN-007 AUTO scope")
+        resolve.assert_not_called()
+
+    dgn_manifest = demo_manifest(base / "phase_time_dgn", demo_id="DGN-007", run_token="AUTO")
+    with patch.object(run_demo_module, "resolve_sqlcmd", return_value=str(executable)), \
+         patch.object(run_demo_module, "_execute_sql_phase", side_effect=lambda **kwargs:
+             run_demo_module.PhaseResult(kwargs["phase"].phase_id, "PASS", "OK", "synthetic", 0.001)):
+        result = run_demo(manifest_path=dgn_manifest, server="synthetic", auth="integrated",
+                          username=None, sqlcmd_path="synthetic", confirm_isolated_lab=False,
+                          allow_red=False, show_output=False, emit_phase_timing_protocol=True)
+    assert_equal(result.outcome, "PASS", "DGN timing protocol fixture")
+    assert_equal(all(type(phase.started_ns) is int and type(phase.finished_ns) is int
+                     and phase.started_ns < phase.finished_ns for phase in result.phases),
+                 True, "all protocol phases timed")
+    assert_equal(all(left.finished_ns <= right.started_ns
+                     for left, right in zip(result.phases, result.phases[1:])),
+                 True, "protocol phases are monotone and non-overlapping")
+
+    protocol_result = run_demo_module.HarnessResult("PASS", "OK", "synthetic", (
+        run_demo_module.PhaseResult("PREFLIGHT", "PASS", "OK", "synthetic", 0.001, 10, 20),
+        run_demo_module.PhaseResult("CLEANUP", "PASS", "OK", "synthetic", 0.001, 30, 40),
+    ))
+    output = io.StringIO()
+    with patch.object(sys, "argv", [str(TOOLS / "run_demo.py"), "synthetic.json",
+                                     "--server", "synthetic", "--emit-phase-timing-protocol"]), \
+         patch.object(run_demo_module, "run_demo", return_value=protocol_result) as invoke, \
+         redirect_stdout(output):
+        assert_equal(run_demo_module.main(), 0, "phase timing protocol CLI result")
+    invoke.assert_called_once()
+    assert_equal(invoke.call_args.kwargs["emit_phase_timing_protocol"], True,
+                 "phase timing protocol CLI binding")
+    assert_equal(output.getvalue().count("SQLPERF_PHASE_TIME|1|"), 2,
+                 "bounded phase timing records emitted")
+
+
 def test_phase_credential_profiles_are_isolated(base: Path) -> None:
     manifest = credential_profile_manifest(base / "credential_profiles")
     payload = json.loads(manifest.read_text(encoding="utf-8"))
@@ -2084,6 +2132,7 @@ def main() -> int:
         test_sessions_fail(base, executable)
         test_sessions_timeout(base, executable)
         test_harness_pass(base, executable)
+        test_phase_timing_protocol_is_scoped_and_emitted(base, executable)
         test_phase_credential_profiles_are_isolated(base)
         test_duplicate_phase_identity_fails_before_sqlcmd_resolution(base)
         test_unsafe_sqlcmd_identity_fails_before_sqlcmd_resolution(base)

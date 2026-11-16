@@ -1,8 +1,9 @@
 """Bindet belegte Runner-Receipt-Felder an einen deklarativen Coordinator-Record.
 
-Die ersten sieben äußeren Phasen, Ressourcen und Source-Freeze bleiben Eingaben
-des Aufrufers. Nur Lifecycle- und Cleanup-Zeit stammen direkt aus dem internen
-Erfolgsreceipt. Das Modul attestiert weder deren Herkunft noch eine SQL-Runtime.
+Die sieben äußeren Phasenzeiten stammen aus dem privaten FWK-010-Zeitprotokoll;
+Ressourcen und Source-Freeze bleiben Eingaben des Aufrufers. Lifecycle- und
+Cleanup-Zeit stammen direkt aus dem internen Erfolgsreceipt. Das Modul attestiert
+weder Quellherkunft noch Ressourcen oder eine SQL-Runtime.
 """
 from __future__ import annotations
 
@@ -20,10 +21,9 @@ from Tests.Contracts.dgn007_prospective_acceptance import (
 
 @dataclass(frozen=True, slots=True)
 class ReceiptObservation:
-    """Deklarierte Lifecycle-ID, sieben Phasen und Ressourcen je Receipt."""
+    """Callerangaben zu Lifecycle-ID und Ressourcen je Receipt."""
 
     lifecycle_id: int
-    observed_phases: tuple[TimedPhase, ...]
     configured_cpus: int
     configured_memory_mb: int
     active_sql_sessions: int
@@ -33,7 +33,7 @@ class ReceiptObservation:
 
 def bind_receipt(contract: AcceptanceContract, receipt, *, expected_major: int,
                  block: int, slot: int, lifecycle_id: int,
-                 observed_phases: tuple[TimedPhase, ...], configured_cpus: int,
+                 configured_cpus: int,
                  configured_memory_mb: int, active_sql_sessions: int,
                  active_versions_on_host: int, source_freeze_verified: bool) -> CoordinatedRun:
     """Erzeugt einen Coordinator-Record; Cleanup wird nie vom Caller geliefert."""
@@ -52,9 +52,10 @@ def bind_receipt(contract: AcceptanceContract, receipt, *, expected_major: int,
             or tuple(row[0] for row in receipt.phases) != PHASE_IDS
             or any(row[1:] != ("PASS", "OK") for row in receipt.phases)):
         raise CoordinatorError("FAIL_RESULT_CONTRACT")
-    if (type(observed_phases) is not tuple or len(observed_phases) != len(PHASES) - 1
-            or any(type(row) is not TimedPhase for row in observed_phases)
-            or tuple(row.phase_id for row in observed_phases) != PHASES[:-1]):
+    timing = receipt.phase_timing
+    if (type(timing) is not tuple or len(timing) != len(PHASES) - 1
+            or any(type(row) is not tuple or len(row) != 3 for row in timing)
+            or tuple(row[0] for row in timing) != PHASES[:-1]):
         raise CoordinatorError()
     started = receipt.lifecycle_started_ns
     cleanup_started = receipt.cleanup_started_ns
@@ -63,6 +64,8 @@ def bind_receipt(contract: AcceptanceContract, receipt, *, expected_major: int,
             or type(finished) is not int
             or not (0 <= started < cleanup_started < finished)):
         raise CoordinatorError("FAIL_CLEANUP")
+    observed_phases = tuple(TimedPhase(name, phase_started, phase_finished, "PASS", "OK")
+                            for name, phase_started, phase_finished in timing)
     phases = (*observed_phases, TimedPhase("CLEANUP", cleanup_started, finished, "PASS", "OK"))
     run_phases = tuple(PhaseResult(name, outcome, code)
                        for name, outcome, code in receipt.phases)
@@ -106,7 +109,6 @@ def bind_sequence(contract: AcceptanceContract, receipts: tuple, *, expected_maj
         runs.append(bind_receipt(
             contract, receipt, expected_major=expected_major, block=block, slot=slot,
             lifecycle_id=observation.lifecycle_id,
-            observed_phases=observation.observed_phases,
             configured_cpus=observation.configured_cpus,
             configured_memory_mb=observation.configured_memory_mb,
             active_sql_sessions=observation.active_sql_sessions,

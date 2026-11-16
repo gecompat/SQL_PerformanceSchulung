@@ -46,8 +46,12 @@ def frames_from_text(text):
 def frames(value): return frames_from_text(encode(project(value)))
 
 
-def harness(frames,contract=runner.CONTROL_AB_CONTRACT,**changes):
+def harness(frames,contract=runner.CONTROL_AB_CONTRACT,*,phase_base=None,**changes):
     stdout='SQLPERF_SUMMARY|PASS|OK\n'+'\n'.join(f'{p}: PASS/OK (0.001s)' for p in contract.expected_phases)
+    if phase_base is not None:
+        stdout += '\n'+'\n'.join(
+            f'SQLPERF_PHASE_TIME|1|{phase}|{phase_base+i}|{phase_base+i+1}'
+            for i,phase in enumerate(contract.expected_phases))
     lines=[]
     for phase in contract.expected_phases:
         if phase=='CONTROL_EVIDENCE': lines.extend('[CONTROL_EVIDENCE:stderr] '+frame for frame in frames)
@@ -59,6 +63,23 @@ class ProjectionTests(unittest.TestCase):
     def setUp(self):
         self.contract=acceptance.contract_from_mapping(json.loads(CONTRACT.read_text(encoding='utf-8')))
         self.value=payload(self.contract)
+
+    def test_phase_timing_protocol_requires_every_actual_ordered_phase(self):
+        result=harness(frames(self.value),phase_base=100)
+        rows=runner._capture_phase_timing(result,contract=runner.CONTROL_AB_CONTRACT)
+        self.assertEqual(tuple(row[0] for row in rows),runner.CONTROL_AB_CONTRACT.expected_phases[:-1])
+        invalid=(
+            result.stdout.replace('SQLPERF_PHASE_TIME|1|SETUP|101|102\n',''),
+            result.stdout.replace('SQLPERF_PHASE_TIME|1|SETUP|101|102',
+                                  'SQLPERF_PHASE_TIME|1|SETUP|101|102\nSQLPERF_PHASE_TIME|1|SETUP|101|102'),
+            result.stdout.replace('SQLPERF_PHASE_TIME|1|SETUP|101|102',
+                                  'SQLPERF_PHASE_TIME|1|SETUP|102|101'),
+            result.stdout.replace('SQLPERF_PHASE_TIME|1|SETUP|101|102',
+                                  'SQLPERF_PHASE_TIME|1|SETUP|101|102|spoof'),
+        )
+        for stdout in invalid:
+            with self.subTest(stdout=stdout[-120:]),self.assertRaisesRegex(runner.RunnerFailure,'FAIL_CONTRACT'):
+                runner._capture_phase_timing(replace(result,stdout=stdout),contract=runner.CONTROL_AB_CONTRACT)
 
     def reject(self,stream,code='FAIL_CONTRACT'):
         with self.assertRaises(projection.ProjectionError) as caught:
@@ -271,9 +292,11 @@ class ProjectionTests(unittest.TestCase):
                 value=payload(self.contract,major,sequence)
                 value['plans'][0]['first_execution_ticks']=1099
                 value['plans'][0]['last_execution_ticks']=1201
-                result=harness(frames(value),contract)
+                result=harness(frames(value),contract,phase_base=101)
                 with patch.object(runner,'run_harness',return_value=result), \
-                     patch.object(runner,'assert_absent'),redirect_stdout(io.StringIO()):
+                     patch.object(runner,'assert_absent'), \
+                     patch.object(runner.time,'monotonic_ns',side_effect=(100,200,300)), \
+                     redirect_stdout(io.StringIO()):
                     receipt=runner._run_capture_one(object(),1,contract=contract,
                         expected_major=major,expected_contract=self.contract)
                 self.assertEqual(receipt.body,transport.decode_capture(encode(value),self.contract))
@@ -298,7 +321,7 @@ class ProjectionTests(unittest.TestCase):
             absent.assert_called_once();recover.assert_not_called();receipt.assert_not_called()
 
     def test_internal_receipt_returns_only_after_first_absence_and_decodes_once_for_both_flags(self):
-        target=object();result=harness(frames(self.value));body=projection.decode_projection(frames(self.value),self.contract)
+        target=object();result=harness(frames(self.value),phase_base=101);body=projection.decode_projection(frames(self.value),self.contract)
         constructor=runner._CaptureReceipt
         for diagnostics in (False,True):
             events=[]
@@ -311,6 +334,7 @@ class ProjectionTests(unittest.TestCase):
             with patch.object(runner,'run_harness',side_effect=read_harness) as harness_call, \
                  patch.object(runner,'decode_projection',side_effect=decode_body) as decode, \
                  patch.object(runner,'assert_absent',side_effect=lambda target: events.append('absence')) as absent, \
+                 patch.object(runner.time,'monotonic_ns',side_effect=(100,200,300)), \
                  patch.object(runner,'recover') as recover,patch.object(runner,'_CaptureReceipt',side_effect=make_receipt), \
                  redirect_stdout(io.StringIO()) as out:
                 receipt=runner._run_capture_one(target,2,contract=runner.CONTROL_AB_CONTRACT,
@@ -322,7 +346,8 @@ class ProjectionTests(unittest.TestCase):
             self.assertFalse(receipt.body.runtime_attested)
             with self.assertRaises(FrozenInstanceError): receipt.first_absence_code='OTHER'
             self.assertNotIn('123.45678901234567',repr(receipt))
-            expected_kwargs={'contract':runner.CONTROL_AB_CONTRACT,'check_capture_projection':True}
+            expected_kwargs={'contract':runner.CONTROL_AB_CONTRACT,'check_capture_projection':True,
+                             'phase_timing_protocol':True}
             if diagnostics: expected_kwargs['check_phase_diagnostics']=True
             harness_call.assert_called_once_with(target,**expected_kwargs)
             expected_output=('DGN007_CAPTURE|DGN-007_CONTROL_AB|RUN_2|PASS|OK|windows=2; requests=8; families=1; plans=2; union=2\n'
@@ -330,6 +355,7 @@ class ProjectionTests(unittest.TestCase):
             self.assertEqual(out.getvalue(),expected_output)
             # The public path retains its original result and identical output.
             with patch.object(runner,'run_harness',return_value=result),patch.object(runner,'assert_absent'), \
+                 patch.object(runner.time,'monotonic_ns',side_effect=(100,200,300)), \
                  patch.object(runner,'decode_projection',return_value=body) as decode,redirect_stdout(io.StringIO()) as public_out:
                 public=runner.run_one(target,2,contract=runner.CONTROL_AB_CONTRACT,check_capture_projection=True,
                     expected_major=15,expected_contract=self.contract,check_phase_diagnostics=diagnostics)
@@ -533,6 +559,11 @@ class ProjectionTests(unittest.TestCase):
                 command=start.call_args.args[0]
                 self.assertEqual(command[:2],[sys.executable,'-u']);self.assertEqual(command.count('--show-output'),1)
                 self.assertNotIn('-P',command);self.assertNotIn('synthetic-test-value',command)
+                runner.run_harness(target,contract=contract,check_capture_projection=True,
+                                   phase_timing_protocol=True)
+                self.assertEqual(start.call_args.args[0].count('--emit-phase-timing-protocol'),1)
+                with self.assertRaisesRegex(runner.RunnerFailure,'FAIL_CONTRACT'):
+                    runner.run_harness(target,contract=contract,phase_timing_protocol=True)
 
     def test_capture_failure_still_checks_absence_and_cleanup_dominates(self):
         target=runner.execution_target.docker_target(container='synthetic-test',sqlcmd_path='/opt/mssql-tools18/bin/sqlcmd')
@@ -547,13 +578,15 @@ class ProjectionTests(unittest.TestCase):
         target=runner.execution_target.docker_target(container='synthetic-test',sqlcmd_path='/opt/mssql-tools18/bin/sqlcmd')
         for sequence in ('AB','BA','AA'):
             contract=runner.scope_contract('control-'+sequence.lower())
-            result=harness(frames(payload(self.contract,15,sequence)),contract)
+            results=(harness(frames(payload(self.contract,15,sequence)),contract,phase_base=1001),
+                     harness(frames(payload(self.contract,15,sequence)),contract,phase_base=4001))
             args=['--container','synthetic-test','--expected-major','15','--scope','control-'+sequence.lower(),
                   '--confirm-disposable-instance','--check-capture-projection']
-            with patch.dict(os.environ,{'SQLCMDPASSWORD':'synthetic-test-value'}),patch.object(runner,'resolve_target',return_value=target),patch.object(runner.execution_target,'verify_engine'),patch.object(runner,'assert_empty_instance'),patch.object(runner,'run_harness',return_value=result) as process,patch.object(runner,'assert_absent') as absent,redirect_stdout(io.StringIO()) as output:
+            with patch.dict(os.environ,{'SQLCMDPASSWORD':'synthetic-test-value'}),patch.object(runner,'resolve_target',return_value=target),patch.object(runner.execution_target,'verify_engine'),patch.object(runner,'assert_empty_instance'),patch.object(runner,'run_harness',side_effect=results) as process,patch.object(runner,'assert_absent') as absent,patch.object(runner.time,'monotonic_ns',side_effect=(1000,2000,3000,4000,5000,6000)),redirect_stdout(io.StringIO()) as output:
                 self.assertEqual(runner.main(args),0)
                 self.assertEqual(process.call_count,2);self.assertEqual(absent.call_count,2)
-                self.assertTrue(all(call.kwargs==dict(contract=contract,check_capture_projection=True) for call in process.call_args_list))
+                self.assertTrue(all(call.kwargs==dict(contract=contract,check_capture_projection=True,
+                    phase_timing_protocol=True) for call in process.call_args_list))
                 self.assertEqual(output.getvalue().count('DGN007_CAPTURE|'),2)
                 for forbidden in ('DGN007_CAPTURE_FRAME','DGN007_FAILURE','synthetic-test-value','query_plan_hash','FAIL','RunRecord'):
                     self.assertNotIn(forbidden,output.getvalue())
