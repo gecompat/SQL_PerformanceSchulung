@@ -53,9 +53,33 @@ DECLARE @OwnRequests TABLE
 -- Nur unabhängig zugeordnete session_id/request_id-Paare der eigenen,
 -- kontrollierten Ausführung eintragen.
 
+DECLARE @CapturedAt datetime2(7) = SYSUTCDATETIME();
+
+;WITH OwnWaits AS
+(
+    SELECT own.session_id, own.request_id, mg.pool_id,
+           mg.resource_semaphore_id
+    FROM @OwnRequests AS own
+    INNER JOIN sys.dm_exec_query_memory_grants AS mg
+        ON mg.session_id = own.session_id
+       AND mg.request_id = own.request_id
+    INNER JOIN sys.dm_exec_requests AS r
+        ON r.session_id = mg.session_id
+       AND r.request_id = mg.request_id
+    WHERE mg.grant_time IS NULL
+      AND r.wait_type = N'RESOURCE_SEMAPHORE'
+),
+ObservedSemaphores AS
+(
+    SELECT DISTINCT pool_id, resource_semaphore_id
+    FROM OwnWaits
+)
 SELECT
-    own.session_id AS session_id,
-    own.request_id AS request_id,
+    @CapturedAt AS captured_at_utc,
+    CASE WHEN own.session_id IS NULL THEN CONVERT(bit, 0)
+         ELSE CONVERT(bit, 1) END AS is_mapped_own_request,
+    mg.session_id,
+    mg.request_id,
     mg.request_time,
     mg.grant_time,
     mg.required_memory_kb,
@@ -70,32 +94,38 @@ SELECT
     mg.wait_time_ms,
     r.status,
     r.wait_type,
-    r.wait_time,
+    r.wait_time AS request_wait_time_ms,
     r.wait_resource,
     rs.available_memory_kb,
     rs.granted_memory_kb AS pool_granted_memory_kb,
     rs.grantee_count,
     rs.waiter_count
-FROM @OwnRequests AS own
+FROM ObservedSemaphores AS observed
 INNER JOIN sys.dm_exec_query_memory_grants AS mg
-    ON mg.session_id = own.session_id
-   AND mg.request_id = own.request_id
-INNER JOIN sys.dm_exec_requests AS r
+    ON mg.pool_id = observed.pool_id
+   AND mg.resource_semaphore_id = observed.resource_semaphore_id
+LEFT JOIN OwnWaits AS own
+    ON own.session_id = mg.session_id
+   AND own.request_id = mg.request_id
+LEFT JOIN sys.dm_exec_requests AS r
     ON r.session_id = mg.session_id
    AND r.request_id = mg.request_id
 INNER JOIN sys.dm_exec_query_resource_semaphores AS rs
-    ON rs.pool_id = mg.pool_id
-   AND rs.resource_semaphore_id = mg.resource_semaphore_id
-WHERE mg.grant_time IS NULL
-  AND r.wait_type = N'RESOURCE_SEMAPHORE';
+    ON rs.pool_id = observed.pool_id
+   AND rs.resource_semaphore_id = observed.resource_semaphore_id;
 ```
 
-Das Ergebnis ist eine Momentaufnahme. Ein Treffer bindet den noch nicht
-erteilten Grant und den `RESOURCE_SEMAPHORE`-Wait an denselben aktuellen
-Request des vorab zugeordneten session-/request-Paars. Er beweist für sich
-allein weder, welche anderen Anforderungen die Ressource belegen, noch dass
-der Zustand über einen längeren Zeitraum anhält. Kein Treffer bedeutet nur,
-dass diese Abfrage in diesem Moment keinen solchen Request gefunden hat.
+Das Ergebnis enthält alle in dieser Abfrage sichtbaren Grants für die Semaphore
+des eigenen wartenden Requests. `is_mapped_own_request = 1` kennzeichnet nur
+die zuvor eingetragenen Paare; die Zuordnung selbst muss unabhängig aus dem
+kontrollierten Lauf stammen. Für den eigenen Wartenden müssen `grant_time IS NULL`
+und `wait_type = RESOURCE_SEMAPHORE` zusammenpassen. Die übrigen Zeilen
+zeigen, ob zum selben Pool und derselben Semaphore gewährte Grants sichtbar
+sind. `captured_at_utc` ist die gemeinsame Kennzeichnung des Abfragelaufs,
+keine Garantie, dass SQL Server alle DMVs atomar zum selben Engine-Zeitpunkt
+erfasst hat. Der Snapshot belegt weder eine längere Dauer noch die Ursache des
+Zustands. Kein Treffer bedeutet nur, dass diese Abfrage in diesem Moment keinen
+solchen Request gefunden hat.
 
 Als getrennten Kontext liefert
 `sys.dm_exec_query_resource_semaphores` pro Resource Pool und Semaphore unter
@@ -103,7 +133,10 @@ anderem `available_memory_kb`, `granted_memory_kb`, `grantee_count` und
 `waiter_count`. Für einen Konkurrenzbefund müssen wartende und bereits
 gewährte Anforderungen zum selben `(pool_id, resource_semaphore_id)` gehören.
 Die Zähler dieser Pool-/Semaphore-Zeile müssen `waiter_count > 0` und
-`grantee_count > 0` zeigen. Sie identifizieren keine andere Abfrage und
+`grantee_count > 0` zeigen. Fehlende oder ungültige Zählerwerte in einer
+vorhandenen Aufnahme sind ein fehlerhafter Datensatz; Nullzähler sind gültige
+Werte, belegen aber keine gleichzeitigen Wartenden und gewährten Requests.
+Sie identifizieren keine andere Abfrage und
 beweisen für sich allein keine Ursache. Die Beobachtungen sind zeitabhängig.
 Eine kontrollierte
 Konkurrenzuntersuchung muss deshalb die zugehörigen Requests und Poolwerte im
@@ -155,11 +188,11 @@ einen statischen Vertragscheck für caller-supplied Snapshots: ein aktueller
 Anforderung mit `grant_time IS NULL` und positiver Wartezeit gebunden sein.
 Zusätzlich muss die Semaphore-Zeile denselben Capturezeitpunkt und denselben
 `(pool_id, resource_semaphore_id)`-Scope haben und positive `waiter_count`- und
-`grantee_count`-Werte ausweisen. Mindestens ein weiterer erteilter Grant muss im
-gleichen Pool und derselben Semaphore erscheinen. Fehlende oder nicht-positive
-Zähler in einer vorhandenen Snapshotaufnahme sind `FAIL`; ein fehlender
-Semaphore-Snapshot oder Nullzähler bleibt `NOT_PROVEN`. Widersprüchliche
-Scope- oder Zeitbindungen sind `FAIL`. Unterschiedliche positive
+`grantee_count`-Werte ausweisen. Nullzähler oder ein fehlender Semaphore-Snapshot
+belegen keine Konkurrenz und ergeben `NOT_PROVEN`; ungültige Werte in einer
+vorhandenen Zeile sind `FAIL`. Mindestens ein weiterer erteilter Grant muss im
+gleichen Pool und derselben Semaphore erscheinen. Widersprüchliche Scope- oder
+Zeitbindungen sind `FAIL`. Unterschiedliche positive
 Wartezeitfelder werden nicht gleichgesetzt,
 da sie unabhängig erfasste Zeitwerte sind. `PASS` prüft nur die gelieferten
 Werte; er authentifiziert keine DMV-Aufnahme und beweist keine Ursache des
@@ -167,9 +200,9 @@ Wartens oder eine tatsächlich erzeugte Konkurrenz.
 
 ## Quellen
 
-- Microsoft Learn, [sys.dm_exec_query_memory_grants](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-memory-grants-transact-sql?view=sql-server-ver17): wartende und gewährte Requests, Grant-Spalten, Schlüssel und Berechtigungen; geprüft am 2026-11-07; `SRC-010`.
-- Microsoft Learn, [sys.dm_exec_requests](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-requests-transact-sql?view=sql-server-ver17): aktuelle Requests, Session-/Request-IDs und Wait-Spalten; geprüft am 2026-11-07; `SRC-110`.
-- Microsoft Learn, [sys.dm_exec_query_resource_semaphores](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-resource-semaphores-transact-sql?view=sql-server-ver17): Pool-/Semaphore-Scope sowie Grant- und Waiter-Zähler; geprüft am 2026-11-07; `SRC-134`.
+- Microsoft Learn, [sys.dm_exec_query_memory_grants](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-query-memory-grants-transact-sql?view=sql-server-ver17): wartende und gewährte Requests, Grant-Spalten, Pool-/Semaphore-Schlüssel und Berechtigungen; geprüft am 2026-11-17; `SRC-010`.
+- Microsoft Learn, [sys.dm_exec_requests](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-requests-transact-sql?view=sql-server-ver17): aktuelle Requests, Session-/Request-IDs und Wait-Spalten; geprüft am 2026-11-17; `SRC-110`.
+- Microsoft Learn, [sys.dm_exec_query_resource_semaphores](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-query-resource-semaphores-transact-sql?view=sql-server-ver17): Pool-/Semaphore-Scope sowie Grant- und Waiter-Zähler; geprüft am 2026-11-17; `SRC-134`.
 - Microsoft Learn, [Troubleshoot slow performance or low memory issues caused by memory grants](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/troubleshoot-memory-grant-issues): Grant-Lebensdauer, `RESOURCE_SEMAPHORE`-Diagnose und Poolkontext; geprüft am 2026-11-07; `SRC-134`.
 - Microsoft Learn, [sys.dm_os_process_memory](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-os-process-memory-transact-sql?view=sql-server-ver17): Prozessspeicherwerte und Low-Physical-Memory-Status; geprüft am 2026-11-07; `SRC-134`.
 - Microsoft Learn, [sys.dm_os_sys_memory](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-os-sys-memory-transact-sql?view=sql-server-ver17): Betriebssystemspeicher und Bedeutung des Low-Memory-Signals; geprüft am 2026-11-07; `SRC-134`.
