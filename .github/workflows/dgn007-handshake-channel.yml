@@ -60,6 +60,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: '3.12.14'
       - name: Echte Bytes und einmalige Phasen mit eigenen Testworkern prüfen
         run: python -B Tests/Static/test_dgn007_handshake_channel.py

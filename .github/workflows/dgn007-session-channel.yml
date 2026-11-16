@@ -52,6 +52,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: '3.12.14'
       - name: Portable Grenzen und isolierte native Abschlussfälle prüfen
         run: python -B Tests/Static/test_dgn007_session_channel.py

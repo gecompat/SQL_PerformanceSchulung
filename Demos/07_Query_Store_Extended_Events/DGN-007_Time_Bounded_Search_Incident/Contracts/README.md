@@ -148,18 +148,29 @@ keine gleichwertige Übertragung.
 
 Ein separater [deklarativer Recordmapper](COLLECTOR_TRANSPORT.md#deklarative-ein-record-abbildung)
 bildet den vollständigen Transportbody auf genau einen `RunRecord` ab und
-prüft dessen Records erneut. Seine Phasen- und Cleanupwerte stammen weiterhin
-vom Caller; Freeze, Quellenverwendung, Ressourcen, reale Reihenfolge, Budgets
-und unabhängige Cleanup-Herkunft bleiben Aufgabe des noch offenen Collectors.
+prüft dessen Records erneut. Für die sechs DGN-007-Control-Lifecycles gibt der
+FWK-010-Harness auf ausdrückliche private Runneranforderung monotone Start- und
+Endzeitpunkte jeder Phase aus. Der DGN-Runner akzeptiert nur die vollständige,
+geordnete Folge und bindet die sieben regulären Phasen aus diesem Kanal an das
+interne Erfolgsreceipt. Die Receipt-Bindung verwirft Phasen außerhalb der
+tatsächlichen äußeren Lifecycle- und Cleanupgrenzen; falsche Recordzuordnungen
+behalten Vorrang bei der Fehlerklassifikation.
+Jede Protokollzeile folgt exakt `SQLPERF_PHASE_TIME|1|<PHASE>|<START_NS>|<FINISH_NS>`;
+diese acht erwarteten Phasenkennungen stammen aus dem ausgewählten, validierten
+Manifest. Der Harness-Cleanup bleibt im privaten Kanal geprüft; die Coordinator-
+Cleanupphase bindet weiterhin den getrennten äußeren Absenzcheck.
 
-Die Receipt-Bindung prüft die sieben callerseitigen äußeren Phasen bereits
-gegen die tatsächlichen monotonen Lifecycle- und Cleanupgrenzen des internen
-Runner-Receipts: Phasen müssen geordnet, erfolgreich und vollständig vor
-Cleanup liegen; die reguläre Phasendauer darf 180 Sekunden nicht überschreiten.
-Falsche Recordzuordnungen werden vor Zeitfehlern klassifiziert. Diese Prüfung
-verhindert unplausible gebundene Zwischenrecords, attestiert aber weder die
-Herkunft der sieben Phasenzeitpunkte noch Quellenfreeze, Ressourcen oder
-Hostbelegung. Der vollständige vertrauensgebundene Coordinator bleibt offen.
+Damit sind Phasenzeitpunkte keine Callerangaben mehr. Der private Zeitkanal
+bindet die tatsächlich im Harness aufgerufenen Phasen, attestiert jedoch nicht
+die Quellherkunft des Harnesses oder den integrierten Vorabfreeze. Ressourcen,
+aktive Sessions, physische Hostbelegung und Freeze bleiben Callerangaben; der
+vollständige vertrauensgebundene Collector-Coordinator bleibt offen.
+Die Parent-/Child-Bindung verwendet `time.monotonic_ns()`; Python dokumentiert
+für `time.monotonic()` dieselbe Systemuhr über Prozesse hinweg und empfiehlt
+die Nanosekundenvariante gegen Float-Präzisionsverlust ([Python 3.12
+Zeitfunktionen](https://docs.python.org/3.12/library/time.html#time.monotonic),
+geprüft am 16.11.2026). Der undefinierte Epoch-Bezug wird nicht interpretiert;
+geprüft werden nur Reihenfolge und Deltas.
 
 Es gelten ausschließlich die Codes aus
 [`FWK-012` – Status-, Fehler- und Skip-Vertrag](../../../00_Framework/Contracts/FWK-012_Status_Error_Skip_Contract.md).

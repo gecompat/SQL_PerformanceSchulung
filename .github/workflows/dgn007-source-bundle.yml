@@ -150,7 +150,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: '3.12.14'
       - name: Lexikalische Quellkandidaten und Grenzen prüfen
         run: python -B Tests/Static/test_dgn007_static_stdlib_import_candidates.py
       - name: Gebundene Kandidaten und Manipulationen prüfen

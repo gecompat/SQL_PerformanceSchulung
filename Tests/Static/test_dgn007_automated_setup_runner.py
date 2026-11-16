@@ -21,12 +21,15 @@ import run_dgn007_automated_setup as runner  # noqa: E402
 import validate_dgn007_automated_setup as validator  # noqa: E402
 
 
-def harness_result(*, contract=runner.DATA_MODEL_CONTRACT, phases=None, summary="PASS|OK", returncode=0, timed_out=False):
+def harness_result(*, contract=runner.DATA_MODEL_CONTRACT, phases=None, summary="PASS|OK", returncode=0, timed_out=False, phase_base=None):
     if phases is None:
         phases = [(phase, "PASS", "OK") for phase in contract.expected_phases]
     lines = [f"SQLPERF_SUMMARY|{summary}"]
     lines.extend(f"{phase}: {outcome}/{code} (0.001s) - Synthetisches Ergebnis."
                  for phase, outcome, code in phases)
+    if phase_base is not None:
+        lines.extend(f"SQLPERF_PHASE_TIME|1|{phase}|{phase_base + index}|{phase_base + index + 1}"
+                     for index, phase in enumerate(contract.expected_phases))
     return runner.SqlcmdResult((), returncode, "\n".join(lines), "", timed_out, 0.001)
 
 
@@ -110,7 +113,8 @@ class CleanupTests(unittest.TestCase):
     def test_capture_receipt_uses_monotonic_parent_lifecycle_and_cleanup_edges(self):
         body = SimpleNamespace(windows=(), requests=(), families=(), plans=(), plan_union=())
         capture = runner._CheckedCapture(body=body, phases=())
-        with patch.object(runner, "run_harness", return_value=harness_result()), \
+        with patch.object(runner, "run_harness", return_value=harness_result(
+                contract=runner.CONTROL_AB_CONTRACT, phase_base=11)), \
              patch.object(runner, "_check_capture_body", return_value=capture), \
              patch.object(runner, "assert_absent"), \
              patch.object(runner.time, "monotonic_ns", side_effect=(10, 20, 30)):
@@ -118,6 +122,8 @@ class CleanupTests(unittest.TestCase):
                 check_capture_projection=True, expected_major=17, expected_contract=object())
         self.assertEqual((receipt.lifecycle_started_ns, receipt.cleanup_started_ns,
                           receipt.lifecycle_finished_ns), (10, 20, 30))
+        self.assertEqual(tuple(row[0] for row in receipt.phase_timing),
+                         runner.CONTROL_AB_CONTRACT.expected_phases[:-1])
         self.assertEqual((receipt.first_absence_outcome, receipt.first_absence_code), ("PASS", "OK"))
 
     def test_capture_receipt_rejects_nonmonotone_or_noninteger_edges(self):

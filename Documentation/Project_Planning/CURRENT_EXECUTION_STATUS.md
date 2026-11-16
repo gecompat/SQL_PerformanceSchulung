@@ -21,6 +21,13 @@ bindet jetzt zusätzlich tatsächliche monotone Außenkanten für Start,
 Cleanupstart und Ende. Der Runner-AST wurde nach unabhängiger Codeprüfung für
 Python 3.12.14 neu gebunden.
 
+PR [#923](https://github.com/gecompat/SQL_PerformanceSchulung/pull/923) wurde
+mit Merge-Commit `ebe85b845883526b237236f664c013d8f92d830f` integriert. Die
+Receipt-Bindung verwirft nun unplausible, nicht geordnete oder nicht erfolgreiche
+Caller-Phasen bereits beim Einzelrecord und prüft sie gegen die tatsächlichen
+Lifecycle-/Cleanupgrenzen; bis zum nächsten Coordinator-Schnitt blieben diese
+sieben Zeitangaben jedoch Caller-Inputs.
+
 Der Head-Lauf
 [#70](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/43818717528)
 bestand am 16. November 2026: getrennte Datenmodell-, Query-Store-,

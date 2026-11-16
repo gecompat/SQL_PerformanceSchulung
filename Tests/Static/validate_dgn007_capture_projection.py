@@ -241,7 +241,9 @@ def runner_projection_findings(source):
                    'contract not in KNOWN_CONTRACTS','--check-phase-diagnostics',
                    'collect_capture_process(process, command, contract=contract)',
                    'reported_capture_failure(result.stdout, result.stderr, contract=contract)',
-                   'HARNESS_TIMEOUT = 180 + 60 + 20'):
+                   'HARNESS_TIMEOUT = 180 + 60 + 20',
+                   'phase_timing_protocol=True','_capture_phase_timing(result, contract=contract)',
+                   'SQLPERF_PHASE_TIME\\|1\\|'):
         if marker not in source: findings.append('Producer-Runner-Vertrag fehlt: '+marker)
     for name in ('collect_capture_process','check_capture','_check_capture_body','_capture_counts',
                  '_run_one','run_one','_run_capture_one'):
