@@ -33,6 +33,13 @@ abweichen, ausführbare AST-Änderungen scheitern geschlossen. UTF-8 wird separa
 gegen die Python-Encodingdeklaration geprüft. AST-Schemata und Dumpdarstellung
 sind versionsabhängig; es gibt keinen 3.13-/3.14-Äquivalenzclaim.
 Auch die vorhandene Bundle-Bootstrapprüfung bleibt unverändert.
+Am 2026-11-16 wurde der gebundene Runner-AST nach unabhängiger Codeprüfung
+aktualisiert: Der interne Capture-Receipt erhält nur monotone Hostticks für
+Lifecyclestart, Cleanupstart und Lifecycleende. Python 3.12.14 berechnete den
+neuen Ganzdatei-AST-Digest `0e1487a3c880b688a367d7a3e2c0f4467683ccbbaa7b2696b4ea48c6bb2a9d86`;
+keine Prozesskante, Importquelle, SQL-Datei oder Manifestprojektion wurde
+geändert. Die Runtime-/Methodengrenzen des Receipts stehen im
+[Producervertrag](../../Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/SQL_CAPTURE_PRODUCER.md).
 [Python AST](https://docs.python.org/3/library/ast.html),
 [Python Encodingerkennung](https://docs.python.org/3/library/tokenize.html#tokenize.detect_encoding).
 
