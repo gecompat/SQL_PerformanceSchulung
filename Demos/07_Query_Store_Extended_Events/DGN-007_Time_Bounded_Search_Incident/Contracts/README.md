@@ -145,11 +145,17 @@ Runnerreceipt inzwischen die tatsächlichen Harness-Phasen und
 Lifecyclegrenzen. Die Ressourcenangaben werden separat begrenzt beobachtet:
 Docker-CPU- und Speicherlimits müssen vor und nach einem erfolgreichen
 Control-Lifecycle unverändert mindestens vier logischen CPUs und 8192 MiB
-entsprechen. Das belegt nur Docker-Konfigurationswerte an diesen beiden
-Rändern, weder physische Hostkapazität noch kontinuierliche Unverändertheit
-während des Laufs. Der spätere Collector muss außerdem Herkunft und
-verlustfreie Zuordnung der Query-Store-Zeiten verifizieren; eine
-stillschweigende Kürzung auf Python-Mikrosekunden wäre keine gleichwertige
+entsprechen. Zusätzlich zählt eine administrative SQL-Abfrage die gerade
+laufenden SQL-Benutzersessions vor und nach dem Capture; nur genau eine Session
+lässt den
+Receipt zu. Die Randprobe belegt weder physische Hostkapazität noch
+kontinuierliche Ressourcenstabilität oder durchgehende SQL-Exklusivität. Der
+spätere Collector muss außerdem Herkunft und verlustfreie Zuordnung der
+Query-Store-Zeiten verifizieren. Die Sessionzählung verwendet
+`sys.dm_exec_sessions.is_user_process` und `status='running'`; Microsoft
+beschreibt `running` als Session mit mindestens einer gerade ausgeführten
+Anfrage ([Microsoft Learn, Abruf 2026-11-16](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-sessions-transact-sql?view=sql-server-ver17)).
+Eine stillschweigende Kürzung auf Python-Mikrosekunden wäre keine gleichwertige
 Übertragung.
 
 Ein separater [deklarativer Recordmapper](COLLECTOR_TRANSPORT.md#deklarative-ein-record-abbildung)
@@ -169,9 +175,11 @@ Cleanupphase bindet weiterhin den getrennten äußeren Absenzcheck.
 Damit sind Phasenzeitpunkte keine Callerangaben mehr. Der private Zeitkanal
 bindet die tatsächlich im Harness aufgerufenen Phasen, attestiert jedoch nicht
 die Quellherkunft des Harnesses oder den integrierten Vorabfreeze. Die
-Docker-konfigurierten CPU-/Speichergrenzen stammen aus gleichen Vorher- und
-Nachherproben; aktive SQL-Sessions, physische Hostbelegung und Freeze bleiben
-Callerangaben. Der vollständige vertrauensgebundene Collector-Coordinator
+Docker-konfigurierte CPU-/Speichergrenzen und laufende SQL-Benutzersessions
+stammen aus Vorher- und Nachherproben. Physische Hostbelegung und
+Freeze bleiben Callerangaben. Die SQL-Probe ist nur eine Momentaufnahme vor
+und nach dem Capture, kein Beleg durchgehender Exklusivität oder eines geschlossenen
+Zugriffsumfangs. Der vollständige vertrauensgebundene Collector-Coordinator
 bleibt offen.
 Die Parent-/Child-Bindung verwendet `time.monotonic_ns()`; Python dokumentiert
 für `time.monotonic()` dieselbe Systemuhr über Prozesse hinweg und empfiehlt
