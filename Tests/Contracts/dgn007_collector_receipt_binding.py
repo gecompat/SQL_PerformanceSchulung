@@ -74,6 +74,17 @@ def bind_receipt(contract: AcceptanceContract, receipt, *, expected_major: int,
                               phases=run_phases, absence=absence)
     except AssemblyError as error:
         raise CoordinatorError(error.code) from None
+    previous_finish = started
+    for phase in observed_phases:
+        if (type(phase.started_ns) is not int or type(phase.finished_ns) is not int
+                or phase.started_ns < previous_finish
+                or phase.finished_ns <= phase.started_ns
+                or phase.finished_ns > cleanup_started
+                or (phase.outcome, phase.code) != ("PASS", "OK")):
+            raise CoordinatorError("FAIL_CONTRACT")
+        previous_finish = phase.finished_ns
+    if previous_finish - started > 180_000_000_000:
+        raise CoordinatorError("FAIL_TIMEOUT")
     return CoordinatedRun(
         record, started, finished, phases, configured_cpus, configured_memory_mb,
         active_sql_sessions, active_versions_on_host, source_freeze_verified, True,
