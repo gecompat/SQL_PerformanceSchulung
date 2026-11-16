@@ -1,0 +1,40 @@
+name: DGN-007 Quellenfreeze
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Runtime/dgn007_source_freeze.py'
+      - 'Tests/Static/test_dgn007_source_freeze.py'
+      - 'Tests/Contracts/dgn007_prospective_acceptance.py'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/**'
+      - '.github/workflows/dgn007-source-freeze.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Runtime/dgn007_source_freeze.py'
+      - 'Tests/Static/test_dgn007_source_freeze.py'
+      - 'Tests/Contracts/dgn007_prospective_acceptance.py'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json'
+      - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/**'
+      - '.github/workflows/dgn007-source-freeze.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-source-freeze-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-freeze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Contractgebundene Quellen-Snapshots prüfen
+        run: python Tests/Static/test_dgn007_source_freeze.py
