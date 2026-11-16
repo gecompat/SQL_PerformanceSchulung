@@ -207,7 +207,7 @@ def runner_findings(text: str) -> list[str]:
     session_probe = functions.get("_active_sql_session_snapshot")
     session_text = " ".join((ast.get_source_segment(text, session_probe) or "").split()) if session_probe else ""
     for marker in ("sys.dm_exec_sessions", "is_user_process = 1", "ISNULL(IS_SRVROLEMEMBER",
-                   "COUNT_BIG", "target.kind != execution_target.DOCKER"):
+                   "status = N'running'", "COUNT_BIG", "target.kind != execution_target.DOCKER"):
         if marker not in session_text:
             findings.append(f"Runnerreceipt bindet keine begrenzte SQL-Sessionrandprobe: {marker}")
     for name in ("validate_manifest", "assert_empty_instance", "assert_absent", "run_harness", "check_harness", "recover", "run_one", "main"):

@@ -30,7 +30,7 @@ band anschließend alle sieben Harness-Phasenzeiten über ein privates Runnerpro
 an den tatsächlichen Ablauf; Merge-Commit `d00f72cd3f64cfcd19516fc00efea0834c821571`.
 Der aktuelle Coordinator-Schnitt bindet außerdem konfigurierte Docker-CPU- und
 Speichergrenzen an gleichlautende `docker inspect`-Snapshots vor und nach jedem
-Capture. Eine administrative SQL-Abfrage zählt zusätzlich sichtbare
+Capture. Eine administrative SQL-Abfrage zählt zusätzlich laufende
 Benutzersessions an beiden Capture-Rändern und lässt nur genau eine zu. Das
 belegt nur Randzustände, weder physische Hostkapazität noch durchgehende
 Ressourcenstabilität oder SQL-Exklusivität. Hostbelegung, integrierter
@@ -11935,7 +11935,7 @@ dem Receipt. Scope-Reihenfolge, fehlende oder wiederverwendete Lifecycles sowie
 Zeit-, Budget- und Ressourcen-Schranken werden vorqualifiziert. CPU und Speicher
 werden vor und nach dem Capture mit `docker inspect` gelesen und müssen identisch
 sowie oberhalb der Vertragsminima sein. Eine administrative DMV-Abfrage zählt
-sichtbare SQL-Benutzersessions an beiden Capture-Rändern; nur genau eine lässt
+laufende SQL-Benutzersessions an beiden Capture-Rändern; nur genau eine lässt
 einen Receipt zu. Beides belegt keine physische Hostkapazität, kontinuierliche
 Ressourcenstabilität, durchgehende SQL-Exklusivität oder einen geschlossenen
 Zugangsumfang. Hostbelegung und Source-Freeze bleiben Callerangaben;

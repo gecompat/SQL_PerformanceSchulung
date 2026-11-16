@@ -165,6 +165,7 @@ class CleanupTests(unittest.TestCase):
         self.assertIn("ISNULL(IS_SRVROLEMEMBER(N'sysadmin'), 0) <> 1",
                       query.call_args.kwargs["sql_text"])
         self.assertIn("sys.dm_exec_sessions", query.call_args.kwargs["sql_text"])
+        self.assertIn("status = N'running'", query.call_args.kwargs["sql_text"])
         for output in ("", "0\n", "1\n2\n", "session count = 1\n", "-1\n",
                        "1 2\n", "1.0\n"):
             with self.subTest(output=output), \

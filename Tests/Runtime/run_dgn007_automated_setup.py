@@ -315,7 +315,7 @@ def _active_sql_session_snapshot(target: ExecutionTarget) -> int:
             "IF ISNULL(IS_SRVROLEMEMBER(N'sysadmin'), 0) <> 1 "
             "THROW 51001,'FAIL_SAFETY',1; "
             "SELECT COUNT_BIG(*) FROM sys.dm_exec_sessions "
-            "WHERE is_user_process = 1;"
+            "WHERE is_user_process = 1 AND status = N'running';"
         ),
     )
     match = re.fullmatch(r"\s*([0-9]{1,3})\s*", output)
