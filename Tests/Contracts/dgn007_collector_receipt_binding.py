@@ -6,13 +6,29 @@ Erfolgsreceipt. Das Modul attestiert weder deren Herkunft noch eine SQL-Runtime.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from Tests.Contracts.dgn007_collector_coordinator import (
-    CoordinatedRun, CoordinatorError, PHASES, TimedPhase,
+    CoordinatedRun, CoordinatorError, EXPECTED_SEQUENCE, PHASES, TimedPhase,
+    validate_sequence,
 )
 from Tests.Contracts.dgn007_collector_record_assembly import assemble_run, AssemblyError
 from Tests.Contracts.dgn007_prospective_acceptance import (
     AcceptanceContract, PHASE_IDS, PhaseResult, _contract_valid,
 )
+
+
+@dataclass(frozen=True, slots=True)
+class ReceiptObservation:
+    """Deklarierte Lifecycle-ID, sieben Phasen und Ressourcen je Receipt."""
+
+    lifecycle_id: int
+    observed_phases: tuple[TimedPhase, ...]
+    configured_cpus: int
+    configured_memory_mb: int
+    active_sql_sessions: int
+    active_versions_on_host: int
+    source_freeze_verified: bool
 
 
 def bind_receipt(contract: AcceptanceContract, receipt, *, expected_major: int,
@@ -62,3 +78,30 @@ def bind_receipt(contract: AcceptanceContract, receipt, *, expected_major: int,
         record, started, finished, phases, configured_cpus, configured_memory_mb,
         active_sql_sessions, active_versions_on_host, source_freeze_verified, True,
     )
+
+
+def bind_sequence(contract: AcceptanceContract, receipts: tuple, *, expected_major: int,
+                  observations: tuple[ReceiptObservation, ...]) -> tuple[CoordinatedRun, ...]:
+    """Bindet exakt sechs Receipts positionsgebunden und prüft den Matrixvertrag."""
+    if (type(receipts) is not tuple or type(observations) is not tuple
+            or len(receipts) != len(EXPECTED_SEQUENCE)
+            or len(observations) != len(EXPECTED_SEQUENCE)):
+        raise CoordinatorError("SKIP_EVIDENCE_MISSING")
+    if any(type(item) is not ReceiptObservation for item in observations):
+        raise CoordinatorError()
+    runs = []
+    for receipt, observation, (block, slot, _label) in zip(
+            receipts, observations, EXPECTED_SEQUENCE):
+        runs.append(bind_receipt(
+            contract, receipt, expected_major=expected_major, block=block, slot=slot,
+            lifecycle_id=observation.lifecycle_id,
+            observed_phases=observation.observed_phases,
+            configured_cpus=observation.configured_cpus,
+            configured_memory_mb=observation.configured_memory_mb,
+            active_sql_sessions=observation.active_sql_sessions,
+            active_versions_on_host=observation.active_versions_on_host,
+            source_freeze_verified=observation.source_freeze_verified,
+        ))
+    complete = tuple(runs)
+    validate_sequence(contract, complete)
+    return complete

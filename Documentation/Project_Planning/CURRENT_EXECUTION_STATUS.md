@@ -11912,12 +11912,14 @@ Ein weiterer Worker-Startwert ist jetzt gebunden: `sys.flags.int_max_str_digits 
 ### DGN-007: Receipt-Bindung und G13-Diagnoseentwurf (2026-11-16)
 
 Der interne erfolgreiche `_CaptureReceipt` ist nun durch einen reinen Adapter an
-einen einzelnen `CoordinatedRun` gebunden. Der Adapter übernimmt Capture-Body,
-Harness-Phasen sowie echte äußere monotone Lifecycle-/Cleanup-Grenzen und die
-erste unabhängige Datenbankabsenz aus dem Receipt. Die sieben inneren Phasenzeiten,
-Ressourcen und Source-Freeze bleiben Callerangaben; daraus folgt keine
-Runtimeattestation oder vollständige Coordinatorqualifikation. Die synthetischen
-Prüfungen starten keine SQL-Instanz.
+einen `CoordinatedRun` und an eine vollständige Sechsermatrix in DEC-068-Reihenfolge
+gebunden. Der Adapter übernimmt Capture-Body, Harness-Phasen sowie echte äußere
+monotone Lifecycle-/Cleanup-Grenzen und die erste unabhängige Datenbankabsenz aus
+dem Receipt. Scope-Reihenfolge, fehlende oder wiederverwendete Lifecycles sowie
+Zeit-, Budget- und Ressourcen-Schranken werden vorqualifiziert. Die sieben inneren
+Phasenzeiten, Ressourcen und Source-Freeze bleiben Callerangaben; daraus folgt
+keine Runtimeattestation oder vollständige Coordinatorqualifikation. Die
+synthetischen Prüfungen starten keine SQL-Instanz.
 
 Der [G13-Grenzdiagnoseentwurf](DGN_007_G13_BOUNDARY_DIAGNOSTIC_DESIGN.md) hält
 fest, dass der bestehende Capture-Body nicht die exakten aggregierten
