@@ -11921,10 +11921,14 @@ Phasenzeiten, Ressourcen und Source-Freeze bleiben Callerangaben; daraus folgt
 keine Runtimeattestation oder vollständige Coordinatorqualifikation. Die
 synthetischen Prüfungen starten keine SQL-Instanz.
 
-Der [G13-Grenzdiagnoseentwurf](DGN_007_G13_BOUNDARY_DIAGNOSTIC_DESIGN.md) hält
-fest, dass der bestehende Capture-Body nicht die exakten aggregierten
-`IncidentProfile`-/`IncidentState`-Vergleichswerte des G13-Guards enthält und eine
-spätere Query-Store-Abfrage diese nicht atomar ersetzt. Nächster Schritt ist eine
-begrenzte Aufnahme derselben ausgewerteten Zeilen in einem eigens freizugebenden
-Diagnoselauf. Kein SQL wurde geändert oder gestartet; G13, DEC-068 und die
-ausgeschlossene menschliche Generalprobe bleiben unberührt.
+Der [G13-Grenzdiagnoseentwurf](DGN_007_G13_BOUNDARY_DIAGNOSTIC_DESIGN.md) wurde
+umgesetzt: der bestehende Guard und Reporter lesen dieselben einmal materialisierten
+Profil-/Fenstergrenzzeilen; ein strikt validierter Runner-Modus gibt höchstens 16
+skalare Zeilen erst nach Cleanup aus und führt genau einen Lifecycle aus. Die
+Grenze des Guards bleibt unverändert. Runner- und Capture-Projektionsprüfungen
+bestanden lokal (52 Runner-Tests; 39 Capture-Projektionstests, ein plattformbedingter
+Skip). Der gezielte isolierte SQL-Server-2022-`control-ba`-Lauf bestand mit einem
+Lifecycle und unabhängig bestätigtem eigenem Container-Cleanup. G13 trat dabei
+nicht auf (`DGN007_G13_BOUNDARY|NOT_OBSERVED`), daher gibt es für diesen Lauf keine
+Grenzwerte zu interpretieren. Weder Incidentursache noch Sechsermatrixqualifikation
+werden damit vorweggenommen; die menschliche Generalprobe bleibt ausgeschlossen.

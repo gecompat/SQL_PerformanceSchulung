@@ -335,49 +335,63 @@ END;
 /* DEC-072: QS und SYSUTC besitzen keine nachgewiesene gemeinsame Messuhr.
    Nur Diagnose; unveränderte Intervall-, Request-, Ergebnis- und Countguards
    begrenzen die Aussage auf das beobachtete isolierte Schulungslabor. */
-IF EXISTS(SELECT 1 FROM lab.IncidentProfile p JOIN lab.IncidentState w ON w.WindowId=p.WindowId
-          WHERE p.FirstExecutionTime<w.ExecutionStarted OR p.LastExecutionTime>w.ExecutionFinished)
+/* Beide G13-Operanden werden einmal materialisiert. Der Guard und die begrenzte
+   Diagnose verwenden exakt dieselben Zeilen, ohne erneute Query-Store-Abfrage. */
+/* CAPTURE_G13_BOUNDARY_ROWS_BEGIN */
+SELECT p.WindowId,p.ParentQueryId,p.QueryId,p.PlanId,p.RuntimeStatsIntervalId AS IntervalId,
+       p.ExecutionType,p.ExecutionCount,w.ExecutionStarted,w.ExecutionFinished,
+       p.FirstExecutionTime,p.LastExecutionTime,
+       DATEDIFF_BIG(nanosecond,SWITCHOFFSET(w.ExecutionStarted,'+00:00'),
+                    SWITCHOFFSET(p.FirstExecutionTime,'+00:00'))/CONVERT(bigint,100) AS FirstDeltaTicks,
+       DATEDIFF_BIG(nanosecond,SWITCHOFFSET(w.ExecutionFinished,'+00:00'),
+                    SWITCHOFFSET(p.LastExecutionTime,'+00:00'))/CONVERT(bigint,100) AS LastDeltaTicks
+INTO #G13BoundaryRows
+FROM lab.IncidentProfile p JOIN lab.IncidentState w ON w.WindowId=p.WindowId;
+/* CAPTURE_G13_BOUNDARY_ROWS_END */
+/* CAPTURE_G13_BOUNDARY_GUARD_BEGIN */
+IF EXISTS(SELECT 1 FROM #G13BoundaryRows
+          WHERE FirstExecutionTime<ExecutionStarted OR LastExecutionTime>ExecutionFinished)
 BEGIN
-/* G13_RAW_DIAGNOSTIC_BEGIN */
-    /* Rohfragmente desselben Fehlerfalls aus erneuter Query-Store-Abfrage,
-       kein atomarer Snapshot der gespeicherten Profilaufnahme. Einschließlich
-       Zero-Count-Zeilen; höchstens 16 skalare Zeilen vor dem bestehenden Guard. */
+/* G13_BOUNDARY_DIAGNOSTIC_BEGIN */
+    /* Exakte Guard-Operanden aus derselben Materialisierung; höchstens 16
+       skalare Zeilen, ohne Querytext, Plan-XML oder zweite Query-Store-Abfrage. */
     BEGIN TRY
-    SELECT TOP(17) ROW_NUMBER() OVER(ORDER BY w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id,
-                                      r.runtime_stats_interval_id,r.execution_type,r.first_execution_time) AS Ordinal,
-           w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id AS PlanId,
-           r.runtime_stats_interval_id AS IntervalId,r.execution_type AS ExecutionType,
-           r.count_executions AS ExecutionCount,r.first_execution_time AS FirstTime,
-           r.last_execution_time AS LastTime
-    INTO #G13FailureRaw
-    FROM #ScopedQueries s JOIN sys.query_store_plan p ON p.query_id=s.QueryId
-    JOIN sys.query_store_runtime_stats r ON r.plan_id=p.plan_id
-    JOIN lab.IncidentState w ON w.RuntimeStatsIntervalId=r.runtime_stats_interval_id
-    ORDER BY w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id,r.runtime_stats_interval_id,
-             r.execution_type,r.first_execution_time;
-    DECLARE @G13RawCount int=(SELECT COUNT(*) FROM #G13FailureRaw),@G13RawOrdinal int=1;
-    DECLARE @G13RawLine varchar(512);
-    PRINT CONCAT('DGN007_G13_RAW|1|BEGIN|',CASE WHEN @G13RawCount>16 THEN 'OVERFLOW' ELSE 'COMPLETE' END,
-                 '|',@G13RawCount);
-    WHILE @G13RawOrdinal<=@G13RawCount AND @G13RawOrdinal<=16
+    DECLARE @G13BoundaryCount bigint=(SELECT COUNT_BIG(*) FROM #G13BoundaryRows),
+            @G13BoundaryOrdinal int=1;
+    DECLARE @G13BoundaryLine varchar(1200);
+    PRINT CONCAT('DGN007_G13_BOUNDARY|1|BEGIN|',
+                 CASE WHEN @G13BoundaryCount>16 THEN 'OVERFLOW' ELSE 'COMPLETE' END,
+                 '|',@G13BoundaryCount);
+    WHILE @G13BoundaryOrdinal<=@G13BoundaryCount AND @G13BoundaryOrdinal<=16
     BEGIN
-        SELECT @G13RawLine=CONCAT('DGN007_G13_RAW|1|ROW|',Ordinal,'|',WindowId,'|',ParentQueryId,
-                                 '|',QueryId,'|',PlanId,'|',IntervalId,'|',ExecutionType,'|',ExecutionCount,
-                                 '|',COALESCE(CONVERT(varchar(40),SWITCHOFFSET(FirstTime,'+00:00'),127),'N'),
-                                 '|',COALESCE(CONVERT(varchar(40),SWITCHOFFSET(LastTime,'+00:00'),127),'N'))
-        FROM #G13FailureRaw WHERE Ordinal=@G13RawOrdinal;
-        PRINT @G13RawLine;
-        SET @G13RawOrdinal+=1;
+        ;WITH Ordered AS
+        (
+            SELECT ROW_NUMBER() OVER(ORDER BY WindowId,ParentQueryId,QueryId,PlanId,IntervalId,
+                                     ExecutionType,FirstExecutionTime,LastExecutionTime) AS Ordinal,*
+            FROM #G13BoundaryRows
+        )
+        SELECT @G13BoundaryLine=CONCAT('DGN007_G13_BOUNDARY|1|ROW|',Ordinal,'|',WindowId,'|',
+               ParentQueryId,'|',QueryId,'|',PlanId,'|',IntervalId,'|',ExecutionType,'|',ExecutionCount,'|',
+               COALESCE(CONVERT(varchar(40),SWITCHOFFSET(ExecutionStarted,'+00:00'),127),'N'),'|',
+               COALESCE(CONVERT(varchar(40),SWITCHOFFSET(ExecutionFinished,'+00:00'),127),'N'),'|',
+               COALESCE(CONVERT(varchar(40),SWITCHOFFSET(FirstExecutionTime,'+00:00'),127),'N'),'|',
+               COALESCE(CONVERT(varchar(40),SWITCHOFFSET(LastExecutionTime,'+00:00'),127),'N'),'|',
+               FirstDeltaTicks,'|',LastDeltaTicks)
+        FROM Ordered WHERE Ordinal=@G13BoundaryOrdinal;
+        PRINT @G13BoundaryLine;
+        SET @G13BoundaryOrdinal+=1;
     END;
-    PRINT CONCAT('DGN007_G13_RAW|1|END|',CASE WHEN @G13RawCount>16 THEN 0 ELSE @G13RawCount END);
+    PRINT CONCAT('DGN007_G13_BOUNDARY|1|END|',
+                 CASE WHEN @G13BoundaryCount>16 THEN 0 ELSE @G13BoundaryCount END);
     END TRY
     BEGIN CATCH
-        PRINT 'DGN007_G13_RAW|1|BEGIN|INSUFFICIENT|0';
-        PRINT 'DGN007_G13_RAW|1|END|0';
+        PRINT 'DGN007_G13_BOUNDARY|1|BEGIN|INSUFFICIENT|0';
+        PRINT 'DGN007_G13_BOUNDARY|1|END|0';
     END CATCH;
-/* G13_RAW_DIAGNOSTIC_END */
+/* G13_BOUNDARY_DIAGNOSTIC_END */
     PRINT 'DGN007_CLOCK_DIAGNOSTIC|2|QS_SYSUTC_ENVELOPE_MISMATCH';
 END;
+/* CAPTURE_G13_BOUNDARY_GUARD_END */
 /* CAPTURE_EXECUTION_BOUNDS_END */
 
 /* Nur tatsächlich verwendete Familien plus nötige Self-Parent-Anker.

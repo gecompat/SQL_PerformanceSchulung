@@ -1,26 +1,37 @@
-# DGN-007: Entwurf für eine begrenzte G13-Grenzdiagnose
+# DGN-007: begrenzte G13-Grenzdiagnose
 
-**Status:** PROPOSED, Entwurf ohne Runtimefreigabe  
+**Status:** implementiert; gezielter SQL-Server-2022-Lauf abgeschlossen
 **Geltung:** Diagnose des exakten bestehenden G13-Prädikats; keine Methodenänderung
 
 ## Befund
 
-Der aktuelle v2-Control-Capture enthält Fensterklammern sowie Plan- und Query-Store-Zeitwerte. Er enthält nicht die vollständigen aggregierten `lab.IncidentProfile`-Zeilen und die exakten `lab.IncidentState`-Grenzen, die der G13-Guard in derselben Auswertung verglichen hat. Eine nachträgliche Query-Store-Abfrage ist kein atomarer Beleg dieser ursprünglichen Auswertung. Der bestehende Reporter im fehlgeschlagenen G13-Zweig bleibt für seine begrenzte spätere Raw-Sicht erhalten.
+Der v2-Control-Capture enthielt Fensterklammern sowie Plan- und Query-Store-Zeitwerte,
+aber nicht die vollständigen aggregierten `lab.IncidentProfile`-Zeilen und die
+`lab.IncidentState`-Grenzen, die G13 gemeinsam verglich. Eine nachträgliche
+Query-Store-Abfrage war kein atomarer Beleg dieser ursprünglichen Auswertung.
 
-## Vorgeschlagene Aufnahme
+## Implementierte Aufnahme
 
-Ein künftiger, ausdrücklich freigegebener isolierter Diagnoselauf ergänzt für genau die bereits ausgewerteten G13-Gruppen eine begrenzte skalare Fehleraufnahme am Guard. Sie erfasst gemeinsam:
+`35_Control_Evidence.sql` materialisiert die begrenzte Verbindung von Profil- und
+Fensterwerten einmal in `#G13BoundaryRows`. Sowohl der bestehende G13-Guard als auch
+der Diagnose-Reporter lesen genau diese Zeilen. Der Guard vergleicht weiterhin
+`FirstExecutionTime < ExecutionStarted` oder `LastExecutionTime > ExecutionFinished`;
+die Grenze bleibt exakt null. Es gibt keine zweite Query-Store-Abfrage als Ersatz.
 
-- die exakten `ExecutionStarted`- und `ExecutionFinished`-Werte aus `lab.IncidentState`;
-- alle verglichenen `FirstExecutionTime`- und `LastExecutionTime`-Werte aus `lab.IncidentProfile`, einschließlich Gruppenidentität, Ausführungstyp und Zählwert;
-- vollständige Einheiten und verlustfreie Rohrepräsentation der Zeitwerte sowie die Quellspalte;
-- exakte signed Deltas `FirstExecutionTime - ExecutionStarted` und `LastExecutionTime - ExecutionFinished`, ohne Rundung;
-- eine feste Zeilenobergrenze, explizite Vollständigkeits-/Überlaufkennzeichnung und stabile neutrale Fehlercodes.
+Der Reporter kennzeichnet Beginn, Ende, Vollständigkeit und Überlauf und gibt maximal
+16 skalare Gruppen aus. Er enthält Gruppen-/Plan-/Intervallidentität, Ausführungstyp,
+Zählwert, UTC-Zeitwerte und vorzeichenbehaftete Deltas in 100-ns-Ticks. Kein Querytext,
+Plan-XML, Credential oder Umgebungskennung wird aufgenommen. Der Runner akzeptiert
+diese Diagnose ausschließlich für `control-ab`/`control-ba`, führt genau einen
+isolierten Capture-Lifecycle aus und gibt die validierten Zeilen erst nach Cleanup
+aus. Der Modus `--diagnose-g13-boundaries` ist nicht in CI verdrahtet.
 
-Die Aufnahme muss dieselben materialisierten Zeilen benutzen, die der Guard prüft. Sie darf keine zweite Query-Store-Aufnahme als Ersatz verwenden. Ausgabe bleibt innerhalb des isolierten autorisierten Laufs und wird nicht in öffentliche CI-Logs oder das Repository geschrieben. Querytext, Plan-XML, Zugangsdaten und Umgebungskennungen werden nicht ausgegeben.
+## Noch ausstehend
 
-## Unveränderte Grenze
-
-Die Vergleichsgrenze bleibt exakt null. Dieser Entwurf genehmigt weder Toleranz, Rundung, Puffer, Guardentfernung noch alternative Zeitzuordnung. Er verändert keine SQL-Datei und startet keinen SQL-Lauf. Erst ein separater Auftrag, der den isolierten Diagnosecode und dessen konkreten Lauf freigibt, darf diese Aufnahme umsetzen und ausführen.
-
-Ein einzelner Datensatz würde nur die tatsächlich verglichenen Werte dieses Laufs belegen. Er bewiese weder eine allgemeine Uhrbeziehung noch eine Ursache, einen Methodenwechsel, Incidentpromotion oder die Qualifikation der sechs-Lifecycle-Matrix. Menschliche Generalprobe ist nicht Teil dieses Vorschlags.
+Der einmalige isolierte Lauf auf SQL Server 2022 mit `control-ba` bestand: ein
+Lifecycle `PASS`, unabhängiger Container-Cleanup `PASS`, Ergebnis
+`DGN007_G13_BOUNDARY|NOT_OBSERVED`. G13 trat in diesem Lauf nicht auf, daher gibt es
+keine Grenzwerte zu interpretieren. Das Ergebnis belegt ausschließlich diesen Lauf;
+es beweist weder eine allgemeine Uhrbeziehung noch eine Ursache, Methodenänderung,
+Incidentpromotion oder Qualifikation der Sechsermatrix. Die menschliche Generalprobe
+bleibt ausgeschlossen.
