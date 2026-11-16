@@ -158,12 +158,13 @@ class CleanupTests(unittest.TestCase):
         absent.assert_called_once()
 
     def test_active_session_snapshot_requires_admin_and_strict_single_scalar(self):
-        with patch.object(runner.execution_target, "run_sql", return_value="1\n") as query:
+        with patch.object(runner.execution_target, "run_sql", return_value="                   1\n") as query:
             self.assertEqual(runner._active_sql_session_snapshot(target()), 1)
         self.assertIn("ISNULL(IS_SRVROLEMEMBER(N'sysadmin'), 0) <> 1",
                       query.call_args.kwargs["sql_text"])
         self.assertIn("sys.dm_exec_sessions", query.call_args.kwargs["sql_text"])
-        for output in ("", "0\n", "1\n2\n", "session count = 1\n", "-1\n"):
+        for output in ("", "0\n", "1\n2\n", "session count = 1\n", "-1\n",
+                       "1 2\n", "1.0\n"):
             with self.subTest(output=output), \
                  patch.object(runner.execution_target, "run_sql", return_value=output), \
                  self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):

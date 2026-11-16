@@ -318,7 +318,7 @@ def _active_sql_session_snapshot(target: ExecutionTarget) -> int:
             "WHERE is_user_process = 1;"
         ),
     )
-    match = re.fullmatch(r"([0-9]{1,3})\s*", output)
+    match = re.fullmatch(r"\s*([0-9]{1,3})\s*", output)
     if match is None:
         raise RunnerFailure("FAIL_CONTRACT")
     count = int(match.group(1))
