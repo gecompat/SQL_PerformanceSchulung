@@ -56,8 +56,13 @@ Capture-Runner eingebunden. Er bindet zwei Snapshots der 14
 normalisierten SQL-/Manifestdateien vor Capture und nach Cleanup an das interne
 Runnerreceipt; die Receipt-Bindung leitet das Freeze-Flag ab und akzeptiert
 keine Callerzusicherung mehr. 60 Runner-, 11 Receipt-, fünf Coordinator- und
-zwei Snapshottests sowie der Runnervertrag bestehen lokal. Die PR-Gates laufen
-für diese Änderung; der vorhandene SQL-Server-Containerbestand verhindert
+zwei Snapshottests sowie der Runnervertrag bestehen lokal. Der
+Offlinequellenbundlescanner nimmt den Helfer jetzt als zehntes Pythonmodul auf;
+zwei auf `main` veraltete Bootstrap-AST-Fingerprints wurden auf die
+unveränderten aktuellen Pfadblöcke nachgeführt. Die geschlossene
+28-Mitglieder-Bundle-Gegenprobe besteht mit 36 Tests (zwei Plattform-Skips).
+Die übrigen PR-Gates laufen für diese Änderung; der vorhandene
+SQL-Server-Containerbestand verhindert
 weiterhin einen kontrolliert isolierten lokalen Matrixlauf. Unattestiert bleiben
 die tatsächlich vom Kindprozess geladenen Bytes, Quellenherkunft und
 Hostbelegung.

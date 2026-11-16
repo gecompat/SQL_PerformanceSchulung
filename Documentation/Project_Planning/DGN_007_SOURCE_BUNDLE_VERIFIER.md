@@ -16,9 +16,9 @@ fest im Verifier definiert und wird niemals aus dem Kandidaten geladen.
 Git liest originale Blobs ohne Replaceobjects, Lazyfetch, Textconv, Filter oder
 Archiveexport. Kandidaten werden weder importiert noch ausgeführt.
 
-Die reviewte Vereinigung umfasst 27 Mitglieder: neun Pythonquellen
+Die reviewte Vereinigung umfasst aktuell 28 Mitglieder: zehn Pythonquellen
 (Runner, Target, Proxy, Harness, Sessionorchestrator, Prozesshelper,
-Projection, Transportdecoder und Prospektivevaluator), elf SQLquellen,
+Projection, Transportdecoder, Prospektivevaluator und Quellenfreeze-Prüfer), elf SQLquellen,
 sechs Manifeste und den Incidentvertrag. Die vollständigen relativen Pfade
 stehen in `PYTHON_MEMBERS` und `DATA_MEMBERS`; die drei Einstiege sind Runner,
 Proxy und Harness. `orchestrate_sessions.py` gehört wegen des unbedingten
@@ -36,6 +36,12 @@ Ein normaler Checkout kann durch CRLF-Konvertierung abweichende Rohbytes besitze
 Der Verifier erstellt und extrahiert selbst keine Archive oder Bundles.
 
 ## Bindung und Ablehnung
+
+Der aktualisierte Quellenverbund nimmt `dgn007_source_freeze.py` als
+`Tests.Runtime.dgn007_source_freeze` auf. Zwei historische Bootstrap-Digests
+wurden auf die unveränderten aktuellen AST-Blöcke des Runners und Targets
+nachgeführt; die feste Pfad-/Suchlogik bleibt dieselbe. Die geschlossene
+Bundle-Gegenprobe bestand danach mit 36 Tests (zwei Plattform-Skips).
 
 `PASS_STATIC_CANDIDATE` verlangt genau die feste Mitgliederliste, reguläre
 Dateien und bytegleiche Gitblobs, danach die deklarierte Importprüfung.
@@ -107,13 +113,13 @@ Pfadalias und Casekollision, CRLF und echte Inhaltsänderung, Exportattribute,
 Gitreplace-/Umleitungsversuch, Hardlinks und Git-Symlink-/Submodulemodes,
 Import-/Bootstrapmutation, NUL-Syntax,
 Größen-/Eintrags-/AST-/Gitoutputlimits und einen Ausführungssentinel.
-Darunter bindet ein Fall die tatsächlichen 27 Quellen am lokalen HEAD.
+Darunter bindet ein Fall die tatsächlichen 28 Quellen am lokalen HEAD.
 Unter Windows benötigen zwei echte Symlinkfälle OS-Berechtigung und werden
 bei deren Fehlen ausdrücklich als SKIP ausgewiesen; Linux-CI (Continuous Integration; automatisierte Integrationsprüfungen) führt sie aus.
 Reparseattribute besitzen zusätzlich eine kontrollierte Gegenprobe.
 Keine SQL-, Docker- oder Launcher-Runtime ist beteiligt. Der eigene
 [Workflow](../../.github/workflows/dgn007-source-bundle.yml) ist statisch und
-auf die sieben konkreten Verifier-/Dokumentpfade und die 27 exakten Quellmember begrenzt;
+auf die sieben konkreten Verifier-/Dokumentpfade und die 28 exakten Quellmember begrenzt;
 spätere Änderungen dieser Quellen lösen damit die Closuregegenprobe aus.
 
 ## Nächster begrenzter Schnitt

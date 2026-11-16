@@ -33,6 +33,7 @@ PYTHON_MEMBERS = (
     "Tests/Contracts/dgn007_capture_projection.py",
     "Tests/Contracts/dgn007_collector_transport.py",
     "Tests/Contracts/dgn007_prospective_acceptance.py",
+    "Tests/Runtime/dgn007_source_freeze.py",
 )
 DATA_MEMBERS = tuple(DEMO + "Automated/" + name for name in (
     "00_Preflight.sql", "10_Setup.sql", "15_Control_AB.sql", "15_Control_BA.sql",
@@ -45,14 +46,16 @@ DATA_MEMBERS = tuple(DEMO + "Automated/" + name for name in (
 STDLIB = frozenset(("__future__", "argparse", "ctypes", "dataclasses", "datetime", "decimal",
                     "fractions", "hashlib", "json", "os", "pathlib", "re", "shutil",
                     "signal", "subprocess", "sys", "threading", "time", "typing"))
-MODULES = tuple((Path(p).stem if "/Contracts/" not in p else
-                 "Tests.Contracts." + Path(p).stem, p) for p in PYTHON_MEMBERS)
+MODULES = tuple(("Tests.Contracts." + Path(p).stem if "/Contracts/" in p else
+                 "Tests.Runtime.dgn007_source_freeze"
+                 if p == "Tests/Runtime/dgn007_source_freeze.py" else
+                 Path(p).stem, p) for p in PYTHON_MEMBERS)
 # Exakte AST-Bindung der bereits reviewten Suchpfadblöcke, keine Ausführung.
 BOOTSTRAPS = (
     (PYTHON_MEMBERS[0], ("ROOT", "RUNTIME", "FRAMEWORK"),
-     "f417ebb8396bfd9998fbf80e84a1313c5e310efb73516ea37b5a9d7dcd64812e"),
+     "5a6c6dd0bb7da75125f6f2eee6f8c9c5d8a645ae00cf66764636998b70db002f"),
     (PYTHON_MEMBERS[1], ("ROOT", "RUNTIME", "FRAMEWORK_TOOLS"),
-     "4c322b3e2ff26323eb731c63115a1c097c0ed83862969e339d4ed247ba8a5436"),
+     "16d394f554978710cbee8fbca5e5a2a4c801d451a15eb8e0efe2f7eea5707792"),
 )
 
 
