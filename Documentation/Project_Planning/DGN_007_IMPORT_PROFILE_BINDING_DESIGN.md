@@ -6384,3 +6384,17 @@ quellengebundenen POSIX-Aufruf. Gemeinsam mit dem belegten Modulstartwert
 `False` verbindet der Kandidat den Erstaufrufpfad mit den statischen
 `get_config_vars`-Rückgaben. Das belegt keinen erfolgreichen Lauf bis zu dieser
 Zeile.
+
+
+### Fortsetzung: UTF-8-Flag der festen Importworkerroute
+
+Die drei digestgebundenen CPython-3.12-Importworker werden jetzt mit
+`sys.executable -I -S -B -X utf8=1 -c ...` gestartet. Der bestehende exakte
+Workerquellhash umfasst die Argumentänderung. Die statische Route verlangt
+diese vollständige Argumentliste sowie `SetFlag(config->utf8_mode)` in der
+gepinnten `sysmodule.c`-Quelle und ergänzt den Kandidatenfact
+`sys.flags.utf8_mode=1`; abweichendes oder fehlendes `-X utf8=1` bleibt
+unbekannt. Damit hängt dieser einzelne Fact nicht von der vererbten Locale ab.
+Eine synthetische Mutation auf `utf8=0` wird abgewiesen. 296 fokussierte Tests
+bestehen lokal. Die Ableitung bleibt statische Kandidatenevidenz, keine
+Workerbeobachtung, vollständige Importclosure oder S15-/P11-Inventur.

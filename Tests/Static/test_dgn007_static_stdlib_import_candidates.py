@@ -114,6 +114,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"SetFlag(config->quiet);\n"
             b"SetFlag(config->use_hash_seed == 0 || config->hash_seed != 0);\n"
             b"SetFlagObj(PyBool_FromLong(config->dev_mode));\n"
+            b"SetFlag(preconfig->utf8_mode);\n"
             b"SetFlag(config->warn_default_encoding);\n"
             b"SetFlag(config->int_max_str_digits);\n"
             b"return 0;\n}\n"
@@ -125,7 +126,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         worker_source = (
             b"def run_import_only(ordinal, worker_nonce):\n"
-            b"    command = [sys.executable, '-I', '-S', '-B', '-c', "
+            b"    command = [sys.executable, '-I', '-S', '-B', '-X', 'utf8=1', '-c', "
             b"_worker_source(ordinal, worker_nonce)]\n"
             b"def _collect_process(command):\n"
             b"    child_env = os.environ.copy()\n"
@@ -1282,7 +1283,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         worker_source = (
             b"def run_import_only(ordinal, worker_nonce):\n"
-            b"    command = [sys.executable, '-I', '-S', '-B', '-c', "
+            b"    command = [sys.executable, '-I', '-S', '-B', '-X', 'utf8=1', '-c', "
             b"_worker_source(ordinal, worker_nonce)]\n"
             b"def _collect_process(command):\n"
             b"    child_env = os.environ.copy()\n"
@@ -1395,7 +1396,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         worker_source = (
             b"def run_import_only(ordinal, worker_nonce):\n"
-            b"    command = [sys.executable, '-I', '-S', '-B', '-c', "
+            b"    command = [sys.executable, '-I', '-S', '-B', '-X', 'utf8=1', '-c', "
             b"_worker_source(ordinal, worker_nonce)]\n"
             b"def _collect_process(command):\n"
             b"    child_env = os.environ.copy()\n"
@@ -1426,7 +1427,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 guard, known_call_facts=(("sys.flags.optimize == 0", True),)
             ))
             optimized_worker = worker_source.replace(
-                b"'-B', '-c'", b"'-B', '-O', '-c'"
+                b"'-B', '-X', 'utf8=1', '-c'", b"'-B', '-O', '-X', 'utf8=1', '-c'"
             )
             self.assertEqual(SUBJECT._target_importlib_optimize_line_facts(
                 {"importlib/_bootstrap_external.py": external_source},
@@ -1461,6 +1462,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             ("sys.flags.quiet", 0),
             ("sys.flags.hash_randomization", 1),
             ("sys.flags.dev_mode", False),
+            ("sys.flags.utf8_mode", 1),
             ("sys.flags.warn_default_encoding", False),
             ("sys.flags.int_max_str_digits", 4300),
         )
@@ -1546,7 +1548,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             self.assertEqual(SUBJECT._target_s15_flags_field_candidate(facts), {
                 "value": (1, 1, 1, 1, 1, 0),
                 "source_fact_names": tuple(name for name, _ in expected[:6]),
-                "worker_route_fact_count": 18,
+                "worker_route_fact_count": 19,
                 "runtime_flags_claimed": False,
                 "evidence_scope": "STATIC_S15_FLAGS_FIELD_CANDIDATE",
             })
@@ -1565,6 +1567,7 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "sys.flags.quiet == 0 and "
                 "sys.flags.hash_randomization == 1 and "
                 "sys.flags.dev_mode is False and "
+                "sys.flags.utf8_mode == 1 and "
                 "sys.flags.warn_default_encoding is False and "
                 "sys.flags.int_max_str_digits == 4300",
                 mode="eval",
@@ -3346,7 +3349,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             ), ())
             self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
                 header, long_header, preconfig, initconfig, sys_module,
-                worker.replace(b"'-B', '-c'", b"'-B', '-v', '-c'"),
+                worker.replace(b"'-B', '-X', 'utf8=1', '-c'", b"'-B', '-X', 'utf8=0', '-c'"),
             ), ())
             self.assertEqual(SUBJECT._target_worker_sys_flag_facts(
                 header, long_header, preconfig, initconfig,
@@ -4392,7 +4395,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         worker_source = (
             b"def run_import_only(ordinal, worker_nonce):\n"
-            b"    command = [sys.executable, '-I', '-S', '-B', '-c', "
+            b"    command = [sys.executable, '-I', '-S', '-B', '-X', 'utf8=1', '-c', "
             b"_worker_source(ordinal, worker_nonce)]\n"
             b"def _collect_process(command):\n"
             b"    child_env = os.environ.copy()\n"

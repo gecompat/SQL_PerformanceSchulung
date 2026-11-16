@@ -162,7 +162,7 @@ THREAD_NATIVE_ID_MODULE_MEMBER = "Python-3.12.16/Modules/_threadmodule.c"
 THREAD_NATIVE_ID_MODULE_SHA256 = "277217c4a704bc84f9b7caf79123eaed8a45288c3023747e457df5d817cc8bc1"
 THREAD_NATIVE_ID_PTHREAD_MEMBER = "Python-3.12.16/Python/thread_pthread.h"
 THREAD_NATIVE_ID_PTHREAD_SHA256 = "467f48143ba6bd2dc8f139934d46fdaefe48b11ddf19e476a71ad156996f9195"
-IMPORT_USED_BYTES_PROBE_SHA256 = "98d6a90cc448629950d0f91f20f05ce9be3b35937dcc057a57bceb67d3bb77b3"
+IMPORT_USED_BYTES_PROBE_SHA256 = "e4ce3a86f4baedd358ccca148e1dc651b1ca90499b60df0e0159e95acd4ff1cc"
 GETPATH_SOURCE_MEMBER = "Python-3.12.16/Modules/getpath.py"
 GETPATH_SOURCE_SHA256 = "46901bf54c780960d0ced5ac12a2f8e0db545518b54d6008a10fcefa903f7be2"
 SYSCONFIG_SOURCE_SHA256 = "ce56212ba89be181fb90fe62496e6d2e436befaf2dffd10e87ce37d1685271a8"
@@ -3387,6 +3387,7 @@ def _target_s15_flags_field_candidate(worker_sys_flag_facts):
         ("sys.flags.quiet", 0),
         ("sys.flags.hash_randomization", 1),
         ("sys.flags.dev_mode", False),
+        ("sys.flags.utf8_mode", 1),
         ("sys.flags.warn_default_encoding", False),
         ("sys.flags.int_max_str_digits", 4300),
     )
@@ -4206,7 +4207,7 @@ def _target_isolated_worker_route_valid(
                 for target in node.targets)
     ]
     expected_command = (
-        "[sys.executable, '-I', '-S', '-B', '-c', "
+        "[sys.executable, '-I', '-S', '-B', '-X', 'utf8=1', '-c', "
         "_worker_source(ordinal, worker_nonce)]"
     )
     popen_calls = [
@@ -4563,6 +4564,7 @@ def _target_worker_sys_flag_facts(
         r"config->hash_seed\s*!=\s*0\);",
         r"SetFlagObj\(PyBool_FromLong\(config->dev_mode\)\);",
         r"SetFlag\(config->warn_default_encoding\);",
+        r"SetFlag\(preconfig->utf8_mode\);",
     )
     if any(not re.search(pattern, flag_body) for pattern in required_bindings):
         return ()
@@ -4583,6 +4585,7 @@ def _target_worker_sys_flag_facts(
         ("sys.flags.quiet", 0),
         ("sys.flags.hash_randomization", 1),
         ("sys.flags.dev_mode", False),
+        ("sys.flags.utf8_mode", 1),
     )
     if _target_worker_warn_default_encoding_disabled(
             preconfig_header_source, preconfig_source, initconfig_source,

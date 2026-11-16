@@ -11954,3 +11954,20 @@ Lifecycle und unabhängig bestätigtem eigenem Container-Cleanup. G13 trat dabei
 nicht auf (`DGN007_G13_BOUNDARY|NOT_OBSERVED`), daher gibt es für diesen Lauf keine
 Grenzwerte zu interpretieren. Weder Incidentursache noch Sechsermatrixqualifikation
 werden damit vorweggenommen; die menschliche Generalprobe bleibt ausgeschlossen.
+
+
+### DGN-007 – deterministischer UTF-8-Modus im Importworker
+
+Der gebundene Linux-/CPython-3.12-Importworker startet seine drei frischen
+Kindprozesse jetzt mit `-X utf8=1` zusätzlich zu `-I -S -B`. Das explizite
+Flag macht `sys.flags.utf8_mode=1` unabhängig von der geerbten `LC_CTYPE`-Locale
+und von automatischer Legacy-Locale-Erkennung. Der Scanner gibt den Fact nur bei
+übereinstimmendem Workerquellhash, exakter Argumentliste und dem gebundenen
+`sys.flags`-Setter aus; eine `utf8=0`-Mutation verwirft die Route. Die
+CPython-3.12-Dokumentation beschreibt `-X utf8` als Aktivierung des UTF-8-Modus;
+der gepinnte `preconfig.c`-Pfad wertet den `utf8`-X-Optionswert vor der
+Locale-Fallbacklogik aus ([CPython CLI](https://docs.python.org/3.12/using/cmdline.html),
+[gepinntes preconfig.c](https://github.com/python/cpython/blob/v3.12.16/Python/preconfig.c)).
+Die fokussierte Scanner-Suite besteht lokal mit 296 Tests. Dies bleibt
+`CANDIDATES_ONLY`: kein beobachteter Worker-/Runtimewert, keine vollständige
+P11-Inventur und keine SQL-/Incidentqualifikation.
