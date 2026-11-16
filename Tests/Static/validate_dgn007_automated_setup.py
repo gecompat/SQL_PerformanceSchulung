@@ -187,13 +187,21 @@ def runner_findings(text: str) -> list[str]:
     receipt_text = " ".join((ast.get_source_segment(text, receipt) or "").split()) if receipt is not None else ""
     for marker in ("lifecycle_started_ns", "cleanup_started_ns", "lifecycle_finished_ns",
                    "0 <= self.lifecycle_started_ns <= self.cleanup_started_ns",
-                   "<= self.lifecycle_finished_ns", "phase_timing"):
+                   "<= self.lifecycle_finished_ns", "phase_timing",
+                   "configured_cpus", "configured_memory_mb"):
         if marker not in receipt_text:
             findings.append(f"Interner Capturebeleg fehlt monotone Lifecyclegrenze: {marker}")
     for marker in ("PHASE_TIME = re.compile", "phase_timing_protocol=True",
-                   "_capture_phase_timing(result, contract=contract)"):
+                   "_capture_phase_timing(result, contract=contract)",
+                   "_docker_resource_snapshot(target)", "resource_after != resource_before"):
         if marker not in text:
             findings.append(f"Runnerreceipt bindet keine tatsächlichen Harness-Phasenzeiten: {marker}")
+    resource_probe = functions.get("_docker_resource_snapshot")
+    resource_text = " ".join((ast.get_source_segment(text, resource_probe) or "").split()) if resource_probe else ""
+    for marker in ("docker", "inspect", "HostConfig.NanoCpus", "HostConfig.Memory",
+                   "State.Running", "8 * 1024 * 1024 * 1024"):
+        if marker not in resource_text:
+            findings.append(f"Runner receipt bindet Docker-Ressourcen nicht fail-closed: {marker}")
     for name in ("validate_manifest", "assert_empty_instance", "assert_absent", "run_harness", "check_harness", "recover", "run_one", "main"):
         if name not in functions:
             findings.append(f"Runner-Vertragsprüfung fehlt: {name}")

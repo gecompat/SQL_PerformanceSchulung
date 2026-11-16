@@ -31,14 +31,15 @@ class ReceiptBindingTests(unittest.TestCase):
             7, self.body,
             tuple((name, "PASS", "OK") for name in acceptance.PHASE_IDS),
             "PASS", "OK", 1_000_000_000, 8_000_000_000, 9_000_000_000,
+            4, 8192,
             phase_timing=tuple((name, 1_000_000_000 + index * 800_000_000,
                                 1_000_000_000 + (index + 1) * 800_000_000)
                                for index, name in enumerate(coordinator.PHASES[:-1])))
 
     def bind(self, **overrides):
         args = dict(expected_major=16, block=1, slot=2, lifecycle_id=41,
-                    configured_cpus=4, configured_memory_mb=8192, active_sql_sessions=1,
-                    active_versions_on_host=1, source_freeze_verified=True)
+                    active_sql_sessions=1, active_versions_on_host=1,
+                    source_freeze_verified=True)
         args.update(overrides)
         return binding.bind_receipt(self.contract, self.receipt, **args)
 
@@ -59,6 +60,16 @@ class ReceiptBindingTests(unittest.TestCase):
         with self.assertRaises(coordinator.CoordinatorError) as raised:
             self.bind()
         self.assertEqual(raised.exception.code, "FAIL_RESULT_CONTRACT")
+
+    def test_docker_cpu_and_memory_limits_are_receipt_bound(self):
+        result = self.bind()
+        self.assertEqual((result.configured_cpus, result.configured_memory_mb), (4, 8192))
+        self.assertNotIn("configured_cpus", inspect.signature(binding.bind_receipt).parameters)
+        self.assertNotIn("configured_memory_mb", inspect.signature(binding.bind_receipt).parameters)
+        self.assertNotIn("configured_cpus", binding.ReceiptObservation.__dataclass_fields__)
+        self.assertNotIn("configured_memory_mb", binding.ReceiptObservation.__dataclass_fields__)
+        with self.assertRaisesRegex(RunnerFailure, "FAIL_CONTRACT"):
+            replace(self.receipt, configured_cpus=3)
 
     def test_rejects_outer_phase_ticks_outside_receipt_lifecycle(self):
         with self.assertRaisesRegex(RunnerFailure, "FAIL_CONTRACT"):
@@ -98,7 +109,7 @@ class ReceiptBindingTests(unittest.TestCase):
         self.assertEqual(raised.exception.code, "FAIL_CLEANUP")
 
     def test_explicitly_limits_claim_to_receipt_bound_fields(self):
-        self.assertIn("Ressourcen und Source-Freeze bleiben Eingaben", binding.__doc__)
+        self.assertIn("Aktive Sessions, Hostbelegung und Source-Freeze bleiben", binding.__doc__)
 
     def make_matrix(self):
         receipts = []
@@ -111,11 +122,12 @@ class ReceiptBindingTests(unittest.TestCase):
                 index + 1, body,
                 tuple((name, "PASS", "OK") for name in acceptance.PHASE_IDS),
                 "PASS", "OK", start, start + 8_000_000_000, start + 9_000_000_000,
+                4, 8192,
                 phase_timing=tuple((name, start + phase_index * 900_000_000,
                                     start + (phase_index + 1) * 900_000_000)
                                    for phase_index, name in enumerate(coordinator.PHASES[:-1]))))
             observations.append(binding.ReceiptObservation(
-                index + 1, 4, 8192, 1, 1, True))
+                index + 1, 1, 1, True))
         return tuple(receipts), tuple(observations)
 
     def test_binds_six_receipts_in_dec068_order_and_prequalifies_sequence(self):

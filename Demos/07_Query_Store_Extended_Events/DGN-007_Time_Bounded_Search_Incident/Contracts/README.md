@@ -139,12 +139,18 @@ ausschließlich die Rundung der SQL-`float`-Rows-Aggregation.
 Zeitangaben verwenden ganzzahlige UTC-Ticks mit 100-ns-Auflösung ab
 `0001-01-01T00:00:00Z`, im Bereich `0..3155378975999999999`. Die Plan-Endzeiten
 müssen innerhalb des deklarierten Ausführungsfensters und Katalogintervalls
-liegen. Block/Slot prüfen nur die deklarierte Reihenfolge; tatsächliche
-Lifecycle-Chronologie, Ressourcen und die 180-/60-Sekunden-Budgets werden
-noch nicht attestiert. Der spätere Collector muss die Herkunft und
-verlustfreie Zuordnung der Query-Store-Zeiten
-verifizieren; eine stillschweigende Kürzung auf Python-Mikrosekunden wäre
-keine gleichwertige Übertragung.
+liegen. Block/Slot prüfen nur die deklarierte Reihenfolge; Query-Store-Zeiten
+beweisen keine äußere Lifecycle-Chronologie. Dafür bindet der interne
+Runnerreceipt inzwischen die tatsächlichen Harness-Phasen und
+Lifecyclegrenzen. Die Ressourcenangaben werden separat begrenzt beobachtet:
+Docker-CPU- und Speicherlimits müssen vor und nach einem erfolgreichen
+Control-Lifecycle unverändert mindestens vier logischen CPUs und 8192 MiB
+entsprechen. Das belegt nur Docker-Konfigurationswerte an diesen beiden
+Rändern, weder physische Hostkapazität noch kontinuierliche Unverändertheit
+während des Laufs. Der spätere Collector muss außerdem Herkunft und
+verlustfreie Zuordnung der Query-Store-Zeiten verifizieren; eine
+stillschweigende Kürzung auf Python-Mikrosekunden wäre keine gleichwertige
+Übertragung.
 
 Ein separater [deklarativer Recordmapper](COLLECTOR_TRANSPORT.md#deklarative-ein-record-abbildung)
 bildet den vollständigen Transportbody auf genau einen `RunRecord` ab und
@@ -162,9 +168,11 @@ Cleanupphase bindet weiterhin den getrennten äußeren Absenzcheck.
 
 Damit sind Phasenzeitpunkte keine Callerangaben mehr. Der private Zeitkanal
 bindet die tatsächlich im Harness aufgerufenen Phasen, attestiert jedoch nicht
-die Quellherkunft des Harnesses oder den integrierten Vorabfreeze. Ressourcen,
-aktive Sessions, physische Hostbelegung und Freeze bleiben Callerangaben; der
-vollständige vertrauensgebundene Collector-Coordinator bleibt offen.
+die Quellherkunft des Harnesses oder den integrierten Vorabfreeze. Die
+Docker-konfigurierten CPU-/Speichergrenzen stammen aus gleichen Vorher- und
+Nachherproben; aktive SQL-Sessions, physische Hostbelegung und Freeze bleiben
+Callerangaben. Der vollständige vertrauensgebundene Collector-Coordinator
+bleibt offen.
 Die Parent-/Child-Bindung verwendet `time.monotonic_ns()`; Python dokumentiert
 für `time.monotonic()` dieselbe Systemuhr über Prozesse hinweg und empfiehlt
 die Nanosekundenvariante gegen Float-Präzisionsverlust ([Python 3.12

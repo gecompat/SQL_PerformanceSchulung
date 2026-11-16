@@ -25,8 +25,15 @@ PR [#923](https://github.com/gecompat/SQL_PerformanceSchulung/pull/923) wurde
 mit Merge-Commit `ebe85b845883526b237236f664c013d8f92d830f` integriert. Die
 Receipt-Bindung verwirft nun unplausible, nicht geordnete oder nicht erfolgreiche
 Caller-Phasen bereits beim Einzelrecord und prüft sie gegen die tatsächlichen
-Lifecycle-/Cleanupgrenzen; bis zum nächsten Coordinator-Schnitt blieben diese
-sieben Zeitangaben jedoch Caller-Inputs.
+Lifecycle-/Cleanupgrenzen. PR [#924](https://github.com/gecompat/SQL_PerformanceSchulung/pull/924)
+band anschließend alle sieben Harness-Phasenzeiten über ein privates Runnerprotokoll
+an den tatsächlichen Ablauf; Merge-Commit `d00f72cd3f64cfcd19516fc00efea0834c821571`.
+Der aktuelle Coordinator-Schnitt bindet außerdem konfigurierte Docker-CPU- und
+Speichergrenzen an gleichlautende `docker inspect`-Snapshots vor und nach jedem
+Capture. Das belegt nur gleiche konfigurierte Grenzen an den zwei Beobachtungs-
+zeitpunkten, weder physische Hostkapazität noch durchgehende Stabilität. Aktive
+SQL-Sessions, Hostbelegung, integrierter Source-Freeze, Quellenherkunft und der
+vollständige verlustfreie Coordinator bleiben offen.
 
 Der Head-Lauf
 [#70](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/43818717528)
@@ -11923,9 +11930,12 @@ einen `CoordinatedRun` und an eine vollständige Sechsermatrix in DEC-068-Reihen
 gebunden. Der Adapter übernimmt Capture-Body, Harness-Phasen sowie echte äußere
 monotone Lifecycle-/Cleanup-Grenzen und die erste unabhängige Datenbankabsenz aus
 dem Receipt. Scope-Reihenfolge, fehlende oder wiederverwendete Lifecycles sowie
-Zeit-, Budget- und Ressourcen-Schranken werden vorqualifiziert. Die sieben inneren
-Phasenzeiten, Ressourcen und Source-Freeze bleiben Callerangaben; daraus folgt
-keine Runtimeattestation oder vollständige Coordinatorqualifikation. Die
+Zeit-, Budget- und Ressourcen-Schranken werden vorqualifiziert. CPU und Speicher
+werden vor und nach dem Capture mit `docker inspect` gelesen und müssen identisch
+sowie oberhalb der Vertragsminima sein. Das belegt keine Hostkapazität oder
+kontinuierliche Stabilität. Aktive Sessions, Hostbelegung und Source-Freeze bleiben
+Callerangaben; Quellenherkunft und vollständige Coordinatorqualifikation sind
+nicht attestiert. Die
 synthetischen Prüfungen starten keine SQL-Instanz.
 
 Der [G13-Grenzdiagnoseentwurf](DGN_007_G13_BOUNDARY_DIAGNOSTIC_DESIGN.md) wurde
