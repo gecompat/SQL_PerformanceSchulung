@@ -394,7 +394,8 @@ def run_import_only(preparation: input_protocol.PreparationResult) -> ProbeRepor
             return ProbeReport("FAIL_IMPORT_ONLY", "WORKER_NONCE", tuple(observed))
         if type(worker_nonce) is not bytes or len(worker_nonce) != 32:
             return ProbeReport("FAIL_IMPORT_ONLY", "WORKER_NONCE", tuple(observed))
-        command = [sys.executable, "-I", "-S", "-B", "-c", _worker_source(ordinal, worker_nonce)]
+        command = [sys.executable, "-I", "-S", "-B", "-X", "utf8=1", "-c",
+                   _worker_source(ordinal, worker_nonce)]
         state, stdout, stderr = _collect_process(command, frame, deadline, MAX_OUTPUT_BYTES - output_used)
         output_used += len(stdout) + len(stderr)
         if state != "PROCESS_EXIT_0":
