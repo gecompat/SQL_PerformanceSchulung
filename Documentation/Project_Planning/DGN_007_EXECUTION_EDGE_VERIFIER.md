@@ -5,7 +5,7 @@
 | Stand | 2026-10-07 |
 | Status | `IMPLEMENTED_STATIC` für das Kantenprofil; Launcherentwurf `PROPOSED` |
 | Profil | `dgn007-docker-sql-only/v1`, Prüfinterpreter Python 3.12 |
-| Geltung | neun Pythonquellen, sechs SQL-only-Manifeste, elf SQLquellen und Incidentvertrag |
+| Geltung | zehn Pythonquellen, sechs SQL-only-Manifeste, elf SQLquellen und Incidentvertrag |
 | Methodenentscheidung | offen; [Gate-Matrix](DGN_007_METHOD_DECISION_PACKAGE.md) |
 
 ## Statische Kontrolle bereits gebundener Bytes
@@ -27,7 +27,7 @@ python -B Tests/Static/test_dgn007_execution_edges.py
 ```
 
 Die Platzhalter müssen ausdrücklich ersetzt werden. Der Prüfinterpreter muss
-Python 3.12 sein. Ganzdatei-AST-Digests binden alle neun Pythonquellen an das
+Python 3.12 sein. Ganzdatei-AST-Digests binden alle zehn Pythonquellen an das
 reviewte Profil; Kommentare und Layout dürfen bei neuer expliziter Commitbindung
 abweichen, ausführbare AST-Änderungen scheitern geschlossen. UTF-8 wird separat
 gegen die Python-Encodingdeklaration geprüft. AST-Schemata und Dumpdarstellung
