@@ -51,6 +51,17 @@ DEC-068-Incidentmatrix noch einen vertrauensgebundenen Coordinator oder
 qualifizierte Incident-/Ursachenevidenz; die menschliche Generalprobe bleibt
 ausgeschlossen.
 
+Am 16. November 2026 kam ein read-only Quellenfreeze-Prüfer hinzu:
+`Tests/Runtime/dgn007_source_freeze.py` vergleicht die 14 normalisierten
+SQL-/Manifestdateien mit den Hashes des Acceptance-Vertrags und kann zwei
+Snapshots auf identische Bindung prüfen. Zwei lokale Prüffälle decken den
+vollständigen Bestand und eine nachträgliche Byteänderung ab. Der neue isolierte
+Statikworkflow prüft diese Fixtures. Das schließt die lokale Snapshot-Prüfung,
+aber nicht die Integration in den Runner: `source_freeze_verified` bleibt bis
+dahin Callerangabe, tatsächliche Prozessquellennutzung und Herkunft bleiben
+unattestiert. Die bestehenden Coordinator-/Receipt-Tests bestehen weiterhin
+(5/5 und 10/10); eine SQL-Runtime wurde für diesen Quellenprüfer nicht gestartet.
+
 Die erneute read-only Prüfung des historischen G13-Laufs
 [#37570814577](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37570814577)
 fand keine archivierten Artefakte. Die vollständigen 2022-Joblogs enthalten

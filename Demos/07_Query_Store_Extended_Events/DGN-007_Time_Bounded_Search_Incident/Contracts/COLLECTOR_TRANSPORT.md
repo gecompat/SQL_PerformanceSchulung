@@ -149,6 +149,16 @@ erzeugt selbst weder Records noch SQL-Ausführung. Insbesondere ist
 Attestation. Der vertrauensgebundene Runtime-Coordinator, unabhängiger Review,
 frische Matrix und Incidentnachweis bleiben offen.
 
+Der zusätzliche [Quellenfreeze-Prüfer](../../../../Tests/Runtime/dgn007_source_freeze.py)
+liest die 14 vertraglich gebundenen SQL-/Manifestdateien und vergleicht deren
+normalisierte SHA-256-Werte mit dem Acceptance-Vertrag. Zwei Snapshots lassen
+sich auf Gleichheit prüfen; ein veränderter oder nicht gebundener Stand wird
+abgelehnt. Der Prüfer ist read-only und der eigene Statikworkflow deckt seine
+Fixtures ab. Er ist noch nicht in den ausführenden Coordinator eingebunden und
+beweist nicht, welche Bytes ein gestarteter Prozess tatsächlich geladen hat.
+Der Callermarker und die offene Runtime-/Herkunftsattestation bleiben daher
+unqualifiziert.
+
 ## Fehler und Prüfung
 
 `TransportError` enthält ausschließlich `FAIL_CONTRACT` oder
