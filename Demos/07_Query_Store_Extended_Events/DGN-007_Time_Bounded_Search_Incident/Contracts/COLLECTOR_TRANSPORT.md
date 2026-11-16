@@ -130,6 +130,25 @@ Bis ein vertrauensgebundener Coordinator diese Belege aus tatsächlichen Aktione
 erzeugt und Cleanup unabhängig bestätigt, ist der vollständige Coordinator
 weiterhin offen; ein synthetischer Mapper-PASS ist keine Runtimeattestation.
 
+### Deklarative Matrixpräqualifikation
+
+Die getrennte [Matrixpräqualifikation](../../../../Tests/Contracts/dgn007_collector_coordinator.py)
+prüft vollständige `RunRecord`-Folgen in DEC-068-Reihenfolge
+`AB→BA→AA`, danach `AA→BA→AB`. Sie verlangt deklarierte, nicht überlappende
+monotone Lauf-/Phasenzeiten, mindestens vier konfigurierte CPUs und 8 GiB,
+eine aktive SQL-Session, genau eine aktive Version je Host, den Freeze-Marker
+und unabhängig bestätigten Cleanup. Das 180-Sekunden-Regelbudget zählt die
+gesamte Zeit bis Cleanupbeginn einschließlich Phasenlücken; das 60-Sekunden-
+Cleanupbudget zählt bis zum Lifecycleende. Alle sechs Records werden erneut
+gegen den prospektiven Vertrag geprüft.
+
+Diese Prüfung validiert nur ihre Eingaben. Sie misst keine Zeiten oder
+Ressourcen, bindet keine Hostidentität, verhindert keine Quellenänderung und
+erzeugt selbst weder Records noch SQL-Ausführung. Insbesondere ist
+`source_freeze_verified` derzeit ein Callerfeld und keine integrierte Freeze-
+Attestation. Der vertrauensgebundene Runtime-Coordinator, unabhängiger Review,
+frische Matrix und Incidentnachweis bleiben offen.
+
 ## Fehler und Prüfung
 
 `TransportError` enthält ausschließlich `FAIL_CONTRACT` oder
@@ -145,12 +164,13 @@ Coordinators bleibt ein eigener Vertrag.
 python Tests/Static/validate_dgn007_collector_transport.py
 python Tests/Static/test_dgn007_collector_transport.py
 python Tests/Static/test_dgn007_collector_record_assembly.py
+python Tests/Static/test_dgn007_collector_coordinator.py
 python Tests/Static/validate_dgn007_prospective_acceptance.py
 python Tests/Static/test_dgn007_prospective_acceptance.py
 ```
 
-19 Transporttests mit parametrisierten Gegenproben und die bestehenden
-34 Prospektivtests bestanden lokal, ebenso beide Validatoren. Der eigene
+19 Transporttests, sieben Recordmappertests, fünf Matrixpräqualifikationstests
+und die bestehenden 35 Prospektivtests bestanden lokal, ebenso die Validatoren. Der eigene
 fünfminütige Statikworkflow prüft diese Grenze im temporären GitHub-Checkout.
 Dieser ursprüngliche Decoder-Nachweis enthält keine SQL-Runtime. Der
 getrennte Producer und seine eigene Prüfung stehen in

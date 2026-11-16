@@ -11,6 +11,7 @@ import re
 import sqlite3
 import subprocess
 import sys
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -105,6 +106,25 @@ class CleanupTests(unittest.TestCase):
         self.redirect = redirect_stdout(self.output)
         self.redirect.__enter__()
         self.addCleanup(self.redirect.__exit__, None, None, None)
+
+    def test_capture_receipt_uses_monotonic_parent_lifecycle_and_cleanup_edges(self):
+        body = SimpleNamespace(windows=(), requests=(), families=(), plans=(), plan_union=())
+        capture = runner._CheckedCapture(body=body, phases=())
+        with patch.object(runner, "run_harness", return_value=harness_result()), \
+             patch.object(runner, "_check_capture_body", return_value=capture), \
+             patch.object(runner, "assert_absent"), \
+             patch.object(runner.time, "monotonic_ns", side_effect=(10, 20, 30)):
+            receipt = runner._run_one(target(), 1, contract=runner.CONTROL_AB_CONTRACT,
+                check_capture_projection=True, expected_major=17, expected_contract=object())
+        self.assertEqual((receipt.lifecycle_started_ns, receipt.cleanup_started_ns,
+                          receipt.lifecycle_finished_ns), (10, 20, 30))
+        self.assertEqual((receipt.first_absence_outcome, receipt.first_absence_code), ("PASS", "OK"))
+
+    def test_capture_receipt_rejects_nonmonotone_or_noninteger_edges(self):
+        body = SimpleNamespace()
+        for times in ((10, 9, 30), (10, 20, 19), (True, 20, 30)):
+            with self.subTest(times=times), self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                runner._CaptureReceipt(1, body, (), "PASS", "OK", *times)
 
     def test_absence_is_checked_after_success_and_each_failure(self):
         failures = (None, runner.RunnerFailure("FAIL_CONTRACT"),
