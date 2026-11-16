@@ -9,6 +9,8 @@ on:
       - 'Tests/Static/test_dgn007_collector_transport.py'
       - 'Tests/Static/test_dgn007_collector_record_assembly.py'
       - 'Tests/Static/test_dgn007_collector_coordinator.py'
+      - 'Tests/Contracts/dgn007_collector_receipt_binding.py'
+      - 'Tests/Static/test_dgn007_collector_receipt_binding.py'
       - 'Tests/Static/validate_dgn007_collector_transport.py'
       - '.github/workflows/dgn007-collector-transport.yml'
       - 'Tests/Contracts/dgn007_prospective_acceptance.py'
@@ -25,6 +27,8 @@ on:
       - 'Tests/Static/test_dgn007_collector_transport.py'
       - 'Tests/Static/test_dgn007_collector_record_assembly.py'
       - 'Tests/Static/test_dgn007_collector_coordinator.py'
+      - 'Tests/Contracts/dgn007_collector_receipt_binding.py'
+      - 'Tests/Static/test_dgn007_collector_receipt_binding.py'
       - 'Tests/Static/validate_dgn007_collector_transport.py'
       - '.github/workflows/dgn007-collector-transport.yml'
       - 'Tests/Contracts/dgn007_prospective_acceptance.py'
@@ -60,6 +64,8 @@ jobs:
         run: python Tests/Static/test_dgn007_collector_record_assembly.py
       - name: Koordinierte Reihenfolge, Zeit-, Ressourcen- und Cleanupgrenzen prüfen
         run: python Tests/Static/test_dgn007_collector_coordinator.py
+      - name: Internes Erfolgsreceipt verlustfrei binden
+        run: python Tests/Static/test_dgn007_collector_receipt_binding.py
       - name: Bestehenden prospektiven Vertrag prüfen
         run: python Tests/Static/validate_dgn007_prospective_acceptance.py
       - name: Bestehende 35 prospektive Fixtures prüfen

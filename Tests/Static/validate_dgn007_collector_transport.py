@@ -25,12 +25,15 @@ TRIGGER_PATHS = {
     ".github/workflows/dgn007-prospective-acceptance.yml",
     "Tests/Contracts/dgn007_collector_coordinator.py",
     "Tests/Static/test_dgn007_collector_coordinator.py",
+    "Tests/Contracts/dgn007_collector_receipt_binding.py",
+    "Tests/Static/test_dgn007_collector_receipt_binding.py",
 }
 COMMANDS = (
     "python Tests/Static/validate_dgn007_collector_transport.py",
     "python Tests/Static/test_dgn007_collector_transport.py",
     "python Tests/Static/test_dgn007_collector_record_assembly.py",
     "python Tests/Static/test_dgn007_collector_coordinator.py",
+    "python Tests/Static/test_dgn007_collector_receipt_binding.py",
     "python Tests/Static/validate_dgn007_prospective_acceptance.py",
     "python Tests/Static/test_dgn007_prospective_acceptance.py",
 )
