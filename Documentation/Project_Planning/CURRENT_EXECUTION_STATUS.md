@@ -1,6 +1,6 @@
 # Aktueller Ausführungsstand
 
-Aktualisiert am 15. November 2026: Der QRY-023-Stand vom 14. November 2026
+Aktualisiert am 16. November 2026: Der QRY-023-Stand vom 14. November 2026
 bestätigt die vorgeschlagene CI-Route und die
 konkreten ADMIN-/READER-Rechtekontrollen sind auf SQL Server 2019/2022/2025
 enginequalifiziert. PRs #586–#588 ergänzten Live-Nachweise für die exakte
@@ -8,6 +8,40 @@ RunToken-, Zielnamen- und Demo-ID-Prüfung, jeweils vor Setup und ohne Erzeugung
 einer Nutzerdatenbank. QRY-023 bleibt bis zu gesonderter Produkt-/Katalog-
 freigabe `PROPOSED` und `runtime_authorized: false`. Die menschliche
 Generalprobe bleibt ausgeschlossen.
+
+### DGN-007 – Collector-Präqualifikation und aktueller Runtime-Stand
+
+PR [#918](https://github.com/gecompat/SQL_PerformanceSchulung/pull/918) wurde
+als `2bcb8a70798c583f8a417cd1a7293c67fa1c75cc` integriert. Die begrenzte
+Präqualifikation prüft sechs deklarierte vollständige Records in DEC-068-
+Reihenfolge, Phasen-/Lifecyclemonotonie, 180-/60-Sekundenlimits,
+Ressourcendeklarationen sowie Freeze-/Cleanupflags. Der Caller liefert diese
+Zusicherungen weiterhin; sie sind keine Herkunftsattestation. Der Runnerreceipt
+bindet jetzt zusätzlich tatsächliche monotone Außenkanten für Start,
+Cleanupstart und Ende. Der Runner-AST wurde nach unabhängiger Codeprüfung für
+Python 3.12.14 neu gebunden.
+
+Der Head-Lauf
+[#70](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/43818717528)
+bestand am 16. November 2026: getrennte Datenmodell-, Query-Store-,
+Profilvergleichs- sowie AB-/BA-/AA-Kontrollcaptures auf SQL Server
+2019/2022/2025, jeweilige Compatibility-Gegenproben und eigener
+Container-Cleanup. Auch das Offline-Quellenbundle
+([Run #755](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/43818717420))
+und die verschachtelten Harnessquellen
+([Run #49](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/43818717428))
+bestanden am aktuellen Head. Das ersetzt weder die vollständige
+DEC-068-Incidentmatrix noch einen vertrauensgebundenen Coordinator oder
+qualifizierte Incident-/Ursachenevidenz; die menschliche Generalprobe bleibt
+ausgeschlossen.
+
+Die erneute read-only Prüfung des historischen G13-Laufs
+[#37570814577](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37570814577)
+fand keine archivierten Artefakte. Die vollständigen 2022-Joblogs enthalten
+BA1-PASS und in BA2 den `CONTROL_EVIDENCE`-/G13-Fehlercode, aber keine
+verletzenden Grenzzeitstempel. Der konkrete historische Verstoß und seine
+Ursache bleiben unbekannt; keine unveränderte Runtimewiederholung, Toleranz
+oder Incidentpromotion.
 
 ### DGN-007 – Quellenprüfung unbekannter Importzweige
 
