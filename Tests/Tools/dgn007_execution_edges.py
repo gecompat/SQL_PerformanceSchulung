@@ -32,8 +32,8 @@ PYTHON_AST_SHA256 = (
     "883c49dfb7dc3edfaefc522c5f84b1428174e38b58cb0d22fe7bc4d4e9bc4ef6",
     "585493e97ba6e4c759bccf8fe983d6b61d32253435b4b2481a195f6784d38925",
     "958e555b9e25392e4bf6024eef6ea528305bf489b43ab1ed5af35388eddd37c8",
-    # Current FWK-010 runner AST after QRY-023 fail-closed timeout cleanup.
-    "eca5512a16aac7d25fd22eba88348aa2f48f91754a14ef932e197b6802d003b0",
+    # Current FWK-010 runner AST after DGN-007-only private phase timing protocol.
+    "ad60a1edb97b03a789a3cf67f5219b8457e10c6251d4531200b78ad93c2ea27b",
     "f25c55b61537c2304cfcb1c0266215c87c80a28e8558d7e607b96b05fc8edca2",
     "d55a50c4390dcd740e050e0d9b2e471c60a6498bb70b49ed1d1231e1fb887210",
     "770372e6beba2b8ad1993d581c87038e0ed3cdb059dfad58206133f201e49d4e",
