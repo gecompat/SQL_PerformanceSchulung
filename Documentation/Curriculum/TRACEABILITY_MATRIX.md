@@ -146,6 +146,12 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Vo
 | `CLM-083` | 83 | Quelle, Version und Empirie getrennt verfolgen | `LO-M07-03` | KERN | `SRC-007`, `SRC-028` | – | `TP-DOC` | KEEP |
 | `CLM-084` | 102 | Transferauftrag und fachlicher Abschluss | `LO-M07-03` | KERN | – | – | `TP-DOC` | KEEP |
 
+Die [Lehrnotiz zur Query-Store-Plansteuerung](QUERY_STORE_PLAN_CONTROL_LESSON.md)
+ergänzt `LO-M06-04` und `LO-M06-08` um die Aussagegrenzen zwischen
+gespeichertem Plan, angeforderter Erzwingung und beobachteter Ausführung.
+Sie ist erklärendes Lernmaterial und kein zusätzlicher Claim oder Demo-Nachweis;
+`CLM-076` bleibt auf die Query-Store-Historie begrenzt.
+
 ## 4. Geplante Vertiefung nach ADV-003
 
 | Claim | Aktive Folie | Aussagekern | Curriculum | Pfad | Quellen | Kanonische Demo/LAB | Testprofil | Status |

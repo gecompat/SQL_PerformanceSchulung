@@ -195,6 +195,12 @@ wird und wie sie sich von einem Poolzähler oder einer aktiven Session
 unterscheidet. Sie ist erklärender Lerninhalt, keine neue Demo oder
 Laufzeitqualifikation.
 
+Für das M06-Diagnosemodul ergänzt die
+[Lehrnotiz zur Query-Store-Plansteuerung](QUERY_STORE_PLAN_CONTROL_LESSON.md)
+die Unterscheidung zwischen gespeichertem Plan, angenommener Erzwingung und
+beobachteter Planverwendung. Sie bleibt erklärender Inhalt; Demo- und
+Laufzeitstatus ändern sich dadurch nicht.
+
 ### M07 – Synthese und Transfer
 
 | ID | Pfad | Nach Abschluss kann die lernende Person … | Abnahmenachweis |
