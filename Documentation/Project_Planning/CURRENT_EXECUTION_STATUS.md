@@ -2119,6 +2119,14 @@ synthetische Regressionen decken diese Fälle ab. Der unabhängige Review der
 korrigierten Fassung fand keine offenen P1/P2 im Offlineumfang. Die offenen
 Capture-Provenienz- und Engine-Qualifikationsgates bleiben getrennt.
 
+Die neue [Lehrnotiz zu Deadlockvarianten](../Curriculum/DEADLOCK_VARIANTS_LESSON.md)
+ergänzt `LO-M05-03` quellengebunden: Sie grenzt denselben Ressourcen-
+Sperrumwandlungszyklus von der Gegenreihenfolge über zwei Ressourcen ab und
+erklärt `UPDLOCK` nur als mögliche Gegenmaßnahme für dieses Muster. Sie hält die
+Range-Variante wegen der Überschneidung mit CON-002 zurück und macht deutlich,
+dass synthetischer Graph-PASS weder reale Ereignisprovenienz noch Engine-
+Qualifikation belegt. Der Demo- und Laufzeitstatus bleibt unverändert.
+
 Für `IDX-007` ergänzt eine kurze, quellengebundene Erläuterung den Lernpfad:
 Sie trennt Last-Page-`PAGELATCH_EX` von I/O- und Transaktionssperren und
 begrenzt die Aussage zu `OPTIMIZE_FOR_SEQUENTIAL_KEY`. Sie ist weder eine
