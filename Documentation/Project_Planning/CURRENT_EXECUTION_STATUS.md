@@ -57,11 +57,11 @@ normalisierten SQL-/Manifestdateien vor Capture und nach Cleanup an das interne
 Runnerreceipt; die Receipt-Bindung leitet das Freeze-Flag ab und akzeptiert
 keine Callerzusicherung mehr. 60 Runner-, 11 Receipt-, fünf Coordinator- und
 zwei Snapshottests sowie der Runnervertrag bestehen lokal. Der
-Offlinequellenbundlescanner nimmt den Helfer jetzt als zehntes Pythonmodul auf;
-zwei auf `main` veraltete Bootstrap-AST-Fingerprints wurden auf die
-unveränderten aktuellen Pfadblöcke nachgeführt. Die geschlossene
-28-Mitglieder-Bundle-Gegenprobe besteht mit 36 Tests (zwei Plattform-Skips).
-Die übrigen PR-Gates laufen für diese Änderung; der vorhandene
+Offlinequellenbundlescanner nimmt den Helfer jetzt als zehntes Pythonmodul in
+die 28-Mitglieder-Closure auf. Die festgelegten Bootstrap-AST-Fingerprints
+bleiben unverändert und werden im vorgesehenen CPython-3.12.14-Workflow
+qualifiziert; lokal ist nur Python 3.13/3.14 verfügbar, dessen AST-Digest nicht
+dem gebundenen Interpreterprofil entspricht. Die übrigen PR-Gates laufen für diese Änderung; der vorhandene
 SQL-Server-Containerbestand verhindert
 weiterhin einen kontrolliert isolierten lokalen Matrixlauf. Unattestiert bleiben
 die tatsächlich vom Kindprozess geladenen Bytes, Quellenherkunft und

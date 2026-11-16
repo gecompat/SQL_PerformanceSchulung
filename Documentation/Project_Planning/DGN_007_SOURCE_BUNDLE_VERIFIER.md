@@ -38,10 +38,9 @@ Der Verifier erstellt und extrahiert selbst keine Archive oder Bundles.
 ## Bindung und Ablehnung
 
 Der aktualisierte Quellenverbund nimmt `dgn007_source_freeze.py` als
-`Tests.Runtime.dgn007_source_freeze` auf. Zwei historische Bootstrap-Digests
-wurden auf die unveränderten aktuellen AST-Blöcke des Runners und Targets
-nachgeführt; die feste Pfad-/Suchlogik bleibt dieselbe. Die geschlossene
-Bundle-Gegenprobe bestand danach mit 36 Tests (zwei Plattform-Skips).
+`Tests.Runtime.dgn007_source_freeze` auf. Die festgelegten Bootstrap-Digests
+bleiben unverändert; der CI-Workflow verwendet den gebundenen CPython 3.12.14-
+Interpreter, da die AST-Darstellung an das Interpreterprofil gebunden ist.
 
 `PASS_STATIC_CANDIDATE` verlangt genau die feste Mitgliederliste, reguläre
 Dateien und bytegleiche Gitblobs, danach die deklarierte Importprüfung.
