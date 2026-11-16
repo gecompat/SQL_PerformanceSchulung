@@ -11905,5 +11905,24 @@ Die Worker-Startfakten decken zusätzlich die sechs gepinnten Null-Defaults `deb
 Die gebundene Worker-Fact-Menge umfasst zusätzlich `sys.flags.hash_randomization == 1`. CPython normalisiert bei fehlendem Hash-Seed die gepinnten Felder `use_hash_seed=0` und `hash_seed=0`; die `sys.flags`-Abbildung ergibt daraus 1. `-I` schließt Umgebungsüberschreibungen aus. Eine Seed-Defaultmutation verwirft die Fact. Der Scan liefert 15 Worker-Fakten; 60 Module, 316 Kanten, 103 entschiedene und 460 unbekannte Bedingungen bleiben unverändert, Digest `b961030b249654b8ceb91b95de9939476705142011047b4f57ed05feedf807fa`. 296 fokussierte Tests bestehen.
 
 Der Worker-Startbericht bindet zusätzlich `sys.flags.dev_mode=False`. Die gepinnte Preconfig-Quelle deaktiviert die Umgebung bei `-I`, setzt `dev_mode` ohne `-X dev` und ohne `PYTHONDEVMODE` von -1 auf 0 und überträgt das Feld in `PyConfig`; der Sysmodule-Setter bildet es als Bool ab. Der Scan weist 16 Worker-Fakten aus. Die offene Modulstartmenge bleibt unverändert: 60 Module, 316 Kanten, 103 entschieden, 460 unbekannt; Digest `b961030b249654b8ceb91b95de9939476705142011047b4f57ed05feedf807fa`. 296 fokussierte Tests bestehen.
+
 Der nächste gebundene Worker-Fact ist `sys.flags.warn_default_encoding == False`. Der gepinnte CPython-Header initialisiert das nicht bezeichnete `_PyPreCmdline.warn_default_encoding`-Feld mit 0; `_PyPreCmdline_Read` setzt es nur über `-X warn_default_encoding` oder `PYTHONWARNDEFAULTENCODING` auf 1. Die feste Workerroute enthält die Option nicht und `-I` deaktiviert die Umgebungsquelle. `SetConfig`-Transfer und Sysmodule-Setter sind ebenfalls Teil des Nachweises. Der Offline-Scan liefert 17 Worker-Fakten; das Modulstartinventar bleibt bei 60 Modulen, 316 Kanten, 103 entschiedenen und 460 unbekannten Bedingungen mit unverändertem Digest `b961030b249654b8ceb91b95de9939476705142011047b4f57ed05feedf807fa`. Es wird kein Runtime- oder Imagezustand behauptet.
 Ein weiterer Worker-Startwert ist jetzt gebunden: `sys.flags.int_max_str_digits == 4300`. Der Scan pinnt `Include/internal/pycore_long.h` und prüft dort den eindeutigen Wert `_PY_LONG_DEFAULT_MAX_STR_DIGITS 4300`. Der gepinnte `initconfig.c`-Pfad berücksichtigt sowohl `PYTHONINTMAXSTRDIGITS` als auch `-X int_max_str_digits`, verwendet die Konstante als negativen Fallback und ruft die Initialisierung nur bei negativem Feld auf. Die feste `-I -S -B -c`-Route schließt Umgebungs- und Kommandozeilen-Overrides aus; Sysmodule-Setter und Feldabbildung werden geprüft. Der Scan liefert 18 Worker-Fakten; das Unknown-Inventar bleibt bei 60 Modulen, 316 Kanten und 460 Bedingungen mit Digest `b961030b249654b8ceb91b95de9939476705142011047b4f57ed05feedf807fa` unverändert. Regressionen verwerfen geänderte Header-Konstanten und Fallback-Zuweisungen.
+
+### DGN-007: Receipt-Bindung und G13-Diagnoseentwurf (2026-11-16)
+
+Der interne erfolgreiche `_CaptureReceipt` ist nun durch einen reinen Adapter an
+einen einzelnen `CoordinatedRun` gebunden. Der Adapter übernimmt Capture-Body,
+Harness-Phasen sowie echte äußere monotone Lifecycle-/Cleanup-Grenzen und die
+erste unabhängige Datenbankabsenz aus dem Receipt. Die sieben inneren Phasenzeiten,
+Ressourcen und Source-Freeze bleiben Callerangaben; daraus folgt keine
+Runtimeattestation oder vollständige Coordinatorqualifikation. Die synthetischen
+Prüfungen starten keine SQL-Instanz.
+
+Der [G13-Grenzdiagnoseentwurf](DGN_007_G13_BOUNDARY_DIAGNOSTIC_DESIGN.md) hält
+fest, dass der bestehende Capture-Body nicht die exakten aggregierten
+`IncidentProfile`-/`IncidentState`-Vergleichswerte des G13-Guards enthält und eine
+spätere Query-Store-Abfrage diese nicht atomar ersetzt. Nächster Schritt ist eine
+begrenzte Aufnahme derselben ausgewerteten Zeilen in einem eigens freizugebenden
+Diagnoselauf. Kein SQL wurde geändert oder gestartet; G13, DEC-068 und die
+ausgeschlossene menschliche Generalprobe bleiben unberührt.
