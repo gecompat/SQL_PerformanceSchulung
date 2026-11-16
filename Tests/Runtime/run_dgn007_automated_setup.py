@@ -967,6 +967,7 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
                 raise RunnerFailure("FAIL_CONTRACT")
             sessions_before = _active_sql_session_snapshot(target)
             if sessions_before != 1:
+                print(f"DGN007_SESSION_BOUNDARY|BEFORE|count={sessions_before}")
                 raise RunnerFailure("FAIL_CONTRACT")
             resource_before = _docker_resource_snapshot(target)
             if check_phase_diagnostics:
@@ -979,6 +980,7 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
                                           expected_contract=expected_contract)
             sessions_after = _active_sql_session_snapshot(target)
             if sessions_after != 1:
+                print(f"DGN007_SESSION_BOUNDARY|AFTER|count={sessions_after}")
                 raise RunnerFailure("FAIL_CONTRACT")
             resource_after = _docker_resource_snapshot(target)
             if resource_after != resource_before:

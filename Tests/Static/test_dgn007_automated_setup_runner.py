@@ -136,11 +136,12 @@ class CleanupTests(unittest.TestCase):
         with patch.object(runner, "_active_sql_session_snapshot", return_value=2), \
              patch.object(runner, "run_harness") as harness, \
              patch.object(runner, "assert_absent"), \
-             redirect_stdout(io.StringIO()):
+             redirect_stdout(io.StringIO()) as output:
             with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
                 runner._run_one(target(), 1, contract=runner.CONTROL_AB_CONTRACT,
                     check_capture_projection=True, expected_major=17, expected_contract=object())
         harness.assert_not_called()
+        self.assertIn("DGN007_SESSION_BOUNDARY|BEFORE|count=2", output.getvalue())
 
     def test_capture_fails_closed_when_final_boundary_has_extra_sql_session(self):
         body = SimpleNamespace(windows=(), requests=(), families=(), plans=(), plan_union=())
@@ -151,11 +152,12 @@ class CleanupTests(unittest.TestCase):
                  contract=runner.CONTROL_AB_CONTRACT, phase_base=11)), \
              patch.object(runner, "_check_capture_body", return_value=capture), \
              patch.object(runner, "assert_absent") as absent, \
-             redirect_stdout(io.StringIO()):
+             redirect_stdout(io.StringIO()) as output:
             with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
                 runner._run_one(target(), 1, contract=runner.CONTROL_AB_CONTRACT,
                     check_capture_projection=True, expected_major=17, expected_contract=object())
         absent.assert_called_once()
+        self.assertIn("DGN007_SESSION_BOUNDARY|AFTER|count=2", output.getvalue())
 
     def test_active_session_snapshot_requires_admin_and_strict_single_scalar(self):
         with patch.object(runner.execution_target, "run_sql", return_value="                   1\n") as query:
