@@ -2041,6 +2041,16 @@ fehlende oder nicht-positive Werte bleiben `NOT_PROVEN`. 19 synthetische Tests
 bestanden. Das authentifiziert keine Aufnahme und qualifiziert weder SQL noch
 eine tatsächliche Konkurrenzprobe.
 
+Der RES-004-Lehrpfad enthält nun zusätzlich eine einzelne Beobachtungsabfrage,
+die bei einem vorab zugeordneten eigenen Grant-Wait alle sichtbaren Grants
+derselben Pool-/Semaphore-Kombination einschließlich Semaphore-Zählern ausgibt.
+Damit lässt sich ein gewährter Konkurrenz-Grant im vorgesehenen Ergebnis
+überhaupt prüfen; die vorherige Abfrage zeigte nur den eigenen wartenden
+Request. Die Zuordnung bleibt caller-geliefert und der gemeinsame UTC-Zeitwert
+kennzeichnet den Abfragelauf, garantiert aber keine atomare DMV-Aufnahme. Die
+Abfrage wurde nicht gegen SQL Server ausgeführt; Laufzeit-, Last-, Gegenproben-
+und Cleanupqualifikation bleiben offen.
+
 Für RES-001 bindet ein weiterer Offlinevertrag caller-supplied `THREADPOOL`-
 Wait, passendes Run-Token und Scheduler-`work_queue_count` an einen gemeinsamen
 Capturezeitpunkt innerhalb des Run-Fensters. `runnable_tasks_count` bleibt
