@@ -16,9 +16,9 @@ fest im Verifier definiert und wird niemals aus dem Kandidaten geladen.
 Git liest originale Blobs ohne Replaceobjects, Lazyfetch, Textconv, Filter oder
 Archiveexport. Kandidaten werden weder importiert noch ausgeführt.
 
-Die reviewte Vereinigung umfasst aktuell 28 Mitglieder: zehn Pythonquellen
+Die reviewte Vereinigung umfasst aktuell 27 Mitglieder: neun Pythonquellen
 (Runner, Target, Proxy, Harness, Sessionorchestrator, Prozesshelper,
-Projection, Transportdecoder, Prospektivevaluator und Quellenfreeze-Prüfer), elf SQLquellen,
+Projection, Transportdecoder und Prospektivevaluator), elf SQLquellen,
 sechs Manifeste und den Incidentvertrag. Die vollständigen relativen Pfade
 stehen in `PYTHON_MEMBERS` und `DATA_MEMBERS`; die drei Einstiege sind Runner,
 Proxy und Harness. `orchestrate_sessions.py` gehört wegen des unbedingten
@@ -37,9 +37,10 @@ Der Verifier erstellt und extrahiert selbst keine Archive oder Bundles.
 
 ## Bindung und Ablehnung
 
-Der aktualisierte Quellenverbund nimmt `dgn007_source_freeze.py` als
-`Tests.Runtime.dgn007_source_freeze` auf. Die festgelegten Bootstrap-Digests
-bleiben unverändert; der CI-Workflow verwendet den gebundenen CPython 3.12.14-
+Der Runner prüft die vertraglich gebundenen Quellenbytes vor und nach dem
+Capture inline. Das vermeidet eine zusätzliche Kandidatenimportquelle im
+gebundenen Offlinegraphen. Die festgelegten Bootstrap-Digests bleiben
+unverändert; der CI-Workflow verwendet den gebundenen CPython 3.12.14-
 Interpreter, da die AST-Darstellung an das Interpreterprofil gebunden ist.
 
 `PASS_STATIC_CANDIDATE` verlangt genau die feste Mitgliederliste, reguläre

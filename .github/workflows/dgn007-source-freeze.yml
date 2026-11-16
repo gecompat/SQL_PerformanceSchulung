@@ -3,7 +3,7 @@ name: DGN-007 Quellenfreeze
 on:
   pull_request:
     paths:
-      - 'Tests/Runtime/dgn007_source_freeze.py'
+      - 'Tests/Runtime/run_dgn007_automated_setup.py'
       - 'Tests/Static/test_dgn007_source_freeze.py'
       - 'Tests/Contracts/dgn007_prospective_acceptance.py'
       - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json'
@@ -12,7 +12,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'Tests/Runtime/dgn007_source_freeze.py'
+      - 'Tests/Runtime/run_dgn007_automated_setup.py'
       - 'Tests/Static/test_dgn007_source_freeze.py'
       - 'Tests/Contracts/dgn007_prospective_acceptance.py'
       - 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json'

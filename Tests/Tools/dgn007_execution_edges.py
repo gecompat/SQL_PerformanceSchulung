@@ -39,7 +39,6 @@ PYTHON_AST_SHA256 = (
     "770372e6beba2b8ad1993d581c87038e0ed3cdb059dfad58206133f201e49d4e",
     "f689d616ef25a528bca4ad7029aa9e4db69f1d43b5e747086ed6db8956084118",
     "58e2df784e76442584bc181f347d9334d95dddd87b6e4910402314fa7047a983",
-    "c6db49d3a3dff94a2721a27f8d3346e9d26478d1fdb8fe964eaeb9d72b3940c0",
 )
 # Deklarierte Kanten im oben gebundenen Profil; keine automatische Reachability.
 # Externe Tools/OS/Python und spätere Importumgebung bleiben Vertrauensgrenzen.

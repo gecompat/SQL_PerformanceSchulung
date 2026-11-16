@@ -22,7 +22,7 @@ from Tests.Contracts.dgn007_collector_record_assembly import assemble_run, Assem
 from Tests.Contracts.dgn007_prospective_acceptance import (
     AcceptanceContract, PHASE_IDS, PhaseResult, _contract_valid,
 )
-from Tests.Runtime.dgn007_source_freeze import verify_source_freeze
+from Tests.Runtime.run_dgn007_automated_setup import verify_source_freeze
 
 
 @dataclass(frozen=True, slots=True)

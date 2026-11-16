@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass, field
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -40,12 +41,8 @@ from sqlcmd_process import _linux_descendants, _linux_process_identity  # noqa: 
 from Tests.Contracts.dgn007_capture_projection import decode_projection, ProjectionError  # noqa: E402
 from Tests.Contracts.dgn007_collector_transport import CaptureBody  # noqa: E402
 from Tests.Contracts.dgn007_prospective_acceptance import (  # noqa: E402
-    AcceptanceContract, _contract_valid, contract_from_mapping,
+    AcceptanceContract, SOURCE_FILES, _contract_valid, contract_from_mapping,
 )
-from Tests.Runtime.dgn007_source_freeze import (  # noqa: E402
-    SourceFreezeError, SourceSnapshot, capture_source_snapshot, verify_source_freeze,
-)
-
 AUTOMATED = (ROOT / "Demos" / "07_Query_Store_Extended_Events"
              / "DGN-007_Time_Bounded_Search_Incident" / "Automated")
 MANIFEST = AUTOMATED / "setup.manifest.json"
@@ -63,6 +60,55 @@ MAX_CAPTURE_OUTPUT_BYTES = 262144
 MAX_CAPTURE_LINE_CHARS = 8192
 RAW_PHASE = re.compile(r"^\[([A-Z][A-Z0-9_]*):(stdout|stderr)\] (.*)$")
 CONTROL_SCOPES = frozenset(("DGN-007_CONTROL_AB", "DGN-007_CONTROL_BA", "DGN-007_CONTROL_AA"))
+
+
+class SourceFreezeError(ValueError):
+    """Stable source-freeze failure without paths or file contents."""
+
+    def __init__(self) -> None:
+        super().__init__("FAIL_CONTRACT")
+
+
+@dataclass(frozen=True, slots=True)
+class SourceSnapshot:
+    source_digest: str
+    hashes: tuple[tuple[str, str], ...]
+
+
+def capture_source_snapshot(root: Path, contract: AcceptanceContract) -> SourceSnapshot:
+    """Hash the exact contract source set using its LF-normalized UTF-8 rule."""
+    if (not isinstance(root, Path) or type(contract) is not AcceptanceContract
+            or not _contract_valid(contract)):
+        raise SourceFreezeError() from None
+    expected = dict(contract.source_hashes)
+    captured = []
+    try:
+        for name in SOURCE_FILES:
+            path = (root / "Demos/07_Query_Store_Extended_Events/"
+                    "DGN-007_Time_Bounded_Search_Incident/Automated" / name)
+            if path.is_symlink() or not path.is_file():
+                raise SourceFreezeError()
+            content = path.read_bytes().decode("utf-8").replace("\r\n", "\n").encode("utf-8")
+            digest = hashlib.sha256(content).hexdigest()
+            if digest != expected[name]:
+                raise SourceFreezeError()
+            captured.append((name, digest))
+    except (OSError, UnicodeError, KeyError):
+        raise SourceFreezeError() from None
+    return SourceSnapshot(contract.source_digest, tuple(captured))
+
+
+def verify_source_freeze(before: SourceSnapshot, after: SourceSnapshot,
+                         contract: AcceptanceContract) -> bool:
+    """Accept only matching complete snapshots bound to the contract digest."""
+    return (type(before) is SourceSnapshot and type(after) is SourceSnapshot
+            and type(contract) is AcceptanceContract and _contract_valid(contract)
+            and before.source_digest == after.source_digest == contract.source_digest
+            and before.hashes == after.hashes
+            and tuple(name for name, _digest in before.hashes) == SOURCE_FILES
+            and all(type(digest) is str and len(digest) == 64
+                    for _name, digest in before.hashes))
+
 FAILURE_CODES = {
     "FAIL": frozenset(("FAIL_CONTRACT", "FAIL_SAFETY", "FAIL_STATE", "FAIL_TIMEOUT",
                        "FAIL_EXECUTION", "FAIL_CLEANUP", "FAIL_RESULT_CONTRACT")),

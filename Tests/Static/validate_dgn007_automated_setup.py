@@ -30,7 +30,6 @@ TRIGGER_PATHS = {
     "Tests/Static/test_dgn007_prospective_acceptance.py",
     "Tests/Static/validate_dgn007_prospective_acceptance.py",
     "Tests/Runtime/run_dgn007_automated_setup.py",
-    "Tests/Runtime/dgn007_source_freeze.py",
     "Tests/Runtime/execution_target.py",
     "Tests/Runtime/docker_sqlcmd_proxy.py",
     "Tests/Static/test_dgn007_automated_setup_runner.py",

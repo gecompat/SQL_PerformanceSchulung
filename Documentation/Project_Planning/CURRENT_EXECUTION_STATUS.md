@@ -52,20 +52,16 @@ qualifizierte Incident-/Ursachenevidenz; die menschliche Generalprobe bleibt
 ausgeschlossen.
 
 Der in PR #928 integrierte read-only Quellenfreeze-Prüfer ist jetzt im
-Capture-Runner eingebunden. Er bindet zwei Snapshots der 14
+Capture-Runner eingebunden. Der Runner bindet zwei Snapshots der 14
 normalisierten SQL-/Manifestdateien vor Capture und nach Cleanup an das interne
 Runnerreceipt; die Receipt-Bindung leitet das Freeze-Flag ab und akzeptiert
-keine Callerzusicherung mehr. 60 Runner-, 11 Receipt-, fünf Coordinator- und
-zwei Snapshottests sowie der Runnervertrag bestehen lokal. Der
-Offlinequellenbundlescanner nimmt den Helfer jetzt als zehntes Pythonmodul in
-die 28-Mitglieder-Closure auf. Das CPython-3.12-AST-Profil der vollständigen
-zehn Pythonquellen bindet jetzt auch den geänderten Runner und den Freeze-Helfer;
-der Membercount des Kantenprüfers wurde entsprechend angehoben. Die festgelegten
-Bootstrap-AST-Fingerprints bleiben unverändert. Die übrigen PR-Gates laufen für diese Änderung; der vorhandene
-SQL-Server-Containerbestand verhindert
-weiterhin einen kontrolliert isolierten lokalen Matrixlauf. Unattestiert bleiben
-die tatsächlich vom Kindprozess geladenen Bytes, Quellenherkunft und
-Hostbelegung.
+keine Callerzusicherung mehr. Der Freeze-Code bleibt inline im ohnehin
+gebundenen Runner, damit das geschlossene Importprofil nicht um eine zusätzliche
+Kandidatenquelle erweitert werden muss. 60 Runner-, 11 Receipt-, fünf
+Coordinator- und zwei Snapshottests sowie der Runnervertrag bestanden vor der
+Integration lokal. Der offline geprüfte Quellenverbund bleibt bei 27 Mitgliedern
+und neun Pythonquellen. Unattestiert bleiben die tatsächlich vom Kindprozess
+geladenen Bytes, Quellenherkunft und Hostbelegung.
 
 Die erneute read-only Prüfung des historischen G13-Laufs
 [#37570814577](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37570814577)

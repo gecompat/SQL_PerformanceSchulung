@@ -16,8 +16,9 @@ from Tests.Contracts import dgn007_collector_receipt_binding as binding
 from Tests.Contracts import dgn007_collector_coordinator as coordinator
 from Tests.Contracts import dgn007_collector_transport as transport
 from Tests.Contracts import dgn007_prospective_acceptance as acceptance
-from Tests.Runtime.run_dgn007_automated_setup import _CaptureReceipt, RunnerFailure
-from Tests.Runtime.dgn007_source_freeze import SourceSnapshot, capture_source_snapshot
+from Tests.Runtime.run_dgn007_automated_setup import (
+    _CaptureReceipt, RunnerFailure, SourceSnapshot, capture_source_snapshot,
+)
 from test_dgn007_collector_transport import encode, payload
 from validate_dgn007_prospective_acceptance import CONTRACT
 

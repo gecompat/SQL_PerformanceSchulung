@@ -33,7 +33,6 @@ PYTHON_MEMBERS = (
     "Tests/Contracts/dgn007_capture_projection.py",
     "Tests/Contracts/dgn007_collector_transport.py",
     "Tests/Contracts/dgn007_prospective_acceptance.py",
-    "Tests/Runtime/dgn007_source_freeze.py",
 )
 DATA_MEMBERS = tuple(DEMO + "Automated/" + name for name in (
     "00_Preflight.sql", "10_Setup.sql", "15_Control_AB.sql", "15_Control_BA.sql",
@@ -47,8 +46,6 @@ STDLIB = frozenset(("__future__", "argparse", "ctypes", "dataclasses", "datetime
                     "fractions", "hashlib", "json", "os", "pathlib", "re", "shutil",
                     "signal", "subprocess", "sys", "threading", "time", "typing"))
 MODULES = tuple(("Tests.Contracts." + Path(p).stem if "/Contracts/" in p else
-                 "Tests.Runtime.dgn007_source_freeze"
-                 if p == "Tests/Runtime/dgn007_source_freeze.py" else
                  Path(p).stem, p) for p in PYTHON_MEMBERS)
 # Exakte AST-Bindung der bereits reviewten Suchpfadblöcke, keine Ausführung.
 BOOTSTRAPS = (
