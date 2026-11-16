@@ -146,6 +146,10 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Vo
 | `CLM-083` | 83 | Quelle, Version und Empirie getrennt verfolgen | `LO-M07-03` | KERN | `SRC-007`, `SRC-028` | – | `TP-DOC` | KEEP |
 | `CLM-084` | 102 | Transferauftrag und fachlicher Abschluss | `LO-M07-03` | KERN | – | – | `TP-DOC` | KEEP |
 
+Die [Lehrnotiz zu Deadlockvarianten](DEADLOCK_VARIANTS_LESSON.md) ergänzt
+`LO-M05-03` erklärend. Sie fügt keinen Claim oder Demo-Nachweis hinzu; die
+vorgeschlagene CON-006-Variante bleibt außerhalb des validierten Grundfalls.
+
 Die [Lehrnotiz zur Query-Store-Plansteuerung](QUERY_STORE_PLAN_CONTROL_LESSON.md)
 ergänzt `LO-M06-04` und `LO-M06-08` um die Aussagegrenzen zwischen
 gespeichertem Plan, angeforderter Erzwingung und beobachteter Ausführung.

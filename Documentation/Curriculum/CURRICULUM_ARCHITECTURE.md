@@ -175,6 +175,11 @@ Lerninhalt, keine freigegebene QRY-003-Demo oder Laufzeitqualifikation.
 | `LO-M05-04` | VERTIEFUNG | TempDB-Kosten nach temporären Objekten, Worktables/Spills, Version Store, Allocation und I/O (Input/Output; Ein- und Ausgabezugriffe) klassifizieren | ein TempDB-Symptom dem passenden Messpfad zuordnen |
 | `LO-M05-05` | VERTIEFUNG | ADR-, RCSI- und Datenbankvoraussetzungen von Optimized Locking prüfen | TID (Transaction ID; Transaktionskennung) Locking, LAQ (Lock After Qualification; Sperren erst nach Prüfung der Zeilenqualifikation) und verbleibende Lock-Arten ohne pauschale `NOLOCK`-Empfehlung einordnen |
 
+Die [Lehrnotiz zu Deadlockvarianten](DEADLOCK_VARIANTS_LESSON.md) ergänzt
+`LO-M05-03` mit dem Unterschied zwischen Gegenreihenfolge und
+Sperrumwandlung sowie den Anforderungen an Graph- und Opfernachweis. Sie ist
+erklärender Inhalt; die vorgeschlagene CON-006-Variante bleibt unqualifiziert.
+
 ### M06 – Ressourcen und Diagnosewerkzeuge
 
 | ID | Pfad | Nach Abschluss kann die lernende Person … | Abnahmenachweis |
