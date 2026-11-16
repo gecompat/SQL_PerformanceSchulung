@@ -17,6 +17,7 @@ from Tests.Contracts import dgn007_collector_coordinator as coordinator
 from Tests.Contracts import dgn007_collector_transport as transport
 from Tests.Contracts import dgn007_prospective_acceptance as acceptance
 from Tests.Runtime.run_dgn007_automated_setup import _CaptureReceipt, RunnerFailure
+from Tests.Runtime.dgn007_source_freeze import SourceSnapshot, capture_source_snapshot
 from test_dgn007_collector_transport import encode, payload
 from validate_dgn007_prospective_acceptance import CONTRACT
 
@@ -25,6 +26,7 @@ class ReceiptBindingTests(unittest.TestCase):
     def setUp(self):
         self.contract = acceptance.contract_from_mapping(
             json.loads(CONTRACT.read_text(encoding="utf-8")))
+        self.source_snapshot = capture_source_snapshot(ROOT, self.contract)
         value = payload(self.contract, major=16, sequence="BA")
         self.body = transport.decode_capture(encode(value), self.contract)
         self.receipt = _CaptureReceipt(
@@ -34,12 +36,13 @@ class ReceiptBindingTests(unittest.TestCase):
             4, 8192, 1, 1,
             phase_timing=tuple((name, 1_000_000_000 + index * 800_000_000,
                                 1_000_000_000 + (index + 1) * 800_000_000)
-                               for index, name in enumerate(coordinator.PHASES[:-1])))
+                               for index, name in enumerate(coordinator.PHASES[:-1])),
+            source_freeze_before=self.source_snapshot,
+            source_freeze_after=self.source_snapshot)
 
     def bind(self, **overrides):
         args = dict(expected_major=16, block=1, slot=2, lifecycle_id=41,
-                    active_versions_on_host=1,
-                    source_freeze_verified=True)
+                    active_versions_on_host=1)
         args.update(overrides)
         return binding.bind_receipt(self.contract, self.receipt, **args)
 
@@ -57,6 +60,15 @@ class ReceiptBindingTests(unittest.TestCase):
         self.assertNotIn("observed_phases", inspect.signature(binding.bind_receipt).parameters)
         self.assertNotIn("observed_phases", binding.ReceiptObservation.__dataclass_fields__)
         self.receipt = replace(self.receipt, phases=self.receipt.phases[:-1])
+        with self.assertRaises(coordinator.CoordinatorError) as raised:
+            self.bind()
+        self.assertEqual(raised.exception.code, "FAIL_RESULT_CONTRACT")
+
+    def test_source_freeze_is_receipt_bound_and_caller_cannot_assert_it(self):
+        self.assertNotIn("source_freeze_verified", inspect.signature(binding.bind_receipt).parameters)
+        self.receipt = replace(self.receipt, source_freeze_after=SourceSnapshot(
+            self.contract.source_digest, tuple((name, "0" * 64)
+                                               for name, _ in self.source_snapshot.hashes)))
         with self.assertRaises(coordinator.CoordinatorError) as raised:
             self.bind()
         self.assertEqual(raised.exception.code, "FAIL_RESULT_CONTRACT")
@@ -130,9 +142,11 @@ class ReceiptBindingTests(unittest.TestCase):
                 4, 8192, 1, 1,
                 phase_timing=tuple((name, start + phase_index * 900_000_000,
                                     start + (phase_index + 1) * 900_000_000)
-                                   for phase_index, name in enumerate(coordinator.PHASES[:-1]))))
+                                   for phase_index, name in enumerate(coordinator.PHASES[:-1])),
+                source_freeze_before=self.source_snapshot,
+                source_freeze_after=self.source_snapshot))
             observations.append(binding.ReceiptObservation(
-                index + 1, 1, True))
+                index + 1, 1))
         return tuple(receipts), tuple(observations)
 
     def test_binds_six_receipts_in_dec068_order_and_prequalifies_sequence(self):

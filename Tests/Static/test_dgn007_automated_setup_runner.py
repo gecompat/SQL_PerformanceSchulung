@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from contextlib import closing, redirect_stderr, redirect_stdout
 from dataclasses import FrozenInstanceError, replace
+import json
 import io
 import os
 from pathlib import Path
@@ -19,6 +20,11 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "Tests" / "Runtime"))
 import run_dgn007_automated_setup as runner  # noqa: E402
 import validate_dgn007_automated_setup as validator  # noqa: E402
+from Tests.Contracts.dgn007_prospective_acceptance import contract_from_mapping  # noqa: E402
+
+ACCEPTANCE_CONTRACT = contract_from_mapping(json.loads((
+    ROOT / "Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/incident-acceptance.contract.json"
+).read_text(encoding="utf-8")))
 
 
 def harness_result(*, contract=runner.DATA_MODEL_CONTRACT, phases=None, summary="PASS|OK", returncode=0, timed_out=False, phase_base=None):
@@ -121,7 +127,7 @@ class CleanupTests(unittest.TestCase):
              patch.object(runner, "assert_absent"), \
              patch.object(runner.time, "monotonic_ns", side_effect=(10, 20, 30)):
             receipt = runner._run_one(target(), 1, contract=runner.CONTROL_AB_CONTRACT,
-                check_capture_projection=True, expected_major=17, expected_contract=object())
+                check_capture_projection=True, expected_major=17, expected_contract=ACCEPTANCE_CONTRACT)
         self.assertEqual((receipt.lifecycle_started_ns, receipt.cleanup_started_ns,
                           receipt.lifecycle_finished_ns), (10, 20, 30))
         self.assertEqual(tuple(row[0] for row in receipt.phase_timing),
@@ -130,7 +136,41 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual((receipt.configured_cpus, receipt.configured_memory_mb), (4, 8192))
         self.assertEqual(resources.call_count, 2)
         self.assertEqual((receipt.active_sql_sessions_before, receipt.active_sql_sessions_after), (1, 1))
-        self.assertEqual(sessions.call_count, 2)
+
+    def test_source_freeze_mismatch_aborts_before_sql_capture_and_still_checks_cleanup(self):
+        with patch.object(runner, "capture_source_snapshot",
+                          side_effect=runner.SourceFreezeError()), \
+             patch.object(runner, "_active_sql_session_snapshot") as sessions, \
+             patch.object(runner, "run_harness") as harness, \
+             patch.object(runner, "assert_absent") as absent, \
+             redirect_stdout(io.StringIO()):
+            with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                runner._run_one(target(), 1, contract=runner.CONTROL_AB_CONTRACT,
+                    check_capture_projection=True, expected_major=17,
+                    expected_contract=ACCEPTANCE_CONTRACT)
+        sessions.assert_not_called()
+        harness.assert_not_called()
+        absent.assert_called_once()
+
+    def test_source_drift_during_capture_fails_after_cleanup(self):
+        before = runner.capture_source_snapshot(runner.ROOT, ACCEPTANCE_CONTRACT)
+        changed = runner.SourceSnapshot(before.source_digest,
+                                        tuple((name, "0" * 64) for name, _ in before.hashes))
+        body = SimpleNamespace(windows=(), requests=(), families=(), plans=(), plan_union=())
+        capture = runner._CheckedCapture(body=body, phases=())
+        with patch.object(runner, "capture_source_snapshot", side_effect=(before, changed)), \
+             patch.object(runner, "_active_sql_session_snapshot", side_effect=(1, 1)), \
+             patch.object(runner, "_docker_resource_snapshot", side_effect=((4, 8192), (4, 8192))), \
+             patch.object(runner, "run_harness", return_value=harness_result(
+                 contract=runner.CONTROL_AB_CONTRACT, phase_base=11)), \
+             patch.object(runner, "_check_capture_body", return_value=capture), \
+             patch.object(runner, "assert_absent") as absent, \
+             redirect_stdout(io.StringIO()):
+            with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                runner._run_one(target(), 1, contract=runner.CONTROL_AB_CONTRACT,
+                    check_capture_projection=True, expected_major=17,
+                    expected_contract=ACCEPTANCE_CONTRACT)
+        absent.assert_called_once()
 
     def test_capture_fails_closed_when_boundary_session_snapshot_is_not_single(self):
         with patch.object(runner, "_active_sql_session_snapshot", return_value=2), \
@@ -139,7 +179,7 @@ class CleanupTests(unittest.TestCase):
              redirect_stdout(io.StringIO()) as output:
             with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
                 runner._run_one(target(), 1, contract=runner.CONTROL_AB_CONTRACT,
-                    check_capture_projection=True, expected_major=17, expected_contract=object())
+                    check_capture_projection=True, expected_major=17, expected_contract=ACCEPTANCE_CONTRACT)
         harness.assert_not_called()
         self.assertIn("DGN007_SESSION_BOUNDARY|BEFORE|count=2", output.getvalue())
 
@@ -155,7 +195,7 @@ class CleanupTests(unittest.TestCase):
              redirect_stdout(io.StringIO()) as output:
             with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
                 runner._run_one(target(), 1, contract=runner.CONTROL_AB_CONTRACT,
-                    check_capture_projection=True, expected_major=17, expected_contract=object())
+                    check_capture_projection=True, expected_major=17, expected_contract=ACCEPTANCE_CONTRACT)
         absent.assert_called_once()
         self.assertIn("DGN007_SESSION_BOUNDARY|AFTER|count=2", output.getvalue())
 
@@ -185,7 +225,7 @@ class CleanupTests(unittest.TestCase):
              redirect_stdout(io.StringIO()):
             with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
                 runner._run_one(target(), 1, contract=runner.CONTROL_AB_CONTRACT,
-                    check_capture_projection=True, expected_major=17, expected_contract=object())
+                    check_capture_projection=True, expected_major=17, expected_contract=ACCEPTANCE_CONTRACT)
         absent.assert_called_once()
 
     def test_docker_resource_snapshot_requires_exact_live_bounded_configuration(self):

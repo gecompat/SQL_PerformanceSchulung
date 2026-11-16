@@ -39,7 +39,12 @@ from sqlcmd_process import start_sqlcmd, _terminate_process_tree  # noqa: E402
 from sqlcmd_process import _linux_descendants, _linux_process_identity  # noqa: E402
 from Tests.Contracts.dgn007_capture_projection import decode_projection, ProjectionError  # noqa: E402
 from Tests.Contracts.dgn007_collector_transport import CaptureBody  # noqa: E402
-from Tests.Contracts.dgn007_prospective_acceptance import contract_from_mapping  # noqa: E402
+from Tests.Contracts.dgn007_prospective_acceptance import (  # noqa: E402
+    AcceptanceContract, _contract_valid, contract_from_mapping,
+)
+from Tests.Runtime.dgn007_source_freeze import (  # noqa: E402
+    SourceFreezeError, SourceSnapshot, capture_source_snapshot, verify_source_freeze,
+)
 
 AUTOMATED = (ROOT / "Demos" / "07_Query_Store_Extended_Events"
              / "DGN-007_Time_Bounded_Search_Incident" / "Automated")
@@ -196,8 +201,8 @@ class _CaptureReceipt:
     Enthält tatsächliche Harness-Phasenzeiten und äußere Lifecyclegrenzen,
     dazu unveränderte Docker-CPU-/Speichergrenzen und genau eine sichtbare
     SQL-Benutzersession an den beiden Capture-Rändern. Die Momentaufnahmen
-    belegen keine durchgehende Exklusivität; Freeze und Hostzustand bleiben
-    unattestiert. Der CaptureBody bleibt PROJECT_SEMANTIC/runtime_attested=False.
+    belegen keine durchgehende Exklusivität; Hostbelegung bleibt unattestiert.
+    Der CaptureBody bleibt PROJECT_SEMANTIC/runtime_attested=False.
     """
 
     repetition: int
@@ -214,6 +219,8 @@ class _CaptureReceipt:
     active_sql_sessions_after: int
     g13_boundary_diagnostics: tuple[str, ...] = ()
     phase_timing: tuple[tuple[str, int, int], ...] = ()
+    source_freeze_before: SourceSnapshot | None = field(default=None, repr=False)
+    source_freeze_after: SourceSnapshot | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
         if (type(self.lifecycle_started_ns) is not int
@@ -960,11 +967,16 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
     sessions_before: int | None = None
     sessions_after: int | None = None
     first_absence_confirmed = False
+    source_freeze_before: SourceSnapshot | None = None
+    source_freeze_after: SourceSnapshot | None = None
     try:
         if check_capture_projection:
             if (contract not in KNOWN_CONTRACTS or contract.scope not in CONTROL_SCOPES
-                    or expected_major not in (15, 16, 17) or expected_contract is None):
+                    or expected_major not in (15, 16, 17)
+                    or type(expected_contract) is not AcceptanceContract
+                    or not _contract_valid(expected_contract)):
                 raise RunnerFailure("FAIL_CONTRACT")
+            source_freeze_before = capture_source_snapshot(ROOT, expected_contract)
             sessions_before = _active_sql_session_snapshot(target)
             if sessions_before != 1:
                 print(f"DGN007_SESSION_BOUNDARY|BEFORE|count={sessions_before}")
@@ -995,6 +1007,8 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
             check_harness(result, contract=contract)
     except RunnerFailure as exc:
         failure = exc
+    except SourceFreezeError:
+        failure = RunnerFailure("FAIL_CONTRACT")
     except subprocess.TimeoutExpired:
         failure = RunnerFailure("FAIL_TIMEOUT")
     except (ExecutionTargetError, OSError, ValueError, KeyboardInterrupt):
@@ -1019,6 +1033,16 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
                     pass
         if cleanup_failed or (failure is not None and failure.code == "FAIL_CLEANUP"):
             failure = RunnerFailure("FAIL_CLEANUP")
+        if source_freeze_before is not None:
+            try:
+                source_freeze_after = capture_source_snapshot(ROOT, expected_contract)
+                if not verify_source_freeze(source_freeze_before, source_freeze_after,
+                                            expected_contract):
+                    if failure is None:
+                        failure = RunnerFailure("FAIL_CONTRACT")
+            except (SourceFreezeError, OSError, ValueError):
+                if failure is None:
+                    failure = RunnerFailure("FAIL_CONTRACT")
         cleanup_outcome = "FAIL|FAIL_CLEANUP" if failure and failure.code == "FAIL_CLEANUP" else "PASS|OK"
         print(f"DGN007_CLEANUP|RUN_{repetition}|{cleanup_outcome}")
     lifecycle_finished_ns = time.monotonic_ns()
@@ -1036,7 +1060,8 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
                                resource_before[0], resource_before[1],
                                sessions_before, sessions_after,
                                capture.g13_boundary_diagnostics,
-                               _capture_phase_timing(result, contract=contract))
+                               _capture_phase_timing(result, contract=contract),
+                               source_freeze_before, source_freeze_after)
     return None
 
 

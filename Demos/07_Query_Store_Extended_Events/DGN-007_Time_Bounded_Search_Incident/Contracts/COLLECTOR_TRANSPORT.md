@@ -143,21 +143,24 @@ Cleanupbudget zählt bis zum Lifecycleende. Alle sechs Records werden erneut
 gegen den prospektiven Vertrag geprüft.
 
 Diese Prüfung validiert nur ihre Eingaben. Sie misst keine Zeiten oder
-Ressourcen, bindet keine Hostidentität, verhindert keine Quellenänderung und
-erzeugt selbst weder Records noch SQL-Ausführung. Insbesondere ist
-`source_freeze_verified` derzeit ein Callerfeld und keine integrierte Freeze-
-Attestation. Der vertrauensgebundene Runtime-Coordinator, unabhängiger Review,
-frische Matrix und Incidentnachweis bleiben offen.
+Ressourcen, bindet keine Hostidentität und erzeugt selbst weder Records noch
+SQL-Ausführung. Der DGN-007-Capture-Runner prüft den unten beschriebenen
+Quellenfreeze jetzt vor und nach jedem kontrollierten Capture und trägt beide
+Snapshots im internen Receipt. Die Receipt-Bindung leitet daraus das Freeze-Flag
+ab; ein Caller kann es nicht mehr setzen. Der vertrauensgebundene Coordinator,
+Hostbelegung, unabhängiger Review, frische Matrix und Incidentnachweis bleiben
+offen.
 
 Der zusätzliche [Quellenfreeze-Prüfer](../../../../Tests/Runtime/dgn007_source_freeze.py)
 liest die 14 vertraglich gebundenen SQL-/Manifestdateien und vergleicht deren
 normalisierte SHA-256-Werte mit dem Acceptance-Vertrag. Zwei Snapshots lassen
 sich auf Gleichheit prüfen; ein veränderter oder nicht gebundener Stand wird
 abgelehnt. Der Prüfer ist read-only und der eigene Statikworkflow deckt seine
-Fixtures ab. Er ist noch nicht in den ausführenden Coordinator eingebunden und
-beweist nicht, welche Bytes ein gestarteter Prozess tatsächlich geladen hat.
-Der Callermarker und die offene Runtime-/Herkunftsattestation bleiben daher
-unqualifiziert.
+Fixtures ab. Der ausführende Runner verlangt die erste Prüfung vor Sessionscan
+und Harnessstart und die zweite nach Cleanup; ein Drift lässt den Capture
+fehlschlagen. Das belegt die beobachteten Dateibytes am lokalen Ausführungspfad,
+aber nicht, welche Bytes ein gestarteter Kindprozess tatsächlich geladen hat
+oder die externe Herkunft des Quellbestands.
 
 ## Fehler und Prüfung
 
@@ -175,12 +178,15 @@ python Tests/Static/validate_dgn007_collector_transport.py
 python Tests/Static/test_dgn007_collector_transport.py
 python Tests/Static/test_dgn007_collector_record_assembly.py
 python Tests/Static/test_dgn007_collector_coordinator.py
+python Tests/Static/test_dgn007_collector_receipt_binding.py
+python Tests/Static/test_dgn007_source_freeze.py
 python Tests/Static/validate_dgn007_prospective_acceptance.py
 python Tests/Static/test_dgn007_prospective_acceptance.py
 ```
 
-19 Transporttests, sieben Recordmappertests, fünf Matrixpräqualifikationstests
-und die bestehenden 35 Prospektivtests bestanden lokal, ebenso die Validatoren. Der eigene
+19 Transporttests, sieben Recordmappertests, fünf Matrixpräqualifikationstests,
+11 Receiptbindungstests, zwei Quellenfreezetests und die bestehenden 35
+Prospektivtests bestanden lokal, ebenso die Validatoren. Der eigene
 fünfminütige Statikworkflow prüft diese Grenze im temporären GitHub-Checkout.
 Dieser ursprüngliche Decoder-Nachweis enthält keine SQL-Runtime. Der
 getrennte Producer und seine eigene Prüfung stehen in

@@ -15,8 +15,9 @@ PR [#918](https://github.com/gecompat/SQL_PerformanceSchulung/pull/918) wurde
 als `2bcb8a70798c583f8a417cd1a7293c67fa1c75cc` integriert. Die begrenzte
 Präqualifikation prüft sechs deklarierte vollständige Records in DEC-068-
 Reihenfolge, Phasen-/Lifecyclemonotonie, 180-/60-Sekundenlimits,
-Ressourcendeklarationen sowie Freeze-/Cleanupflags. Der Caller liefert diese
-Zusicherungen weiterhin; sie sind keine Herkunftsattestation. Der Runnerreceipt
+Ressourcendeklarationen sowie Freeze-/Cleanupflags. Freeze-Snapshots werden
+inzwischen vor/nach dem Capture durch den Runner gebunden; Hostbelegung und
+Quellenherkunft bleiben Caller-/Provenienzgrenzen. Der Runnerreceipt
 bindet jetzt zusätzlich tatsächliche monotone Außenkanten für Start,
 Cleanupstart und Ende. Der Runner-AST wurde nach unabhängiger Codeprüfung für
 Python 3.12.14 neu gebunden.
@@ -33,9 +34,8 @@ Speichergrenzen an gleichlautende `docker inspect`-Snapshots vor und nach jedem
 Capture. Eine administrative SQL-Abfrage zählt zusätzlich laufende
 Benutzersessions an beiden Capture-Rändern und lässt nur genau eine zu. Das
 belegt nur Randzustände, weder physische Hostkapazität noch durchgehende
-Ressourcenstabilität oder SQL-Exklusivität. Hostbelegung, integrierter
-Source-Freeze, Quellenherkunft und der vollständige verlustfreie Coordinator
-bleiben offen.
+Ressourcenstabilität oder SQL-Exklusivität. Hostbelegung, externe
+Quellenherkunft und der vollständige verlustfreie Coordinator bleiben offen.
 
 Der Head-Lauf
 [#70](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/43818717528)
@@ -51,16 +51,16 @@ DEC-068-Incidentmatrix noch einen vertrauensgebundenen Coordinator oder
 qualifizierte Incident-/Ursachenevidenz; die menschliche Generalprobe bleibt
 ausgeschlossen.
 
-Am 16. November 2026 kam ein read-only Quellenfreeze-Prüfer hinzu:
-`Tests/Runtime/dgn007_source_freeze.py` vergleicht die 14 normalisierten
-SQL-/Manifestdateien mit den Hashes des Acceptance-Vertrags und kann zwei
-Snapshots auf identische Bindung prüfen. Zwei lokale Prüffälle decken den
-vollständigen Bestand und eine nachträgliche Byteänderung ab. Der neue isolierte
-Statikworkflow prüft diese Fixtures. Das schließt die lokale Snapshot-Prüfung,
-aber nicht die Integration in den Runner: `source_freeze_verified` bleibt bis
-dahin Callerangabe, tatsächliche Prozessquellennutzung und Herkunft bleiben
-unattestiert. Die bestehenden Coordinator-/Receipt-Tests bestehen weiterhin
-(5/5 und 10/10); eine SQL-Runtime wurde für diesen Quellenprüfer nicht gestartet.
+Der in PR #928 integrierte read-only Quellenfreeze-Prüfer ist jetzt im
+Capture-Runner eingebunden. Er bindet zwei Snapshots der 14
+normalisierten SQL-/Manifestdateien vor Capture und nach Cleanup an das interne
+Runnerreceipt; die Receipt-Bindung leitet das Freeze-Flag ab und akzeptiert
+keine Callerzusicherung mehr. 60 Runner-, 11 Receipt-, fünf Coordinator- und
+zwei Snapshottests sowie der Runnervertrag bestehen lokal. Die PR-Gates laufen
+für diese Änderung; der vorhandene SQL-Server-Containerbestand verhindert
+weiterhin einen kontrolliert isolierten lokalen Matrixlauf. Unattestiert bleiben
+die tatsächlich vom Kindprozess geladenen Bytes, Quellenherkunft und
+Hostbelegung.
 
 Die erneute read-only Prüfung des historischen G13-Laufs
 [#37570814577](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37570814577)
