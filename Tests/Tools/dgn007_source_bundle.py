@@ -42,7 +42,7 @@ DATA_MEMBERS = tuple(DEMO + "Automated/" + name for name in (
     "setup.manifest.json", "windows.manifest.json", "profile-comparison.manifest.json",
     "control-ab.manifest.json", "control-ba.manifest.json", "control-aa.manifest.json",
 )) + (DEMO + "Contracts/incident-acceptance.contract.json",)
-STDLIB = frozenset(("__future__", "argparse", "ctypes", "dataclasses", "decimal",
+STDLIB = frozenset(("__future__", "argparse", "ctypes", "dataclasses", "datetime", "decimal",
                     "fractions", "hashlib", "json", "os", "pathlib", "re", "shutil",
                     "signal", "subprocess", "sys", "threading", "time", "typing"))
 MODULES = tuple((Path(p).stem if "/Contracts/" not in p else
