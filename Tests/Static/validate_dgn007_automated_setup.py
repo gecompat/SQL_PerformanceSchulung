@@ -188,12 +188,14 @@ def runner_findings(text: str) -> list[str]:
     for marker in ("lifecycle_started_ns", "cleanup_started_ns", "lifecycle_finished_ns",
                    "0 <= self.lifecycle_started_ns <= self.cleanup_started_ns",
                    "<= self.lifecycle_finished_ns", "phase_timing",
-                   "configured_cpus", "configured_memory_mb"):
+                   "configured_cpus", "configured_memory_mb",
+                   "active_sql_sessions_before", "active_sql_sessions_after"):
         if marker not in receipt_text:
             findings.append(f"Interner Capturebeleg fehlt monotone Lifecyclegrenze: {marker}")
     for marker in ("PHASE_TIME = re.compile", "phase_timing_protocol=True",
                    "_capture_phase_timing(result, contract=contract)",
-                   "_docker_resource_snapshot(target)", "resource_after != resource_before"):
+                   "_docker_resource_snapshot(target)", "resource_after != resource_before",
+                   "_active_sql_session_snapshot(target)", "sessions_after != 1"):
         if marker not in text:
             findings.append(f"Runnerreceipt bindet keine tatsächlichen Harness-Phasenzeiten: {marker}")
     resource_probe = functions.get("_docker_resource_snapshot")
@@ -202,6 +204,12 @@ def runner_findings(text: str) -> list[str]:
                    "State.Running", "8 * 1024 * 1024 * 1024"):
         if marker not in resource_text:
             findings.append(f"Runner receipt bindet Docker-Ressourcen nicht fail-closed: {marker}")
+    session_probe = functions.get("_active_sql_session_snapshot")
+    session_text = " ".join((ast.get_source_segment(text, session_probe) or "").split()) if session_probe else ""
+    for marker in ("sys.dm_exec_sessions", "is_user_process = 1", "ISNULL(IS_SRVROLEMEMBER",
+                   "COUNT_BIG", "target.kind != execution_target.DOCKER"):
+        if marker not in session_text:
+            findings.append(f"Runnerreceipt bindet keine begrenzte SQL-Sessionrandprobe: {marker}")
     for name in ("validate_manifest", "assert_empty_instance", "assert_absent", "run_harness", "check_harness", "recover", "run_one", "main"):
         if name not in functions:
             findings.append(f"Runner-Vertragsprüfung fehlt: {name}")

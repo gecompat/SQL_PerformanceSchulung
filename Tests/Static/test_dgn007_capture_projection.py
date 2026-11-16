@@ -66,6 +66,9 @@ class ProjectionTests(unittest.TestCase):
         resource_probe=patch.object(runner,'_docker_resource_snapshot',return_value=(4,8192))
         resource_probe.start()
         self.addCleanup(resource_probe.stop)
+        session_probe=patch.object(runner,'_active_sql_session_snapshot',return_value=1)
+        session_probe.start()
+        self.addCleanup(session_probe.stop)
 
     def test_phase_timing_protocol_requires_every_actual_ordered_phase(self):
         result=harness(frames(self.value),phase_base=100)
@@ -778,7 +781,7 @@ class ExtractedSqlTests(unittest.TestCase):
                 ('phases = tuple(PHASE.findall(combined))',
                  'phases = tuple((phase,"PASS","OK") for phase in contract.expected_phases)'),
                 ('first_absence_confirmed = True','first_absence_confirmed = False'),
-                ('capture is not None and first_absence_confirmed and resource_before is not None',
+                ('capture is not None and first_absence_confirmed and resource_before is not None\n            and sessions_before is not None and sessions_after is not None',
                  'capture is not None'),
                 ('contract not in KNOWN_CONTRACTS or contract.scope not in CONTROL_SCOPES','False'),
                 ('receipt = _run_one(target, repetition','receipt = run_one(target, repetition'),

@@ -194,9 +194,10 @@ class _CaptureReceipt:
     """Interner Erfolgsbeleg nach Cleanup und erster unabhängiger Absenz.
 
     Enthält tatsächliche Harness-Phasenzeiten und äußere Lifecyclegrenzen,
-    dazu unveränderte Docker-CPU-/Speichergrenzen aus Vorher-/Nachherproben.
-    Freeze und Hostzustand bleiben unattestiert. Der CaptureBody bleibt
-    PROJECT_SEMANTIC/runtime_attested=False.
+    dazu unveränderte Docker-CPU-/Speichergrenzen und genau eine sichtbare
+    SQL-Benutzersession an den beiden Capture-Rändern. Die Momentaufnahmen
+    belegen keine durchgehende Exklusivität; Freeze und Hostzustand bleiben
+    unattestiert. Der CaptureBody bleibt PROJECT_SEMANTIC/runtime_attested=False.
     """
 
     repetition: int
@@ -209,6 +210,8 @@ class _CaptureReceipt:
     lifecycle_finished_ns: int
     configured_cpus: int
     configured_memory_mb: int
+    active_sql_sessions_before: int
+    active_sql_sessions_after: int
     g13_boundary_diagnostics: tuple[str, ...] = ()
     phase_timing: tuple[tuple[str, int, int], ...] = ()
 
@@ -220,7 +223,11 @@ class _CaptureReceipt:
                         <= self.lifecycle_finished_ns)
                 or type(self.configured_cpus) is not int or self.configured_cpus < 4
                 or type(self.configured_memory_mb) is not int
-                or self.configured_memory_mb < 8192):
+                or self.configured_memory_mb < 8192
+                or type(self.active_sql_sessions_before) is not int
+                or self.active_sql_sessions_before != 1
+                or type(self.active_sql_sessions_after) is not int
+                or self.active_sql_sessions_after != 1):
             raise RunnerFailure("FAIL_CONTRACT")
         wanted = ("PREFLIGHT", "SETUP", "DATA_ASSERTION", "CONTROL_CONFIG",
                   "CONTROL_WINDOWS", "PROFILE_COMPARISON", "CONTROL_EVIDENCE")
@@ -295,6 +302,29 @@ def _docker_resource_snapshot(target: ExecutionTarget) -> tuple[int, int]:
             or memory_bytes % (1024 * 1024) != 0):
         raise RunnerFailure("FAIL_CONTRACT")
     return nano_cpus // 1_000_000_000, memory_bytes // (1024 * 1024)
+
+
+def _active_sql_session_snapshot(target: ExecutionTarget) -> int:
+    """Zählt sichtbare Benutzersessions in einer einzelnen SQL-Randabfrage."""
+    if type(target) is not ExecutionTarget or target.kind != execution_target.DOCKER:
+        raise RunnerFailure("FAIL_CONTRACT")
+    output = execution_target.run_sql(
+        target, database="master", timeout_seconds=VERIFY_TIMEOUT,
+        sql_text=(
+            "SET NOCOUNT ON; "
+            "IF ISNULL(IS_SRVROLEMEMBER(N'sysadmin'), 0) <> 1 "
+            "THROW 51001,'FAIL_SAFETY',1; "
+            "SELECT COUNT_BIG(*) FROM sys.dm_exec_sessions "
+            "WHERE is_user_process = 1;"
+        ),
+    )
+    match = re.fullmatch(r"([0-9]{1,3})\s*", output)
+    if match is None:
+        raise RunnerFailure("FAIL_CONTRACT")
+    count = int(match.group(1))
+    if count < 1:
+        raise RunnerFailure("FAIL_CONTRACT")
+    return count
 
 
 def assert_empty_instance(target: ExecutionTarget) -> None:
@@ -927,11 +957,16 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
     result: SqlcmdResult | None = None
     capture: _CheckedCapture | None = None
     resource_before: tuple[int, int] | None = None
+    sessions_before: int | None = None
+    sessions_after: int | None = None
     first_absence_confirmed = False
     try:
         if check_capture_projection:
             if (contract not in KNOWN_CONTRACTS or contract.scope not in CONTROL_SCOPES
                     or expected_major not in (15, 16, 17) or expected_contract is None):
+                raise RunnerFailure("FAIL_CONTRACT")
+            sessions_before = _active_sql_session_snapshot(target)
+            if sessions_before != 1:
                 raise RunnerFailure("FAIL_CONTRACT")
             resource_before = _docker_resource_snapshot(target)
             if check_phase_diagnostics:
@@ -942,6 +977,9 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
                                      phase_timing_protocol=True)
             capture = _check_capture_body(result, contract=contract, expected_major=expected_major,
                                           expected_contract=expected_contract)
+            sessions_after = _active_sql_session_snapshot(target)
+            if sessions_after != 1:
+                raise RunnerFailure("FAIL_CONTRACT")
             resource_after = _docker_resource_snapshot(target)
             if resource_after != resource_before:
                 raise RunnerFailure("FAIL_CONTRACT")
@@ -989,10 +1027,12 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
         print(f"DGN007_STAGE|{contract.scope}|RUN_{repetition}|FAIL|{failure.code}")
         raise failure
     print(f"DGN007_STAGE|{contract.scope}|RUN_{repetition}|PASS|OK")
-    if capture is not None and first_absence_confirmed and resource_before is not None:
+    if (capture is not None and first_absence_confirmed and resource_before is not None
+            and sessions_before is not None and sessions_after is not None):
         return _CaptureReceipt(repetition, capture.body, capture.phases, "PASS", "OK",
                                lifecycle_started_ns, cleanup_started_ns, lifecycle_finished_ns,
                                resource_before[0], resource_before[1],
+                               sessions_before, sessions_after,
                                capture.g13_boundary_diagnostics,
                                _capture_phase_timing(result, contract=contract))
     return None

@@ -30,10 +30,12 @@ band anschließend alle sieben Harness-Phasenzeiten über ein privates Runnerpro
 an den tatsächlichen Ablauf; Merge-Commit `d00f72cd3f64cfcd19516fc00efea0834c821571`.
 Der aktuelle Coordinator-Schnitt bindet außerdem konfigurierte Docker-CPU- und
 Speichergrenzen an gleichlautende `docker inspect`-Snapshots vor und nach jedem
-Capture. Das belegt nur gleiche konfigurierte Grenzen an den zwei Beobachtungs-
-zeitpunkten, weder physische Hostkapazität noch durchgehende Stabilität. Aktive
-SQL-Sessions, Hostbelegung, integrierter Source-Freeze, Quellenherkunft und der
-vollständige verlustfreie Coordinator bleiben offen.
+Capture. Eine administrative SQL-Abfrage zählt zusätzlich sichtbare
+Benutzersessions an beiden Capture-Rändern und lässt nur genau eine zu. Das
+belegt nur Randzustände, weder physische Hostkapazität noch durchgehende
+Ressourcenstabilität oder SQL-Exklusivität. Hostbelegung, integrierter
+Source-Freeze, Quellenherkunft und der vollständige verlustfreie Coordinator
+bleiben offen.
 
 Der Head-Lauf
 [#70](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/43818717528)
@@ -11932,10 +11934,13 @@ monotone Lifecycle-/Cleanup-Grenzen und die erste unabhängige Datenbankabsenz a
 dem Receipt. Scope-Reihenfolge, fehlende oder wiederverwendete Lifecycles sowie
 Zeit-, Budget- und Ressourcen-Schranken werden vorqualifiziert. CPU und Speicher
 werden vor und nach dem Capture mit `docker inspect` gelesen und müssen identisch
-sowie oberhalb der Vertragsminima sein. Das belegt keine Hostkapazität oder
-kontinuierliche Stabilität. Aktive Sessions, Hostbelegung und Source-Freeze bleiben
-Callerangaben; Quellenherkunft und vollständige Coordinatorqualifikation sind
-nicht attestiert. Die
+sowie oberhalb der Vertragsminima sein. Eine administrative DMV-Abfrage zählt
+sichtbare SQL-Benutzersessions an beiden Capture-Rändern; nur genau eine lässt
+einen Receipt zu. Beides belegt keine physische Hostkapazität, kontinuierliche
+Ressourcenstabilität, durchgehende SQL-Exklusivität oder einen geschlossenen
+Zugangsumfang. Hostbelegung und Source-Freeze bleiben Callerangaben;
+Quellenherkunft und vollständige Coordinatorqualifikation sind nicht attestiert.
+Die
 synthetischen Prüfungen starten keine SQL-Instanz.
 
 Der [G13-Grenzdiagnoseentwurf](DGN_007_G13_BOUNDARY_DIAGNOSTIC_DESIGN.md) wurde

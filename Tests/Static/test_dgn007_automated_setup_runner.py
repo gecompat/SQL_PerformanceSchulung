@@ -115,6 +115,7 @@ class CleanupTests(unittest.TestCase):
         capture = runner._CheckedCapture(body=body, phases=())
         with patch.object(runner, "run_harness", return_value=harness_result(
                 contract=runner.CONTROL_AB_CONTRACT, phase_base=11)), \
+             patch.object(runner, "_active_sql_session_snapshot", side_effect=(1, 1)) as sessions, \
              patch.object(runner, "_docker_resource_snapshot", side_effect=((4, 8192), (4, 8192))) as resources, \
              patch.object(runner, "_check_capture_body", return_value=capture), \
              patch.object(runner, "assert_absent"), \
@@ -128,12 +129,52 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual((receipt.first_absence_outcome, receipt.first_absence_code), ("PASS", "OK"))
         self.assertEqual((receipt.configured_cpus, receipt.configured_memory_mb), (4, 8192))
         self.assertEqual(resources.call_count, 2)
+        self.assertEqual((receipt.active_sql_sessions_before, receipt.active_sql_sessions_after), (1, 1))
+        self.assertEqual(sessions.call_count, 2)
+
+    def test_capture_fails_closed_when_boundary_session_snapshot_is_not_single(self):
+        with patch.object(runner, "_active_sql_session_snapshot", return_value=2), \
+             patch.object(runner, "run_harness") as harness, \
+             patch.object(runner, "assert_absent"), \
+             redirect_stdout(io.StringIO()):
+            with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                runner._run_one(target(), 1, contract=runner.CONTROL_AB_CONTRACT,
+                    check_capture_projection=True, expected_major=17, expected_contract=object())
+        harness.assert_not_called()
+
+    def test_capture_fails_closed_when_final_boundary_has_extra_sql_session(self):
+        body = SimpleNamespace(windows=(), requests=(), families=(), plans=(), plan_union=())
+        capture = runner._CheckedCapture(body=body, phases=())
+        with patch.object(runner, "_active_sql_session_snapshot", side_effect=(1, 2)), \
+             patch.object(runner, "_docker_resource_snapshot", side_effect=((4, 8192), (4, 8192))), \
+             patch.object(runner, "run_harness", return_value=harness_result(
+                 contract=runner.CONTROL_AB_CONTRACT, phase_base=11)), \
+             patch.object(runner, "_check_capture_body", return_value=capture), \
+             patch.object(runner, "assert_absent") as absent, \
+             redirect_stdout(io.StringIO()):
+            with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                runner._run_one(target(), 1, contract=runner.CONTROL_AB_CONTRACT,
+                    check_capture_projection=True, expected_major=17, expected_contract=object())
+        absent.assert_called_once()
+
+    def test_active_session_snapshot_requires_admin_and_strict_single_scalar(self):
+        with patch.object(runner.execution_target, "run_sql", return_value="1\n") as query:
+            self.assertEqual(runner._active_sql_session_snapshot(target()), 1)
+        self.assertIn("ISNULL(IS_SRVROLEMEMBER(N'sysadmin'), 0) <> 1",
+                      query.call_args.kwargs["sql_text"])
+        self.assertIn("sys.dm_exec_sessions", query.call_args.kwargs["sql_text"])
+        for output in ("", "0\n", "1\n2\n", "session count = 1\n", "-1\n"):
+            with self.subTest(output=output), \
+                 patch.object(runner.execution_target, "run_sql", return_value=output), \
+                 self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                runner._active_sql_session_snapshot(target())
 
     def test_capture_receipt_fails_if_docker_resource_limits_change(self):
         body = SimpleNamespace(windows=(), requests=(), families=(), plans=(), plan_union=())
         capture = runner._CheckedCapture(body=body, phases=())
         with patch.object(runner, "run_harness", return_value=harness_result(
                 contract=runner.CONTROL_AB_CONTRACT, phase_base=11)), \
+             patch.object(runner, "_active_sql_session_snapshot", side_effect=(1, 1)), \
              patch.object(runner, "_docker_resource_snapshot", side_effect=((4, 8192), (3, 8192))), \
              patch.object(runner, "_check_capture_body", return_value=capture), \
              patch.object(runner, "assert_absent") as absent, \
@@ -167,7 +208,7 @@ class CleanupTests(unittest.TestCase):
         body = SimpleNamespace()
         for times in ((10, 9, 30), (10, 20, 19), (True, 20, 30)):
             with self.subTest(times=times), self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
-                runner._CaptureReceipt(1, body, (), "PASS", "OK", *times, 4, 8192)
+                runner._CaptureReceipt(1, body, (), "PASS", "OK", *times, 4, 8192, 1, 1)
 
     def test_absence_is_checked_after_success_and_each_failure(self):
         failures = (None, runner.RunnerFailure("FAIL_CONTRACT"),
