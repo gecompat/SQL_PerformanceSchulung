@@ -74,6 +74,52 @@ class ReceiptBindingTests(unittest.TestCase):
     def test_explicitly_limits_claim_to_receipt_bound_fields(self):
         self.assertIn("Ressourcen und Source-Freeze bleiben Eingaben", binding.__doc__)
 
+    def make_matrix(self):
+        receipts = []
+        observations = []
+        for index, (_block, _slot, label) in enumerate(coordinator.EXPECTED_SEQUENCE):
+            start = index * 200_000_000_000 + 1_000_000_000
+            body = transport.decode_capture(
+                encode(payload(self.contract, major=16, sequence=label)), self.contract)
+            receipts.append(_CaptureReceipt(
+                index + 1, body,
+                tuple((name, "PASS", "OK") for name in acceptance.PHASE_IDS),
+                "PASS", "OK", start, start + 8_000_000_000, start + 9_000_000_000))
+            phases = tuple(coordinator.TimedPhase(
+                name, start + phase_index * 900_000_000,
+                start + (phase_index + 1) * 900_000_000, "PASS", "OK")
+                for phase_index, name in enumerate(coordinator.PHASES[:-1]))
+            observations.append(binding.ReceiptObservation(
+                index + 1, phases, 4, 8192, 1, 1, True))
+        return tuple(receipts), tuple(observations)
+
+    def test_binds_six_receipts_in_dec068_order_and_prequalifies_sequence(self):
+        receipts, observations = self.make_matrix()
+        runs = binding.bind_sequence(self.contract, receipts, expected_major=16,
+                                     observations=observations)
+        self.assertEqual(len(runs), 6)
+        self.assertEqual(tuple(run.record.scope for run in runs), tuple(
+            "DGN-007_CONTROL_" + label for _block, _slot, label in coordinator.EXPECTED_SEQUENCE))
+        self.assertEqual(coordinator.validate_sequence(self.contract, runs), tuple(
+            run.record for run in runs))
+
+    def test_sequence_binding_rejects_reordered_reused_and_missing_receipts(self):
+        receipts, observations = self.make_matrix()
+        with self.assertRaises(coordinator.CoordinatorError) as raised:
+            binding.bind_sequence(self.contract, (receipts[1], *receipts[1:]),
+                                  expected_major=16, observations=observations)
+        self.assertEqual(raised.exception.code, "FAIL_RESULT_CONTRACT")
+        repeated = (observations[0], *observations[1:-1],
+                    replace(observations[-1], lifecycle_id=observations[0].lifecycle_id))
+        with self.assertRaises(coordinator.CoordinatorError) as raised:
+            binding.bind_sequence(self.contract, receipts, expected_major=16,
+                                  observations=repeated)
+        self.assertEqual(raised.exception.code, "FAIL_RESULT_CONTRACT")
+        with self.assertRaises(coordinator.CoordinatorError) as raised:
+            binding.bind_sequence(self.contract, receipts[:-1], expected_major=16,
+                                  observations=observations)
+        self.assertEqual(raised.exception.code, "SKIP_EVIDENCE_MISSING")
+
 
 if __name__ == "__main__":
     unittest.main()
