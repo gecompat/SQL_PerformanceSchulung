@@ -152,6 +152,15 @@ prüft dessen Records erneut. Seine Phasen- und Cleanupwerte stammen weiterhin
 vom Caller; Freeze, Quellenverwendung, Ressourcen, reale Reihenfolge, Budgets
 und unabhängige Cleanup-Herkunft bleiben Aufgabe des noch offenen Collectors.
 
+Die Receipt-Bindung prüft die sieben callerseitigen äußeren Phasen bereits
+gegen die tatsächlichen monotonen Lifecycle- und Cleanupgrenzen des internen
+Runner-Receipts: Phasen müssen geordnet, erfolgreich und vollständig vor
+Cleanup liegen; die reguläre Phasendauer darf 180 Sekunden nicht überschreiten.
+Falsche Recordzuordnungen werden vor Zeitfehlern klassifiziert. Diese Prüfung
+verhindert unplausible gebundene Zwischenrecords, attestiert aber weder die
+Herkunft der sieben Phasenzeitpunkte noch Quellenfreeze, Ressourcen oder
+Hostbelegung. Der vollständige vertrauensgebundene Coordinator bleibt offen.
+
 Es gelten ausschließlich die Codes aus
 [`FWK-012` – Status-, Fehler- und Skip-Vertrag](../../../00_Framework/Contracts/FWK-012_Status_Error_Skip_Contract.md).
 Cleanupfehler dominieren Timeouts und frühere Fehler. Fehlende oder

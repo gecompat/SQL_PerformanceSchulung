@@ -60,6 +60,26 @@ class ReceiptBindingTests(unittest.TestCase):
             self.bind()
         self.assertEqual(raised.exception.code, "FAIL_RESULT_CONTRACT")
 
+    def test_rejects_outer_phase_ticks_outside_receipt_lifecycle(self):
+        outside = (*self.observed[:-1], coordinator.TimedPhase(
+            self.observed[-1].phase_id, 7_200_000_000, 8_100_000_000, "PASS", "OK"))
+        with self.assertRaises(coordinator.CoordinatorError) as raised:
+            self.bind(observed_phases=outside)
+        self.assertEqual(raised.exception.code, "FAIL_CONTRACT")
+
+    def test_rejects_nonmonotone_or_failed_outer_phase_before_binding(self):
+        reversed_phase = (*self.observed[:2], coordinator.TimedPhase(
+            self.observed[2].phase_id, 1_500_000_000, 2_500_000_000, "PASS", "OK"),
+            *self.observed[3:])
+        with self.assertRaises(coordinator.CoordinatorError):
+            self.bind(observed_phases=reversed_phase)
+        failed_phase = (*self.observed[:3], coordinator.TimedPhase(
+            self.observed[3].phase_id, self.observed[3].started_ns,
+            self.observed[3].finished_ns, "FAIL", "FAIL_EXECUTION"), *self.observed[4:])
+        with self.assertRaises(coordinator.CoordinatorError) as raised:
+            self.bind(observed_phases=failed_phase)
+        self.assertEqual(raised.exception.code, "FAIL_CONTRACT")
+
     def test_rejects_unconfirmed_absence_and_invalid_outer_ticks(self):
         self.receipt = replace(self.receipt, first_absence_outcome="FAIL")
         with self.assertRaises(coordinator.CoordinatorError) as raised:
