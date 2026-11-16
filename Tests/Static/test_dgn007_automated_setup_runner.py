@@ -115,6 +115,7 @@ class CleanupTests(unittest.TestCase):
         capture = runner._CheckedCapture(body=body, phases=())
         with patch.object(runner, "run_harness", return_value=harness_result(
                 contract=runner.CONTROL_AB_CONTRACT, phase_base=11)), \
+             patch.object(runner, "_docker_resource_snapshot", side_effect=((4, 8192), (4, 8192))) as resources, \
              patch.object(runner, "_check_capture_body", return_value=capture), \
              patch.object(runner, "assert_absent"), \
              patch.object(runner.time, "monotonic_ns", side_effect=(10, 20, 30)):
@@ -125,12 +126,48 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(tuple(row[0] for row in receipt.phase_timing),
                          runner.CONTROL_AB_CONTRACT.expected_phases[:-1])
         self.assertEqual((receipt.first_absence_outcome, receipt.first_absence_code), ("PASS", "OK"))
+        self.assertEqual((receipt.configured_cpus, receipt.configured_memory_mb), (4, 8192))
+        self.assertEqual(resources.call_count, 2)
+
+    def test_capture_receipt_fails_if_docker_resource_limits_change(self):
+        body = SimpleNamespace(windows=(), requests=(), families=(), plans=(), plan_union=())
+        capture = runner._CheckedCapture(body=body, phases=())
+        with patch.object(runner, "run_harness", return_value=harness_result(
+                contract=runner.CONTROL_AB_CONTRACT, phase_base=11)), \
+             patch.object(runner, "_docker_resource_snapshot", side_effect=((4, 8192), (3, 8192))), \
+             patch.object(runner, "_check_capture_body", return_value=capture), \
+             patch.object(runner, "assert_absent") as absent, \
+             redirect_stdout(io.StringIO()):
+            with self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                runner._run_one(target(), 1, contract=runner.CONTROL_AB_CONTRACT,
+                    check_capture_projection=True, expected_major=17, expected_contract=object())
+        absent.assert_called_once()
+
+    def test_docker_resource_snapshot_requires_exact_live_bounded_configuration(self):
+        good = SimpleNamespace(returncode=0, stdout="4000000000|8589934592|true\n")
+        with patch.object(runner.subprocess, "run", return_value=good) as inspect_call:
+            self.assertEqual(runner._docker_resource_snapshot(target()), (4, 8192))
+        self.assertEqual(inspect_call.call_args.args[0][0:3],
+                         ["docker", "inspect", "--format"])
+        for stdout in ("2000000000|4294967296|true\n", "4000000000|8589934592|false\n",
+                       "4000000000|8589934592|true|extra\n", "unknown"):
+            with self.subTest(stdout=stdout), \
+                 patch.object(runner.subprocess, "run", return_value=SimpleNamespace(
+                     returncode=0, stdout=stdout)), \
+                 self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                runner._docker_resource_snapshot(target())
+
+    def test_docker_resource_probe_failure_is_fail_closed(self):
+        with patch.object(runner.subprocess, "run", return_value=SimpleNamespace(
+                returncode=1, stdout="synthetic raw output")), \
+             self.assertRaisesRegex(runner.RunnerFailure, "FAIL_EXECUTION"):
+            runner._docker_resource_snapshot(target())
 
     def test_capture_receipt_rejects_nonmonotone_or_noninteger_edges(self):
         body = SimpleNamespace()
         for times in ((10, 9, 30), (10, 20, 19), (True, 20, 30)):
             with self.subTest(times=times), self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
-                runner._CaptureReceipt(1, body, (), "PASS", "OK", *times)
+                runner._CaptureReceipt(1, body, (), "PASS", "OK", *times, 4, 8192)
 
     def test_absence_is_checked_after_success_and_each_failure(self):
         failures = (None, runner.RunnerFailure("FAIL_CONTRACT"),

@@ -266,7 +266,9 @@ def runner_projection_findings(source):
     if (len(confirmed)!=1 or not absence or len(absence.body)!=2
             or ast.unparse(absence.body[0])!='assert_absent(target)' or absence.body[1] is not confirmed[0]):
         findings.append('Nur die erste erfolgreiche unabhängige Absenzprüfung darf den Capturebeleg freigeben')
-    receipt_guard=ast.dump(ast.parse('capture is not None and first_absence_confirmed',mode='eval').body)
+    receipt_guard=ast.dump(ast.parse(
+        'capture is not None and first_absence_confirmed and resource_before is not None',
+        mode='eval').body)
     receipt_returns=[n for n in ast.walk(core) if isinstance(n,ast.Return) and isinstance(n.value,ast.Call) and isinstance(n.value.func,ast.Name) and n.value.func.id=='_CaptureReceipt'] if core else []
     gated=[n for block in core.body if isinstance(block,ast.If) and ast.dump(block.test)==receipt_guard for n in ast.walk(block) if isinstance(n,ast.Return)] if core else []
     if len(receipt_returns)!=1 or receipt_returns[0] not in gated:

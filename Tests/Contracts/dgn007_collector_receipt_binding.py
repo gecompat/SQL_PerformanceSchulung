@@ -1,9 +1,10 @@
 """Bindet belegte Runner-Receipt-Felder an einen deklarativen Coordinator-Record.
 
 Die sieben äußeren Phasenzeiten stammen aus dem privaten FWK-010-Zeitprotokoll;
-Ressourcen und Source-Freeze bleiben Eingaben des Aufrufers. Lifecycle- und
-Cleanup-Zeit stammen direkt aus dem internen Erfolgsreceipt. Das Modul attestiert
-weder Quellherkunft noch Ressourcen oder eine SQL-Runtime.
+CPU-/Speichergrenzen aus gleichen Docker-Inspect-Proben vor und nach dem Lauf.
+Lifecycle- und Cleanup-Zeit stammen direkt aus dem internen Erfolgsreceipt.
+Aktive Sessions, Hostbelegung und Source-Freeze bleiben Aufrufereingaben; das
+Modul attestiert weder Quellherkunft noch eine SQL-Runtime.
 """
 from __future__ import annotations
 
@@ -21,11 +22,9 @@ from Tests.Contracts.dgn007_prospective_acceptance import (
 
 @dataclass(frozen=True, slots=True)
 class ReceiptObservation:
-    """Callerangaben zu Lifecycle-ID und Ressourcen je Receipt."""
+    """Callerangaben zu Lifecycle-ID, Sessions, Hostbelegung und Freeze."""
 
     lifecycle_id: int
-    configured_cpus: int
-    configured_memory_mb: int
     active_sql_sessions: int
     active_versions_on_host: int
     source_freeze_verified: bool
@@ -33,8 +32,7 @@ class ReceiptObservation:
 
 def bind_receipt(contract: AcceptanceContract, receipt, *, expected_major: int,
                  block: int, slot: int, lifecycle_id: int,
-                 configured_cpus: int,
-                 configured_memory_mb: int, active_sql_sessions: int,
+                 active_sql_sessions: int,
                  active_versions_on_host: int, source_freeze_verified: bool) -> CoordinatedRun:
     """Erzeugt einen Coordinator-Record; Cleanup wird nie vom Caller geliefert."""
     from Tests.Runtime.run_dgn007_automated_setup import _CaptureReceipt
@@ -89,7 +87,7 @@ def bind_receipt(contract: AcceptanceContract, receipt, *, expected_major: int,
     if previous_finish - started > 180_000_000_000:
         raise CoordinatorError("FAIL_TIMEOUT")
     return CoordinatedRun(
-        record, started, finished, phases, configured_cpus, configured_memory_mb,
+        record, started, finished, phases, receipt.configured_cpus, receipt.configured_memory_mb,
         active_sql_sessions, active_versions_on_host, source_freeze_verified, True,
     )
 
@@ -109,8 +107,6 @@ def bind_sequence(contract: AcceptanceContract, receipts: tuple, *, expected_maj
         runs.append(bind_receipt(
             contract, receipt, expected_major=expected_major, block=block, slot=slot,
             lifecycle_id=observation.lifecycle_id,
-            configured_cpus=observation.configured_cpus,
-            configured_memory_mb=observation.configured_memory_mb,
             active_sql_sessions=observation.active_sql_sessions,
             active_versions_on_host=observation.active_versions_on_host,
             source_freeze_verified=observation.source_freeze_verified,
