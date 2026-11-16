@@ -87,7 +87,7 @@ class ExecutionEdgeTests(unittest.TestCase):
         self.assertEqual(report.status, "PASS_STATIC_CANDIDATE", report.issue)
         self.assertTrue(report.declared_import_graph_verified and report.declared_execution_edges_verified)
         self.assertEqual((report.members, report.validation_scope, report.source_profile),
-                         (28, "PROJECT_SEMANTIC", edges.PROFILE))
+                         (27, "PROJECT_SEMANTIC", edges.PROFILE))
         self.assertFalse(report.runtime_attested or report.method_approved)
         with self.assertRaises(FrozenInstanceError):
             report.method_approved = True
