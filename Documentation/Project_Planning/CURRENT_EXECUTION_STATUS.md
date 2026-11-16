@@ -9004,6 +9004,16 @@ Hostcheck am 2026-11-13 fand weiterhin fünf fremde, aktive SQL-Server-Container
 und 30 % CPU. Das belegt keine kontrollierte Optimiererlast. Die fremden
 Container blieben unverändert; das YELLOW-Vorstartgate bleibt offen.
 
+## DGN-004 – ergänzender Query-Store-Lehrpfad
+
+Die [Lehrnotiz zur Query-Store-Plansteuerung](../Curriculum/QUERY_STORE_PLAN_CONTROL_LESSON.md)
+ordnet gespeicherten Plan, angeforderte Erzwingung, beobachtete Ausführung,
+Forcing-Fehlerzähler und Rücknahme für `LO-M06-04`/`LO-M06-08` ein. Sie ist
+statisches Lehrmaterial; weder Demo- noch Runtime- oder Buildstatus ändern sich.
+Die Zuordnung ist in der Traceability-Matrix vermerkt, ohne `CLM-076` inhaltlich
+zu erweitern. Das YELLOW-Vorstartgate für die DGN-004-Laufzeitqualifikation
+bleibt offen.
+
 ## TSK-015 – historische Priorität von aktueller Steuerung getrennt
 
 Die menschliche Lesepfadprüfung führte vom Root-README über die

@@ -38,6 +38,7 @@ ihren didaktischen Wert.
 - [Join-Kardinalität und `DISTINCT`](DISTINCT_JOIN_CARDINALITY_LESSON.md): One-to-many-Multiplizität, gewünschte Elternprojektion und die Abgrenzung zu `EXISTS` und Aggregation.
 - [Lookup und steigende Treffermengen](LOOKUP_SELECTIVITY_LESSON.md): Key Lookups, abdeckender Index und die workloadabhängige Grenze zu einem Scan.
 - [Konkurrierende Abfragespeicherzuteilungen](COMPETING_MEMORY_GRANTS_LESSON.md): aktuelle Grant-Zustände und der Nachweis eines wartenden eigenen Requests.
+- [Query-Store-Plansteuerung](QUERY_STORE_PLAN_CONTROL_LESSON.md): angeforderte Planerzwingung, beobachtete Planverwendung und Rücknahme sauber unterscheiden.
 - [Einfügungen an einer heißen Indexseite](LAST_PAGE_INSERT_CONTENTION_LESSON.md): `PAGELATCH_EX` von I/O- und Sperrwartezeiten trennen; Insertzähler nicht als Engpassnachweis lesen.
 - [External Tables und Remote Pushdown](EXTERNAL_TABLES_LESSON.md): Datenweg, Connectorgrenzen und tatsächliche Pushdown-Evidenz unterscheiden; erklärender Inhalt ohne Runtimequalifikation.
 - [Graph Tables und gerichtete Pfade](GRAPH_TABLES_LESSON.md): Graph- und relationale Abfrageformen sowie Korrektheit und Performanceevidenz trennen.

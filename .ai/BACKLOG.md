@@ -1780,7 +1780,7 @@ Eine eigene synthetische Datenbank, eine feste Abfrage in einer eigenen paramete
 
 **Abgrenzung und Abhängigkeiten:**
 
-DGN-003 liefert Query Store (persistente Abfrage- und Planhistorie) als fachliche Grundlage. Dessen optionale Zweiplan-/Warnpfade erfüllen DGN-004 nicht. DGN-005 behandelt Extended Events (gezielte Ereigniserfassung); ein neuer allgemeiner Ereignispfad ist nicht Teil dieses Schnitts. Keine technische Abhängigkeit von CON-005 oder OPT-007. Für die spätere Unterrichtsfreigabe die konkrete Zuordnung zu LO-M06-04/08 (Lernziele zur Auswahl und Einordnung der Diagnosequellen) in der vorhandenen Traceability-Matrix ergänzen; CLM-076 bleibt die Aussage zur Query-Store-Historie.
+DGN-003 liefert Query Store (persistente Abfrage- und Planhistorie) als fachliche Grundlage. Dessen optionale Zweiplan-/Warnpfade erfüllen DGN-004 nicht. DGN-005 behandelt Extended Events (gezielte Ereigniserfassung); ein neuer allgemeiner Ereignispfad ist nicht Teil dieses Schnitts. Keine technische Abhängigkeit von CON-005 oder OPT-007. Die ergänzende Lehrnotiz ist LO-M06-04/08 in der Traceability-Matrix zugeordnet; CLM-076 bleibt die Aussage zur Query-Store-Historie.
 
 **Quellenbasis und Aussagegrenzen:**
 
