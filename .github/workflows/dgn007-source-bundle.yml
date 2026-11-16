@@ -158,6 +158,7 @@ jobs:
           import hashlib
           from pathlib import Path
           import sys
+          sys.path.insert(0, str(Path("Tests/Tools").resolve()))
           import dgn007_source_bundle as bundle
           print("python", sys.version)
           for path in bundle.PYTHON_MEMBERS:
