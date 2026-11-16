@@ -185,6 +185,7 @@ class _CheckedCapture:
 
     body: CaptureBody = field(repr=False)
     phases: tuple[tuple[str, str, str], ...]
+    g13_boundary_diagnostics: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -203,6 +204,7 @@ class _CaptureReceipt:
     lifecycle_started_ns: int
     cleanup_started_ns: int
     lifecycle_finished_ns: int
+    g13_boundary_diagnostics: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if (type(self.lifecycle_started_ns) is not int
@@ -541,6 +543,89 @@ def _query_store_raw_diagnostics(result: SqlcmdResult, *, contract: RunContract)
             *(f'DGN007_FAILURE|{label}|' + '|'.join(row[2:]) for row in (*windows, *middle)))
 
 
+def _g13_boundary_diagnostics(result: SqlcmdResult, *, contract: RunContract) -> tuple[str, ...]:
+    """Prüft die exakten G13-Operanden aus derselben SQL-Materialisierung.
+
+    Rohwerte bleiben im Receipt und werden nur durch den ausdrücklich gewählten
+    Diagnose-CLI-Pfad auf der lokalen Konsole ausgegeben.
+    """
+    prefix = "DGN007_G13_BOUNDARY"
+    insufficient = ("DGN007_G13_BOUNDARY|INSUFFICIENT|MALFORMED",)
+    if (contract not in KNOWN_CONTRACTS or contract.scope not in CONTROL_SCOPES
+            or len((result.stdout + result.stderr).encode("utf-8")) > MAX_CAPTURE_OUTPUT_BYTES):
+        return ()
+    grouped = []
+    for channel, output in (("stdout", result.stdout), ("stderr", result.stderr)):
+        matches = []
+        for line in output.splitlines():
+            raw = RAW_PHASE.fullmatch(line)
+            if prefix in line:
+                if (raw is None or raw[1] != "CONTROL_EVIDENCE" or raw[2] != channel
+                        or not raw[3].isascii() or len(raw[3]) > 1200
+                        or not raw[3].startswith(prefix + "|1|")):
+                    return insufficient
+                matches.append(raw[3].split("|"))
+        if matches:
+            grouped.append((channel, matches))
+    if not grouped:
+        return ()
+    if len(grouped) != 1:
+        return insufficient
+    records = grouped[0][1]
+    if len(records) < 2 or records[0][:3] != [prefix, "1", "BEGIN"]:
+        return insufficient
+    begin, end = records[0], records[-1]
+    if (len(begin) != 5 or len(end) != 4 or end[:3] != [prefix, "1", "END"]
+            or begin[3] not in ("COMPLETE", "OVERFLOW", "INSUFFICIENT")
+            or not re.fullmatch(r"(?:0|[1-9][0-9]{0,18})", begin[4])
+            or not re.fullmatch(r"(?:0|[1-9][0-9]{0,18})", end[3])):
+        return insufficient
+    count = int(begin[4])
+    if begin[3] == "INSUFFICIENT":
+        return (("DGN007_G13_BOUNDARY|INSUFFICIENT|SOURCE",)
+                if count == 0 and end[3] == "0" and len(records) == 2 else insufficient)
+    if begin[3] == "OVERFLOW":
+        return (("DGN007_G13_BOUNDARY|INSUFFICIENT|OVERFLOW",)
+                if count > 16 and end[3] == "0" and len(records) == 2 else insufficient)
+    if count > 16 or int(end[3]) != count or len(records) != count + 2:
+        return insufficient
+
+    timestamp = re.compile(
+        r"([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})"
+        r"(?:\.([0-9]{1,7}))?(?:Z|\+00:00)"
+    )
+
+    def ticks(value: str) -> int | None:
+        match = timestamp.fullmatch(value)
+        if match is None:
+            return None
+        from datetime import date
+        year, month, day, hour, minute, second = map(int, match.groups()[:6])
+        fraction = int((match.group(7) or "").ljust(7, "0"))
+        try:
+            days = date(year, month, day).toordinal() - 1
+        except ValueError:
+            return None
+        return (((days * 24 + hour) * 60 + minute) * 60 + second) * 10_000_000 + fraction
+
+    output = [f"DGN007_G13_BOUNDARY|COMPLETE|rows={count}"]
+    for ordinal, row in enumerate(records[1:-1], 1):
+        if (len(row) != 17 or row[:3] != [prefix, "1", "ROW"] or row[3] != str(ordinal)
+                or row[4] not in ("0", "1")
+                or any(not re.fullmatch(r"[1-9][0-9]{0,18}", value) for value in (*row[5:9], row[10]))
+                or row[9] != "0"
+                or not re.fullmatch(r"-?(?:0|[1-9][0-9]{0,18})", row[15])
+                or not re.fullmatch(r"-?(?:0|[1-9][0-9]{0,18})", row[16])):
+            return insufficient
+        times = tuple(ticks(value) for value in row[11:15])
+        if (any(value is None for value in times)
+                or int(row[15]) != times[2] - times[0]
+                or int(row[16]) != times[3] - times[1]):
+            return insufficient
+        output.append("DGN007_G13_BOUNDARY|ROW|" + "|".join(row[4:]))
+    return tuple(output)
+
+
 def capture_failure_diagnostics(result: SqlcmdResult, *, contract: RunContract) -> tuple[str, ...]:
     """Nur feste Statusfelder und positive Msg/Line-Zahlen; keine Rohtexte.
 
@@ -706,7 +791,8 @@ def _check_capture_body(result: SqlcmdResult, *, contract: RunContract, expected
     # Genau dieselben ausgelesenen Statusfelder, die check_harness geprüft hat;
     # keine Ersatzphasen aus dem erwarteten Vertrag herstellen.
     phases = tuple(PHASE.findall(combined))
-    return _CheckedCapture(body, phases)
+    return _CheckedCapture(body, phases,
+                           _g13_boundary_diagnostics(result, contract=contract))
 
 
 def _capture_counts(body: CaptureBody) -> tuple[int, int, int, int, int]:
@@ -823,7 +909,8 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
     print(f"DGN007_STAGE|{contract.scope}|RUN_{repetition}|PASS|OK")
     if capture is not None and first_absence_confirmed:
         return _CaptureReceipt(repetition, capture.body, capture.phases, "PASS", "OK",
-                               lifecycle_started_ns, cleanup_started_ns, lifecycle_finished_ns)
+                               lifecycle_started_ns, cleanup_started_ns, lifecycle_finished_ns,
+                               capture.g13_boundary_diagnostics)
     return None
 
 
@@ -860,6 +947,8 @@ def build_parser() -> argparse.ArgumentParser:
                         help="Skalare SQL-Projektion nur bei control-ab/ba/aa intern prüfen; keine Incidentbewertung oder Rohoutputausgabe.")
     parser.add_argument("--check-phase-diagnostics", action="store_true",
                         help="SQL-Phasenausgabe für alle sechs Scopes privat begrenzt lesen; bei Fehler nur geprüfte Status-/Msg-/Line-Metadaten ausgeben.")
+    parser.add_argument("--diagnose-g13-boundaries", action="store_true",
+                        help="Genau einen isolierten Control-Lifecycle ausführen und nach Cleanup nur geprüfte G13-Grenzwerte lokal ausgeben.")
     parser.add_argument("--container", required=True)
     parser.add_argument("--expected-major", type=int, choices=(15, 16, 17), required=True)
     parser.add_argument("--confirm-disposable-instance", action="store_true",
@@ -882,7 +971,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         if not os.environ.get("SQLCMDPASSWORD"):
             raise RunnerFailure("FAIL_SAFETY")
         expected_contract = None
-        if args.check_capture_projection:
+        if args.diagnose_g13_boundaries and contract.scope not in CONTROL_SCOPES:
+            raise RunnerFailure("FAIL_CONTRACT")
+        if args.check_capture_projection or args.diagnose_g13_boundaries:
             if contract.scope not in CONTROL_SCOPES:
                 raise RunnerFailure("FAIL_CONTRACT")
             try:
@@ -893,7 +984,20 @@ def main(argv: Sequence[str] | None = None) -> int:
         target = resolve_target(args.container)
         execution_target.verify_engine(target, expected_major=args.expected_major)
         assert_empty_instance(target)
-        for repetition in (1, 2):
+        repetitions = (1,) if args.diagnose_g13_boundaries else (1, 2)
+        for repetition in repetitions:
+            if args.diagnose_g13_boundaries:
+                receipt = _run_capture_one(
+                    target, repetition, contract=contract,
+                    expected_major=args.expected_major, expected_contract=expected_contract,
+                    check_phase_diagnostics=args.check_phase_diagnostics)
+                if receipt.g13_boundary_diagnostics:
+                    for line in receipt.g13_boundary_diagnostics:
+                        print(line)
+                else:
+                    print("DGN007_G13_BOUNDARY|NOT_OBSERVED")
+                runs += 1
+                continue
             if args.check_capture_projection:
                 if args.check_phase_diagnostics:
                     run_one(target, repetition, contract=contract, check_capture_projection=True,
@@ -913,7 +1017,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         code = "FAIL_TIMEOUT"
     except (ExecutionTargetError, OSError, ValueError, KeyboardInterrupt):
         code = "FAIL_EXECUTION"
-    outcome = "PASS" if code == "OK" and runs == 2 else "FAIL"
+    expected_runs = 1 if args.diagnose_g13_boundaries else 2
+    outcome = "PASS" if code == "OK" and runs == expected_runs else "FAIL"
     print(f"DGN007_SUMMARY|{outcome}|{code}|major={args.expected_major}; runs={runs}; target=docker; scope={contract.scope}")
     return 0 if outcome == "PASS" else 1
 

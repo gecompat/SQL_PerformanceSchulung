@@ -117,7 +117,7 @@
     "20_Query_Store_Windows.sql": "911b8c474b673452b183939b63c255d7928eafc3194e2cbf618a1988799ebe7d",
     "21_Controlled_Query_Store_Windows.sql": "38c41a04ec128aad9ee9451980c011286bb13828a0dd12243309b29f692abef5",
     "30_Profile_Comparison.sql": "5b180913ace958efd6803ea72cd6375cd4f4ddd0fde79c63427dbd4efe768fdb",
-    "35_Control_Evidence.sql": "83de06018d3f89048c7f58beb5831649032ccf7ecddd49568f83933b98795ae8",
+    "35_Control_Evidence.sql": "3f8d3ce386ddd4f93aa215c76337a588faed8eb214a44b636cea649df768f2b9",
     "40_Data_Assertion.sql": "c80b961bffdcab6e26ecee05dd022790082794b5f283f49032ff818e508ffa3e",
     "90_Cleanup.sql": "ca0575b2b63874021785a69bcc7334ddbdc4af63a51c33d991437ba95864fa3c",
     "control-ab.manifest.json": "70efa350b28d7394be45b23c2c9b90c2381e85cc5a82b43f501b162abf303934",

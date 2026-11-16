@@ -619,6 +619,32 @@ class PhaseDiagnosticsTests(unittest.TestCase):
                 connect.assert_not_called()
         self.assertFalse(runner.build_parser().parse_args(CliTests.BASE).check_phase_diagnostics)
 
+    def test_g13_diagnostic_cli_runs_once_and_emits_records_only_after_receipt_cleanup(self):
+        contract = runner.CONTROL_BA_CONTRACT
+        diagnostic = ('DGN007_G13_BOUNDARY|COMPLETE|rows=1',
+                      'DGN007_G13_BOUNDARY|ROW|0|10|11|20|30|0|4|synthetic-utc-values|-1|2')
+        receipt = SimpleNamespace(g13_boundary_diagnostics=diagnostic)
+        args = CliTests.CONFIRMED + ["--scope", "control-ba", "--expected-major", "16",
+                                     "--diagnose-g13-boundaries"]
+        with patch.dict(os.environ, {"SQLCMDPASSWORD": "synthetic-test-value"}), \
+             patch.object(runner, "resolve_target", return_value=target()), \
+             patch.object(runner.execution_target, "verify_engine", return_value=16), \
+             patch.object(runner, "assert_empty_instance"), \
+             patch.object(runner, "_run_capture_one", return_value=receipt) as capture, \
+             redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(runner.main(args), 0)
+        capture.assert_called_once_with(target(), 1, contract=contract, expected_major=16,
+                                        expected_contract=unittest.mock.ANY,
+                                        check_phase_diagnostics=False)
+        self.assertIn(diagnostic[0], output.getvalue())
+        self.assertIn('DGN007_SUMMARY|PASS|OK|major=16; runs=1', output.getvalue())
+        for scope in ("data-model", "query-store-windows", "profile-comparison"):
+            with patch.dict(os.environ, {"SQLCMDPASSWORD": "synthetic-test-value"}), \
+                 patch.object(runner, "resolve_target") as connect, redirect_stdout(io.StringIO()):
+                self.assertEqual(runner.main(CliTests.CONFIRMED + ["--scope", scope,
+                    "--diagnose-g13-boundaries"]), 1)
+                connect.assert_not_called()
+
     def test_default_failure_retains_result_and_emits_only_outer_fields_for_every_scope(self):
         for contract in runner.KNOWN_CONTRACTS:
             result = harness_result(contract=contract,
@@ -733,6 +759,52 @@ class PhaseDiagnosticsTests(unittest.TestCase):
         poisoned = replace(result, stderr=result.stderr.replace('20|30|0|0|', '20|secret|0|0|'))
         self.assertEqual(runner._query_store_raw_diagnostics(poisoned, contract=contract),
                          ('DGN007_FAILURE|G13_RAW|INSUFFICIENT|MALFORMED',))
+
+    def test_g13_boundary_capture_binds_exact_guard_operands_and_signed_ticks(self):
+        contract = runner.CONTROL_BA_CONTRACT
+        start = '2026-10-10T12:00:00.0000000+00:00'
+        finish = '2026-10-10T12:00:01.0000000+00:00'
+        first = '2026-10-10T11:59:59.9999999Z'
+        last = '2026-10-10T12:00:01.0000002Z'
+        records = (
+            'DGN007_G13_BOUNDARY|1|BEGIN|COMPLETE|1',
+            f'DGN007_G13_BOUNDARY|1|ROW|1|0|10|11|20|30|0|4|{start}|{finish}|{first}|{last}|-1|2',
+            'DGN007_G13_BOUNDARY|1|END|1',
+        )
+        result = runner.SqlcmdResult((), 0, '\n'.join(
+            f'[CONTROL_EVIDENCE:stdout] {line}' for line in records), '', False, 0.0)
+        found = runner._g13_boundary_diagnostics(result, contract=contract)
+        self.assertEqual(found[0], 'DGN007_G13_BOUNDARY|COMPLETE|rows=1')
+        self.assertIn(f'|{start}|{finish}|{first}|{last}|-1|2', found[1])
+        self.assertEqual(runner._g13_boundary_diagnostics(
+            replace(result, stdout=result.stdout.replace('+00:00', 'Z')),
+            contract=contract)[0], 'DGN007_G13_BOUNDARY|COMPLETE|rows=1')
+
+    def test_g13_boundary_capture_rejects_delta_spoof_channel_and_overflow(self):
+        contract = runner.CONTROL_AB_CONTRACT
+        start = '2026-10-10T12:00:00.0000000+00:00'
+        finish = '2026-10-10T12:00:01.0000000+00:00'
+        row = (f'DGN007_G13_BOUNDARY|1|ROW|1|0|10|11|20|30|0|4|{start}|{finish}|'
+               f'{start}|{finish}|0|0')
+        valid = ('DGN007_G13_BOUNDARY|1|BEGIN|COMPLETE|1', row,
+                 'DGN007_G13_BOUNDARY|1|END|1')
+        def result(lines, channel='stdout'):
+            wrapped = '\n'.join(f'[CONTROL_EVIDENCE:{channel}] {line}' for line in lines)
+            return runner.SqlcmdResult((), 0, wrapped if channel == 'stdout' else '',
+                                       wrapped if channel == 'stderr' else '', False, 0.0)
+        self.assertEqual(runner._g13_boundary_diagnostics(
+            result((valid[0], row.replace('|0|0', '|1|0'), valid[-1])), contract=contract),
+            ('DGN007_G13_BOUNDARY|INSUFFICIENT|MALFORMED',))
+        wrong_phase = runner.SqlcmdResult((), 0, result(valid).stdout.replace(
+            '[CONTROL_EVIDENCE:stdout]', '[SETUP:stdout]'), '', False, 0.0)
+        self.assertEqual(runner._g13_boundary_diagnostics(wrong_phase, contract=contract),
+                         ('DGN007_G13_BOUNDARY|INSUFFICIENT|MALFORMED',))
+        self.assertEqual(runner._g13_boundary_diagnostics(result((
+            'DGN007_G13_BOUNDARY|1|BEGIN|OVERFLOW|17',
+            'DGN007_G13_BOUNDARY|1|END|0')), contract=contract),
+            ('DGN007_G13_BOUNDARY|INSUFFICIENT|OVERFLOW',))
+        self.assertEqual(runner._g13_boundary_diagnostics(result(valid, 'stderr'), contract=contract)[0],
+                         'DGN007_G13_BOUNDARY|COMPLETE|rows=1')
 
     def test_raw_evidence_source_failure_and_overflow_are_explicit(self):
         contract = runner.CONTROL_BA_CONTRACT

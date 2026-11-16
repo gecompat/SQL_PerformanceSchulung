@@ -195,8 +195,21 @@ def runner_findings(text: str) -> list[str]:
             findings.append(f"Runner-Vertragsprüfung fehlt: {name}")
     if "main" in functions:
         repetitions = [node for node in ast.walk(functions["main"]) if isinstance(node, ast.For)]
-        if not any(isinstance(node.iter, ast.Tuple) and [item.value for item in node.iter.elts if isinstance(item, ast.Constant)] == [1, 2] for node in repetitions):
-            findings.append("Runner muss exakt zwei Wiederholungen ausführen")
+        ordinary = any(isinstance(node.iter, ast.Tuple) and [item.value for item in node.iter.elts if isinstance(item, ast.Constant)] == [1, 2] for node in repetitions)
+        diagnostic = any(
+            isinstance(node.iter, ast.Name) and node.iter.id == "repetitions"
+            for node in repetitions
+        ) and any(
+            isinstance(node, ast.Assign)
+            and any(isinstance(target, ast.Name) and target.id == "repetitions" for target in node.targets)
+            and isinstance(node.value, ast.IfExp)
+            and ast.dump(node.value.test) == ast.dump(ast.parse("args.diagnose_g13_boundaries", mode="eval").body)
+            and ast.dump(node.value.body) == ast.dump(ast.parse("(1,)", mode="eval").body)
+            and ast.dump(node.value.orelse) == ast.dump(ast.parse("(1, 2)", mode="eval").body)
+            for node in ast.walk(functions["main"])
+        )
+        if not ordinary and not diagnostic:
+            findings.append("Runner muss regulär zwei Läufe und die G13-Diagnose exakt einen Lauf ausführen")
     if "run_one" in functions:
         expected = ast.parse('''_run_one(target, repetition, contract=contract,
 check_capture_projection=check_capture_projection, expected_major=expected_major,

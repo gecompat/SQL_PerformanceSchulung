@@ -25,8 +25,8 @@ def uncomment(sql):
 def normalized(sql): return ' '.join(uncomment(sql).split())
 
 
-G13_RAW_SHA256 = '9b2a63cfb7d20fe428e87e0a7c7d92be8511b69e60e80800bac5b7348375d00c'
-G13_BASE_SQL_SHA256 = '7d51b7bf3f444683ca2360595df24abf0214512c8794c50bcf5432f5fceae29f'
+G13_RAW_SHA256 = '826f197257509e830e32d393284c7f5278ea26d8082b3688c2394369d500ce99'
+G13_BASE_SQL_SHA256 = '5e56c5e103f391e956b1c729a4e89e6f17fd82e0271b77f40acadc7136c11432'
 G13_METHOD_COMMENT = """/* DEC-072: QS und SYSUTC besitzen keine nachgewiesene gemeinsame Messuhr.
    Nur Diagnose; unveränderte Intervall-, Request-, Ergebnis- und Countguards
    begrenzen die Aussage auf das beobachtete isolierte Schulungslabor. */
@@ -40,17 +40,18 @@ def strip_g13_raw_diagnostic(sql, *, check_baseline=False):
     sql = sql.replace('\r\n', '\n')
     if G13_DIAGNOSTIC in sql or 'DEC-072' in sql:
         if (sql.count(G13_METHOD_COMMENT) != 1 or sql.count(G13_DIAGNOSTIC) != 1
-                or not sql.startswith('END;', sql.index(G13_DIAGNOSTIC) + len(G13_DIAGNOSTIC))):
+                or not sql.startswith('END;\n/* CAPTURE_G13_BOUNDARY_GUARD_END */',
+                                      sql.index(G13_DIAGNOSTIC) + len(G13_DIAGNOSTIC))):
             raise ValueError('FAIL_CONTRACT')
         sql = sql.replace(G13_METHOD_COMMENT, '').replace(G13_DIAGNOSTIC, G13_LEGACY_FAILURE)
-    begin, end = '/* G13_RAW_DIAGNOSTIC_BEGIN */', '/* G13_RAW_DIAGNOSTIC_END */'
+    begin, end = '/* G13_BOUNDARY_DIAGNOSTIC_BEGIN */', '/* G13_BOUNDARY_DIAGNOSTIC_END */'
     if sql.count(begin) != 1 or sql.count(end) != 1:
         raise ValueError('FAIL_CONTRACT')
     start, finish = sql.index(begin), sql.index(end) + len(end) + 1
     block = sql[start:finish]
     if (hashlib.sha256(block.encode('utf-8')).hexdigest() != G13_RAW_SHA256
-            or not sql[:start].endswith('WHERE p.FirstExecutionTime<w.ExecutionStarted OR p.LastExecutionTime>w.ExecutionFinished)\nBEGIN\n')
-            or not sql[finish:].startswith("    PRINT 'DGN007_CONTROL_GUARD|G13';\n    PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT'; RETURN;\nEND;")):
+            or not sql[:start].endswith('/* CAPTURE_G13_BOUNDARY_GUARD_BEGIN */\nIF EXISTS(SELECT 1 FROM #G13BoundaryRows\n          WHERE FirstExecutionTime<ExecutionStarted OR LastExecutionTime>ExecutionFinished)\nBEGIN\n')
+            or not sql[finish:].startswith(G13_LEGACY_FAILURE + "END;\n/* CAPTURE_G13_BOUNDARY_GUARD_END */")):
         raise ValueError('FAIL_CONTRACT')
     stripped = sql[:start] + sql[finish:]
     if check_baseline and hashlib.sha256(stripped.encode('utf-8')).hexdigest() != G13_BASE_SQL_SHA256:
@@ -60,7 +61,7 @@ def strip_g13_raw_diagnostic(sql, *, check_baseline=False):
 
 def canonical_guard_diagnostics(sql):
     """Nur 17 validierte konstante IDs vor denselben Ergebnisfehlern entfernen."""
-    if 'G13_RAW_DIAGNOSTIC' in sql:
+    if 'G13_BOUNDARY_DIAGNOSTIC' in sql:
         sql = strip_g13_raw_diagnostic(sql)
     code=uncomment(sql)
     summary="PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT';"
@@ -123,7 +124,9 @@ PROJECTION_MARKERS=(
  'r.ReturnedRows<>p.ExpectedCount OR r.GroupKey<>p.GroupKey OR r.StatusCode<>p.StatusCode',
  'GROUP BY WindowId,Ordinal HAVING COUNT_BIG(*)<>1',
  'GROUP BY RequestLogId HAVING COUNT_BIG(*)<>1',
- 'p.FirstExecutionTime<w.ExecutionStarted OR p.LastExecutionTime>w.ExecutionFinished',
+ 'INTO #G13BoundaryRows',
+ 'FROM lab.IncidentProfile p JOIN lab.IncidentState w ON w.WindowId=p.WindowId',
+ 'WHERE FirstExecutionTime<ExecutionStarted OR LastExecutionTime>ExecutionFinished',
  'WHERE EXISTS(SELECT 1 FROM lab.IncidentProfile p WHERE p.QueryId=s.QueryId)',
  'OR EXISTS(SELECT 1 FROM lab.IncidentProfile p WHERE p.ParentQueryId=s.QueryId AND s.ParentQueryId=s.QueryId)',
  'SUM(p.ExecutionCount*p.AvgDurationUs)/NULLIF(SUM(p.ExecutionCount),0)',
@@ -149,7 +152,8 @@ PROJECTION_MARKERS=(
  "'DGN007_CAPTURE_FRAME|1|'", 'SUBSTRING(@ProjectionAscii,(@FrameOrdinal-1)*512+1,512)',
  'PRINT @Frame;', 'SET @FrameOrdinal+=1;',
 )
-PROJECTION_SECTIONS=('PROJECTION','REQUEST_ROWS','REQUEST_GUARD','EXECUTION_BOUNDS','FAMILY_ROWS',
+PROJECTION_SECTIONS=('PROJECTION','REQUEST_ROWS','REQUEST_GUARD','EXECUTION_BOUNDS',
+ 'G13_BOUNDARY_ROWS','G13_BOUNDARY_GUARD','FAMILY_ROWS',
  'WEIGHTED_TOTALS','TOTALS_GUARD','TIME_ROWS','TIME_GUARD','JSON','FRAME_GUARD','FRAMES')
 
 

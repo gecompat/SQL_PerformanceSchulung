@@ -615,16 +615,16 @@ class ExtractedSqlTests(unittest.TestCase):
                                               "PRINT 'SQLPERF_SUMMARY|FAIL|FAIL_RESULT_CONTRACT';",1)):
             with self.assertRaisesRegex(ValueError,'^FAIL_CONTRACT$'):
                 validator.canonical_guard_diagnostics(changed)
-        changed=self.evidence.replace('p.FirstExecutionTime<w.ExecutionStarted','1=0')
+        changed=self.evidence.replace('FirstExecutionTime<ExecutionStarted','1=0')
         with self.assertRaisesRegex(ValueError,'^FAIL_CONTRACT$'):
             validator.canonical_guard_diagnostics(changed)
         self.assertTrue(validator.projection_sql_findings(changed))
 
     def test_g13_raw_diagnostic_strip_is_exact(self):
         sql = self.evidence
-        self.assertEqual(validator.strip_g13_raw_diagnostic(sql, check_baseline=True).count('DGN007_G13_RAW'), 0)
-        for changed in (sql.replace('TOP(17)', 'TOP(18)', 1),
-                        sql.replace('/* G13_RAW_DIAGNOSTIC_END */', ''),
+        self.assertEqual(validator.strip_g13_raw_diagnostic(sql, check_baseline=True).count('DGN007_G13_BOUNDARY'), 0)
+        for changed in (sql.replace('DATEDIFF_BIG(nanosecond', 'DATEDIFF_BIG(microsecond', 1),
+                        sql.replace('/* G13_BOUNDARY_DIAGNOSTIC_END */', ''),
                         sql.replace("PRINT 'DGN007_CLOCK_DIAGNOSTIC|2|QS_SYSUTC_ENVELOPE_MISMATCH';", "RETURN;"),
                         sql.replace(validator.G13_DIAGNOSTIC, validator.G13_DIAGNOSTIC + '    RETURN;\n')):
             self.assertTrue(validator.projection_sql_findings(changed))
@@ -679,11 +679,11 @@ class ExtractedSqlTests(unittest.TestCase):
         self.assertEqual(self.connection.execute('SELECT * FROM tmp_CaptureFamilies ORDER BY QueryId').fetchall(),[(10,10),(11,10)])
 
     def test_actual_execution_boundary_predicate_is_inclusive(self):
-        self.connection.executescript('CREATE TABLE lab_IncidentState(WindowId int,ExecutionStarted int,ExecutionFinished int);CREATE TABLE lab_IncidentProfile(WindowId int,FirstExecutionTime int,LastExecutionTime int);INSERT INTO lab_IncidentState VALUES(0,100,200);INSERT INTO lab_IncidentProfile VALUES(0,100,200);')
-        predicate=guard(validator.capture_section(self.evidence,'EXECUTION_BOUNDS'))
+        self.connection.executescript('CREATE TABLE tmp_G13BoundaryRows(WindowId int,ExecutionStarted int,ExecutionFinished int,FirstExecutionTime int,LastExecutionTime int);INSERT INTO tmp_G13BoundaryRows VALUES(0,100,200,100,200);')
+        predicate=guard(validator.capture_section(self.evidence,'G13_BOUNDARY_GUARD'))
         self.assertFalse(self.connection.execute('SELECT '+predicate).fetchone()[0])
         for column,value in (('FirstExecutionTime',99),('LastExecutionTime',201)):
-            self.connection.execute('SAVEPOINT fixture');self.connection.execute(f'UPDATE lab_IncidentProfile SET {column}=?',(value,))
+            self.connection.execute('SAVEPOINT fixture');self.connection.execute(f'UPDATE tmp_G13BoundaryRows SET {column}=?',(value,))
             self.assertTrue(self.connection.execute('SELECT '+predicate).fetchone()[0]);self.connection.execute('ROLLBACK TO fixture');self.connection.execute('RELEASE fixture')
 
     def test_actual_day_rest_tick_expression_preserves_offset_one_tick_and_sql_max(self):
