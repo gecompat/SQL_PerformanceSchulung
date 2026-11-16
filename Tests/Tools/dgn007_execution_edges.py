@@ -28,8 +28,8 @@ CONTRACT = bundle.DEMO + "Contracts/incident-acceptance.contract.json"
 # ast.dump(include_attributes=False), Parsergrammatik Python 3.12. Kommentare
 # und Layout sind kein ausführbarer AST; Encoding bleibt separat geschlossen.
 PYTHON_AST_SHA256 = (
-    # Current DGN-007 runner AST after receipt-bound Docker resources and session boundaries.
-    "3b1c0398b0f40ad3495d43dd36249ecec6ab9d56e86c4f031ea7f7f7d7a80a74",
+    # Current DGN-007 runner AST with receipt-bound source-freeze snapshots.
+    "7f8e82c89e5cfba92eb783205e7bff284a6128cbd6fe47986e444839ac1f7a1a",
     "585493e97ba6e4c759bccf8fe983d6b61d32253435b4b2481a195f6784d38925",
     "958e555b9e25392e4bf6024eef6ea528305bf489b43ab1ed5af35388eddd37c8",
     # Current FWK-010 runner AST after DGN-007-only private phase timing protocol.
@@ -39,6 +39,7 @@ PYTHON_AST_SHA256 = (
     "770372e6beba2b8ad1993d581c87038e0ed3cdb059dfad58206133f201e49d4e",
     "f689d616ef25a528bca4ad7029aa9e4db69f1d43b5e747086ed6db8956084118",
     "58e2df784e76442584bc181f347d9334d95dddd87b6e4910402314fa7047a983",
+    "c6db49d3a3dff94a2721a27f8d3346e9d26478d1fdb8fe964eaeb9d72b3940c0",
 )
 # Deklarierte Kanten im oben gebundenen Profil; keine automatische Reachability.
 # Externe Tools/OS/Python und spätere Importumgebung bleiben Vertrauensgrenzen.

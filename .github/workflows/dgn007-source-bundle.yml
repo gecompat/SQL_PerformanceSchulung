@@ -158,19 +158,7 @@ jobs:
       - name: Gebundene Kandidaten und Manipulationen prüfen
         run: python -B Tests/Static/test_dgn007_source_bundle.py
       - name: Gebundene Prozess- und Manifestkanten pruefen
-        run: |
-          python - <<'PY'
-          import ast, hashlib, io, pathlib, sys, tokenize
-          sys.path.insert(0, "Tests/Tools")
-          import dgn007_source_bundle as bundle
-          for path in bundle.PYTHON_MEMBERS:
-              body = pathlib.Path(path).read_bytes()
-              encoding, _ = tokenize.detect_encoding(io.BytesIO(body).readline)
-              tree = ast.parse(body.decode("utf-8"), filename="candidate", feature_version=(3, 12))
-              digest = hashlib.sha256(ast.dump(tree, include_attributes=False).encode("utf-8")).hexdigest()
-              print(f"DGN007_AST|{path}|{encoding}|{digest}")
-          PY
-          python -B Tests/Static/test_dgn007_execution_edges.py
+        run: python -B Tests/Static/test_dgn007_execution_edges.py
       - name: Eingangsrahmung und Kontextmanipulationen prüfen
         run: python -B Tests/Static/test_dgn007_import_probe_input.py
       - name: Feste Memory-Loader-Fälle und Abschlussbindungen prüfen
