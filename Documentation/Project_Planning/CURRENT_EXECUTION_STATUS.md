@@ -13027,6 +13027,15 @@ Exklusivität oder einen erfolgreichen SQL-Incidentlauf. Das geschlossene
 DGN-007-Offline-AST-Profil bindet den geänderten Runner mit einem neu
 ermittelten Python-3.12-Digest; der Fingerprint selbst ist kein Ausführungs-
 oder Laufzeitnachweis.
+PR #1024 wurde am 17. November 2026 in `main` als
+`28e0d2c2fc7ac91c1936442c09bf4dc42543b1a9` integriert. Der vollständige
+Head-Matrixlauf [44128517258](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44128517258)
+bestand auf SQL Server 2019, 2022 und 2025; die Datenmodell-, Query-Store-,
+Profilvergleichs-, AB-/BA-/AA-Kontrollcapture-, Compatibility-Gegenproben- und
+Cleanup-Schritte waren erfolgreich. Elf durch den Main-Push ausgelöste
+Workflows liefen ebenfalls erfolgreich. Das qualifiziert diese isolierten
+Matrixläufe; physische Hostexklusivität, ein konkreter SQL-Incident und die
+vollständige DGN-007-Produktqualifikation bleiben davon getrennt.
 ### IDX-007 – aggregierte Waitdauer an die Requestquelle binden (17. November 2026)
 
 Der Lehrvalidator verlangte `r.wait_time` irgendwo im `PageWaits`-SQL, prüfte
