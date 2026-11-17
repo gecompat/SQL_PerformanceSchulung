@@ -12011,3 +12011,25 @@ Locale-Fallbacklogik aus ([CPython CLI](https://docs.python.org/3.12/using/cmdli
 Die fokussierte Scanner-Suite besteht lokal mit 296 Tests. Dies bleibt
 `CANDIDATES_ONLY`: kein beobachteter Worker-/Runtimewert, keine vollständige
 P11-Inventur und keine SQL-/Incidentqualifikation.
+
+### DGN-007 – Intervallgrenze im SQL-Server-2025-Fenstercapture
+
+Der vollständige isolierte PR-Lauf 43978922259 bestand die Datenmodell- und
+Query-Store-Fenster-Lifecycles auf SQL Server 2019 und 2022; beide Enginejobs
+schlossen auch ihre AB/BA/AA-Captures und Cleanup erfolgreich ab. Auf SQL Server
+2025 endete der neutrale Profilvergleich im Fenstervertrag mit
+`FAIL_RESULT_CONTRACT` (Fehler 51002): Das eigene Requestlog enthielt vier
+erfolgreiche Requests, die Query-Store-Sicht für das erste Fenster aber nur
+drei reguläre Ausführungen. Im zweiten Fenster waren alle vier sichtbar. Der
+erste gespeicherte Laufzeitzeitpunkt lag exakt auf der Intervallstartzeit. Das
+weist auf eine mögliche Grenzrennen-Hypothese hin, beweist sie aber nicht;
+Cleanup und unabhängige Containerentfernung bestanden.
+
+Der Fensterpoll wartet jetzt mindestens zwei Sekunden nach dem Beginn eines
+neuen aktiven Intervalls, bevor die gemessene Requestgruppe startet, und prüft
+weiterhin, dass genau dieses Intervall noch aktiv ist. Derselbe Guard gilt für
+neutralen und kontrollierten Capture; der statische Validator bindet ihn an den
+Pollpfad. Alle vier betroffenen Curriculum-/DGN-007-Validatoren bestehen lokal.
+Die Ursache und eine tatsächliche Behebung sind erst nach einer frischen
+isolierten SQL-Server-2025-Gegenprobe bestätigt; bis dahin bleibt die
+Versionsqualifikation offen.
