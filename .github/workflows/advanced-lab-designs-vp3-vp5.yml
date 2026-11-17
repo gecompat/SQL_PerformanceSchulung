@@ -9,8 +9,11 @@ on:
       - 'Documentation/Project_Planning/ADVANCED_PERFORMANCE_BLOCK_PLAN.md'
       - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
       - 'Documentation/Project_Planning/ADV_006_007_REVIEW.md'
+      - 'Documentation/Curriculum/COMPETING_MEMORY_GRANTS_LESSON.md'
       - '.ai/BACKLOG.md'
       - 'Tests/Static/validate_adv_006_007_designs.py'
+      - 'Tests/Static/validate_res004_grant_query_contract.py'
+      - 'Tests/Static/test_res004_grant_query_contract.py'
       - '.github/workflows/advanced-lab-designs-vp3-vp5.yml'
   push:
     branches: [main]
@@ -21,8 +24,11 @@ on:
       - 'Documentation/Project_Planning/ADVANCED_PERFORMANCE_BLOCK_PLAN.md'
       - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
       - 'Documentation/Project_Planning/ADV_006_007_REVIEW.md'
+      - 'Documentation/Curriculum/COMPETING_MEMORY_GRANTS_LESSON.md'
       - '.ai/BACKLOG.md'
       - 'Tests/Static/validate_adv_006_007_designs.py'
+      - 'Tests/Static/validate_res004_grant_query_contract.py'
+      - 'Tests/Static/test_res004_grant_query_contract.py'
       - '.github/workflows/advanced-lab-designs-vp3-vp5.yml'
   workflow_dispatch:
 
@@ -43,3 +49,7 @@ jobs:
         uses: actions/checkout@v6
       - name: Validate design contracts
         run: python3 Tests/Static/validate_adv_006_007_designs.py
+      - name: Validate RES-004 grant query structure
+        run: python3 Tests/Static/validate_res004_grant_query_contract.py
+      - name: Test RES-004 grant query negative cases
+        run: python3 Tests/Static/test_res004_grant_query_contract.py

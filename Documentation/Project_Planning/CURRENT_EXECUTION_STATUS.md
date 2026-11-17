@@ -12203,3 +12203,21 @@ Die fokussierte Scannersuite besteht mit 297 Tests; der Curriculumvalidator
 bestätigt 84 aktive Claims, 39 geplante Claims, davon acht integriert, und 52
 Lernziele. Der Schritt belegt weder P11-Auswahl noch Importlaufzeit, Worker-
 Attestation oder Incidentursache; diese DGN-007-Gates bleiben offen.
+
+### RES-004 – Strukturvertrag für die Grant-Wait-Lehrabfrage (17. November 2026)
+
+Ein neuer statischer Validator bindet die einzelne Diagnoseabfrage an die
+Session-/Request-ID-Paare, den aktuellen `RESOURCE_SEMAPHORE`-Request, den
+wartenden Grant und denselben `(pool_id, resource_semaphore_id)`-Schlüssel für
+Peer-Grants und Semaphore-Zähler. Er verlangt einen einzigen
+`SYSUTCDATETIME()`-Capturemarker und die Ausgabe beider Wait-Dauern, damit die
+geprüfte Lehreingabe mit dem RES-004-Offlinedatenvertrag zusammenpasst. Sechs
+Regressionen decken Request-ID-Entkopplung, falschen Semaphorenschlüssel,
+mehrere Capture-Aufrufe, fehlende Wait-Dauerfelder und mehrdeutige
+SQL-Codeblöcke ab.
+
+Der Validator und seine Gegenproben laufen im ADV-006/007-CI-Workflow. Der
+Vertrag prüft nur die dokumentierte Quellstruktur; er parst kein T-SQL,
+authentifiziert keine DMV-Aufnahme und qualifiziert weder SQL Server noch eine
+tatsächliche Konkurrenzprobe. Die Laufzeitprobe und der unabhängige
+Methodenreview bleiben offen.
