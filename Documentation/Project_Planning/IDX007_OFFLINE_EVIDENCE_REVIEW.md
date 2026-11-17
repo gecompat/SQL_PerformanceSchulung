@@ -13,18 +13,18 @@ Microsoft beschreibt `PAGELATCH_EX` als konkurrierenden Zugriff auf eine im
 Bufferpool gehaltene Seite und grenzt ihn von `PAGEIOLATCH_EX` für I/O ab.
 Für Last-Page-Insert-Contention nennt die Diagnose mehrere Sessions und die
 Identifikation der betroffenen Datenbank-/Datei-/Seitenressource. Ein
-sequentieller Indexschlüssel allein genügt nicht als Diagnose. `SRC-072` und
-`SRC-073` begründen diese Trennung und die workloadabhängige Eignung von
+sequentieller Indexschlüssel allein genügt nicht als Diagnose. `SRC-168` und
+`SRC-169` begründen diese Trennung und die workloadabhängige Eignung von
 `OPTIMIZE_FOR_SEQUENTIAL_KEY`.
 
 `sys.dm_os_waiting_tasks` liefert wartende Tasks mit `session_id`, `wait_type`,
 Wartezeit und Ressourcenbeschreibung. Für Latch-Owner nennt Microsoft die
 Form `dbid:fileid:page`; die `pagelock`-Form gehört dagegen zur Lock-Ressource
-(`SRC-147`). `sys.dm_db_page_info` liefert unter anderem `page_level`, Objekt-/
+(`SRC-171`). `sys.dm_db_page_info` liefert unter anderem `page_level`, Objekt-/
 Indexkennung und vorherige/nächste Seitenkennung. Die Funktion arbeitet auf
 einer einzelnen angefragten Seite und liefert Headerdaten; sie belegt allein
 weder eine stabile aktuelle Rechtsaußenposition noch deren Verlauf
-(`SRC-148`). Eine passende Seitenkettenauflösung bleibt ein separates
+(`SRC-172`). Eine passende Seitenkettenauflösung bleibt ein separates
 empirisches Gate.
 
 ## Prüferbefund

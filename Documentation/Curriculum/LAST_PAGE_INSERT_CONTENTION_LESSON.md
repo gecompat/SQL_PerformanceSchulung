@@ -32,7 +32,7 @@ er ist keine Transaktionssperre.
 betrifft die Synchronisierung einer Seite im Arbeitsspeicher, das zweite das
 Warten auf eine Seiten-Ein-/Ausgabe. Ein `PAGELATCH_EX` allein zeigt noch
 nicht, dass die letzte Seite eines bestimmten Indexes betroffen ist.
-[Microsofts Diagnoseanleitung (SRC-072)](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/resolve-pagelatch-ex-contention) beschreibt
+[Microsofts Diagnoseanleitung (SRC-168)](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/resolve-pagelatch-ex-contention) beschreibt
 die Zuordnung des Wait-Resources zu Datenbank, Objekt und Index.
 
 ## Welche Beobachtung welche Frage beantwortet
@@ -56,7 +56,7 @@ Seitennummer; `sys.dm_db_page_info` ergänzt die Seitenkopfdaten. Die folgende
 Momentaufnahme zeigt nur Requests, die gerade auf `PAGELATCH_EX` warten, und
 meldet Seiten, auf denen mindestens zwei verschiedene Sessions warten.
 `sys.dm_exec_requests.wait_time` liefert die aktuelle Wartezeit in
-Millisekunden ([`SRC-072`](../Research/SOURCE_REGISTER.md#src-072)).
+Millisekunden ([`SRC-168`](../Research/SOURCE_REGISTER.md#src-168)).
 
 ```sql
 DECLARE @capture_started_at_utc datetime2(7) = SYSUTCDATETIME();
@@ -194,9 +194,9 @@ im Laufvertrag festgelegt werden.
 3. Ist `OPTIMIZE_FOR_SEQUENTIAL_KEY = ON` ein universeller Fix? Nein; es ist
    eine verfügbare Option mit workloadabhängiger Wirkung.
 
-Technische Quellen: [SRC-072 – Diagnose von `PAGELATCH_EX`](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/resolve-pagelatch-ex-contention),
+Technische Quellen: [SRC-168 – Diagnose von `PAGELATCH_EX`](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/resolve-pagelatch-ex-contention),
 [Microsoft: `sys.dm_exec_requests`](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-requests-transact-sql?view=sql-server-ver17), [`sys.fn_PageResCracker`](https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/sys-fn-pagerescracker-transact-sql?view=sql-server-ver17) und [`sys.dm_db_page_info`](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-db-page-info-transact-sql?view=sql-server-ver17): Request-Seitenressource, Seitenkopfdaten und versionsabhängige Berechtigungen; geprüft am 2026-11-17;
-[SRC-073 – Sequential keys](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver17#sequential-keys) und
-[SRC-074 – Indexbetriebszähler](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-db-index-operational-stats-transact-sql?view=sql-server-ver17) aus dem
+[SRC-169 – Sequential keys](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver17#sequential-keys) und
+[SRC-170 – Indexbetriebszähler](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-db-index-operational-stats-transact-sql?view=sql-server-ver17) aus dem
 [Quellenregister](../Research/SOURCE_REGISTER.md). Der umfangreichere
 IDX-007-Vergleich und eine tatsächliche Engpasszuordnung bleiben offen.

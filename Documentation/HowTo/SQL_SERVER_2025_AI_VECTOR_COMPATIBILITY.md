@@ -1,6 +1,6 @@
 # VECTOR verstehen: Engine, Compatibility Level und Client
 
-Stand: 2026-10-13. Zum Lesen genügen T-SQL-Grundkenntnisse. Sie lernen, warum
+Stand: 2026-11-17. Zum Lesen genügen T-SQL-Grundkenntnisse. Sie lernen, warum
 Engineversion, Datenbank-Kompatibilität und Clienttreiber verschiedene Fragen
 beantworten. Die Beispiele verwenden vorhandene Labornachweise; ein lokales
 Sprachmodell ist dafür nicht erforderlich.
@@ -46,6 +46,32 @@ Generation noch den tatsächlichen Suchplan eines bestimmten Builds. Der
 Projektbuild 17.0.5005.3 bleibt hierbei unqualifiziert; der
 [Build-/Suchbefund](../Project_Planning/SQL_SERVER_2025_AI_ANN_BUILD_REVIEW.md)
 erläutert die Grenze.
+
+### Float16 ist eine zusätzliche Preview- und Typgrenze
+
+Die Float16-Verfügbarkeit ist von der Indexgeneration unabhängig. Microsoft
+führt den `VECTOR`-Basistyp `float16` auf SQL Server 2025 als Preview; die
+Datenbank muss dafür `PREVIEW_FEATURES` aktiviert haben. In Azure SQL Database,
+Azure SQL Managed Instance und SQL database in Microsoft Fabric wird Float16
+laut Herstellerseite dagegen als allgemein verfügbar geführt. Dieser
+Plattformunterschied macht Float16 weder auf jedem SQL-Server-2025-Build
+verfügbar noch für das Projekt qualifiziert (`SRC-166`).
+
+Zwischen `VECTOR(..., float32)` und `VECTOR(..., float16)` ist derzeit weder
+implizite noch explizite Konvertierung dokumentiert; Dimension und Basistyp
+müssen bei Vektorzuweisungen übereinstimmen. Funktionen wie `VECTOR_DISTANCE`
+akzeptieren keine gemischten Basistypen. Die Herstellerseite nennt außerdem
+ARM64 als nicht unterstützte Architektur für Float16. Prüfen Sie den Basistyp
+bei Bedarf über `sys.columns`, weil SSMS ihn in der Oberfläche derzeit nicht
+unterscheidet (`SRC-166`).
+
+Native Float16-Übertragung ist eine weitere unabhängige Clientgrenze: Microsoft
+listet dafür JDBC Driver 13.4+ und ODBC Driver 18.7.1+. Die SqlClient-Anleitung
+zeigt aktuell `SqlVector<float>` und damit den hier bereits begrenzten
+float32-Pfad; daraus folgt keine Float16-Unterstützung für SqlClient und kein
+Wire-Nachweis (`SRC-167`). Eine Nutzung von Float16 benötigt daher einen
+separaten Preview-, Build-/Architektur-, Typ- und Treiberbeleg. Sie wird nicht
+durch den bestehenden float32-Roundtrip freigegeben.
 
 ## Drei kleine Fehler- und Entscheidungsfälle
 
@@ -124,15 +150,20 @@ können Sie die entsprechenden Aufgaben und die optionale Evidenzleseaufgabe E1
 anhand vorhandener Ergebnisse bearbeiten. Ein gespeichertes Ergebnis ist kein
 neuer eigener Lauf; die Ausführungsbedingungen stehen jeweils bei der Demo.
 
-Float16, weitere Builds/Editionen/OS (Operating System; Betriebssystem), unabhängige Wire-/TLS-Attestierung und die
+Float16 bleibt für das Projekt unqualifiziert, obwohl seine dokumentierte
+Produkt- und Treibergrenze jetzt getrennt ausgewiesen ist. Weitere Builds/
+Editionen/OS (Operating System; Betriebssystem), unabhängige Wire-/TLS-Attestierung und die
 vollständige TSK-004-Abnahme bleiben offen. Dieser Abgleich belegt keine allgemeine Suchqualität,
 Live-RAG-, Provider-, Modell- oder Performanceabnahme.
 
 ## Quellenstand
 
 Die Primärquellen [VECTOR](https://learn.microsoft.com/en-us/sql/t-sql/data-types/vector-data-type?view=sql-server-ver17)
-(SRC-072) und [AI_GENERATE_CHUNKS](https://learn.microsoft.com/en-us/sql/t-sql/functions/ai-generate-chunks-transact-sql?view=sql-server-ver17)
-(SRC-079) wurden für diesen Abgleich am 2026-10-13 erneut geprüft. Die Quellen
+(SRC-072; erneut geprüft am 2026-11-17), [Float16](https://learn.microsoft.com/en-us/sql/t-sql/data-types/vector-data-type-half-precision-float?view=sql-server-ver17)
+(SRC-166) und [SqlClient VECTOR](https://learn.microsoft.com/en-us/sql/connect/ado-net/sql/vector-data-sql-server?view=sql-server-ver17)
+(SRC-167) wurden am 2026-11-17 für Typstatus, Plattformgrenze und dokumentierte native Treiberunterstützung geprüft. Die Quelle
+[AI_GENERATE_CHUNKS](https://learn.microsoft.com/en-us/sql/t-sql/functions/ai-generate-chunks-transact-sql?view=sql-server-ver17)
+(SRC-079) wurde für diesen Abgleich am 2026-10-13 erneut geprüft. Die Quellen
 [`CREATE VECTOR INDEX`](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-vector-index-transact-sql?view=sql-server-ver17)
 (SRC-077) und [`VECTOR_SEARCH`](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-search-transact-sql?view=sql-server-ver17)
 (SRC-078) wurden am 2026-11-17 nur hinsichtlich Indexgeneration,
