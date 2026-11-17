@@ -3649,3 +3649,15 @@ Parseraufruf zu behaupten. Nach diesem Checkpoint ist als nächster separater
 Kandidat die Byte-zu-Text- und Escapezeichenbehandlung von `Tokenizer` gegen die
 bereits gepinnte `re/_parser.py`-Quelle zu prüfen. Die Kandidaten bleiben
 statische Quellbefunde und schließen weder P11- noch Runtimegates.
+
+### DGN-007 – Tokenizer-Byteabbildung und Escapes binden (17. November 2026)
+
+Nach dem integrierten Cachepfad ist der nächste Offlineumfang auf ein Paket,
+einen PR und einen bereits gepinnten CPython-Quellkandidaten begrenzt. Er bindet
+die Latin-1-Abbildung von Byte-Mustern sowie die Tokenizerbehandlung von
+Backslash/Folgezeichen an `re/_parser.py`. Es gibt keine neue Produktquelle und
+keinen Interpreter-, Container-, SQL-, Lab- oder Runtime-Lauf; menschliche
+Generalprobe bleibt ausgeschlossen. Nach diesem Checkpoint wird als nächster
+Quellfact die Zuweisung `sourceget = source.get` in `_parse` und ihr Aufrufpfad
+zu `Tokenizer.get` geprüft. Statische Kandidatenbefunde ersetzen keine
+Tokenizerausführung oder P11-Qualifikation.

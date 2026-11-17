@@ -8188,6 +8188,113 @@ def _target_re_compile_cache_path_candidate(files):
     }
 
 
+def _target_re_tokenizer_access_candidate(files):
+    """Bind byte decoding and escaped-character access in the pinned tokenizer."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    tokenizers = [node for node in tree.body
+                  if isinstance(node, ast.ClassDef) and node.name == "Tokenizer"]
+    if len(tokenizers) != 1:
+        return None
+    class_methods = [node for node in tokenizers[0].body
+                     if isinstance(node, ast.FunctionDef)]
+    methods = {node.name: node for node in class_methods}
+    if (any(name not in methods for name in ("__init__", "__next", "get"))
+            or any(sum(node.name == name for node in class_methods) != 1
+                   for name in ("__init__", "__next", "get"))):
+        return None
+
+    init_body = methods["__init__"].body
+    expected_init_prefix = (
+        "self.istext = isinstance(string, str)",
+        "self.string = string",
+    )
+    if (len(init_body) != 7
+            or tuple(ast.unparse(node) for node in init_body[:2])
+            != expected_init_prefix
+            or not isinstance(init_body[2], ast.If)
+            or ast.unparse(init_body[2].test) != "not self.istext"
+            or len(init_body[2].body) != 1
+            or ast.unparse(init_body[2].body[0])
+            != "string = str(string, 'latin1')"
+            or tuple(ast.unparse(node) for node in init_body[3:])
+            != ("self.decoded_string = string", "self.index = 0",
+                "self.next = None", "self.__next()")):
+        return None
+
+    next_body = methods["__next"].body
+    if (len(next_body) != 5
+            or ast.unparse(next_body[0]) != "index = self.index"
+            or not isinstance(next_body[1], ast.Try)
+            or len(next_body[1].body) != 1
+            or ast.unparse(next_body[1].body[0])
+            != "char = self.decoded_string[index]"
+            or len(next_body[1].handlers) != 1
+            or not isinstance(next_body[1].handlers[0].type, ast.Name)
+            or next_body[1].handlers[0].type.id != "IndexError"
+            or tuple(ast.unparse(node) for node in next_body[1].handlers[0].body)
+            != ("self.next = None", "return")
+            or not isinstance(next_body[2], ast.If)):
+        return None
+    escape_test = next_body[2].test
+    if (not isinstance(escape_test, ast.Compare)
+            or not isinstance(escape_test.left, ast.Name)
+            or escape_test.left.id != "char"
+            or len(escape_test.ops) != 1
+            or not isinstance(escape_test.ops[0], ast.Eq)
+            or len(escape_test.comparators) != 1
+            or not isinstance(escape_test.comparators[0], ast.Constant)
+            or escape_test.comparators[0].value != "\\"):
+        return None
+    escape_body = next_body[2].body
+    if (len(escape_body) != 2
+            or ast.unparse(escape_body[0]) != "index += 1"
+            or not isinstance(escape_body[1], ast.Try)
+            or len(escape_body[1].body) != 1
+            or ast.unparse(escape_body[1].body[0])
+            != "char += self.decoded_string[index]"
+            or len(escape_body[1].handlers) != 1
+            or not isinstance(escape_body[1].handlers[0].type, ast.Name)
+            or escape_body[1].handlers[0].type.id != "IndexError"
+            or len(escape_body[1].handlers[0].body) != 1
+            or not isinstance(escape_body[1].handlers[0].body[0], ast.Raise)
+            or ast.unparse(escape_body[1].handlers[0].body[0].cause) != "None"
+            or ast.unparse(next_body[3]) != "self.index = index + 1"
+            or ast.unparse(next_body[4]) != "self.next = char"):
+        return None
+    if (not isinstance(escape_body[1].handlers[0].body[0].exc, ast.Call)
+            or ast.unparse(escape_body[1].handlers[0].body[0].exc.func) != "error"
+            or len(escape_body[1].handlers[0].body[0].exc.args) < 1
+            or not isinstance(escape_body[1].handlers[0].body[0].exc.args[0], ast.Constant)
+            or escape_body[1].handlers[0].body[0].exc.args[0].value
+            != "bad escape (end of pattern)"):
+        return None
+
+    get_body = methods["get"].body
+    if (len(get_body) != 3
+            or ast.unparse(get_body[0]) != "this = self.next"
+            or ast.unparse(get_body[1]) != "self.__next()"
+            or ast.unparse(get_body[2]) != "return this"):
+        return None
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "bytes_to_text_expression": "str(string, 'latin1')",
+        "escaped_character_access": "backslash plus following character",
+        "trailing_backslash_behavior": "parser error candidate",
+        "get_advances_after_returning_current_character": True,
+        "tokenizer_execution_observed": False,
+        "pattern_parse_observed": False,
+        "evidence_scope": "PINNED_RE_TOKENIZER_CHARACTER_ACCESS_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8212,7 +8319,8 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             != RE_CONSTANTS_SOURCE_SHA256):
         return []
     cache_path_candidate = _target_re_compile_cache_path_candidate(files)
-    if cache_path_candidate is None:
+    tokenizer_access_candidate = _target_re_tokenizer_access_candidate(files)
+    if cache_path_candidate is None or tokenizer_access_candidate is None:
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -8557,6 +8665,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_entry_observed": False,
             "standard_re_compile_binding_observed": False,
             "cache_path_candidate": cache_path_candidate,
+            "tokenizer_access_candidate": tokenizer_access_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })

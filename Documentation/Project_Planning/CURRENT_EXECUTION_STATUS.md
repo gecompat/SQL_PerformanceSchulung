@@ -13286,3 +13286,19 @@ findet weiterhin 13 direkte Regexliteral-Kandidaten. Cachezustand, tatsächliche
 Treffer/Miss und Parserzugang bleiben unbeobachtet; Ergebnis bleibt
 `CANDIDATES_ONLY`. 305 fokussierte Tests bestehen. Es gab keine Interpreter-,
 P11-, Worker-, Container-, SQL- oder Runtimeausführung.
+
+### DGN-007 – Tokenizer-Byteabbildung und Escapes quellenbinden (17. November 2026)
+
+Die statische Regexkandidatenprüfung bindet jetzt zusätzlich den
+`Tokenizer`-Konstruktor, `__next` und `get` aus dem gepinnten CPython-3.12.16-
+Parser (`re/_parser.py`, SHA-256
+`a51a85b37cf3f44ba7ff25754da5f31306e4ccfa6eb3c017f9d37bdf4e770840`).
+Byte-Muster werden über `str(string, 'latin1')` abgebildet; `__next` liest einen
+Backslash samt Folgezeichen als Token und wirft für einen abschließenden
+Backslash einen Parsefehlerkandidaten. `get` gibt das aktuelle Zeichen zurück
+und schaltet weiter. Diese Quellenbindung stützt die lexikalische Latin-1- und
+Escapebehandlung, ohne Syntax oder Parserausführung zu behaupten. Der
+hashgeprüfte Quellscan bleibt bei 13 Regexliteral-Kandidaten und
+`CANDIDATES_ONLY`; Tokenizerausführung und tatsächlicher Parse bleiben
+unbeobachtet. 305 fokussierte Regressionen bestehen. Kein Interpreter-, P11-,
+Worker-, Container-, SQL- oder Runtime-Lauf.
