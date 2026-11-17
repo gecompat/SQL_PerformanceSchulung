@@ -8015,6 +8015,69 @@ def _target_re_compile_input_candidates(files, modules):
     return candidates
 
 
+def _regex_inline_flag_directive_candidates(pattern):
+    """Find lexical inline-flag group prefixes without claiming regex parsing."""
+    if type(pattern) is bytes:
+        text = pattern.decode("latin-1")
+    elif type(pattern) is str:
+        text = pattern
+    else:
+        return None
+
+    candidates = []
+    in_character_class = False
+    class_first_character = False
+    index = 0
+    while index < len(text):
+        character = text[index]
+        if character == "\\":
+            index += 2
+            continue
+        if in_character_class:
+            if character == "]" and not class_first_character:
+                in_character_class = False
+            elif character != "^" or not class_first_character:
+                class_first_character = False
+            index += 1
+            continue
+        if character == "[":
+            in_character_class = True
+            class_first_character = True
+            index += 1
+            continue
+        if (character != "(" or index + 2 >= len(text)
+                or text[index + 1] != "?"):
+            index += 1
+            continue
+
+        cursor = index + 2
+        enabled = []
+        disabled = []
+        target = enabled
+        if text[cursor] == "-":
+            target = disabled
+            cursor += 1
+        while cursor < len(text) and text[cursor] in "aiLmsux":
+            target.append(text[cursor])
+            cursor += 1
+            if cursor < len(text) and text[cursor] == "-" and target is enabled:
+                target = disabled
+                cursor += 1
+        if ((enabled or disabled) and cursor < len(text)
+                and text[cursor] in ":)" and "x" in enabled + disabled):
+            candidates.append({
+                "offset": index,
+                "scope": "GLOBAL" if text[cursor] == ")" else "SCOPED",
+                "enabled_flags": "".join(enabled),
+                "disabled_flags": "".join(disabled),
+                "evidence_scope": "LEXICAL_INLINE_REGEX_FLAG_CANDIDATE",
+            })
+            index = cursor + 1
+        else:
+            index += 1
+    return candidates
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8237,6 +8300,40 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
         kind = candidate["argument_kind"]
         if kind not in ("STRING_LITERAL", "BYTES_LITERAL"):
             continue
+        source = files.get(candidate["source_path"])
+        pattern_literals = []
+        if (type(source) is bytes
+                and hashlib.sha256(source).hexdigest() == candidate["source_sha256"]):
+            try:
+                caller_tree = ast.parse(
+                    source.decode("utf-8"), filename=candidate["source_path"],
+                )
+            except (UnicodeError, SyntaxError):
+                caller_tree = None
+            if caller_tree is not None:
+                for node in ast.walk(caller_tree):
+                    if (not isinstance(node, ast.Call)
+                            or node.lineno != candidate["line"]
+                            or not node.args):
+                        continue
+                    try:
+                        literal = ast.literal_eval(node.args[0])
+                    except (ValueError, TypeError, SyntaxError):
+                        continue
+                    if type(literal) is str:
+                        literal_digest = hashlib.sha256(
+                            literal.encode("utf-8")
+                        ).hexdigest()
+                    elif type(literal) is bytes:
+                        literal_digest = hashlib.sha256(literal).hexdigest()
+                    else:
+                        continue
+                    if literal_digest == candidate["argument_sha256"]:
+                        pattern_literals.append(literal)
+        inline_verbose_candidates = (
+            _regex_inline_flag_directive_candidates(pattern_literals[0])
+            if len(pattern_literals) == 1 else None
+        )
         flags_value = None
         flags_resolution = "UNRESOLVED"
         if candidate["flags_argument_kind"] == "OMITTED":
@@ -8278,6 +8375,10 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
                 bool(flags_value & verbose_flag)
                 if flags_value is not None and type(verbose_flag) is int else None
             ),
+            "inline_verbose_flag_group_candidates_if_literal_bound": (
+                inline_verbose_candidates
+            ),
+            "inline_verbose_flag_scan_bound": len(pattern_literals) == 1,
             "flags_resolution": flags_resolution,
             "re_flag_constants_source_sha256": (
                 RE_CONSTANTS_SOURCE_SHA256

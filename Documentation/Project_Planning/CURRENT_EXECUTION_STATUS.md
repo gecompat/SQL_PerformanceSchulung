@@ -13220,3 +13220,16 @@ artefaktbezogenen Hashes und der SlideKey-gebundene Bytevergleich stehen im
 [Releasebericht](W_PRS_001_TEACHING_RELEASE.md#nachfolgender-releasebuild-auf-main-nach-pr-1040).
 Der Build bleibt ein lokaler Kursrelease; menschliche Generalprobe sowie
 SQL-Lab-, Produkt- und Runtimegates sind davon unabhängig und offen.
+
+### DGN-007 – Inline-VERBOSE-Kandidaten der Regexliterale
+
+Der statische Bericht prüft jetzt zusätzlich die exakt quellgebundenen Muster-
+String- und Byte-Literale auf Inline-Flaggruppen mit `x`. Der begrenzte Scanner
+ignoriert escapte Zeichen und Zeichenklassen und meldet nur lexikalische
+Kandidaten, keine Parsergültigkeit oder tatsächlich wirksame Flags. Im aus dem
+gepinnten CPython-3.12.16-Archiv extrahierten Zielquellenumfang stimmen alle 56
+im Artefakt `target-image-path-scan.json` aufgeführten Quellhashes überein;
+die 13 Regexkandidaten sind vollständig literalgebunden und enthalten keinen
+lexikalischen Inline-`x`-Kandidaten. Die 303 fokussierten Regressionen bestehen.
+Der Befund bleibt `CANDIDATES_ONLY`; es gab keinen Interpreter-, P11-, Worker-,
+Container-, SQL- oder sonstigen Laufzeitnachweis.
