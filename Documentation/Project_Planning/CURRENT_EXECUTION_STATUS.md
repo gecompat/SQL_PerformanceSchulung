@@ -12029,7 +12029,10 @@ Der Fensterpoll wartet jetzt mindestens zwei Sekunden nach dem Beginn eines
 neuen aktiven Intervalls, bevor die gemessene Requestgruppe startet, und prüft
 weiterhin, dass genau dieses Intervall noch aktiv ist. Derselbe Guard gilt für
 neutralen und kontrollierten Capture; der statische Validator bindet ihn an den
-Pollpfad. Alle vier betroffenen Curriculum-/DGN-007-Validatoren bestehen lokal.
-Die Ursache und eine tatsächliche Behebung sind erst nach einer frischen
-isolierten SQL-Server-2025-Gegenprobe bestätigt; bis dahin bleibt die
-Versionsqualifikation offen.
+Pollpfad. Prospektivvertrag und Source-Freeze bestehen lokal. Die breite
+Bundle-Suite besteht mit 35 Tests und zwei Plattform-Skips; ihr einziger
+Current-Candidate-Fehler `BOOTSTRAP_CHANGED` entsteht, weil die lokale
+Python-3.13-Umgebung nicht dem gebundenen CPython 3.12 entspricht. Die Ursache
+und eine tatsächliche Behebung sind erst nach einer frischen isolierten
+SQL-Server-2025-Gegenprobe bestätigt; bis dahin bleibt die Versionsqualifikation
+offen.
