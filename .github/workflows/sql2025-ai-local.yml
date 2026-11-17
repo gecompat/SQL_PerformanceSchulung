@@ -36,6 +36,9 @@ on:
       - 'Tests/Static/test_vector_client_layout_evidence.py'
       - 'Tests/Static/Fixtures/vector_client_layout/**'
       - 'Tests/Static/idx012_dml_role_evidence.py'
+      - 'Tests/Static/ann_dml_role_evidence.py'
+      - 'Tests/Static/test_ann_dml_role_evidence.py'
+      - 'Tests/Static/Fixtures/ann/**'
       - 'Tests/Static/idx012_public_role_evidence_v2.py'
       - 'Tests/Static/Fixtures/idx012/IDX012_PUBLIC_ROLE.result-contract-v2.json'
       - 'Tests/Static/test_idx012_dml_role_evidence.py'
@@ -92,6 +95,9 @@ on:
       - 'Tests/Static/test_vector_client_layout_evidence.py'
       - 'Tests/Static/Fixtures/vector_client_layout/**'
       - 'Tests/Static/idx012_dml_role_evidence.py'
+      - 'Tests/Static/ann_dml_role_evidence.py'
+      - 'Tests/Static/test_ann_dml_role_evidence.py'
+      - 'Tests/Static/Fixtures/ann/**'
       - 'Tests/Static/idx012_public_role_evidence_v2.py'
       - 'Tests/Static/Fixtures/idx012/IDX012_PUBLIC_ROLE.result-contract-v2.json'
       - 'Tests/Static/test_idx012_dml_role_evidence.py'
@@ -225,6 +231,15 @@ jobs:
             test_idx012_profile.CleanupBudgetTests.test_full_controller_shared_window_begins_before_restore_and_parent_keeps_deadline \
             test_idx012_profile.CleanupBudgetTests.test_full_controller_restore_unknown_returns_shared_start_and_stops_all_sql \
             test_idx012_profile.CleanupBudgetTests.test_budget_prestart_boundaries_reject_without_process_and_legacy_uses_original_collector
+      - name: Validate pure ANN DML and role record boundary
+        env:
+          PYTHONPATH: Tests/Static
+        run: |
+          python Tests/Static/test_ann_dml_role_evidence.py
+          python -O -m unittest \
+            test_ann_dml_role_evidence.AnnDmlRecordTests.test_exact_schema_profile_source_and_binding_are_required \
+            test_ann_dml_role_evidence.AnnDmlRecordTests.test_each_lifecycle_is_fixed_target_rejection_and_closed_rollback \
+            test_ann_dml_role_evidence.AnnDmlRecordTests.test_role_records_must_not_be_inferred_from_other_profile
       - name: Validate source-only CON-010 pool producer and protected cleanup deltas
         env:
           PYTHONPATH: Tests/Static
