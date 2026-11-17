@@ -35,10 +35,14 @@ der [Lehrnotiz](../Curriculum/COMPETING_MEMORY_GRANTS_LESSON.md#den-wartenden-ei
 
 Der vorhandene Offlineprüfer kann diese Werte synthetisch auf Widersprüche
 prüfen. Er authentifiziert weder ihre Aufnahme noch die Zuordnung der
-Verbindungen. Aktive Sessions, ein Spill, ein `WAITFOR` nach Abschluss der
-Abfrage oder kumulierte Wait-Stats sind kein Ersatz für den beschriebenen
-zeitgleichen Befund. Das Szenario behauptet keinen allgemeinen
-Speichermangel, keinen Spill und keinen Leistungsgewinn.
+Verbindungen. Für einen gewährten Peer muss der nicht-NULL-Wert `grant_time`
+im Offline-Datensatz als zeitzonenloses ISO-8601-Datum der SQL-Server-
+`datetime`-Spalte vorliegen (Kalenderdatum ab 1753, höchstens drei
+Nachkommastellen im 3,33-ms-Raster); der UTC-Capturemarker bleibt davon
+getrennt. Aktive Sessions, ein Spill, ein `WAITFOR` nach Abschluss der Abfrage
+oder kumulierte Wait-Stats sind kein Ersatz für den beschriebenen zeitgleichen
+Befund. Das Szenario behauptet keinen allgemeinen Speichermangel, keinen Spill
+und keinen Leistungsgewinn.
 
 ## Vorgeschlagener Ablauf
 

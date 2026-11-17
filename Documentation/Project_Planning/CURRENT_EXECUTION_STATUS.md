@@ -12256,3 +12256,18 @@ Vertrag prüft nur die dokumentierte Quellstruktur; er parst kein T-SQL,
 authentifiziert keine DMV-Aufnahme und qualifiziert weder SQL Server noch eine
 tatsächliche Konkurrenzprobe. Die Laufzeitprobe und der unabhängige
 Methodenreview bleiben offen.
+
+### RES-004 – `grant_time` im Offlinevertrag typgerecht validieren (17. November 2026)
+
+Der synthetische RES-004-Prüfer akzeptierte zuvor jeden nichtleeren Text als
+Zeitpunkt eines erteilten Peer-Grants. Er verlangt jetzt eine gültige,
+zeitzonenlose ISO-8601-Darstellung der SQL-Server-`datetime`-Spalte mit
+Kalenderdatum ab 1753, höchstens drei Nachkommastellen und gültigem
+3,33-ms-Raster; der separate UTC-Capturemarker bleibt `datetime2(7)`.
+Regressionen decken ungültige Daten, Zeitzonen, Werte außerhalb des SQL-
+`datetime`-Bereichs, nicht darstellbare Millisekundenwerte und gültige
+Millisekunden ab.
+Der Quellen- und Abfragevertragvalidator sowie 24 Offline- und sechs
+Lehrabfrage-Regressionen bestehen lokal. Das prüft nur caller-gelieferte
+Synthetik; DMV-Herkunft, Methodenreview und echter Grant-Wait-Pilot bleiben
+offen.
