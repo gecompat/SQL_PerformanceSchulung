@@ -12152,3 +12152,20 @@ Engineprobe. Terminaldarstellung, Seitenanzahl-Cap und Verhalten bei einem
 parallelen Split sind offen. Unabhängiger Methodenreview muss diese Punkte
 klären, bevor ein read-only Enginepilot vorbereitet wird. Der OFF/ON-
 Workloadvergleich und ein Performanceclaim bleiben getrennte spätere Gates.
+
+### CON-006 – integrierte Sperrumwandlungsvariante (17. November 2026)
+
+PR [#947](https://github.com/gecompat/SQL_PerformanceSchulung/pull/947) wurde
+als Mergecommit `92980c909af1b7039193dbf8e0a5787d616de469` integriert. Der
+zusätzliche `REPEATABLE READ`-Ablauf erzeugt den Sperrumwandlungszyklus, bindet
+das Opfer und den Gegenpart an dieselben zwei Sessions und prüft den realen
+`system_health`-Graphen. Die Buildgraphen enthalten zwei `keylock`-Einträge
+für dieselbe Datenbank, dasselbe Objekt, denselben Index und dieselbe HoBT-
+Ressource; zusammen belegen sie die gegenläufigen S-zu-X-Konversionen. Die
+gezielte `UPDLOCK`-Gegenprobe endet ohne Deadlock. W-COV-Lauf
+[44010714027](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44010714027)
+bestand für SQL Server 2019, 2022 und 2025; der Demo-Lifecycle lief je Build
+zweimal einschließlich Cleanup. Die statische Graphsuite besteht mit 19
+synthetischen Regressionen. Die Variante ist für diese drei Buildmatrizen
+qualifiziert. Eine allgemeine Deadlockfreiheitsgarantie folgt daraus nicht;
+die Range-Variante bleibt wegen der Überschneidung mit CON-002 zurückgestellt.
