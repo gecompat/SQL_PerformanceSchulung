@@ -52,6 +52,15 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         for label, fragment in required.items()
         if fragment not in sql
     ]
+    scheduler_scope = re.search(
+        r"\bwhere\b(.*?)\border\s+by\s+scheduler_id\b", sql,
+    )
+    if (scheduler_scope is None
+            or scheduler_scope.group(1).strip()
+            != "scheduler_id < 255 and is_online = 1"):
+        errors.append(
+            "scheduler WHERE must contain only the required user/online filters"
+        )
     projection_match = re.search(
         r"\bselect\s+(.*?)\s+from\s+sys\.dm_os_schedulers\b", sql,
     )

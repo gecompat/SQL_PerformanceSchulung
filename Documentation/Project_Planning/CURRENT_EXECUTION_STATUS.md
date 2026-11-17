@@ -12709,3 +12709,14 @@ Prädikate. Die neue Regression schützt den unterdrückenden Zusatzfilter.
 23 IDX-007-Lehrabfragetests, der Validator, 13 Offlinevertragstests, der
 Curriculumvalidator und `git diff --check` bestehen. Das bleibt eine statische
 Strukturprüfung ohne T-SQL-Parser, authentische DMV-Aufnahme oder Enginebeleg.
+
+### RES-001 – leere Scheduleraufnahmen fail-closed abweisen (17. November 2026)
+
+Eine Negativprobe ergänzte `AND 1 = 0` hinter den geforderten Filtern für
+öffentliche und aktive Scheduler. Der Lehrvalidator akzeptierte die Abfrage,
+obwohl sie garantiert keine Schedulerzeilen lieferte. Er bindet den vollständigen
+`WHERE`-Abschnitt jetzt exakt an `scheduler_id < 255` und `is_online = 1`;
+Zusatzfilter werden abgewiesen. Die Regression schützt diesen Fall. 15
+Lehrabfragetests, 16 Worker-Queue-Vertragstests, der Validator, der
+Curriculumvalidator und `git diff --check` bestehen. Das ist kein Nachweis
+aktueller Scheduler- oder Worker-Runtimewerte.
