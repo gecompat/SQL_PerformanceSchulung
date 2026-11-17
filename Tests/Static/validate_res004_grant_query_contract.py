@@ -122,6 +122,29 @@ def validate_sql(sql: str) -> None:
     )
     if projection_match is None:
         raise ContractError("diagnostic query has no recognizable final projection")
+    final_source_match = re.search(
+        r"\bfrom\s+observedsemaphores\s+as\s+observed\b.*$",
+        normalized,
+    )
+    expected_final_source = (
+        "from observedsemaphores as observed "
+        "inner join sys.dm_exec_query_memory_grants as mg "
+        "on mg.pool_id = observed.pool_id "
+        "and mg.resource_semaphore_id = observed.resource_semaphore_id "
+        "left join ownwaits as own "
+        "on own.session_id = mg.session_id "
+        "and own.request_id = mg.request_id "
+        "left join sys.dm_exec_requests as r "
+        "on r.session_id = mg.session_id "
+        "and r.request_id = mg.request_id "
+        "inner join sys.dm_exec_query_resource_semaphores as rs "
+        "on rs.pool_id = observed.pool_id "
+        "and rs.resource_semaphore_id = observed.resource_semaphore_id;"
+    )
+    if final_source_match is None or final_source_match.group(0) != expected_final_source:
+        raise ContractError(
+            "diagnostic final source chain must retain all matching rows without added filters"
+        )
     try:
         output_names = tsql_projection_output_names(projection_match.group(1))
     except ValueError as exc:
