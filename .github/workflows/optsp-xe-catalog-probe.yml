@@ -1,0 +1,135 @@
+name: SQL Server 2025 optimized sp_executesql XE catalog probe
+
+on:
+  pull_request:
+    paths:
+      - 'Documentation/Project_Planning/OPTIMIZED_SP_EXECUTESQL_CONCURRENT_COMPILE_DESIGN.md'
+      - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
+      - 'Documentation/Research/SOURCE_REGISTER.md'
+      - 'Tests/Runtime/optsp_xe_catalog_probe.sql'
+      - 'Tests/Static/validate_optsp_xe_catalog_probe.py'
+      - 'Tests/Static/test_optsp_xe_catalog_probe.py'
+      - '.github/workflows/optsp-xe-catalog-probe.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Documentation/Project_Planning/OPTIMIZED_SP_EXECUTESQL_CONCURRENT_COMPILE_DESIGN.md'
+      - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
+      - 'Documentation/Research/SOURCE_REGISTER.md'
+      - 'Tests/Runtime/optsp_xe_catalog_probe.sql'
+      - 'Tests/Static/validate_optsp_xe_catalog_probe.py'
+      - 'Tests/Static/test_optsp_xe_catalog_probe.py'
+      - '.github/workflows/optsp-xe-catalog-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: optsp-xe-catalog-probe-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate read-only probe contract
+        run: python Tests/Static/validate_optsp_xe_catalog_probe.py
+      - name: Run probe contract regressions
+        run: python Tests/Static/test_optsp_xe_catalog_probe.py
+
+  catalog-probe:
+    needs: static
+    runs-on: ${{ vars.SQLPERF_RUNTIME_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Start disposable SQL Server 2025
+        timeout-minutes: 8
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="SqlP!${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}OptSp"
+          container="sqlperf-optsp-xecatalog-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          owner="$(openssl rand -hex 16)"
+          [[ "${owner}" =~ ^[0-9a-f]{32}$ ]]
+          echo "::add-mask::${password}"
+          echo "SQLCMDPASSWORD=${password}" >> "${GITHUB_ENV}"
+          echo "SQLPERF_SQL_CONTAINER=${container}" >> "${GITHUB_ENV}"
+          echo "SQLPERF_CI_OWNER=${owner}" >> "${GITHUB_ENV}"
+          docker pull mcr.microsoft.com/mssql/server:2025-latest
+          docker image inspect --format '{{.Id}} {{json .RepoDigests}}' \
+            mcr.microsoft.com/mssql/server:2025-latest \
+            > "${RUNNER_TEMP}/optsp-xe-image-identity.txt"
+          docker run \
+            --name "${container}" \
+            --label "sqlperf.ci.owner=${owner}" \
+            --hostname "${container}" \
+            --cpus=2 \
+            --memory=4g \
+            -e ACCEPT_EULA=Y \
+            -e MSSQL_PID=Developer \
+            -e "MSSQL_SA_PASSWORD=${password}" \
+            -d mcr.microsoft.com/mssql/server:2025-latest
+          cid="$(docker container ls --all --quiet --no-trunc --filter "name=^/${container}$")"
+          [[ "${cid}" =~ ^[0-9a-f]{64}$ ]]
+          identity="$(docker inspect --format '{{.Id}}|{{.Name}}|{{index .Config.Labels "sqlperf.ci.owner"}}' "${cid}")"
+          test "${identity}" = "${cid}|/${container}|${owner}"
+          owned="$(docker container ls --all --quiet --no-trunc --filter "label=sqlperf.ci.owner=${owner}")"
+          test "${owned}" = "${cid}"
+          ready=0
+          for attempt in $(seq 1 90); do
+            if docker exec -e "SQLCMDPASSWORD=${password}" "${container}" sh -lc '
+              if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd;
+              elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd;
+              else exit 127; fi
+              "$sqlcmd" -S localhost -U sa -C -b -l 10 -Q "SELECT 1;"' \
+              >/dev/null 2>&1; then
+              ready=1
+              break
+            fi
+            if [ "$(docker inspect -f '{{.State.Running}}' "${container}")" != 'true' ]; then
+              docker logs "${container}" 2>&1 || true
+              exit 1
+            fi
+            sleep 2
+          done
+          if [ "${ready}" != '1' ]; then
+            docker logs "${container}" 2>&1 || true
+            exit 1
+          fi
+      - name: Read SQL Server 2025 XE metadata
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat Tests/Runtime/optsp_xe_catalog_probe.sql |
+            docker exec -i -e "SQLCMDPASSWORD=${SQLCMDPASSWORD}" "${SQLPERF_SQL_CONTAINER}" sh -lc '
+              if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd;
+              elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd;
+              else exit 127; fi
+              "$sqlcmd" -S localhost -U sa -C -b -l 20 -h -1 -y 8000 -w 8000' | sed 's/[[:space:]]*$//' | tee "${RUNNER_TEMP}/optsp-xe-catalog.jsonl"
+      - name: Show container logs on failure
+        if: failure()
+        shell: bash
+        run: docker logs "${SQLPERF_SQL_CONTAINER}" 2>&1 || true
+      - name: Remove owned SQL Server container
+        if: always()
+        shell: bash
+        timeout-minutes: 3
+        run: bash Tests/Runtime/cleanup_ci_container.sh
+      - name: Upload build and metadata inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: optsp-xe-catalog-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/optsp-xe-image-identity.txt
+            ${{ runner.temp }}/optsp-xe-catalog.jsonl
+          if-no-files-found: warn
+          retention-days: 3

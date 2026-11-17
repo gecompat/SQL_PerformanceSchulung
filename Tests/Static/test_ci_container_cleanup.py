@@ -56,6 +56,6 @@ class CleanupTests(unittest.TestCase):
             self.assertIn('--label "sqlperf.ci.owner=${owner}"',text)
             self.assertIn('echo "SQLPERF_CI_OWNER=${owner}" >> "${GITHUB_ENV}"',text)
             self.assertIn('if: always()\n        shell: bash\n        timeout-minutes: 3\n        run: bash Tests/Runtime/cleanup_ci_container.sh',text)
-        self.assertEqual(11,count)
+        self.assertEqual(12,count)
 
 if __name__=='__main__':unittest.main()
