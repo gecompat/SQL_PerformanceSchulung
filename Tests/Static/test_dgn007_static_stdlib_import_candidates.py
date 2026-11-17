@@ -5008,6 +5008,73 @@ class StaticImportCandidateTests(unittest.TestCase):
                 {},
             )
 
+    def test_hashlib_builtin_fallback_files_require_source_and_image_binding(self):
+        rows = {
+            82: "def __get_builtin_constructor(name):",
+            88: "    if name in {'SHA1', 'sha1'}:",
+            89: "        import _sha1",
+            90: "        cache['SHA1'] = cache['sha1'] = _sha1.sha1",
+            91: "    elif name in {'MD5', 'md5'}:",
+            92: "        import _md5",
+            93: "        cache['MD5'] = cache['md5'] = _md5.md5",
+            94: "    elif name in {'SHA256', 'sha256', 'SHA224', 'sha224'}:",
+            95: "        import _sha2",
+            96: "        cache['SHA224'] = cache['sha224'] = _sha2.sha224",
+            97: "        cache['SHA256'] = cache['sha256'] = _sha2.sha256",
+            98: "    elif name in {'SHA512', 'sha512', 'SHA384', 'sha384'}:",
+            99: "        import _sha2",
+            100: "        cache['SHA384'] = cache['sha384'] = _sha2.sha384",
+            101: "        cache['SHA512'] = cache['sha512'] = _sha2.sha512",
+            102: "    elif name in {'blake2b', 'blake2s'}:",
+            103: "        import _blake2",
+            104: "        cache['blake2b'] = _blake2.blake2b",
+            105: "        cache['blake2s'] = _blake2.blake2s",
+            106: "    elif name in {'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512'}:",
+            107: "        import _sha3",
+            108: "        cache['sha3_224'] = _sha3.sha3_224",
+            109: "        cache['sha3_256'] = _sha3.sha3_256",
+            110: "        cache['sha3_384'] = _sha3.sha3_384",
+            111: "        cache['sha3_512'] = _sha3.sha3_512",
+            112: "    elif name in {'shake_128', 'shake_256'}:",
+            113: "        import _sha3",
+            114: "        cache['shake_128'] = _sha3.shake_128",
+            115: "        cache['shake_256'] = _sha3.shake_256",
+        }
+        source_lines = [""] * 115
+        for line, statement in rows.items():
+            source_lines[line - 1] = statement
+        source = ("\n".join(source_lines) + "\n").encode()
+        conditions = {
+            ("hashlib", "hashlib.py", row[0]): (False, True)
+            for row in SUBJECT.HASHLIB_BUILTIN_FALLBACK_BRANCHES
+        }
+        image_extensions = {
+            path: {"sha256": digest, "size": 32}
+            for path, digest in SUBJECT.HASHLIB_EXTENSION_FACTS.items()
+        }
+        with patch.object(
+            SUBJECT, "HASHLIB_SOURCE_SHA256", hashlib.sha256(source).hexdigest(),
+        ):
+            candidates = SUBJECT._target_hashlib_builtin_fallback_file_candidates(
+                {"hashlib.py": source}, conditions,
+                {"hashlib_extension_facts": image_extensions},
+            )
+            self.assertEqual(len(candidates), 7)
+            md5 = next(row for row in candidates if row["fallback_module"] == "_md5")
+            self.assertEqual(md5["algorithm_names"], ["MD5", "md5"])
+            self.assertFalse(md5["import_attempt_observed"])
+            self.assertFalse(md5["constructor_success_observed"])
+
+            incomplete_image = dict(image_extensions)
+            incomplete_image.pop(md5["image_path"])
+            self.assertEqual(
+                SUBJECT._target_hashlib_builtin_fallback_file_candidates(
+                    {"hashlib.py": source}, conditions,
+                    {"hashlib_extension_facts": incomplete_image},
+                ),
+                [],
+            )
+
     def test_functools_negative_cache_size_guard_requires_all_pinned_callers(self):
         lines = [""] * 565
         lines[481] = "def lru_cache(maxsize=128, typed=False):"

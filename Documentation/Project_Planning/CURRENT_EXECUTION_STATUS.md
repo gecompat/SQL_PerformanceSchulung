@@ -304,6 +304,20 @@ Digest der offenen Bedingungen
 `CANDIDATES_ONLY`: keine vollständige P11-Closure, keine Interpreter- oder
 Runtimeattestation.
 
+### DGN-007 – Hashlib-Fallbackzweige mit Zielimage-Dateikandidaten verbinden (17. November 2026)
+
+Der Offlinebericht verbindet jetzt sieben AST-geprüfte Zweige von
+`__get_builtin_constructor()` (SHA-1, MD5, SHA-2, BLAKE2, SHA-3 und SHAKE)
+mit den digestgebundenen nativen Dateikandidaten im Zielimage. Die AST-Prüfung
+bindet Guard, Importname und Cachezuweisung; fehlende oder abweichende
+Imagefakten liefern keine Kandidatenliste. Vollscan und 300 Regressionen
+bestehen. Der Scan bleibt bei 60 Modulen, 316 Kanten, 163 Funktionen, 116
+aufgelösten und 447 unbekannten Bedingungen; Unknown-Digest
+`742614875c7d689dd14338bfc603928908a298a5c1253c10d36fecd705ea7f95`.
+Beide `constructor is not None`-Guards bleiben dynamisch. Keine erfolgreiche
+Import-/Konstruktorbeobachtung, Interpreterausführung, P11- oder
+Runtimeattestation; Status `CANDIDATES_ONLY`.
+
 ## Graph Tables – Curriculum-Lernnotiz
 
 Die [Graph-Tables-Lernnotiz](../Curriculum/GRAPH_TABLES_LESSON.md) ergänzt

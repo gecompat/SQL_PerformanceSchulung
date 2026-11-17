@@ -3553,3 +3553,16 @@ P11- oder Runtimeattestation. Umfang: ein Paket, ein PR, eine neue gezielte
 Regression; keine neue Produktquelle, kein Container-/SQL-/Lab-Lauf und keine
 menschliche Generalprobe. Danach wird mit dem nächsten einzeln belegbaren
 statischen Quellkandidaten fortgesetzt.
+
+### DGN-007 – Hashlib-Fallbackzweige den Image-Dateikandidaten zuordnen (17. November 2026)
+
+Innerhalb des nächsten abgegrenzten Offlinepakets verbindet der Scanner die
+sieben quellgeprüften `__get_builtin_constructor()`-Zweige mit den fünf
+digest- und größenbegrenzten Extensiondateien des gepinnten Zielimages. Eine
+Regression prüft die vollständigen Kandidaten und verwirft eine unvollständige
+Imageinventur. Der vollständige Scan bleibt `CANDIDATES_ONLY` mit 447
+unbekannten Bedingungen; insbesondere sind die dynamischen Cache-Guards kein
+Import- oder Konstruktorerfolgsnachweis. Umfang: ein Paket, ein PR, eine
+gezielte Regression; keine neue Produktquelle, kein Interpreter-/Container-/
+SQL-/Lab-Lauf und keine menschliche Generalprobe. Mit dem nächsten einzeln
+belegbaren Quellenkandidaten autonom fortfahren.
