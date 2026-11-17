@@ -114,6 +114,7 @@ HASHLIB_BUILTIN_FALLBACK_BRANCHES = (
      ("import _sha3", "cache['shake_128'] = _sha3.shake_128",
       "cache['shake_256'] = _sha3.shake_256")),
 )
+MAX_RE_COMPILE_INPUT_CANDIDATES = 4096
 PICKLE_SOURCE_SHA256 = "7e3447b6d993a6306a7893fd2fba916010ed79f8e09ceb56158a550fa8099a14"
 POSIX_MODULE_CLINIC_MEMBER = "Python-3.12.16/Modules/clinic/posixmodule.c.h"
 POSIX_MODULE_CLINIC_SHA256 = "dd89b7a30073abfad8f082966f135a343ca4e1b7b856e3ba696a6e9c27870747"
@@ -7811,6 +7812,165 @@ def _target_hashlib_builtin_fallback_file_candidates(
     return candidates
 
 
+def _target_re_compile_input_candidates(files, modules):
+    """List direct module-body re.compile argument shapes in source candidates."""
+    if type(files) is not dict or type(modules) is not tuple:
+        return []
+    try:
+        source_rows = _module_source_rows(files, modules)
+    except (TypeError, ValueError):
+        return []
+    candidates = []
+    for row in source_rows:
+        path = row["source_path"]
+        source = files.get(path)
+        if type(source) is not bytes:
+            return []
+        try:
+            tree = ast.parse(source.decode("utf-8"), filename=path)
+        except (UnicodeError, SyntaxError):
+            return []
+
+        module_alias_lines = {}
+        imported_compile_lines = {}
+        rebound_lines = {}
+        compile_attribute_rebound_lines = {}
+        module_nodes = []
+
+        class ModuleBodyVisitor(ast.NodeVisitor):
+            def visit_FunctionDef(self, node):
+                for decorator in node.decorator_list:
+                    self.visit(decorator)
+                self.visit(node.args)
+                if node.returns is not None:
+                    self.visit(node.returns)
+
+            visit_AsyncFunctionDef = visit_FunctionDef
+
+            def visit_Lambda(self, node):
+                self.visit(node.args)
+
+            def visit_ClassDef(self, node):
+                for decorator in node.decorator_list:
+                    self.visit(decorator)
+
+            def visit_Name(self, node):
+                if isinstance(node.ctx, (ast.Store, ast.Del)):
+                    rebound_lines.setdefault(node.id, []).append(
+                        (node.lineno, node.col_offset)
+                    )
+
+            def visit_Attribute(self, node):
+                if (node.attr == "compile"
+                        and isinstance(node.value, ast.Name)
+                        and isinstance(node.ctx, (ast.Store, ast.Del))):
+                    compile_attribute_rebound_lines.setdefault(
+                        node.value.id, []
+                    ).append((node.lineno, node.col_offset))
+                self.generic_visit(node)
+
+            def visit_Import(self, node):
+                for imported in node.names:
+                    if imported.name == "re":
+                        module_alias_lines.setdefault(
+                            imported.asname or "re", []
+                        ).append((node.end_lineno, node.end_col_offset))
+
+            def visit_ImportFrom(self, node):
+                if node.module == "re":
+                    for imported in node.names:
+                        if imported.name == "compile":
+                            imported_compile_lines.setdefault(
+                                imported.asname or imported.name, []
+                            ).append((node.end_lineno, node.end_col_offset))
+
+            def visit_Call(self, node):
+                module_nodes.append(node)
+                self.generic_visit(node)
+
+        visitor = ModuleBodyVisitor()
+        for node in tree.body:
+            visitor.visit(node)
+
+        for call in module_nodes:
+            if not call.args:
+                continue
+            api_form = None
+            function = call.func
+            alias_lines = ()
+            if (isinstance(function, ast.Attribute)
+                    and function.attr == "compile"
+                    and isinstance(function.value, ast.Name)
+                    and function.value.id in module_alias_lines):
+                api_form = "re_module_compile_attribute"
+                alias_lines = module_alias_lines[function.value.id]
+            elif (isinstance(function, ast.Name)
+                    and function.id in imported_compile_lines):
+                api_form = "re_imported_compile_name"
+                alias_lines = imported_compile_lines[function.id]
+            if api_form is not None:
+                call_position = (call.lineno, call.col_offset)
+                rebound_name = (function.value.id
+                                if isinstance(function, ast.Attribute)
+                                else function.id)
+                alias_lines = tuple(
+                    import_line for import_line in alias_lines
+                    if import_line <= call_position
+                    and not any(
+                        import_line < store_line < call_position
+                        for store_line in rebound_lines.get(rebound_name, ())
+                    )
+                    and (not isinstance(function, ast.Attribute)
+                         or not any(
+                             import_line < store_line < call_position
+                             for store_line in compile_attribute_rebound_lines.get(
+                                 rebound_name, ()
+                             )
+                         ))
+                )
+                if not alias_lines:
+                    api_form = None
+            if api_form is None:
+                continue
+
+            argument = call.args[0]
+            argument_sha256 = None
+            try:
+                literal = ast.literal_eval(argument)
+            except (ValueError, TypeError, SyntaxError):
+                literal = None
+            if type(literal) is str:
+                argument_kind = "STRING_LITERAL"
+                argument_sha256 = hashlib.sha256(
+                    literal.encode("utf-8")
+                ).hexdigest()
+            elif type(literal) is bytes:
+                argument_kind = "BYTES_LITERAL"
+                argument_sha256 = hashlib.sha256(literal).hexdigest()
+            elif (isinstance(argument, ast.BinOp)
+                    and isinstance(argument.op, ast.Mod)
+                    and isinstance(argument.left, ast.Constant)
+                    and type(argument.left.value) is str):
+                argument_kind = "STRING_FORMAT_EXPRESSION"
+            else:
+                argument_kind = "UNRESOLVED_EXPRESSION"
+            candidates.append({
+                "module": row["module"],
+                "source_path": path,
+                "source_sha256": row["source_sha256"],
+                "line": call.lineno,
+                "api_form": api_form,
+                "argument_kind": argument_kind,
+                "argument_sha256": argument_sha256,
+                "evidence_scope": "MODULE_BODY_RE_COMPILE_ARGUMENT_CANDIDATE",
+                "compile_call_observed": False,
+                "pattern_parse_observed": False,
+            })
+            if len(candidates) > MAX_RE_COMPILE_INPUT_CANDIDATES:
+                return []
+    return candidates
+
+
 def _target_functools_lru_cache_condition_facts(files):
     """Resolve the negative-size guard across pinned stdlib call sites."""
     if type(files) is not dict:
@@ -13479,6 +13639,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         target_call_unknown_conditions, ensure_ascii=False, sort_keys=True,
         separators=(",", ":"),
     ).encode("utf-8")).hexdigest()
+    target_re_compile_input_candidates = _target_re_compile_input_candidates(
+        files, target_call_modules,
+    )
     call_roots = {name.partition(".")[0] for name in call_modules}
     call_roots_outside_stdlib = tuple(sorted(call_roots - set(stdlib_names)))
     frozen_roots = {
@@ -13914,6 +14077,8 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ],
         "target_platform_hashlib_builtin_fallback_file_candidates":
             target_hashlib_builtin_fallback_file_candidates,
+        "target_module_init_re_compile_input_candidates":
+            target_re_compile_input_candidates,
         "target_platform_functools_lru_cache_condition_facts": [
             {"module": module, "source_path": source_path, "line": line,
              "outcomes": list(outcomes)}
