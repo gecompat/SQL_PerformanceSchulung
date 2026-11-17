@@ -13045,3 +13045,20 @@ wait_time` und ließ `r.wait_time` nur unter einem anderen Alias stehen. Der
 Validator verlangt jetzt den direkten DMV-Ausdruck in der tatsächlichen
 CTE-Projektion. 35 Lehrabfragetests und der Quellenvalidator bestehen lokal;
 das ist kein DMV- oder Engine-Nachweis.
+
+### CON-006 – Konversionsgraphvertrag an reale Owner-/Waiter-Einträge angleichen (17. November 2026)
+
+Der Offlineprüfer verlangte je passendem Keylock zwei `owner`-Einträge für
+denselben Prozess, darunter einen bereits als `X` markierten Eintrag, und dazu
+den jeweils anderen Prozess als `X`-Konvertierungswaiter. Das synthetische
+Positivbeispiel wiederholte damit dieselbe falsche Struktur. Ein dokumentiertes
+Deadlock-XML-Beispiel zeigt dagegen pro Ressourceneintrag den gehaltenen Modus
+beim `owner` und den Konvertierungswunsch ausschließlich beim `waiter` mit
+`requestType="convert"`; der Zyklus erscheint in zwei gegenläufigen
+Keylock-Einträgen. Prüfer und Fixture verlangen jetzt genau diese zwei
+gegenläufigen Einträge: je einen `S`-Owner und den anderen Actor als `X`-
+Konvertierungswaiter. Die 20 Offline-Regressionen sowie die CON-006- und
+Coverage-Vertragsvalidatoren bestehen. Die Capturefelder bleiben caller-
+geliefert; Engineherkunft und Runtimequalifikation sind dadurch nicht belegt.
+Quellenbeispiel: [Microsoft Q&A – Deadlock Report](https://learn.microsoft.com/en-us/answers/questions/336204/deadlock-report),
+Abruf 17.11.2026.

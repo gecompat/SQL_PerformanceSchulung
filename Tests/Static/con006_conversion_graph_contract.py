@@ -273,11 +273,10 @@ def evaluate_conversion_graph(graph_xml: str | bytes | None, identity: GraphIden
             owners = target.findall("owner-list/owner")
             waiters = target.findall("waiter-list/waiter")
             owner_ids = [node.get("id") for node in owners]
-            owner_modes = [node.get("mode") for node in owners]
             waiter_ids = [node.get("id") for node in waiters]
-            if (len(owners) != 2 or len(set(owner_ids)) != 1 or set(owner_modes) != {"S", "X"}
-                    or owner_ids[0] not in expected_ids):
-                failures.append("each keylock must bind one actor's S owner and X conversion request")
+            if (len(owners) != 1 or owner_ids[0] not in expected_ids
+                    or owners[0].get("mode") != "S"):
+                failures.append("each keylock must show one actor holding a shared lock")
                 continue
             owner_id = owner_ids[0]
             if (len(waiters) != 1 or waiter_ids[0] not in expected_ids or waiter_ids[0] == owner_id

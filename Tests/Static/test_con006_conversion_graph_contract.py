@@ -40,7 +40,6 @@ def good_graph() -> str:
                  indexname="PK_DeadlockRows" hobtid="72057594000000001">
           <owner-list>
             <owner id="processA" mode="S" />
-            <owner id="processA" mode="X" />
           </owner-list>
           <waiter-list>
             <waiter id="processB" mode="X" requestType="convert" />
@@ -50,7 +49,6 @@ def good_graph() -> str:
                  indexname="PK_DeadlockRows" hobtid="72057594000000001">
           <owner-list>
             <owner id="processB" mode="S" />
-            <owner id="processB" mode="X" />
           </owner-list>
           <waiter-list>
             <waiter id="processA" mode="X" requestType="convert" />
@@ -156,7 +154,8 @@ class ConversionGraphContractTests(unittest.TestCase):
     def test_both_processes_must_hold_shared_lock_on_same_hobt_resource(self) -> None:
         missing_owner = change_graph(lambda root: root.find("resource-list/keylock/owner-list").remove(root.find("resource-list/keylock/owner-list/owner[@id='processA']")))
         wrong_owner_mode = change_graph(lambda root: root.find("resource-list/keylock/owner-list/owner[@id='processA']").set("mode", "U"))
-        for source in (missing_owner, wrong_owner_mode):
+        fabricated_x_owner = change_graph(lambda root: root.find("resource-list/keylock/owner-list").append(ET.Element("owner", id="processA", mode="X")))
+        for source in (missing_owner, wrong_owner_mode, fabricated_x_owner):
             with self.subTest(source=source):
                 self.assertEqual(evaluate_conversion_graph(source, IDENTITY).verdict, Verdict.FAIL)
 
