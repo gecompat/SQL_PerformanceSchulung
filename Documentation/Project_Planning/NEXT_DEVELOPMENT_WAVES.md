@@ -3683,3 +3683,10 @@ Alternationsschleife, den Wurzelgruppen-Refresh des `VERBOSE`-Flags und die
 Ein-Alternative-Rückgabe. Die Gegenprobe ändert das Alternationszeichen und
 verwirft den Kandidaten. Als nächstes folgt die statische Rückgabebehandlung
 für mehrere Alternativen und der Aufbau des Subpatterns.
+
+Checkpoint 17. November 2026: Die Rückgaben für eine oder mehrere Alternativen
+sind jetzt an `items[0]`, `SubPattern`, `IN`-Zeichensatz und allgemeinen
+`BRANCH`-Zweig gebunden. Die Mutationsgegenprobe vertauscht den Branch-Op und
+muss den Kandidaten ablehnen. Nächster begrenzter Checkpoint: Voraussetzungen
+des Zeichensatz-Kurzpfads statisch binden, ohne seine Auswahl oder Ausführung
+zu behaupten.

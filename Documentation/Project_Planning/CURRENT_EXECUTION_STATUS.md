@@ -13339,3 +13339,14 @@ Alternative. Eine synthetische Gegenprobe verändert das Trennzeichen und muss
 den Kandidaten verwerfen. Der Befund behauptet keine tatsächliche
 Alternationsverarbeitung. Nächster Quellfact ist die strukturelle
 Rückgabebehandlung für mehrere Alternativen und deren Subpattern-Aufbau.
+
+### DGN-007 – Mehrfachalternativen und Subpattern-Rückgaben binden (17. November 2026)
+
+Der statische Kandidat unterscheidet jetzt die Rückgabe `items[0]` für eine
+Alternative vom Aufbau eines `SubPattern(state)` bei mehreren Alternativen.
+Er bindet den gemeinsamen Präfixeintrag, den Zeichensatzpfad
+`(IN, _uniq(set))`, den allgemeinen Zweig `(BRANCH, (None, items))` und die
+beiden `subpattern`-Rückgaben. Eine synthetische Mutation des allgemeinen
+Branch-Opers wird verworfen. Das ist ein Quellstruktur-Befund und kein Nachweis
+der Optimierungsauswahl oder Parserausführung. Als nächster Kandidat folgt die
+Voraussetzungsprüfung des Zeichensatz-Kurzpfads.

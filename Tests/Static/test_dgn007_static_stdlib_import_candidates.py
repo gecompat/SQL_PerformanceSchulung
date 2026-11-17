@@ -5352,6 +5352,14 @@ def deferred():
                 b"            verbose = state.flags & SRE_FLAG_VERBOSE\n"
                 b"    if len(items) == 1:\n"
                 b"        return items[0]\n"
+                b"    subpattern = SubPattern(state)\n"
+                b"    if prefix:\n"
+                b"        subpattern.append(prefix)\n"
+                b"    if can_set:\n"
+                b"        subpattern.append((IN, _uniq(set)))\n"
+                b"        return subpattern\n"
+                b"    subpattern.append((BRANCH, (None, items)))\n"
+                b"    return subpattern\n"
                 b"def _parse(source, state, verbose, nested, first=False):\n"
                 b"    sourceget = source.get\n"
                 b"    sourceget()\n"
@@ -5525,6 +5533,25 @@ def deferred():
                 and row["parser_alternation_candidate"][
                     "single_alternative_return"] == "items[0]"
                 and not row["parser_alternation_candidate"][
+                    "parser_execution_observed"]
+                for row in candidates
+            ))
+            self.assertTrue(all(
+                row["parser_multi_alternative_candidate"][
+                    "single_alternative_result"] == "items[0]"
+                and row["parser_multi_alternative_candidate"][
+                    "multiple_alternatives_container"] == "SubPattern(state)"
+                and row["parser_multi_alternative_candidate"][
+                    "common_prefix_append"] == "subpattern.append(prefix)"
+                and row["parser_multi_alternative_candidate"][
+                    "character_set_optimization_append"]
+                == "subpattern.append((IN, _uniq(set)))"
+                and row["parser_multi_alternative_candidate"][
+                    "general_branch_append"]
+                == "subpattern.append((BRANCH, (None, items)))"
+                and row["parser_multi_alternative_candidate"][
+                    "subpattern_return_sites"] == 2
+                and not row["parser_multi_alternative_candidate"][
                     "parser_execution_observed"]
                 for row in candidates
             ))
@@ -5711,6 +5738,24 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_alternation,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_branch_shape = dict(files)
+            altered_branch_shape["re/_parser.py"] = altered_branch_shape[
+                "re/_parser.py"
+            ].replace(b"(BRANCH, (None, items))", b"(LITERAL, (None, items))", 1)
+            altered_branch_digest = hashlib.sha256(
+                altered_branch_shape["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_branch_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_branch_shape,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
