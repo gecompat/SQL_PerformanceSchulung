@@ -2072,16 +2072,16 @@ Capture-Provenienz caller-geliefert und die Variante `PROPOSED`.
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand L – vorläufig.**
 
-**Planungsentscheidung:** Ausführbaren Vergleich zurückstellen.
+**Planungsentscheidung:** Ausführbaren Vergleich zurückstellen; der qualitative OFF/ON-Mindestvertrag ist inzwischen in der Curriculumnotiz festgehalten.
 
 **Begründung:** Einfügeaktivität und eine aktivierte Indexoption belegen keinen Engpass an der letzten Indexseite. Ein fairer Vergleich fortlaufender und verteilter Schlüssel benötigt größere Laststeuerungs- und Messarbeit.
 
 **Abhängigkeiten:**
 
 - Reproduzierbare Konkurrenz um die letzte Indexseite von Sperren und Ein-/Ausgabewarten unterscheiden; mit RES-005 (Seiten-Latches und Ein-/Ausgabewarten) abstimmen.
-- Identische Last, Datenmenge, Parallelität und Messfenster sowie Versionsgrenzen der Sequential-Key-Optimierung (Optimierung fortlaufender Schlüssel) festlegen.
+- Die Lehrnotiz definiert gepaarte, getrennte OFF/ON-Arme mit identischer Indexstruktur und erfolgreicher Arbeit, gleicher Messreichweite, wechselnder Reihenfolge, Ergebnis-/Workerprüfung und kontrolliertem Skip ohne belegte Konkurrenz. Vor Ausführung bleiben konkrete Wiederholungszahl, Zeit-/Arbeitslimit, Rechte, Zielbuilds, Isolation und Cleanup im Laufvertrag festzulegen.
 
-**Wiederaufnahmebedingung:** Geeignete isolierte Lastumgebung und belegbarer Engpass sowie fairer Vergleichsvertrag; keine pauschale Empfehlung anderer Schlüssel oder Heaps (Tabellen ohne Clustered Index).
+**Wiederaufnahmebedingung:** Geeignete isolierte Lastumgebung, belegbarer Engpass, unabhängiger Methoden-/Quellenreview und ausführbarer Mess-/Cleanupvertrag; keine pauschale Empfehlung anderer Schlüssel oder Heaps (Tabellen ohne Clustered Index).
 
 **Quellen:** `LAB-LATCH-001` (Last-page insert contention; Konkurrenz um die letzte Indexseite); `LAB-LATCH-002` (Sequential-key optimization comparison; Vergleich der Optimierung fortlaufender Schlüssel); `LAB-LATCH-003` (Distributed-key and heap comparison; verteilte Schlüssel und Tabellen ohne Clustered Index).
 
