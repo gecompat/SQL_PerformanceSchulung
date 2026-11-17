@@ -12462,3 +12462,22 @@ auswertbare Segmentmetadaten; interne Min-/Max-Spalten werden nicht als stabile
 `METHOD_DRAFT`; unabhängiger Methodenreview, konkrete Build-/Edition- und
 Imagebindung, numerische Zeit-/Ressourcenobergrenzen und isolierter Pilot stehen
 aus. Kein Performanceclaim, keine Demo-ID und keine menschliche Generalprobe.
+
+
+### RES-004 – Grant-Hintentscheidung für den Systempool präzisiert (17. November 2026)
+
+Der Methodenentwurf gibt für den vorgesehenen SQL-Server-2025-Developer-
+Systempool zunächst weder `MIN_GRANT_PERCENT` noch `MAX_GRANT_PERCENT` frei.
+Microsoft dokumentiert `MAX_GRANT_PERCENT` nur im benutzerdefinierten
+Resource-Governor-Pool als garantierte Obergrenze; im Systempool erhält eine
+Query mindestens die für den Start benötigte Menge. `MIN_GRANT_PERCENT` erhöht
+die garantierte Mindestmenge und kann bei fehlender erforderlicher Menge zu
+einem Fehler führen. Daher sind diese Hints hier kein belastbarer Ressourcen-
+oder Abbruchzaun. Der Machbarkeitsversuch bleibt auf höchstens drei gebundene
+eigene Actors mit vorab festgelegtem Daten-, Fetch-, Zeit- und Containerbudget
+beschränkt; diese Grenzen ersetzen keine Engine-Grant-Obergrenze. Ohne
+beobachtbaren Wait gilt `SKIP_NO_GRANT_WAIT`, ohne adaptive Eskalation.
+Ein benutzerdefinierter Resource-Governor-Pool bleibt mangels eigener
+Änderungsfreigabe ausgeschlossen. Abfragevalidator und 17 fokussierte
+Regressionen bestehen; weder Methodenreview noch isolierter Pilot oder
+Laufzeitnachweis sind damit erbracht.

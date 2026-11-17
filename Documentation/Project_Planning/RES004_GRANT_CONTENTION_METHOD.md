@@ -56,28 +56,40 @@ und keinen Leistungsgewinn.
 | Abschluss | Alle gestarteten Clients werden regulär abgewartet oder über ihre eigenen Cancellation-Handles abgebrochen. Danach werden genau die gebundenen eigenen Sessions auf Abwesenheit geprüft. Die markergeprüfte Datenbank wird entfernt und ihre Abwesenheit unabhängig bestätigt. | Fremde Sessions werden weder beendet noch aufgrund von Login, Host oder Application Name als eigene behandelt. Unvollständige Rücknahme ergibt `FAIL_CLEANUP`. |
 
 Die drei Actor-Slots sind eine Planungsobergrenze, keine Behauptung, dass sie
-einen Wait erzeugen. Datenmenge, Client-Fetchverhalten, Abfragehint,
-Wiederholungszahl und Zeitfristen sind noch nicht festgelegt. Diese Werte werden
-erst nach Review anhand des verfügbaren Containerprofils gewählt und dürfen
-innerhalb eines Laufs nicht adaptiv nach oben skaliert werden.
+einen Wait erzeugen. Datenmenge, Client-Fetchverhalten, Wiederholungszahl und
+Zeitfristen sind noch nicht festgelegt. Grant-Hints sind für den aktuellen
+Systempool-Pilot ausgeschlossen (siehe folgende Entscheidung). Die übrigen
+Werte werden erst nach Review anhand des verfügbaren Containerprofils gewählt
+und dürfen innerhalb eines Laufs nicht adaptiv nach oben skaliert werden.
 
-## Begrenzungsstrategie und offene Varianten
+## Begrenzungsstrategie und Entscheidung zu Grant-Hints
 
-Die erste Implementierungsprüfung soll eine ausschließlich abfragebezogene
-Steuerung mit einem passenden Speichergrant-Hint untersuchen und die
-Enginekonfiguration unverändert lassen. `MIN_GRANT_PERCENT` kann eine
-Mindestanforderung erzwingen; `MAX_GRANT_PERCENT` ist im benutzerdefinierten
-Ressourcenpool hart begrenzend dokumentiert. Im Systempool gelten andere
-Grenzen. Daher ist vor Festlegung eines Hints zu belegen, welche prozentuale
-Basis im gewählten Ziel gilt, dass der Mindestgrant für die Query erforderlich
-ist und dass weder er noch mehrere Actors das Containerlimit gefährden.
+Für den vorgesehenen SQL-Server-2025-Developer-Systempool ist zunächst kein
+`MIN_GRANT_PERCENT`- oder `MAX_GRANT_PERCENT`-Hint freigegeben. Microsoft
+dokumentiert, dass `MAX_GRANT_PERCENT` nur in einem benutzerdefinierten
+Resource-Governor-Pool garantiert nicht überschritten wird; im Systempool
+erhält eine Query mindestens die für den Start benötigte Menge. `MIN_GRANT_PERCENT`
+garantiert mindestens das Maximum aus benötigtem und angefordertem Mindestgrant;
+fehlt die erforderliche Mindestmenge, kann die Query mit einem Fehler enden.
+Keiner der beiden Hints ist daher für diesen Systempool-Pilot ein belegter
+Ressourcen- oder Abbruchzaun. Die Actor-Obergrenze allein garantiert ebenfalls
+keinen Speicherhöchstwert.
 
-Falls die Hint-Variante keinen begrenzten und nachvollziehbaren Wait erzeugt,
-wird sie verworfen. Ein benutzerdefinierter Resource-Governor-Pool wäre eine
-separate, instanzweite Konfigurationsmutation und erhält hier keine Freigabe.
-Das würde einen roten, ausdrücklich isolierten Versuch mit Vorher-/Nachher-
-Konfigurationsvergleich, Kill-Switch und vollständigem Restore erfordern. Es
-gibt keinen automatischen Fallback auf diese Variante.
+Die erste zulässige Machbarkeitsprüfung verwendet deshalb nur eine feste
+Abfrageform, höchstens drei gebundene eigene Actors, vorab festgelegte
+Daten-/Fetch-/Zeitgrenzen und das verifizierte Containerlimit. Das ist eine
+begrenzte Versuchsanordnung, aber keine mathematische Obergrenze für den
+Engine-Grant. Vor einem Pilot müssen unabhängiger Review und Harness belegen,
+dass die gewählten Eingaben innerhalb des verfügbaren Budgets bleiben und
+Timeout sowie Abbruch tatsächlich greifen. Erzeugt diese Variante keinen
+beobachtbaren Grant-Wait, lautet das Ergebnis `SKIP_NO_GRANT_WAIT`; Datenmenge
+oder Parallelität werden nicht während des Laufs erhöht.
+
+Ein benutzerdefinierter Resource-Governor-Pool wäre eine separate,
+instanzweite Konfigurationsmutation und erhält hier keine Freigabe. Eine spätere
+Änderung dieses Entscheids erfordert eine eigene Änderungsfreigabe sowie einen
+ausdrücklich isolierten Entwurf mit Vorher-/Nachher-Konfigurationsvergleich,
+Kill-Switch und vollständigem Restore. Es gibt keinen automatischen Fallback.
 
 ## Ressourcen-, Fehler- und Ergebnisvertrag
 
@@ -132,4 +144,7 @@ gibt keinen automatischen Fallback auf diese Variante.
 Die Microsoft-Quellen dokumentieren Felder und Hintverhalten. Sie bestimmen
 weder die konkrete Grantgröße dieser Abfrage noch die Verfügbarkeit eines
 Semaphore-Waits in einem bestimmten Build. Das muss im begrenzten Pilot
-empirisch geprüft werden.
+empirisch geprüft werden. Die Entscheidung gegen einen Hint im aktuellen
+Systempool-Pilot folgt aus den dokumentierten unterschiedlichen Garantien; sie
+ist keine Aussage, dass die Actor- oder Containergrenzen selbst einen
+Engine-Grant hard-cappen.
