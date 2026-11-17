@@ -13,6 +13,7 @@ import sys
 
 from sql_lexical_utils import (
     extract_tsql_cte_body,
+    tsql_projection_has_direct_column_binding,
     tsql_projection_has_exact_item,
     tsql_projection_output_names,
     without_tsql_comments,
@@ -92,8 +93,18 @@ def validate_sql(sql: str) -> None:
         raise ContractError("diagnostic result must project the @CapturedAt marker value")
     if "grant_time" not in output_names:
         raise ContractError("diagnostic result must expose grant_time to distinguish granted peers")
+    if not tsql_projection_has_direct_column_binding(
+        projection_match.group(1), "grant_time",
+    ):
+        raise ContractError("diagnostic result must project the DMV grant_time value")
     if "is_mapped_own_request" not in output_names:
         raise ContractError("diagnostic result must identify mapped own requests")
+    if not tsql_projection_has_exact_item(
+        projection_match.group(1),
+        "CASE WHEN own.session_id IS NULL THEN CONVERT(bit, 0) "
+        "ELSE CONVERT(bit, 1) END AS is_mapped_own_request",
+    ):
+        raise ContractError("diagnostic result must derive own-request mapping from the matched session")
     if ("where mg.grant_time is null and r.wait_type =" not in own_waits_normalized
             or "where mg.grant_time is null and r.wait_type = n'resource_semaphore'"
             not in own_waits_with_literals):
