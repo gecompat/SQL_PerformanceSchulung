@@ -12545,3 +12545,15 @@ Lehrabfragetests, 13 Offlinevertragstests und der Lehrvalidator bestehen.
 Das bleibt ein statischer Quellstrukturcheck ohne T-SQL-Parser, authentische
 DMV-Aufnahme oder Nachweis der rechten Indexseite; Split-/Zeitfenster- und
 Enginefragen bleiben offen.
+
+
+### RES-004 – Capturemarker an die finale Grant-Wait-Ausgabe binden (17. November 2026)
+
+Der Lehrabfragevalidator verlangte `@CapturedAt AS captured_at_utc` bisher nur
+irgendwo im SQL-Text. Eine Negativprobe verschob die Projektion in den
+unbenutzten `OwnWaits`-CTE und entfernte sie aus der finalen Ergebnisausgabe;
+der Validator akzeptierte die Abfrage trotzdem. Er verlangt den Capturemarker
+jetzt innerhalb der erkannten finalen SELECT-Projektion. Eine Regression schützt
+die CTE-Verschiebung. Die 18 RES-004-Lehrabfragetests, der Offlinedatenvertrag
+und der Abfragevalidator bestehen. Das bleibt statische Quellstrukturprüfung;
+DMV-Herkunft, Methodenreview und isolierter Grant-Wait-Pilot bleiben offen.

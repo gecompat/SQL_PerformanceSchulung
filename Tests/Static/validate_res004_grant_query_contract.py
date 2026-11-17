@@ -79,6 +79,8 @@ def validate_sql(sql: str) -> None:
     if projection_match is None:
         raise ContractError("diagnostic query has no recognizable final projection")
     projection = projection_match.group(1)
+    if not re.search(r"(?<![\w])@capturedat\s+as\s+captured_at_utc\b", projection):
+        raise ContractError("diagnostic result must expose captured_at_utc")
     if not re.search(r"(?:^|,)\s*mg\.grant_time\s*(?:,|$)", projection):
         raise ContractError("diagnostic result must expose grant_time to distinguish granted peers")
     if not re.search(r"\bas\s+is_mapped_own_request\b", projection):
