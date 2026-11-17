@@ -70,3 +70,15 @@ maschinenlesbare Nachweise liegen unter
 Buildvertrag abgeleitete, nicht versionierte Releaseartefakte. Dieser Build ist
 kein GitHub-Release und erteilt keine zusätzliche SQL-Lab-, Produkt- oder
 Runtimefreigabe.
+
+## Nachfolgender Releasebuild vom 2026-11-17 auf `main` `ec5c5bc7bccd46aa5e630242ae8052a8edac511f`
+
+Nach Integration von PR #1032 wurden die drei Profildecks erneut aus dem konsistenten `main` gebaut. Der Präsentationsmaster blieb unverändert; sein SHA-256 ist `17c55c8f4e6a2ff06cd1e7d81118bdc5e50021d395f157aa65ed38351054d787`.
+
+| Profil | Folien | Releaseartefakt-SHA-256 |
+|---|---:|---|
+| `BASIS` | 41 | `d1fcce19a9bb6c9468291f0f9538b7ea134313e117d65854f6c568ca6b7d76e0` |
+| `STANDARD` | 66 | `c8faefc8362f86062a0ab55b3608932c9b93b62cb658d8d621dc4f195260dcbd` |
+| `VERTIEFUNG` | 102 | `bd23caacc0e2efb18cd558a91fe1a1911c1cb60da667add1d11bc0e473f63cf8` |
+
+Der PowerPoint-Desktop-Build, Renderumfang, Manifest-/Ausgabevalidator und Mastererhalt bestehen. Alle 311 Profilrenderbilder sind anhand der Manifestreihenfolge bytegleich mit ihren Masterfolien. Der Datenschutzscan nur für die drei Decks und das Buildprotokoll besteht (vier Dateien, drei PowerPoint-Pakete). Die Artefakte liegen lokal unter `Presentations/variants/build/`; Render und Buildnachweise unter `Runtime/PresentationRenders/`. Sie sind abgeleitete lokale Releaseartefakte und kein GitHub-Release. Die menschliche Generalprobe wurde nicht ausgeführt; SQL-Lab- und Produktgates werden durch diesen Lehrmittelrelease nicht geschlossen.
