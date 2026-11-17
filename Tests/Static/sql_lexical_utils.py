@@ -1,6 +1,8 @@
 """Small lexical helpers for static T-SQL source contracts."""
 from __future__ import annotations
 
+import re
+
 
 def without_tsql_comments(sql: str) -> str:
     """Remove line and nested block comments without changing quoted content."""
@@ -67,6 +69,86 @@ def without_tsql_comments(sql: str) -> str:
     if bracketed:
         raise ValueError("query contains an unterminated bracketed identifier")
     return "".join(output)
+
+
+def extract_tsql_cte_body(sql: str, name: str) -> str:
+    """Extract one balanced named CTE body while respecting T-SQL quoting."""
+    if type(name) is not str or not name:
+        raise ValueError("CTE name must be nonempty text")
+    source = without_tsql_comments(sql)
+    pattern = re.compile(
+        rf"\b{re.escape(name)}\s+AS\s*\(", flags=re.IGNORECASE,
+    )
+    matches = []
+    index = 0
+    while index < len(source):
+        char = source[index]
+        if char in "'\"":
+            quote = char
+            index += 1
+            while index < len(source):
+                if source[index] == quote:
+                    if index + 1 < len(source) and source[index + 1] == quote:
+                        index += 2
+                        continue
+                    index += 1
+                    break
+                index += 1
+            continue
+        if char == "[":
+            index += 1
+            while index < len(source):
+                if source[index] == "]":
+                    if index + 1 < len(source) and source[index + 1] == "]":
+                        index += 2
+                        continue
+                    index += 1
+                    break
+                index += 1
+            continue
+        match = pattern.match(source, index)
+        if match:
+            matches.append(match)
+            index = match.end()
+        else:
+            index += 1
+    if len(matches) != 1:
+        raise ValueError("expected exactly one named CTE")
+    opening = matches[0].end() - 1
+    depth = 0
+    quote: str | None = None
+    bracketed = False
+    index = opening
+    while index < len(source):
+        char = source[index]
+        if quote is not None:
+            if char == quote:
+                if index + 1 < len(source) and source[index + 1] == quote:
+                    index += 2
+                    continue
+                quote = None
+            index += 1
+            continue
+        if bracketed:
+            if char == "]":
+                if index + 1 < len(source) and source[index + 1] == "]":
+                    index += 2
+                    continue
+                bracketed = False
+            index += 1
+            continue
+        if char in "'\"":
+            quote = char
+        elif char == "[":
+            bracketed = True
+        elif char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+            if depth == 0:
+                return source[opening + 1:index]
+        index += 1
+    raise ValueError("named CTE is not balanced")
 
 
 def without_tsql_comments_or_literals(sql: str) -> str:

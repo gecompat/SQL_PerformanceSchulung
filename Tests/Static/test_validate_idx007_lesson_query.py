@@ -31,7 +31,7 @@ class Idx007LessonQueryTests(unittest.TestCase):
     def test_wait_filter_regression_is_rejected(self) -> None:
         broken = SOURCE.replace("r.wait_type = N'PAGELATCH_EX'", "r.wait_type = N'PAGEIOLATCH_EX'", 1)
         errors = validate_lesson(broken)
-        self.assertTrue(any("only page latch waits" in error for error in errors))
+        self.assertTrue(any("PageWaits must restrict" in error for error in errors))
 
     def test_line_comment_cannot_supply_the_page_latch_filter(self) -> None:
         broken = SOURCE.replace(
@@ -40,7 +40,7 @@ class Idx007LessonQueryTests(unittest.TestCase):
             1,
         )
         errors = validate_lesson(broken)
-        self.assertTrue(any("only page latch waits" in error for error in errors))
+        self.assertTrue(any("PageWaits must restrict" in error for error in errors))
 
     def test_block_comment_cannot_supply_the_wait_duration(self) -> None:
         broken = SOURCE.replace(
@@ -58,7 +58,7 @@ class Idx007LessonQueryTests(unittest.TestCase):
             1,
         )
         errors = validate_lesson(broken)
-        self.assertTrue(any("only page latch waits" in error for error in errors))
+        self.assertTrue(any("PageWaits must restrict" in error for error in errors))
 
     def test_unrelated_string_cannot_supply_the_expected_wait_type(self) -> None:
         broken = SOURCE.replace(
@@ -71,7 +71,22 @@ class Idx007LessonQueryTests(unittest.TestCase):
             1,
         )
         errors = validate_lesson(broken)
-        self.assertTrue(any("only page latch waits" in error for error in errors))
+        self.assertTrue(any("PageWaits must restrict" in error for error in errors))
+
+    def test_inert_wait_literal_cannot_replace_pagewaits_filter(self) -> None:
+        broken = SOURCE.replace(
+            "WHERE r.wait_type = N'PAGELATCH_EX'",
+            "WHERE 1 = 1",
+            1,
+        ).replace(
+            "        r.wait_time,",
+            "        r.wait_time,\n"
+            "        CASE WHEN r.wait_type = N'PAGELATCH_EX' "
+            "THEN 1 ELSE 1 END AS wait_marker,",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("PageWaits must restrict" in error for error in errors))
 
     def test_comment_markers_inside_bracketed_identifiers_are_preserved(self) -> None:
         section_start = SOURCE.index("## Lesende Zuordnung einer aktuellen Request-Seite")

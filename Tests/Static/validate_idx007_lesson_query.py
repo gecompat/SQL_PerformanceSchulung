@@ -9,6 +9,7 @@ import re
 from pathlib import Path
 
 from sql_lexical_utils import (
+    extract_tsql_cte_body,
     has_tsql_literal_comparison,
     without_tsql_comments,
     without_tsql_comments_or_literals,
@@ -36,6 +37,13 @@ def validate_lesson(text: str) -> tuple[str, ...]:
     except ValueError as exc:
         return (f"IDX-007 query has malformed lexical structure: {exc}",)
     sql = re.sub(r"\s+", " ", without_tsql_comments_or_literals(blocks[0])).casefold()
+    try:
+        page_waits = extract_tsql_cte_body(blocks[0], "PageWaits")
+    except ValueError as exc:
+        return (f"IDX-007 PageWaits CTE is malformed: {exc}",)
+    page_waits_sql = re.sub(
+        r"\s+", " ", without_tsql_comments_or_literals(page_waits),
+    ).casefold()
     required = {
         "request wait duration uses the documented DMV column": "r.wait_time",
         "page resource is decoded": "sys.fn_pagerescracker(r.page_resource)",
@@ -51,8 +59,18 @@ def validate_lesson(text: str) -> tuple[str, ...]:
     for label, fragment in required.items():
         if fragment not in sql:
             errors.append(f"{label}: expected `{fragment}`")
-    if not has_tsql_literal_comparison(blocks[0], "r.wait_type", "PAGELATCH_EX"):
-        errors.append("only page latch waits are selected: expected `r.wait_type = N'PAGELATCH_EX'`")
+    page_wait_filters = (
+        "where r.wait_type =",
+        "and r.page_resource is not null",
+        "and r.database_id = db_id()",
+        "and pr.db_id = db_id()",
+    )
+    if (any(fragment not in page_waits_sql for fragment in page_wait_filters)
+            or re.search(r"\bor\b", page_waits_sql)
+            or not has_tsql_literal_comparison(
+                page_waits, "r.wait_type", "PAGELATCH_EX",
+            )):
+        errors.append("PageWaits must restrict the target database to PAGELATCH_EX requests")
     if "wait_duration_ms" in sql:
         errors.append("query must use documented `wait_time`, not `wait_duration_ms`")
     return tuple(errors)

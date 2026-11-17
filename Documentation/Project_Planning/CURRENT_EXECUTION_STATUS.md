@@ -12341,3 +12341,10 @@ Die DGN-007-Quellsuite besteht mit 299 Tests. Der frische Zielscan bleibt `CANDI
 Eine reproduzierte Negativprobe entfernte `mg.grant_time IS NULL` und den `RESOURCE_SEMAPHORE`-Filter aus dem `OwnWaits`-CTE und setzte denselben Text stattdessen in die spätere `LEFT JOIN`-Bedingung. Der bisherige globale Fragmentvergleich akzeptierte diese Abfrage, obwohl sie eigene Requests auch ohne Grant-Wait als zugeordnet markieren konnte.
 
 Der Validator extrahiert nun den genau einmal vorkommenden, balancierten `OwnWaits AS (...)`-CTE unter Beachtung von Kommentaren, Strings und geklammerten Bezeichnern und verlangt beide Filter samt passendem Wait-Literal in dessen `WHERE`-Bedingung. Die neue Regression bestätigt die Ablehnung der verschobenen Filter. Die RES-004-Testsuite besteht mit 14 Tests; der Abfragevertragvalidator besteht. Das ist weiterhin ein statischer Strukturcheck ohne T-SQL-Parser, DMV-Authentifizierung oder Runtime-/Grant-Wait-Nachweis.
+
+
+### IDX-007 – Waitfilter im `PageWaits`-CTE verankern (17. November 2026)
+
+Eine Negativprobe setzte `WHERE 1 = 1` ein und beließ `r.wait_type = N'PAGELATCH_EX'` nur in einem wirkungslosen `CASE`-Ausdruck. Der Lehrabfragevalidator akzeptierte den Querytext, obwohl damit auch andere Request-Waittypen in die Seitenauswertung gelangen konnten.
+
+Ein gemeinsamer T-SQL-Helfer extrahiert jetzt genau einen benannten, balancierten CTE und ignoriert String-/Bezeichnertexte bei der Erkennung. IDX-007 verlangt den tatsächlichen Waittypfilter und die Ressourcen-/Datenbankgrenzen innerhalb des `PageWaits`-CTE und weist eine OR-Aufweichung zurück. RES-004 verwendet denselben CTE-Scanner für seine eigenen Grant-/Waitfilter. Die IDX-007-Suite besteht mit 15 Tests, die RES-004-Abfragevertragssuite ebenfalls mit 15 Tests, der RES-004-Offlinedatenvertrag mit 24 Tests; beide Quellenvalidatoren bestehen. Der Prüfer bleibt ein statischer Strukturvergleich ohne T-SQL-Parser, DMV-Herkunft oder Engine-Nachweis.
