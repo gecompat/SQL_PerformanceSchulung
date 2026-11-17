@@ -144,6 +144,15 @@ ParseCurriculumLessonSql(
 ParseCurriculumLessonSql(
     "Documentation/Curriculum/HALF_OPEN_DATE_INTERVAL_LESSON.md",
     "QRY-003 half-open date intervals");
+ParseCurriculumLessonSql(
+    "Documentation/Curriculum/WORKER_QUEUE_PRESSURE_LESSON.md",
+    "RES-001 worker queue pressure");
+ParseCurriculumLessonSql(
+    "Documentation/Curriculum/BUFFER_POOL_PRESSURE_LESSON.md",
+    "RES-003 buffer pool pressure");
+ParseCurriculumLessonSql(
+    "Documentation/Curriculum/LAST_PAGE_INSERT_CONTENTION_LESSON.md",
+    "IDX-007 last-page insert contention");
 
 void ParseCurriculumLessonSql(string relativePath, string lessonName)
 {

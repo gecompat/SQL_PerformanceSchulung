@@ -12835,3 +12835,9 @@ QRY-003-Lehrnotiz zu halboffenen Datumsintervallen jeweils gegen alle drei
 Grammatiken. Änderungen an diesen beiden Lesepfaden starten ebenfalls den
 statischen Vertragworkflow. Auch diese Prüfung belegt nur T-SQL-Syntax, nicht
 Ergebnissemantik oder Engineverhalten.
+
+Zusätzlich werden nun die SQL-Beispiele der Lehrpfade für Worker-Warteschlangen,
+Buffer-Pool-Signale und Einfügungen auf der letzten Indexseite gegen alle drei
+Grammatiken geprüft. Diese Prüfung verhindert Syntaxdrift in den betroffenen
+Lesepfaden, qualifiziert aber weder aktuelle Ressourcenwerte noch Waits,
+Seitenketten oder Engine-Runtime.
