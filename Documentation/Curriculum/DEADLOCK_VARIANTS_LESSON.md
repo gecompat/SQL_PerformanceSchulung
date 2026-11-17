@@ -22,6 +22,12 @@ dieselbe Zeile ändern wollen, benötigt jede eine exklusive `X`-Sperre. Jede
 `X`-Anforderung wartet dann auf die noch gehaltene `S`-Sperre der jeweils
 anderen Transaktion. Der Zyklus entsteht durch die Umwandlungsanforderungen an
 derselben Ressource, nicht durch eine umgekehrte Reihenfolge zweier Zeilen.
+In der CON-006-Variante stammen die konkrete Zeilenidentität und die beiden
+Zugriffe auf `RowId=1` aus den fixierten Session-Skripten. Der Deadlockgraph
+bestätigt Datenbank, Objekt, Index und HoBT sowie die gegenläufigen Modi; er
+enthält in diesem Vertrag keinen ausgewerteten Schlüsselwert. Ein reiner
+Graph-PASS darf deshalb nicht als eigenständiger Beleg derselben Zeile gelesen
+werden.
 
 Microsoft beschreibt `UPDLOCK` beim Lesen der später zu ändernden Zeile als
 mögliche Gegenmaßnahme für dieses Muster: Eine `U`-Sperre serialisiert die
