@@ -111,3 +111,29 @@ Renderbelege liegen lokal unter `Presentations/variants/build/` und
 Builddateien. Dieser Nachweis veröffentlicht kein GitHub-Release. Die
 menschliche Generalprobe wurde nicht ausgeführt. Offene SQL-Lab-, Runtime- und
 Produktgates bleiben unberührt.
+
+## Nachfolgender Releasebuild auf `main` nach PR #1040
+
+Der Build wurde am 17. November 2026 auf dem sauberen, mit `origin/main`
+synchronen Commit `15834673e79a55c25f1b7dd100beffd7d1380e2d` ausgeführt. Der
+Masterhash stimmte vor und nach dem Build mit dem Variantenmanifest überein:
+`17c55c8f4e6a2ff06cd1e7d81118bdc5e50021d395f157aa65ed38351054d787`.
+
+| Profil | Folien | Releaseartefakt-SHA-256 |
+|---|---:|---|
+| `BASIS` | 41 | `23ad998197347347d9c74630c8876b3b2e0d3950f1699f33f6b1ffa174378313` |
+| `STANDARD` | 66 | `ce885b300519f62fd7085de7638852734b2bc1711f70889b8664af9a071a2dde` |
+| `VERTIEFUNG` | 102 | `e12a820480fc9fb60d8cb6abcdfef2a9fcee17b7265f94a9f6fcec1dd2c3f9d3` |
+
+PowerPoint Desktop baute die drei Varianten und renderte 102 Masterfolien sowie
+41, 66 und 102 Profilfolien. Manifest-, Ausgabe- und gezielter
+Datenschutzvalidator bestanden. Der Bytevergleich jedes Profilrenderings mit
+der anhand der SlideKeys zugeordneten Masterfolie ergab 209 Übereinstimmungen
+und keine Abweichung. Der Datenschutzscan umfasste gezielt die drei Decks und
+das Buildprotokoll (vier Dateien, drei PowerPoint-Pakete); historische
+Reviewbilder im lokalen Buildordner waren nicht Bestandteil dieses Scans.
+
+Die `.pptx`-Dateien und Renderbilder bleiben abgeleitete lokale Releaseartefakte
+und sind nicht versioniert. Dieser Kursrelease ist kein GitHub-Release. Die
+menschliche Generalprobe wurde nicht ausgeführt; SQL-Lab-, Produkt- und
+Runtimegates bleiben unberührt.
