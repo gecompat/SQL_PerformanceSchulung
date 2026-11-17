@@ -3387,3 +3387,7 @@ Eine Negativprobe setzte `AND 1 = 0` nach den vorgesehenen Filtern des `PageWait
 ### RES-001 – zusätzliche Filter dürfen Scheduler nicht ausblenden (17. November 2026)
 
 Eine Negativprobe ergänzte `AND 1 = 0` hinter den Scheduler-Scope-Filtern. Der Lehrvalidator akzeptierte damit eine garantiert leere Scheduleraufnahme. Der Vertrag bindet jetzt den vollständigen Filterabschnitt exakt an `scheduler_id < 255` und `is_online = 1` vor der Sortierung; zusätzliche Prädikate werden abgewiesen. 15 Lehrabfragetests, 16 Offlinevertragstests, Validator und Curriculumprüfung bestehen. Das qualifiziert keine Scheduler- oder Worker-Runtimewerte.
+
+### IDX-007 – Terminaldarstellung erneut quellengeprüft (17. November 2026)
+
+Die Microsoft-Learn-Seite `sys.dm_db_page_info` wurde am aktuellen Stand erneut geprüft: Sie führt die Nachbarseitenfelder auf, dokumentiert an dieser Stelle aber keinen Terminal-Sentinel. `SRC-172` trägt das aktuelle Abrufdatum. Der Quellencheck entscheidet den Terminalwert nicht; unabhängiger Review, isolierter Enginepilot, Seiten-Cap und Splitverhalten bleiben als Gates bestehen. Kein SQL wurde ausgeführt.

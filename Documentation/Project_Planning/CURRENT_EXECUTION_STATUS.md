@@ -12720,3 +12720,13 @@ Zusatzfilter werden abgewiesen. Die Regression schützt diesen Fall. 15
 Lehrabfragetests, 16 Worker-Queue-Vertragstests, der Validator, der
 Curriculumvalidator und `git diff --check` bestehen. Das ist kein Nachweis
 aktueller Scheduler- oder Worker-Runtimewerte.
+
+### IDX-007 – Terminaldarstellung gegen aktuelle Primärquelle geprüft (17. November 2026)
+
+Die aktuelle Microsoft-Learn-Seite zu `sys.dm_db_page_info` wurde erneut
+aufgerufen. Sie listet `next_page_file_id` und `next_page_page_id` als
+Seitenheaderfelder, definiert dort aber keinen Terminal-Sentinel für die
+Blattkette. `SRC-172` ist mit dem Abrufdatum aktualisiert. Daraus folgt nur,
+dass dieser Primärbeleg den offenen Wert nicht entscheidet; die Methode bleibt
+`METHOD_DRAFT`. Unabhängiger Methodenreview, isolierter Enginepilot,
+Seiten-Cap und Splitverhalten bleiben offen.
