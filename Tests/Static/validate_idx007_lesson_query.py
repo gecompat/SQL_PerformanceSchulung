@@ -71,6 +71,28 @@ def validate_lesson(text: str) -> tuple[str, ...]:
                 page_waits, "r.wait_type", "PAGELATCH_EX",
             )):
         errors.append("PageWaits must restrict the target database to PAGELATCH_EX requests")
+    projection_match = re.search(
+        r"\)\s*select\s+(.*?)\s+from\s+pagewaits\b", sql,
+    )
+    if projection_match is None:
+        errors.append("IDX-007 query has no recognizable final result projection")
+    else:
+        projection = projection_match.group(1)
+        if not re.search(r"\bas\s+capture_started_at_utc\b", projection):
+            errors.append("final result must expose `capture_started_at_utc` for page-chain inspection")
+        for field in (
+            "database_id",
+            "file_id",
+            "page_id",
+            "object_id",
+            "index_id",
+            "partition_id",
+            "page_level",
+            "next_page_file_id",
+            "next_page_page_id",
+        ):
+            if not re.search(rf"(?:^|,)\s*{re.escape(field)}\s*(?:,|$)", projection):
+                errors.append(f"final result must expose `{field}` for page-chain inspection")
     if "wait_duration_ms" in sql:
         errors.append("query must use documented `wait_time`, not `wait_duration_ms`")
     return tuple(errors)

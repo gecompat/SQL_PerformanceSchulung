@@ -12415,3 +12415,17 @@ Prüfschritt und verweist auf die konkreten Generationsmetadaten. `SRC-077/078`
 sind mit Abrufdatum 2026-11-17 aktualisiert. Keine neue Engineausführung:
 Indexgeneration, Suchpfad und DML-Verhalten des Projektbuilds 17.0.5005.3
 bleiben unqualifiziert.
+
+
+### IDX-007 – Seitenkettenfelder in der finalen Wait-Ausgabe binden (17. November 2026)
+
+Der Lehrabfragevalidator verlangte bislang Index-/Partitions-/Nachfolgerfelder
+nicht in der finalen SELECT-Projektion. Sie konnten aus der Ergebnisausgabe
+entfernt werden, während der Validator die Felder im inneren `PageWaits`-CTE
+weiterfand. Die abschließende Ausgabe muss nun Capturemarker, Datenbank, Datei,
+Seite, Objekt, Index, Partition, Blattebene und beide Nachfolgeradressfelder
+enthalten. Zwei neue Regressionen prüfen den Entzug der Ketten-/Partitionfelder
+und des Capturemarkers. Die IDX-007-Lehrabfragesuite besteht mit 17 Tests; die
+statischen Last-Page- und RES-004-Suiten bestehen weiterhin. Dies bleibt ein
+Quellstrukturcheck ohne T-SQL-Parser, authentifizierte DMV-Daten oder Nachweis
+der rechten Indexseite.
