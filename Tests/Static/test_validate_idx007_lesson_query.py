@@ -157,6 +157,15 @@ class Idx007LessonQueryTests(unittest.TestCase):
         errors = validate_lesson(broken)
         self.assertTrue(any("PageWaits must restrict" in error for error in errors))
 
+    def test_extra_conjunct_cannot_suppress_all_page_wait_rows(self) -> None:
+        broken = SOURCE.replace(
+            "      AND pr.db_id = DB_ID()\n)",
+            "      AND pr.db_id = DB_ID()\n      AND 1 = 0\n)",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("PageWaits must restrict" in error for error in errors))
+
     def test_comment_markers_inside_bracketed_identifiers_are_preserved(self) -> None:
         section_start = SOURCE.index("## Lesende Zuordnung einer aktuellen Request-Seite")
         fence = SOURCE.index("```sql", section_start)

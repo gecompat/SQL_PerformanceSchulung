@@ -68,8 +68,15 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         "and r.database_id = db_id()",
         "and pr.db_id = db_id()",
     )
+    page_wait_where = re.search(r"\bwhere\b(.*)$", page_waits_sql)
+    expected_page_wait_where = (
+        "r.wait_type = n__tsql_literal_1__ and r.page_resource is not null "
+        "and r.database_id = db_id() and pr.db_id = db_id()"
+    )
     if (any(fragment not in page_waits_sql for fragment in page_wait_filters)
             or re.search(r"\bor\b", page_waits_sql)
+            or page_wait_where is None
+            or page_wait_where.group(1).strip() != expected_page_wait_where
             or "where r.wait_type = n'pagelatch_ex'" not in page_waits_with_literals):
         errors.append("PageWaits must restrict the target database to PAGELATCH_EX requests")
     projection_match = re.search(

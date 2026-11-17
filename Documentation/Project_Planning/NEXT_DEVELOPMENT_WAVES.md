@@ -3379,3 +3379,7 @@ Der statische Lehrvalidator verlangt nun die zusammenhängende Scheduler-Scope-B
 ### RES-004 – zusätzliche Filter dürfen Wait-Kandidaten nicht unterdrücken (17. November 2026)
 
 Eine Negativprobe ergänzte `AND 1 = 0` nach den geforderten Grant- und Waitfiltern im `OwnWaits`-CTE. Der Validator akzeptierte damit eine Abfrage, die garantiert keine eigenen Wait-Zeilen liefern konnte. Der statische Vertrag verlangt jetzt, dass die aktive `WHERE`-Bedingung exakt die zwei vereinbarten Filter enthält; zusätzliche Prädikate werden abgewiesen. Die Regression sichert den unterdrückenden Zusatzfilter. 26 Lehrabfragetests, der Abfragevalidator und 24 Offlinevertragstests bestehen. Es bleibt eine lexikalische Quellstrukturprüfung ohne T-SQL-Parser, authentische DMV-Aufnahme oder Engine-Nachweis.
+
+### IDX-007 – zusätzliche Filter dürfen Seiten-Waits nicht unterdrücken (17. November 2026)
+
+Eine Negativprobe setzte `AND 1 = 0` nach den vorgesehenen Filtern des `PageWaits`-CTE. Der bisherige Validator akzeptierte damit eine garantiert leere Request-Seitenabfrage. Der Vertrag bindet jetzt die vollständige `WHERE`-Bedingung an Waittyp, Request-Seitenressource und dieselbe Zieldatenbank; zusätzliche Prädikate werden abgewiesen. Eine Regression deckt den unterdrückenden Filter ab. 23 Lehrabfragetests, 13 Offlinevertragstests, Validatoren, Curriculumprüfung und Diff-Whitespaceprüfung bestehen. Es folgt daraus keine authentische DMV-Aufnahme oder Laufzeitqualifikation.
