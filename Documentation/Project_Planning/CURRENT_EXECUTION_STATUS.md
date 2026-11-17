@@ -12743,3 +12743,15 @@ Seitennummernabweichungen zurück. 25 fokussierte Tests, der Lehrvalidator und
 `git diff --check` bestehen lokal unter Python 3.13. Das bleibt ein
 Quellstrukturvertrag ohne T-SQL-Parser, DMV-Herkunft oder Enginebeleg; der
 offene Terminal-, Seiten-Cap-, Split- und Pilotnachweis ist davon unberührt.
+
+### IDX-007 – PageResCracker an den wartenden Request binden (17. November 2026)
+
+Eine weitere Gegenprobe zeigte, dass der Lehrvalidator einen korrekten, aber
+unbenutzten `PageResCracker`-Aufruf neben einem tatsächlich verwendeten falschen
+Aufruf akzeptieren konnte. Der Vertrag verlangt jetzt genau einen Aufruf mit
+`r.page_resource` und dem Alias `pr`, auf den die Headerzuordnung aufbaut.
+Zwei Regressionen schützen einen falschen Ressourcenwert und einen
+Decoy-Aufruf. Alle 27 fokussierten IDX-007-Lehrtests, der Validator und
+`git diff --check` bestehen lokal unter Python 3.13. Das ist weiterhin nur
+statische Quellform; Herkunft und Runtime der DMV-Zeilen sowie die Seitenkette
+sind nicht qualifiziert.

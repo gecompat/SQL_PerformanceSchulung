@@ -103,6 +103,27 @@ class Idx007LessonQueryTests(unittest.TestCase):
         self.assertTrue(any("decoded request database, file, and page" in error
                             for error in errors))
 
+    def test_page_resource_decoder_must_use_the_request_resource(self) -> None:
+        broken = SOURCE.replace(
+            "sys.fn_PageResCracker(r.page_resource) AS pr",
+            "sys.fn_PageResCracker(0x00) AS pr",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("bind the request page_resource" in error
+                            for error in errors))
+
+    def test_unused_correct_decoder_cannot_mask_a_wrong_active_decoder(self) -> None:
+        broken = SOURCE.replace(
+            "CROSS APPLY sys.fn_PageResCracker(r.page_resource) AS pr",
+            "CROSS APPLY sys.fn_PageResCracker(r.page_resource) AS decoy\n"
+            "    CROSS APPLY sys.fn_PageResCracker(0x00) AS pr",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("bind the request page_resource" in error
+                            for error in errors))
+
     def test_wait_filter_regression_is_rejected(self) -> None:
         broken = SOURCE.replace("r.wait_type = N'PAGELATCH_EX'", "r.wait_type = N'PAGEIOLATCH_EX'", 1)
         errors = validate_lesson(broken)

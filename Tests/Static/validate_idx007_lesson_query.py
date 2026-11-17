@@ -61,6 +61,14 @@ def validate_lesson(text: str) -> tuple[str, ...]:
     for label, fragment in required.items():
         if fragment not in sql:
             errors.append(f"{label}: expected `{fragment}`")
+    page_resource_decoder = re.compile(
+        r"sys\.fn_pagerescracker\s*\(\s*r\.page_resource\s*\)\s+as\s+pr\b",
+    )
+    if (page_waits_sql.count("sys.fn_pagerescracker") != 1
+            or page_resource_decoder.search(page_waits_sql) is None):
+        errors.append(
+            "page resource decoder must bind the request page_resource to alias `pr`"
+        )
     page_info_call = re.compile(
         r"sys\.dm_db_page_info\s*\(\s*pr\.db_id\s*,\s*pr\.file_id\s*,\s*"
         r"pr\.page_id\s*,\s*n?__tsql_literal_\d+__\s*\)",
