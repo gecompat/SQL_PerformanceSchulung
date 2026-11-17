@@ -6,13 +6,15 @@ collects nor authenticates SQL Server requests, scheduler queues, or exhaustion.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
+from decimal import Decimal, InvalidOperation
 from enum import Enum
 import re
 
 
 _RFC3339 = re.compile(
-    r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})\Z"
+    r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})"
+    r"(?:\.(\d{1,7}))?(Z|[+-]\d{2}:\d{2})\Z"
 )
 
 
@@ -57,13 +59,26 @@ def _positive_int(value: object) -> bool:
     return type(value) is int and value > 0
 
 
-def _valid_timestamp(value: object) -> bool:
-    if type(value) is not str or not _RFC3339.fullmatch(value):
-        return False
+def _timestamp(value: object) -> tuple[datetime, Decimal] | None:
+    if type(value) is not str:
+        return None
+    match = _RFC3339.fullmatch(value)
+    if match is None:
+        return None
+    base, fraction, offset = match.groups()
     try:
-        return datetime.fromisoformat(value.replace("Z", "+00:00")).utcoffset() is not None
-    except ValueError:
-        return False
+        parsed = datetime.fromisoformat(base + ("+00:00" if offset == "Z" else offset))
+        fractional_second = Decimal("0." + fraction) if fraction is not None else Decimal(0)
+        if parsed.utcoffset() is None:
+            return None
+        instant = parsed.astimezone(timezone.utc)
+    except (ValueError, InvalidOperation, OverflowError):
+        return None
+    return instant, fractional_second
+
+
+def _valid_timestamp(value: object) -> bool:
+    return _timestamp(value) is not None
 
 
 def evaluate_worker_queue(
@@ -95,11 +110,10 @@ def evaluate_worker_queue(
     ):
         return Result(Verdict.FAIL, ("worker wait identity, type, duration, or timestamp is invalid",), False, False)
 
-    try:
-        captured = datetime.fromisoformat(wait.captured_at.replace("Z", "+00:00"))
-        started = datetime.fromisoformat(run_started_at.replace("Z", "+00:00"))
-        finished = datetime.fromisoformat(run_finished_at.replace("Z", "+00:00"))
-    except ValueError:
+    captured = _timestamp(wait.captured_at)
+    started = _timestamp(run_started_at)
+    finished = _timestamp(run_finished_at)
+    if captured is None or started is None or finished is None:
         return Result(Verdict.FAIL, ("run window timestamp is invalid",), False, False)
     if started >= finished or not started <= captured <= finished:
         return Result(Verdict.FAIL, ("THREADPOOL capture lies outside the ordered run window",), False, False)
