@@ -12529,3 +12529,19 @@ zuordnet, noch einen Deadlockgraphen oder Opfer/Survivor. `SRC-004` ist zum
 Quellenstand 2026-11-17 aktualisiert. Range bleibt `METHOD_DRAFT`/zurückgestellt;
 kein SQL-Lauf, keine Demo-ID und keine Erweiterung der qualifizierten
 CON-006-Grund- oder Konversionsvariante.
+
+
+### IDX-007 – finale Ergebnisspalten nach Ausgabename prüfen (17. November 2026)
+
+Der statische Lehrabfragevalidator konnte eine Projektion wie
+`database_id AS source_database_id` als Ausgabe der geforderten Spalte
+`database_id` missverstehen, weil er den Quellnamen irgendwo im SELECT-Text
+suchte. Er zerlegt die finale Projektion jetzt an Kommas außerhalb von
+Klammerausdrücken und prüft für jedes erforderliche Seiten-/Partitionsfeld
+den tatsächlichen Spaltennamen der Ausgabe sowie den erwarteten Alias des
+Capturemarkers. Regressionen weisen eine falsche Umbenennung zurück und
+akzeptieren einen passenden Alias. Die 19 IDX-007-
+Lehrabfragetests, 13 Offlinevertragstests und der Lehrvalidator bestehen.
+Das bleibt ein statischer Quellstrukturcheck ohne T-SQL-Parser, authentische
+DMV-Aufnahme oder Nachweis der rechten Indexseite; Split-/Zeitfenster- und
+Enginefragen bleiben offen.

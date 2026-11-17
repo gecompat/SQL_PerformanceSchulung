@@ -21,6 +21,51 @@ LESSON = ROOT / "Documentation/Curriculum/LAST_PAGE_INSERT_CONTENTION_LESSON.md"
 SECTION_HEADING = "## Lesende Zuordnung einer aktuellen Request-Seite"
 
 
+def _split_projection_items(projection: str) -> tuple[str, ...]:
+    """Split a SELECT projection on commas outside parentheses/identifiers."""
+    items = []
+    start = 0
+    depth = 0
+    bracketed = False
+    index = 0
+    while index < len(projection):
+        char = projection[index]
+        if bracketed:
+            if char == "]":
+                if index + 1 < len(projection) and projection[index + 1] == "]":
+                    index += 2
+                    continue
+                bracketed = False
+        elif char == "[":
+            bracketed = True
+        elif char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+            if depth < 0:
+                raise ValueError("final projection has unbalanced parentheses")
+        elif char == "," and depth == 0:
+            items.append(projection[start:index].strip())
+            start = index + 1
+        index += 1
+    if depth != 0 or bracketed:
+        raise ValueError("final projection has unbalanced syntax")
+    items.append(projection[start:].strip())
+    return tuple(items)
+
+
+def _projection_output_name(item: str) -> str | None:
+    """Return a SELECT item's explicit alias or its simple column name."""
+    identifier = r"(?:\[[^\]]+(?:\]\][^\]]*)*\]|[A-Za-z_][\w$#@]*)"
+    alias = re.search(rf"\s+AS\s+({identifier})\s*$", item, flags=re.IGNORECASE)
+    if alias:
+        return alias.group(1).strip("[]").replace("]]", "]").casefold()
+    column = re.fullmatch(rf"\s*(?:{identifier}\s*\.\s*)*({identifier})\s*", item)
+    if column:
+        return column.group(1).strip("[]").replace("]]", "]").casefold()
+    return None
+
+
 def validate_lesson(text: str) -> tuple[str, ...]:
     section_match = re.search(
         rf"(?ms)^{re.escape(SECTION_HEADING)}\s*\n(.*?)(?=^###?\s|\Z)", text
@@ -77,8 +122,16 @@ def validate_lesson(text: str) -> tuple[str, ...]:
     if projection_match is None:
         errors.append("IDX-007 query has no recognizable final result projection")
     else:
-        projection = projection_match.group(1)
-        if not re.search(r"\bas\s+capture_started_at_utc\b", projection):
+        try:
+            projection_items = _split_projection_items(projection_match.group(1))
+        except ValueError as exc:
+            errors.append(f"IDX-007 final result projection is malformed: {exc}")
+            projection_items = ()
+        output_names = {
+            name for item in projection_items
+            if (name := _projection_output_name(item)) is not None
+        }
+        if "capture_started_at_utc" not in output_names:
             errors.append("final result must expose `capture_started_at_utc` for page-chain inspection")
         for field in (
             "database_id",
@@ -91,7 +144,7 @@ def validate_lesson(text: str) -> tuple[str, ...]:
             "next_page_file_id",
             "next_page_page_id",
         ):
-            if not re.search(rf"(?:^|,)\s*{re.escape(field)}\s*(?:,|$)", projection):
+            if field not in output_names:
                 errors.append(f"final result must expose `{field}` for page-chain inspection")
     if "wait_duration_ms" in sql:
         errors.append("query must use documented `wait_time`, not `wait_duration_ms`")
