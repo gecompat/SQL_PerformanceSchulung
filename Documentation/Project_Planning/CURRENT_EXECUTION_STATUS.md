@@ -13113,3 +13113,20 @@ ohne T-SQL-Runtime- oder DMV-Herkunftsnachweis.
 ## Abgeschlossene Verarbeitungswelle und Lehrmittelrelease (17. November 2026)
 
 Die RES-001-Validatorhärtung wurde als PR #1032 mit sechs erfolgreichen CI-Prüfungen auf `main` integriert (`ec5c5bc7bccd46aa5e630242ae8052a8edac511f`). Die Welle wurde bei sauberem, konsistentem `main` beendet. Anschließend wurden die drei Profildecks aus dem unveränderten Master gebaut und geprüft. Releasehashes, Render-/Datenschutzbelege sowie Grenzen stehen im [Releasebericht](W_PRS_001_TEACHING_RELEASE.md#nachfolgender-releasebuild-vom-2026-11-17-auf-main-ec5c5bc7bccd46aa5e630242ae8052a8edac511f). Die menschliche Generalprobe und die übrigen SQL-Lab-/Produktgates bleiben offen; dieser Lehrmittelrelease schließt sie nicht.
+### DGN-007 – fehlendes `_md5`-Fallbackmodul im Zielimage-Inventar (17. November 2026)
+
+Die digest- und DiffID-geprüfte CPython-3.12.16-Zielimageinventur band bisher
+vier von `hashlib.py` verwendete native Fallbackmodule. Der feste Pfad des
+ebenfalls verwendeten `_md5`-Moduls fehlte. Der Scanner bindet jetzt auch
+`/usr/local/lib/python3.12/lib-dynload/_md5.cpython-312-x86_64-linux-gnu.so`
+mit SHA-256
+`de8d5205ffce91532652500af1142d00366924b3fb2512989099ecf363358035` und
+beobachteter Archivgröße 112248 Byte an die Zielimagekandidatur. Der vollständige
+Quell-/Image-Scan besteht: 60 Module, 316 Kanten, 163 Funktionen, 116
+aufgelöste und 447 unbekannte Bedingungen; der Unknown-Digest bleibt
+`742614875c7d689dd14338bfc603928908a298a5c1253c10d36fecd705ea7f95`.
+299 fokussierte Regressionen bestehen. Die beiden dynamischen
+`hashlib.py`-Cachebedingungen bleiben unbekannt: eine vorhandene Extensiondatei
+belegt weder ihren Import noch einen erfolgreichen Konstruktorpfad. Ergebnis
+weiterhin `CANDIDATES_ONLY`, ohne Interpreterstart, P11-, Worker- oder
+Runtimeattestation.

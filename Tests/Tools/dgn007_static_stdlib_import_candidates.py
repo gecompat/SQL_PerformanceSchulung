@@ -74,6 +74,7 @@ PYTHON_IMPORT_C_SHA256 = "1cf484fe5a261c742f2da95a720f5d0eb92b10649bf186ca55eedf
 PICKLE_EXTENSION_PATH = "usr/local/lib/python3.12/lib-dynload/_pickle.cpython-312-x86_64-linux-gnu.so"
 PICKLE_EXTENSION_SHA256 = "f6cdd4a784089665d18243b944051052b8a9452f3b1e40be88bdf685b2afb83d"
 HASHLIB_EXTENSION_FACTS = {
+    "usr/local/lib/python3.12/lib-dynload/_md5.cpython-312-x86_64-linux-gnu.so": "de8d5205ffce91532652500af1142d00366924b3fb2512989099ecf363358035",
     "usr/local/lib/python3.12/lib-dynload/_blake2.cpython-312-x86_64-linux-gnu.so": "f1731133a22c04dfe02d89cf385cc3cfa408e0996b98956149d319737d576ab3",
     "usr/local/lib/python3.12/lib-dynload/_sha1.cpython-312-x86_64-linux-gnu.so": "31759cc61e6dec07e895840be99bd960aa0cf62a7e05659b93b80a75a76409eb",
     "usr/local/lib/python3.12/lib-dynload/_sha2.cpython-312-x86_64-linux-gnu.so": "6dfdfdcd99c8a57a7218fd7f30f50d9b66c143af9793ac5b02aacd11ecb39cb7",

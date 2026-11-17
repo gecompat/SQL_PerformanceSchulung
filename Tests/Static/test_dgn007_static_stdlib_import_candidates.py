@@ -376,6 +376,15 @@ class StaticImportCandidateTests(unittest.TestCase):
             "setup_parent_paths_verified": True,
             "_pickle_extension": True,
         })
+        md5_path = (
+            "usr/local/lib/python3.12/lib-dynload/"
+            "_md5.cpython-312-x86_64-linux-gnu.so"
+        )
+        self.assertEqual(
+            SUBJECT.HASHLIB_EXTENSION_FACTS[md5_path],
+            "de8d5205ffce91532652500af1142d00366924b3fb2512989099ecf363358035",
+        )
+        self.assertIn(md5_path, facts["hashlib_extension_facts"])
         with patch.multiple(
             SUBJECT,
             TARGET_EXECUTABLE_SHA256=hashlib.sha256(
