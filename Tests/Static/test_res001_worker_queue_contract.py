@@ -50,6 +50,42 @@ class WorkerQueueContractTests(unittest.TestCase):
         wait, samples, _, end = fixture()
         self.assertEqual(evaluate_worker_queue(wait, samples, "2026-11-06T10:00:06Z", end).verdict, Verdict.FAIL)
 
+    def test_datetime2_seven_digit_timestamp_passes(self) -> None:
+        stamp = "2026-11-06T10:00:05.1234566Z"
+        wait, samples, _, _ = fixture()
+        wait = WorkerWait("run-7", "run-7", 51, 0, "THREADPOOL", 40, stamp)
+        samples = tuple(
+            SchedulerSample(s.scheduler_id, s.work_queue_count, s.runnable_tasks_count, stamp)
+            for s in samples
+        )
+        result = evaluate_worker_queue(
+            wait, samples, "2026-11-06T10:00:05.1234565Z", "2026-11-06T10:00:05.1234567Z"
+        )
+        self.assertEqual(result.verdict, Verdict.PASS)
+
+    def test_seventh_fraction_digit_is_kept_for_run_window_order(self) -> None:
+        stamp = "2026-11-06T10:00:05.1234567Z"
+        wait, samples, _, _ = fixture()
+        wait = WorkerWait("run-7", "run-7", 51, 0, "THREADPOOL", 40, stamp)
+        samples = tuple(
+            SchedulerSample(s.scheduler_id, s.work_queue_count, s.runnable_tasks_count, stamp)
+            for s in samples
+        )
+        result = evaluate_worker_queue(
+            wait, samples, "2026-11-06T10:00:05.1234568Z", "2026-11-06T10:00:05.1234569Z"
+        )
+        self.assertEqual(result.verdict, Verdict.FAIL)
+
+    def test_eight_digit_fraction_is_rejected(self) -> None:
+        wait, samples, start, end = fixture()
+        stamp = "2026-11-06T10:00:05.12345678Z"
+        wait = WorkerWait("run-7", "run-7", 51, 0, "THREADPOOL", 40, stamp)
+        samples = tuple(
+            SchedulerSample(s.scheduler_id, s.work_queue_count, s.runnable_tasks_count, stamp)
+            for s in samples
+        )
+        self.assertEqual(evaluate_worker_queue(wait, samples, start, end).verdict, Verdict.FAIL)
+
     def test_threadpool_wait_without_worker_queue_is_not_proven(self) -> None:
         wait, samples, start, end = fixture()
         samples = tuple(SchedulerSample(s.scheduler_id, 0, 0, CAPTURE) for s in samples)

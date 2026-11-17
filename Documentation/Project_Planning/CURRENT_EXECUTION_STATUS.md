@@ -12101,6 +12101,12 @@ Onlinefilter und Reihenfolge müssen im Lehr-SQL erhalten bleiben. Validator
 und Regressionen laufen im Framework-Contracts-Workflow. Das belegt weiterhin
 weder SQL-Kompilierbarkeit noch DMV-Herkunft oder Worker-Erschöpfung.
 
+Der RES-001-Offlinevertrag akzeptiert jetzt bis zu sieben RFC-3339-
+Nachkommastellen und erhält die 100-ns-Stelle auch beim Vergleich mit den
+Run-Grenzen. Acht Nachkommastellen werden abgewiesen. Drei Regressionen prüfen
+die zulässige 7-Stellenform, deren Reihenfolge und die Ablehnung von 8 Stellen;
+Caller-Eingaben bleiben unauthentifiziert. [Microsoft `datetime2`](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17).
+
 ### `OPTIMIZED_SP_EXECUTESQL`: Katalogkandidaten für den Compile-Methodenentwurf (17. November 2026)
 
 PR #941 wurde nach erfolgreichen Vertrags-, Datenschutz-, Registry-, Governance-,
