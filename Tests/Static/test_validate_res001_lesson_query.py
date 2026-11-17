@@ -12,6 +12,16 @@ class Res001LessonQueryTests(unittest.TestCase):
     def test_documented_scheduler_query_meets_source_contract(self) -> None:
         self.assertEqual(validate_lesson(SOURCE), ())
 
+    def test_additional_result_statement_before_snapshot_is_rejected(self) -> None:
+        broken = SOURCE.replace(
+            "DECLARE @CapturedUtc datetime2(7) = SYSUTCDATETIME();",
+            "DECLARE @CapturedUtc datetime2(7) = SYSUTCDATETIME();\n"
+            "SELECT CAST(0 AS int) AS unintended_result;",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("capture marker declaration" in error for error in errors))
+
     def test_worker_queue_column_is_required(self) -> None:
         broken = SOURCE.replace("       work_queue_count\n", "", 1)
         self.assertTrue(any("worker queue count" in error for error in validate_lesson(broken)))

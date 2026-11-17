@@ -12837,6 +12837,15 @@ Zeitmarker-Deklaration und direkt danach den vorgesehenen CTE. Eine Regression
 weist das zusätzliche Resultset zurück. Das ist ein statischer Strukturcheck;
 DMV-Herkunft, tatsächliche Seitenkette, Wait und Engine-Runtime bleiben offen.
 
+### RES-001 – zusätzliche Resultsets vor der Scheduleraufnahme abweisen (17. November 2026)
+
+Eine Gegenprobe stellte vor die Scheduler-Momentaufnahme ein zusätzliches
+`SELECT`. Der Lehrvalidator akzeptierte das vorangestellte Resultset, obwohl
+der beschriebene Snapshot nur eine Marker-Deklaration und eine Abfrage enthält.
+Er verlangt jetzt direkt nach der UTC-Marker-Deklaration die Schedulerabfrage;
+eine Regression weist das zusätzliche Resultset zurück. Der Strukturcheck
+belegt keine authentischen Schedulerwerte oder Worker-Runtime.
+
 ### RES-004 – zusätzliche Quelle im OwnWaits-CTE abweisen (17. November 2026)
 
 Eine gezielte Gegenprobe ergänzte einen stets falschen `INNER JOIN` in den
