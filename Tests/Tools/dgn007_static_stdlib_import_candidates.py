@@ -8393,6 +8393,56 @@ def _target_re_parser_sub_dispatch_candidate(files):
     }
 
 
+def _target_re_parser_alternation_candidate(files):
+    """Bind alternative termination and root VERBOSE propagation statically."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef)
+                 and node.name == "_parse_sub"]
+    if len(functions) != 1:
+        return None
+    parse_sub = functions[0]
+    aliases = [node for node in ast.walk(parse_sub)
+               if isinstance(node, ast.Assign)
+               and any(isinstance(target, ast.Name)
+                       and target.id == "sourcematch" for target in node.targets)]
+    loops = [node for node in parse_sub.body if isinstance(node, ast.While)]
+    if (len(aliases) != 1 or ast.unparse(aliases[0]) != "sourcematch = source.match"
+            or not loops or len(loops[0].body) != 3
+            or ast.unparse(loops[0].test) != "True"
+            or not isinstance(loops[0].body[1], ast.If)
+            or ast.unparse(loops[0].body[1])
+            != "if not sourcematch('|'):\n    break"
+            or not isinstance(loops[0].body[2], ast.If)
+            or ast.unparse(loops[0].body[2])
+            != "if not nested:\n    verbose = state.flags & SRE_FLAG_VERBOSE"):
+        return None
+    singleton_branches = [node for node in ast.walk(parse_sub)
+                          if isinstance(node, ast.If)
+                          and ast.unparse(node.test) == "len(items) == 1"]
+    if (len(singleton_branches) != 1
+            or len(singleton_branches[0].body) != 1
+            or ast.unparse(singleton_branches[0].body[0]) != "return items[0]"):
+        return None
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "alternation_match_alias": "sourcematch = source.match",
+        "loop_continues_while_alternation_matches": "|",
+        "root_group_verbose_refresh": "state.flags & SRE_FLAG_VERBOSE",
+        "single_alternative_return": "items[0]",
+        "parser_execution_observed": False,
+        "evidence_scope": "PINNED_RE_PARSER_ALTERNATION_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8420,9 +8470,11 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     tokenizer_access_candidate = _target_re_tokenizer_access_candidate(files)
     parser_sourceget_candidate = _target_re_parser_sourceget_candidate(files)
     parser_sub_dispatch_candidate = _target_re_parser_sub_dispatch_candidate(files)
+    parser_alternation_candidate = _target_re_parser_alternation_candidate(files)
     if (cache_path_candidate is None or tokenizer_access_candidate is None
             or parser_sourceget_candidate is None
-            or parser_sub_dispatch_candidate is None):
+            or parser_sub_dispatch_candidate is None
+            or parser_alternation_candidate is None):
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -8770,6 +8822,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "tokenizer_access_candidate": tokenizer_access_candidate,
             "parser_sourceget_candidate": parser_sourceget_candidate,
             "parser_sub_dispatch_candidate": parser_sub_dispatch_candidate,
+            "parser_alternation_candidate": parser_alternation_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })
