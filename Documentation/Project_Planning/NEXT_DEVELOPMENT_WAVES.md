@@ -5,6 +5,22 @@
 
 Der eigenständige [Concurrent-Compile-Methodenentwurf](OPTIMIZED_SP_EXECUTESQL_CONCURRENT_COMPILE_DESIGN.md) konkretisiert den nächsten Entwicklungsschritt. Offen bleiben die unabhängige Methodenprüfung und eine verifizierte Build-/XE-Ereignis- und Feldzuordnung für dynamische Batches. Bis diese Gates erfüllt sind, erfolgen keine Aktivierung, SQL-Ausführung, Demo-ID-Vergabe oder Performanceaussage. `QRY-004` bleibt unverändert; die menschliche Generalprobe ist ausgeschlossen.
 
+### IDX-010 – Methodenentwurf für geordnete NCCI (17. November 2026)
+
+Innerhalb der laufenden Freigabe von sechs Kandidaten ist ein Offlinepaket mit
+höchstens einem Arbeitspaket, einem Pull Request und einem neuen gebündelten
+Quellenkandidaten vorgesehen; kein Budgetreset. Der [Methodenentwurf für
+geordnete nicht gruppierte Columnstore-Indizes](IDX010_ORDERED_NCCI_METHOD.md)
+vergleicht denselben synthetischen Rowstore-Bestand mit ungeordnetem und
+`ORDER (EventDate)`-NCCI. `SRC-063` wurde aktuell abgerufen; `SRC-165` bindet
+die CREATE-Syntax, Segmentmetadaten, SQL-Server-2025-Verfügbarkeit und das
+Microsoft Order-Quality-Skript. Keine SQL-/Lab-/Runtimeausführung, keine
+Demoerweiterung und keine menschliche Generalprobe. Nach dem Dokumentations-
+checkpoint bleiben unabhängiger Methodenreview, exakter Image-/Build-/Edition-
+Nachweis, numerische Ressourcenobergrenzen und ein separat autorisierter
+isolierter Pilot offen. Das bestehende IDX-010 mit gruppiertem Columnstore
+bleibt unverändert.
+
 ### Begrenzung der Fortsetzung vom 12. November 2026
 
 Der Nutzer hat die Bearbeitung aller restlichen freigegebenen Themen fortgesetzt
