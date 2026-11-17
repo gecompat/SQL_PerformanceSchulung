@@ -12942,3 +12942,14 @@ RES-001-Lehrvalidator, 16 Worker-Queue-Vertragstests, 18 RES-003-
 Speichersignaltests, der gezielte Datenschutzscan und `git diff --check`
 bestehen lokal. Dies prüft nur die dokumentierte Quellform, nicht die
 authentische Scheduler-/Wait-Herkunft oder Engine-Runtime.
+
+### IDX-007 – zusätzliche Diagnose-Resultsets ausschließen (17. November 2026)
+
+Eine reproduzierte Gegenprobe hängte nach dem korrekten Seitendiagnose-
+Resultset ein zweites, leeres `SELECT` an. Der bisherige Validator prüfte die
+erste Schlussklausel und akzeptierte den zusätzlichen Resultset-Teil. Er
+verlangt nun, dass der SQL-Block unmittelbar nach der vollständigen
+Seitendiagnoseausgabe endet. Eine Regression schützt den Fall. 33 fokussierte
+Lehrabfragetests, der IDX-007-Abfragevalidator und 13 Offlinevertragstests
+bestehen lokal. Das ist weiterhin ein statischer Quellencheck ohne
+authentische DMV-Herkunft, tatsächlichen Seiten-Wait oder Enginequalifikation.

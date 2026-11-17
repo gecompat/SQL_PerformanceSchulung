@@ -112,6 +112,18 @@ class Idx007LessonQueryTests(unittest.TestCase):
         errors = validate_lesson(broken)
         self.assertTrue(any("final result must apply" in error for error in errors))
 
+    def test_additional_result_statement_after_diagnostic_is_rejected(self) -> None:
+        broken = SOURCE.replace(
+            "HAVING COUNT(DISTINCT session_id) >= 2;",
+            "HAVING COUNT(DISTINCT session_id) >= 2; "
+            "SELECT CAST(0 AS int) AS decoy WHERE 1 = 0;",
+            1,
+        )
+        self.assertTrue(any(
+            "single final page-diagnostic result statement" in error
+            for error in validate_lesson(broken)
+        ))
+
     def test_final_result_must_expose_capture_marker(self) -> None:
         broken = SOURCE.replace(
             "    @capture_started_at_utc AS capture_started_at_utc,\n", "", 1,
