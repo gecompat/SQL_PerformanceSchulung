@@ -5355,6 +5355,32 @@ def deferred():
                 b"class Tokenizer:\n"
                 b"    def __init__(self, string):\n"
                 b"        self.istext = isinstance(string, str)\n"
+                b"        self.string = string\n"
+                b"        if not self.istext:\n"
+                b"            string = str(string, 'latin1')\n"
+                b"        self.decoded_string = string\n"
+                b"        self.index = 0\n"
+                b"        self.next = None\n"
+                b"        self.__next()\n"
+                b"    def __next(self):\n"
+                b"        index = self.index\n"
+                b"        try:\n"
+                b"            char = self.decoded_string[index]\n"
+                b"        except IndexError:\n"
+                b"            self.next = None\n"
+                b"            return\n"
+                b"        if char == '\\\\':\n"
+                b"            index += 1\n"
+                b"            try:\n"
+                b"                char += self.decoded_string[index]\n"
+                b"            except IndexError:\n"
+                b"                raise error('bad escape (end of pattern)', self.string, len(self.string) - 1) from None\n"
+                b"        self.index = index + 1\n"
+                b"        self.next = char\n"
+                b"    def get(self):\n"
+                b"        this = self.next\n"
+                b"        self.__next()\n"
+                b"        return this\n"
                 b"def parse(str, flags=0, state=None):\n"
                 b"    source = Tokenizer(str)\n"
                 b"    p = _parse_sub(source, state, flags & SRE_FLAG_VERBOSE, 0)\n"
@@ -5438,6 +5464,17 @@ def deferred():
             self.assertTrue(all(
                 not row["cache_path_candidate"]["cache_state_observed"]
                 and not row["cache_path_candidate"]["parser_entry_observed"]
+                for row in candidates
+            ))
+            self.assertTrue(all(
+                row["tokenizer_access_candidate"]["bytes_to_text_expression"]
+                == "str(string, 'latin1')"
+                and row["tokenizer_access_candidate"]["escaped_character_access"]
+                == "backslash plus following character"
+                and row["tokenizer_access_candidate"]["trailing_backslash_behavior"]
+                == "parser error candidate"
+                and not row["tokenizer_access_candidate"]["tokenizer_execution_observed"]
+                and not row["tokenizer_access_candidate"]["pattern_parse_observed"]
                 for row in candidates
             ))
             self.assertTrue(all(not row["standard_re_flag_binding_observed"]
@@ -5533,6 +5570,42 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_verbose_comment,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_tokenizer_encoding = dict(files)
+            altered_tokenizer_encoding["re/_parser.py"] = altered_tokenizer_encoding[
+                "re/_parser.py"
+            ].replace(b"str(string, 'latin1')", b"str(string, 'utf8')")
+            altered_tokenizer_encoding_digest = hashlib.sha256(
+                altered_tokenizer_encoding["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_tokenizer_encoding_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_tokenizer_encoding,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_tokenizer_escape = dict(files)
+            altered_tokenizer_escape["re/_parser.py"] = altered_tokenizer_escape[
+                "re/_parser.py"
+            ].replace(b"if char == '\\\\':", b"if char != '\\\\':", 1)
+            altered_tokenizer_escape_digest = hashlib.sha256(
+                altered_tokenizer_escape["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_tokenizer_escape_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_tokenizer_escape,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
