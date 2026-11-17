@@ -28,6 +28,35 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaises(ContractError):
             validate_sql(altered)
 
+    def test_ownwaits_grant_join_must_match_both_own_request_keys(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "ON mg.session_id = own.session_id",
+            "ON 1 = 1",
+            1,
+        ).replace(
+            "LEFT JOIN OwnWaits AS own\n"
+            "    ON own.session_id = mg.session_id\n"
+            "   AND own.request_id = mg.request_id",
+            "LEFT JOIN OwnWaits AS own\n"
+            "    ON own.session_id = mg.session_id\n"
+            "   AND own.request_id = mg.request_id\n"
+            "   AND mg.session_id = own.session_id",
+            1,
+        )
+        with self.assertRaisesRegex(ContractError, "bind its grant and request sources"):
+            validate_sql(altered)
+
+    def test_later_correct_join_cannot_mask_a_broken_ownwaits_join(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "INNER JOIN sys.dm_exec_query_memory_grants AS mg",
+            "INNER JOIN sys.dm_exec_query_stats AS mg",
+            1,
+        )
+        with self.assertRaisesRegex(ContractError, "bind its grant and request sources"):
+            validate_sql(altered)
+
     def test_block_comment_cannot_replace_request_id_binding(self) -> None:
         query = extract_query(source_markdown())
         altered = query.replace(

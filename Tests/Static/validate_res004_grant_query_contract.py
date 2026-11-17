@@ -78,6 +78,19 @@ def validate_sql(sql: str) -> None:
     own_waits_where = re.search(r"\bwhere\b(.*)$", own_waits_normalized)
     if own_waits_where is None or re.search(r"\bor\b", own_waits_where.group(1)):
         raise ContractError("own-wait WHERE must not contain OR predicates")
+    own_waits_sources = re.compile(
+        r"\bfrom\s+@ownrequests\s+as\s+own\s+"
+        r"inner\s+join\s+sys\.dm_exec_query_memory_grants\s+as\s+mg\s+"
+        r"on\s+mg\.session_id\s*=\s*own\.session_id\s+"
+        r"and\s+mg\.request_id\s*=\s*own\.request_id\s+"
+        r"inner\s+join\s+sys\.dm_exec_requests\s+as\s+r\s+"
+        r"on\s+r\.session_id\s*=\s*mg\.session_id\s+"
+        r"and\s+r\.request_id\s*=\s*mg\.request_id\b",
+    )
+    if own_waits_sources.search(own_waits_normalized) is None:
+        raise ContractError(
+            "OwnWaits must bind its grant and request sources to the own session/request pair"
+        )
     projection_match = re.search(
         r"\)\s*select\s+(.*?)\s+from\s+observedsemaphores\s+as\s+observed\b",
         normalized,
