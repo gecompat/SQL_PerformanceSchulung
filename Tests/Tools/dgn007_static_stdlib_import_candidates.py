@@ -8343,6 +8343,56 @@ def _target_re_parser_sourceget_candidate(files):
     }
 
 
+def _target_re_parser_sub_dispatch_candidate(files):
+    """Bind the _parse_sub-to-_parse dispatch in the pinned regex parser."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef)
+                 and node.name in {"_parse_sub", "_parse"}]
+    parse_sub = [node for node in functions if node.name == "_parse_sub"]
+    parse = [node for node in functions if node.name == "_parse"]
+    if (len(functions) != 2 or len(parse_sub) != 1 or len(parse) != 1
+            or [arg.arg for arg in parse_sub[0].args.args]
+            != ["source", "state", "verbose", "nested"]
+            or [arg.arg for arg in parse[0].args.args]
+            != ["source", "state", "verbose", "nested", "first"]):
+        return None
+    calls = [node for node in ast.walk(parse_sub[0])
+             if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+             and node.func.id == "_parse"]
+    if (len(calls) != 1
+            or [ast.unparse(arg) for arg in calls[0].args]
+            != ["source", "state", "verbose", "nested + 1",
+                "not nested and (not items)"]):
+        return None
+    parents = [node for node in ast.walk(parse_sub[0])
+               if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+               and node.func.id == "itemsappend" and calls[0] in node.args]
+    if len(parents) != 1:
+        return None
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "dispatch_function": "_parse_sub",
+        "target_function": "_parse",
+        "dispatch_arguments": [
+            "source", "state", "verbose", "nested + 1",
+            "not nested and (not items)",
+        ],
+        "dispatch_is_wrapped_by": "itemsappend",
+        "dispatch_call_sites": 1,
+        "parser_execution_observed": False,
+        "evidence_scope": "PINNED_RE_PARSER_SUB_DISPATCH_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8369,8 +8419,10 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     cache_path_candidate = _target_re_compile_cache_path_candidate(files)
     tokenizer_access_candidate = _target_re_tokenizer_access_candidate(files)
     parser_sourceget_candidate = _target_re_parser_sourceget_candidate(files)
+    parser_sub_dispatch_candidate = _target_re_parser_sub_dispatch_candidate(files)
     if (cache_path_candidate is None or tokenizer_access_candidate is None
-            or parser_sourceget_candidate is None):
+            or parser_sourceget_candidate is None
+            or parser_sub_dispatch_candidate is None):
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -8717,6 +8769,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "cache_path_candidate": cache_path_candidate,
             "tokenizer_access_candidate": tokenizer_access_candidate,
             "parser_sourceget_candidate": parser_sourceget_candidate,
+            "parser_sub_dispatch_candidate": parser_sub_dispatch_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })

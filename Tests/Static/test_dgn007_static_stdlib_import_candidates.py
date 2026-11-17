@@ -5340,6 +5340,13 @@ def deferred():
             ),
             "re/_parser.py": (
                 b"WHITESPACE = frozenset(' \\t\\n\\r\\v\\f')\n"
+                b"def _parse_sub(source, state, verbose, nested):\n"
+                b"    items = []\n"
+                b"    itemsappend = items.append\n"
+                b"    while True:\n"
+                b"        itemsappend(_parse(source, state, verbose, nested + 1, not nested and not items))\n"
+                b"        if not sourcematch('|'):\n"
+                b"            break\n"
                 b"def _parse(source, state, verbose, nested, first=False):\n"
                 b"    sourceget = source.get\n"
                 b"    sourceget()\n"
@@ -5486,6 +5493,20 @@ def deferred():
                     "sourceget_call_sites_in_pinned_parse_function"] == 2
                 and not row["parser_sourceget_candidate"][
                     "alias_call_execution_observed"]
+                for row in candidates
+            ))
+            self.assertTrue(all(
+                row["parser_sub_dispatch_candidate"]["dispatch_function"]
+                == "_parse_sub"
+                and row["parser_sub_dispatch_candidate"]["target_function"]
+                == "_parse"
+                and row["parser_sub_dispatch_candidate"]["dispatch_arguments"]
+                == ["source", "state", "verbose", "nested + 1",
+                    "not nested and (not items)"]
+                and row["parser_sub_dispatch_candidate"][
+                    "dispatch_is_wrapped_by"] == "itemsappend"
+                and not row["parser_sub_dispatch_candidate"][
+                    "parser_execution_observed"]
                 for row in candidates
             ))
             self.assertTrue(all(not row["standard_re_flag_binding_observed"]
@@ -5635,6 +5656,24 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_sourceget,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_dispatch = dict(files)
+            altered_dispatch["re/_parser.py"] = altered_dispatch[
+                "re/_parser.py"
+            ].replace(b"nested + 1", b"nested", 1)
+            altered_dispatch_digest = hashlib.sha256(
+                altered_dispatch["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_dispatch_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_dispatch,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),

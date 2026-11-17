@@ -3669,3 +3669,11 @@ syntaktische Alias-Aufrufstellen bei weiterhin 13 Regexliteral-Kandidaten und
 Aufrufpfad von `_parse_sub` zu `_parse` geprüft. Es bleibt bei einem Paket und
 einem PR je Welle; Interpreter-, Container-, SQL-, Lab-, Runtime- und
 Generalprobenläufe sind davon nicht umfasst.
+
+Checkpoint 17. November 2026: `_parse_sub` ist jetzt statisch an genau einen
+Aufruf von `_parse` gebunden, der mit `itemsappend` verkettet ist und die
+verschachtelten Argumente aus der gepinnten CPython-Quelle erhält. Die
+Gegenprobe ändert den Verschachtelungswert und muss den Kandidaten ablehnen.
+Als nächstes werden Rückkehr- und Alternationsbedingungen derselben Funktion
+als begrenzte Kandidatenbindung betrachtet. Weiterhin keine Interpreter- oder
+Runtimeausführung, P11-Qualifikation oder menschliche Generalprobe.
