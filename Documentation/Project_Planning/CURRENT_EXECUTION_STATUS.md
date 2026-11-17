@@ -12463,6 +12463,16 @@ auswertbare Segmentmetadaten; interne Min-/Max-Spalten werden nicht als stabile
 Imagebindung, numerische Zeit-/Ressourcenobergrenzen und isolierter Pilot stehen
 aus. Kein Performanceclaim, keine Demo-ID und keine menschliche Generalprobe.
 
+Die Methode setzt für beide offline erstellten Vergleichsindizes nun explizit
+`MAXDOP = 1`. Das hält die Buildparallelität zwischen Kontroll- und
+Versuchsarm kontrolliert; laut Microsoft können parallele Threads bei
+geordneten Builds zusätzliche Segmentüberlappung verursachen, weil jeder Thread
+lokal sortiert. Die Einstellung verspricht keine vollständige Ordnung des
+NCCI. Das Zeitbudget des späteren Piloten muss den potenziell deutlich längeren
+geordneten Build beider Arme abdecken. Dies ist eine Offline-Methodenpräzisierung
+auf Basis von `SRC-063` und `SRC-165`, keine neue Laufzeitevidenz oder
+Freigabe. Die menschliche Generalprobe bleibt ausgeschlossen.
+
 
 ### RES-004 – Grant-Hintentscheidung für den Systempool präzisiert (17. November 2026)
 
