@@ -12129,3 +12129,19 @@ Hint-/Ressourcenwerte, exakter 2025-Build, sichere Clientabbrechung und
 markergebundener Cleanup bleiben die Gates vor Pilotierung. RES-003 bleibt
 getrennt; Spill, allgemeiner Speicherdruck und Leistungsgewinn werden nicht
 behauptet. Menschliche Generalprobe bleibt ausgeschlossen.
+
+### IDX-007 – Methodenentwurf zur rechten Blattseite (17. November 2026)
+
+Der [Seitenkettenentwurf](IDX007_RIGHTMOST_PAGE_METHOD.md) ergänzt den
+bestehenden Wait-/Headervertrag um einen begrenzten Vorwärtsgang ab der
+beobachteten Wait-Seite, Prüfung von Objekt/Index/Partition/Blattebene,
+Nachfolger-/Rücklinkkonsistenz und eine erneute Wait-Aufnahme nach dem Kettengang.
+Er begrenzt die Aussage auf die zwei umschließenden Aufnahmen; sie sind keine
+atomare DMV-Transaktion. Der Lernpfad verlinkt den Methodenstand, ohne ein neues
+Lernziel zu registrieren.
+
+Dies ist `METHOD_DRAFT`: Es gab weder eine SQL-Seitenkettenabfrage noch eine
+Engineprobe. Terminaldarstellung, Seitenanzahl-Cap und Verhalten bei einem
+parallelen Split sind offen. Unabhängiger Methodenreview muss diese Punkte
+klären, bevor ein read-only Enginepilot vorbereitet wird. Der OFF/ON-
+Workloadvergleich und ein Performanceclaim bleiben getrennte spätere Gates.
