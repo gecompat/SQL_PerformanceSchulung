@@ -12584,3 +12584,16 @@ gesetzt sind. Der Offlinevertrag bleibt bewusst auf die vorhandenen zwei
 getrennten Low-Signale ausgerichtet; die Erläuterung erweitert weder seine
 Eingabe noch den Runtimeclaim. Microsoft Learn wurde am 17.11.2026 geprüft.
 Es gab keinen SQL- oder Lastlauf.
+
+### RES-004 – finale Spaltennamen auf Projektionsebene binden (17. November 2026)
+
+Der RES-004-Lehrabfragevalidator suchte `captured_at_utc` und
+`is_mapped_own_request` bislang irgendwo im Text der finalen SELECT-Projektion.
+Ein Alias innerhalb einer verschachtelten Unterabfrage konnte dadurch als
+Ausgabespalte durchgehen. Die Prüfung verwendet nun den gemeinsamen
+Projektionserkenner für tatsächliche Namen der obersten SELECT-Ebene und bindet
+auch `grant_time` darüber. Zwei synthetische Regressionen decken verschachtelte
+Ersatzaliases für Grantzustand und eigene Requestzuordnung ab. Die 20 fokussierten
+Lehrabfragetests, der RES-004-Abfragevalidator und 24 Offlinevertragstests
+bestehen. Das bleibt ein lexikalischer Strukturvertrag ohne T-SQL-Parser,
+authentifizierte DMV-Aufnahme oder Grant-Wait-Runtimebeleg.
