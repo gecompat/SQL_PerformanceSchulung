@@ -90,11 +90,16 @@ Versuch.
 ## Gates
 
 Vor einer ausführbaren Variante sind ein unabhängiger Methoden-/Quellenreview,
-die Prüfung des konkreten CON-002-Detailvertrags und die Freigabe eines
-isolierten Zielbuilds erforderlich. Der erste Pilot darf keine gemeinsam
-genutzte Instanz verändern. SQL Server 2019, 2022 und 2025 sind mögliche
-Matrixziele, keine bereits zugesagte Unterstützung; jedes Build benötigt einen
-eigenen Graph- und Cleanupnachweis. Ein bestandener synthetischer
+der Abgleich mit der freigegebenen CON-002-Kandidatenbeschreibung in der
+[Szenarioanalyse](LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md) und die Freigabe
+eines isolierten Zielbuilds erforderlich. Derzeit liegt für CON-002 nur diese
+Kandidatenbeschreibung, kein ausführbarer Detailvertrag vor; deshalb darf der
+Abgleich weder eine fertige CON-002-Implementierung noch deren Laufzeitverhalten
+unterstellen. Ein später veröffentlichter Detailvertrag muss vor einer
+ausführbaren CON-006-Variante erneut berücksichtigt werden. Der erste Pilot darf
+keine gemeinsam genutzte Instanz verändern. SQL Server 2019, 2022 und 2025 sind
+mögliche Matrixziele, keine bereits zugesagte Unterstützung; jedes Build benötigt
+einen eigenen Graph- und Cleanupnachweis. Ein bestandener synthetischer
 Offlinevertrag kann diese Gates nicht ersetzen.
 
 ## Quellen und Grenzen

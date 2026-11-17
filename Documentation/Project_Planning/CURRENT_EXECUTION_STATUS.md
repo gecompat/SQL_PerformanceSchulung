@@ -12789,3 +12789,19 @@ Quellfolge aus `sys.dm_exec_requests`, `PageResCracker` und `dm_db_page_info`
 direkt an den Filter und verwirft weitere Quellen. Die Regression fügt einen
 solchen suppressiven Join ein. 28 fokussierte Tests und der Lehrvalidator
 bestehen; DMV-Herkunft und Engineverhalten bleiben offen.
+
+### CON-006 – quellenbasierte Erstprüfung der Schlüsselbereichsvariante (17. November 2026)
+
+Der Methodenentwurf wurde gegen die aktuelle Microsoft-Lockmatrix und die
+freigegebene CON-002-Kandidatenbeschreibung geprüft. `RangeS-S` schützt
+SERIALIZABLE-Bereichslesungen; `RangeI-N` prüft Einfügungen und ist laut
+Kompatibilitätsmatrix mit gehaltenem `RangeS-S` auf demselben überlappenden
+Schlüsselbereich inkompatibel. Das stützt nur die Hypothese: Der tatsächliche
+Plan muss den Index verwenden und der echte Deadlockgraph muss beide Actors
+an dieselbe physische KEY-Ressource binden. Die bisher referenzierte
+„CON-002-Detailvertrag“-Voraussetzung existiert nicht; der Entwurf nennt jetzt
+die vorhandene Kandidatenanalyse und hält deren fehlende ausführbare
+Detailqualifikation ausdrücklich fest. Das Erstreview fand im geprüften
+Methoden-/Quellenumfang keine P1/P2-Befunde; die unabhängige Gegenprüfung bleibt
+erforderlich. Isolierter Enginepilot, Deadlockgraph, serieller Kontrollarm und
+Cleanup bleiben unqualifiziert.
