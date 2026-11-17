@@ -13362,6 +13362,16 @@ statischer Reihenfolge-Nachweis ohne Aussage zur bedingten Laufzeitauswahl.
 Nächster Kandidat: `_uniq` im gepinnten Parser an seine konkrete
 Deduplizierungsoperation binden.
 
+### DGN-007 – Reihenfolgeerhaltende `_uniq`-Operation binden (18. November 2026)
+
+Der gepinnte Parser definiert `_uniq(items)` jetzt als statischen
+Kandidatenbefund mit `list(dict.fromkeys(items))`. Damit ist die konkrete
+Quelloperation für die Deduplizierung des `IN`-Kurzpfads benannt; der Bericht
+behauptet keine Ausführung oder konkrete Laufzeitmenge. Eine Mutation auf
+`set(items)` wird verworfen. Nächster Kandidat ist die Prüfung des
+Branch-Opers und der Subpattern-Elementformen, die von den gebundenen
+Alternativpfaden erzeugt werden.
+
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 
 Der statische Kandidat bindet jetzt den Präfixscan in `_parse_sub`: leere

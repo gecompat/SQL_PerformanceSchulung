@@ -3705,3 +3705,8 @@ Präfixextraktion, Zeichensatzverkürzung und allgemeinen Branch-Rückgabe ist a
 eine statische Struktur gebunden. Eine Gegenprobe verschiebt den Branch vor den
 Zeichensatzpfad und wird abgelehnt. Als nächstes wird `_uniq` im gepinnten
 Parser separat an seine konkrete Deduplizierungsoperation gebunden.
+Checkpoint 18. November 2026: `_uniq(items)` ist an die gepinnte Operation
+`list(dict.fromkeys(items))` gebunden; eine Mutation auf `set(items)` verwirft
+den Befund. Dadurch ist die konkrete quellseitige Deduplizierungsoperation des
+Zeichensatzpfads geprüft. Nächster Kandidat: die statische Form des
+`BRANCH`-Operators und der zugehörigen Subpattern-Elemente.

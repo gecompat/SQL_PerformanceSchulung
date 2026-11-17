@@ -5340,6 +5340,8 @@ def deferred():
             ),
             "re/_parser.py": (
                 b"WHITESPACE = frozenset(' \\t\\n\\r\\v\\f')\n"
+                b"def _uniq(items):\n"
+                b"    return list(dict.fromkeys(items))\n"
                 b"def _parse_sub(source, state, verbose, nested):\n"
                 b"    items = []\n"
                 b"    itemsappend = items.append\n"
@@ -5628,6 +5630,15 @@ def deferred():
                     "parser_execution_observed"]
                 for row in candidates
             ))
+            self.assertTrue(all(
+                row["parser_uniq_candidate"]["function_arguments"] == ["items"]
+                and row["parser_uniq_candidate"]["deduplication_expression"]
+                == "list(dict.fromkeys(items))"
+                and row["parser_uniq_candidate"][
+                    "preserves_first_occurrence_order_candidate"]
+                and not row["parser_uniq_candidate"]["helper_execution_observed"]
+                for row in candidates
+            ))
             self.assertTrue(all(not row["standard_re_flag_binding_observed"]
                                 for row in candidates))
 
@@ -5887,6 +5898,24 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         reordered_paths,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_uniq = dict(files)
+            altered_uniq["re/_parser.py"] = altered_uniq[
+                "re/_parser.py"
+            ].replace(b"dict.fromkeys(items)", b"set(items)", 1)
+            altered_uniq_digest = hashlib.sha256(
+                altered_uniq["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_uniq_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_uniq,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
