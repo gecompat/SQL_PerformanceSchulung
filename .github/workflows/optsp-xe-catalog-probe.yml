@@ -113,7 +113,7 @@ jobs:
               if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd;
               elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd;
               else exit 127; fi
-              "$sqlcmd" -S localhost -U sa -C -b -l 20 -h -1 -y 0 -Y 0 -w 65535'
+              "$sqlcmd" -S localhost -U sa -C -b -l 20 -h -1 -y 65535 -w 65535'
             | tee "${RUNNER_TEMP}/optsp-xe-catalog.json"
       - name: Show container logs on failure
         if: failure()
@@ -122,7 +122,7 @@ jobs:
       - name: Remove owned SQL Server container
         if: always()
         shell: bash
-        timeout-minutes: 2
+        timeout-minutes: 3
         run: bash Tests/Runtime/cleanup_ci_container.sh
       - name: Upload build and metadata inventory
         if: always()

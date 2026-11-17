@@ -34,6 +34,8 @@ def validate(sql: str, workflow: str) -> list[str]:
         findings.append("runtime workflow must use the official SQL Server 2025 container")
     if "cleanup_ci_container.sh" not in workflow or "if: always()" not in workflow:
         findings.append("runtime workflow must always use the ownership-checked container cleanup")
+    if "-h -1 -y 65535 -w 65535" not in workflow:
+        findings.append("sqlcmd output must suppress headers and retain bounded JSON width")
     if re.search(r"(?:--publish|\s-p\s|--volume|\s-v\s)", workflow):
         findings.append("runtime container must not publish ports or mount host volumes")
     return findings

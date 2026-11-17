@@ -20,7 +20,7 @@ FROM sys.dm_xe_objects;
 """
 BASE_WORKFLOW = """
 image: mcr.microsoft.com/mssql/server:2025-latest
-run: cat Tests/Runtime/optsp_xe_catalog_probe.sql | docker exec -i
+run: cat Tests/Runtime/optsp_xe_catalog_probe.sql | docker exec -i -h -1 -y 65535 -w 65535
 - name: cleanup
   if: always()
   run: bash Tests/Runtime/cleanup_ci_container.sh
