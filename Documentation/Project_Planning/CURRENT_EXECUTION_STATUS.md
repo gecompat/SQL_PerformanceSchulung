@@ -12110,3 +12110,22 @@ Batch-/Wait-Zuordnung. Der unabhängige Methodenreview und die empirische
 Feuer-/Zuordnungsprüfung bleiben offen; kein Compile-Sturm oder XE-Session wurde
 ausgeführt. `QRY-004` blieb unverändert. Aktivierung, Demo-ID und
 Performanceclaim bleiben `DEFER`; menschliche Generalprobe ausgeschlossen.
+
+### RES-004 – Methodenentwurf für tatsächliche Grant-Konkurrenz (17. November 2026)
+
+Der neue [Methodenentwurf](RES004_GRANT_CONTENTION_METHOD.md) verbindet einen
+zugeordneten eigenen `RESOURCE_SEMAPHORE`-Request mit einer noch nicht
+gewährten Grant-Anforderung und einem tatsächlich erteilten Peer-Grant derselben
+Semaphore. Er sieht eine Einzelactor-Kontrolle, danach eine signalgesteuerte
+Konkurrenzphase und begrenzten Skip bei ausbleibendem Wait vor. Eine
+Query-Hint-Variante wird zuerst auf Eignung und Ressourcenbasis geprüft; die
+instanzweite Resource-Governor-Variante bleibt ausgeschlossen und erhält keinen
+automatischen Fallback. `SRC-164` bindet die Microsoft-Dokumentation zu
+Grant-Hints und Poolgrenzen.
+
+Dies ist `METHOD_DRAFT`: keine SQL-Datei, Demo-ID, Konfigurationsänderung oder
+Lastprobe wurde erstellt/ausgeführt. Unabhängiger Methodenreview, konkrete
+Hint-/Ressourcenwerte, exakter 2025-Build, sichere Clientabbrechung und
+markergebundener Cleanup bleiben die Gates vor Pilotierung. RES-003 bleibt
+getrennt; Spill, allgemeiner Speicherdruck und Leistungsgewinn werden nicht
+behauptet. Menschliche Generalprobe bleibt ausgeschlossen.

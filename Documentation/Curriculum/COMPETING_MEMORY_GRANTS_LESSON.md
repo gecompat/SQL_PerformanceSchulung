@@ -159,7 +159,9 @@ Leere Ergebnisse sind kein Beleg dafür, dass eine Anforderung außerhalb des
 Beobachtungszeitpunkts niemals gewartet hat.
 
 Die bestehende Szenariovormerkung `RES-004` bleibt von dieser Lehrnotiz
-getrennt. Eine ausführbare Probe benötigt weiterhin eine begrenzte
+getrennt. Der aktuelle [RES-004-Methodenentwurf](../Project_Planning/RES004_GRANT_CONTENTION_METHOD.md)
+legt die offenen Voraussetzungen einer späteren Probe fest; er ist keine
+Ausführungsfreigabe. Eine ausführbare Probe benötigt weiterhin eine begrenzte
 Konkurrenzlast, korrekte Bindung eigener Requests, tatsächliche Wait-Evidenz,
 eine passende Gegenprobe und einen sicheren Abbruch- und Cleanup-Pfad.
 Allgemeiner Instanzspeicherdruck bleibt beim getrennten Lernumfang `RES-003`;
