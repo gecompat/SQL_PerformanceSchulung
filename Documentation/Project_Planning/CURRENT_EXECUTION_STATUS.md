@@ -12912,3 +12912,8 @@ Eine reproduzierte Gegenprobe ersetzte den finalen Blattfilter `index_id > 0 AND
 ### DGN-004 – alle SQL-Quellfixtures statisch über drei Versionen parsen (17. November 2026)
 
 Der vorhandene ScriptDom-Lauf prüfte nur `SnapshotPlanCandidates.sql`; Fehler in `CapturePlanFrame.sql` oder den beiden R/H-Prozedurquellen blieben damit außerhalb der Syntaxprüfung. Der Lauf bindet jetzt die vollständige erwartete Vier-Dateien-Menge, ersetzt begrenzte sqlcmd-Token durch synthetische Parsewerte und parst jede Datei unter den Grammatikprofilen SQL Server 2019, 2022 und 2025. Workflowpfade starten den Check bei Änderungen an jeder Fixturedatei. Alle vier SQL-Quellen bestehen lokal in allen drei Grammatiken. Das ist statische Parserannahme, keine Enginekompilierung, DMV-Rechteprüfung oder Runtimequalifikation.
+
+
+### RES-004 – Semaphoreauswahl an den eigenen Grant-Wait binden (17. November 2026)
+
+Eine reproduzierte Negativprobe ergänzte `WHERE 1 = 0` im `ObservedSemaphores`-CTE. Der bisherige Validator fand `SELECT DISTINCT pool_id, resource_semaphore_id FROM OwnWaits` nur irgendwo in der Abfrage und akzeptierte dadurch eine garantierte Leerausgabe. Der Validator extrahiert jetzt genau diesen CTE und verlangt ausschließlich die distinct Pool-/Semaphore-Schlüssel aus `OwnWaits`. Regressionen decken den leeren Filter und eine fremde DMV-Quelle ab. 33 RES-004-Lehrabfragetests und 24 Offlinevertragstests bestehen lokal; der Abfragevalidator besteht. Dies bleibt statische Quellformevidenz ohne authentische DMV-Aufnahme oder echten Grant-Wait.

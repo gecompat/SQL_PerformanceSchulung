@@ -3459,3 +3459,8 @@ Eine Negativprobe zeigte, dass die IDX-007-Prüfung die erforderlichen Blattfilt
 ### DGN-004 – vollständige Quellfixture-Syntax in der CI absichern (17. November 2026)
 
 Der DGN-004-ScriptDom-Check erfasste nur die Kandidatensnapshot-Abfrage. Er bindet jetzt genau alle vier SQL-Fixtures – Plantransport, R-Prozedur, H-Kontrollprozedur und Kandidatensnapshot – und parst sie mit den SQL-Server-Grammatiken 2019, 2022 und 2025. Der Workflow wird bei Änderungen an jeder Fixturedatei ausgelöst. Lokaler Parserlauf und DGN-004-Quelltests bestehen; der Syntaxnachweis behauptet keine Serverkompilierung oder Engineausführung. Umfang: ein Arbeitspaket, ein PR, keine neue Quelle und keine SQL-/Runtimeausführung. Quellen-/Ergebnisreview, vollständige Kandidatenerfassung, Plan-/Handleidentität, Windows-Prozessbaumabbruch und Versions-/Runtimegates bleiben offen.
+
+
+### RES-004 – Semaphoreauswahl fail-closed an `OwnWaits` binden (17. November 2026)
+
+Der RES-004-Abfragevalidator akzeptierte einen CTE, der alle Semaphorezeilen durch `WHERE 1 = 0` entfernte, weil er die erwartete `SELECT DISTINCT`-Form nur global im SQL-Text suchte. Er verlangt jetzt den exakt einmaligen `ObservedSemaphores`-CTE mit ausschließlich den distinct Pool-/Semaphore-Schlüsseln aus `OwnWaits`. Zwei synthetische Regressionen sichern den Leerausgabefilter und eine fremde Quell-DMV. 33 Lehrabfragetests, der Validator und 24 Offlinevertragstests bestehen. Umfang: ein Arbeitspaket, ein PR, keine neue Quelle und keine SQL-/Runtimeausführung. Authentische Request-/DMV-Herkunft, Methodenreview und isolierter Grant-Wait-Pilot bleiben offen.

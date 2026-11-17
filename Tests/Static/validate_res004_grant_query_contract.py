@@ -45,12 +45,18 @@ def validate_sql(sql: str) -> None:
     normalized = " ".join(without_tsql_comments_or_literals(sql).split()).casefold()
     try:
         own_waits = extract_tsql_cte_body(sql, "OwnWaits")
+        observed_semaphores = extract_tsql_cte_body(sql, "ObservedSemaphores")
     except ValueError as exc:
-        raise ContractError("expected one balanced RES-004 OwnWaits CTE") from exc
+        raise ContractError(
+            "expected one balanced RES-004 OwnWaits and ObservedSemaphores CTE"
+        ) from exc
     own_waits_normalized = " ".join(
         without_tsql_comments_or_literals(own_waits).split()
     ).casefold()
     own_waits_with_literals = " ".join(without_tsql_comments(own_waits).split()).casefold()
+    observed_semaphores_normalized = " ".join(
+        without_tsql_comments_or_literals(observed_semaphores).split()
+    ).casefold()
     required = (
         "primary key (session_id, request_id)",
         "declare @capturedat datetime2(7) = sysutcdatetime()",
@@ -60,7 +66,6 @@ def validate_sql(sql: str) -> None:
         "r.session_id = mg.session_id",
         "r.request_id = mg.request_id",
         "mg.grant_time is null",
-        "select distinct pool_id, resource_semaphore_id from ownwaits",
         "mg.pool_id = observed.pool_id",
         "mg.resource_semaphore_id = observed.resource_semaphore_id",
         "own.session_id = mg.session_id",
@@ -75,6 +80,12 @@ def validate_sql(sql: str) -> None:
     missing = tuple(fragment for fragment in required if fragment not in normalized)
     if missing:
         raise ContractError("diagnostic query is missing required RES-004 bindings")
+    if observed_semaphores_normalized != (
+        "select distinct pool_id, resource_semaphore_id from ownwaits"
+    ):
+        raise ContractError(
+            "ObservedSemaphores must return only distinct pool/semaphore keys from OwnWaits"
+        )
     own_waits_where = re.search(r"\bwhere\b(.*)$", own_waits_normalized)
     if own_waits_where is None or re.search(r"\bor\b", own_waits_where.group(1)):
         raise ContractError("own-wait WHERE must not contain OR predicates")

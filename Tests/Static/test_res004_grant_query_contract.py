@@ -28,6 +28,27 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaises(ContractError):
             validate_sql(altered)
 
+    def test_observed_semaphore_cte_cannot_suppress_all_wait_rows(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "    FROM OwnWaits\n)\nSELECT",
+            "    FROM OwnWaits\n    WHERE 1 = 0\n)\nSELECT",
+            1,
+        )
+        self.assertNotEqual(altered, query)
+        with self.assertRaisesRegex(ContractError, "ObservedSemaphores"):
+            validate_sql(altered)
+
+    def test_observed_semaphore_cte_must_derive_keys_from_ownwaits(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "    FROM OwnWaits\n)\nSELECT",
+            "    FROM sys.dm_exec_query_resource_semaphores\n)\nSELECT",
+            1,
+        )
+        with self.assertRaisesRegex(ContractError, "ObservedSemaphores"):
+            validate_sql(altered)
+
     def test_ownwaits_grant_join_must_match_both_own_request_keys(self) -> None:
         query = extract_query(source_markdown())
         altered = query.replace(
