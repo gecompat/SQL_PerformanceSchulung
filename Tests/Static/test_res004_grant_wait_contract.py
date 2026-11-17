@@ -102,6 +102,25 @@ class GrantWaitContractTests(unittest.TestCase):
         request = RequestWait(51, 0, "RESOURCE_SEMAPHORE", 120, "not-a-time")
         self.assertEqual(evaluate_grant_wait(request, grants, semaphore()).verdict, Verdict.FAIL)
 
+    def test_datetime2_seven_digit_fraction_is_valid(self) -> None:
+        stamp = "2026-11-06T10:00:00.1234567Z"
+        request = RequestWait(51, 0, "RESOURCE_SEMAPHORE", 120, stamp)
+        grants = (
+            Grant(51, 0, None, 120, 8192, 0, 1, 1, stamp),
+            Grant(52, 0, "2026-11-06T09:59:50.7654321Z", None,
+                  4096, 4096, 1, 1, stamp),
+        )
+        self.assertEqual(
+            evaluate_grant_wait(request, grants, SemaphoreSnapshot(1, 1, 1, 1, stamp)).verdict,
+            Verdict.PASS,
+        )
+
+    def test_fraction_beyond_datetime2_precision_fails(self) -> None:
+        request, grants = fixture()
+        request = RequestWait(51, 0, "RESOURCE_SEMAPHORE", 120,
+                              "2026-11-06T10:00:00.12345678Z")
+        self.assertEqual(evaluate_grant_wait(request, grants, semaphore()).verdict, Verdict.FAIL)
+
     def test_grant_time_and_memory_contradiction_fails(self) -> None:
         request, grants = fixture()
         altered = (Grant(51, 0, None, 120, 8192, 512, 1, 1, STAMP), grants[1])

@@ -12,7 +12,7 @@ import re
 
 
 _RFC3339 = re.compile(
-    r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})\Z"
+    r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?(?:Z|[+-]\d{2}:\d{2})\Z"
 )
 
 
@@ -71,7 +71,15 @@ def _valid_timestamp(value: object) -> bool:
     if type(value) is not str or not _RFC3339.fullmatch(value):
         return False
     try:
-        return datetime.fromisoformat(value.replace("Z", "+00:00")).utcoffset() is not None
+        parseable = value.replace("Z", "+00:00")
+        whole, separator, remainder = parseable.partition(".")
+        if separator:
+            fraction, zone_separator, zone = remainder.partition("+")
+            if not zone_separator:
+                fraction, zone_separator, zone = remainder.partition("-")
+            if zone_separator and len(fraction) == 7:
+                parseable = f"{whole}.{fraction[:6]}{zone_separator}{zone}"
+        return datetime.fromisoformat(parseable).utcoffset() is not None
     except ValueError:
         return False
 
