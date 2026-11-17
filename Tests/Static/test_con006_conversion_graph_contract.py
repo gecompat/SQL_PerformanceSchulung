@@ -40,11 +40,20 @@ def good_graph() -> str:
                  indexname="PK_DeadlockRows" hobtid="72057594000000001">
           <owner-list>
             <owner id="processA" mode="S" />
+            <owner id="processA" mode="X" />
+          </owner-list>
+          <waiter-list>
+            <waiter id="processB" mode="X" requestType="convert" />
+          </waiter-list>
+        </keylock>
+        <keylock dbid="73" objectname="SQLPERF_LAB_CON006_RUN.lab.DeadlockRows"
+                 indexname="PK_DeadlockRows" hobtid="72057594000000001">
+          <owner-list>
             <owner id="processB" mode="S" />
+            <owner id="processB" mode="X" />
           </owner-list>
           <waiter-list>
             <waiter id="processA" mode="X" requestType="convert" />
-            <waiter id="processB" mode="X" requestType="convert" />
           </waiter-list>
         </keylock>
       </resource-list>
@@ -137,15 +146,15 @@ class ConversionGraphContractTests(unittest.TestCase):
                 self.assertEqual(evaluate_conversion_graph(source, IDENTITY).verdict, Verdict.FAIL)
 
     def test_both_processes_must_hold_shared_lock_on_same_key(self) -> None:
-        missing_owner = change_graph(lambda root: root.find("resource-list/keylock/owner-list").remove(root.find("resource-list/keylock/owner-list/owner[@id='processB']")))
+        missing_owner = change_graph(lambda root: root.find("resource-list/keylock/owner-list").remove(root.find("resource-list/keylock/owner-list/owner[@id='processA']")))
         wrong_owner_mode = change_graph(lambda root: root.find("resource-list/keylock/owner-list/owner[@id='processA']").set("mode", "U"))
         for source in (missing_owner, wrong_owner_mode):
             with self.subTest(source=source):
                 self.assertEqual(evaluate_conversion_graph(source, IDENTITY).verdict, Verdict.FAIL)
 
     def test_both_processes_must_request_x_conversion_on_same_key(self) -> None:
-        wrong_mode = change_graph(lambda root: root.find("resource-list/keylock/waiter-list/waiter[@id='processA']").set("mode", "S"))
-        ordinary_wait = change_graph(lambda root: root.find("resource-list/keylock/waiter-list/waiter[@id='processA']").set("requestType", "wait"))
+        wrong_mode = change_graph(lambda root: root.find("resource-list/keylock/waiter-list/waiter[@id='processB']").set("mode", "S"))
+        ordinary_wait = change_graph(lambda root: root.find("resource-list/keylock/waiter-list/waiter[@id='processB']").set("requestType", "wait"))
         missing_waiter = change_graph(lambda root: root.find("resource-list/keylock/waiter-list").remove(root.find("resource-list/keylock/waiter-list/waiter[@id='processB']")))
         for source in (wrong_mode, ordinary_wait, missing_waiter):
             with self.subTest(source=source):

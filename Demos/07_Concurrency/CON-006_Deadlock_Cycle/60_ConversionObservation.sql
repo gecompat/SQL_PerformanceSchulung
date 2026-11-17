@@ -27,7 +27,7 @@ IF @Start IS NULL OR @A IS NULL OR @B IS NULL OR @A=@B OR @HoBT IS NULL
     SELECT Graph,
            TRY_CONVERT(datetimeoffset(7),Graph.value('(/event/@timestamp)[1]','nvarchar(40)'),127) AS EventAt,
            Graph.value('count(/event/data[@name="xml_report"]/value/deadlock/process-list/process)','int') AS ProcessCount,
-           Graph.value('count(/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock)','int') AS KeyLockCount,
+           Graph.value('count(/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock[@dbid=sql:variable("@DbId") and @objectname=sql:variable("@Object") and @indexname="PK_DeadlockRows" and @hobtid=sql:variable("@HoBT")])','int') AS KeyLockCount,
            Graph.value('(/event/data[@name="xml_report"]/value/deadlock/process-list/process[@spid=sql:variable("@A")]/@id)[1]','varchar(128)') AS ProcessA,
            Graph.value('(/event/data[@name="xml_report"]/value/deadlock/process-list/process[@spid=sql:variable("@B")]/@id)[1]','varchar(128)') AS ProcessB
     FROM Events
@@ -38,47 +38,16 @@ WHERE EventAt IS NOT NULL
   AND CONVERT(datetime2(7),EventAt)>=@Start
   AND CONVERT(datetime2(7),EventAt)<=@End
   AND ProcessCount=2
-  AND KeyLockCount=1
+  AND KeyLockCount=2
   AND NULLIF(ProcessA,'') IS NOT NULL
   AND NULLIF(ProcessB,'') IS NOT NULL
   AND Graph.exist('/event/data[@name="xml_report"]/value/deadlock/process-list/process[@spid=sql:variable("@A") and @currentdb=sql:variable("@DbId")]')=1
   AND Graph.exist('/event/data[@name="xml_report"]/value/deadlock/process-list/process[@spid=sql:variable("@B") and @currentdb=sql:variable("@DbId")]')=1
   AND Graph.exist('/event/data[@name="xml_report"]/value/deadlock/victim-list/victimProcess[@id=sql:column("Bound.ProcessA")]')=1
-  AND Graph.exist('/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock[@dbid=sql:variable("@DbId") and @objectname=sql:variable("@Object") and @indexname="PK_DeadlockRows" and @hobtid=sql:variable("@HoBT")][owner-list/owner[@id=sql:column("Bound.ProcessA") and @mode="S"]][owner-list/owner[@id=sql:column("Bound.ProcessB") and @mode="S"]][waiter-list/waiter[@id=sql:column("Bound.ProcessA") and @mode="X" and @requestType="convert"]][waiter-list/waiter[@id=sql:column("Bound.ProcessB") and @mode="X" and @requestType="convert"]]')=1;
+  AND Graph.exist('/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock[@dbid=sql:variable("@DbId") and @objectname=sql:variable("@Object") and @indexname="PK_DeadlockRows" and @hobtid=sql:variable("@HoBT")][owner-list/owner[@id=sql:column("Bound.ProcessA") and @mode="S"]][waiter-list/waiter[@id=sql:column("Bound.ProcessB") and @mode="X" and @requestType="convert"]]')=1
+  AND Graph.exist('/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock[@dbid=sql:variable("@DbId") and @objectname=sql:variable("@Object") and @indexname="PK_DeadlockRows" and @hobtid=sql:variable("@HoBT")][owner-list/owner[@id=sql:column("Bound.ProcessB") and @mode="S"]][waiter-list/waiter[@id=sql:column("Bound.ProcessA") and @mode="X" and @requestType="convert"]]')=1;
 IF @Matches<>1
 BEGIN
-    ;WITH Targets AS
-    (
-        SELECT TRY_CONVERT(xml,st.target_data) AS TargetData
-        FROM sys.dm_xe_session_targets AS st
-        JOIN sys.dm_xe_sessions AS s ON s.address=st.event_session_address
-        WHERE s.name=N'system_health' AND st.target_name=N'ring_buffer'
-    ), Events AS
-    (
-        SELECT e.query('.') AS Graph
-        FROM Targets
-        CROSS APPLY TargetData.nodes('//event[@name="xml_deadlock_report"]') AS X(e)
-    )
-    SELECT TOP (20)
-        Graph.value('(/event/@timestamp)[1]','nvarchar(40)') AS EventTimestamp,
-        Resource.value('(@dbid)[1]','nvarchar(20)') AS LockDb,
-        Resource.value('(@hobtid)[1]','nvarchar(40)') AS LockHoBT,
-        Resource.value('(@objectname)[1]','nvarchar(260)') AS LockObject,
-        Resource.value('(@indexname)[1]','nvarchar(128)') AS LockIndex,
-        Resource.value('(owner-list/owner[1]/@id)[1]','nvarchar(128)') AS Owner1,
-        Resource.value('(owner-list/owner[1]/@mode)[1]','nvarchar(20)') AS Owner1Mode,
-        Resource.value('(owner-list/owner[2]/@id)[1]','nvarchar(128)') AS Owner2,
-        Resource.value('(owner-list/owner[2]/@mode)[1]','nvarchar(20)') AS Owner2Mode,
-        Resource.value('(waiter-list/waiter[1]/@id)[1]','nvarchar(128)') AS Waiter1,
-        Resource.value('(waiter-list/waiter[1]/@mode)[1]','nvarchar(20)') AS Waiter1Mode,
-        Resource.value('(waiter-list/waiter[1]/@requestType)[1]','nvarchar(20)') AS Waiter1Type,
-        Resource.value('(waiter-list/waiter[2]/@id)[1]','nvarchar(128)') AS Waiter2,
-        Resource.value('(waiter-list/waiter[2]/@mode)[1]','nvarchar(20)') AS Waiter2Mode,
-        Resource.value('(waiter-list/waiter[2]/@requestType)[1]','nvarchar(20)') AS Waiter2Type
-    FROM Events
-    CROSS APPLY Graph.nodes('/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock') AS Locks(Resource)
-    WHERE Graph.exist('/event/data[@name="xml_report"]/value/deadlock/process-list/process[@spid=sql:variable("@A")]')=1
-       OR Graph.exist('/event/data[@name="xml_report"]/value/deadlock/process-list/process[@spid=sql:variable("@B")]')=1;
     THROW 51006,'FAIL_RESULT_CONTRACT: Kein eindeutiger same-key S-to-X-Konversionsgraph fuer diesen Lauf.',1;
 END;
 UPDATE lab.ConversionRun SET GraphCount=@Matches WHERE Attempt='CONVERT' AND RunToken='$(RunToken)' AND DatabaseId=@DbId;
