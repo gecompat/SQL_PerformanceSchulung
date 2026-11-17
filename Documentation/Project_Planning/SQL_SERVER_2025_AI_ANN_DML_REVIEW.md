@@ -83,3 +83,14 @@ Kandidat01-FAIL bleibt erhalten; Ursache der alten JSON-Auswertung nicht bewiese
 | test_dml.py | BB529020933695604C266D4EE1F4C2288C61BC3C4BAC69AB9F485BC525F092AC |
 | lifecycle01.log | 05D93292BBB4C5762C7747CA8F6F1FD02EB93EDB512CE603CF4B90F612DAB4B6 |
 | lifecycle02.log | 1A0FA5FB6F9A765E6B65BA78D10005F531EC7162400EA2D39E0E649480541918 |
+
+## Reiner Offline-Recordvertrag
+
+Der [ANN-DML-Recordvertrag](../HowTo/SQL_SERVER_2025_AI_ANN_DML_RECORDS.md)
+prüft diese beiden dokumentierten UPDATE-/Rollback-Zusammenfassungen gegen
+das feste Profil und die oben aufgeführten Quellpins. Seine Fixturetests sind
+synthetisch und attestieren nicht die Herkunft übergebener Records. Rollen-
+Runtimebelege liegen für diese ANN-Lifecycles nicht vor; Rollenqualifikation,
+allgemeine DML-Unterstützung, Freshness und Generation bleiben daher
+`NOT_ESTABLISHED` beziehungsweise `UNKNOWN`. Der separate IDX-012-Rollenrecord-
+vertrag ersetzt diese fehlende ANN-Evidenz nicht.

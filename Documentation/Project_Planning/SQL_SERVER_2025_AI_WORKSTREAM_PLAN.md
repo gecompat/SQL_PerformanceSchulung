@@ -805,6 +805,18 @@ unverändert.0 neueNativewirkungen; Capturelücken offen, keine Runtimepromotion
 Paket STOPPED_AFTER_C2; aktuelle Integration, dann unabhängiger statischer
 Dependency-Pfadplan auf bereits gesicherten VECTOR-Bytes.
 
+Der folgende reine ANN-DML-/Rollenrecordvertrag ist implementiert: fester
+Expected-Vertrag und Consumer prüfen zwei dokumentierte UPDATE-Ablehnungen,
+Rollbacks, Quell-/Indexunverändertheit und Cleanup. Sechs C2-Quellpins sind
+gebunden; Caller-Herkunft bleibt unbestätigt. Da die ANN-Akten keine Rollen-
+captures enthalten, bleibt deren Qualifikation `NOT_ESTABLISHED`; der getrennte
+IDX-012-Rollensplit wird nicht als Ersatz verwendet. Fünf synthetische Tests,
+vier gezielte Schutzfälle unter `python -O` und `git diff --check` bestehen; die
+Prüfung läuft im bestehenden Offlineworkflow. Keine Native- oder Hosteffekte.
+Gesamt-WARN, Generation `UNKNOWN` und volle TSK-006-/Runtimeabnahme bleiben
+offen. Die [Leseanleitung](../HowTo/SQL_SERVER_2025_AI_ANN_DML_RECORDS.md)
+erklärt Vertrag, Aufruf, Interpretation und Grenzen.
+
 ## TSK-004: nativer VECTOR-Caller nach vollständigem PR228-Abschluss
 
 PR228 vollständig geschlossen:8Head/6Main, vollerTree, primaryMain48d4e187,

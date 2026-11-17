@@ -1,0 +1,37 @@
+{
+  "contract": "ANN_DML_ROLE_RECORD_V1",
+  "profile": {
+    "build": "17.0.5005.3",
+    "engine_edition": 3,
+    "os": "Linux",
+    "compatibility_level": 170,
+    "index_type": "DiskANN",
+    "metric": "COSINE",
+    "dimension": 3,
+    "generation": "UNKNOWN"
+  },
+  "expected": {
+    "completed_update_lifecycles": 2,
+    "rejected_update_lifecycles": 2,
+    "target_id": 23,
+    "error_number": 42231,
+    "error_state": 1,
+    "transaction_count_after_rollback": 0,
+    "transaction_state_after_rollback": 0
+  },
+  "claims": {
+    "ann_update_support": "NOT_ESTABLISHED",
+    "ann_role_runtime_qualification": "NOT_ESTABLISHED",
+    "freshness": "NOT_ESTABLISHED",
+    "generation": "UNKNOWN",
+    "record_origin": "DECLARED_NOT_INDEPENDENTLY_ATTESTED"
+  },
+  "source_pins": {
+    "qualify_build.py": "5142919355817A2866EBDA9A1C35E7CB57D5989432A70F9917C6491245CAA9AA",
+    "sql_build.py": "43F29045E6DFB617B8300EA631C63ACCFEA0A86EBD2010EA3FADF8BA0850A2A3",
+    "dml_evidence.py": "4A7765629B0BECD60AD269CE882104B1C0BA0EFA98AC323B980BC9C698B6A4DB",
+    "test_dml.py": "BB529020933695604C266D4EE1F4C2288C61BC3C4BAC69AB9F485BC525F092AC",
+    "lifecycle01.log": "05D93292BBB4C5762C7747CA8F6F1FD02EB93EDB512CE603CF4B90F612DAB4B6",
+    "lifecycle02.log": "1A0FA5FB6F9A765E6B65BA78D10005F531EC7162400EA2D39E0E649480541918"
+  }
+}

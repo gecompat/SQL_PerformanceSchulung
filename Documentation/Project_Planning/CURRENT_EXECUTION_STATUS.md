@@ -12953,3 +12953,22 @@ Seitendiagnoseausgabe endet. Eine Regression schützt den Fall. 33 fokussierte
 Lehrabfragetests, der IDX-007-Abfragevalidator und 13 Offlinevertragstests
 bestehen lokal. Das ist weiterhin ein statischer Quellencheck ohne
 authentische DMV-Herkunft, tatsächlichen Seiten-Wait oder Enginequalifikation.
+
+### TSK-006 – reiner ANN-DML-/Rollenrecordvertrag (17. November 2026)
+
+Ein separater Offlineconsumer prüft das feste ANN-Profil und genau zwei
+dokumentierte UPDATE-Ablehnungen auf Ziel-ID 23 mit Fehler 42231/State 1,
+Rollbackzustand 0/0, unveränderten Quelldaten/Indexmetadaten und bestandenem
+Cleanup. Die sechs historischen C2-Quellhashes sind im festen Expected-Vertrag
+gebunden. Die Eingabeherkunft bleibt vom Caller erklärt und nicht unabhängig
+attestiert.
+
+Die ANN-Evidenz enthält keine Rollenrecords. Der Vertrag hält deshalb die
+Rollenqualifikation ausdrücklich `NOT_ESTABLISHED`; die getrennten IDX-012-
+Rollenbelege werden nicht übertragen. Generation bleibt `UNKNOWN`, allgemeine
+DML-Unterstützung und Freshness sind nicht belegt. Fünf synthetische Tests,
+vier gezielte Negativtests unter `python -O` und `git diff --check` bestehen.
+Die neue statische Prüfung ist im SQL-Server-2025-AI-Workflow für PRs und
+Main-Pushes verdrahtet. Keine historische Replay-, SQL-, Container-, Provider-,
+Modell- oder Hostausführung. Siehe [Leseanleitung](../HowTo/SQL_SERVER_2025_AI_ANN_DML_RECORDS.md)
+und [Quell-/Methodenbefund](SQL_SERVER_2025_AI_ANN_DML_REVIEW.md).
