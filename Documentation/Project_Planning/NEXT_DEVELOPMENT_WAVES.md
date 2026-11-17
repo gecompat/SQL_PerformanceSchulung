@@ -3482,3 +3482,11 @@ Quellformprüfung weist jetzt zusätzliche ausführbare Resultset-, DML- und
 EXEC-Statements vor dem `OwnWaits`-CTE zurück und maskiert Stringliterale bei
 der Erkennung. Eine Regression deckt den Zusatz ab. Das ist nur ein statischer
 Vertragscheck ohne authentische DMV-Aufnahme oder Engine-Nachweis.
+
+### RES-001 – zusätzliche Resultsets vor der Scheduleraufnahme abweisen (17. November 2026)
+
+Eine Negativprobe stellte vor die Scheduler-Momentaufnahme ein zusätzliches
+`SELECT`. Die Quellprüfung verlangt jetzt, dass auf die UTC-Marker-Deklaration
+unmittelbar die vorgesehene Schedulerabfrage folgt. Eine Regression deckt das
+fremde Resultset ab. Das ist ein statischer Lehrabfragecheck ohne authentische
+Schedulerwerte oder Laufzeitqualifikation.

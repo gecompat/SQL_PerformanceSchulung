@@ -32,6 +32,20 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         uncommented = without_tsql_comments(blocks[0])
     except ValueError as exc:
         return (f"RES-001 query has malformed lexical structure: {exc}",)
+    executable = without_tsql_comments_or_literals(uncommented)
+    select_statements = re.findall(
+        r"(?:^|;)\s*SELECT\b", executable, flags=re.IGNORECASE | re.MULTILINE,
+    )
+    if (re.match(
+        r"\s*DECLARE\s+@CapturedUtc\s+datetime2\(7\)\s*=\s*"
+        r"SYSUTCDATETIME\(\)\s*;",
+        uncommented,
+        flags=re.IGNORECASE,
+    ) is None or len(select_statements) != 1):
+        return (
+            "query must start with the capture marker declaration followed "
+            "directly by the scheduler snapshot",
+        )
     sql = re.sub(r"\s+", " ", without_tsql_comments_or_literals(blocks[0])).casefold()
     required = {
         "snapshot marker uses datetime2(7)": "declare @capturedutc datetime2(7) = sysutcdatetime()",
