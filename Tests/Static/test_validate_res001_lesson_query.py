@@ -40,6 +40,10 @@ class Res001LessonQueryTests(unittest.TestCase):
         )
         self.assertTrue(any("hidden schedulers" in error for error in validate_lesson(broken)))
 
+    def test_string_literal_cannot_supply_online_scheduler_filter(self) -> None:
+        broken = SOURCE.replace("  AND is_online = 1", "  AND N'is_online = 1' = N'no'", 1)
+        self.assertTrue(any("offline schedulers" in error for error in validate_lesson(broken)))
+
     def test_ambiguous_duplicate_sql_block_is_rejected(self) -> None:
         section_start = SOURCE.index("## Workerbedarf und CPU-Warteschlange sind verschiedene Signale")
         fence = SOURCE.index("```sql", section_start)

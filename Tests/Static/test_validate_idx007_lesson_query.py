@@ -51,6 +51,15 @@ class Idx007LessonQueryTests(unittest.TestCase):
         errors = validate_lesson(broken)
         self.assertTrue(any("documented DMV column" in error for error in errors))
 
+    def test_string_literal_cannot_supply_the_page_latch_filter(self) -> None:
+        broken = SOURCE.replace(
+            "WHERE r.wait_type = N'PAGELATCH_EX'",
+            "WHERE N'r.wait_type = N''PAGELATCH_EX''' = N'no'",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("only page latch waits" in error for error in errors))
+
     def test_comment_markers_inside_bracketed_identifiers_are_preserved(self) -> None:
         section_start = SOURCE.index("## Lesende Zuordnung einer aktuellen Request-Seite")
         fence = SOURCE.index("```sql", section_start)

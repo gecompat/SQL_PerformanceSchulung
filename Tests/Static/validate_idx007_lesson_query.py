@@ -8,7 +8,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from sql_lexical_utils import without_tsql_comments
+from sql_lexical_utils import without_tsql_comments, without_tsql_comments_or_literals
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -31,12 +31,12 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         uncommented = without_tsql_comments(blocks[0])
     except ValueError as exc:
         return (f"IDX-007 query has malformed lexical structure: {exc}",)
-    sql = re.sub(r"\s+", " ", uncommented).casefold()
+    sql = re.sub(r"\s+", " ", without_tsql_comments_or_literals(blocks[0])).casefold()
     required = {
         "request wait duration uses the documented DMV column": "r.wait_time",
         "page resource is decoded": "sys.fn_pagerescracker(r.page_resource)",
         "page header is read": "sys.dm_db_page_info(",
-        "only page latch waits are selected": "r.wait_type = n'pagelatch_ex'",
+        "only page latch waits are selected": "r.wait_type = n__literal__",
         "missing page resources are excluded": "r.page_resource is not null",
         "distinct waiting sessions are counted": "count(distinct session_id) as waiting_sessions",
         "the minimum wait duration is reported": "min(wait_time) as shortest_wait_time_ms",
@@ -48,6 +48,8 @@ def validate_lesson(text: str) -> tuple[str, ...]:
     for label, fragment in required.items():
         if fragment not in sql:
             errors.append(f"{label}: expected `{fragment}`")
+    if "N'PAGELATCH_EX'".casefold() not in uncommented.casefold():
+        errors.append("only page latch waits are selected: expected `N'PAGELATCH_EX'` literal")
     if "wait_duration_ms" in sql:
         errors.append("query must use documented `wait_time`, not `wait_duration_ms`")
     return tuple(errors)
