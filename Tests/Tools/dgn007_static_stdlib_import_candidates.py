@@ -59,6 +59,9 @@ OPCODE_SOURCE_SHA256 = "192f6008508f28d3273bff42eaea9b01c8394dab1607cd36aea778bd
 JSON_ENCODER_SOURCE_SHA256 = "52bfb1b66029cc70fa3bd7fe11df9f2e03922d413407a341b387a22c987f24f8"
 JSON_PACKAGE_SOURCE_SHA256 = "d5d41e2c29049515d295d81a6d40b4890fbec8d8482cfb401630f8ef2f77e4d5"
 HASHLIB_SOURCE_SHA256 = "6dbdebf270868b391080e21dc9687eddfaf321c965ad979f68d3f5c423c613ab"
+RE_INIT_SOURCE_SHA256 = "8ff3c37c63b917fcf8dc8d50993a502292a3dc159e41de4f4018c72a53d1c07b"
+RE_COMPILER_SOURCE_SHA256 = "c75620761098a70ed75b9accef63ef2881d8abb6d4e5cbfd10074bd165eefe4d"
+RE_PARSER_SOURCE_SHA256 = "a51a85b37cf3f44ba7ff25754da5f31306e4ccfa6eb3c017f9d37bdf4e770840"
 FUNCTOOLS_SOURCE_SHA256 = "de4a1d37c795e2a065124b5c49357893433bc6bb111b41277ccc9930ef08d4c9"
 FUNCTOOLS_LRU_CACHE_CALLS_SHA256 = "a9e9c4c387f449547755b88929b8bf482c94b8b77431e336f90b8d91d2420391"
 COLLECTIONS_NAMEDTUPLE_CALLS_SHA256 = "4a9dcf2bf498fe0d68ca0a0b80269d9556d6e47c9b509a5f3df7465596c954bf"
@@ -7971,6 +7974,107 @@ def _target_re_compile_input_candidates(files, modules):
     return candidates
 
 
+def _target_re_compile_tokenizer_input_type_candidates(files, modules):
+    """Bind literal compile-input types to the pinned parser entry path."""
+    if type(files) is not dict or type(modules) is not tuple:
+        return []
+    source_specs = (
+        ("re/__init__.py", RE_INIT_SOURCE_SHA256),
+        ("re/_compiler.py", RE_COMPILER_SOURCE_SHA256),
+        ("re/_parser.py", RE_PARSER_SOURCE_SHA256),
+    )
+    source_trees = {}
+    for path, digest in source_specs:
+        source = files.get(path)
+        if (type(source) is not bytes or hashlib.sha256(source).hexdigest() != digest):
+            return []
+        try:
+            source_trees[path] = ast.parse(source.decode("utf-8"), filename=path)
+        except (UnicodeError, SyntaxError):
+            return []
+
+    def functions(tree, name):
+        return [node for node in tree.body
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name == name]
+
+    re_tree = source_trees["re/__init__.py"]
+    compiler_tree = source_trees["re/_compiler.py"]
+    parser_tree = source_trees["re/_parser.py"]
+    public_compile = functions(re_tree, "compile")
+    re_compile = functions(re_tree, "_compile")
+    isstring = functions(compiler_tree, "isstring")
+    compiler_compile = functions(compiler_tree, "compile")
+    parser_parse = functions(parser_tree, "parse")
+    tokenizers = [node for node in parser_tree.body
+                  if isinstance(node, ast.ClassDef) and node.name == "Tokenizer"]
+    tokenizer_init = ([node for node in tokenizers[0].body
+                       if isinstance(node, ast.FunctionDef)
+                       and node.name == "__init__"]
+                      if len(tokenizers) == 1 else [])
+    if (len(public_compile) != 1 or len(re_compile) != 1
+            or len(isstring) != 1 or len(compiler_compile) != 1
+            or len(parser_parse) != 1 or len(tokenizer_init) != 1):
+        return []
+
+    public_body = list(public_compile[0].body)
+    if (public_body and isinstance(public_body[0], ast.Expr)
+            and isinstance(public_body[0].value, ast.Constant)
+            and type(public_body[0].value.value) is str):
+        public_body.pop(0)
+    if (len(public_body) != 1 or not isinstance(public_body[0], ast.Return)
+            or ast.unparse(public_body[0].value) != "_compile(pattern, flags)"):
+        return []
+    isstring_body = isstring[0].body
+    if (len(isstring_body) != 1 or not isinstance(isstring_body[0], ast.Return)
+            or ast.unparse(isstring_body[0].value)
+            != "isinstance(obj, (str, bytes))"):
+        return []
+    compile_if = [node for node in ast.walk(compiler_compile[0])
+                  if isinstance(node, ast.If)
+                  and ast.unparse(node.test) == "isstring(p)"]
+    if (len(compile_if) != 1 or len(compile_if[0].body) < 2
+            or ast.unparse(compile_if[0].body[1])
+            != "p = _parser.parse(p, flags)"):
+        return []
+    if (not any(isinstance(node, ast.Call)
+                and ast.unparse(node.func) == "_compiler.compile"
+                and [ast.unparse(arg) for arg in node.args]
+                == ["pattern", "flags"]
+                for node in ast.walk(re_compile[0]))):
+        return []
+    if (len(parser_parse[0].body) < 1
+            or ast.unparse(parser_parse[0].body[0]) != "source = Tokenizer(str)"):
+        return []
+    init_body = tokenizer_init[0].body
+    if (not init_body or ast.unparse(init_body[0])
+            != "self.istext = isinstance(string, str)"):
+        return []
+
+    candidates = _target_re_compile_input_candidates(files, modules)
+    output = []
+    chain_hashes = {path: hashlib.sha256(files[path]).hexdigest()
+                    for path, _ in source_specs}
+    for candidate in candidates:
+        kind = candidate["argument_kind"]
+        if kind not in ("STRING_LITERAL", "BYTES_LITERAL"):
+            continue
+        output.append({
+            **candidate,
+            "pattern_type_if_call_evaluates": (
+                "str" if kind == "STRING_LITERAL" else "bytes"
+            ),
+            "tokenizer_istext_if_parser_entry_reached": (
+                kind == "STRING_LITERAL"
+            ),
+            "parser_entry_observed": False,
+            "standard_re_compile_binding_observed": False,
+            "parser_source_sha256": chain_hashes,
+            "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
+        })
+    return output
+
+
 def _target_functools_lru_cache_condition_facts(files):
     """Resolve the negative-size guard across pinned stdlib call sites."""
     if type(files) is not dict:
@@ -13642,6 +13746,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_re_compile_input_candidates = _target_re_compile_input_candidates(
         files, target_call_modules,
     )
+    target_re_compile_tokenizer_input_type_candidates = (
+        _target_re_compile_tokenizer_input_type_candidates(
+            files, target_call_modules,
+        )
+    )
     call_roots = {name.partition(".")[0] for name in call_modules}
     call_roots_outside_stdlib = tuple(sorted(call_roots - set(stdlib_names)))
     frozen_roots = {
@@ -14079,6 +14188,8 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_hashlib_builtin_fallback_file_candidates,
         "target_module_init_re_compile_input_candidates":
             target_re_compile_input_candidates,
+        "target_module_init_re_compile_tokenizer_input_type_candidates":
+            target_re_compile_tokenizer_input_type_candidates,
         "target_platform_functools_lru_cache_condition_facts": [
             {"module": module, "source_path": source_path, "line": line,
              "outcomes": list(outcomes)}

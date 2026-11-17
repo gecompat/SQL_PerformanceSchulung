@@ -332,6 +332,20 @@ aufgelösten und 447 unbekannten Bedingungen mit Unknown-Digest
 Diese begrenzte Modulstartliste ist weder vollständig für spätere/dynamische
 Aufrufe noch eine Regex-Parse-, Import-, P11- oder Runtimeattestation.
 
+### DGN-007 – Regex-Literaltypen an den gepinnten Tokenizerpfad binden (17. November 2026)
+
+Der Scanner prüft jetzt die exakten CPython-3.12.16-Quellen für `re.compile`,
+`re._compiler.compile`/`isstring`, `re._parser.parse` und
+`Tokenizer.__init__`. Für die 13 direkten Literal-Kandidaten ergibt sich
+bedingt auf tatsächliche Auswertung und Parserzugang: elf Stringmuster würden
+`Tokenizer.istext=True`, zwei Byte-Muster `False` liefern. Die Parserquellen
+sind über die drei SHA-256-Werte im Scan gebunden. Parserzugang und tatsächliche
+Standardbindung von `re.compile` bleiben unbeobachtet; ein Cachetreffer kann den
+Parser umgehen. 302 fokussierte Regressionen bestehen. Scanclosure und
+Unknown-Inventar bleiben bei 60 Modulen, 316 Kanten und 447 Bedingungen;
+Unknown-Digest `742614875c7d689dd14338bfc603928908a298a5c1253c10d36fecd705ea7f95`.
+Kein Interpreter-, P11-, Runtime- oder SQL-Nachweis.
+
 ## Graph Tables – Curriculum-Lernnotiz
 
 Die [Graph-Tables-Lernnotiz](../Curriculum/GRAPH_TABLES_LESSON.md) ergänzt
