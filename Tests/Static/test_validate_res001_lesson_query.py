@@ -29,6 +29,16 @@ class Res001LessonQueryTests(unittest.TestCase):
         errors = validate_lesson(broken)
         self.assertTrue(any("captured_utc" in error for error in errors))
 
+    def test_nested_capture_alias_cannot_replace_output_marker(self) -> None:
+        broken = SOURCE.replace(
+            "SELECT @CapturedUtc AS captured_utc,",
+            "SELECT CASE WHEN scheduler_id > 0 THEN "
+            "(SELECT @CapturedUtc AS captured_utc) END AS nested_marker,",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("captured_utc" in error for error in errors))
+
     def test_cpu_runnable_and_worker_queue_metrics_stay_distinct(self) -> None:
         broken = SOURCE.replace("       runnable_tasks_count,\n", "", 1)
         self.assertTrue(any("runnable-task count" in error for error in validate_lesson(broken)))

@@ -4,7 +4,11 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from sql_lexical_utils import without_tsql_comments, without_tsql_comments_or_literals
+from sql_lexical_utils import (
+    tsql_projection_output_names,
+    without_tsql_comments,
+    without_tsql_comments_or_literals,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -52,8 +56,12 @@ def validate_lesson(text: str) -> tuple[str, ...]:
     if projection_match is None:
         errors.append("RES-001 query has no recognizable scheduler result projection")
     else:
-        projection = projection_match.group(1)
-        if not re.search(r"\bas\s+captured_utc\b", projection):
+        try:
+            output_names = tsql_projection_output_names(projection_match.group(1))
+        except ValueError as exc:
+            errors.append(f"RES-001 result projection is malformed: {exc}")
+            output_names = frozenset()
+        if "captured_utc" not in output_names:
             errors.append("scheduler result must expose the `captured_utc` marker")
         for field in (
             "scheduler_id",
@@ -62,7 +70,7 @@ def validate_lesson(text: str) -> tuple[str, ...]:
             "runnable_tasks_count",
             "work_queue_count",
         ):
-            if not re.search(rf"(?:^|,)\s*{re.escape(field)}\s*(?:,|$)", projection):
+            if field not in output_names:
                 errors.append(f"scheduler result must expose `{field}`")
     return tuple(errors)
 
