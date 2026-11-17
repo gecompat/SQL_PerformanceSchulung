@@ -12828,3 +12828,10 @@ und prüft ihn gegen die Grammatikversionen SQL Server 2019, 2022 und 2025.
 Änderungen an der Lehrnotiz lösen den statischen Vertragworkflow aus. Alle drei
 Parserläufe bestehen lokal. Das ist Syntaxevidenz, keine SQL-Server-
 Kompilierung, Berechtigungsprüfung, DMV-Qualifikation oder Runtimeevidenz.
+
+Der gleiche Parser prüft nun außerdem sämtliche SQL-Codeblöcke der bereits
+freigegebenen QRY-002-Lehrnotiz zu impliziter Konvertierung und der
+QRY-003-Lehrnotiz zu halboffenen Datumsintervallen jeweils gegen alle drei
+Grammatiken. Änderungen an diesen beiden Lesepfaden starten ebenfalls den
+statischen Vertragworkflow. Auch diese Prüfung belegt nur T-SQL-Syntax, nicht
+Ergebnissemantik oder Engineverhalten.

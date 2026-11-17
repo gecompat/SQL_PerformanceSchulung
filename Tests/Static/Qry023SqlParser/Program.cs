@@ -138,6 +138,51 @@ else
     }
 }
 
+ParseCurriculumLessonSql(
+    "Documentation/Curriculum/IMPLICIT_CONVERSION_LESSON.md",
+    "QRY-002 implicit conversion");
+ParseCurriculumLessonSql(
+    "Documentation/Curriculum/HALF_OPEN_DATE_INTERVAL_LESSON.md",
+    "QRY-003 half-open date intervals");
+
+void ParseCurriculumLessonSql(string relativePath, string lessonName)
+{
+    var lessonPath = Path.Combine(repository, relativePath);
+    var markdown = File.ReadAllText(lessonPath);
+    var blocks = System.Text.RegularExpressions.Regex.Matches(
+        markdown,
+        @"(?is)```sql\s*(.*?)```"
+    );
+    if (blocks.Count == 0)
+    {
+        failed = true;
+        Console.Error.WriteLine($"FAIL {lessonName} has no fenced SQL examples");
+        return;
+    }
+
+    var blockNumber = 0;
+    foreach (System.Text.RegularExpressions.Match block in blocks)
+    {
+        blockNumber++;
+        foreach (var dialect in dialects)
+        {
+            using var reader = new StringReader(block.Groups[1].Value);
+            _ = dialect.Parser.Parse(reader, out var errors);
+            foreach (var error in errors)
+            {
+                failed = true;
+                Console.Error.WriteLine(
+                    $"FAIL {lessonName} example {blockNumber} ({dialect.Name}) " +
+                    $"{error.Line}:{error.Column} {error.Message}");
+            }
+            if (errors.Count == 0)
+                Console.WriteLine(
+                    $"PASS {lessonName} example {blockNumber} parses in {dialect.Name} " +
+                    "(syntax only)");
+        }
+    }
+}
+
 // This is a SQLCMD include wrapper, not a standalone T-SQL source file.
 var frameworkWrapper = File.ReadAllText(Path.Combine(demo, "15_Framework.sql"));
 if (!frameworkWrapper.Contains(":r Demos/00_Framework/Sql/FWK_Measurement.sql", StringComparison.Ordinal))
