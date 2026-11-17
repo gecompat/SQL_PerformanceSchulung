@@ -13399,6 +13399,14 @@ Die synthetische Gegenprobe verändert die Gruppenmetadaten und wird verworfen.
 Das belegt ausschließlich die Struktur der gepinnten Quelle, keine
 Kompilierung, Ausführung oder konkrete Regex-Laufzeit.
 
+Der nächste statische Kandidat bindet jetzt den optionalen Debugpfad in
+`compile()`: Nach der Erzeugung von `code` prüft die Quelle
+`flags & SRE_FLAG_DEBUG` und ruft `dis(code)` auf, bevor Gruppenmetadaten
+aufgebaut und `_sre.compile` aufgerufen werden. Die Mutation des
+Disassemblierungsarguments wird verworfen. Der Bericht behauptet weder gesetzte
+Debugflags in einem konkreten Aufruf noch eine tatsächliche Ausgabe oder
+Compilerausführung.
+
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 
 Der statische Kandidat bindet jetzt den Präfixscan in `_parse_sub`: leere

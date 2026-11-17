@@ -3724,3 +3724,9 @@ Flags `flags | p.state.flags` sowie `p.state.groups - 1`, `groupindex` und
 `tuple(indexgroup)` an `_sre.compile`. Die Gruppenabbildung wird aus
 `p.state.groupdict` aufgebaut; die synthetische Metadatenmutation wird
 verworfen. Das ist ein statischer Quellenbefund und keine Laufzeitqualifikation.
+
+Ergänzender Checkpoint 18. November 2026: Der optionale Debugpfad ist an
+`flags & SRE_FLAG_DEBUG` und `dis(code)` gebunden. Er liegt nach der
+Codeerzeugung und vor Gruppenmetadaten sowie nativer Kompilierung. Die
+synthetische Mutation des Disassemblierungsarguments wird abgelehnt. Es gibt
+keinen Nachweis eines konkreten Debugaufrufs oder einer Compilerlaufzeit.
