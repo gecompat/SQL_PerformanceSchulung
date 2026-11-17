@@ -12186,6 +12186,15 @@ synthetischen Regressionen. Die Variante ist für diese drei Buildmatrizen
 qualifiziert. Eine allgemeine Deadlockfreiheitsgarantie folgt daraus nicht;
 die Range-Variante bleibt wegen der Überschneidung mit CON-002 zurückgestellt.
 
+Im anschließend ausdrücklich erweiterten Umfang liegt ein
+[Range-Methodenentwurf](CON006_RANGE_DEADLOCK_METHOD.md) vor. Er formuliert den
+möglichen Zusatznutzen als Unterscheidung zwischen einem einzelnen
+CON-002-Einfügewait und einem CON-006-Zyklus aus gegenseitigen Einfügungen in
+eine Indexlücke. Das bleibt `METHOD_DRAFT`: Die gemeinsame KEY-Ressource,
+konkreten Sperrmodi, der seriale Kontrollarm, unabhängiger Methodenreview und
+isolierter Enginepilot sind offen. CON-002 und der qualifizierte CON-006-
+Demovertrag wurden nicht geändert.
+
 ### DGN-007 – zusätzlicher CPython-Quellfact für `threading` (17. November 2026)
 
 Der gebundene Offline-Analyzer ordnet `threading.py:1365` (`old_sys_excepthook is None`)

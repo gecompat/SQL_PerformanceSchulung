@@ -2005,15 +2005,17 @@ vorhandene Grundfall samt geordneter Gegenprobe, Markern und Cleanup bleibt
 unverändert. Das ist ein Quellen-/Designvorschlag; es wurden keine
 SQL-Dateien, Manifest- oder Runtimeaussagen ergänzt.
 
-Die Range-Variante bleibt zurückgestellt: CON-002 behandelt bereits
-Schlüsselbereichssperren; die vorhandene Fixture beweist weder verschiedene
-Indexressourcen noch eine eigenständige zusätzliche Lernerfahrung. Dafür wäre
-ein eigener präziser Bereichs-/Graphvertrag nötig. Produktgrundlage für die
-Konversionsmechanik: [SRC-004](../Documentation/Research/SOURCE_REGISTER.md#src-004),
-insbesondere Shared-/Update-/Exclusive-Locks und die S→X-Konversion; der
-Deadlock-Guide beschreibt die Graph- und Opferbelege unter
-[SRC-066](../Documentation/Research/SOURCE_REGISTER.md#src-066). Die Graphzuordnung und das
-Verhalten auf den Zielbuilds bleiben empirische Gates.
+Die frühere Zurückstellung beruhte auf der Überschneidung mit dem geplanten
+CON-002-Einzelblockierungsfall und fehlendem eigenständigem Lernzuwachs. Nach
+der ausdrücklichen Wiederaufnahme der Deadlockvarianten liegt nun ein
+[CON-006-Range-Methodenentwurf](../Documentation/Project_Planning/CON006_RANGE_DEADLOCK_METHOD.md)
+vor: Er stellt eine einzelne Wait-/Freigabefolge einem möglichen Zyklus aus
+gegenseitigen Einfügungen in eine Indexlücke gegenüber. Dies ist ein
+prüfbarer Lernzuwachsvorschlag, keine formale Freigabe, tatsächliche
+Graphbestätigung oder Laufzeitqualifikation. Gemeinsame KEY-Ressource,
+Sperrmodi, serialer Kontrollarm, unabhängiger Methodenreview und isolierter
+Enginepilot bleiben offen. Produktgrundlage: [SRC-004](../Documentation/Research/SOURCE_REGISTER.md#src-004)
+und Deadlock-Graph-/Opferbelege [SRC-066](../Documentation/Research/SOURCE_REGISTER.md#src-066).
 
 **Spätere Abnahme:**
 
