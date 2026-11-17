@@ -254,6 +254,16 @@ class GrantQueryContractTests(unittest.TestCase):
         )
         validate_sql(altered)
 
+    def test_extra_conjunct_cannot_suppress_all_own_wait_rows(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "      AND r.wait_type = N'RESOURCE_SEMAPHORE'\n),",
+            "      AND r.wait_type = N'RESOURCE_SEMAPHORE' AND 1 = 0\n),",
+            1,
+        )
+        with self.assertRaisesRegex(ContractError, "only the required"):
+            validate_sql(altered)
+
     def test_ambiguous_or_duplicate_query_fence_fails(self) -> None:
         markdown = source_markdown()
         with self.assertRaises(ContractError):

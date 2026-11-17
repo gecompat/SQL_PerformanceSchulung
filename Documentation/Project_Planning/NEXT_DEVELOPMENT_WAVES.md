@@ -3375,3 +3375,7 @@ Ein gemeinsamer T-SQL-Helfer extrahiert jetzt genau einen benannten, balancierte
 Eine Negativprobe entfernte `scheduler_id < 255` und `is_online = 1` aus dem Abfragefilter, beließ beide Ausdrücke aber in einem wirkungslosen `CASE`. Der bisherige globale Fragmentvergleich akzeptierte dadurch eine Query, die auch verborgene oder offline Scheduler zurückgeben konnte.
 
 Der statische Lehrvalidator verlangt nun die zusammenhängende Scheduler-Scope-Bedingung im aktiven `WHERE` vor der Sortierung. Eine Regression schützt den reproduzierten Gegenfall. Neun Lehrvalidator-Tests, der Validator und 16 Tests der getrennten Worker-Queue-Evidenzsuite bestehen. Es entsteht kein Scheduler-Runtime- oder Worker-Erschöpfungsnachweis.
+
+### RES-004 – zusätzliche Filter dürfen Wait-Kandidaten nicht unterdrücken (17. November 2026)
+
+Eine Negativprobe ergänzte `AND 1 = 0` nach den geforderten Grant- und Waitfiltern im `OwnWaits`-CTE. Der Validator akzeptierte damit eine Abfrage, die garantiert keine eigenen Wait-Zeilen liefern konnte. Der statische Vertrag verlangt jetzt, dass die aktive `WHERE`-Bedingung exakt die zwei vereinbarten Filter enthält; zusätzliche Prädikate werden abgewiesen. Die Regression sichert den unterdrückenden Zusatzfilter. 26 Lehrabfragetests, der Abfragevalidator und 24 Offlinevertragstests bestehen. Es bleibt eine lexikalische Quellstrukturprüfung ohne T-SQL-Parser, authentische DMV-Aufnahme oder Engine-Nachweis.

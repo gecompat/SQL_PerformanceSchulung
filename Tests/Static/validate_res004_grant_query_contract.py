@@ -112,6 +112,13 @@ def validate_sql(sql: str) -> None:
             or "where mg.grant_time is null and r.wait_type = n'resource_semaphore'"
             not in own_waits_with_literals):
         raise ContractError("own-wait grant and wait-type filters must constrain OwnWaits")
+    expected_own_wait_where = (
+        "mg.grant_time is null and r.wait_type = n__tsql_literal_0__"
+    )
+    if own_waits_where.group(1).strip() != expected_own_wait_where:
+        raise ContractError(
+            "own-wait WHERE must contain only the required grant and wait predicates"
+        )
     if normalized.count("sysutcdatetime()") != 1 or normalized.count("@capturedat") != 2:
         raise ContractError("query must use exactly one capture marker for the complete observation")
     for binding in (
