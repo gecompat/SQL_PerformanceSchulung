@@ -3580,3 +3580,18 @@ Runtime-/P11-Gate. Umfang: ein Paket, ein PR, eine gezielte Regression; keine
 neue Produktquelle, kein Interpreter-/Container-/SQL-/Lab-Lauf und keine
 menschliche Generalprobe. Mit dem nächsten einzeln belegbaren Quellenkandidaten
 fortfahren.
+
+### DGN-007 – Regex-Literaltypen bis zum Tokenizerpfad binden (17. November 2026)
+
+Ein weiterer statischer Fact bindet die drei gepinnten CPython-Quellmodule für
+`re.compile` → `re._compiler.compile`/`isstring` → `re._parser.parse` →
+`Tokenizer.__init__`. Für die 13 direkten Quellkandidaten folgt bedingt darauf,
+dass das Muster ausgewertet und der Parser erreicht wird: elf Stringliterale
+setzen `istext` auf `True`, zwei Byte-Literale auf `False`. Die 302 fokussierten
+Regressionen und der vollständige Zielscan bestehen. Der Scan bleibt
+`CANDIDATES_ONLY` mit 60 Modulen, 316 Kanten und 447 unbekannten Bedingungen;
+Parserzugang, Standardbindung der `re.compile`-Aufrufe sowie tatsächliche
+Ausführung bleiben unbeobachtet; ein Regexcachetreffer kann den Parserpfad
+überspringen. Umfang: ein Paket, ein PR, eine gezielte Regression; keine neue
+Produktquelle, kein Interpreter-/Container-/SQL-/Lab-Lauf und keine menschliche
+Generalprobe. Mit dem nächsten einzeln belegbaren Quellenkandidaten fortfahren.

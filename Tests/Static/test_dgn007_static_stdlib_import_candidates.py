@@ -5134,6 +5134,78 @@ def deferred():
         )
         self.assertEqual([row["line"] for row in attribute_rebound], [2])
 
+    def test_re_compile_literal_types_bind_to_pinned_tokenizer_source_flow(self):
+        files = {
+            "pkg.py": b"import re\nre.compile('text')\nre.compile(b'bytes')\n",
+            "re/__init__.py": (
+                b"def compile(pattern, flags=0):\n"
+                b"    return _compile(pattern, flags)\n"
+                b"def _compile(pattern, flags=0):\n"
+                b"    return _compiler.compile(pattern, flags)\n"
+            ),
+            "re/_compiler.py": (
+                b"def isstring(obj):\n"
+                b"    return isinstance(obj, (str, bytes))\n"
+                b"def compile(p, flags=0):\n"
+                b"    if isstring(p):\n"
+                b"        pattern = p\n"
+                b"        p = _parser.parse(p, flags)\n"
+                b"    else:\n"
+                b"        pattern = None\n"
+            ),
+            "re/_parser.py": (
+                b"class Tokenizer:\n"
+                b"    def __init__(self, string):\n"
+                b"        self.istext = isinstance(string, str)\n"
+                b"def parse(str, flags=0, state=None):\n"
+                b"    source = Tokenizer(str)\n"
+            ),
+        }
+        digests = {
+            "RE_INIT_SOURCE_SHA256": hashlib.sha256(files["re/__init__.py"]).hexdigest(),
+            "RE_COMPILER_SOURCE_SHA256": hashlib.sha256(
+                files["re/_compiler.py"]
+            ).hexdigest(),
+            "RE_PARSER_SOURCE_SHA256": hashlib.sha256(
+                files["re/_parser.py"]
+            ).hexdigest(),
+        }
+        with (patch.object(SUBJECT, "RE_INIT_SOURCE_SHA256", digests[
+                    "RE_INIT_SOURCE_SHA256"]),
+              patch.object(SUBJECT, "RE_COMPILER_SOURCE_SHA256", digests[
+                    "RE_COMPILER_SOURCE_SHA256"]),
+              patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256", digests[
+                    "RE_PARSER_SOURCE_SHA256"])):
+            candidates = SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                files, ("pkg", "re", "re._compiler", "re._parser"),
+            )
+            self.assertEqual(len(candidates), 2)
+            self.assertEqual(
+                [row["pattern_type_if_call_evaluates"] for row in candidates],
+                ["str", "bytes"],
+            )
+            self.assertEqual(
+                [row["tokenizer_istext_if_parser_entry_reached"]
+                 for row in candidates],
+                [True, False],
+            )
+            self.assertTrue(all(not row["parser_entry_observed"]
+                                and not row["standard_re_compile_binding_observed"]
+                                for row in candidates))
+
+            altered = dict(files)
+            altered["re/_parser.py"] = altered["re/_parser.py"].replace(
+                b"isinstance(string, str)", b"isinstance(string, bytes)",
+            )
+            altered_digest = hashlib.sha256(altered["re/_parser.py"]).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256", altered_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered, ("pkg", "re", "re._compiler", "re._parser"),
+                    ),
+                    [],
+                )
+
     def test_functools_negative_cache_size_guard_requires_all_pinned_callers(self):
         lines = [""] * 565
         lines[481] = "def lru_cache(maxsize=128, typed=False):"
@@ -11036,6 +11108,9 @@ static struct PyModuleDef sysmodule = {
         self.assertIn("module_init_call_roots_outside_source_stdlib_names", labels)
         self.assertIn("module_init_call_source_candidates", labels)
         self.assertIn("target_module_init_re_compile_input_candidates", labels)
+        self.assertIn(
+            "target_module_init_re_compile_tokenizer_input_type_candidates", labels,
+        )
         self.assertIn("target_platform_source_candidates", labels)
         self.assertIn(
             "MODULE_CLASS_AND_KNOWN_LINUX_CPYTHON312_IF_BUILTIN_AND_IMPORTED_MODULE_NAME_BRANCHES",
