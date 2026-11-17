@@ -4,6 +4,7 @@ import unittest
 
 from sql_lexical_utils import (
     split_tsql_projection_items,
+    tsql_projection_has_direct_column_binding,
     tsql_projection_has_exact_item,
     tsql_projection_output_names,
 )
@@ -45,6 +46,22 @@ class TsqlProjectionTests(unittest.TestCase):
         self.assertFalse(tsql_projection_has_exact_item(
             "CASE WHEN x = 1 THEN (SELECT @captured AS captured_utc) END AS nested_marker",
             "@captured AS captured_utc",
+        ))
+
+    def test_direct_column_binding_rejects_constant_and_expression_substitutes(self) -> None:
+        self.assertTrue(tsql_projection_has_direct_column_binding(
+            "s.scheduler_id, current_workers_count AS current_workers_count",
+            "current_workers_count",
+        ))
+        self.assertTrue(tsql_projection_has_direct_column_binding(
+            "s.scheduler_id AS scheduler_id", "scheduler_id",
+        ))
+        self.assertFalse(tsql_projection_has_direct_column_binding(
+            "CASE WHEN current_workers_count > 0 THEN 0 ELSE 0 END AS current_workers_count",
+            "current_workers_count",
+        ))
+        self.assertFalse(tsql_projection_has_direct_column_binding(
+            "0 AS scheduler_id", "scheduler_id",
         ))
 
     def test_unbalanced_projection_fails_closed(self) -> None:
