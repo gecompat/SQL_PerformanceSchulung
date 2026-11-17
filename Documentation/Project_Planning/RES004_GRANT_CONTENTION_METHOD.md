@@ -14,8 +14,8 @@ Der Pilot soll zeigen, wie eine bekannte eigene Anforderung auf
 `RESOURCE_SEMAPHORE` wartet, während derselben Resource-Pool-/Semaphoregruppe
 mindestens ein weiterer Grant erteilt ist. Der eigene wartende Request muss in
 `sys.dm_exec_requests` stehen und über identische `session_id`/`request_id` mit
-`grant_time IS NULL` und positiver Grant-Wartezeit in
-`sys.dm_exec_query_memory_grants` verbunden sein. Ein Snapshot aus
+`grant_time IS NULL` und einem positiven `wait_time_ms`-Wert aus derselben
+Zeile in `sys.dm_exec_query_memory_grants` verbunden sein. Ein Snapshot aus
 `sys.dm_exec_query_resource_semaphores` muss für denselben Pool, dieselbe
 Semaphore und denselben UTC-Capturewert positive `waiter_count` und
 `grantee_count` ausweisen. Mindestens ein weiterer Grant derselben Semaphore

@@ -23,13 +23,21 @@ Die DMV-Spalten beantworten unterschiedliche Fragen:
 | `granted_memory_kb` | aktuell gewährte Menge; bei noch nicht gewährtem Request `NULL` |
 | `used_memory_kb`, `max_used_memory_kb` | momentane und bislang höchste Nutzung; `max_used_memory_kb` wächst während der Ausführung |
 | `grant_time` | `NULL`, solange noch keine Zuteilung erfolgt ist |
-| `queue_id`, `wait_order`, `wait_time_ms` | Einordnung und bisherige Wartezeit einer noch wartenden Anforderung |
+| `queue_id`, `wait_order`, `wait_time_ms` | Einordnung und bisherige Wartezeit einer noch wartenden Anforderung; `wait_time_ms` ist `NULL`, sobald der Grant erteilt wurde |
 
 Ein einzelner früher Nutzungsschnappschuss begründet weder Overgrant noch
 Undergrant. Dafür sind die angeforderte und gewährte Menge, die Nutzung bis
 zum Ende der Ausführung, der Plan und ein möglicher Spill getrennt zu
 betrachten. Memory Grant Feedback betrifft die Anpassung über Ausführungen;
 es ersetzt keinen Nachweis des aktuellen Request-Zustands.
+
+Der strengere RES-004-Pilotvertrag verlangt für den eigenen wartenden Grant
+zusätzlich `mg.wait_time_ms > 0` aus derselben Grant-Zeile. Die Abfrage gibt
+diesen Rohwert zusammen mit `r.wait_time` aus: Beide Wartezeitfelder stammen
+aus unterschiedlichen DMVs und werden weder gleichgesetzt noch gegeneinander
+verrechnet. Ein fehlender oder nicht positiver Grant-Wartewert erfüllt diesen
+Pilotvertrag nicht; daraus folgt nicht, dass die DMV-Abfrage selbst eine
+atomare Momentaufnahme wäre.
 
 ## Den wartenden eigenen Request an den Wait binden
 

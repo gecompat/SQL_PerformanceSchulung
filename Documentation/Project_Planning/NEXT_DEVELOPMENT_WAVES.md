@@ -53,6 +53,21 @@ Qualifikation oder menschliche Generalprobe. Der separat autorisierte
 isolierte Pilot bleibt ein eigenes Gate. Es gibt keinen Budgetreset;
 Token- und Geldverbrauch sind nicht verlässlich gemessen.
 
+### RES-004 – finale Ausgabe der Grant-Wartezeit absichern (17. November 2026)
+
+Dieser freigegebene Offlinepunkt bindet die von der Lehrnotiz und dem
+Methodenentwurf geforderte Grant-Wartezeit `mg.wait_time_ms` an die finale
+Diagnoseprojektion. Zwei synthetische Negativfälle schützen gegen einen Wert,
+der nur in einem CTE vorkommt, und gegen einen konstanten Ersatz mit gleichem
+Alias. Die Curriculum-Erklärung trennt die positive Grant-Wartezeit vom
+unabhängigen Requestfeld `r.wait_time`. 31 Lehrabfrage- und 24
+Offlinevertragstests sowie die Struktur- und Curriculumvalidatoren bestehen;
+die T-SQL-Beispiele parsen weiterhin unter SQL Server 2019, 2022 und 2025.
+Umfang: ein Arbeitspaket, ein PR, keine neue Quelle, keine SQL-/Lab-/Runtime-
+Ausführung und keine menschliche Generalprobe. Methodenreview, echte DMV-
+Herkunft, numerische Ressourcen- und Zeitgrenzen sowie isolierter Pilot bleiben
+offen.
+
 ### Begrenzung der Fortsetzung vom 12. November 2026
 
 Der Nutzer hat die Bearbeitung aller restlichen freigegebenen Themen fortgesetzt
