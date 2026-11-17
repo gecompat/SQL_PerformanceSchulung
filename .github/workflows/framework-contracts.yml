@@ -35,6 +35,9 @@ on:
       - 'Tests/Static/test_res004_grant_wait_contract.py'
       - 'Tests/Static/res001_worker_queue_contract.py'
       - 'Tests/Static/test_res001_worker_queue_contract.py'
+      - 'Tests/Static/validate_res001_lesson_query.py'
+      - 'Tests/Static/test_validate_res001_lesson_query.py'
+      - 'Documentation/Curriculum/WORKER_QUEUE_PRESSURE_LESSON.md'
       - 'Tests/Static/res003_memory_signal_contract.py'
       - 'Tests/Static/test_res003_memory_signal_contract.py'
       - 'Tests/Static/validate_qry023_proposed_harness.py'
@@ -87,6 +90,9 @@ on:
       - 'Tests/Static/test_res004_grant_wait_contract.py'
       - 'Tests/Static/res001_worker_queue_contract.py'
       - 'Tests/Static/test_res001_worker_queue_contract.py'
+      - 'Tests/Static/validate_res001_lesson_query.py'
+      - 'Tests/Static/test_validate_res001_lesson_query.py'
+      - 'Documentation/Curriculum/WORKER_QUEUE_PRESSURE_LESSON.md'
       - 'Tests/Static/res003_memory_signal_contract.py'
       - 'Tests/Static/test_res003_memory_signal_contract.py'
       - 'Tests/Static/validate_qry023_proposed_harness.py'
@@ -171,6 +177,12 @@ jobs:
 
       - name: Test RES-001 supplied worker queue contract
         run: python Tests/Static/test_res001_worker_queue_contract.py
+
+      - name: Validate RES-001 lesson query source contract
+        run: python Tests/Static/validate_res001_lesson_query.py
+
+      - name: Test RES-001 lesson query source contract
+        run: python Tests/Static/test_validate_res001_lesson_query.py
 
       - name: Test RES-003 supplied memory signal contract
         run: python Tests/Static/test_res003_memory_signal_contract.py
