@@ -13340,6 +13340,17 @@ den Kandidaten verwerfen. Der Befund behauptet keine tatsächliche
 Alternationsverarbeitung. Nächster Quellfact ist die strukturelle
 Rückgabebehandlung für mehrere Alternativen und deren Subpattern-Aufbau.
 
+### DGN-007 – Voraussetzungen des Zeichensatz-Kurzpfads binden (18. November 2026)
+
+Die gepinnte `_parse_sub`-Quelle prüft jetzt statisch, dass jede Alternative
+genau ein Element enthalten muss, damit die Zeichensatzverkürzung in Betracht
+kommt. Der Kandidat bindet `LITERAL`-Elemente als einzelne Einträge und
+nicht-negierte `IN`-Elemente als erweiterte Menge; nur bei normalem Abschluss
+der Schleife folgt der `(IN, _uniq(set))`-Subpattern-Pfad. Änderungen an der
+zugelassenen Elementart verwerfen den synthetischen Kandidaten. Die Bindung
+belegt keine tatsächliche Auswahl der Optimierung. Als nächstes werden die
+Voraussetzungen für den gemeinsamen Alternationspräfix eingegrenzt.
+
 ### DGN-007 – Mehrfachalternativen und Subpattern-Rückgaben binden (17. November 2026)
 
 Der statische Kandidat unterscheidet jetzt die Rückgabe `items[0]` für eine

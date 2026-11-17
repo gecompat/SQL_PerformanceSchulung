@@ -8499,6 +8499,60 @@ def _target_re_parser_multi_alternative_return_candidate(files):
     }
 
 
+def _target_re_parser_charset_shortcut_candidate(files):
+    """Bind the syntactic guards for the parser's character-set shortcut."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    parsers = [node for node in tree.body
+               if isinstance(node, ast.FunctionDef) and node.name == "_parse_sub"]
+    if len(parsers) != 1:
+        return None
+    loops = [node for node in ast.walk(parsers[0])
+             if isinstance(node, ast.For)
+             and isinstance(node.target, ast.Name) and node.target.id == "item"
+             and isinstance(node.iter, ast.Name) and node.iter.id == "items"
+             and node.orelse and node.body and isinstance(node.body[0], ast.If)
+             and ast.unparse(node.body[0].test) == "len(item) != 1"]
+    if len(loops) != 1:
+        return None
+    loop = loops[0]
+    expected_kind_dispatch = (
+        "if op is LITERAL:\n"
+        "    set.append((op, av))\n"
+        "elif op is IN and av[0][0] is not NEGATE:\n"
+        "    set.extend(av)\n"
+        "else:\n"
+        "    break"
+    )
+    if (len(loop.body) != 3
+            or len(loop.body[0].body) != 1
+            or not isinstance(loop.body[0].body[0], ast.Break)
+            or ast.unparse(loop.body[1]) != "op, av = item[0]"
+            or ast.unparse(loop.body[2]) != expected_kind_dispatch
+            or len(loop.orelse) != 2
+            or ast.unparse(loop.orelse[0])
+            != "subpattern.append((IN, _uniq(set)))"
+            or ast.unparse(loop.orelse[1]) != "return subpattern"):
+        return None
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "each_alternative_must_have_one_item": "len(item) != 1 breaks shortcut",
+        "accepted_item_kinds": ["LITERAL", "non-NEGATE IN"],
+        "literal_items_added_as": "set.append((op, av))",
+        "positive_character_set_items_added_as": "set.extend(av)",
+        "shortcut_on_full_loop_completion": "subpattern.append((IN, _uniq(set)))",
+        "parser_execution_observed": False,
+        "evidence_scope": "PINNED_RE_PARSER_CHARACTER_SET_SHORTCUT_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8530,11 +8584,13 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     parser_multi_alternative_candidate = (
         _target_re_parser_multi_alternative_return_candidate(files)
     )
+    parser_charset_candidate = _target_re_parser_charset_shortcut_candidate(files)
     if (cache_path_candidate is None or tokenizer_access_candidate is None
             or parser_sourceget_candidate is None
             or parser_sub_dispatch_candidate is None
             or parser_alternation_candidate is None
-            or parser_multi_alternative_candidate is None):
+            or parser_multi_alternative_candidate is None
+            or parser_charset_candidate is None):
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -8884,6 +8940,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_sub_dispatch_candidate": parser_sub_dispatch_candidate,
             "parser_alternation_candidate": parser_alternation_candidate,
             "parser_multi_alternative_candidate": parser_multi_alternative_candidate,
+            "parser_charset_candidate": parser_charset_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })
