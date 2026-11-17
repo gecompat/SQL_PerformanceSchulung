@@ -12137,6 +12137,16 @@ Ergebnisse dürfen nicht unter einem wiederverwendeten Zeitstempel kombiniert
 werden. Diese Grenze ist mit dem bestehenden read-only Abfragemuster der
 Lehrnotiz abgeglichen. Der unabhängige Methodenreview bleibt offen.
 
+Der statische RES-004-Vertrag akzeptiert jetzt auch UTC-Capturezeitpunkte mit
+sieben Nachkommastellen, passend zu `datetime2(7)` und der im SQL-Server-
+Zeittyp dokumentierten 100-Nanosekunden-Genauigkeit. Die Originalzeichenfolge
+bleibt für den Gleichheitsabgleich erhalten; die auf sechs Stellen begrenzte
+Python-Datetime-Konvertierung dient nur der Kalender-/Offsetvalidierung.
+Gegenproben akzeptieren sieben Stellen und weisen acht Stellen zurück. Der
+Vertrag authentifiziert weiterhin keine DMV-Aufnahme und ersetzt weder den
+offenen Methodenreview noch die Runtimeprobe. [Microsoft-Dokumentation zu
+`datetime2`](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17)
+
 ### IDX-007 – Methodenentwurf zur rechten Blattseite (17. November 2026)
 
 Der [Seitenkettenentwurf](IDX007_RIGHTMOST_PAGE_METHOD.md) ergänzt den
