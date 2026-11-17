@@ -23,6 +23,30 @@ Die [Featurematrix](../Research/SQL_SERVER_2025_AI_FEATURE_MATRIX.md) stellt die
 Voraussetzungen gegenüber. Eine dokumentierte Fähigkeit ist noch kein Nachweis,
 dass die konkrete Anwendung sie erfolgreich verwendet hat.
 
+## Vector-Indexgeneration als zusätzliche Grenze
+
+Engine, Compatibility Level und Treiber bestimmen noch nicht, welche
+Vector-Indexgeneration eine Suche verwendet. Microsoft führt
+[Vectorindizes](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-vector-index-transact-sql?view=sql-server-ver17)
+und [`VECTOR_SEARCH`](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-search-transact-sql?view=sql-server-ver17)
+für SQL Server 2025 weiterhin als Preview mit `PREVIEW_FEATURES`. Die neueste
+Indexgeneration Version 3 wird in der aktuellen
+Herstellerdokumentation für Azure SQL Database, SQL database in Microsoft Fabric
+und Azure SQL Managed Instance mit Always-up-to-date genannt, nicht für SQL
+Server 2025. Übertragen Sie ihre DML- und Filtereigenschaften daher nicht
+ungeprüft auf die SQL-Server-2025-Engine.
+
+Die Suchsyntax hängt ebenfalls von der Generation ab: frühere Versionen nutzen
+`TOP_N` innerhalb von `VECTOR_SEARCH`; Version 3 nutzt `SELECT TOP (N) WITH
+APPROXIMATE`. Microsoft ordnet Postfilterung, die Read-only-Grenze nach dem
+Indexbuild und den clustered-`int`-Primärschlüssel den früheren Versionen zu.
+Ermitteln Sie vor der Wahl des Suchpfads die Generation des konkreten Indexes
+und lesen Sie dessen Metadaten. Die Plattformdokumentation beweist weder die
+Generation noch den tatsächlichen Suchplan eines bestimmten Builds. Der
+Projektbuild 17.0.5005.3 bleibt hierbei unqualifiziert; der
+[Build-/Suchbefund](../Project_Planning/SQL_SERVER_2025_AI_ANN_BUILD_REVIEW.md)
+erläutert die Grenze.
+
 ## Drei kleine Fehler- und Entscheidungsfälle
 
 ### 1. Neuer Client, ältere Engine
@@ -108,6 +132,10 @@ Live-RAG-, Provider-, Modell- oder Performanceabnahme.
 
 Die Primärquellen [VECTOR](https://learn.microsoft.com/en-us/sql/t-sql/data-types/vector-data-type?view=sql-server-ver17)
 (SRC-072) und [AI_GENERATE_CHUNKS](https://learn.microsoft.com/en-us/sql/t-sql/functions/ai-generate-chunks-transact-sql?view=sql-server-ver17)
-(SRC-079) wurden für diesen Abgleich am 2026-10-13 erneut geprüft. Weitere
+(SRC-079) wurden für diesen Abgleich am 2026-10-13 erneut geprüft. Die Quellen
+[`CREATE VECTOR INDEX`](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-vector-index-transact-sql?view=sql-server-ver17)
+(SRC-077) und [`VECTOR_SEARCH`](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-search-transact-sql?view=sql-server-ver17)
+(SRC-078) wurden am 2026-11-17 nur hinsichtlich Indexgeneration,
+Plattformverfügbarkeit und Suchsyntax erneut geprüft. Weitere
 Quellenangaben stehen im [Quellenregister](../Research/SOURCE_REGISTER.md).
 Der allgemeine Prüfstand der übrigen Featurematrix bleibt 2026-10-11.

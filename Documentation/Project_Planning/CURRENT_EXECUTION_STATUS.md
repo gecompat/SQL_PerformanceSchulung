@@ -12399,3 +12399,19 @@ der RES-004-Offlinedatenvertrag mit 24 Tests und der Curriculumvalidator.
 Das bleibt eine statische Strukturprüfung ohne T-SQL-Parser, authentische
 DMV-Herkunft oder Engine-/Grant-Wait-Nachweis; Methodenreview und isolierter
 SQL-Server-2025-Pilot sind weiterhin offen.
+
+
+### SQL Server 2025 – Vector-Indexgeneration in der Kompatibilitätshilfe ergänzen (17. November 2026)
+
+Ein erneuter, eng begrenzter Quellenabgleich der Microsoft-Seiten `SRC-077`
+(`CREATE VECTOR INDEX`) und `SRC-078` (`VECTOR_SEARCH`) bestätigt eine neueste
+Indexgeneration Version 3 mit eigener `SELECT TOP (N) WITH APPROXIMATE`-Syntax,
+DML und iterativer Filterung. Die aktuelle Plattformliste nennt diese Version
+für Azure SQL Database, SQL database in Microsoft Fabric und Azure SQL Managed
+Instance mit Always-up-to-date, nicht für SQL Server 2025. Die Featurematrix
+enthielt bereits die Trennung zwischen älteren und neuesten Generationen; die
+VECTOR-Kompatibilitätshilfe erklärt diese Grenze jetzt als zusätzlichen
+Prüfschritt und verweist auf die konkreten Generationsmetadaten. `SRC-077/078`
+sind mit Abrufdatum 2026-11-17 aktualisiert. Keine neue Engineausführung:
+Indexgeneration, Suchpfad und DML-Verhalten des Projektbuilds 17.0.5005.3
+bleiben unqualifiziert.
