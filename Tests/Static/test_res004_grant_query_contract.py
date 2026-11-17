@@ -83,6 +83,11 @@ class GrantQueryContractTests(unittest.TestCase):
         altered = "DECLARE @CommentText nvarchar(40) = N'-- /* text */';\n" + query
         validate_sql(altered)
 
+    def test_cte_declaration_text_inside_string_is_ignored(self) -> None:
+        query = extract_query(source_markdown())
+        altered = "DECLARE @Text nvarchar(80) = N'OwnWaits AS (not a CTE)';\n" + query
+        validate_sql(altered)
+
     def test_unterminated_block_comment_fails_closed(self) -> None:
         query = extract_query(source_markdown()) + "\n/* unfinished"
         with self.assertRaises(ContractError):
