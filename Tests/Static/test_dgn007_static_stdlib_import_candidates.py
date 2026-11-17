@@ -5218,6 +5218,64 @@ def deferred():
             SUBJECT._regex_verbose_ignored_syntax_candidates(42, frozenset(" ")),
         )
 
+    def test_pinned_re_compile_cache_path_precedes_parser_without_observing_cache(self):
+        source = (
+            b"_cache2 = {}\n"
+            b"_cache = {}\n"
+            b"def _compile(pattern, flags):\n"
+            b"    if isinstance(flags, RegexFlag):\n"
+            b"        flags = flags.value\n"
+            b"    try:\n"
+            b"        return _cache2[type(pattern), pattern, flags]\n"
+            b"    except KeyError:\n"
+            b"        pass\n"
+            b"    key = (type(pattern), pattern, flags)\n"
+            b"    p = _cache.pop(key, None)\n"
+            b"    if p is None:\n"
+            b"        if isinstance(pattern, Pattern):\n"
+            b"            if flags:\n"
+            b"                raise ValueError\n"
+            b"            return pattern\n"
+            b"        if not _compiler.isstring(pattern):\n"
+            b"            raise TypeError\n"
+            b"        p = _compiler.compile(pattern, flags)\n"
+            b"    _cache[key] = p\n"
+            b"    _cache2[key] = p\n"
+            b"    return p\n"
+        )
+        with patch.object(
+                SUBJECT, "RE_INIT_SOURCE_SHA256",
+                hashlib.sha256(source).hexdigest()):
+            fact = SUBJECT._target_re_compile_cache_path_candidate(
+                {"re/__init__.py": source},
+            )
+            self.assertEqual(fact["cache_lookup_order"], ["_cache2", "_cache"])
+            self.assertEqual(
+                fact["cache_key_expression"],
+                "(type(pattern), pattern, flags)",
+            )
+            self.assertTrue(fact["parser_compile_call_on_both_cache_misses_candidate"])
+            self.assertFalse(fact["cache_state_observed"])
+            self.assertFalse(fact["cache_lookup_observed"])
+            self.assertFalse(fact["parser_entry_observed"])
+
+            for original, replacement in (
+                    (b"return _cache2[type(pattern), pattern, flags]",
+                     b"return _cache[type(pattern), pattern, flags]"),
+                    (b"key = (type(pattern), pattern, flags)",
+                     b"key = (type(pattern), pattern, 0)"),
+                    (b"p = _cache.pop(key, None)",
+                     b"p = _cache2.pop(key, None)"),
+                    (b"p = _compiler.compile(pattern, flags)",
+                     b"p = _compiler.other(pattern, flags)")):
+                changed = source.replace(original, replacement, 1)
+                with patch.object(
+                        SUBJECT, "RE_INIT_SOURCE_SHA256",
+                        hashlib.sha256(changed).hexdigest()):
+                    self.assertIsNone(SUBJECT._target_re_compile_cache_path_candidate(
+                        {"re/__init__.py": changed},
+                    ))
+
     def test_re_compile_literal_types_bind_to_pinned_tokenizer_source_flow(self):
         files = {
             "pkg.py": (
@@ -5238,10 +5296,30 @@ def deferred():
                 b"    MULTILINE = M = _compiler.SRE_FLAG_MULTILINE\n"
                 b"    DOTALL = S = _compiler.SRE_FLAG_DOTALL\n"
                 b"    VERBOSE = X = _compiler.SRE_FLAG_VERBOSE\n"
+                b"_cache2 = {}\n"
+                b"_cache = {}\n"
                 b"def compile(pattern, flags=0):\n"
                 b"    return _compile(pattern, flags)\n"
                 b"def _compile(pattern, flags):\n"
-                b"    return _compiler.compile(pattern, flags)\n"
+                b"    if isinstance(flags, RegexFlag):\n"
+                b"        flags = flags.value\n"
+                b"    try:\n"
+                b"        return _cache2[type(pattern), pattern, flags]\n"
+                b"    except KeyError:\n"
+                b"        pass\n"
+                b"    key = (type(pattern), pattern, flags)\n"
+                b"    p = _cache.pop(key, None)\n"
+                b"    if p is None:\n"
+                b"        if isinstance(pattern, Pattern):\n"
+                b"            if flags:\n"
+                b"                raise ValueError\n"
+                b"            return pattern\n"
+                b"        if not _compiler.isstring(pattern):\n"
+                b"            raise TypeError\n"
+                b"        p = _compiler.compile(pattern, flags)\n"
+                b"    _cache[key] = p\n"
+                b"    _cache2[key] = p\n"
+                b"    return p\n"
             ),
             "re/_compiler.py": (
                 b"from ._constants import *\n"
@@ -5353,6 +5431,15 @@ def deferred():
             self.assertTrue(all(not row["parser_entry_observed"]
                                 and not row["standard_re_compile_binding_observed"]
                                 for row in candidates))
+            self.assertTrue(all(
+                row["cache_path_candidate"]["cache_lookup_order"]
+                == ["_cache2", "_cache"] for row in candidates
+            ))
+            self.assertTrue(all(
+                not row["cache_path_candidate"]["cache_state_observed"]
+                and not row["cache_path_candidate"]["parser_entry_observed"]
+                for row in candidates
+            ))
             self.assertTrue(all(not row["standard_re_flag_binding_observed"]
                                 for row in candidates))
 

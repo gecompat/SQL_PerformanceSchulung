@@ -3637,3 +3637,15 @@ Regression, keine neue Produktquelle und keine Interpreter-/Container-/SQL-/
 Lab-Ausführung oder menschliche Generalprobe. Der Befund bleibt
 `CANDIDATES_ONLY`; weitere freigegebene Entwicklungsbereiche werden unabhängig
 davon fortgesetzt.
+
+### DGN-007 – Cachelookup vor dem Regexparser binden (17. November 2026)
+
+Die Fortsetzung nach PR #1045 ist auf ein Offlinepaket, einen PR und einen
+bereits gepinnten CPython-Quellkandidaten begrenzt; keine neue Produktquelle,
+kein Image-/Container-/SQL-/Runtime-Lauf und keine menschliche Generalprobe.
+Der Paketinhalt bindet die Reihenfolge `_cache2` → `_cache` und den gemeinsamen
+Pattern-/Flags-Schlüssel an `re._compile`, ohne einen aktuellen Cachezustand oder
+Parseraufruf zu behaupten. Nach diesem Checkpoint ist als nächster separater
+Kandidat die Byte-zu-Text- und Escapezeichenbehandlung von `Tokenizer` gegen die
+bereits gepinnte `re/_parser.py`-Quelle zu prüfen. Die Kandidaten bleiben
+statische Quellbefunde und schließen weder P11- noch Runtimegates.

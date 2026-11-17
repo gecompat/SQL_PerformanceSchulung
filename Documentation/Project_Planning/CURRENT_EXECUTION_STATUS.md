@@ -13270,3 +13270,19 @@ Hinweis auf ignorierten Leerraum oder Kommentartext in diesen 13 Literalen.
 304 fokussierte Regressionen bestehen. Aufruf, Parserzugang und tatsächliche
 Ausführung bleiben unbeobachtet; Ergebnis weiterhin `CANDIDATES_ONLY`, ohne
 Interpreter-, P11-, Worker-, Container-, SQL- oder Runtimeattestation.
+
+### DGN-007 – Cachepfad vor dem Regexparser quellenbinden (17. November 2026)
+
+Der statische Kandidatenbericht bindet jetzt zusätzlich den gepinnten
+`re._compile`-Pfad in CPython 3.12.16: `RegexFlag`-Werte werden vor dem Lookup
+normalisiert; zuerst wird `_cache2`, danach `_cache` mit dem Schlüssel
+`(type(pattern), pattern, flags)` geprüft. Erst bei zwei Misses und einem
+zulässigen String-/Byte-Muster liegt der Parserpfad im kontrollierten Zweig.
+Die Gegenproben weisen vertauschte Cacheordnung, veränderten Schlüssel,
+veränderten LRU-Lookup und veränderten Compileraufruf zurück. Der Scan des
+hashgeprüften offiziellen CPython-3.12.16-Quellarchivs
+(`b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c`)
+findet weiterhin 13 direkte Regexliteral-Kandidaten. Cachezustand, tatsächlicher
+Treffer/Miss und Parserzugang bleiben unbeobachtet; Ergebnis bleibt
+`CANDIDATES_ONLY`. 305 fokussierte Tests bestehen. Es gab keine Interpreter-,
+P11-, Worker-, Container-, SQL- oder Runtimeausführung.
