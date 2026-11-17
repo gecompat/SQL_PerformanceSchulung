@@ -83,6 +83,26 @@ class Idx007LessonQueryTests(unittest.TestCase):
         self.assertTrue(any("project the `next_page_page_id` source value" in error
                             for error in errors))
 
+    def test_page_header_lookup_must_use_decoded_request_page(self) -> None:
+        broken = SOURCE.replace(
+            "pr.db_id, pr.file_id, pr.page_id, N'DETAILED'",
+            "DB_ID(), pr.file_id, pr.page_id, N'DETAILED'",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("decoded request database, file, and page" in error
+                            for error in errors))
+
+    def test_page_header_lookup_must_not_use_a_different_page(self) -> None:
+        broken = SOURCE.replace(
+            "pr.db_id, pr.file_id, pr.page_id, N'DETAILED'",
+            "pr.db_id, pr.file_id, 1, N'DETAILED'",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("decoded request database, file, and page" in error
+                            for error in errors))
+
     def test_wait_filter_regression_is_rejected(self) -> None:
         broken = SOURCE.replace("r.wait_type = N'PAGELATCH_EX'", "r.wait_type = N'PAGEIOLATCH_EX'", 1)
         errors = validate_lesson(broken)
