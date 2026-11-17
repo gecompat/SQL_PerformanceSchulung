@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Validate the teaching query's RES-004 identity and semaphore bindings.
 
-This checks source structure only. It does not parse T-SQL or authenticate a
-query result, DMV snapshot, SQL Server version, or runtime behavior.
+This checks source structure only after lexically removing T-SQL comments. It
+does not parse T-SQL or authenticate a query result, DMV snapshot, SQL Server
+version, or runtime behavior.
 """
 from __future__ import annotations
 
@@ -18,6 +19,71 @@ class ContractError(ValueError):
     pass
 
 
+def _without_sql_comments(sql: str) -> str:
+    """Remove T-SQL comments while preserving quoted text and token spacing."""
+    output: list[str] = []
+    index = 0
+    block_depth = 0
+    quote: str | None = None
+    bracketed = False
+    while index < len(sql):
+        if block_depth:
+            if sql.startswith("/*", index):
+                block_depth += 1
+                output.extend("  ")
+                index += 2
+            elif sql.startswith("*/", index):
+                block_depth -= 1
+                output.extend("  ")
+                index += 2
+            else:
+                output.append("\n" if sql[index] == "\n" else " ")
+                index += 1
+            continue
+        if quote is not None:
+            output.append(sql[index])
+            if sql[index] == quote:
+                if index + 1 < len(sql) and sql[index + 1] == quote:
+                    output.append(sql[index + 1])
+                    index += 2
+                    continue
+                quote = None
+            index += 1
+            continue
+        if bracketed:
+            output.append(sql[index])
+            if sql[index] == "]":
+                if index + 1 < len(sql) and sql[index + 1] == "]":
+                    output.append(sql[index + 1])
+                    index += 2
+                    continue
+                bracketed = False
+            index += 1
+            continue
+        if sql.startswith("--", index):
+            while index < len(sql) and sql[index] not in "\r\n":
+                output.append(" ")
+                index += 1
+            continue
+        if sql.startswith("/*", index):
+            block_depth = 1
+            output.extend("  ")
+            index += 2
+            continue
+        char = sql[index]
+        output.append(char)
+        if char == "'":
+            quote = char
+        elif char == '"':
+            quote = char
+        elif char == "[":
+            bracketed = True
+        index += 1
+    if block_depth:
+        raise ContractError("query contains an unterminated block comment")
+    return "".join(output)
+
+
 def extract_query(markdown: str) -> str:
     blocks = re.findall(r"```sql\s*(.*?)```", markdown, flags=re.IGNORECASE | re.DOTALL)
     candidates = [block for block in blocks
@@ -28,7 +94,7 @@ def extract_query(markdown: str) -> str:
 
 
 def validate_sql(sql: str) -> None:
-    normalized = " ".join(sql.split()).casefold()
+    normalized = " ".join(_without_sql_comments(sql).split()).casefold()
     required = (
         "primary key (session_id, request_id)",
         "declare @capturedat datetime2(7) = sysutcdatetime()",

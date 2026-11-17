@@ -12271,3 +12271,15 @@ Der Quellen- und Abfragevertragvalidator sowie 24 Offline- und sechs
 Lehrabfrage-Regressionen bestehen lokal. Das prüft nur caller-gelieferte
 Synthetik; DMV-Herkunft, Methodenreview und echter Grant-Wait-Pilot bleiben
 offen.
+
+### RES-004 – SQL-Kommentare im Abfragevalidator ausschließen (17. November 2026)
+
+Eine gezielte Negativprobe zeigte, dass der Lehrabfrage-Validator eine fehlende
+`request_id`-Bindung akzeptierte, wenn der erwartete Ausdruck in einem SQL-
+Kommentar verblieb. Der Validator entfernt jetzt zeilenweise und verschachtelte
+Blockkommentare vor dem strukturellen Vergleich, bewahrt Kommentarzeichen in
+Zeichenketten und geklammerten Bezeichnern und lehnt nicht geschlossene
+Blockkommentare ab. Fünf Regressionen schützen diese Fälle; die Abfragesuite
+besteht mit elf Tests, die Offline-Evidenzsuite weiterhin mit 24 Tests.
+Abfrage- und Methodenvertragvalidator bestehen. Der Prüfer bleibt ein
+Strukturvergleich und führt kein T-SQL-Parsing oder Runtime-/DMV-Nachweis aus.

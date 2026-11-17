@@ -28,6 +28,46 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaises(ContractError):
             validate_sql(altered)
 
+    def test_block_comment_cannot_replace_request_id_binding(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "AND mg.request_id = own.request_id",
+            "/* AND mg.request_id = own.request_id */",
+            1,
+        )
+        with self.assertRaises(ContractError):
+            validate_sql(altered)
+
+    def test_line_comment_cannot_replace_request_id_binding(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "AND mg.request_id = own.request_id",
+            "-- AND mg.request_id = own.request_id\nAND mg.session_id = own.session_id",
+            1,
+        )
+        with self.assertRaises(ContractError):
+            validate_sql(altered)
+
+    def test_nested_block_comments_are_removed(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "AND mg.request_id = own.request_id",
+            "/* outer /* AND mg.request_id = own.request_id */ still comment */",
+            1,
+        )
+        with self.assertRaises(ContractError):
+            validate_sql(altered)
+
+    def test_comment_markers_inside_string_literals_are_preserved(self) -> None:
+        query = extract_query(source_markdown())
+        altered = "DECLARE @CommentText nvarchar(40) = N'-- /* text */';\n" + query
+        validate_sql(altered)
+
+    def test_unterminated_block_comment_fails_closed(self) -> None:
+        query = extract_query(source_markdown()) + "\n/* unfinished"
+        with self.assertRaises(ContractError):
+            validate_sql(query)
+
     def test_semaphore_join_must_match_pool_and_semaphore(self) -> None:
         query = extract_query(source_markdown())
         altered = query.replace(
