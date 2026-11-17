@@ -57,11 +57,14 @@ beweist keinen stabilen Zustand außerhalb ihres kurzen Erfassungsfensters.
    begrenzte Klammer um die Kettenlesung berichtet, nicht als atomare DMV-
    Transaktion oder exakter gemeinsamer Enginezeitpunkt.
 6. **Ergebnis begrenzen:** Nur wenn beide Wait-Ränder dieselbe Zielseite
-   melden, beide Kettenläufe auf dieser Seite konsistent enden und alle
-   Seitenmetadaten vollständig sind, darf das Ergebnis höchstens lauten:
-   „Die beobachtete Wait-Seite war bei beiden umschließenden Aufnahmen die
-   rechte Blattseite der geprüften Indexpartition.“ Ein historischer, späterer
-   oder allgemeiner Dauerzustand folgt daraus nicht.
+   melden, der einzelne dazwischenliegende Kettenlauf auf dieser Seite
+   konsistent am bestätigten Ende ankommt und alle Seitenmetadaten vollständig
+   sind, darf das Ergebnis höchstens lauten: „Die Wait-Seite war bei den
+   umschließenden Wait-Aufnahmen identisch; der dazwischenliegende
+   Seitenkettenlauf ordnete sie als rechte Blattseite der geprüften
+   Indexpartition ein.“ Die Kettenmetadaten wurden dabei nicht an beiden
+   Wait-Rändern erneut gelesen. Ein historischer, späterer oder allgemeiner
+   Dauerzustand folgt daraus nicht.
 
 Der konkrete Terminalwert für nicht vorhandene Nachfolger, die Verfügbarkeit
 der Seitenanzahlquelle und eine sichere Reaktion auf einen parallelen Split

@@ -12481,3 +12481,17 @@ Ein benutzerdefinierter Resource-Governor-Pool bleibt mangels eigener
 Änderungsfreigabe ausgeschlossen. Abfragevalidator und 17 fokussierte
 Regressionen bestehen; weder Methodenreview noch isolierter Pilot oder
 Laufzeitnachweis sind damit erbracht.
+
+
+### IDX-007 – Aussage an den einzelnen Seitenkettenlauf anpassen (17. November 2026)
+
+Die Akzeptanzbedingung des Methodenentwurfs behauptete zuvor zwei konsistente
+Kettenläufe, obwohl der Ablauf nur einen Kettenlauf zwischen zwei Wait-Aufnahmen
+vorsah. Außerdem ließ die Formulierung fälschlich erscheinen, die
+Rechtsaußenlage sei bei beiden Wait-Aufnahmen selbst durch Seitenheader
+bestätigt worden. Der zulässige Claim ist jetzt auf identische Wait-Seite an
+beiden Rändern und die durch den einzelnen dazwischenliegenden Kettenlauf
+beobachtete Rechtsaußenlage begrenzt. Die Seitenkette wird an den Wait-Rändern
+nicht erneut gelesen; Split-/Zeitfenster- und Enginefragen bleiben offen. Das
+ist eine Methoden-/Dokumentationskorrektur ohne SQL-Ausführung, Seitenketten-
+Runtimeprobe oder Performanceaussage.
