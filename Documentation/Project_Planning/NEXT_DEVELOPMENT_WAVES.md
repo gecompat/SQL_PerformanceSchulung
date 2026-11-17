@@ -3383,3 +3383,7 @@ Eine Negativprobe ergänzte `AND 1 = 0` nach den geforderten Grant- und Waitfilt
 ### IDX-007 – zusätzliche Filter dürfen Seiten-Waits nicht unterdrücken (17. November 2026)
 
 Eine Negativprobe setzte `AND 1 = 0` nach den vorgesehenen Filtern des `PageWaits`-CTE. Der bisherige Validator akzeptierte damit eine garantiert leere Request-Seitenabfrage. Der Vertrag bindet jetzt die vollständige `WHERE`-Bedingung an Waittyp, Request-Seitenressource und dieselbe Zieldatenbank; zusätzliche Prädikate werden abgewiesen. Eine Regression deckt den unterdrückenden Filter ab. 23 Lehrabfragetests, 13 Offlinevertragstests, Validatoren, Curriculumprüfung und Diff-Whitespaceprüfung bestehen. Es folgt daraus keine authentische DMV-Aufnahme oder Laufzeitqualifikation.
+
+### RES-001 – zusätzliche Filter dürfen Scheduler nicht ausblenden (17. November 2026)
+
+Eine Negativprobe ergänzte `AND 1 = 0` hinter den Scheduler-Scope-Filtern. Der Lehrvalidator akzeptierte damit eine garantiert leere Scheduleraufnahme. Der Vertrag bindet jetzt den vollständigen Filterabschnitt exakt an `scheduler_id < 255` und `is_online = 1` vor der Sortierung; zusätzliche Prädikate werden abgewiesen. 15 Lehrabfragetests, 16 Offlinevertragstests, Validator und Curriculumprüfung bestehen. Das qualifiziert keine Scheduler- oder Worker-Runtimewerte.

@@ -103,6 +103,17 @@ class Res001LessonQueryTests(unittest.TestCase):
             for error in validate_lesson(broken)
         ))
 
+    def test_extra_conjunct_cannot_hide_all_online_schedulers(self) -> None:
+        broken = SOURCE.replace(
+            "  AND is_online = 1\nORDER BY scheduler_id;",
+            "  AND is_online = 1\n  AND 1 = 0\nORDER BY scheduler_id;",
+            1,
+        )
+        self.assertTrue(any(
+            "only the required user/online filters" in error
+            for error in validate_lesson(broken)
+        ))
+
     def test_ambiguous_duplicate_sql_block_is_rejected(self) -> None:
         section_start = SOURCE.index("## Workerbedarf und CPU-Warteschlange sind verschiedene Signale")
         fence = SOURCE.index("```sql", section_start)
