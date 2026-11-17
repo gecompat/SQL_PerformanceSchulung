@@ -104,6 +104,17 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         errors.append(
             "PageWaits must use only the bound request, resource decoder, and page-header sources"
         )
+    page_waits_projection = re.search(
+        r"\bselect\s+(.*?)\s+from\s+sys\.dm_exec_requests\s+as\s+r\b",
+        page_waits_sql,
+    )
+    if (page_waits_projection is None
+            or not tsql_projection_has_exact_item(
+                page_waits_projection.group(1), "r.wait_time",
+            )):
+        errors.append(
+            "PageWaits must project the request DMV wait_time value used by its aggregates"
+        )
     page_wait_filters = (
         "where r.wait_type =",
         "and r.page_resource is not null",

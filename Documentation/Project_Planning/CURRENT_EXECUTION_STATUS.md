@@ -13027,3 +13027,12 @@ Exklusivität oder einen erfolgreichen SQL-Incidentlauf. Das geschlossene
 DGN-007-Offline-AST-Profil bindet den geänderten Runner mit einem neu
 ermittelten Python-3.12-Digest; der Fingerprint selbst ist kein Ausführungs-
 oder Laufzeitnachweis.
+### IDX-007 – aggregierte Waitdauer an die Requestquelle binden (17. November 2026)
+
+Der Lehrvalidator verlangte `r.wait_time` irgendwo im `PageWaits`-SQL, prüfte
+aber nicht, ob die CTE-Spalte `wait_time`, auf der `MIN` und `MAX` arbeiten,
+tatsächlich dieser DMV-Wert ist. Ein synthetischer Decoy setzte `0 AS
+wait_time` und ließ `r.wait_time` nur unter einem anderen Alias stehen. Der
+Validator verlangt jetzt den direkten DMV-Ausdruck in der tatsächlichen
+CTE-Projektion. 35 Lehrabfragetests und der Quellenvalidator bestehen lokal;
+das ist kein DMV- oder Engine-Nachweis.
