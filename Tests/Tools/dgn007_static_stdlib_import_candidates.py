@@ -8909,6 +8909,69 @@ def _target_collections_namedtuple_call_condition_facts(files):
     return facts
 
 
+def _target_logging_style_line_facts(files):
+    """Resolve both outcomes of the two source-bound public style guards."""
+    source = files.get("logging/__init__.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != LOGGING_SOURCE_SHA256):
+        return {}
+    try:
+        tree = ast.parse(source, filename="logging/__init__.py")
+    except SyntaxError:
+        return {}
+    styles = [node for node in tree.body if isinstance(node, ast.Assign)
+              and any(isinstance(target, ast.Name) and target.id == "_STYLES"
+                      for target in node.targets)]
+    formatter = [node for node in tree.body if isinstance(node, ast.ClassDef)
+                 and node.name == "Formatter"]
+    basic_config = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+                    and node.name == "basicConfig"]
+    if len(styles) != 1 or len(formatter) != 1 or len(basic_config) != 1:
+        return {}
+    value = styles[0].value
+    if not isinstance(value, ast.Dict):
+        return {}
+    try:
+        style_keys = tuple(ast.literal_eval(key) for key in value.keys)
+    except (TypeError, ValueError):
+        return {}
+    if style_keys != ("%", "{", "$"):
+        return {}
+    init = [node for node in formatter[0].body if isinstance(node, ast.FunctionDef)
+            and node.name == "__init__"]
+    if len(init) != 1:
+        return {}
+    init_style = [arg for arg, default in zip(init[0].args.args[-len(init[0].args.defaults):],
+                                               init[0].args.defaults)
+                  if arg.arg == "style" and isinstance(default, ast.Constant)
+                  and default.value == "%"]
+    guards = {
+        "Formatter": [node for node in ast.walk(init[0]) if isinstance(node, ast.If)
+                      and ast.unparse(node.test) == "style not in _STYLES"],
+        "basicConfig": [node for node in ast.walk(basic_config[0]) if isinstance(node, ast.If)
+                        and ast.unparse(node.test) == "style not in _STYLES"],
+    }
+    calls = [node for node in ast.walk(basic_config[0]) if isinstance(node, ast.Call)
+             and isinstance(node.func, ast.Name) and node.func.id == "Formatter"
+             and len(node.args) == 3 and isinstance(node.args[2], ast.Name)
+             and node.args[2].id == "style"]
+    style_sources = [node for node in ast.walk(basic_config[0])
+                     if isinstance(node, ast.Assign)
+                     and len(node.targets) == 1
+                     and isinstance(node.targets[0], ast.Name)
+                     and node.targets[0].id == "style"
+                     and ast.unparse(node.value) == "kwargs.pop('style', '%')"]
+    if (len(init_style) != 1 or any(len(rows) != 1 for rows in guards.values())
+            or len(calls) != 1 or len(style_sources) != 1):
+        return {}
+    return {
+        ("logging", "logging/__init__.py", guards["Formatter"][0].lineno):
+            (False, True),
+        ("logging", "logging/__init__.py", guards["basicConfig"][0].lineno):
+            (False, True),
+    }
+
+
 def _target_sysconfig_build_setup_guard_line_facts(
         files, image_path_facts, sysconfig_name_facts,
         project_base_env_facts, no_site, no_project_base_override,
@@ -12580,6 +12643,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         files, thread_native_id_module,
     )
     target_logging_level_line_facts = _target_logging_level_line_facts(files)
+    target_logging_style_line_facts = _target_logging_style_line_facts(files)
     target_collections_namedtuple_rename_line_facts = (
         _target_collections_namedtuple_rename_line_facts(files)
     )
@@ -13299,6 +13363,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             **target_collections_namedtuple_call_condition_facts,
             **target_sysconfig_userbase_env_condition_facts,
             **target_os_feature_add_condition_facts,
+            **target_logging_style_line_facts,
         },
         trusted_empty_for_facts={
             "warnings": target_warning_options_empty_for_facts.get("warnings", {}),

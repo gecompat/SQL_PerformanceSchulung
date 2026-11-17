@@ -3333,3 +3333,8 @@ Der CPython-3.12.16-Header pinnt `_PY_LONG_DEFAULT_MAX_STR_DIGITS` auf 4300. Die
 ### DGN-007 – nächste statische Fortsetzung: `os._add`-Funktionsverfügbarkeit (17. November 2026)
 
 Der CPython-3.12.16-Linux-Quell-/Buildfact für `os._add` ist quellengebunden ergänzt; seine eine Bedingung ist aufgelöst, während 449 weitere unbekannt bleiben. Die statische Testsuite besteht mit 298 Tests. Der vollständige Zielscan bleibt `CANDIDATES_ONLY` (60 Module, 316 Kanten, 163 Funktionen; 114 aufgelöst; Unknown-Digest `7efbc98f828aa129992f682c178527b5e87cd4990841c6e9520cb5aa78d9b24d`). Nächste Kandidaten sind einzeln gegen dieselben gepinnten Quellen zu prüfen. Offene operative Gates – insbesondere echte Kanal-/Loader-/Parentanbindung, vollständige Inventur und Fünf-Formen-/64-KiB-Qualifikation – werden dadurch nicht erfüllt. SESSION_END-Design und deklarativer Matcher (§34, PR259) sind bereits integriert; ihre frühere Nennung als nächster Designschritt ist überholt.
+
+
+### DGN-007 – Logging-Stilvalidierung statisch abbilden (17. November 2026)
+
+Die zwei öffentlichen Logging-Stilguards sind nun gegen den gepinnten CPython-Quelltext gebunden. Gültige Stile und frei übergebene ungültige Werte bleiben beide im konservativen Kontrollfluss erhalten. Die Testsuite besteht mit 299 Tests. Zielscan: 60 Module, 316 Kanten, 163 Funktionen, 116 aufgelöst und 447 unbekannt; Digest `742614875c7d689dd14338bfc603928908a298a5c1253c10d36fecd705ea7f95`. Nächste statische Kandidaten sind weiterhin einzeln am Quellenstand zu prüfen. Das ersetzt keine Runtime-/P11-Qualifikation, tatsächliche Kanal-/Loader-/Parentanbindung, vollständige Inventur oder das Fünf-Formen-/64-KiB-Gate.
