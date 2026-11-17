@@ -12571,3 +12571,16 @@ Helfer für Seiten-, Index- und Partitionsfelder. Vier Helfertests, zwölf
 RES-001- und 19 IDX-007-Lehrabfragetests sowie 13 IDX-007-Offlinedatenvertrag-
 Regressionen bestehen. Das bleibt lexikalische Quellstrukturprüfung ohne
 T-SQL-Parser, DMV-Herkunft oder Runtimequalifikation.
+
+
+### RES-003 – Prozess- und Betriebssystemspeichersignale unterscheiden (17. November 2026)
+
+Die Ressourcennotiz erläuterte die zusätzlich abgefragten Signale
+`process_virtual_memory_low`, `system_high_memory_signal_state` und
+`system_low_memory_signal_state` nicht einzeln. Sie trennt jetzt physischen
+und virtuellen Prozessspeicher und erklärt die gemeinsamen High-/Low-Zustände
+des Betriebssystems, einschließlich des Übergangsfalls, wenn beide Flags
+gesetzt sind. Der Offlinevertrag bleibt bewusst auf die vorhandenen zwei
+getrennten Low-Signale ausgerichtet; die Erläuterung erweitert weder seine
+Eingabe noch den Runtimeclaim. Microsoft Learn wurde am 17.11.2026 geprüft.
+Es gab keinen SQL- oder Lastlauf.
