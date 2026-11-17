@@ -12778,3 +12778,14 @@ jetzt den direkten einzelnen Zugriff auf `sys.dm_os_schedulers` ohne weitere
 `FROM`-Quelle oder Join. Eine synthetische Gegenprobe mit zwei Zeilen pro
 Scheduler wird abgewiesen. Der Laufzeitstatus von Schedulern und Workern bleibt
 unverändert unqualifiziert.
+
+### IDX-007 – zusätzliche Filterjoins aus dem PageWaits-CTE ausschließen (17. November 2026)
+
+Der IDX-007-Lehrvalidator prüfte bisher Decoder, Headerquelle und Filter einzeln,
+ließ aber weitere Joins im `PageWaits`-CTE zu. Ein stets falscher Inner Join
+konnte damit alle passenden Requestzeilen entfernen, ohne die geforderte
+`WHERE`-Klausel zu verändern. Der Validator bindet jetzt die vollständige
+Quellfolge aus `sys.dm_exec_requests`, `PageResCracker` und `dm_db_page_info`
+direkt an den Filter und verwirft weitere Quellen. Die Regression fügt einen
+solchen suppressiven Join ein. 28 fokussierte Tests und der Lehrvalidator
+bestehen; DMV-Herkunft und Engineverhalten bleiben offen.

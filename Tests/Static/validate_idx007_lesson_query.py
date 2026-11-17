@@ -83,6 +83,17 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         errors.append(
             "page header lookup must use the decoded request database, file, and page"
         )
+    expected_page_waits_source = re.compile(
+        r"\bfrom\s+sys\.dm_exec_requests\s+as\s+r\s+"
+        r"cross\s+apply\s+sys\.fn_pagerescracker\s*\(\s*r\.page_resource\s*\)\s+as\s+pr\s+"
+        r"cross\s+apply\s+sys\.dm_db_page_info\s*\(\s*pr\.db_id\s*,\s*"
+        r"pr\.file_id\s*,\s*pr\.page_id\s*,\s*n?__tsql_literal_\d+__\s*\)\s+"
+        r"as\s+info\s+where\b",
+    )
+    if expected_page_waits_source.search(page_waits_sql) is None:
+        errors.append(
+            "PageWaits must use only the bound request, resource decoder, and page-header sources"
+        )
     page_wait_filters = (
         "where r.wait_type =",
         "and r.page_resource is not null",

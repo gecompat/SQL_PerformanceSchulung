@@ -124,6 +124,17 @@ class Idx007LessonQueryTests(unittest.TestCase):
         self.assertTrue(any("bind the request page_resource" in error
                             for error in errors))
 
+    def test_extra_inner_join_cannot_suppress_page_wait_rows(self) -> None:
+        broken = SOURCE.replace(
+            "    ) AS info\n    WHERE r.wait_type = N'PAGELATCH_EX'",
+            "    ) AS info\n"
+            "    INNER JOIN sys.objects AS decoy ON 1 = 0\n"
+            "    WHERE r.wait_type = N'PAGELATCH_EX'",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("only the bound request" in error for error in errors))
+
     def test_wait_filter_regression_is_rejected(self) -> None:
         broken = SOURCE.replace("r.wait_type = N'PAGELATCH_EX'", "r.wait_type = N'PAGEIOLATCH_EX'", 1)
         errors = validate_lesson(broken)
