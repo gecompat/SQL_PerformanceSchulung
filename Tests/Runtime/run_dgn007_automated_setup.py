@@ -274,9 +274,9 @@ class _CaptureReceipt:
                 or type(self.lifecycle_finished_ns) is not int
                 or not (0 <= self.lifecycle_started_ns <= self.cleanup_started_ns
                         <= self.lifecycle_finished_ns)
-                or type(self.configured_cpus) is not int or self.configured_cpus < 4
+                or type(self.configured_cpus) is not int or self.configured_cpus != 4
                 or type(self.configured_memory_mb) is not int
-                or self.configured_memory_mb < 8192
+                or self.configured_memory_mb != 8192
                 or type(self.active_sql_sessions_before) is not int
                 or self.active_sql_sessions_before != 1
                 or type(self.active_sql_sessions_after) is not int

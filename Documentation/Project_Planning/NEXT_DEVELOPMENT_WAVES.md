@@ -3490,3 +3490,13 @@ Eine Negativprobe stellte vor die Scheduler-Momentaufnahme ein zusätzliches
 unmittelbar die vorgesehene Schedulerabfrage folgt. Eine Regression deckt das
 fremde Resultset ab. Das ist ein statischer Lehrabfragecheck ohne authentische
 Schedulerwerte oder Laufzeitqualifikation.
+
+### DGN-007 – feste Ressourcenlimits im Koordinator durchsetzen (17. November 2026)
+
+Der Koordinator ließ bisher höhere CPU- und Speicherlimits als die festgelegten
+Vergleichswerte 4 CPU/8 GiB durch. Koordinator und Capture-Receipt verlangen
+jetzt exakt diese Konfiguration; synthetische Regressionen weisen größere
+Werte zurück. 66 fokussierte Tests bestehen. Hostkapazität, Hostexklusivität,
+Incidentherkunft und SQL-Runtime bleiben davon unbewiesen. Das geschlossene
+Python-3.12-AST-Profil wurde für den geänderten Runner neu gebunden; dadurch
+wird keine Ausführung attestiert.

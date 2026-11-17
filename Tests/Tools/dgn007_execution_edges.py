@@ -28,8 +28,8 @@ CONTRACT = bundle.DEMO + "Contracts/incident-acceptance.contract.json"
 # ast.dump(include_attributes=False), Parsergrammatik Python 3.12. Kommentare
 # und Layout sind kein ausführbarer AST; Encoding bleibt separat geschlossen.
 PYTHON_AST_SHA256 = (
-    # Current DGN-007 runner AST with receipt-bound source-freeze snapshots.
-    "ed9c8a669ee54daf939e7ed9aca9bb31a497e61bb837ce44abc2a6ed351bd647",
+    # Current DGN-007 runner AST with exact comparison resource limits.
+    "115cdd7b99fd79a0b72e74ae1830b7c8b12918b2b685fd78bd5495981af37134",
     "585493e97ba6e4c759bccf8fe983d6b61d32253435b4b2481a195f6784d38925",
     "958e555b9e25392e4bf6024eef6ea528305bf489b43ab1ed5af35388eddd37c8",
     # Current FWK-010 runner AST after DGN-007-only private phase timing protocol.

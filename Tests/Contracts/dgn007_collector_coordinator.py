@@ -90,8 +90,8 @@ def validate_sequence(contract: AcceptanceContract,
                 or item.started_ns < previous_finish):
             raise CoordinatorError("FAIL_CONTRACT")
         previous_finish = item.finished_ns
-        if (type(item.configured_cpus) is not int or item.configured_cpus < 4
-                or type(item.configured_memory_mb) is not int or item.configured_memory_mb < 8192
+        if (type(item.configured_cpus) is not int or item.configured_cpus != 4
+                or type(item.configured_memory_mb) is not int or item.configured_memory_mb != 8192
                 or type(item.active_sql_sessions) is not int or item.active_sql_sessions != 1
                 or type(item.active_versions_on_host) is not int or item.active_versions_on_host != 1
                 or item.source_freeze_verified is not True):
