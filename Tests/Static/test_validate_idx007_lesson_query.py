@@ -123,6 +123,20 @@ class Idx007LessonQueryTests(unittest.TestCase):
         errors = validate_lesson(broken)
         self.assertTrue(any("PageWaits must restrict" in error for error in errors))
 
+    def test_page_latch_literal_in_case_cannot_replace_parameterized_filter(self) -> None:
+        broken = SOURCE.replace(
+            "WHERE r.wait_type = N'PAGELATCH_EX'",
+            "WHERE r.wait_type = @ExpectedWait",
+            1,
+        ).replace(
+            "    SELECT\n        r.session_id,",
+            "    SELECT\n        CASE WHEN r.wait_type = N'PAGELATCH_EX' "
+            "THEN 1 ELSE 0 END AS decoy,\n        r.session_id,",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("PageWaits must restrict" in error for error in errors))
+
     def test_comment_markers_inside_bracketed_identifiers_are_preserved(self) -> None:
         section_start = SOURCE.index("## Lesende Zuordnung einer aktuellen Request-Seite")
         fence = SOURCE.index("```sql", section_start)

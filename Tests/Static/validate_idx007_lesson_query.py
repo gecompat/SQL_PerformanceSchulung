@@ -10,7 +10,6 @@ from pathlib import Path
 
 from sql_lexical_utils import (
     extract_tsql_cte_body,
-    has_tsql_literal_comparison,
     tsql_projection_output_names,
     without_tsql_comments,
     without_tsql_comments_or_literals,
@@ -45,6 +44,7 @@ def validate_lesson(text: str) -> tuple[str, ...]:
     page_waits_sql = re.sub(
         r"\s+", " ", without_tsql_comments_or_literals(page_waits),
     ).casefold()
+    page_waits_with_literals = " ".join(without_tsql_comments(page_waits).split()).casefold()
     required = {
         "request wait duration uses the documented DMV column": "r.wait_time",
         "page resource is decoded": "sys.fn_pagerescracker(r.page_resource)",
@@ -68,9 +68,7 @@ def validate_lesson(text: str) -> tuple[str, ...]:
     )
     if (any(fragment not in page_waits_sql for fragment in page_wait_filters)
             or re.search(r"\bor\b", page_waits_sql)
-            or not has_tsql_literal_comparison(
-                page_waits, "r.wait_type", "PAGELATCH_EX",
-            )):
+            or "where r.wait_type = n'pagelatch_ex'" not in page_waits_with_literals):
         errors.append("PageWaits must restrict the target database to PAGELATCH_EX requests")
     projection_match = re.search(
         r"\)\s*select\s+(.*?)\s+from\s+pagewaits\b", sql,
