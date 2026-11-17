@@ -8125,6 +8125,69 @@ def _regex_verbose_ignored_syntax_candidates(pattern, whitespace):
     return candidates
 
 
+def _target_re_compile_cache_path_candidate(files):
+    """Bind the pinned cache-before-parser path without claiming a cache hit."""
+    source = files.get("re/__init__.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_INIT_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/__init__.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef) and node.name == "_compile"]
+    if len(functions) != 1:
+        return None
+    body = list(functions[0].body)
+    if (body and isinstance(body[0], ast.Expr)
+            and isinstance(body[0].value, ast.Constant)
+            and type(body[0].value.value) is str):
+        body.pop(0)
+    if (len(body) < 6
+            or not isinstance(body[0], ast.If)
+            or len(body[0].body) != 1
+            or ast.unparse(body[0].test) != "isinstance(flags, RegexFlag)"
+            or ast.unparse(body[0].body[0]) != "flags = flags.value"
+            or not isinstance(body[1], ast.Try)
+            or len(body[1].body) != 1
+            or ast.unparse(body[1].body[0])
+            != "return _cache2[type(pattern), pattern, flags]"
+            or len(body[1].handlers) != 1
+            or not isinstance(body[1].handlers[0].type, ast.Name)
+            or ast.unparse(body[1].handlers[0].type) != "KeyError"
+            or len(body[1].handlers[0].body) != 1
+            or not isinstance(body[1].handlers[0].body[0], ast.Pass)
+            or ast.unparse(body[2])
+            != "key = (type(pattern), pattern, flags)"
+            or ast.unparse(body[3]) != "p = _cache.pop(key, None)"
+            or not isinstance(body[4], ast.If)
+            or ast.unparse(body[4].test) != "p is None"):
+        return None
+    compile_calls = [node for node in ast.walk(body[4])
+                     if isinstance(node, ast.Call)
+                     and ast.unparse(node.func) == "_compiler.compile"
+                     and [ast.unparse(arg) for arg in node.args]
+                     == ["pattern", "flags"]]
+    if (len(compile_calls) != 1
+            or ast.unparse(body[-1]) != "return p"):
+        return None
+    return {
+        "source_path": "re/__init__.py",
+        "source_sha256": RE_INIT_SOURCE_SHA256,
+        "flags_normalization_before_cache_lookup": (
+            "RegexFlag.value when isinstance(flags, RegexFlag)"
+        ),
+        "cache_lookup_order": ["_cache2", "_cache"],
+        "cache_key_expression": "(type(pattern), pattern, flags)",
+        "parser_compile_call_on_both_cache_misses_candidate": True,
+        "cache_state_observed": False,
+        "cache_lookup_observed": False,
+        "parser_entry_observed": False,
+        "evidence_scope": "PINNED_RE_COMPILE_CACHE_PATH_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8147,6 +8210,9 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     if (type(constants_source) is not bytes
             or hashlib.sha256(constants_source).hexdigest()
             != RE_CONSTANTS_SOURCE_SHA256):
+        return []
+    cache_path_candidate = _target_re_compile_cache_path_candidate(files)
+    if cache_path_candidate is None:
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -8490,6 +8556,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "standard_re_flag_binding_observed": False,
             "parser_entry_observed": False,
             "standard_re_compile_binding_observed": False,
+            "cache_path_candidate": cache_path_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })
