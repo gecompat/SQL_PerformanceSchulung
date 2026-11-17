@@ -3516,3 +3516,14 @@ Der Lehrvalidator ließ bisher einen konstanten `wait_time`-Decoy in der
 irgendwo im CTE vorkam. Er verlangt den direkten Request-DMV-Ausdruck nun in
 der Projektion, die von den Aggregaten verwendet wird. Eine Regression sichert
 den Fall; 35 fokussierte Tests und der Validator bestehen. Kein Laufzeitbeleg.
+
+### RES-004 – verschachtelte Statements im Abfragevorlauf zurückweisen (17. November 2026)
+
+Der Präfixvalidator erkannte zusätzliche ausführbare Statements nur an
+Statementgrenzen. Eine bedingte Ausgabe (`IF ... SELECT`), ein Blockwrapper
+(`BEGIN ... END`) und die Sessionzustandsänderung `SET NOEXEC ON` konnten die
+Prüfung umgehen. Der Validator untersucht den vollständigen maskierten Vorlauf
+und weist diese Formen zurück; Regressionen erhalten zugleich die Behandlung
+von Kommentaren und Stringliteralen. 40 fokussierte Tests und der
+RES-004-Quellvalidator bestehen. Die Prüfung bleibt statisch und qualifiziert
+weder T-SQL-Laufzeit noch DMV-Herkunft oder einen tatsächlichen Grant-Wait.

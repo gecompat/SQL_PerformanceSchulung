@@ -45,11 +45,22 @@ def validate_sql(sql: str) -> None:
     executable = without_tsql_comments_or_literals(uncommented)
     cte_match = re.search(r";\s*WITH\s+OwnWaits\b", executable, re.IGNORECASE)
     prefix = executable[:cte_match.start()] if cte_match is not None else executable
-    if (cte_match is None or re.search(
-        r"(?:^|;)\s*(?:SELECT|INSERT|UPDATE|DELETE|MERGE|EXEC(?:UTE)?)\b",
-        prefix,
-        flags=re.IGNORECASE | re.MULTILINE,
-    ) is not None):
+    # The preamble may declare caller-provided variables, but wrappers such as
+    # IF/BEGIN can hide result-producing or mutating statements from a check
+    # that only looks for SELECT/EXEC at statement boundaries. Literals and
+    # comments have already been masked; mask identifiers before scanning for
+    # executable statement keywords so names such as @select remain harmless.
+    preamble_code = re.sub(r"\[(?:[^\]]|\]\])*\]", " ", prefix)
+    preamble_code = re.sub(r"@[\w@$#]+", " ", preamble_code)
+    preamble_statement = re.search(
+        r"\b(?:SELECT|INSERT|UPDATE|DELETE|MERGE|EXEC(?:UTE)?|IF|ELSE|BEGIN|END|"
+        r"WHILE|WAITFOR|TRY|CATCH|RETURN|THROW|RAISERROR|GOTO|CREATE|ALTER|"
+        r"DROP|TRUNCATE|USE|SET|GRANT|REVOKE|DENY|COMMIT|ROLLBACK|DBCC|KILL|"
+        r"OPEN|FETCH|CLOSE|DEALLOCATE)\b",
+        preamble_code,
+        flags=re.IGNORECASE,
+    )
+    if cte_match is None or preamble_statement is not None:
         raise ContractError(
             "query preamble must not emit resultsets or execute additional statements "
             "before the OwnWaits CTE"

@@ -13084,3 +13084,17 @@ gerendert und geprüft. Details, Artefakt-Hashes und die Datenschutzgrenze des
 lokalen Buildordners stehen im [Releasebericht](W_PRS_001_TEACHING_RELEASE.md#nachfolgender-releasebuild-vom-2026-11-17).
 Die SQL-Runtime- und Produktgates aus anderen Entwicklungszweigen bleiben
 unverändert offen; dieser Foliensatz-Release schließt sie nicht.
+
+### RES-004 – verschachtelte Statements vor der Grant-Wait-Abfrage abweisen (17. November 2026)
+
+Der Quellvalidator erkannte zusätzliche Resultset- und Ausführungsstatements nur
+am Anfang eines Statements. Dadurch akzeptierte er etwa `IF 1 = 1 SELECT ...`,
+`BEGIN SELECT ... END` und eine vorangestellte `SET NOEXEC ON`-Änderung, obwohl
+der Abfragevertrag nur die vorgesehenen Deklarationen vor der `OwnWaits`-CTE
+zulässt. Der Prüfer maskiert Kommentare, Literale, geklammerte Bezeichner und
+Variablennamen und weist die ausführbaren Statement-/Kontrollwörter im gesamten
+Vorlauf zurück. Regressionen decken die bedingte Ausgabe, den Blockwrapper und
+die Sessionzustandsänderung ab; Kommentare und Stringliterale bleiben gültig.
+40 fokussierte Lehrabfragetests und der RES-004-Quellvalidator bestehen lokal.
+Das bleibt ein statischer Strukturcheck ohne T-SQL-Parser, authentische DMV-
+Aufnahme, unabhängigen Methodenreview oder Grant-Wait-Runtime.

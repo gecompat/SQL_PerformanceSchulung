@@ -28,6 +28,24 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "preamble must not emit resultsets"):
             validate_sql(altered)
 
+    def test_conditional_result_statement_before_cte_is_rejected(self) -> None:
+        query = extract_query(source_markdown())
+        altered = "IF 1 = 1 SELECT CAST(0 AS int) AS unintended_result;\n" + query
+        with self.assertRaisesRegex(ContractError, "preamble must not emit resultsets"):
+            validate_sql(altered)
+
+    def test_block_wrapped_result_statement_before_cte_is_rejected(self) -> None:
+        query = extract_query(source_markdown())
+        altered = "BEGIN SELECT CAST(0 AS int) AS unintended_result; END;\n" + query
+        with self.assertRaisesRegex(ContractError, "preamble must not emit resultsets"):
+            validate_sql(altered)
+
+    def test_session_state_statement_before_cte_is_rejected(self) -> None:
+        query = extract_query(source_markdown())
+        altered = "SET NOEXEC ON;\n" + query
+        with self.assertRaisesRegex(ContractError, "preamble must not emit resultsets"):
+            validate_sql(altered)
+
     def test_request_join_must_match_request_id(self) -> None:
         query = extract_query(source_markdown())
         altered = query.replace("AND r.request_id = mg.request_id", "AND r.request_id = 0", 1)
