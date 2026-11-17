@@ -5,9 +5,9 @@ Diese Lehrnotiz ergänzt `LO-M05-03` in der
 Sperrumwandlungs-Deadlock und grenzt ihn vom vorhandenen Gegenreihenfolgefall
 ab. Das [CON-006-Demo](../../Demos/07_Concurrency/CON-006_Deadlock_Cycle/README.md)
 enthält getrennte Abläufe für beide Varianten und eine `UPDLOCK`-Gegenprobe.
-Die Runtime-Qualifikation der neuen Variante steht noch aus. Der tatsächliche
-Konversionsgraph wird für den jeweiligen Build geprüft; synthetische
-Graphprüfungen ersetzen diese Laufzeitevidenz nicht.
+Die Runtime-Qualifikation der neuen Variante ist für SQL Server 2019, 2022 und
+2025 bestanden. Der tatsächliche Konversionsgraph wird für den jeweiligen Build
+geprüft; synthetische Graphprüfungen ersetzen diese Laufzeitevidenz nicht.
 
 ## Gegenreihenfolge und Sperrumwandlung
 
@@ -68,5 +68,6 @@ Lernzuwachsnachweis.
 - Microsoft Learn, [Deadlocks guide](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-deadlocks-guide?view=sql-server-ver17): Deadlockgraph, `xml_deadlock_report` und Opferfehler 1205.
 - Das [Quellenregister](../Research/SOURCE_REGISTER.md) führt die Deadlock-, Sperr- und `system_health`-Quellen unter `SRC-004`, `SRC-066` und `SRC-068`; die konkreten Aussage- und Provenienzgrenzen fasst der [CON-006-Offline-Review](../Project_Planning/CON006_OFFLINE_EVIDENCE_REVIEW.md) zusammen.
 
-Die Erklärung ergänzt den Lernpfad, ändert aber weder den Status des vorhandenen
-CON-006-Demos noch die offene Runtime- und Buildqualifikation der Variante.
+Die Erklärung ergänzt den Lernpfad und beschreibt die buildqualifizierte
+Konversionsvariante. Die Range-Variante bleibt wegen der Überschneidung mit
+CON-002 zurückgestellt.
