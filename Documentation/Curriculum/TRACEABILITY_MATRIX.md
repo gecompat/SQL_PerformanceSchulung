@@ -156,6 +156,11 @@ gespeichertem Plan, angeforderter Erzwingung und beobachteter Ausführung.
 Sie ist erklärendes Lernmaterial und kein zusätzlicher Claim oder Demo-Nachweis;
 `CLM-076` bleibt auf die Query-Store-Historie begrenzt.
 
+Die [Lehrnotiz zu Worker-Warteschlange und CPU-Druck](WORKER_QUEUE_PRESSURE_LESSON.md)
+ergänzt `LO-M06-01`/`LO-M06-03` erklärend: `work_queue_count`,
+`runnable_tasks_count` und `THREADPOOL`-Waits haben getrennte Aussagen.
+Sie fügt keinen Claim oder Demo-Nachweis hinzu.
+
 ## 4. Geplante Vertiefung nach ADV-003
 
 | Claim | Aktive Folie | Aussagekern | Curriculum | Pfad | Quellen | Kanonische Demo/LAB | Testprofil | Status |

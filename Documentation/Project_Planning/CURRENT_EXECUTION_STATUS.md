@@ -11995,7 +11995,6 @@ nicht auf (`DGN007_G13_BOUNDARY|NOT_OBSERVED`), daher gibt es für diesen Lauf k
 Grenzwerte zu interpretieren. Weder Incidentursache noch Sechsermatrixqualifikation
 werden damit vorweggenommen; die menschliche Generalprobe bleibt ausgeschlossen.
 
-
 ### DGN-007 – deterministischer UTF-8-Modus im Importworker
 
 Der gebundene Linux-/CPython-3.12-Importworker startet seine drei frischen
@@ -12033,6 +12032,20 @@ Pollpfad. Prospektivvertrag und Source-Freeze bestehen lokal. Die breite
 Bundle-Suite besteht mit 35 Tests und zwei Plattform-Skips; ihr einziger
 Current-Candidate-Fehler `BOOTSTRAP_CHANGED` entsteht, weil die lokale
 Python-3.13-Umgebung nicht dem gebundenen CPython 3.12 entspricht. Die Ursache
-und eine tatsächliche Behebung sind erst nach einer frischen isolierten
-SQL-Server-2025-Gegenprobe bestätigt; bis dahin bleibt die Versionsqualifikation
-offen.
+der Intervallabweichung bleibt eine Hypothese. Die frische korrigierte Matrix
+43985010135 bestand auf SQL Server 2019, 2022 und 2025 einschließlich neutralem
+Fenster-/Profilvergleich, AB/BA/AA-Kontrollen, Compatibility-Gegenproben und
+Cleanup. Damit ist der begrenzte geänderte Gatepfad auf den drei CI-Builds
+qualifiziert; daraus folgt keine allgemeine Garantie für Query-Store-Erfassung.
+PR #929 wurde am 2026-11-17 um 00:29:09 UTC als `be6bad5584f27db5b82e5a7d46c55acf228d8b94`
+integriert.
+
+### RES-001 – Worker-Warteschlange und CPU-Druck im Lesepfad
+
+Die [Lehrnotiz zu Worker-Warteschlange und CPU-Druck](../Curriculum/WORKER_QUEUE_PRESSURE_LESSON.md)
+ergänzt `LO-M06-01`/`LO-M06-03` mit einer rein lesenden Scheduler-Momentaufnahme
+und trennt Aufgaben, die auf einen Worker warten, von Runnable-Tasks, die auf
+CPU-Zeit warten. Kumulative Wait-Stats werden als Historie und nicht als
+Livezustand eingeordnet. Die bestehende RES-001-Offlineprüfung bleibt
+caller-supplied und synthetisch; tatsächliche DMV-Herkunft, echte
+Worker-Erschöpfung und Last-/Recovery-Qualifikation bleiben offen.
