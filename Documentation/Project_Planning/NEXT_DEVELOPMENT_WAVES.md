@@ -3352,3 +3352,10 @@ Der Validator extrahiert nun den genau einmal vorkommenden, balancierten `OwnWai
 Eine Negativprobe setzte `WHERE 1 = 1` ein und beließ `r.wait_type = N'PAGELATCH_EX'` nur in einem wirkungslosen `CASE`-Ausdruck. Der Lehrabfragevalidator akzeptierte den Querytext, obwohl damit auch andere Request-Waittypen in die Seitenauswertung gelangen konnten.
 
 Ein gemeinsamer T-SQL-Helfer extrahiert jetzt genau einen benannten, balancierten CTE und ignoriert String-/Bezeichnertexte bei der Erkennung. IDX-007 verlangt den tatsächlichen Waittypfilter und die Ressourcen-/Datenbankgrenzen innerhalb des `PageWaits`-CTE und weist eine OR-Aufweichung zurück. RES-004 verwendet denselben CTE-Scanner für seine eigenen Grant-/Waitfilter. Die IDX-007-Suite besteht mit 15 Tests, die RES-004-Abfragevertragssuite ebenfalls mit 15 Tests, der RES-004-Offlinedatenvertrag mit 24 Tests; beide Quellenvalidatoren bestehen. Der Prüfer bleibt ein statischer Strukturvergleich ohne T-SQL-Parser, DMV-Herkunft oder Engine-Nachweis.
+
+
+### RES-001 – Scheduler-Scope an das tatsächliche `WHERE` binden (17. November 2026)
+
+Eine Negativprobe entfernte `scheduler_id < 255` und `is_online = 1` aus dem Abfragefilter, beließ beide Ausdrücke aber in einem wirkungslosen `CASE`. Der bisherige globale Fragmentvergleich akzeptierte dadurch eine Query, die auch verborgene oder offline Scheduler zurückgeben konnte.
+
+Der statische Lehrvalidator verlangt nun die zusammenhängende Scheduler-Scope-Bedingung im aktiven `WHERE` vor der Sortierung. Eine Regression schützt den reproduzierten Gegenfall. Neun Lehrvalidator-Tests, der Validator und 16 Tests der getrennten Worker-Queue-Evidenzsuite bestehen. Es entsteht kein Scheduler-Runtime- oder Worker-Erschöpfungsnachweis.
