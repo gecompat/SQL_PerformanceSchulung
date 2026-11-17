@@ -7932,6 +7932,70 @@ static struct PyModuleDef sysmodule = {
         self.assertIn(("_exists('spawnvp')", False), facts)
         self.assertIn(("hasattr(os, 'register_at_fork')", True), facts)
 
+    def test_os_feature_add_condition_outcomes_are_source_and_build_bound(self):
+        os_source = (
+            b"import sys\n_names = sys.builtin_module_names\n"
+            b"def _exists(name):\n    return name in globals()\n"
+            b"if 'posix' in _names:\n    name = 'posix'\n"
+            b"    from posix import *\n"
+            b"    try:\n        from posix import _have_functions\n"
+            b"    except ImportError:\n        pass\n"
+            b"if _exists('_have_functions'):\n"
+            b"    _globals = globals()\n"
+            b"    def _add(str, fn):\n"
+            b"        if (fn in _globals) and (str in _have_functions):\n"
+            b"            _set.add(_globals[fn])\n"
+            b"    _add('HAVE_FCHMOD', 'chmod')\n"
+            b"    _add('HAVE_LCHFLAGS', 'chflags')\n"
+        )
+        posix_source = (
+            b"static const struct have_function { const char *label; int (*probe)(void); } "
+            b"have_functions[] = {\n"
+            b"#ifdef HAVE_FCHMOD\n{\"HAVE_FCHMOD\", NULL},\n#endif\n"
+            b"#ifdef HAVE_LCHFLAGS\n{\"HAVE_LCHFLAGS\", NULL},\n#endif\n"
+            b"};\n"
+            b"static PyMethodDef posix_methods[] = {\nOS_CHMOD_METHODDEF\n};\n"
+            b"static int posixmodule_exec(PyObject *m) {\n"
+            b'    return _PyModule_Add(m, "_have_functions", list);\n}\n'
+            b"{Py_mod_exec, posixmodule_exec}\n"
+            b".m_methods = posix_methods;\n.m_slots = posixmodile_slots;\n"
+        )
+        clinic_source = (
+            b"#define OS_CHMOD_METHODDEF    \\\n"
+            b'    {"chmod", _PyCFunction_CAST(os_chmod), METH_FASTCALL, doc},\n'
+        )
+        pyconfig = b"#define HAVE_FCHMOD 1\n"
+        files = {"os.py": os_source}
+        with patch.multiple(
+            SUBJECT,
+            OS_SOURCE_SHA256=hashlib.sha256(os_source).hexdigest(),
+            POSIX_MODULE_C_SHA256=hashlib.sha256(posix_source).hexdigest(),
+            POSIX_MODULE_CLINIC_SHA256=hashlib.sha256(clinic_source).hexdigest(),
+            TARGET_PYCONFIG_SHA256=hashlib.sha256(pyconfig).hexdigest(),
+        ):
+            with patch.object(
+                SUBJECT, "_target_os_have_functions_call_facts",
+                return_value=(("_exists('_have_functions')", True),),
+            ):
+                expected = {("os", "os.py", 15): (False, True)}
+                facts = SUBJECT._target_os_feature_add_condition_facts(
+                    files, posix_source, clinic_source, pyconfig,
+                )
+                self.assertEqual(facts, expected)
+                changed_os = os_source.replace(b"HAVE_LCHFLAGS", b"HAVE_FCHMOD", 1)
+                with patch.object(SUBJECT, "OS_SOURCE_SHA256",
+                                  hashlib.sha256(changed_os).hexdigest()):
+                    self.assertEqual(SUBJECT._target_os_feature_add_condition_facts(
+                        {"os.py": changed_os}, posix_source, clinic_source, pyconfig,
+                    ), {})
+                changed_posix = posix_source.replace(b'{"HAVE_FCHMOD", NULL}',
+                                                      b'{"HAVE_FCHMOD", probe_fchmod}', 1)
+                with patch.object(SUBJECT, "POSIX_MODULE_C_SHA256",
+                                  hashlib.sha256(changed_posix).hexdigest()):
+                    self.assertEqual(SUBJECT._target_os_feature_add_condition_facts(
+                        files, changed_posix, clinic_source, pyconfig,
+                    ), {})
+
     def test_target_pyconfig_binds_linux_descriptor_support_guard(self):
         os_source = (
             b"from posix import *\n"

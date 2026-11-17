@@ -12321,3 +12321,9 @@ und die gezielte Nachhärtung in PR
 drei statischen Verträge, `py_compile`, `git diff --check`, Datenschutzprüfung
 und die fünf PR-CI-Gates bestanden. Das bleibt eine Quellstrukturprüfung ohne
 T-SQL-Parser, authentische DMV-Herkunft oder Runtime-/Waitnachweis.
+
+### DGN-007 – `os._add`-Funktionsverfügbarkeit quellengebunden auflösen (17. November 2026)
+
+Im gepinnten CPython-3.12.16-Linux-Build ist `HAVE_FCHMOD` in `pyconfig.h` aktiviert. Die POSIX-Funktionstabelle veröffentlicht diesen Eintrag ohne Laufzeitprobe; das gebundene Methodentableau exportiert `chmod`. Der fest gepinnte `os.py`-Aufruf `_add('HAVE_FCHMOD', 'chmod')` erfüllt daher beide Operanden des Guards. `HAVE_LCHFLAGS` ist im Build nicht definiert und der entsprechende C-Eintrag ist compile-guarded; dieser Aufruf erfüllt den Guard nicht. Für die relevante Bedingung bleiben konservativ beide möglichen Ergebnisse erhalten, weil weitere Aufrufe dynamisch sind.
+
+Eine neue Regression bindet diese Auflösung an die exakten OS-, C-, Clinic- und Buildkonfiguration-Quellen und verwirft geänderte Aufruf-/Probeformen. Die statische Suite besteht mit 298 Tests; Curriculumvalidator, `py_compile`, `git diff --check` und Datenschutzscan bestehen ebenfalls. Der vollständige Zielscan reduziert das Inventar von 450 auf 449 unbekannte Bedingungen: 60 Module, 316 Kanten, 163 Funktionen, 114 aufgelöst; Unknown-Digest `7efbc98f828aa129992f682c178527b5e87cd4990841c6e9520cb5aa78d9b24d`. Status bleibt `CANDIDATES_ONLY`; dies attestiert weder Laufzeit noch P11, Importverhalten oder tatsächliche Workerverwendung.
