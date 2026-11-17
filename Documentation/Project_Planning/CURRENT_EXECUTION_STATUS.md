@@ -12879,6 +12879,18 @@ spätere Lauf Digest, Build und tatsächliche Edition selbst binden muss.
 Unabhängiger Methodenreview, numerische Zeit-/Ressourcengrenzen und isolierter
 Pilot bleiben offen. Keine Imageaktion, SQL-Ausführung oder Runtimequalifikation.
 
+### IDX-007 – Warteaggregate an die finale Seitenausgabe binden (17. November 2026)
+
+Der IDX-007-Lehrvalidator suchte den Sessionzähler und die minimale/maximale
+Wartezeit bisher nur irgendwo im SQL-Text. Eine Gegenprobe legte alle drei
+korrekten Aggregate in skalare Unterabfragen und gab in der äußeren Projektion
+Decoy-Aliase aus; der Validator akzeptierte die veränderte Abfrage. Er bindet
+die Aggregate jetzt an die tatsächlichen obersten Ergebnisspalten und weist
+konstante Ersatzwerte zurück. Zwei Regressionen decken fehlende Endausgaben und
+falsche Aliaswerte ab. 30 IDX-007-Lehrabfragetests, der Lehrvalidator und 16
+RES-001-Offlinevertragstests bestehen. Das bleibt ein Strukturcheck ohne
+T-SQL-Lauf, DMV-Provenienz oder Engine-/Seitenkettennachweis.
+
 ### RES-004 – Grant-Wartezeit an die finale Diagnoseausgabe binden (17. November 2026)
 
 Der Lehrabfragevalidator verlangte `mg.wait_time_ms` bisher nur irgendwo im
