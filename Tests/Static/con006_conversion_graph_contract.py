@@ -265,22 +265,31 @@ def evaluate_conversion_graph(graph_xml: str | bytes | None, identity: GraphIden
         and node.get("dbid") == str(identity.database_id)
         and (identity.hobt_id is None or node.get("hobtid") == identity.hobt_id)
     ]
-    if len(target_resources) != 1:
-        failures.append("graph must contain exactly one keylock for the supplied database, object, index, and HoBT")
+    if len(target_resources) != 2:
+        failures.append("graph must contain exactly two keylocks for the supplied database, object, index, and HoBT")
     else:
-        target = target_resources[0]
-        owners = target.findall("owner-list/owner")
-        waiters = target.findall("waiter-list/waiter")
         expected_ids = set(process_by_id)
-        owner_ids = [node.get("id") for node in owners]
-        waiter_ids = [node.get("id") for node in waiters]
-        if len(owners) != 2 or set(owner_ids) != expected_ids or any(node.get("mode") != "S" for node in owners):
-            failures.append("the same keylock must show both actor processes owning S locks")
-        if (len(waiters) != 2 or set(waiter_ids) != expected_ids
-                or any(node.get("mode") != "X" or node.get("requestType") != "convert" for node in waiters)):
-            failures.append("the same keylock must show both actor processes requesting X conversion")
-        if set(owner_ids) != set(waiter_ids) or len(owner_ids) != len(waiter_ids):
-            failures.append("S owners and X conversion waiters must be the same two processes")
+        observed_owners: set[str] = set()
+        observed_waiters: set[str] = set()
+        for target in target_resources:
+            owners = target.findall("owner-list/owner")
+            waiters = target.findall("waiter-list/waiter")
+            owner_ids = [node.get("id") for node in owners]
+            owner_modes = [node.get("mode") for node in owners]
+            waiter_ids = [node.get("id") for node in waiters]
+            if (len(owners) != 2 or len(set(owner_ids)) != 1 or set(owner_modes) != {"S", "X"}
+                    or owner_ids[0] not in expected_ids):
+                failures.append("each keylock must bind one actor's S owner and X conversion request")
+                continue
+            owner_id = owner_ids[0]
+            if (len(waiters) != 1 or waiter_ids[0] not in expected_ids or waiter_ids[0] == owner_id
+                    or waiters[0].get("mode") != "X" or waiters[0].get("requestType") != "convert"):
+                failures.append("each keylock must show the other actor waiting for X conversion")
+                continue
+            observed_owners.add(owner_id)
+            observed_waiters.add(waiter_ids[0])
+        if observed_owners != expected_ids or observed_waiters != expected_ids:
+            failures.append("both actors must own S and request conversion in opposite keylock entries")
 
     if failures:
         return GraphResult(Verdict.FAIL, tuple(failures))

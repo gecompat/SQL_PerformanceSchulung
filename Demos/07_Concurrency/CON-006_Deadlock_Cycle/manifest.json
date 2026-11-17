@@ -8,6 +8,11 @@
     {"id":"OBSERVATION","kind":"sql","script":"40_Observation.sql","database":"target","required":false,"require_summary":true},
     {"id":"MITIGATION","kind":"sql","script":"50_Mitigation.sql","database":"target","required":true,"require_summary":true},
     {"id":"COMPARISON","kind":"multi_session","manifest":"Sessions/ordered.json","database":"target","required":true,"require_summary":false,"timeout_seconds":45},
+    {"id":"CONVERSION_START","kind":"sql","script":"55_ConversionStart.sql","database":"target","required":true,"require_summary":true},
+    {"id":"CONVERSION_DEMONSTRATION","kind":"multi_session","manifest":"Sessions/conversion.json","database":"target","required":true,"require_summary":false,"timeout_seconds":45},
+    {"id":"CONVERSION_OBSERVATION","kind":"sql","script":"60_ConversionObservation.sql","database":"target","required":true,"require_summary":true},
+    {"id":"MITIGATION_START","kind":"sql","script":"65_MitigationStart.sql","database":"target","required":true,"require_summary":true},
+    {"id":"CONVERSION_MITIGATION","kind":"multi_session","manifest":"Sessions/conversion-mitigated.json","database":"target","required":true,"require_summary":false,"timeout_seconds":45},
     {"id":"VERIFICATION","kind":"sql","script":"70_Verification.sql","database":"target","required":true,"require_summary":true}
   ],
   "cleanup":{"id":"CLEANUP","kind":"sql","script":"90_Cleanup.sql","database":"master","required":true,"require_summary":true,"timeout_seconds":60}

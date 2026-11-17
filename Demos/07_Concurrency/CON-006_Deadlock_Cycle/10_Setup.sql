@@ -3,8 +3,10 @@ IF '$(DemoId)'<>'CON-006' OR @T<>N'SQLPERF_LAB_CON006_'+@R OR @C IS NULL THROW 5
 SET @S=N'CREATE DATABASE '+QUOTENAME(@T)+N';ALTER DATABASE '+QUOTENAME(@T)+N' SET RECOVERY SIMPLE;ALTER DATABASE '+QUOTENAME(@T)+N' SET COMPATIBILITY_LEVEL='+CONVERT(nvarchar(3),@C)+N';';EXEC(@S);SET @S=N'USE '+QUOTENAME(@T)+N';EXEC sys.sp_addextendedproperty @name=N''SQLPERF.Project'',@value=N''SQL_PerformanceSchulung'';EXEC sys.sp_addextendedproperty @name=N''SQLPERF.ContractVersion'',@value=N''1.0'';EXEC sys.sp_addextendedproperty @name=N''SQLPERF.DemoId'',@value=N''CON-006'';EXEC sys.sp_addextendedproperty @name=N''SQLPERF.RunToken'',@value=@R;';EXEC sys.sp_executesql @S,N'@R varchar(20)',@R=@R;
 GO
 USE [$(TargetDatabase)];IF SCHEMA_ID(N'lab') IS NULL EXEC(N'CREATE SCHEMA lab AUTHORIZATION dbo;');IF SCHEMA_ID(N'fwk') IS NULL EXEC(N'CREATE SCHEMA fwk AUTHORIZATION dbo;');
-CREATE TABLE lab.DeadlockRows(RowId int PRIMARY KEY,Value int NOT NULL);INSERT lab.DeadlockRows VALUES(1,0),(2,0);
+CREATE TABLE lab.DeadlockRows(RowId int NOT NULL CONSTRAINT PK_DeadlockRows PRIMARY KEY,Value int NOT NULL);INSERT lab.DeadlockRows VALUES(1,0),(2,0);
 CREATE TABLE lab.Evidence(RoleName varchar(16) NOT NULL,Outcome varchar(16) NOT NULL,ErrorNumber int NULL,CapturedAtUtc datetime2(3) NOT NULL DEFAULT SYSUTCDATETIME());
+CREATE TABLE lab.ConversionRun(Attempt varchar(16) NOT NULL PRIMARY KEY,RunToken varchar(20) NOT NULL,DatabaseId int NOT NULL,StartedAtUtc datetime2(7) NOT NULL,GraphCount int NULL);
+CREATE TABLE lab.ConversionEvidence(Attempt varchar(16) NOT NULL,RoleName varchar(16) NOT NULL,Outcome varchar(16) NOT NULL,ErrorNumber int NULL,SessionId smallint NOT NULL,CapturedAtUtc datetime2(3) NOT NULL DEFAULT SYSUTCDATETIME(),PRIMARY KEY(Attempt,RoleName));
 CREATE TABLE fwk.SessionSignal(DemoId varchar(7),RunToken varchar(20),SignalName varchar(64),SignaledAtUtc datetime2(3) NOT NULL DEFAULT SYSUTCDATETIME(),PRIMARY KEY(DemoId,RunToken,SignalName));
 GO
 CREATE OR ALTER PROCEDURE fwk.USP_Signal @DemoId varchar(7),@RunToken varchar(20),@SignalName varchar(64) AS BEGIN SET NOCOUNT ON;UPDATE fwk.SessionSignal SET SignaledAtUtc=SYSUTCDATETIME() WHERE DemoId=@DemoId AND RunToken=@RunToken AND SignalName=@SignalName;IF @@ROWCOUNT=0 INSERT fwk.SessionSignal(DemoId,RunToken,SignalName)VALUES(@DemoId,@RunToken,@SignalName);END;

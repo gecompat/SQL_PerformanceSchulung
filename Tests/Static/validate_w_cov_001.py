@@ -62,6 +62,30 @@ def main() -> int:
             item = catalog.get(demo_id)
             if not item or item.get("implementationStatus") != STATUS[demo_id] or item.get("safetyLevel") != SAFETY[demo_id]:
                 findings.append(f"{demo_id}: {name} mismatch")
+    con_root = ROOT / PATHS["CON-006"]
+    con_manifest = load(con_root / "manifest.json")
+    con_phases = {phase.get("id"): phase for phase in con_manifest.get("phases", [])}
+    expected_conversion_phases = {
+        "CONVERSION_START", "CONVERSION_DEMONSTRATION", "CONVERSION_OBSERVATION",
+        "MITIGATION_START", "CONVERSION_MITIGATION",
+    }
+    if not expected_conversion_phases.issubset(con_phases):
+        findings.append("CON-006: conversion/deadlock-mitigation phases are incomplete")
+    conversion = load(con_root / "Sessions/conversion.json")
+    if [session.get("id") for session in conversion.get("sessions", [])] != [
+        "CONVERSION_A", "CONVERSION_B", "CONVERSION_OBSERVER"
+    ]:
+        findings.append("CON-006: conversion actor/observer order mismatch")
+    for filename, required in (
+        ("Sessions/10_ConversionA.sql", ("REPEATABLE READ", "CONVERSION_A_READ", "CONVERSION_B_READ", "UPDATE lab.DeadlockRows", "1205")),
+        ("Sessions/20_ConversionB.sql", ("REPEATABLE READ", "CONVERSION_B_READ", "CONVERSION_A_READ", "UPDATE lab.DeadlockRows", "1205")),
+        ("60_ConversionObservation.sql", ("system_health", "xml_deadlock_report", "requestType=\"convert\"", "PK_DeadlockRows", "@Matches<>1")),
+        ("Sessions/40_MitigationA.sql", ("UPDLOCK", "MITIGATION_B_STARTED")),
+        ("Sessions/50_MitigationB.sql", ("UPDLOCK", "MITIGATION_B_STARTED")),
+    ):
+        text = (con_root / filename).read_text(encoding="utf-8")
+        if any(marker not in text for marker in required):
+            findings.append(f"CON-006: conversion contract markers missing in {filename}")
     idx = (ROOT / PATHS["IDX-010"] / "README.md").read_text(encoding="utf-8").lower()
     con = (ROOT / PATHS["CON-009"] / "README.md").read_text(encoding="utf-8").lower()
     if "defer" not in idx or "ordered nonclustered" not in idx:

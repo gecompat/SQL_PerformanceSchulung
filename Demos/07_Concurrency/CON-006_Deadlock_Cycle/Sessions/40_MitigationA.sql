@@ -1,0 +1,16 @@
+SET NOCOUNT ON;SET XACT_ABORT ON;DECLARE @SessionId smallint=@@SPID;
+BEGIN TRY
+    BEGIN TRANSACTION;
+    SELECT Value FROM lab.DeadlockRows WITH (UPDLOCK,HOLDLOCK) WHERE RowId=1;
+    EXEC fwk.USP_Signal '$(DemoId)','$(RunToken)','MITIGATION_A_LOCKED';
+    EXEC fwk.USP_WaitForSignal '$(DemoId)','$(RunToken)','MITIGATION_B_STARTED',15000;
+    UPDATE lab.DeadlockRows SET Value+=1 WHERE RowId=1;
+    COMMIT TRANSACTION;
+    INSERT lab.ConversionEvidence(Attempt,RoleName,Outcome,ErrorNumber,SessionId)
+    VALUES('UPDLOCK','ACTOR_A','COMPLETED',NULL,@SessionId);
+END TRY
+BEGIN CATCH
+    IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
+    THROW;
+END CATCH;
+PRINT 'SQLPERF_SUMMARY|PASS|OK';
