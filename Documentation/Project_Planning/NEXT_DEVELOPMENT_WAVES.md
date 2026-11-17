@@ -3609,3 +3609,16 @@ Regexcachetreffer kann den Parse vermeiden. Umfang: ein Paket, ein PR, eine
 gezielte Regression; keine neue Produktquelle, kein Interpreter-/Container-/
 SQL-/Lab-Lauf und keine menschliche Generalprobe. Mit dem nächsten einzeln
 belegbaren Quellenkandidaten autonom fortfahren.
+
+### DGN-007 – initialen Parser-VERBOSE-Modus quellenbinden (17. November 2026)
+
+Für die 13 direkten Regexliteral-Kandidaten wird jetzt auch die anfängliche
+`_parse_sub`-Flagsmaske aus dem gebundenen `re._parser.parse`-Quellpfad
+abgeleitet: `flags & SRE_FLAG_VERBOSE` ist für vier Kandidaten gesetzt und für
+neun nicht gesetzt, jeweils nur falls der Compile-Aufruf den Parser erreicht.
+Inline-Flags können den späteren Modus ändern; Aufruf und Parse bleiben
+unbeobachtet. 302 Regressionen und der Vollscan bestehen, weiterhin
+`CANDIDATES_ONLY` mit 447 unbekannten Bedingungen. Umfang: ein Paket, ein PR,
+eine gezielte Regression; keine neue Produktquelle, kein Interpreter-/Container-/
+SQL-/Lab-Lauf und keine menschliche Generalprobe. Danach mit dem nächsten
+einzeln belegbaren Kandidaten der freigegebenen Folge fortfahren.
