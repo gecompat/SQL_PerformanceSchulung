@@ -37,6 +37,7 @@ ihren didaktischen Wert.
 - [Halboffene Datumsintervalle](HALF_OPEN_DATE_INTERVAL_LESSON.md): inklusive `BETWEEN`-Grenzen und Datentypgenauigkeit.
 - [Join-Kardinalität und `DISTINCT`](DISTINCT_JOIN_CARDINALITY_LESSON.md): One-to-many-Multiplizität, gewünschte Elternprojektion und die Abgrenzung zu `EXISTS` und Aggregation.
 - [Lookup und steigende Treffermengen](LOOKUP_SELECTIVITY_LESSON.md): Key Lookups, abdeckender Index und die workloadabhängige Grenze zu einem Scan.
+- [Buffer-Pool-Belegung und Speicherdruck](BUFFER_POOL_PRESSURE_LESSON.md): Cache-Seiteninventur, Low-Memory-Signale und Grant-Waits voneinander abgrenzen.
 - [Konkurrierende Abfragespeicherzuteilungen](COMPETING_MEMORY_GRANTS_LESSON.md): aktuelle Grant-Zustände und der Nachweis eines wartenden eigenen Requests.
 - [Worker-Warteschlange und CPU-Druck](WORKER_QUEUE_PRESSURE_LESSON.md): Workerbedarf, THREADPOOL-Waits und Runnable-Tasks getrennt einordnen.
 - [Query-Store-Plansteuerung](QUERY_STORE_PLAN_CONTROL_LESSON.md): angeforderte Planerzwingung, beobachtete Planverwendung und Rücknahme sauber unterscheiden.

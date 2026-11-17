@@ -2081,6 +2081,17 @@ Für diesen Dokumentationsschnitt wurde am 7. November eine weitere begrenzte
 Fortsetzung um ein Arbeitspaket, einen PR und zwei Quellen-/Testkandidaten
 angesetzt: kumulativ höchstens 19/27/65, ohne Reset.
 
+Die [Lehrnotiz zu Buffer-Pool-Belegung und Speicherdruck](../Curriculum/BUFFER_POOL_PRESSURE_LESSON.md)
+ergänzt RES-003 um eine lesende Inventur aktuell gecachter Datenseiten und einen
+kurzen Diagnosepfad. Sie sagt ausdrücklich, dass Seitenzahlen weder
+Verdrängungsdruck noch physische Reads oder Kausalität belegen. Prozess- und
+Systemflags bleiben Momentaufnahmen; `RESOURCE_SEMAPHORE` bleibt ein separates
+Grant-Signal. Die Microsoft-Quellen sind in `SRC-134` gebunden. Lokale
+Dokumentationsprüfungen stehen im zugehörigen Pull Request; es gab keinen
+SQL-Server-Lauf. Die rote Druckdemo und wirksame Resource-Governor-Begrenzung
+bleiben wegen fehlender isolierter Wegwerfinfrastruktur und Restore-
+Qualifikation zurückgestellt.
+
 Die Detailprüfung von SQL Server 2025 `OPTIMIZED_SP_EXECUTESQL` ist im
 [Delta-Review](SQL_SERVER_2025_DELTA_REVIEW.md) abgeschlossen. `QRY-004` qualifiziert keine parallele Compilation; die Funktion
 bleibt daher für Aktivierung, Laufzeitdemo und Performanceclaim `DEFER`. Die
