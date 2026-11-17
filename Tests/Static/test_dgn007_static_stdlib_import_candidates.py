@@ -5323,6 +5323,25 @@ def deferred():
             ),
             "re/_compiler.py": (
                 b"from ._constants import *\n"
+                b"def _compile(code, pattern, flags):\n"
+                b"    emit = code.append\n"
+                b"    _len = len\n"
+                b"    for op, av in pattern:\n"
+                b"        if op is BRANCH:\n"
+                b"            emit(op)\n"
+                b"            tail = []\n"
+                b"            tailappend = tail.append\n"
+                b"            for av in av[1]:\n"
+                b"                skip = _len(code)\n"
+                b"                emit(0)\n"
+                b"                _compile(code, av, flags)\n"
+                b"                emit(JUMP)\n"
+                b"                tailappend(_len(code))\n"
+                b"                emit(0)\n"
+                b"                code[skip] = _len(code) - skip\n"
+                b"            emit(FAILURE)\n"
+                b"            for tail in tail:\n"
+                b"                code[tail] = _len(code) - tail\n"
                 b"def isstring(obj):\n"
                 b"    return isinstance(obj, (str, bytes))\n"
                 b"def compile(p, flags=0):\n"
@@ -5639,6 +5658,21 @@ def deferred():
                 and not row["parser_uniq_candidate"]["helper_execution_observed"]
                 for row in candidates
             ))
+            self.assertTrue(all(
+                row["compiler_branch_candidate"]["compiler_branch_operator"]
+                == "BRANCH"
+                and row["compiler_branch_candidate"][
+                    "alternative_container_expression"] == "av[1]"
+                and row["compiler_branch_candidate"]["branch_end_marker"]
+                == "FAILURE"
+                and row["compiler_branch_candidate"]["branch_join_operator"]
+                == "JUMP"
+                and row["compiler_branch_candidate"][
+                    "tail_offsets_patched_after_alternatives"]
+                and not row["compiler_branch_candidate"][
+                    "compiler_execution_observed"]
+                for row in candidates
+            ))
             self.assertTrue(all(not row["standard_re_flag_binding_observed"]
                                 for row in candidates))
 
@@ -5916,6 +5950,24 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_uniq,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_compiler_branch = dict(files)
+            altered_compiler_branch["re/_compiler.py"] = altered_compiler_branch[
+                "re/_compiler.py"
+            ].replace(b"emit(FAILURE)", b"emit(SUCCESS)", 1)
+            altered_compiler_branch_digest = hashlib.sha256(
+                altered_compiler_branch["re/_compiler.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_COMPILER_SOURCE_SHA256",
+                              altered_compiler_branch_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_compiler_branch,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),

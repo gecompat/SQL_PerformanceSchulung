@@ -3710,3 +3710,10 @@ Checkpoint 18. November 2026: `_uniq(items)` ist an die gepinnte Operation
 den Befund. Dadurch ist die konkrete quellseitige Deduplizierungsoperation des
 Zeichensatzpfads geprüft. Nächster Kandidat: die statische Form des
 `BRANCH`-Operators und der zugehörigen Subpattern-Elemente.
+
+Checkpoint 18. November 2026: Das Parserergebnis `(BRANCH, (None, items))`
+ist an den gleichnamigen Compilerzweig gebunden. Alternativenkompilierung,
+`JUMP`-Offsets, `FAILURE`-Marker und Offset-Patching sind statische
+Quellbefunde. Der Compiler wurde nicht ausgeführt. Nächster Schritt ist die
+Shape- und Übergabebindung zwischen Parserausgabe, Compilerargument und
+Bytecode-Container.
