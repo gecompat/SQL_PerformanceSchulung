@@ -77,6 +77,18 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "final source chain"):
             validate_sql(altered)
 
+    def test_request_wait_time_decoy_in_ownwaits_cannot_replace_final_output(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "           mg.resource_semaphore_id\n    FROM @OwnRequests",
+            "           mg.resource_semaphore_id,\n"
+            "           r.wait_time AS request_wait_time_ms\n    FROM @OwnRequests",
+            1,
+        ).replace("    r.wait_time AS request_wait_time_ms,\n", "", 1)
+        self.assertNotEqual(altered, query)
+        with self.assertRaisesRegex(ContractError, "request DMV wait_time separately"):
+            validate_sql(altered)
+
     def test_ownwaits_grant_join_must_match_both_own_request_keys(self) -> None:
         query = extract_query(source_markdown())
         altered = query.replace(

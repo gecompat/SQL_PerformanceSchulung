@@ -181,6 +181,13 @@ def validate_sql(sql: str) -> None:
         raise ContractError(
             "diagnostic result must project the grant DMV wait_time_ms value"
         )
+    if ("request_wait_time_ms" not in output_names
+            or not tsql_projection_has_exact_item(
+                projection_match.group(1), "r.wait_time as request_wait_time_ms",
+            )):
+        raise ContractError(
+            "diagnostic result must project the request DMV wait_time separately"
+        )
     if "is_mapped_own_request" not in output_names:
         raise ContractError("diagnostic result must identify mapped own requests")
     if not tsql_projection_has_exact_item(

@@ -12708,6 +12708,16 @@ Lehrabfragetests, der Strukturvalidator und 24 Offlinevertragstests bestehen.
 Es bleibt eine Quellstrukturprüfung ohne T-SQL-Parser, DMV-Authentifizierung
 oder Laufzeitnachweis.
 
+### RES-004 – Request-Wartezeit an die finale Ausgabe binden (17. November 2026)
+
+Der Lehrvalidator suchte `r.wait_time AS request_wait_time_ms` nur im gesamten
+SQL-Text. Eine synthetische Gegenprobe verschob den Ausdruck in den
+`OwnWaits`-CTE und entfernte ihn aus der Schlussprojektion; der Validator
+akzeptierte das fehlende Ausgabefeld. Er verlangt den direkten Request-DMV-Wert
+jetzt in der finalen Projektion, getrennt von `mg.wait_time_ms`. 37
+Lehrabfragetests und der RES-004-Abfragevalidator bestehen lokal. Kein DMV-
+oder Runtimebeleg.
+
 ### RES-004 – leere Grant-Wait-Ergebnisse fail-closed abweisen (17. November 2026)
 
 Eine zusätzliche Gegenprobe zeigte, dass ein `AND 1 = 0` hinter den beiden
