@@ -3527,3 +3527,14 @@ und weist diese Formen zurück; Regressionen erhalten zugleich die Behandlung
 von Kommentaren und Stringliteralen. 40 fokussierte Tests und der
 RES-004-Quellvalidator bestehen. Die Prüfung bleibt statisch und qualifiziert
 weder T-SQL-Laufzeit noch DMV-Herkunft oder einen tatsächlichen Grant-Wait.
+
+### RES-001 – ausführbare Statements vor der Scheduler-Abfrage abweisen (17. November 2026)
+
+Der Lehrquery-Validator verlangte den Capture-Marker am Anfang und genau ein
+sichtbares `SELECT`, stellte aber nicht sicher, dass unmittelbar danach die
+Scheduler-Abfrage folgt. Eine eingeschobene Sessionänderung wie `SET NOEXEC ON`
+konnte daher akzeptiert werden. Der Validator verlangt jetzt nach Maskierung von
+Kommentaren und Literalen direkt das Scheduler-`SELECT`; Regressionen decken
+zusätzlich `IF ... SELECT` und `BEGIN ... END` ab. 21 fokussierte RES-001-Tests
+und der Quellenvalidator bestehen lokal. Das bleibt ein statischer Strukturcheck
+ohne T-SQL-Runtime- oder DMV-Herkunftsnachweis.
