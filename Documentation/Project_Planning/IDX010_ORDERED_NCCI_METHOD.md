@@ -119,8 +119,9 @@ uneindeutigem Cleanup wird der Lauf nicht als bestanden gewertet.
 
 1. Unabhängiger Review dieses Methodenentwurfs samt konkreter Daten-,
    Rowgroup-, Rechte- und Messdefinition.
-2. Numerische Ressourcen-, Zeit- und Cleanupobergrenzen sowie verifizierter
-   SQL-Server-2025-Image-Digest/Build/Edition.
+2. Numerische Ressourcen-, Zeit- und Cleanupobergrenzen sowie ein für den
+   späteren Lauf unveränderlich gebundener SQL-Server-2025-Image-Digest,
+   Build und tatsächliche Edition.
 3. Separat autorisierter isolierter Pilot; dessen Ergebnis gilt nur für den
    erfassten Build, die gewählten Indexoptionen, den Datentyp/Encoding und die
    synthetische Verteilung.
@@ -131,11 +132,33 @@ Die menschliche Generalprobe ist ausgeschlossen. Bis Gates 1–3 erfüllt sind,
 bleibt die Erweiterung `DEFER` und die bestehende IDX-010-Qualifikation gilt nur
 für die bisherige CCI-Demo.
 
+### Quellenabgleich zu Build und Edition (17. November 2026)
+
+Der frühere Kataloglauf zu PR #941 beobachtete Build `17.0.5065.9` aus
+`mcr.microsoft.com/mssql/server:2025-latest` mit dem Image-Digest
+`sha256:05644dad1266ca3d445d1e8f6d2ebb9a6a03df9a39376e0f7b48917356dca9d9`.
+Seine Containerkonfiguration setzte `MSSQL_PID=Developer`. Das ist ein
+historischer Kandidat: Der Katalogbeleg weist weder NCCI-`ORDER`-Verhalten
+nach noch enthält er eine ausgewertete `SERVERPROPERTY('Edition')`-Ausgabe.
+Ein beweglicher Tag ist außerdem kein künftiger Image-Lock; ein Pilot müsste
+den Digest selbst festsetzen und seine laufende Version und Edition erfassen.
+
+Microsoft dokumentiert `ORDER` für nicht gruppierte Columnstore-Indizes ab
+SQL Server 2025. Die Editionsmatrix führt Columnstore für Enterprise,
+Standard und Express auf; Developer-Editionen übernehmen laut derselben
+Matrix die jeweilige Enterprise- oder Standard-Funktionalität. Sie weist
+`ORDER` für NCCI nicht separat je Edition aus. Der Entwurf verlangt Offline-
+Builds; die editionsbeschränkte Online-Indexoperation ist damit keine
+Voraussetzung dieses Versuchs. Das ist eine quellenbasierte Eingrenzung, keine
+projektseitige Engine- oder Editionsqualifikation. Die konkreten Image-, Build-
+und Editionwerte bleiben am Pilot gebunden. Quellen: `SRC-083` und `SRC-165`.
+
 ## Quellen
 
 - `SRC-063`: [Performance tuning with ordered columnstore indexes](https://learn.microsoft.com/en-us/sql/relational-databases/indexes/ordered-columnstore-indexes?view=sql-server-ver17)
 - `SRC-017`: [Columnstore query performance](https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-query-performance?view=sql-server-ver17), einschließlich der dokumentierten `SET STATISTICS IO`-Ausgabe für gelesene und übersprungene Segmente.
 - `SRC-165`: Microsoft Learn, [CREATE COLUMNSTORE INDEX](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-columnstore-index-transact-sql?view=sql-server-ver17), [sys.column_store_segments](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-column-store-segments-transact-sql?view=sql-server-ver17) und [What's new in columnstore indexes](https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-what-s-new?view=sql-server-ver17); ergänzend Microsofts [Order-Quality-Skript](https://github.com/microsoft/sql-server-samples/blob/master/samples/features/columnstore/ordered-columnstore/order-quality.sql).
+- `SRC-083`: Microsoft, [SQL Server 2025 editions](https://learn.microsoft.com/en-us/sql/sql-server/editions-and-components-of-sql-server-2025?view=sql-server-ver17), für Editionstypen, Developer-Funktionsumfang und Columnstore-/Onlineoperationsmatrix.
 
 Die Microsoft-Dokumentation beschreibt, dass geordnete Columnstore-Builds mit
 `MAXDOP > 1` je Thread lokal sortieren und dadurch mehr Segmentüberlappung
