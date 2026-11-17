@@ -1,6 +1,9 @@
 # Nächste Entwicklungswellen
 
 ## Aktuelle autonome Fortsetzungsplanung vom 8. November 2026
+### SQL Server 2025 `OPTIMIZED_SP_EXECUTESQL`: Methodenentwurf
+
+Der eigenständige [Concurrent-Compile-Methodenentwurf](OPTIMIZED_SP_EXECUTESQL_CONCURRENT_COMPILE_DESIGN.md) konkretisiert den nächsten Entwicklungsschritt. Offen bleiben die unabhängige Methodenprüfung und eine verifizierte Build-/XE-Ereignis- und Feldzuordnung für dynamische Batches. Bis diese Gates erfüllt sind, erfolgen keine Aktivierung, SQL-Ausführung, Demo-ID-Vergabe oder Performanceaussage. `QRY-004` bleibt unverändert; die menschliche Generalprobe ist ausgeschlossen.
 
 ### Begrenzung der Fortsetzung vom 12. November 2026
 
