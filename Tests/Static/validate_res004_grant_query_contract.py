@@ -13,6 +13,7 @@ import sys
 
 from sql_lexical_utils import (
     extract_tsql_cte_body,
+    tsql_projection_has_exact_item,
     tsql_projection_output_names,
     without_tsql_comments,
     without_tsql_comments_or_literals,
@@ -85,6 +86,10 @@ def validate_sql(sql: str) -> None:
         raise ContractError(f"diagnostic final projection is malformed: {exc}") from exc
     if "captured_at_utc" not in output_names:
         raise ContractError("diagnostic result must expose captured_at_utc")
+    if not tsql_projection_has_exact_item(
+        projection_match.group(1), "@capturedat as captured_at_utc",
+    ):
+        raise ContractError("diagnostic result must project the @CapturedAt marker value")
     if "grant_time" not in output_names:
         raise ContractError("diagnostic result must expose grant_time to distinguish granted peers")
     if "is_mapped_own_request" not in output_names:

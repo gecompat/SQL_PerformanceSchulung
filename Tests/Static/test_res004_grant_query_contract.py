@@ -176,10 +176,10 @@ class GrantQueryContractTests(unittest.TestCase):
             1,
         ).replace(
             "    @CapturedAt AS captured_at_utc,\n",
-            "",
+            "    CONVERT(datetime2(7), 0) AS captured_at_utc,\n",
             1,
         )
-        with self.assertRaisesRegex(ContractError, "captured_at_utc"):
+        with self.assertRaisesRegex(ContractError, "CapturedAt.*marker value"):
             validate_sql(altered)
 
     def test_wait_filters_must_constrain_the_ownwaits_cte(self) -> None:

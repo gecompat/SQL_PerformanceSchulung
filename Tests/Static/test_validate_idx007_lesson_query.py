@@ -45,6 +45,15 @@ class Idx007LessonQueryTests(unittest.TestCase):
         errors = validate_lesson(broken)
         self.assertTrue(any("capture_started_at_utc" in error for error in errors))
 
+    def test_capture_alias_must_project_the_declared_capture_value(self) -> None:
+        broken = SOURCE.replace(
+            "    @capture_started_at_utc AS capture_started_at_utc,",
+            "    CONVERT(datetime2(7), 0) AS capture_started_at_utc,",
+            1,
+        )
+        self.assertTrue(any("project the `@capture_started_at_utc` marker value" in error
+                            for error in validate_lesson(broken)))
+
     def test_source_column_name_cannot_stand_in_for_a_renamed_output_alias(self) -> None:
         broken = SOURCE.replace(
             "    database_id,\n",

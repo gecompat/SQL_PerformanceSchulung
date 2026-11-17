@@ -298,3 +298,12 @@ def tsql_projection_output_names(projection: str) -> frozenset[str]:
         if column:
             names.add(column.group(1).strip("[]").replace("]]", "]").casefold())
     return frozenset(names)
+
+
+def tsql_projection_has_exact_item(projection: str, expected_item: str) -> bool:
+    """Check for an exact top-level projection item after lexical masking."""
+    expected = " ".join(without_tsql_comments_or_literals(expected_item).split()).casefold()
+    return any(
+        " ".join(item.split()).casefold() == expected
+        for item in split_tsql_projection_items(projection)
+    )
