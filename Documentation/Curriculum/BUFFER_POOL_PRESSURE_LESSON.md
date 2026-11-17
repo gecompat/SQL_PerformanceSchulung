@@ -25,10 +25,12 @@ Für die Sicht auf den gesamten Buffer Pool kann der Filter auf `database_id` en
 | Beobachtung | Aussage | Belegt für sich nicht |
 |---|---|---|
 | `sys.dm_os_buffer_descriptors` | aktuell zwischengespeicherte Datenseiten nach Datenbank | Verdrängungsdruck, physische Reads oder eine Ursache für langsame Abfragen |
-| `process_physical_memory_low` und `system_low_memory_signal_state` | SQL-Prozess beziehungsweise Betriebssystem meldet einen Low-Memory-Zustand | welche Abfrage oder Cache-Seite den Zustand verursachte |
+| `process_physical_memory_low` | SQL Server reagiert auf eine Meldung über wenig physischen Arbeitsspeicher für den Prozess | welche Abfrage oder Cache-Seite den Zustand verursachte |
+| `process_virtual_memory_low` | für den SQL-Server-Prozess wurde eine Bedingung mit wenig virtuellem Speicher erkannt | ein Mangel an physischem Arbeitsspeicher oder eine konkrete Ursache |
+| `system_low_memory_signal_state` und `system_high_memory_signal_state` | Betriebssystemsignale zum verfügbaren physischen Arbeitsspeicher | welche Abfrage oder Cache-Seite den Zustand verursachte |
 | Grant-DMV und `RESOURCE_SEMAPHORE` | Abfragespeicherzuteilungen und gegebenenfalls darauf wartende Anforderungen | Druck auf den Datenseiten-Cache |
 
-Die Low-Memory-Spalten können in einer einzelnen lesenden Momentaufnahme betrachtet werden:
+Die Speichersignalspalten können in einzelnen lesenden Momentaufnahmen betrachtet werden:
 
 ```sql
 SELECT process_physical_memory_low, process_virtual_memory_low
@@ -38,7 +40,11 @@ SELECT system_low_memory_signal_state, system_high_memory_signal_state
 FROM sys.dm_os_sys_memory;
 ```
 
-Diese Flags sind Signale mit Prozess- beziehungsweise Betriebssystem-Scope, keine Verlaufskurve. Für eine zeitliche Diagnose müssen wiederholte Beobachtungen mit Zeitraum und relevanter Workload zusammenpassen. Der bestehende [RES-003-Offlinevertrag](../../Tests/Static/res003_memory_signal_contract.py) prüft nur caller-gelieferte Zustände und attestiert keine echte DMV-Abfrage.
+Die beiden Prozessflags beschreiben verschiedene Bedingungen: `process_physical_memory_low` folgt einer Benachrichtigung über knappen physischen Speicher; `process_virtual_memory_low` meldet eine erkannte Bedingung mit wenig virtuellem Speicher. Sie sind keine austauschbaren Kennzeichen und ordnen den Zustand keiner Abfrage zu.
+
+Die Betriebssystemflags bilden gemeinsam den Signalzustand ab. `system_low_memory_signal_state = 1` meldet wenig verfügbaren physischen Speicher. Bei `system_high_memory_signal_state = 1` und Low = 0 meldet das Betriebssystem viel verfügbaren Speicher; bei beiden Werten 0 wird die Speichernutzung als stabil beschrieben. Sind beide Signale 1, kann das bei raschem Wechsel einen Übergangszustand anzeigen. Deshalb bedeutet Low = 0 allein nicht in jedem Fall, dass viel physischer Speicher verfügbar ist.
+
+Der bestehende [RES-003-Offlinevertrag](../../Tests/Static/res003_memory_signal_contract.py) verfolgt absichtlich nur `process_physical_memory_low` und `system_low_memory_signal_state` als getrennte Drucksignale in einer Vorher-/Druck-/Erholungsfolge. Er wertet weder `process_virtual_memory_low` noch das High-Signal aus, authentifiziert keine DMV-Aufnahme und attestiert keine echte Runtimeprobe. Die Beispielabfrage zeigt die zusätzlichen Flags zur Einordnung; sie erweitern den Offlinevertrag nicht.
 
 `RESOURCE_SEMAPHORE` gehört zum Warten auf Query Execution Memory. Auch `MIN_MEMORY_PERCENT` und `MAX_MEMORY_PERCENT` des Resource Governor beziehen sich bei normalen, nicht speicheroptimierten Tabellen auf Query-Workspace-Speicher; sie begrenzen nicht den gemeinsam genutzten Buffer Pool mit Daten- und Indexseiten. Die Konfiguration eines Ressourcenpools belegt zudem noch keine wirksame Zuordnung oder Begrenzung einer konkreten Session.
 
