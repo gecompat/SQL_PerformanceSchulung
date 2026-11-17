@@ -12163,6 +12163,12 @@ parallelen Split sind offen. Unabhängiger Methodenreview muss diese Punkte
 klären, bevor ein read-only Enginepilot vorbereitet wird. Der OFF/ON-
 Workloadvergleich und ein Performanceclaim bleiben getrennte spätere Gates.
 
+Die begleitende Lesemomentaufnahme ergänzt jetzt minimale und maximale
+`wait_time`-Werte der erfassten Request-Gruppe. Das sind keine Summen- oder
+Verlaufswerte. Ein statischer Quellvertrag bindet die Wait-Dauerfelder an die
+Lehrabfrage; Seitenkette, tatsächliche DMV-Herkunft und Enginequalifikation
+bleiben davon unberührt.
+
 ### CON-006 – integrierte Sperrumwandlungsvariante (17. November 2026)
 
 PR [#947](https://github.com/gecompat/SQL_PerformanceSchulung/pull/947) wurde
