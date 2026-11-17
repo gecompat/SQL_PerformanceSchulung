@@ -8167,6 +8167,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     isstring = functions(compiler_tree, "isstring")
     compiler_compile = functions(compiler_tree, "compile")
     parser_parse = functions(parser_tree, "parse")
+    regex_parser_functions = functions(parser_tree, "_parse")
     tokenizers = [node for node in parser_tree.body
                   if isinstance(node, ast.ClassDef) and node.name == "Tokenizer"]
     tokenizer_init = ([node for node in tokenizers[0].body
@@ -8175,7 +8176,29 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
                       if len(tokenizers) == 1 else [])
     if (len(public_compile) != 1 or len(re_compile) != 1
             or len(isstring) != 1 or len(compiler_compile) != 1
-            or len(parser_parse) != 1 or len(tokenizer_init) != 1):
+            or len(parser_parse) != 1 or len(tokenizer_init) != 1
+            or len(regex_parser_functions) != 1):
+        return []
+
+    verbose_parser_branches = [
+        node for node in ast.walk(regex_parser_functions[0])
+        if isinstance(node, ast.If) and isinstance(node.test, ast.Name)
+        and node.test.id == "verbose"
+    ]
+    expected_verbose_parser_branch = (
+        "if verbose:\n"
+        "    if this in WHITESPACE:\n"
+        "        continue\n"
+        "    if this == '#':\n"
+        "        while True:\n"
+        "            this = sourceget()\n"
+        "            if this is None or this == '\\n':\n"
+        "                break\n"
+        "        continue"
+    )
+    if (len(verbose_parser_branches) != 1
+            or ast.unparse(verbose_parser_branches[0])
+            != expected_verbose_parser_branch):
         return []
 
     whitespace_assignments = [

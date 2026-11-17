@@ -3625,14 +3625,15 @@ einzeln belegbaren Kandidaten der freigegebenen Folge fortfahren.
 
 ### DGN-007 – Inline-VERBOSE und ignorierte Regexliteralsyntax geprüft (17. November 2026)
 
-Der Offline-Quellscan bindet alle 13 direkten Regexliteral-Kandidaten und findet
-weder Inline-Flaggruppen mit `x` noch Zeichenklassen-freien Leerraum in Mustern
-mit anfänglich gesetztem VERBOSE-Modus. Ein Literal in `tokenize.py:39`
-enthält zwar einen lexikalischen `#`-Marker, sein anfänglicher VERBOSE-Modus
-ist aber nicht gesetzt; Parserzugang oder spätere Moduswirkung sind damit nicht
-belegt. Die `WHITESPACE`-Menge stammt aus dem exakt gebundenen
-CPython-3.12.16-Quellmodul. 304 fokussierte Regressionen bestehen. Umfang:
-ein Offlinepaket, eine Regression, keine neue Produktquelle und keine
-Interpreter-/Container-/SQL-/Lab-Ausführung oder menschliche Generalprobe.
-Der Befund bleibt `CANDIDATES_ONLY`; weitere freigegebene Entwicklungsbereiche
-werden unabhängig davon fortgesetzt.
+Der Offline-Quellscan bindet alle 13 direkten Regexliteral-Kandidaten. Er findet
+weder Inline-Flaggruppen mit `x` noch Leerraum-/Kommentarzeichenkandidaten in
+Mustern mit anfänglich gesetztem VERBOSE-Modus. Ein Literal in `tokenize.py:39`
+enthält einen lexikalischen `#`-Marker, aber sein anfänglicher VERBOSE-Modus ist
+nicht gesetzt. Neben `WHITESPACE` ist jetzt der gepinnte `_parse`-AST-Zweig
+gebunden, der Leerraum nur unter `verbose` überspringt und den Kommentar bis
+`None` oder `\n` liest. Parserzugang oder spätere Moduswirkung sind damit nicht
+belegt. 304 fokussierte Regressionen bestehen. Umfang: ein Offlinepaket, eine
+Regression, keine neue Produktquelle und keine Interpreter-/Container-/SQL-/
+Lab-Ausführung oder menschliche Generalprobe. Der Befund bleibt
+`CANDIDATES_ONLY`; weitere freigegebene Entwicklungsbereiche werden unabhängig
+davon fortgesetzt.

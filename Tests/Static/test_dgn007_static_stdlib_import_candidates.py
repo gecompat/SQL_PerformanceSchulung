@@ -5262,6 +5262,18 @@ def deferred():
             ),
             "re/_parser.py": (
                 b"WHITESPACE = frozenset(' \\t\\n\\r\\v\\f')\n"
+                b"def sourceget():\n"
+                b"    pass\n"
+                b"def _parse(source, state, verbose, nested, first=False):\n"
+                b"    if verbose:\n"
+                b"        if this in WHITESPACE:\n"
+                b"            continue\n"
+                b"        if this == '#':\n"
+                b"            while True:\n"
+                b"                this = sourceget()\n"
+                b"                if this is None or this == '\\n':\n"
+                b"                    break\n"
+                b"            continue\n"
                 b"class Tokenizer:\n"
                 b"    def __init__(self, string):\n"
                 b"        self.istext = isinstance(string, str)\n"
@@ -5416,6 +5428,24 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_whitespace,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_verbose_comment = dict(files)
+            altered_verbose_comment["re/_parser.py"] = altered_verbose_comment[
+                "re/_parser.py"
+            ].replace(b"this = sourceget()", b"this = otherget()", 1)
+            altered_verbose_comment_digest = hashlib.sha256(
+                altered_verbose_comment["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_verbose_comment_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_verbose_comment,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
