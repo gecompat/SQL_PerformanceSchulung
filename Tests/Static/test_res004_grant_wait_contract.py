@@ -18,7 +18,7 @@ def fixture() -> tuple[RequestWait, tuple[Grant, ...]]:
     request = RequestWait(51, 0, "RESOURCE_SEMAPHORE", 120, STAMP)
     grants = (
         Grant(51, 0, None, 120, 8192, 0, 1, 1, STAMP),
-        Grant(52, 0, "2026-11-06T09:59:50Z", None, 4096, 4096, 1, 1, STAMP),
+        Grant(52, 0, "2026-11-06T09:59:50.000", None, 4096, 4096, 1, 1, STAMP),
     )
     return request, grants
 
@@ -107,7 +107,7 @@ class GrantWaitContractTests(unittest.TestCase):
         request = RequestWait(51, 0, "RESOURCE_SEMAPHORE", 120, stamp)
         grants = (
             Grant(51, 0, None, 120, 8192, 0, 1, 1, stamp),
-            Grant(52, 0, "2026-11-06T09:59:50.7654321Z", None,
+            Grant(52, 0, "2026-11-06T09:59:50.003", None,
                   4096, 4096, 1, 1, stamp),
         )
         self.assertEqual(
@@ -121,6 +121,27 @@ class GrantWaitContractTests(unittest.TestCase):
                               "2026-11-06T10:00:00.12345678Z")
         self.assertEqual(evaluate_grant_wait(request, grants, semaphore()).verdict, Verdict.FAIL)
 
+    def test_granted_datetime_must_be_a_valid_timezone_free_sql_datetime(self) -> None:
+        request, grants = fixture()
+        for invalid in (
+            "t",
+            "2026-02-30T09:59:50.000",
+            "2026-11-06T09:59:50.000Z",
+            "1600-11-06T09:59:50.000",
+            "2026-11-06T09:59:50.0000",
+            "2026-11-06T09:59:50.001",
+            "2026-11-06T09:59:50.999",
+        ):
+            with self.subTest(invalid=invalid):
+                altered = (grants[0], Grant(52, 0, invalid, None, 4096, 4096, 1, 1, STAMP))
+                self.assertEqual(evaluate_grant_wait(request, altered, semaphore()).verdict, Verdict.FAIL)
+
+    def test_granted_datetime_accepts_sql_datetime_millisecond_precision(self) -> None:
+        request, grants = fixture()
+        altered = (grants[0], Grant(52, 0, "2026-11-06T09:59:50.997", None,
+                                    4096, 4096, 1, 1, STAMP))
+        self.assertEqual(evaluate_grant_wait(request, altered, semaphore()).verdict, Verdict.PASS)
+
     def test_grant_time_and_memory_contradiction_fails(self) -> None:
         request, grants = fixture()
         altered = (Grant(51, 0, None, 120, 8192, 512, 1, 1, STAMP), grants[1])
@@ -128,12 +149,14 @@ class GrantWaitContractTests(unittest.TestCase):
 
     def test_different_capture_time_fails(self) -> None:
         request, grants = fixture()
-        altered = (grants[0], Grant(52, 0, "t", None, 4096, 4096, 1, 1, "later"))
+        altered = (grants[0], Grant(52, 0, "2026-11-06T09:59:50.000", None,
+                                    4096, 4096, 1, 1, "later"))
         self.assertEqual(evaluate_grant_wait(request, altered, semaphore()).verdict, Verdict.FAIL)
 
     def test_different_pool_or_semaphore_is_not_competition_evidence(self) -> None:
         request, grants = fixture()
-        altered = (grants[0], Grant(52, 0, "t", None, 4096, 4096, 2, 1, STAMP))
+        altered = (grants[0], Grant(52, 0, "2026-11-06T09:59:50.000", None,
+                                    4096, 4096, 2, 1, STAMP))
         self.assertEqual(evaluate_grant_wait(request, altered, semaphore()).verdict, Verdict.NOT_PROVEN)
 
     def test_missing_concurrent_grantee_is_not_proven(self) -> None:

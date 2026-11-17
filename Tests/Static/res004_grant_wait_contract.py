@@ -2,6 +2,8 @@
 
 This validates only scalar bindings from one supplied snapshot. It does not
 collect or authenticate SQL Server requests, grants, waits, or memory pressure.
+Non-NULL ``grant_time`` values use a timezone-free ISO-8601 rendering of the
+SQL Server ``datetime`` column; capture markers are separate UTC timestamps.
 """
 from __future__ import annotations
 
@@ -13,6 +15,9 @@ import re
 
 _RFC3339 = re.compile(
     r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?(?:Z|[+-]\d{2}:\d{2})\Z"
+)
+_SQL_DATETIME = re.compile(
+    r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.(?P<fraction>\d{1,3}))?\Z"
 )
 
 
@@ -84,6 +89,22 @@ def _valid_timestamp(value: object) -> bool:
         return False
 
 
+def _valid_grant_time(value: object) -> bool:
+    """Validate an ISO-8601 rendering of SQL Server's timezone-free datetime."""
+    if type(value) is not str:
+        return False
+    match = _SQL_DATETIME.fullmatch(value)
+    if match is None:
+        return False
+    try:
+        parsed = datetime.fromisoformat(value)
+        milliseconds = int((match.group("fraction") or "").ljust(3, "0"))
+        return (parsed >= datetime(1753, 1, 1)
+                and milliseconds % 10 in (0, 3, 7))
+    except ValueError:
+        return False
+
+
 def evaluate_grant_wait(
     request: RequestWait | None,
     grants: tuple[Grant, ...] | None,
@@ -127,7 +148,7 @@ def evaluate_grant_wait(
         if (
             not _positive_int(grant.session_id)
             or not _nonnegative_int(grant.request_id)
-            or (grant.grant_time is not None and (type(grant.grant_time) is not str or not grant.grant_time))
+            or (grant.grant_time is not None and not _valid_grant_time(grant.grant_time))
             or (grant.wait_time_ms is not None and not _nonnegative_int(grant.wait_time_ms))
             or not _positive_int(grant.requested_memory_kb)
             or (grant.granted_memory_kb is not None and not _nonnegative_int(grant.granted_memory_kb))
