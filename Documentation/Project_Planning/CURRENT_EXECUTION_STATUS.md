@@ -2100,6 +2100,15 @@ quellengebundenen Dokumentationsschnitt gilt die am 7. November angesetzte
 Fortsetzung um ein Arbeitspaket, einen PR und zwei Quellenkandidaten: kumulativ
 höchstens 20/28/67, ohne Reset.
 
+Der [QRY-004-Demoeinstieg](../../Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/README.md)
+enthält jetzt den erlaubten, nicht ausführbaren SQL-Server-2025-Ausblick zu
+`OPTIMIZED_SP_EXECUTESQL`: Voreinstellung, serialisierte Kompilierung
+gleichtextiger Aufrufe, mögliche Compile-Waits und die separate
+Statistikkonfiguration sind eingeordnet. Die Einordnung behauptet keinen
+Leistungsgewinn und ändert weder Skripte noch Runtimevertrag. Aktivierung,
+Concurrent-Compile-Messung und Restore bleiben `DEFER`. Curriculum-, QRY-004-
+und Delta-Validatoren bestanden lokal; SQL wurde nicht ausgeführt.
+
 Die priorisierte Prüfung der CON-006-Deadlockvarianten wählt zuerst eine
 Konversionsvariante als `PROPOSED`: Sie soll konkurrierende S→X-Upgrades derselben
 Ressource vom vorhandenen gegenläufigen Zugriff auf zwei Ressourcen abgrenzen.

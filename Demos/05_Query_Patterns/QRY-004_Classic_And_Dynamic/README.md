@@ -22,7 +22,7 @@ Ein einziger statischer Querytext mit optionalen Prädikaten erzeugt eine einzig
 
 ## 3. Nichtziel
 
-Die Demo stellt keine Rangfolge der drei Strategien auf und behauptet nicht, `OPTION (RECOMPILE)` sei allgemein schnell oder allgemein teuer. Sie bewertet weder Parameter Sensitive Plan Optimization noch Optional Parameter Plan Optimization; diese Verfahren gehören zu `OPT-009` (Parametersensitive Planoptimierung) und `OPT-010` (Planoptimierung für optionale Parameter). Sie verwendet keine absichtlich fehlerhafte Abfrage und keine unsichere Stringkonkatenation als Gegenbeispiel.
+Die Demo stellt keine Rangfolge der drei Strategien auf und behauptet nicht, `OPTION (RECOMPILE)` sei allgemein schnell oder allgemein teuer. Sie bewertet weder Parameter Sensitive Plan Optimization noch Optional Parameter Plan Optimization; diese Verfahren gehören zu `OPT-009` (Parametersensitive Planoptimierung) und `OPT-010` (Planoptimierung für optionale Parameter). Auch `OPTIMIZED_SP_EXECUTESQL` wird nicht ausgeführt oder gemessen; der begrenzte SQL-Server-2025-Ausblick steht in Abschnitt 9. Sie verwendet keine absichtlich fehlerhafte Abfrage und keine unsichere Stringkonkatenation als Gegenbeispiel.
 
 ## 4. Voraussetzungen
 
@@ -87,6 +87,14 @@ Die Catch-all-Formulierung verwendet in dieser kontrollierten Baseline eine wied
 
 Der [Matrixlauf vom 2026-08-29](../../../Documentation/Project_Planning/ADV_008_QRY_004_REVIEW.md) lieferte auf 2019/150, 2022/160 und 2025/170 jeweils zweimal `WARN_EMPIRICAL_VARIANCE`, weil für den selektiven Wert kein Read-Vorteil durch Recompile beobachtet wurde. Ergebnis-, Sicherheits-, Wiederverwendungs- und Cleanup-Verträge waren erfüllt. Dieser historische Befund ist auch in der Sprechernotiz von `SLD-M03-112` enthalten; er ist keine neue Runtimeprüfung des aktuellen Repository-Stands.
 
+### SQL Server 2025: optionaler Ausblick außerhalb der Demo
+
+`OPTIMIZED_SP_EXECUTESQL` ist eine datenbankbezogene SQL-Server-2025-Konfiguration und standardmäßig `OFF`. Wenn sie aktiviert ist, serialisiert SQL Server die Kompilierung identischer `sp_executesql`-Batchtexte: Der erste Aufruf kompiliert und legt den Plan im Cache ab; gleichtextige Aufrufe mit anderen Parameterwerten warten auf den Compile-Lock und können anschließend den verfügbaren Plan wiederverwenden. Das kann parallele Doppelkompilierungen verringern, führt für konkurrierende Aufrufe aber auch zu Compile-Waits. Daraus folgt keine allgemeine Leistungsverbesserung.
+
+Die Funktion ändert weder die Notwendigkeit sicherer Parameterbindung noch die Zahl unkontrollierter Statementformen. Die QRY-004-Ausführung nutzt eine gleichzeitig aktive Session und prüft keinen konkurrierenden Compile-Sturm; sie aktiviert diese Option nicht und liefert keine Evidenz zu Compile-Waits oder ihrem Workloadeffekt.
+
+Microsoft empfiehlt bei aktivierter automatischer Statistikaktualisierung vor dem Einschalten zusätzlich `AUTO_UPDATE_STATISTICS_ASYNC` und `ASYNC_STATS_UPDATE_WAIT_AT_LOW_PRIORITY`. Das sind eigenständige Konfigurationsentscheidungen mit möglichen Auswirkungen auf Statistikfrische und Warteverhalten; asynchrone Statistikaktualisierung kann eine Kompilierung mit noch nicht aktualisierten Statistiken zulassen. Ein künftiger Vergleich müsste ihren Zustand festhalten, dazu identische und abweichende Statementtexte, Compile-/Wait-/Planablage-Evidenz sowie vollständigen Vorher-/Restore-Nachweis erfassen. Bis dahin bleiben Aktivierung, Runtimequalifikation und Performanceclaim gemäß [SQL-Server-2025-Delta-Review](../../../Documentation/Project_Planning/SQL_SERVER_2025_DELTA_REVIEW.md) zurückgestellt.
+
 ## 10. Cleanup und Wiederherstellung
 
 `90_Cleanup.sql` liest die vier Eigentumsmarker `SQLPERF.Project`, `SQLPERF.ContractVersion`, `SQLPERF.DemoId` und `SQLPERF.RunToken` aus der Zieldatenbank und entfernt sie nur bei vollständiger Übereinstimmung. Fehlt die Datenbank, endet der Cleanup idempotent mit `PASS`.
@@ -107,6 +115,7 @@ Die Planform- und Lesewerte stammen aus `sys.dm_exec_procedure_stats` beziehungs
 | `SRC-007` (Intelligent query processing) | Parameter, Variablen und Optimiererinformation |
 | `SRC-045` (Dynamic Search Conditions in T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL)) | Dynamische Suchbedingungen, Recompile und parameterisiertes dynamisches SQL |
 | `SRC-049` (Handling Optional Parameters) | Catch-all-Prädikate und Schätzfehler bei optionalen Parametern |
+| `SRC-058`, `SRC-059` | `OPTIMIZED_SP_EXECUTESQL`: Verfügbarkeit, Voreinstellung, Compile-Serialisierung und eigenständiger Statistik-/Wait-Kontext; keine Runtime- oder Performancequalifikation durch QRY-004 |
 
 ## 14. Traceability
 
