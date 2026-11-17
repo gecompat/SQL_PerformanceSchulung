@@ -33,6 +33,18 @@ class Idx007LessonQueryTests(unittest.TestCase):
         errors = validate_lesson(broken)
         self.assertTrue(any("not `wait_duration_ms`" in error for error in errors))
 
+    def test_constant_wait_duration_cannot_replace_request_dmv_value(self) -> None:
+        broken = SOURCE.replace(
+            "        r.wait_time,\n",
+            "        CONVERT(int, 0) AS wait_time,\n"
+            "        r.wait_time AS decoy_wait_time,\n",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any(
+            "project the request DMV wait_time value" in error for error in errors
+        ))
+
     def test_missing_wait_duration_range_is_rejected(self) -> None:
         broken = SOURCE.replace("MIN(wait_time) AS shortest_wait_time_ms,\n", "", 1)
         errors = validate_lesson(broken)

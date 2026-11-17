@@ -3509,3 +3509,10 @@ Er verlangt nun den direkten Request-DMV-Wert in der Schlussprojektion;
 `mg.wait_time_ms` bleibt separat. Eine synthetische Regression deckt den
 verschobenen Ausdruck ab. 37 Lehrabfragetests und der Validator bestehen lokal.
 Keine authentische DMV-Aufnahme oder Runtimeprüfung.
+### IDX-007 – aggregierte Waitdauer an die Requestquelle binden (17. November 2026)
+
+Der Lehrvalidator ließ bisher einen konstanten `wait_time`-Decoy in der
+`PageWaits`-Projektion zu, solange `r.wait_time` unter einem anderen Alias
+irgendwo im CTE vorkam. Er verlangt den direkten Request-DMV-Ausdruck nun in
+der Projektion, die von den Aggregaten verwendet wird. Eine Regression sichert
+den Fall; 35 fokussierte Tests und der Validator bestehen. Kein Laufzeitbeleg.
