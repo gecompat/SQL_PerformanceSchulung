@@ -75,6 +75,9 @@ def validate_sql(sql: str) -> None:
     missing = tuple(fragment for fragment in required if fragment not in normalized)
     if missing:
         raise ContractError("diagnostic query is missing required RES-004 bindings")
+    own_waits_where = re.search(r"\bwhere\b(.*)$", own_waits_normalized)
+    if own_waits_where is None or re.search(r"\bor\b", own_waits_where.group(1)):
+        raise ContractError("own-wait WHERE must not contain OR predicates")
     projection_match = re.search(
         r"\)\s*select\s+(.*?)\s+from\s+observedsemaphores\s+as\s+observed\b",
         normalized,

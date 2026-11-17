@@ -12661,3 +12661,17 @@ empfiehlt für eine reproduzierbare ODBC-Auswahl mindestens 18.7.1.1 mit `v2`.
 installierte Treiberversion noch eine ausgehandelte Treiberstufe oder
 Float16-Qualifikation des Projekts; es gab keine Installation, Verbindung oder
 SQL-Ausführung.
+
+### RES-004 – Grant-Wait-Filter gegen `OR`-Aufweitung absichern (17. November 2026)
+
+Eine Gegenprobe zeigte, dass der Lehrabfragevalidator den korrekten
+`RESOURCE_SEMAPHORE`-Filter auch dann akzeptierte, wenn im `OwnWaits`-CTE ein
+zusätzliches `OR 1 = 1` stand. Das konnte die Menge der als eigene wartende
+Requests ausgewiesenen Zeilen erweitern. Der Validator weist jetzt jedes
+`OR`-Prädikat in der `WHERE`-Bedingung des `OwnWaits`-CTE zurück; Kommentar-
+und Stringinhalte werden zuvor lexikalisch entfernt. Die beiden neuen
+Regressionen prüfen sowohl die Aufweitung als auch ein inaktives `OR` in einem
+Kommentar. Alle 25
+Lehrabfragetests, der Strukturvalidator und 24 Offlinevertragstests bestehen.
+Es bleibt eine Quellstrukturprüfung ohne T-SQL-Parser, DMV-Authentifizierung
+oder Laufzeitnachweis.
