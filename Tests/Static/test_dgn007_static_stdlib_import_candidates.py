@@ -5368,6 +5368,7 @@ def deferred():
                 b"            subpattern.append(prefix)\n"
                 b"            continue\n"
                 b"        break\n"
+                b"    set = []\n"
                 b"    for item in items:\n"
                 b"        if len(item) != 1:\n"
                 b"            break\n"
@@ -5614,6 +5615,19 @@ def deferred():
                     "parser_execution_observed"]
                 for row in candidates
             ))
+            self.assertTrue(all(
+                row["parser_subpattern_order_candidate"][
+                    "subpattern_paths_in_source_order"]
+                == ["single alternative returns item", "extract shared prefix",
+                    "try character-set shortcut", "append general BRANCH"]
+                and row["parser_subpattern_order_candidate"][
+                    "character_set_success_returns_before_general_branch"]
+                and row["parser_subpattern_order_candidate"][
+                    "general_branch_is_fallback_after_shortcut_loop"]
+                and not row["parser_subpattern_order_candidate"][
+                    "parser_execution_observed"]
+                for row in candidates
+            ))
             self.assertTrue(all(not row["standard_re_flag_binding_observed"]
                                 for row in candidates))
 
@@ -5851,6 +5865,28 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_prefix,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            reordered_paths = dict(files)
+            reordered_paths["re/_parser.py"] = reordered_paths[
+                "re/_parser.py"
+            ].replace(
+                b"    set = []\n",
+                b"    subpattern.append((BRANCH, (None, items)))\n    set = []\n",
+                1,
+            )
+            reordered_paths_digest = hashlib.sha256(
+                reordered_paths["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              reordered_paths_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        reordered_paths,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
