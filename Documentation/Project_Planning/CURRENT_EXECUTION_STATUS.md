@@ -13109,3 +13109,7 @@ Kommentaren und Literalen direkt das Scheduler-`SELECT`; Regressionen decken
 zusätzlich `IF ... SELECT` und `BEGIN ... END` ab. 21 fokussierte RES-001-Tests
 und der Quellenvalidator bestehen lokal. Das bleibt ein statischer Strukturcheck
 ohne T-SQL-Runtime- oder DMV-Herkunftsnachweis.
+
+## Abgeschlossene Verarbeitungswelle und Lehrmittelrelease (17. November 2026)
+
+Die RES-001-Validatorhärtung wurde als PR #1032 mit sechs erfolgreichen CI-Prüfungen auf `main` integriert (`ec5c5bc7bccd46aa5e630242ae8052a8edac511f`). Die Welle wurde bei sauberem, konsistentem `main` beendet. Anschließend wurden die drei Profildecks aus dem unveränderten Master gebaut und geprüft. Releasehashes, Render-/Datenschutzbelege sowie Grenzen stehen im [Releasebericht](W_PRS_001_TEACHING_RELEASE.md#nachfolgender-releasebuild-vom-2026-11-17-auf-main-ec5c5bc7bccd46aa5e630242ae8052a8edac511f). Die menschliche Generalprobe und die übrigen SQL-Lab-/Produktgates bleiben offen; dieser Lehrmittelrelease schließt sie nicht.
