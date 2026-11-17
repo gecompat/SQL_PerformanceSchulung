@@ -3,8 +3,11 @@
 Diese Lehrnotiz ergänzt `LO-M05-03` in der
 [Curriculumarchitektur](CURRICULUM_ARCHITECTURE.md). Sie erklärt einen
 Sperrumwandlungs-Deadlock und grenzt ihn vom vorhandenen Gegenreihenfolgefall
-ab. Sie beschreibt ein quellengebundenes Muster, keine neue Demo und keine
-Enginequalifikation.
+ab. Das [CON-006-Demo](../../Demos/07_Concurrency/CON-006_Deadlock_Cycle/README.md)
+enthält getrennte Abläufe für beide Varianten und eine `UPDLOCK`-Gegenprobe.
+Die Runtime-Qualifikation der neuen Variante steht noch aus. Der tatsächliche
+Konversionsgraph wird für den jeweiligen Build geprüft; synthetische
+Graphprüfungen ersetzen diese Laufzeitevidenz nicht.
 
 ## Gegenreihenfolge und Sperrumwandlung
 
@@ -39,10 +42,13 @@ der Gegenpart muss nach dem Ereignis erfolgreich oder mit seinem tatsächlichen
 Status nachgewiesen werden. Ein fehlender Graph in einer begrenzten
 `system_health`-Sichtung ist kein Beweis, dass kein Deadlock aufgetreten ist.
 
-Der vorhandene [CON-006-Grundfall](../../Demos/07_Concurrency/CON-006_Deadlock_Cycle/README.md)
-bleibt der praktische Einstieg. Die vorgeschlagene Conversion-Variante ist
-ein zusätzlicher Kandidat; ihr konkretes Graphattribut und der vollständige
-Capture-/Cleanup-Pfad sind noch buildgebunden zu qualifizieren. Der separate
+Der vorhandene CON-006-Gegenreihenfolgefall bleibt der praktische Einstieg.
+Die ergänzte Sperrumwandlungsvariante prüft denselben Datensatz: beide
+Transaktionen lesen ihn unter `REPEATABLE READ`, bevor beide ein Update
+anfordern. Die anschließende Gegenprobe verwendet `UPDLOCK` beim Lesen, sodass
+die Änderungsabsicht vor der Konkurrenz um `X` serialisiert wird. Das ist eine
+gezielte Mustergegenprobe, keine allgemeine Garantie gegen Deadlocks. Der
+separate
 [Offline-Review](../Project_Planning/CON006_OFFLINE_EVIDENCE_REVIEW.md)
 prüft nur synthetisch übergebene Daten und attestiert keine SQL-Server-Evidenz.
 Der ausführbare Offlinevertrag liegt in
