@@ -13383,6 +13383,17 @@ wurde nicht ausgeführt; es gibt keine Bytecode- oder Laufzeitbeobachtung.
 Nächster Kandidat: die Shape- und Übergabebindung zwischen Parserausgabe,
 Compilerargument und Regex-Bytecode-Container erweitern.
 
+### DGN-007 – Compiler-Codecontainer statisch an `_sre.compile` übergeben (18. November 2026)
+
+Die gepinnte `re/_compiler.py`-Quelle bindet `_code(p, flags)` als Erzeuger einer
+Liste: Sie kombiniert die Zustandsflags, hängt Compile-Informationen und das
+kompilierte `p.data` an, terminiert mit `SUCCESS` und gibt dieselbe `code`-
+Liste zurück. `compile()` übergibt das Ergebnis an `_sre.compile`. Die
+Gegenprobe ersetzt die Listeninitialisierung und wird verworfen. Das beweist
+weder Bytecodeinhalt noch Compiler- oder Extensionausführung. Nächster
+Quellfact: Flags- und Gruppenmetadaten, die `compile()` an `_sre.compile`
+übergibt, statisch binden.
+
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 
 Der statische Kandidat bindet jetzt den Präfixscan in `_parse_sub`: leere

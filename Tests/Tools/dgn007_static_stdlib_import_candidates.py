@@ -8764,6 +8764,53 @@ def _target_re_compiler_branch_candidate(files):
     }
 
 
+def _target_re_compiler_code_container_candidate(files):
+    """Bind parsed SubPattern input through the compiler's list code container."""
+    source = files.get("re/_compiler.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_COMPILER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_compiler.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    functions = {node.name: node for node in tree.body
+                 if isinstance(node, ast.FunctionDef)
+                 and node.name in {"_code", "compile"}}
+    if len(functions) != 2:
+        return None
+    code_body = functions["_code"].body
+    if [ast.unparse(node) for node in code_body] != [
+            "flags = p.state.flags | flags", "code = []",
+            "_compile_info(code, p, flags)", "_compile(code, p.data, flags)",
+            "code.append(SUCCESS)", "return code"]:
+        return None
+    code_bindings = [node for node in ast.walk(functions["compile"])
+                     if isinstance(node, ast.Assign)
+                     and any(isinstance(target, ast.Name) and target.id == "code"
+                             for target in node.targets)
+                     and ast.unparse(node) == "code = _code(p, flags)"]
+    sre_calls = [node for node in ast.walk(functions["compile"])
+                 if isinstance(node, ast.Call)
+                 and ast.unparse(node.func) == "_sre.compile"]
+    if (len(code_bindings) != 1 or len(sre_calls) != 1
+            or [ast.unparse(arg) for arg in sre_calls[0].args]
+            != ["pattern", "flags | p.state.flags", "code",
+                "p.state.groups - 1", "groupindex", "tuple(indexgroup)"]):
+        return None
+    return {
+        "source_path": "re/_compiler.py",
+        "source_sha256": RE_COMPILER_SOURCE_SHA256,
+        "code_container_initializer": "code = []",
+        "parsed_pattern_input": "p.data",
+        "compiled_success_terminator": "code.append(SUCCESS)",
+        "code_returned_to_compile": "code = _code(p, flags)",
+        "code_passed_to_sre_compile": True,
+        "compiler_execution_observed": False,
+        "evidence_scope": "PINNED_RE_COMPILER_CODE_CONTAINER_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8802,6 +8849,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     )
     parser_uniq_candidate = _target_re_parser_uniq_candidate(files)
     compiler_branch_candidate = _target_re_compiler_branch_candidate(files)
+    compiler_code_candidate = _target_re_compiler_code_container_candidate(files)
     if (cache_path_candidate is None or tokenizer_access_candidate is None
             or parser_sourceget_candidate is None
             or parser_sub_dispatch_candidate is None
@@ -8811,7 +8859,8 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or parser_prefix_candidate is None
             or parser_subpattern_order_candidate is None
             or parser_uniq_candidate is None
-            or compiler_branch_candidate is None):
+            or compiler_branch_candidate is None
+            or compiler_code_candidate is None):
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -9166,6 +9215,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_subpattern_order_candidate": parser_subpattern_order_candidate,
             "parser_uniq_candidate": parser_uniq_candidate,
             "compiler_branch_candidate": compiler_branch_candidate,
+            "compiler_code_candidate": compiler_code_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })

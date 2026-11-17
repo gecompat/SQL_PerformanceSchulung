@@ -3717,3 +3717,8 @@ ist an den gleichnamigen Compilerzweig gebunden. Alternativenkompilierung,
 Quellbefunde. Der Compiler wurde nicht ausgeführt. Nächster Schritt ist die
 Shape- und Übergabebindung zwischen Parserausgabe, Compilerargument und
 Bytecode-Container.
+
+Checkpoint 18. November 2026: `_code` bindet die geordnete Erzeugung und
+Rückgabe des Listencontainers; `compile()` übergibt ihn an `_sre.compile`.
+Eine Mutation der Containerinitialisierung wird verworfen. Als nächstes
+werden die mitgegebenen Flags- und Gruppenmetadaten statisch gebunden.
