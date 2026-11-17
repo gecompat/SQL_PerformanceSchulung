@@ -346,6 +346,19 @@ Unknown-Inventar bleiben bei 60 Modulen, 316 Kanten und 447 Bedingungen;
 Unknown-Digest `742614875c7d689dd14338bfc603928908a298a5c1253c10d36fecd705ea7f95`.
 Kein Interpreter-, P11-, Runtime- oder SQL-Nachweis.
 
+### DGN-007 – Compile-Flags der Regex-Literalkandidaten quellengebunden auswerten (17. November 2026)
+
+Die 13 direkten Modulstart-Regexkandidaten tragen jetzt zusätzlich ihre
+Compile-Flags, sofern die Argumentform und der gepinnte CPython-Quellpfad sie
+bestimmen. Fünf verwenden den quellengeprüften Standard `0`; acht symbolische
+`RegexFlag`-Ausdrücke werden über `re/__init__.py` und `re/_constants.py`
+aufgelöst: viermal `88`, zweimal `8` und zweimal `256`. Die Ausgabe bleibt
+bedingt auf Ausdrucksauswertung und Standard-`re.compile`-Bindung; keine der
+Compile- oder Parse-Aufrufbeobachtungen wird behauptet. 302 fokussierte
+Regressionen bestehen. Closure und Unknown-Inventar bleiben unverändert bei 60
+Modulen, 316 Kanten und 447 unbekannten Bedingungen; Digest
+`742614875c7d689dd14338bfc603928908a298a5c1253c10d36fecd705ea7f95`.
+
 ## Graph Tables – Curriculum-Lernnotiz
 
 Die [Graph-Tables-Lernnotiz](../Curriculum/GRAPH_TABLES_LESSON.md) ergänzt

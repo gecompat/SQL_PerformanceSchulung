@@ -5080,6 +5080,7 @@ class StaticImportCandidateTests(unittest.TestCase):
 from re import compile as make_regex
 regex.compile('text')
 make_regex(b'binary')
+regex.compile('flagged', flags=0)
 if FLAG:
     regex.compile(pattern)
 def deferred():
@@ -5090,12 +5091,21 @@ def deferred():
         )
         self.assertEqual(
             [row["argument_kind"] for row in candidates],
-            ["STRING_LITERAL", "BYTES_LITERAL", "UNRESOLVED_EXPRESSION"],
+            ["STRING_LITERAL", "BYTES_LITERAL", "STRING_LITERAL",
+             "UNRESOLVED_EXPRESSION"],
         )
         self.assertEqual(
             [row["api_form"] for row in candidates],
             ["re_module_compile_attribute", "re_imported_compile_name",
-             "re_module_compile_attribute"],
+             "re_module_compile_attribute", "re_module_compile_attribute"],
+        )
+        self.assertEqual(
+            [row["flags_argument_kind"] for row in candidates],
+            ["OMITTED", "OMITTED", "INT_LITERAL", "OMITTED"],
+        )
+        self.assertEqual(
+            [row["flags_literal_value"] for row in candidates],
+            [None, None, 0, None],
         )
         self.assertTrue(all(not row["compile_call_observed"]
                             and not row["pattern_parse_observed"]
@@ -5136,14 +5146,31 @@ def deferred():
 
     def test_re_compile_literal_types_bind_to_pinned_tokenizer_source_flow(self):
         files = {
-            "pkg.py": b"import re\nre.compile('text')\nre.compile(b'bytes')\n",
+            "pkg.py": (
+                b"import re\n"
+                b"re.compile('text')\n"
+                b"re.compile(b'bytes')\n"
+                b"FLAGS = re.VERBOSE | re.MULTILINE\n"
+                b"re.compile('flagged', re.VERBOSE | re.MULTILINE)\n"
+                b"re.compile('named', FLAGS)\n"
+            ),
             "re/__init__.py": (
+                b"import enum\n"
+                b"from . import _compiler, _parser\n"
+                b"@enum.global_enum\n"
+                b"@enum._simple_enum(enum.IntFlag, boundary=enum.KEEP)\n"
+                b"class RegexFlag:\n"
+                b"    ASCII = A = _compiler.SRE_FLAG_ASCII\n"
+                b"    MULTILINE = M = _compiler.SRE_FLAG_MULTILINE\n"
+                b"    DOTALL = S = _compiler.SRE_FLAG_DOTALL\n"
+                b"    VERBOSE = X = _compiler.SRE_FLAG_VERBOSE\n"
                 b"def compile(pattern, flags=0):\n"
                 b"    return _compile(pattern, flags)\n"
-                b"def _compile(pattern, flags=0):\n"
+                b"def _compile(pattern, flags):\n"
                 b"    return _compiler.compile(pattern, flags)\n"
             ),
             "re/_compiler.py": (
+                b"from ._constants import *\n"
                 b"def isstring(obj):\n"
                 b"    return isinstance(obj, (str, bytes))\n"
                 b"def compile(p, flags=0):\n"
@@ -5152,6 +5179,12 @@ def deferred():
                 b"        p = _parser.parse(p, flags)\n"
                 b"    else:\n"
                 b"        pattern = None\n"
+            ),
+            "re/_constants.py": (
+                b"SRE_FLAG_ASCII = 256\n"
+                b"SRE_FLAG_MULTILINE = 8\n"
+                b"SRE_FLAG_DOTALL = 16\n"
+                b"SRE_FLAG_VERBOSE = 64\n"
             ),
             "re/_parser.py": (
                 b"class Tokenizer:\n"
@@ -5169,29 +5202,74 @@ def deferred():
             "RE_PARSER_SOURCE_SHA256": hashlib.sha256(
                 files["re/_parser.py"]
             ).hexdigest(),
+            "RE_CONSTANTS_SOURCE_SHA256": hashlib.sha256(
+                files["re/_constants.py"]
+            ).hexdigest(),
         }
         with (patch.object(SUBJECT, "RE_INIT_SOURCE_SHA256", digests[
                     "RE_INIT_SOURCE_SHA256"]),
               patch.object(SUBJECT, "RE_COMPILER_SOURCE_SHA256", digests[
                     "RE_COMPILER_SOURCE_SHA256"]),
               patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256", digests[
-                    "RE_PARSER_SOURCE_SHA256"])):
+                    "RE_PARSER_SOURCE_SHA256"]),
+              patch.object(SUBJECT, "RE_CONSTANTS_SOURCE_SHA256", digests[
+                    "RE_CONSTANTS_SOURCE_SHA256"])):
             candidates = SUBJECT._target_re_compile_tokenizer_input_type_candidates(
-                files, ("pkg", "re", "re._compiler", "re._parser"),
+                files, ("pkg", "re", "re._compiler", "re._constants",
+                        "re._parser"),
             )
-            self.assertEqual(len(candidates), 2)
+            self.assertEqual(len(candidates), 4)
             self.assertEqual(
                 [row["pattern_type_if_call_evaluates"] for row in candidates],
-                ["str", "bytes"],
+                ["str", "bytes", "str", "str"],
             )
             self.assertEqual(
                 [row["tokenizer_istext_if_parser_entry_reached"]
                  for row in candidates],
-                [True, False],
+                [True, False, True, True],
+            )
+            self.assertEqual(
+                [row["flags_value_if_call_evaluates"] for row in candidates],
+                [0, 0, 72, 72],
+            )
+            self.assertEqual(
+                [row["flags_resolution"] for row in candidates],
+                ["PINNED_DEFAULT_ZERO", "PINNED_DEFAULT_ZERO",
+                 "PINNED_REGEXFLAG_EXPRESSION", "PINNED_REGEXFLAG_EXPRESSION"],
             )
             self.assertTrue(all(not row["parser_entry_observed"]
                                 and not row["standard_re_compile_binding_observed"]
                                 for row in candidates))
+            self.assertTrue(all(not row["standard_re_flag_binding_observed"]
+                                for row in candidates))
+
+            with patch.object(SUBJECT, "RE_CONSTANTS_SOURCE_SHA256", "0" * 64):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        files, ("pkg", "re", "re._compiler", "re._constants",
+                                "re._parser"),
+                    ),
+                    [],
+                )
+
+            changed_signature = dict(files)
+            changed_signature["re/__init__.py"] = changed_signature[
+                "re/__init__.py"
+            ].replace(b"def compile(pattern, flags=0):",
+                     b"def compile(pattern, flags=1):", 1)
+            changed_signature_digest = hashlib.sha256(
+                changed_signature["re/__init__.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_INIT_SOURCE_SHA256",
+                              changed_signature_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        changed_signature,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
 
             altered = dict(files)
             altered["re/_parser.py"] = altered["re/_parser.py"].replace(
@@ -5201,7 +5279,8 @@ def deferred():
             with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256", altered_digest):
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
-                        altered, ("pkg", "re", "re._compiler", "re._parser"),
+                        altered, ("pkg", "re", "re._compiler", "re._constants",
+                                  "re._parser"),
                     ),
                     [],
                 )
@@ -11111,6 +11190,8 @@ static struct PyModuleDef sysmodule = {
         self.assertIn(
             "target_module_init_re_compile_tokenizer_input_type_candidates", labels,
         )
+        self.assertIn("flags_value_if_call_evaluates", labels)
+        self.assertIn("PINNED_REGEXFLAG_EXPRESSION", labels)
         self.assertIn("target_platform_source_candidates", labels)
         self.assertIn(
             "MODULE_CLASS_AND_KNOWN_LINUX_CPYTHON312_IF_BUILTIN_AND_IMPORTED_MODULE_NAME_BRANCHES",

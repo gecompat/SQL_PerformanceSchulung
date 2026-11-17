@@ -62,6 +62,7 @@ HASHLIB_SOURCE_SHA256 = "6dbdebf270868b391080e21dc9687eddfaf321c965ad979f68d3f5c
 RE_INIT_SOURCE_SHA256 = "8ff3c37c63b917fcf8dc8d50993a502292a3dc159e41de4f4018c72a53d1c07b"
 RE_COMPILER_SOURCE_SHA256 = "c75620761098a70ed75b9accef63ef2881d8abb6d4e5cbfd10074bd165eefe4d"
 RE_PARSER_SOURCE_SHA256 = "a51a85b37cf3f44ba7ff25754da5f31306e4ccfa6eb3c017f9d37bdf4e770840"
+RE_CONSTANTS_SOURCE_SHA256 = "fa4fdb200f238f9e7817b63892b0d69833d8165134801e775e10cc113348a375"
 FUNCTOOLS_SOURCE_SHA256 = "de4a1d37c795e2a065124b5c49357893433bc6bb111b41277ccc9930ef08d4c9"
 FUNCTOOLS_LRU_CACHE_CALLS_SHA256 = "a9e9c4c387f449547755b88929b8bf482c94b8b77431e336f90b8d91d2420391"
 COLLECTIONS_NAMEDTUPLE_CALLS_SHA256 = "4a9dcf2bf498fe0d68ca0a0b80269d9556d6e47c9b509a5f3df7465596c954bf"
@@ -7957,6 +7958,43 @@ def _target_re_compile_input_candidates(files, modules):
                 argument_kind = "STRING_FORMAT_EXPRESSION"
             else:
                 argument_kind = "UNRESOLVED_EXPRESSION"
+            expanded_keywords = any(keyword.arg is None for keyword in call.keywords)
+            flag_keywords = [keyword.value for keyword in call.keywords
+                             if keyword.arg == "flags"]
+            if (len(call.args) == 1 and not flag_keywords
+                    and not expanded_keywords):
+                flags_argument_kind = "OMITTED"
+                flags_literal_value = None
+                flags_argument_expression = None
+            elif (len(call.args) == 2 and not flag_keywords
+                    and not expanded_keywords):
+                flags_argument = call.args[1]
+                flags_argument_expression = ast.unparse(flags_argument)
+                flags_argument_kind = "UNRESOLVED_EXPRESSION"
+                flags_literal_value = None
+                try:
+                    flags_literal = ast.literal_eval(flags_argument)
+                except (ValueError, TypeError, SyntaxError):
+                    flags_literal = None
+                if type(flags_literal) is int:
+                    flags_argument_kind = "INT_LITERAL"
+                    flags_literal_value = flags_literal
+            elif (len(call.args) == 1 and len(flag_keywords) == 1
+                    and not expanded_keywords):
+                flags_argument_expression = ast.unparse(flag_keywords[0])
+                flags_argument_kind = "UNRESOLVED_EXPRESSION"
+                flags_literal_value = None
+                try:
+                    flags_literal = ast.literal_eval(flag_keywords[0])
+                except (ValueError, TypeError, SyntaxError):
+                    flags_literal = None
+                if type(flags_literal) is int:
+                    flags_argument_kind = "INT_LITERAL"
+                    flags_literal_value = flags_literal
+            else:
+                flags_argument_kind = "UNRESOLVED_EXPRESSION"
+                flags_literal_value = None
+                flags_argument_expression = None
             candidates.append({
                 "module": row["module"],
                 "source_path": path,
@@ -7965,6 +8003,9 @@ def _target_re_compile_input_candidates(files, modules):
                 "api_form": api_form,
                 "argument_kind": argument_kind,
                 "argument_sha256": argument_sha256,
+                "flags_argument_kind": flags_argument_kind,
+                "flags_literal_value": flags_literal_value,
+                "flags_argument_expression": flags_argument_expression,
                 "evidence_scope": "MODULE_BODY_RE_COMPILE_ARGUMENT_CANDIDATE",
                 "compile_call_observed": False,
                 "pattern_parse_observed": False,
@@ -7992,6 +8033,16 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             source_trees[path] = ast.parse(source.decode("utf-8"), filename=path)
         except (UnicodeError, SyntaxError):
             return []
+    constants_source = files.get("re/_constants.py")
+    if (type(constants_source) is not bytes
+            or hashlib.sha256(constants_source).hexdigest()
+            != RE_CONSTANTS_SOURCE_SHA256):
+        return []
+    try:
+        constants_tree = ast.parse(constants_source.decode("utf-8"),
+                                   filename="re/_constants.py")
+    except (UnicodeError, SyntaxError):
+        return []
 
     def functions(tree, name):
         return [node for node in tree.body
@@ -8025,6 +8076,21 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     if (len(public_body) != 1 or not isinstance(public_body[0], ast.Return)
             or ast.unparse(public_body[0].value) != "_compile(pattern, flags)"):
         return []
+
+    def default_flags_zero(function, pattern_name):
+        return (
+            [argument.arg for argument in function.args.args]
+            == [pattern_name, "flags"]
+            and len(function.args.defaults) == 1
+            and ast.unparse(function.args.defaults[0]) == "0"
+        )
+
+    if (not default_flags_zero(public_compile[0], "pattern")
+            or [argument.arg for argument in re_compile[0].args.args]
+            != ["pattern", "flags"]
+            or re_compile[0].args.defaults
+            or not default_flags_zero(compiler_compile[0], "p")):
+        return []
     isstring_body = isstring[0].body
     if (len(isstring_body) != 1 or not isinstance(isstring_body[0], ast.Return)
             or ast.unparse(isstring_body[0].value)
@@ -8051,6 +8117,109 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             != "self.istext = isinstance(string, str)"):
         return []
 
+    compiler_constants_imports = [
+        node for node in compiler_tree.body
+        if isinstance(node, ast.ImportFrom) and node.level == 1
+        and node.module == "_constants"
+        and any(alias.name == "*" for alias in node.names)
+    ]
+    regex_flags = [node for node in re_tree.body
+                   if isinstance(node, ast.ClassDef) and node.name == "RegexFlag"]
+    if (len(compiler_constants_imports) != 1 or len(regex_flags) != 1
+            or "enum.global_enum" not in
+            [ast.unparse(decorator) for decorator in regex_flags[0].decorator_list]
+            or "enum._simple_enum(enum.IntFlag, boundary=enum.KEEP)" not in
+            [ast.unparse(decorator) for decorator in regex_flags[0].decorator_list]
+            or regex_flags[0].bases):
+        return []
+    sre_flag_values = {}
+    for node in constants_tree.body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1:
+            target = node.targets[0]
+            if (isinstance(target, ast.Name)
+                    and target.id.startswith("SRE_FLAG_")
+                    and isinstance(node.value, ast.Constant)
+                    and type(node.value.value) is int):
+                sre_flag_values[target.id] = node.value.value
+    re_flag_values = {}
+    for node in regex_flags[0].body:
+        if not isinstance(node, ast.Assign):
+            continue
+        value = None
+        if (isinstance(node.value, ast.Attribute)
+                and isinstance(node.value.value, ast.Name)
+                and node.value.value.id == "_compiler"):
+            value = sre_flag_values.get(node.value.attr)
+        elif (isinstance(node.value, ast.Constant)
+                and type(node.value.value) is int):
+            value = node.value.value
+        if value is not None:
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    re_flag_values[target.id] = value
+    if not {"ASCII", "MULTILINE", "DOTALL", "VERBOSE"}.issubset(re_flag_values):
+        return []
+
+    def evaluate_flag_expression(expression, tree, use_line):
+        if type(expression) is not str:
+            return None
+        try:
+            root = ast.parse(expression, mode="eval").body
+        except SyntaxError:
+            return None
+
+        def evaluate(node, line, depth=0):
+            if depth > 12:
+                return None
+            if (isinstance(node, ast.Constant)
+                    and type(node.value) is int):
+                return node.value
+            if (isinstance(node, ast.Attribute)
+                    and isinstance(node.value, ast.Name)
+                    and node.value.id == "re"):
+                imports = [
+                    statement for statement in tree.body
+                    if isinstance(statement, ast.Import)
+                    and statement.lineno < line
+                    and any(alias.name == "re"
+                            and (alias.asname or "re") == "re"
+                            for alias in statement.names)
+                ]
+                if (len(imports) != 1
+                        or any(isinstance(candidate, ast.Name)
+                               and candidate.id == "re"
+                               and isinstance(candidate.ctx, (ast.Store, ast.Del))
+                               and candidate.lineno < line
+                               for candidate in ast.walk(tree))):
+                    return None
+                return re_flag_values.get(node.attr)
+            if isinstance(node, ast.Name):
+                assignments = []
+                for statement in tree.body:
+                    if statement.lineno >= line:
+                        continue
+                    if (isinstance(statement, ast.Assign)
+                            and len(statement.targets) == 1
+                            and isinstance(statement.targets[0], ast.Name)
+                            and statement.targets[0].id == node.id):
+                        assignments.append((statement.value, statement.lineno))
+                    elif (isinstance(statement, ast.AnnAssign)
+                            and isinstance(statement.target, ast.Name)
+                            and statement.target.id == node.id
+                            and statement.value is not None):
+                        assignments.append((statement.value, statement.lineno))
+                if len(assignments) != 1:
+                    return None
+                value, assigned_line = assignments[0]
+                return evaluate(value, assigned_line, depth + 1)
+            if (isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr)):
+                left = evaluate(node.left, line, depth + 1)
+                right = evaluate(node.right, line, depth + 1)
+                return left | right if left is not None and right is not None else None
+            return None
+
+        return evaluate(root, use_line)
+
     candidates = _target_re_compile_input_candidates(files, modules)
     output = []
     chain_hashes = {path: hashlib.sha256(files[path]).hexdigest()
@@ -8059,6 +8228,33 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
         kind = candidate["argument_kind"]
         if kind not in ("STRING_LITERAL", "BYTES_LITERAL"):
             continue
+        flags_value = None
+        flags_resolution = "UNRESOLVED"
+        if candidate["flags_argument_kind"] == "OMITTED":
+            flags_value = 0
+            flags_resolution = "PINNED_DEFAULT_ZERO"
+        elif candidate["flags_argument_kind"] == "INT_LITERAL":
+            flags_value = candidate["flags_literal_value"]
+            flags_resolution = "INTEGER_LITERAL"
+        else:
+            caller_source = files.get(candidate["source_path"])
+            if (type(caller_source) is bytes
+                    and hashlib.sha256(caller_source).hexdigest()
+                    == candidate["source_sha256"]):
+                try:
+                    caller_tree = ast.parse(
+                        caller_source.decode("utf-8"),
+                        filename=candidate["source_path"],
+                    )
+                except (UnicodeError, SyntaxError):
+                    caller_tree = None
+                if caller_tree is not None:
+                    flags_value = evaluate_flag_expression(
+                        candidate["flags_argument_expression"],
+                        caller_tree, candidate["line"],
+                    )
+                    if flags_value is not None:
+                        flags_resolution = "PINNED_REGEXFLAG_EXPRESSION"
         output.append({
             **candidate,
             "pattern_type_if_call_evaluates": (
@@ -8067,6 +8263,13 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "tokenizer_istext_if_parser_entry_reached": (
                 kind == "STRING_LITERAL"
             ),
+            "flags_value_if_call_evaluates": flags_value,
+            "flags_resolution": flags_resolution,
+            "re_flag_constants_source_sha256": (
+                RE_CONSTANTS_SOURCE_SHA256
+                if flags_resolution == "PINNED_REGEXFLAG_EXPRESSION" else None
+            ),
+            "standard_re_flag_binding_observed": False,
             "parser_entry_observed": False,
             "standard_re_compile_binding_observed": False,
             "parser_source_sha256": chain_hashes,
