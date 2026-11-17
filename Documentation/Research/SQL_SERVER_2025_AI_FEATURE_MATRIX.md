@@ -1,11 +1,15 @@
 # SQL Server 2025 – KI-Feature- und Provider-Matrix
 
-Stand und Prüfung: 2026-10-11. Arbeitspaket: `TSK-003` (KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen) mit und für Microsoft SQL Server 2025: Planungsintegration); Folgequalifikation: `TSK-004` (KI-Feature-, Build- und Providerqualifikation).
+Allgemeine Matrixprüfung: 2026-10-11; gezielter VECTOR-Float16-Quellenabgleich: 2026-11-17. Arbeitspaket: `TSK-003` (KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen) mit und für Microsoft SQL Server 2025: Planungsintegration); Folgequalifikation: `TSK-004` (KI-Feature-, Build- und Providerqualifikation).
 Dies ist die fachliche Matrix zum [Workstream-Plan](../Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md).
-Quellenautorität bleibt [Projektweites Quellenregister](SOURCE_REGISTER.md), Einträge `SRC-072` (Vector data type)–`SRC-100` (Full-Text Search).
+Quellenautorität bleibt [Projektweites Quellenregister](SOURCE_REGISTER.md), insbesondere die einschlägigen Einträge `SRC-072` (Vector data type), `SRC-166` (Vector float16) und `SRC-167` (SqlClient VECTOR).
 Die folgenden Aussagen sind **Dokumentiert**, soweit eine Quelle angegeben ist.
 Diese Matrix ersetzt keine empirische Build-/Runtime-/Providerqualifikation;
 konkrete Teilnachweise und offene Gates stehen im kanonischen Ausführungsstand.
+
+Die begrenzte Float16-Aktualisierung ist ebenfalls nur Quellenabgleich: Sie
+ordnet SQL Server 2025s Previewanforderung und dokumentierte Treibergrenzen ein,
+qualifiziert aber keinen Float16-Build, Architektur- oder Clientpfad.
 
 ## 1. Plattform- und Freigabegrenzen
 
@@ -30,11 +34,11 @@ Die Frage bleibt bei `TSK-004` offen; der geplante ONNX-Pfad ist ausschließlich
 
 Die Spalte CL trennt eine dokumentierte Mindestanforderung vom gewählten Laborprofil CL 170.
 „Nicht separat genannt“ ist keine Behauptung über beliebige CLs; `TSK-004` prüft dies vor Implementierung.
-Alle Quellen wurden am 2026-10-11 geprüft. Edition/OS (Operating System; Betriebssystem) folgt §1, außer bei ONNX (Open Neural Network Exchange; Austauschformat für Modelle).
+Die übrigen Matrixquellen tragen weiterhin den Prüfstand 2026-10-11; der gezielte Float16-Abgleich aktualisiert nur `SRC-072`, `SRC-166` und `SRC-167`. Edition/OS (Operating System; Betriebssystem) folgt §1, außer bei ONNX (Open Neural Network Exchange; Austauschformat für Modelle).
 
 | Funktion / Zweck und Mechanismus | Engine / Status | CL und Konfiguration | Berechtigung / Infrastruktur | Security und Performance | Quelle / Syntax |
 |---|---|---|---|---|---|
-| `VECTOR`: numerische Repräsentation, binär gespeichert, JSON-Konvertierung | 17.x; float32 GA (General Availability; allgemeine Produktverfügbarkeit); float16 Preview | Typ unter allen CLs; float16 mit `PREVIEW_FEATURES=ON` | Tabellen-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) nur beim Setup; DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten)/SELECT je Objekt; kein Modell nötig | Embeddings schützen; Nutzdaten grob 4d bzw. 2d Bytes, tatsächlichen Speicher messen; float32 1–1998, float16 1–3996 Dimensionen | `SRC-072`; S1 |
+| `VECTOR`: numerische Repräsentation, binär gespeichert, JSON-Konvertierung | 17.x; float32 verfügbar; float16 Preview auf SQL Server 2025, GA auf bestimmten Azure-Angeboten | Typ unter allen CLs; float16 in SQL Server 2025 mit `PREVIEW_FEATURES=ON` | Tabellen-DDL (Data Definition Language; Anweisungen zum Definieren und Ändern von Datenbankobjekten) nur beim Setup; DML (Data Manipulation Language; Anweisungen zum Lesen oder Ändern von Daten)/SELECT je Objekt; kein Modell nötig | Embeddings schützen; Nutzdaten grob 4d bzw. 2d Bytes, tatsächlichen Speicher messen; float32 1–1998, float16 1–3996 Dimensionen; Float16 ist auf ARM64 nicht unterstützt | `SRC-072`, `SRC-166`; S1 |
 | `VECTOR_DISTANCE`: exakte Distanz zweier Vektoren | 17.x; GA | kein separates CL-Minimum genannt; Labor 170 | SELECT auf Eingabeobjekten; keine eigene Inferenzberechtigung | CPU-Arbeit je Kandidat; verwendet keinen Vector Index; cosine, euclidean, negatives dot product | `SRC-073`; S2 |
 | `VECTOR_NORM`: Betrag nach norm1/norm2/norminf | 17.x; GA | kein separates CL-Minimum genannt | wie DISTANCE; kein Netzwerk | Eingabe-/Dimension-/Nullfälle prüfen; Norm ist kein Relevanzscore | `SRC-074`; S2 |
 | `VECTOR_NORMALIZE`: Skalierung auf Einheitsnorm | 17.x; GA | kein separates CL-Minimum genannt | SELECT, bei Speicherung zusätzlich UPDATE | Modellnormalisierung prüfen; zusätzliche Arbeit und Rundung; Null-/Nullvektor-Gegenproben | `SRC-075`; S2 |
@@ -63,12 +67,16 @@ am 2026-10-13 erneut geprüft. Der allgemeine Prüfstand dieser Matrix bleibt
 |---|---|---|
 | Engine | VECTOR gehört zu SQL Server 2025 / 17.x. Ein Client oder ein höherer CL ergänzt die Funktion nicht in einer älteren Engine (SRC-072). | Der [Providerteilnachweis](../Project_Planning/SQL_SERVER_2025_AI_PROVIDER_REVIEW.md) bindet konkrete Builds; 15.x/16.x endeten vor Setup mit Versions-SKIPs. Das ist kein Test nativer VECTOR-Verarbeitung dieser älteren Engines. |
 | Compatibility Level | Der VECTOR-Typ ist unter allen CLs verfügbar; AI_GENERATE_CHUNKS verlangt mindestens CL 170 (SRC-072/079). | Die [CL-Istwertqualifikation](../Project_Planning/SQL_SERVER_2025_AI_CL_RESULT_REVIEW.md) bestand auf 17.0.5005.3 mit float32-Skalaren bei CL 150/160/170. Der feste Chunkaufruf lieferte bei CL 150/160 Error 102 und bei CL 170 beide vollständigen Rows. Error 102 bleibt OBSERVED_OTHER_ERROR_NO_AVAILABILITY_CLAIM; keine allgemeine Low-CL-Freigabe. |
-| Clienttransport | Native binäre Übertragung benötigt den dokumentierten TDS-/Treiberpfad: TDS (Tabular Data Stream; Übertragungsprotokoll zwischen SQL-Client und Server) 7.4 oder höher und einen unterstützenden Treiber; Microsoft.Data.SqlClient 6.1 dokumentiert SqlVector für float32. Der dokumentierte Abwärtspfad für ältere Clients verwendet VARCHAR(MAX)/JSON (JavaScript Object Notation; strukturiertes Textformat) (SRC-072). | Der [Corpus-SQL-Nachweis](../Project_Planning/SQL_SERVER_2025_AI_CORPUS_SQL_REVIEW.md) prüfte alle Koordinaten über JSON sowie vollständige Cosine-Ergebnisse. Native binäre Treiberbindung ist hier empirisch UNQUALIFIED; JSON ist kein Nachweis identischer physischer VECTORbits. |
+| Clienttransport | Native binäre Übertragung benötigt den dokumentierten TDS-/Treiberpfad: TDS (Tabular Data Stream; Übertragungsprotokoll zwischen SQL-Client und Server) 7.4 oder höher und einen unterstützenden Treiber. Die SqlClient-Anleitung zeigt `SqlVector<float>` für float32; Microsoft listet native float16-Unterstützung für JDBC 13.4+ und ODBC 18.7.1+. Für ältere oder nicht unterstützende Clients ist VARCHAR(MAX)/JSON (JavaScript Object Notation; strukturiertes Textformat) als Pfad dokumentiert (SRC-072, SRC-166, SRC-167). | Der [Corpus-SQL-Nachweis](../Project_Planning/SQL_SERVER_2025_AI_CORPUS_SQL_REVIEW.md) prüfte alle Koordinaten über JSON sowie vollständige Cosine-Ergebnisse. Der begrenzte Client-Roundtrip qualifiziert nur float32. Native binäre Treiberbindung ist hier für float16 empirisch UNQUALIFIED; JSON ist kein Nachweis identischer physischer VECTORbits. |
 
 Dokumentierte Treiberunterstützung bedeutet nicht, dass die konkrete Anwendung
 bereits qualifiziert wurde. Umgekehrt bedeutet der offene Binärtransportnachweis
 keine pauschale Inkompatibilität älterer Clients. Öffentliche Demoprofile bleiben
-CL 170; float16, andere Builds/Editionen und die vollständige TSK-004-Abnahme bleiben
+CL 170; Float16 erfordert auf SQL Server 2025 `PREVIEW_FEATURES` und erlaubt
+weder Konvertierung zwischen float32/float16 noch gemischte Basistypen in
+`VECTOR_DISTANCE` (`SRC-166`). Für Float16 native Transporte führt die geprüfte
+SqlClient-Anleitung keinen Nachweis (`SRC-167`). Das Projekt hat Float16 nicht
+ausgeführt oder qualifiziert. Andere Builds/Editionen und die vollständige TSK-004-Abnahme bleiben
 offen. Eine verständliche Entscheidungshilfe mit drei Fällen steht im
 [Engine-/CL-/Client-Guide](../HowTo/SQL_SERVER_2025_AI_VECTOR_COMPATIBILITY.md).
 

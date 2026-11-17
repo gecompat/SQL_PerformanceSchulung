@@ -6,7 +6,7 @@
 | Lernziel | Eine wartende `PAGELATCH_EX`-Seite nur dann als letzte Blattseite eines bestimmten Indexes einordnen, wenn die Seitenmetadaten diese Zuordnung tragen |
 | Lehrpfad | Vorhandene [IDX-007-Lehrnotiz](../Curriculum/LAST_PAGE_INSERT_CONTENTION_LESSON.md); kein neues Lernziel |
 | Vertrag | [Offline-Prüfer](../../Tests/Static/idx007_last_page_contract.py) bleibt ein Konsistenzfilter für caller-gelieferte Werte |
-| Quellen | `SRC-072`, `SRC-073`, `SRC-147`, `SRC-148` |
+| Quellen | `SRC-168`–`SRC-172` |
 
 ## Aussage, die geprüft werden soll
 

@@ -12483,6 +12483,24 @@ Regressionen bestehen; weder Methodenreview noch isolierter Pilot oder
 Laufzeitnachweis sind damit erbracht.
 
 
+### SQL Server 2025 VECTOR – Float16-Produktgrenze quellengebunden ergänzt (17. November 2026)
+
+Die VECTOR-Kompatibilitätshilfe und die Featurematrix erklären jetzt Float16 als separate
+Preview-/Typ-/Clientgrenze: SQL Server 2025 verlangt laut Microsoft
+`PREVIEW_FEATURES`; Azure SQL-Angebote werden teils als allgemein verfügbar
+geführt. Implizite oder explizite Konvertierung zwischen float32 und float16 sowie
+gemischte Basistypen in `VECTOR_DISTANCE` sind nicht unterstützt; ARM64 ist für
+Float16 ausgeschlossen. Der native Float16-Transport wird in der geprüften
+Microsoft-Dokumentation für JDBC 13.4+ und ODBC 18.7.1+ genannt. Die SqlClient-
+Anleitung dokumentiert `SqlVector<float>`; das belegt keinen Float16-
+Transportpfad. `SRC-072` wurde aktualisiert und `SRC-166/167` ergänzen die
+Primärquellen. Die kollidierenden alten Last-Page-Kennungen wurden in
+`SRC-168`–`SRC-172` umgezogen und die betroffenen Lehr-/Methodenverweise
+aktualisiert; dadurch zeigen Vector- und IDX-007-Quellenanker wieder eindeutig
+auf getrennte Registereinträge. Float16 bleibt im Projekt unqualifiziert; kein
+Preview-Schalter, Client oder SQL wurde ausgeführt.
+
+
 ### IDX-007 – Aussage an den einzelnen Seitenkettenlauf anpassen (17. November 2026)
 
 Die Akzeptanzbedingung des Methodenentwurfs behauptete zuvor zwei konsistente
