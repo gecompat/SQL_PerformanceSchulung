@@ -114,6 +114,19 @@ class Res001LessonQueryTests(unittest.TestCase):
             for error in validate_lesson(broken)
         ))
 
+    def test_row_multiplying_source_join_is_rejected(self) -> None:
+        broken = SOURCE.replace(
+            "FROM sys.dm_os_schedulers\nWHERE scheduler_id < 255",
+            "FROM sys.dm_os_schedulers\n"
+            "CROSS JOIN (VALUES (1), (2)) AS duplicate(row_id)\n"
+            "WHERE scheduler_id < 255",
+            1,
+        )
+        self.assertTrue(any(
+            "without row-multiplying joins" in error
+            for error in validate_lesson(broken)
+        ))
+
     def test_ambiguous_duplicate_sql_block_is_rejected(self) -> None:
         section_start = SOURCE.index("## Workerbedarf und CPU-Warteschlange sind verschiedene Signale")
         fence = SOURCE.index("```sql", section_start)

@@ -12768,3 +12768,13 @@ Schlüsselbindung und eine falsche DMV-Quelle. Alle 28 fokussierten
 RES-004-Lehrabfragetests und der Abfragevalidator bestehen lokal unter Python
 3.13. Der Vertrag bleibt statisch und authentifiziert keine DMV-Aufnahme oder
 reale Grant-Waits.
+
+### RES-001 – Scheduleraufnahme gegen vervielfachende Joins absichern (17. November 2026)
+
+Der RES-001-Lehrvalidator band Schedulerfilter und Ausgabespalten, aber nicht
+die Quellform des Snapshots. Ein zusätzlicher Join konnte jede Schedulerzeile
+vervielfachen, ohne den bisherigen Vertrag zu verletzen. Der Validator verlangt
+jetzt den direkten einzelnen Zugriff auf `sys.dm_os_schedulers` ohne weitere
+`FROM`-Quelle oder Join. Eine synthetische Gegenprobe mit zwei Zeilen pro
+Scheduler wird abgewiesen. Der Laufzeitstatus von Schedulern und Workern bleibt
+unverändert unqualifiziert.

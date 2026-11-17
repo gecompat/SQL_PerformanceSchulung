@@ -61,6 +61,14 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         errors.append(
             "scheduler WHERE must contain only the required user/online filters"
         )
+    if (sql.count(" from ") != 1
+            or re.search(
+                r"\bfrom\s+sys\.dm_os_schedulers\s+where\s+scheduler_id\s*<\s*255\b",
+                sql,
+            ) is None):
+        errors.append(
+            "scheduler snapshot must read directly from sys.dm_os_schedulers without row-multiplying joins"
+        )
     projection_match = re.search(
         r"\bselect\s+(.*?)\s+from\s+sys\.dm_os_schedulers\b", sql,
     )
