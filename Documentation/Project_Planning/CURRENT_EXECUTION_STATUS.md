@@ -12698,3 +12698,14 @@ Regression schützt diesen Fall. 26 Lehrabfrage- und 24 Offlinevertragstests,
 der Abfragevalidator und `git diff --check` bestehen. Die Prüfung bleibt ein
 statischer Strukturvertrag und weist keine authentische DMV-Aufnahme oder
 echten Grant-Wait nach.
+
+### IDX-007 – leere Seiten-Wait-Ergebnisse fail-closed abweisen (17. November 2026)
+
+Eine Gegenprobe ergänzte `AND 1 = 0` hinter den erforderlichen Datenbank-,
+Seitentyp- und Waitfiltern im `PageWaits`-CTE. Der Lehrvalidator ließ die
+Abfrage passieren, obwohl sie keine Warteseiten liefern konnte. Er verlangt
+jetzt die vollständige festgelegte `WHERE`-Bedingung ohne zusätzliche
+Prädikate. Die neue Regression schützt den unterdrückenden Zusatzfilter.
+23 IDX-007-Lehrabfragetests, der Validator, 13 Offlinevertragstests, der
+Curriculumvalidator und `git diff --check` bestehen. Das bleibt eine statische
+Strukturprüfung ohne T-SQL-Parser, authentische DMV-Aufnahme oder Enginebeleg.
