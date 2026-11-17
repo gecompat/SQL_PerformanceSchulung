@@ -42,6 +42,80 @@ die Zuordnung des Wait-Resources zu Datenbank, Objekt und Index.
   desselben Indexes auf die betreffende Indexseite abbilden lassen. Fehlt diese
   Zuordnung, bleibt „Last Page“ eine Hypothese.
 
+## Lesende Zuordnung einer aktuellen Request-Seite
+
+SQL Server 2019 und neuer stellen für aktive Requests `page_resource` bereit.
+`sys.fn_PageResCracker` zerlegt diesen Wert in Datenbank-, Datei- und
+Seitennummer; `sys.dm_db_page_info` ergänzt die Seitenkopfdaten. Die folgende
+Momentaufnahme zeigt nur Requests, die gerade auf `PAGELATCH_EX` warten, und
+meldet Seiten, auf denen mindestens zwei verschiedene Sessions warten:
+
+```sql
+DECLARE @capture_started_at_utc datetime2(7) = SYSUTCDATETIME();
+
+;WITH PageWaits AS
+(
+    SELECT
+        r.session_id,
+        pr.db_id AS database_id,
+        pr.file_id,
+        pr.page_id,
+        info.object_id,
+        info.index_id,
+        info.partition_id,
+        info.page_level,
+        info.next_page_file_id,
+        info.next_page_page_id
+    FROM sys.dm_exec_requests AS r
+    CROSS APPLY sys.fn_PageResCracker(r.page_resource) AS pr
+    CROSS APPLY sys.dm_db_page_info(
+        pr.db_id, pr.file_id, pr.page_id, N'DETAILED'
+    ) AS info
+    WHERE r.wait_type = N'PAGELATCH_EX'
+      AND r.page_resource IS NOT NULL
+      AND r.database_id = DB_ID()
+      AND pr.db_id = DB_ID()
+)
+SELECT
+    @capture_started_at_utc AS capture_started_at_utc,
+    database_id,
+    file_id,
+    page_id,
+    object_id,
+    index_id,
+    partition_id,
+    page_level,
+    next_page_file_id,
+    next_page_page_id,
+    COUNT(DISTINCT session_id) AS waiting_sessions
+FROM PageWaits
+WHERE index_id > 0
+  AND page_level = 0
+GROUP BY
+    database_id, file_id, page_id, object_id, index_id, partition_id,
+    page_level, next_page_file_id, next_page_page_id
+HAVING COUNT(DISTINCT session_id) >= 2;
+```
+
+Führe die Abfrage im Kontext der Zieldatenbank aus. Der Zeitwert markiert den
+Abfragestart; er ist keine atomare Uhrzeit für jede gelesene DMV-Zeile. Die
+Abfrage ist eine Momentaufnahme der Request-Sicht, kein Verlauf und keine
+vollständige Warteschlangenaufnahme.
+Kein Ergebnis heißt nur, dass diese Abfrage in diesem Moment keine passende
+Request-Gruppe erfasst hat. Ab SQL Server 2022 benötigen die Server-DMVs
+`VIEW SERVER PERFORMANCE STATE` und `sys.dm_db_page_info`
+`VIEW DATABASE PERFORMANCE STATE`; auf SQL Server 2019 sind die entsprechenden
+Rechte `VIEW SERVER STATE` und `VIEW DATABASE STATE`.
+
+`page_level = 0` identifiziert eine Blattseite, aber nicht die Rechtsaußen-Seite.
+Prüfe Objekt, Index und Partition gegen das synthetische Ziel und untersuche die
+ausgegebenen Vor-/Nachfolgerfelder in einer zur Wait-Beobachtung passenden
+Momentaufnahme. Die fehlende Nachfolgeradresse muss als Seitenkettenbefund für
+den konkreten Enginezustand bestätigt werden. `sys.dm_db_page_info` liefert
+Kopfdaten, nicht den Seiteninhalt oder den Schlüsselwert. Wenn Wait-, Header-
+und Kettenbefund zeitlich nicht zusammenpassen oder die Kette unklar bleibt,
+bleibt das Ergebnis `NOT_PROVEN`.
+
 ## Einordnung der Indexoption
 
 `OPTIMIZE_FOR_SEQUENTIAL_KEY` ist ab SQL Server 2019 als Indexoption verfügbar.
@@ -66,6 +140,7 @@ Vergleichsvertrag und eigene Messnachweise; diese kurze Notiz behauptet keinen.
    eine verfügbare Option mit workloadabhängiger Wirkung.
 
 Technische Quellen: [SRC-072 – Diagnose von `PAGELATCH_EX`](https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/resolve-pagelatch-ex-contention),
+[Microsoft: `sys.dm_exec_requests`](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-requests-transact-sql?view=sql-server-ver17), [`sys.fn_PageResCracker`](https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/sys-fn-pagerescracker-transact-sql?view=sql-server-ver17) und [`sys.dm_db_page_info`](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-db-page-info-transact-sql?view=sql-server-ver17): Request-Seitenressource, Seitenkopfdaten und versionsabhängige Berechtigungen; geprüft am 2026-11-17;
 [SRC-073 – Sequential keys](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver17#sequential-keys) und
 [SRC-074 – Indexbetriebszähler](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-db-index-operational-stats-transact-sql?view=sql-server-ver17) aus dem
 [Quellenregister](../Research/SOURCE_REGISTER.md). Der umfangreichere
