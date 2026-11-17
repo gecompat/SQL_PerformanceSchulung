@@ -13,7 +13,6 @@ import sys
 
 from sql_lexical_utils import (
     extract_tsql_cte_body,
-    has_tsql_literal_comparison,
     tsql_projection_output_names,
     without_tsql_comments,
     without_tsql_comments_or_literals,
@@ -49,6 +48,7 @@ def validate_sql(sql: str) -> None:
     own_waits_normalized = " ".join(
         without_tsql_comments_or_literals(own_waits).split()
     ).casefold()
+    own_waits_with_literals = " ".join(without_tsql_comments(own_waits).split()).casefold()
     required = (
         "primary key (session_id, request_id)",
         "declare @capturedat datetime2(7) = sysutcdatetime()",
@@ -89,12 +89,9 @@ def validate_sql(sql: str) -> None:
         raise ContractError("diagnostic result must expose grant_time to distinguish granted peers")
     if "is_mapped_own_request" not in output_names:
         raise ContractError("diagnostic result must identify mapped own requests")
-    if not has_tsql_literal_comparison(sql, "r.wait_type", "RESOURCE_SEMAPHORE"):
-        raise ContractError("diagnostic query must filter on RESOURCE_SEMAPHORE")
     if ("where mg.grant_time is null and r.wait_type =" not in own_waits_normalized
-            or not has_tsql_literal_comparison(
-                own_waits, "r.wait_type", "RESOURCE_SEMAPHORE",
-            )):
+            or "where mg.grant_time is null and r.wait_type = n'resource_semaphore'"
+            not in own_waits_with_literals):
         raise ContractError("own-wait grant and wait-type filters must constrain OwnWaits")
     if normalized.count("sysutcdatetime()") != 1 or normalized.count("@capturedat") != 2:
         raise ContractError("query must use exactly one capture marker for the complete observation")

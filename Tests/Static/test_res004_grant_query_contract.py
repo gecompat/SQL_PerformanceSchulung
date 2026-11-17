@@ -58,6 +58,21 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaises(ContractError):
             validate_sql(altered)
 
+    def test_resource_semaphore_literal_in_case_cannot_replace_own_wait_filter(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "WHERE mg.grant_time IS NULL\n      AND r.wait_type = N'RESOURCE_SEMAPHORE'",
+            "WHERE mg.grant_time IS NULL\n      AND r.wait_type = @ExpectedWait",
+            1,
+        ).replace(
+            "    SELECT own.session_id, own.request_id, mg.pool_id,",
+            "    SELECT CASE WHEN r.wait_type = N'RESOURCE_SEMAPHORE' "
+            "THEN 1 ELSE 0 END AS decoy, own.session_id, own.request_id, mg.pool_id,",
+            1,
+        )
+        with self.assertRaisesRegex(ContractError, "constrain OwnWaits"):
+            validate_sql(altered)
+
     def test_unrelated_string_cannot_supply_expected_wait_type(self) -> None:
         query = extract_query(source_markdown())
         altered = query.replace(

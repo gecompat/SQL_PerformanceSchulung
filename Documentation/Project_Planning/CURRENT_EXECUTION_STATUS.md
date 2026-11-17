@@ -12597,3 +12597,16 @@ Ersatzaliases für Grantzustand und eigene Requestzuordnung ab. Die 20 fokussier
 Lehrabfragetests, der RES-004-Abfragevalidator und 24 Offlinevertragstests
 bestehen. Das bleibt ein lexikalischer Strukturvertrag ohne T-SQL-Parser,
 authentifizierte DMV-Aufnahme oder Grant-Wait-Runtimebeleg.
+
+### IDX-007 und RES-004 – Wait-Literal an aktive Filterbedingung binden (17. November 2026)
+
+Die Lehrabfrageprüfer fanden den erwarteten Waittyp bisher irgendwo in der
+jeweiligen CTE. Ein `CASE`-Ausdruck mit dem richtigen Literal konnte deshalb
+einen parameterisierten oder abweichenden tatsächlichen `WHERE`-Filter
+verdecken. IDX-007 bindet `PAGELATCH_EX` nun direkt an den aktiven
+`PageWaits`-Filter; RES-004 bindet `RESOURCE_SEMAPHORE` an die kombinierte
+Grant-/Wait-Bedingung in `OwnWaits`. Je eine synthetische Regression schützt
+den Fall mit einem decoy-Literal im `CASE`. Die fokussierten Suiten bestehen mit
+20 IDX-007- und 21 RES-004-Lehrabfragefällen; beide Validatoren sowie 24
+RES-004-Offlinedatenfälle bestehen. Die Änderungen prüfen weiterhin nur
+statische SQL-Struktur und weisen keine DMV-Herkunft oder Runtimewarte nach.
