@@ -13328,3 +13328,14 @@ Mutationstests verwerfen einen geänderten Verschachtelungswert. Die lokale
 Regression bleibt bei 305 erfolgreichen Fällen. Nächster Kandidat: die
 Rückkehr- und Alternationsbedingungen von `_parse_sub` für den Aufrufpfad
 einordnen, weiterhin ausschließlich statisch.
+
+### DGN-007 – Alternationsgrenze und VERBOSE-Aktualisierung binden (17. November 2026)
+
+Die statische Bindung von `_parse_sub` umfasst jetzt auch `sourcematch =
+source.match`, das Abbrechen der Schleife, wenn das nächste Zeichen nicht `|`
+ist, die Aktualisierung des `VERBOSE`-Modus nur am Wurzelgruppenpfad über
+`state.flags & SRE_FLAG_VERBOSE` sowie die Rückgabe `items[0]` bei genau einer
+Alternative. Eine synthetische Gegenprobe verändert das Trennzeichen und muss
+den Kandidaten verwerfen. Der Befund behauptet keine tatsächliche
+Alternationsverarbeitung. Nächster Quellfact ist die strukturelle
+Rückgabebehandlung für mehrere Alternativen und deren Subpattern-Aufbau.

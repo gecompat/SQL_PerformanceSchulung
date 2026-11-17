@@ -3677,3 +3677,9 @@ Gegenprobe ändert den Verschachtelungswert und muss den Kandidaten ablehnen.
 Als nächstes werden Rückkehr- und Alternationsbedingungen derselben Funktion
 als begrenzte Kandidatenbindung betrachtet. Weiterhin keine Interpreter- oder
 Runtimeausführung, P11-Qualifikation oder menschliche Generalprobe.
+
+Checkpoint 17. November 2026: Die Quelle bindet jetzt zusätzlich die
+Alternationsschleife, den Wurzelgruppen-Refresh des `VERBOSE`-Flags und die
+Ein-Alternative-Rückgabe. Die Gegenprobe ändert das Alternationszeichen und
+verwirft den Kandidaten. Als nächstes folgt die statische Rückgabebehandlung
+für mehrere Alternativen und der Aufbau des Subpatterns.

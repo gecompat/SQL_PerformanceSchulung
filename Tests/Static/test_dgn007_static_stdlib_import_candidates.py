@@ -5343,10 +5343,15 @@ def deferred():
                 b"def _parse_sub(source, state, verbose, nested):\n"
                 b"    items = []\n"
                 b"    itemsappend = items.append\n"
+                b"    sourcematch = source.match\n"
                 b"    while True:\n"
                 b"        itemsappend(_parse(source, state, verbose, nested + 1, not nested and not items))\n"
                 b"        if not sourcematch('|'):\n"
                 b"            break\n"
+                b"        if not nested:\n"
+                b"            verbose = state.flags & SRE_FLAG_VERBOSE\n"
+                b"    if len(items) == 1:\n"
+                b"        return items[0]\n"
                 b"def _parse(source, state, verbose, nested, first=False):\n"
                 b"    sourceget = source.get\n"
                 b"    sourceget()\n"
@@ -5506,6 +5511,20 @@ def deferred():
                 and row["parser_sub_dispatch_candidate"][
                     "dispatch_is_wrapped_by"] == "itemsappend"
                 and not row["parser_sub_dispatch_candidate"][
+                    "parser_execution_observed"]
+                for row in candidates
+            ))
+            self.assertTrue(all(
+                row["parser_alternation_candidate"]["alternation_match_alias"]
+                == "sourcematch = source.match"
+                and row["parser_alternation_candidate"][
+                    "loop_continues_while_alternation_matches"] == "|"
+                and row["parser_alternation_candidate"][
+                    "root_group_verbose_refresh"]
+                == "state.flags & SRE_FLAG_VERBOSE"
+                and row["parser_alternation_candidate"][
+                    "single_alternative_return"] == "items[0]"
+                and not row["parser_alternation_candidate"][
                     "parser_execution_observed"]
                 for row in candidates
             ))
@@ -5674,6 +5693,24 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_dispatch,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_alternation = dict(files)
+            altered_alternation["re/_parser.py"] = altered_alternation[
+                "re/_parser.py"
+            ].replace(b"sourcematch('|')", b"sourcematch('&')", 1)
+            altered_alternation_digest = hashlib.sha256(
+                altered_alternation["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_alternation_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_alternation,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
