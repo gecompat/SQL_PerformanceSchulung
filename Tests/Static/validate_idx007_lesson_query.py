@@ -124,6 +124,11 @@ def validate_lesson(text: str) -> tuple[str, ...]:
             "final result must apply the leaf-index filter, full page grouping, "
             "and two-session threshold to the PageWaits rows"
         )
+    expected_final_statement = f"from pagewaits {expected_final_tail};"
+    if not sql.rstrip().endswith(expected_final_statement):
+        errors.append(
+            "query must end after its single final page-diagnostic result statement"
+        )
     projection_match = re.search(
         r"\)\s*select\s+(.*?)\s+from\s+pagewaits\b", sql,
     )
