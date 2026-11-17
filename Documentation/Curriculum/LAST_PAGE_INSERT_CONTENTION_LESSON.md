@@ -54,7 +54,9 @@ SQL Server 2019 und neuer stellen für aktive Requests `page_resource` bereit.
 `sys.fn_PageResCracker` zerlegt diesen Wert in Datenbank-, Datei- und
 Seitennummer; `sys.dm_db_page_info` ergänzt die Seitenkopfdaten. Die folgende
 Momentaufnahme zeigt nur Requests, die gerade auf `PAGELATCH_EX` warten, und
-meldet Seiten, auf denen mindestens zwei verschiedene Sessions warten:
+meldet Seiten, auf denen mindestens zwei verschiedene Sessions warten.
+`sys.dm_exec_requests.wait_time` liefert die aktuelle Wartezeit in
+Millisekunden ([`SRC-072`](../Research/SOURCE_REGISTER.md#src-072)).
 
 ```sql
 DECLARE @capture_started_at_utc datetime2(7) = SYSUTCDATETIME();
@@ -63,6 +65,7 @@ DECLARE @capture_started_at_utc datetime2(7) = SYSUTCDATETIME();
 (
     SELECT
         r.session_id,
+        r.wait_time,
         pr.db_id AS database_id,
         pr.file_id,
         pr.page_id,
@@ -93,7 +96,9 @@ SELECT
     page_level,
     next_page_file_id,
     next_page_page_id,
-    COUNT(DISTINCT session_id) AS waiting_sessions
+    COUNT(DISTINCT session_id) AS waiting_sessions,
+    MIN(wait_time) AS shortest_wait_time_ms,
+    MAX(wait_time) AS longest_wait_time_ms
 FROM PageWaits
 WHERE index_id > 0
   AND page_level = 0
@@ -112,6 +117,11 @@ Request-Gruppe erfasst hat. Ab SQL Server 2022 benötigen die Server-DMVs
 `VIEW SERVER PERFORMANCE STATE` und `sys.dm_db_page_info`
 `VIEW DATABASE PERFORMANCE STATE`; auf SQL Server 2019 sind die entsprechenden
 Rechte `VIEW SERVER STATE` und `VIEW DATABASE STATE`.
+
+Die minimale und maximale `wait_time`-Angabe beschreibt nur die in dieser
+Abfrage erfassten Requests. Sie ist weder eine Verlaufsmessung noch eine
+Summenwartezeit und kann durch das Ende oder den Wechsel eines Requests während
+der Abfrage beeinflusst werden.
 
 `page_level = 0` identifiziert eine Blattseite, aber nicht die Rechtsaußen-Seite.
 Prüfe Objekt, Index und Partition gegen das synthetische Ziel und untersuche die

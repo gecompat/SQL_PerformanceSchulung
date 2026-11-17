@@ -28,6 +28,9 @@ on:
       - 'Tests/Static/test_con006_conversion_graph_contract.py'
       - 'Tests/Static/idx007_last_page_contract.py'
       - 'Tests/Static/test_idx007_last_page_contract.py'
+      - 'Tests/Static/validate_idx007_lesson_query.py'
+      - 'Tests/Static/test_validate_idx007_lesson_query.py'
+      - 'Documentation/Curriculum/LAST_PAGE_INSERT_CONTENTION_LESSON.md'
       - 'Tests/Static/res004_grant_wait_contract.py'
       - 'Tests/Static/test_res004_grant_wait_contract.py'
       - 'Tests/Static/res001_worker_queue_contract.py'
@@ -77,6 +80,9 @@ on:
       - 'Tests/Static/test_con006_conversion_graph_contract.py'
       - 'Tests/Static/idx007_last_page_contract.py'
       - 'Tests/Static/test_idx007_last_page_contract.py'
+      - 'Tests/Static/validate_idx007_lesson_query.py'
+      - 'Tests/Static/test_validate_idx007_lesson_query.py'
+      - 'Documentation/Curriculum/LAST_PAGE_INSERT_CONTENTION_LESSON.md'
       - 'Tests/Static/res004_grant_wait_contract.py'
       - 'Tests/Static/test_res004_grant_wait_contract.py'
       - 'Tests/Static/res001_worker_queue_contract.py'
@@ -153,6 +159,12 @@ jobs:
 
       - name: Test IDX-007 supplied last-page contention contract
         run: python Tests/Static/test_idx007_last_page_contract.py
+
+      - name: Validate IDX-007 lesson query source contract
+        run: python Tests/Static/validate_idx007_lesson_query.py
+
+      - name: Test IDX-007 lesson query source contract
+        run: python Tests/Static/test_validate_idx007_lesson_query.py
 
       - name: Test RES-004 supplied memory grant wait contract
         run: python Tests/Static/test_res004_grant_wait_contract.py
