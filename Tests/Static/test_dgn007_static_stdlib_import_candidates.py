@@ -5438,6 +5438,111 @@ newlockobject(PyObject *module)
                 {},
             )
 
+    def test_threading_sys_excepthook_guard_is_bound_to_builtin_sys_method(self):
+        lines = [""] * 1366
+        lines[1359] = "def _make_invoke_excepthook():"
+        lines[1361] = "    old_sys_excepthook = _sys.excepthook"
+        lines[1364] = "    if old_sys_excepthook is None:"
+        lines[1365] = "        raise RuntimeError('sys.excepthook is None')"
+        threading_source = ("\n".join(lines) + "\n").encode()
+        sys_module_source = b"""\
+static PyMethodDef sys_methods[] = {
+    SYS_EXCEPTHOOK_METHODDEF
+};
+static struct PyModuleDef sysmodule = {
+    PyModuleDef_HEAD_INIT,
+    "sys",
+    sys_doc,
+    -1,
+    sys_methods,
+};
+"""
+        clinic_source = b"""\
+#define SYS_EXCEPTHOOK_METHODDEF \\
+    {"excepthook", _PyCFunction_CAST(sys_excepthook), METH_FASTCALL},
+"""
+        files = {"threading.py": threading_source}
+        with patch.multiple(
+            SUBJECT,
+            THREADING_SOURCE_SHA256=hashlib.sha256(threading_source).hexdigest(),
+            SYS_MODULE_C_SHA256=hashlib.sha256(sys_module_source).hexdigest(),
+            SYS_MODULE_CLINIC_SHA256=hashlib.sha256(clinic_source).hexdigest(),
+        ), patch.object(
+            SUBJECT, "_TARGET_BUILTIN_MEMBERSHIP",
+            {**SUBJECT._TARGET_BUILTIN_MEMBERSHIP, "sys": True},
+        ):
+            args = (files, ("threading",), {1363: False},
+                    sys_module_source, clinic_source)
+            self.assertEqual(
+                SUBJECT._target_threading_sys_excepthook_line_facts(*args),
+                {1365: False},
+            )
+            self.assertEqual(
+                SUBJECT._target_threading_sys_excepthook_line_facts(
+                    files, (), {1363: False}, sys_module_source, clinic_source,
+                ),
+                {},
+            )
+            changed_clinic = clinic_source.replace(b'"excepthook"', b'"otherhook"')
+            with patch.object(
+                SUBJECT, "SYS_MODULE_CLINIC_SHA256",
+                hashlib.sha256(changed_clinic).hexdigest(),
+            ):
+                self.assertEqual(
+                    SUBJECT._target_threading_sys_excepthook_line_facts(
+                        files, ("threading",), {1363: False},
+                        sys_module_source, changed_clinic,
+                    ),
+                    {},
+                )
+            mutating_files = {
+                **files,
+                "mutator.py": b"import sys\nsys.excepthook = None\n",
+            }
+            self.assertEqual(
+                SUBJECT._target_threading_sys_excepthook_line_facts(
+                    mutating_files, ("threading", "mutator"), {1363: False},
+                    sys_module_source, clinic_source,
+                ),
+                {},
+            )
+            dynamic_files = {
+                **files,
+                "mutator.py": b"import sys\nsetattr(sys, 'excepthook', None)\n",
+            }
+            self.assertEqual(
+                SUBJECT._target_threading_sys_excepthook_line_facts(
+                    dynamic_files, ("threading", "mutator"), {1363: False},
+                    sys_module_source, clinic_source,
+                ),
+                {},
+            )
+            aliased_files = {
+                **files,
+                "mutator.py": b"import sys as runtime\n"
+                              b"hook_owner = runtime\n"
+                              b"setattr(hook_owner, 'excepthook', None)\n",
+            }
+            self.assertEqual(
+                SUBJECT._target_threading_sys_excepthook_line_facts(
+                    aliased_files, ("threading", "mutator"), {1363: False},
+                    sys_module_source, clinic_source,
+                ),
+                {},
+            )
+            dict_files = {
+                **files,
+                "mutator.py": b"import sys as runtime\n"
+                              b"runtime.__dict__['excepthook'] = None\n",
+            }
+            self.assertEqual(
+                SUBJECT._target_threading_sys_excepthook_line_facts(
+                    dict_files, ("threading", "mutator"), {1363: False},
+                    sys_module_source, clinic_source,
+                ),
+                {},
+            )
+
     def test_namedtuple_rename_guard_requires_all_production_calls_to_omit_it(self):
         collections_source = (
             b"def namedtuple(typename, field_names, *, rename=False, "

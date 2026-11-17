@@ -1,6 +1,6 @@
 # Aktueller Ausführungsstand
 
-Aktualisiert am 16. November 2026: Der QRY-023-Stand vom 14. November 2026
+Aktualisiert am 17. November 2026: Der QRY-023-Stand vom 14. November 2026
 bestätigt die vorgeschlagene CI-Route und die
 konkreten ADMIN-/READER-Rechtekontrollen sind auf SQL Server 2019/2022/2025
 enginequalifiziert. PRs #586–#588 ergänzten Live-Nachweise für die exakte
@@ -12169,3 +12169,27 @@ zweimal einschließlich Cleanup. Die statische Graphsuite besteht mit 19
 synthetischen Regressionen. Die Variante ist für diese drei Buildmatrizen
 qualifiziert. Eine allgemeine Deadlockfreiheitsgarantie folgt daraus nicht;
 die Range-Variante bleibt wegen der Überschneidung mit CON-002 zurückgestellt.
+
+### DGN-007 – zusätzlicher CPython-Quellfact für `threading` (17. November 2026)
+
+Der gebundene Offline-Analyzer ordnet `threading.py:1365` (`old_sys_excepthook is None`)
+nicht mehr als unbekannte Zielbedingung ein. Der Fact bindet die Zeile an den
+festen CPython-3.12.16-Quellhash, die Abbildung von `sys.excepthook` auf die
+Builtin-Methode `sys_excepthook` im `sysmodule.c`-/Clinic-Quellpaar sowie an die
+vollständige Kandidatenmenge des Modulstart-Scans. Direkte Schreib-/Löschzugriffe,
+einfache lokale Aliase des `sys`-Moduls, `setattr` über solche Aliase sowie
+Schreibzugriffe auf `sys.__dict__["excepthook"]` in dieser Kandidatenmenge verwerfen den Fact;
+synthetische Gegenproben decken geänderte Clinic-Zuordnung, Mutation,
+fehlende Modulaufnahme und ungültige Fixture ab.
+
+Mit dem verifizierten CPython-3.12.16-Archiv (SHA-256
+`b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c`), dem
+gepinnten `pyconfig.h`, der geprüften OCI-Imagekonfiguration und dem vorhandenen
+Imageexport bleibt der Scan `CANDIDATES_ONLY`: 60 Zielmodule, 316 Kanten, 113
+entschiedene und 450 unbekannte Bedingungen. Der Digest der unbekannten
+Bedingungen lautet `4ed2e5af01c4fa21f130d15ca36bad4c4949d381f79167fb51539e326ce713ef`;
+der Zielquellzeilendigest bleibt `33f55d7ce0bcd475cd906550fb075330ef10e5ccb0f3fcdb0b64963e20251403`.
+Die fokussierte Scannersuite besteht mit 297 Tests; der Curriculumvalidator
+bestätigt 84 aktive Claims, 39 geplante Claims, davon acht integriert, und 52
+Lernziele. Der Schritt belegt weder P11-Auswahl noch Importlaufzeit, Worker-
+Attestation oder Incidentursache; diese DGN-007-Gates bleiben offen.

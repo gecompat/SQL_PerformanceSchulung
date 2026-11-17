@@ -6401,6 +6401,132 @@ def _target_threading_condition_lock_line_facts(files, module_source):
     }
 
 
+def _target_threading_sys_excepthook_line_facts(
+        files, source_modules, thread_line_facts, sys_module_source,
+        sys_module_clinic_source):
+    """Bind the import-time sys.excepthook non-None guard to CPython's sys API."""
+    if (type(files) is not dict or type(source_modules) is not tuple
+            or not source_modules or any(type(module) is not str for module in source_modules)
+            or type(thread_line_facts) is not dict
+            or thread_line_facts.get(1363) is not False
+            or _TARGET_BUILTIN_MEMBERSHIP.get("sys") is not True):
+        return {}
+    threading_source = files.get("threading.py")
+    if (type(threading_source) is not bytes
+            or hashlib.sha256(threading_source).hexdigest() != THREADING_SOURCE_SHA256
+            or "threading" not in source_modules):
+        return {}
+    try:
+        threading_tree = ast.parse(threading_source, filename="threading.py")
+    except SyntaxError:
+        return {}
+    hook_functions = [node for node in threading_tree.body
+                      if isinstance(node, ast.FunctionDef)
+                      and node.name == "_make_invoke_excepthook"]
+    if (len(hook_functions) != 1
+            or sum(1 for node in ast.walk(hook_functions[0])
+                   if isinstance(node, ast.Assign)
+                   and ast.unparse(node) == "old_sys_excepthook = _sys.excepthook") != 1
+            or sum(1 for node in ast.walk(hook_functions[0])
+                   if isinstance(node, ast.If) and node.lineno == 1365
+                   and ast.unparse(node.test) == "old_sys_excepthook is None") != 1):
+        return {}
+    sources = (
+        (sys_module_source, SYS_MODULE_C_SHA256),
+        (sys_module_clinic_source, SYS_MODULE_CLINIC_SHA256),
+    )
+    if any(type(source) is not bytes or hashlib.sha256(source).hexdigest() != expected
+           for source, expected in sources):
+        return {}
+    c_text = sys_module_source.decode("utf-8")
+    clinic_text = sys_module_clinic_source.decode("utf-8")
+    methods = re.search(r"(?s)static PyMethodDef sys_methods\[\] = \{(.*?)\n\};", c_text)
+    module_definition = re.search(
+        r'(?s)static\s+struct\s+PyModuleDef\s+sysmodule\s*=\s*\{'
+        r'\s*PyModuleDef_HEAD_INIT\s*,\s*"sys"\s*,\s*sys_doc\s*,\s*-1\s*,'
+        r'(?:\s*/\*.*?\*/)?\s*'
+        r'sys_methods\s*,',
+        c_text,
+    )
+    if (methods is None or methods.group(1).count("SYS_EXCEPTHOOK_METHODDEF") != 1
+            or module_definition is None
+            or not re.search(
+                r"(?s)#define SYS_EXCEPTHOOK_METHODDEF\s*\\\s*"
+                r'\{"excepthook",\s*_PyCFunction_CAST\(sys_excepthook\),',
+                clinic_text,
+            )):
+        return {}
+
+    for module in source_modules:
+        path = _module_path(module, files)
+        source = files.get(path) if path is not None else None
+        if source is None:
+            continue
+        try:
+            tree = ast.parse(source, filename=path)
+        except (SyntaxError, TypeError):
+            return {}
+        sys_aliases = {"sys"}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                sys_aliases.update(
+                    alias.asname or alias.name.split(".", 1)[0]
+                    for alias in node.names if alias.name == "sys"
+                )
+        changed = True
+        while changed:
+            changed = False
+            for node in ast.walk(tree):
+                if (isinstance(node, ast.Assign)
+                        and isinstance(node.value, ast.Name)
+                        and node.value.id in sys_aliases):
+                    for target in node.targets:
+                        if isinstance(target, ast.Name) and target.id not in sys_aliases:
+                            sys_aliases.add(target.id)
+                            changed = True
+        for node in ast.walk(tree):
+            targets = []
+            if isinstance(node, ast.Assign):
+                targets = node.targets
+            elif isinstance(node, (ast.AnnAssign, ast.AugAssign)):
+                targets = [node.target]
+            elif isinstance(node, ast.Delete):
+                targets = node.targets
+            if any(
+                (isinstance(target, ast.Attribute) and target.attr == "excepthook"
+                 and isinstance(target.value, ast.Name)
+                 and target.value.id in sys_aliases)
+                or (isinstance(target, ast.Subscript)
+                    and isinstance(target.value, ast.Attribute)
+                    and target.value.attr == "__dict__"
+                    and isinstance(target.value.value, ast.Name)
+                    and target.value.value.id in sys_aliases
+                    and isinstance(target.slice, ast.Constant)
+                    and target.slice.value == "excepthook")
+                for root in targets for target in ast.walk(root)
+            ):
+                return {}
+            if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                    and node.func.id == "setattr" and len(node.args) >= 2
+                    and isinstance(node.args[0], ast.Name)
+                    and node.args[0].id in sys_aliases
+                    and isinstance(node.args[1], ast.Constant)
+                    and node.args[1].value == "excepthook"):
+                return {}
+            if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                    and node.func.attr == "update"
+                    and isinstance(node.func.value, ast.Attribute)
+                    and node.func.value.attr == "__dict__"
+                    and isinstance(node.func.value.value, ast.Name)
+                    and node.func.value.value.id in sys_aliases
+                    and any(isinstance(arg, ast.Dict) and any(
+                        isinstance(key, ast.Constant) and key.value == "excepthook"
+                        for key in arg.keys
+                    ) for arg in node.args)):
+                return {}
+    return {1365: False}
+
+
 def _target_threading_native_id_name_facts(
         files, header_source, module_source, pthread_source, pyconfig_source):
     """Bind threading's native-id flag to the pinned Linux CPython build path."""
@@ -12999,6 +13125,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     call_modules, call_edges, call_functions, call_sha256, call_conditions = (
         _module_init_call_candidate_closure(files)
     )
+    target_threading_sys_excepthook_line_facts = (
+        _target_threading_sys_excepthook_line_facts(
+            files, call_modules, threading_condition_lock_line_facts,
+            sys_module_c_source, sys_module_clinic_source,
+        )
+    )
     target_call_unknown_conditions = []
     target_call_resolved_conditions = []
     (target_call_modules, target_call_edges, target_call_functions,
@@ -13019,6 +13151,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             "threading": {
                 **threading_main_constructor_line_facts,
                 **threading_condition_lock_line_facts,
+                **target_threading_sys_excepthook_line_facts,
             },
             "sysconfig": {
                 **target_sysconfig_is_python_build_line_facts,
@@ -13052,6 +13185,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
               or target_logging_lock_line_facts
               or target_logging_level_line_facts
               or threading_condition_lock_line_facts
+              or target_threading_sys_excepthook_line_facts
               or target_collections_namedtuple_rename_line_facts
               or target_collections_namedtuple_string_type_line_facts
               or target_collections_namedtuple_module_line_facts
@@ -13562,6 +13696,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_platform_threading_condition_lock_line_facts": list(
             threading_condition_lock_line_facts.items()
+        ),
+        "target_platform_threading_sys_excepthook_line_facts": list(
+            target_threading_sys_excepthook_line_facts.items()
         ),
         "target_platform_sysconfig_name_facts": list(sysconfig_name_facts.items()),
         "target_profile_no_site_assumption": target_no_site,
