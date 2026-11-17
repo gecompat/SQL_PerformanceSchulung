@@ -8443,6 +8443,62 @@ def _target_re_parser_alternation_candidate(files):
     }
 
 
+def _target_re_parser_multi_alternative_return_candidate(files):
+    """Bind the static IN optimization and general BRANCH return shapes."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    parsers = [node for node in tree.body
+               if isinstance(node, ast.FunctionDef) and node.name == "_parse_sub"]
+    if len(parsers) != 1:
+        return None
+    parse_sub = parsers[0]
+    singleton = [node for node in ast.walk(parse_sub)
+                 if isinstance(node, ast.If)
+                 and ast.unparse(node.test) == "len(items) == 1"]
+    subpattern_bindings = [node for node in ast.walk(parse_sub)
+                           if isinstance(node, ast.Assign)
+                           and any(isinstance(target, ast.Name)
+                                   and target.id == "subpattern"
+                                   for target in node.targets)]
+    appends = [node for node in ast.walk(parse_sub)
+               if isinstance(node, ast.Call)
+               and ast.unparse(node.func) == "subpattern.append"]
+    append_shapes = {ast.unparse(node) for node in appends}
+    if (len(singleton) != 1 or len(singleton[0].body) != 1
+            or ast.unparse(singleton[0].body[0]) != "return items[0]"
+            or len(subpattern_bindings) != 1
+            or ast.unparse(subpattern_bindings[0]) != "subpattern = SubPattern(state)"
+            or append_shapes != {
+                "subpattern.append(prefix)",
+                "subpattern.append((IN, _uniq(set)))",
+                "subpattern.append((BRANCH, (None, items)))",
+            }):
+        return None
+    returns = [node for node in ast.walk(parse_sub)
+               if isinstance(node, ast.Return)
+               and ast.unparse(node.value) == "subpattern"]
+    if len(returns) != 2:
+        return None
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "single_alternative_result": "items[0]",
+        "multiple_alternatives_container": "SubPattern(state)",
+        "common_prefix_append": "subpattern.append(prefix)",
+        "character_set_optimization_append": "subpattern.append((IN, _uniq(set)))",
+        "general_branch_append": "subpattern.append((BRANCH, (None, items)))",
+        "subpattern_return_sites": len(returns),
+        "parser_execution_observed": False,
+        "evidence_scope": "PINNED_RE_PARSER_MULTI_ALTERNATIVE_RETURN_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8471,10 +8527,14 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     parser_sourceget_candidate = _target_re_parser_sourceget_candidate(files)
     parser_sub_dispatch_candidate = _target_re_parser_sub_dispatch_candidate(files)
     parser_alternation_candidate = _target_re_parser_alternation_candidate(files)
+    parser_multi_alternative_candidate = (
+        _target_re_parser_multi_alternative_return_candidate(files)
+    )
     if (cache_path_candidate is None or tokenizer_access_candidate is None
             or parser_sourceget_candidate is None
             or parser_sub_dispatch_candidate is None
-            or parser_alternation_candidate is None):
+            or parser_alternation_candidate is None
+            or parser_multi_alternative_candidate is None):
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -8823,6 +8883,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_sourceget_candidate": parser_sourceget_candidate,
             "parser_sub_dispatch_candidate": parser_sub_dispatch_candidate,
             "parser_alternation_candidate": parser_alternation_candidate,
+            "parser_multi_alternative_candidate": parser_multi_alternative_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })
