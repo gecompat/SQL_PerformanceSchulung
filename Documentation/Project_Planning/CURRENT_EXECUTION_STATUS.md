@@ -13233,3 +13233,20 @@ die 13 Regexkandidaten sind vollständig literalgebunden und enthalten keinen
 lexikalischen Inline-`x`-Kandidaten. Die 303 fokussierten Regressionen bestehen.
 Der Befund bleibt `CANDIDATES_ONLY`; es gab keinen Interpreter-, P11-, Worker-,
 Container-, SQL- oder sonstigen Laufzeitnachweis.
+
+## Verarbeitungswelle nach PR #1042 beendet; Lehrmittelrelease gebaut (17. November 2026)
+
+Der integrierte Stand `d0d9857d9494ab4848758918451b5c9258eae1d7` ist sauber,
+mit `origin/main` synchron, hat keine offenen Pull Requests und alle vier
+Main-Push-Workflows bestanden. Damit wurde die laufende Verarbeitungswelle
+gestoppt. Anschließend wurden die Kursprofile BASIS/STANDARD/VERTIEFUNG gebaut
+und geprüft: 41/66/102 Folien, alle 311 Profilrenderings plus 102 Masterfolien,
+Manifest-/Ausgabe- und gezielte Datenschutzprüfung bestanden. Der bytegenaue
+SlideKey-/Manifestvergleich ergab 209 Übereinstimmungen und keine Abweichung.
+Artefakt-Hashes und Buildgrenzen stehen im
+[Releasebericht](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-nach-pr-1042).
+
+Die menschliche Generalprobe wurde nicht ausgeführt. Dieser lokale Kursrelease
+ist keine GitHub-Veröffentlichung und schließt keine SQL-Lab-, Produkt- oder
+Runtimegates. Die übrigen freigegebenen Entwicklungsbereiche bleiben im
+Backlog offen; dieser Stopp erklärt sie nicht für erledigt.
