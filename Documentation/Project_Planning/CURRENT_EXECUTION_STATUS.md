@@ -12649,3 +12649,15 @@ Trefferzeile aus `OwnWaits`. Zwei Regressionen ersetzen die Werte jeweils durch
 Konstanten mit gleichem Alias. 23 fokussierte Lehrabfragetests, der
 Abfragevalidator und 24 RES-004-Offlinedatenvertragstests bestehen. Der
 Strukturvertrag authentifiziert weiterhin weder DMV-Zeilen noch reale Waits.
+
+### SQL Server 2025 VECTOR – ODBC-Float16-Mindestversion präzisiert (17. November 2026)
+
+Die allgemeine Microsoft-VECTOR-Seite nennt native Float16-Übertragung mit ODBC
+18.7.1+, während die treiberspezifische ODBC-Anleitung Float16-Unterstützung ab
+18.7.1.1 und die ausgehandelte Vektorstufe `vectorTypeSupport=v2` verlangt. Die
+Kompatibilitätshilfe hält beide Dokumentationsangaben sichtbar auseinander und
+empfiehlt für eine reproduzierbare ODBC-Auswahl mindestens 18.7.1.1 mit `v2`.
+`SRC-173` bindet die treiberspezifische Primärquelle. Das bestätigt weder eine
+installierte Treiberversion noch eine ausgehandelte Treiberstufe oder
+Float16-Qualifikation des Projekts; es gab keine Installation, Verbindung oder
+SQL-Ausführung.
