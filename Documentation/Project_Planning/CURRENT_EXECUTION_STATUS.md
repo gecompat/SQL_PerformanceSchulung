@@ -359,6 +359,17 @@ Regressionen bestehen. Closure und Unknown-Inventar bleiben unverändert bei 60
 Modulen, 316 Kanten und 447 unbekannten Bedingungen; Digest
 `742614875c7d689dd14338bfc603928908a298a5c1253c10d36fecd705ea7f95`.
 
+### DGN-007 – initialen Regex-Parser-VERBOSE-Modus ableiten (17. November 2026)
+
+Der gebundene `re._parser.parse`-Quellpfad übergibt `flags & SRE_FLAG_VERBOSE`
+als anfänglichen Parsermodus an `_parse_sub`. Unter denselben bedingten
+Literal-, Flag- und Parserzugangsfakten ergibt sich für vier der 13 Kandidaten
+`True` und für neun `False`. Die Zuweisung ist kein Parse- oder
+Aufrufnachweis; Inline-Flags können den späteren Parsermodus ändern. 302
+fokussierte Regressionen bestehen. Das Gesamtinventar bleibt bei 447
+unbekannten Bedingungen mit unverändertem Digest; keine Runtime-, P11- oder
+SQL-Evidenz.
+
 ## Graph Tables – Curriculum-Lernnotiz
 
 Die [Graph-Tables-Lernnotiz](../Curriculum/GRAPH_TABLES_LESSON.md) ergänzt

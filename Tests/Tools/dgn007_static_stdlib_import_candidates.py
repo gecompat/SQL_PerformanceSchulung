@@ -8112,6 +8112,15 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     if (len(parser_parse[0].body) < 1
             or ast.unparse(parser_parse[0].body[0]) != "source = Tokenizer(str)"):
         return []
+    parse_sub_calls = [
+        node for node in ast.walk(parser_parse[0])
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+        and node.func.id == "_parse_sub"
+    ]
+    if (len(parse_sub_calls) != 1
+            or [ast.unparse(argument) for argument in parse_sub_calls[0].args]
+            != ["source", "state", "flags & SRE_FLAG_VERBOSE", "0"]):
+        return []
     init_body = tokenizer_init[0].body
     if (not init_body or ast.unparse(init_body[0])
             != "self.istext = isinstance(string, str)"):
@@ -8255,6 +8264,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
                     )
                     if flags_value is not None:
                         flags_resolution = "PINNED_REGEXFLAG_EXPRESSION"
+        verbose_flag = sre_flag_values.get("SRE_FLAG_VERBOSE")
         output.append({
             **candidate,
             "pattern_type_if_call_evaluates": (
@@ -8264,6 +8274,10 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
                 kind == "STRING_LITERAL"
             ),
             "flags_value_if_call_evaluates": flags_value,
+            "verbose_mode_if_parser_entry_reached": (
+                bool(flags_value & verbose_flag)
+                if flags_value is not None and type(verbose_flag) is int else None
+            ),
             "flags_resolution": flags_resolution,
             "re_flag_constants_source_sha256": (
                 RE_CONSTANTS_SOURCE_SHA256

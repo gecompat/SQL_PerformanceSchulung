@@ -5192,6 +5192,7 @@ def deferred():
                 b"        self.istext = isinstance(string, str)\n"
                 b"def parse(str, flags=0, state=None):\n"
                 b"    source = Tokenizer(str)\n"
+                b"    p = _parse_sub(source, state, flags & SRE_FLAG_VERBOSE, 0)\n"
             ),
         }
         digests = {
@@ -5231,6 +5232,10 @@ def deferred():
             self.assertEqual(
                 [row["flags_value_if_call_evaluates"] for row in candidates],
                 [0, 0, 72, 72],
+            )
+            self.assertEqual(
+                [row["verbose_mode_if_parser_entry_reached"] for row in candidates],
+                [False, False, True, True],
             )
             self.assertEqual(
                 [row["flags_resolution"] for row in candidates],
@@ -5281,6 +5286,24 @@ def deferred():
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered, ("pkg", "re", "re._compiler", "re._constants",
                                   "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_verbose = dict(files)
+            altered_verbose["re/_parser.py"] = altered_verbose[
+                "re/_parser.py"
+            ].replace(b"flags & SRE_FLAG_VERBOSE", b"flags & 0")
+            altered_verbose_digest = hashlib.sha256(
+                altered_verbose["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_verbose_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_verbose,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
                     ),
                     [],
                 )
@@ -11192,6 +11215,7 @@ static struct PyModuleDef sysmodule = {
         )
         self.assertIn("flags_value_if_call_evaluates", labels)
         self.assertIn("PINNED_REGEXFLAG_EXPRESSION", labels)
+        self.assertIn("verbose_mode_if_parser_entry_reached", labels)
         self.assertIn("target_platform_source_candidates", labels)
         self.assertIn(
             "MODULE_CLASS_AND_KNOWN_LINUX_CPYTHON312_IF_BUILTIN_AND_IMPORTED_MODULE_NAME_BRANCHES",
