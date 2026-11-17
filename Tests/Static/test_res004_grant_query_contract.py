@@ -49,6 +49,28 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "ObservedSemaphores"):
             validate_sql(altered)
 
+    def test_final_where_cannot_suppress_all_observed_grant_rows(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "   AND rs.resource_semaphore_id = observed.resource_semaphore_id;",
+            "   AND rs.resource_semaphore_id = observed.resource_semaphore_id\n"
+            "WHERE 1 = 0;",
+            1,
+        )
+        self.assertNotEqual(altered, query)
+        with self.assertRaisesRegex(ContractError, "final source chain"):
+            validate_sql(altered)
+
+    def test_final_join_predicate_cannot_suppress_all_observed_grant_rows(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "ON mg.pool_id = observed.pool_id",
+            "ON 1 = 0 AND mg.pool_id = observed.pool_id",
+            1,
+        )
+        with self.assertRaisesRegex(ContractError, "final source chain"):
+            validate_sql(altered)
+
     def test_ownwaits_grant_join_must_match_both_own_request_keys(self) -> None:
         query = extract_query(source_markdown())
         altered = query.replace(

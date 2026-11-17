@@ -12917,3 +12917,16 @@ Der vorhandene ScriptDom-Lauf prüfte nur `SnapshotPlanCandidates.sql`; Fehler i
 ### RES-004 – Semaphoreauswahl an den eigenen Grant-Wait binden (17. November 2026)
 
 Eine reproduzierte Negativprobe ergänzte `WHERE 1 = 0` im `ObservedSemaphores`-CTE. Der bisherige Validator fand `SELECT DISTINCT pool_id, resource_semaphore_id FROM OwnWaits` nur irgendwo in der Abfrage und akzeptierte dadurch eine garantierte Leerausgabe. Der Validator extrahiert jetzt genau diesen CTE und verlangt ausschließlich die distinct Pool-/Semaphore-Schlüssel aus `OwnWaits`. Regressionen decken den leeren Filter und eine fremde DMV-Quelle ab. 33 RES-004-Lehrabfragetests und 24 Offlinevertragstests bestehen lokal; der Abfragevalidator besteht. Dies bleibt statische Quellformevidenz ohne authentische DMV-Aufnahme oder echten Grant-Wait.
+
+### RES-004 – finale Ergebnismenge gegen unterdrückende Filter binden (17. November 2026)
+
+Eine reproduzierte Gegenprobe ergänzte `WHERE 1 = 0` nach den finalen
+Grant-/Semaphore-Joins. Der bisherige Validator akzeptierte die Abfrage, obwohl
+sie damit jede Diagnosezeile unterdrückt. Der Validator verlangt nun die
+vollständige finale Quellenfolge mit den gebundenen Pool-/Semaphore-Schlüsseln
+und weist zusätzliche Filter oder verändernde Join-Prädikate zurück. Zwei
+Regressionsfälle decken beide Formen ab. 35 fokussierte Lehrabfragetests, der
+RES-004-Abfragevalidator und 24 Offlinevertragstests bestehen lokal; der
+gezielte Datenschutzscan der beiden geänderten Prüfdateien besteht ebenfalls.
+Das bleibt ein statischer Strukturcheck ohne authentische DMV-Aufnahme, echten
+Grant-Wait, unabhängigen Methodenreview oder isolierten SQL-Server-2025-Pilot.
