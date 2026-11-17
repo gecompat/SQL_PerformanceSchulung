@@ -58,6 +58,16 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaises(ContractError):
             validate_sql(altered)
 
+    def test_unrelated_string_cannot_supply_expected_wait_type(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "r.wait_type = N'RESOURCE_SEMAPHORE'",
+            "r.wait_type = N'OTHER_WAIT'",
+            1,
+        ) + "\nSELECT N'RESOURCE_SEMAPHORE';"
+        with self.assertRaises(ContractError):
+            validate_sql(altered)
+
     def test_nested_block_comments_are_removed(self) -> None:
         query = extract_query(source_markdown())
         altered = query.replace(

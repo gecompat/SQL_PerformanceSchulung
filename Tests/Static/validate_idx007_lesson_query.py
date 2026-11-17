@@ -8,7 +8,11 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from sql_lexical_utils import without_tsql_comments, without_tsql_comments_or_literals
+from sql_lexical_utils import (
+    has_tsql_literal_comparison,
+    without_tsql_comments,
+    without_tsql_comments_or_literals,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -36,7 +40,6 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         "request wait duration uses the documented DMV column": "r.wait_time",
         "page resource is decoded": "sys.fn_pagerescracker(r.page_resource)",
         "page header is read": "sys.dm_db_page_info(",
-        "only page latch waits are selected": "r.wait_type = n__literal__",
         "missing page resources are excluded": "r.page_resource is not null",
         "distinct waiting sessions are counted": "count(distinct session_id) as waiting_sessions",
         "the minimum wait duration is reported": "min(wait_time) as shortest_wait_time_ms",
@@ -48,8 +51,8 @@ def validate_lesson(text: str) -> tuple[str, ...]:
     for label, fragment in required.items():
         if fragment not in sql:
             errors.append(f"{label}: expected `{fragment}`")
-    if "N'PAGELATCH_EX'".casefold() not in uncommented.casefold():
-        errors.append("only page latch waits are selected: expected `N'PAGELATCH_EX'` literal")
+    if not has_tsql_literal_comparison(blocks[0], "r.wait_type", "PAGELATCH_EX"):
+        errors.append("only page latch waits are selected: expected `r.wait_type = N'PAGELATCH_EX'`")
     if "wait_duration_ms" in sql:
         errors.append("query must use documented `wait_time`, not `wait_duration_ms`")
     return tuple(errors)

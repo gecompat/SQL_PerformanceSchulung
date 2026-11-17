@@ -71,8 +71,15 @@ def without_tsql_comments(sql: str) -> str:
 
 def without_tsql_comments_or_literals(sql: str) -> str:
     """Mask comments and quoted text so source-shape checks see executable text only."""
+    return mask_tsql_literals(sql)[0]
+
+
+def mask_tsql_literals(sql: str) -> tuple[str, tuple[str, ...]]:
+    """Return executable source with indexed literal tokens and their decoded values."""
     uncommented = without_tsql_comments(sql)
     output: list[str] = []
+    literals: list[str] = []
+    literal_value: list[str] = []
     index = 0
     quote: str | None = None
     bracketed = False
@@ -83,9 +90,14 @@ def without_tsql_comments_or_literals(sql: str) -> str:
             if char == quote:
                 if index + 1 < len(uncommented) and uncommented[index + 1] == quote:
                     output.append(" ")
+                    literal_value.append(quote)
                     index += 2
                     continue
+                literals.append("".join(literal_value))
+                literal_value = []
                 quote = None
+            else:
+                literal_value.append(char)
             index += 1
             continue
         if bracketed:
@@ -100,11 +112,23 @@ def without_tsql_comments_or_literals(sql: str) -> str:
             continue
         if char in "'\"":
             quote = char
-            output.append("__LITERAL__")
+            output.append(f"__TSQL_LITERAL_{len(literals)}__")
         elif char == "[":
             bracketed = True
             output.append(char)
         else:
             output.append(char)
         index += 1
-    return "".join(output)
+    return "".join(output), tuple(literals)
+
+
+def has_tsql_literal_comparison(sql: str, expression: str, expected: str) -> bool:
+    """Check that executable `expression = N'literal'` uses the expected value."""
+    import re
+
+    masked, literals = mask_tsql_literals(sql)
+    pattern = rf"{re.escape(expression)}\s*=\s*N?__TSQL_LITERAL_(\d+)__"
+    return any(
+        literals[int(match.group(1))].casefold() == expected.casefold()
+        for match in re.finditer(pattern, masked, flags=re.IGNORECASE)
+    )
