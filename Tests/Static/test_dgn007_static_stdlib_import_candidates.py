@@ -5342,6 +5342,13 @@ def deferred():
                 b"            emit(FAILURE)\n"
                 b"            for tail in tail:\n"
                 b"                code[tail] = _len(code) - tail\n"
+                b"def _code(p, flags):\n"
+                b"    flags = p.state.flags | flags\n"
+                b"    code = []\n"
+                b"    _compile_info(code, p, flags)\n"
+                b"    _compile(code, p.data, flags)\n"
+                b"    code.append(SUCCESS)\n"
+                b"    return code\n"
                 b"def isstring(obj):\n"
                 b"    return isinstance(obj, (str, bytes))\n"
                 b"def compile(p, flags=0):\n"
@@ -5350,6 +5357,8 @@ def deferred():
                 b"        p = _parser.parse(p, flags)\n"
                 b"    else:\n"
                 b"        pattern = None\n"
+                b"    code = _code(p, flags)\n"
+                b"    return _sre.compile(pattern, flags | p.state.flags, code, p.state.groups - 1, groupindex, tuple(indexgroup))\n"
             ),
             "re/_constants.py": (
                 b"SRE_FLAG_ASCII = 256\n"
@@ -5673,6 +5682,20 @@ def deferred():
                     "compiler_execution_observed"]
                 for row in candidates
             ))
+            self.assertTrue(all(
+                row["compiler_code_candidate"]["code_container_initializer"]
+                == "code = []"
+                and row["compiler_code_candidate"]["parsed_pattern_input"]
+                == "p.data"
+                and row["compiler_code_candidate"]["compiled_success_terminator"]
+                == "code.append(SUCCESS)"
+                and row["compiler_code_candidate"]["code_returned_to_compile"]
+                == "code = _code(p, flags)"
+                and row["compiler_code_candidate"]["code_passed_to_sre_compile"]
+                and not row["compiler_code_candidate"][
+                    "compiler_execution_observed"]
+                for row in candidates
+            ))
             self.assertTrue(all(not row["standard_re_flag_binding_observed"]
                                 for row in candidates))
 
@@ -5968,6 +5991,24 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_compiler_branch,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_code_container = dict(files)
+            altered_code_container["re/_compiler.py"] = altered_code_container[
+                "re/_compiler.py"
+            ].replace(b"code = []", b"code = ()", 1)
+            altered_code_container_digest = hashlib.sha256(
+                altered_code_container["re/_compiler.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_COMPILER_SOURCE_SHA256",
+                              altered_code_container_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_code_container,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
