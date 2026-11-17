@@ -5075,6 +5075,65 @@ class StaticImportCandidateTests(unittest.TestCase):
                 [],
             )
 
+    def test_re_compile_input_candidates_are_module_init_source_only(self):
+        source = b"""import re as regex
+from re import compile as make_regex
+regex.compile('text')
+make_regex(b'binary')
+if FLAG:
+    regex.compile(pattern)
+def deferred():
+    regex.compile(b'not module init')
+"""
+        candidates = SUBJECT._target_re_compile_input_candidates(
+            {"pkg.py": source}, ("pkg",),
+        )
+        self.assertEqual(
+            [row["argument_kind"] for row in candidates],
+            ["STRING_LITERAL", "BYTES_LITERAL", "UNRESOLVED_EXPRESSION"],
+        )
+        self.assertEqual(
+            [row["api_form"] for row in candidates],
+            ["re_module_compile_attribute", "re_imported_compile_name",
+             "re_module_compile_attribute"],
+        )
+        self.assertTrue(all(not row["compile_call_observed"]
+                            and not row["pattern_parse_observed"]
+                            for row in candidates))
+        self.assertTrue(all(row["source_sha256"]
+                            and row["source_path"] == "pkg.py"
+                            for row in candidates))
+        self.assertEqual(
+            SUBJECT._target_re_compile_input_candidates(
+                {"pkg.py": b"regex.compile('shadowed')\n"}, ("pkg",),
+            ),
+            [],
+        )
+        self.assertEqual(
+            SUBJECT._target_re_compile_input_candidates(
+                {"pkg.py": b"regex.compile('before import')\nimport re as regex\n"},
+                ("pkg",),
+            ),
+            [],
+        )
+        rebound = SUBJECT._target_re_compile_input_candidates(
+            {"pkg.py": b"import re as regex\nregex.compile('before rebind')\n"
+             b"regex = object()\nregex.compile('after rebind')\n"},
+            ("pkg",),
+        )
+        self.assertEqual([row["line"] for row in rebound], [2])
+        same_line = SUBJECT._target_re_compile_input_candidates(
+            {"pkg.py": b"import re as regex; regex.compile('same line')\n"},
+            ("pkg",),
+        )
+        self.assertEqual([row["line"] for row in same_line], [1])
+        attribute_rebound = SUBJECT._target_re_compile_input_candidates(
+            {"pkg.py": b"import re as regex\nregex.compile('before patch')\n"
+             b"regex.compile = object\nregex.compile('after patch')\n"},
+            ("pkg",),
+        )
+        self.assertEqual([row["line"] for row in attribute_rebound], [2])
+
     def test_functools_negative_cache_size_guard_requires_all_pinned_callers(self):
         lines = [""] * 565
         lines[481] = "def lru_cache(maxsize=128, typed=False):"
@@ -10976,6 +11035,7 @@ static struct PyModuleDef sysmodule = {
         self.assertIn("configure_module_anchor_count", labels)
         self.assertIn("module_init_call_roots_outside_source_stdlib_names", labels)
         self.assertIn("module_init_call_source_candidates", labels)
+        self.assertIn("target_module_init_re_compile_input_candidates", labels)
         self.assertIn("target_platform_source_candidates", labels)
         self.assertIn(
             "MODULE_CLASS_AND_KNOWN_LINUX_CPYTHON312_IF_BUILTIN_AND_IMPORTED_MODULE_NAME_BRANCHES",

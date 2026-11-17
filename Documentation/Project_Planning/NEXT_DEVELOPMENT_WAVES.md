@@ -3566,3 +3566,17 @@ Import- oder Konstruktorerfolgsnachweis. Umfang: ein Paket, ein PR, eine
 gezielte Regression; keine neue Produktquelle, kein Interpreter-/Container-/
 SQL-/Lab-Lauf und keine menschliche Generalprobe. Mit dem nächsten einzeln
 belegbaren Quellenkandidaten autonom fortfahren.
+
+### DGN-007 – Modulstart-Eingaben direkter Regex-Compiles inventarisieren (17. November 2026)
+
+Der Scanner bindet jetzt direkte `re.compile`-Quellaufrufe aus dem statischen
+Modulstartpfad an Modul, Datei-Hash, Zeile und Argumentform. Der frische
+CPython-3.12.16-Quell-/Image-Scan findet 13 Kandidaten (elf String-, zwei
+Byte-Literale); Aufruf und Parse bleiben unbeobachtet. 301 fokussierte
+Regressionen bestehen. Die Closure steht weiter bei 60 Modulen und 316 Kanten;
+447 Bedingungen bleiben unbekannt. Dieser enge Kandidatenschnitt umfasst weder
+indirekte oder spätere Aufrufe noch die Regex-Parsepfade und ändert kein
+Runtime-/P11-Gate. Umfang: ein Paket, ein PR, eine gezielte Regression; keine
+neue Produktquelle, kein Interpreter-/Container-/SQL-/Lab-Lauf und keine
+menschliche Generalprobe. Mit dem nächsten einzeln belegbaren Quellenkandidaten
+fortfahren.

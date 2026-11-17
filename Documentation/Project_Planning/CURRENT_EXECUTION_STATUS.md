@@ -318,6 +318,20 @@ Beide `constructor is not None`-Guards bleiben dynamisch. Keine erfolgreiche
 Import-/Konstruktorbeobachtung, Interpreterausführung, P11- oder
 Runtimeattestation; Status `CANDIDATES_ONLY`.
 
+### DGN-007 – direkte Regex-Compile-Eingaben im Modulstart inventarisieren (17. November 2026)
+
+Der statische Bericht führt jetzt direkte `re.compile`-Aufrufe im
+Modulinitialisierungspfad der gebundenen Zielquellkandidaten auf. Der vollständige
+CPython-3.12.16-Quell-/Image-Scan enthält 13 solche Kandidaten: elf
+Stringliterale und zwei Byte-Literale. Jeder Eintrag bindet Modul, Quellpfad,
+Quellhash, Zeile und Argumentform; Aufruf und Parse sind ausdrücklich nicht
+beobachtet. Die 301 fokussierten Regressionen bestehen. Closure und Bedingungs-
+inventar bleiben unverändert bei 60 Modulen, 316 Kanten, 163 Funktionen, 116
+aufgelösten und 447 unbekannten Bedingungen mit Unknown-Digest
+`742614875c7d689dd14338bfc603928908a298a5c1253c10d36fecd705ea7f95`.
+Diese begrenzte Modulstartliste ist weder vollständig für spätere/dynamische
+Aufrufe noch eine Regex-Parse-, Import-, P11- oder Runtimeattestation.
+
 ## Graph Tables – Curriculum-Lernnotiz
 
 Die [Graph-Tables-Lernnotiz](../Curriculum/GRAPH_TABLES_LESSON.md) ergänzt
