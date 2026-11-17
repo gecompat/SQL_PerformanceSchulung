@@ -11,7 +11,11 @@ from pathlib import Path
 import re
 import sys
 
-from sql_lexical_utils import without_tsql_comments, without_tsql_comments_or_literals
+from sql_lexical_utils import (
+    has_tsql_literal_comparison,
+    without_tsql_comments,
+    without_tsql_comments_or_literals,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 LESSON = ROOT / "Documentation/Curriculum/COMPETING_MEMORY_GRANTS_LESSON.md"
@@ -45,7 +49,6 @@ def validate_sql(sql: str) -> None:
         "r.session_id = mg.session_id",
         "r.request_id = mg.request_id",
         "mg.grant_time is null",
-        "r.wait_type = n__literal__",
         "select distinct pool_id, resource_semaphore_id from ownwaits",
         "mg.pool_id = observed.pool_id",
         "mg.resource_semaphore_id = observed.resource_semaphore_id",
@@ -61,8 +64,8 @@ def validate_sql(sql: str) -> None:
     missing = tuple(fragment for fragment in required if fragment not in normalized)
     if missing:
         raise ContractError("diagnostic query is missing required RES-004 bindings")
-    if "N'resource_semaphore'".casefold() not in uncommented.casefold():
-        raise ContractError("diagnostic query must retain the RESOURCE_SEMAPHORE wait literal")
+    if not has_tsql_literal_comparison(sql, "r.wait_type", "RESOURCE_SEMAPHORE"):
+        raise ContractError("diagnostic query must filter on RESOURCE_SEMAPHORE")
     if normalized.count("sysutcdatetime()") != 1 or normalized.count("@capturedat") != 2:
         raise ContractError("query must use exactly one capture marker for the complete observation")
     for binding in (

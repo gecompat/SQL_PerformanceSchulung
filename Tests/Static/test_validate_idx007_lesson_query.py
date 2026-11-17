@@ -60,6 +60,19 @@ class Idx007LessonQueryTests(unittest.TestCase):
         errors = validate_lesson(broken)
         self.assertTrue(any("only page latch waits" in error for error in errors))
 
+    def test_unrelated_string_cannot_supply_the_expected_wait_type(self) -> None:
+        broken = SOURCE.replace(
+            "WHERE r.wait_type = N'PAGELATCH_EX'",
+            "WHERE r.wait_type = N'PAGEIOLATCH_EX'",
+            1,
+        ).replace(
+            "HAVING COUNT(DISTINCT session_id) >= 2;",
+            "HAVING COUNT(DISTINCT session_id) >= 2; SELECT N'PAGELATCH_EX';",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("only page latch waits" in error for error in errors))
+
     def test_comment_markers_inside_bracketed_identifiers_are_preserved(self) -> None:
         section_start = SOURCE.index("## Lesende Zuordnung einer aktuellen Request-Seite")
         fence = SOURCE.index("```sql", section_start)
