@@ -3538,3 +3538,18 @@ Kommentaren und Literalen direkt das Scheduler-`SELECT`; Regressionen decken
 zusätzlich `IF ... SELECT` und `BEGIN ... END` ab. 21 fokussierte RES-001-Tests
 und der Quellenvalidator bestehen lokal. Das bleibt ein statischer Strukturcheck
 ohne T-SQL-Runtime- oder DMV-Herkunftsnachweis.
+
+### DGN-007 – `_md5` in die native Fallback-Dateiinventur aufnehmen (17. November 2026)
+
+Der gebundene CPython-3.12.16-Zielimageexport enthält neben `_blake2`, `_sha1`,
+`_sha2` und `_sha3` auch `_md5`; der bisherige Dateivertrag ließ dieses
+Fallbackmodul aus. Der Offline-Scanner bindet nun den festen Pfad, exakten
+SHA-256 und die größenbegrenzte reguläre Datei in dieselbe geprüfte
+Imageinventur ein. Eine gezielte Regression verlangt den `_md5`-Pfad und
+Digest. Der Vollscan bestätigt die zusätzliche Imagekandidatur, lässt aber
+beide Cachebedingungen in `hashlib.py` unbekannt, weil Dateipräsenz keinen
+Import belegt. Das Ergebnis bleibt `CANDIDATES_ONLY`, ohne Interpreterstart,
+P11- oder Runtimeattestation. Umfang: ein Paket, ein PR, eine neue gezielte
+Regression; keine neue Produktquelle, kein Container-/SQL-/Lab-Lauf und keine
+menschliche Generalprobe. Danach wird mit dem nächsten einzeln belegbaren
+statischen Quellkandidaten fortgesetzt.
