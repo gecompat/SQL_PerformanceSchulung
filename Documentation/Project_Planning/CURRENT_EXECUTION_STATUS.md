@@ -12982,3 +12982,14 @@ Die neue statische Prüfung ist im SQL-Server-2025-AI-Workflow für PRs und
 Main-Pushes verdrahtet. Keine historische Replay-, SQL-, Container-, Provider-,
 Modell- oder Hostausführung. Siehe [Leseanleitung](../HowTo/SQL_SERVER_2025_AI_ANN_DML_RECORDS.md)
 und [Quell-/Methodenbefund](SQL_SERVER_2025_AI_ANN_DML_REVIEW.md).
+
+### RES-004 – zusätzliche Resultsets vor der Grant-Wait-Diagnose abweisen (17. November 2026)
+
+Eine reproduzierte Gegenprobe stellte vor die eigentliche Grant-Wait-Abfrage
+ein zusätzliches `SELECT`. Der Lehrvalidator akzeptierte das fremde Resultset,
+weil er nur CTEs und die finale Quellfolge prüfte. Er bindet jetzt den Anfang
+des SQL-Blocks bis zum `OwnWaits`-CTE und weist zusätzliche ausführbare
+Resultset-/DML-/EXEC-Statements im Präfix zurück. Stringliterale bleiben dabei
+als Text maskiert. Eine Regression weist das zusätzliche Resultset zurück.
+Die Prüfung bleibt statisch; authentische DMV-Herkunft,
+tatsächlicher Grant-Wait und Engine-Runtime sind damit nicht belegt.
