@@ -78,6 +78,13 @@ def validate_sql(sql: str) -> None:
     own_waits_where = re.search(r"\bwhere\b(.*)$", own_waits_normalized)
     if own_waits_where is None or re.search(r"\bor\b", own_waits_where.group(1)):
         raise ContractError("own-wait WHERE must not contain OR predicates")
+    own_waits_source_prefix = (
+        "@ownrequests as own "
+        "inner join sys.dm_exec_query_memory_grants as mg "
+        "on mg.session_id = own.session_id and mg.request_id = own.request_id "
+        "inner join sys.dm_exec_requests as r "
+        "on r.session_id = mg.session_id and r.request_id = mg.request_id"
+    )
     own_waits_sources = re.compile(
         r"\bfrom\s+@ownrequests\s+as\s+own\s+"
         r"inner\s+join\s+sys\.dm_exec_query_memory_grants\s+as\s+mg\s+"
@@ -90,6 +97,13 @@ def validate_sql(sql: str) -> None:
     if own_waits_sources.search(own_waits_normalized) is None:
         raise ContractError(
             "OwnWaits must bind its grant and request sources to the own session/request pair"
+        )
+    own_waits_source_clause = own_waits_normalized.split(" from ", 1)[-1].split(
+        " where ", 1
+    )[0]
+    if own_waits_source_clause != own_waits_source_prefix:
+        raise ContractError(
+            "OwnWaits must use only the exact own-request, grant and request source chain"
         )
     projection_match = re.search(
         r"\)\s*select\s+(.*?)\s+from\s+observedsemaphores\s+as\s+observed\b",
