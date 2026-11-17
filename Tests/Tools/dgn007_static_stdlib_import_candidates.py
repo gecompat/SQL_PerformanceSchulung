@@ -8078,6 +8078,53 @@ def _regex_inline_flag_directive_candidates(pattern):
     return candidates
 
 
+def _regex_verbose_ignored_syntax_candidates(pattern, whitespace):
+    """Locate lexical VERBOSE whitespace/comments without parsing patterns."""
+    if type(pattern) is bytes:
+        text = pattern.decode("latin-1")
+    elif type(pattern) is str:
+        text = pattern
+    else:
+        return None
+    if (type(whitespace) is not frozenset
+            or any(type(character) is not str or len(character) != 1
+                   for character in whitespace)):
+        return None
+
+    candidates = []
+    in_character_class = False
+    class_first_character = False
+    index = 0
+    while index < len(text):
+        character = text[index]
+        if character == "\\":
+            index += 2
+            continue
+        if in_character_class:
+            if character == "]" and not class_first_character:
+                in_character_class = False
+            elif character != "^" or not class_first_character:
+                class_first_character = False
+            index += 1
+            continue
+        if character == "[":
+            in_character_class = True
+            class_first_character = True
+            index += 1
+            continue
+        if character in whitespace:
+            candidates.append({"offset": index, "kind": "WHITESPACE"})
+            index += 1
+            continue
+        if character == "#":
+            candidates.append({"offset": index, "kind": "COMMENT_MARKER"})
+            newline = text.find("\n", index + 1)
+            index = len(text) if newline < 0 else newline + 1
+            continue
+        index += 1
+    return candidates
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8130,6 +8177,30 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or len(isstring) != 1 or len(compiler_compile) != 1
             or len(parser_parse) != 1 or len(tokenizer_init) != 1):
         return []
+
+    whitespace_assignments = [
+        node for node in parser_tree.body
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "WHITESPACE"
+                for target in node.targets)
+    ]
+    if (len(whitespace_assignments) != 1
+            or not isinstance(whitespace_assignments[0].value, ast.Call)
+            or not isinstance(whitespace_assignments[0].value.func, ast.Name)
+            or whitespace_assignments[0].value.func.id != "frozenset"
+            or len(whitespace_assignments[0].value.args) != 1
+            or whitespace_assignments[0].value.keywords):
+        return []
+    try:
+        whitespace_literal = ast.literal_eval(
+            whitespace_assignments[0].value.args[0],
+        )
+    except (ValueError, TypeError, SyntaxError):
+        return []
+    if (type(whitespace_literal) is not str or not whitespace_literal
+            or any(len(character) != 1 for character in whitespace_literal)):
+        return []
+    verbose_whitespace = frozenset(whitespace_literal)
 
     public_body = list(public_compile[0].body)
     if (public_body and isinstance(public_body[0], ast.Expr)
@@ -8334,6 +8405,12 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             _regex_inline_flag_directive_candidates(pattern_literals[0])
             if len(pattern_literals) == 1 else None
         )
+        verbose_ignored_syntax_candidates = (
+            _regex_verbose_ignored_syntax_candidates(
+                pattern_literals[0], verbose_whitespace,
+            )
+            if len(pattern_literals) == 1 else None
+        )
         flags_value = None
         flags_resolution = "UNRESOLVED"
         if candidate["flags_argument_kind"] == "OMITTED":
@@ -8379,6 +8456,9 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
                 inline_verbose_candidates
             ),
             "inline_verbose_flag_scan_bound": len(pattern_literals) == 1,
+            "verbose_ignored_syntax_candidates_if_verbose_and_literal_bound": (
+                verbose_ignored_syntax_candidates
+            ),
             "flags_resolution": flags_resolution,
             "re_flag_constants_source_sha256": (
                 RE_CONSTANTS_SOURCE_SHA256

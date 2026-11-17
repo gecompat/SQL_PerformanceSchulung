@@ -3623,17 +3623,16 @@ eine gezielte Regression; keine neue Produktquelle, kein Interpreter-/Container-
 SQL-/Lab-Lauf und keine menschliche Generalprobe. Danach mit dem nächsten
 einzeln belegbaren Kandidaten der freigegebenen Folge fortfahren.
 
-### DGN-007 – Inline-VERBOSE-Gruppen in gebundenen Regexliteralen prüfen (17. November 2026)
+### DGN-007 – Inline-VERBOSE und ignorierte Regexliteralsyntax geprüft (17. November 2026)
 
-Der nächste Offlinepunkt prüft, ob die 13 quellgebundenen Regexliteral-
-Kandidaten neben dem anfänglichen Compile-Flag lexikalische Inline-Flaggruppen
-mit `x` enthalten. Der Prüfer scannt nur exakt an den Modulquellhash gebundene
-String-/Byte-Literale und überspringt maskierte Zeichen sowie Zeichenklassen.
-Er meldet Syntaxkandidaten, keine gültige Parserauswertung oder spätere
-Moduswirkung. Der Quellbefund findet für alle 13 Literale keine solche Gruppe;
-alle 13 Literalbindungen sind aufgelöst. Eine synthetische Regression deckt
-globale und gruppenlokale `x`-Formen sowie maskierte und geklammerte Decoys ab.
-303 fokussierte Tests bestehen. Umfang: ein Offlinepaket, ein PR, eine
-Regression, keine neue Produktquelle, kein Interpreter-/Container-/SQL-/Lab-
-Lauf und keine menschliche Generalprobe. Mit dem nächsten einzeln belegbaren
-Quellenfact der freigegebenen Folge fortfahren.
+Der Offline-Quellscan bindet alle 13 direkten Regexliteral-Kandidaten und findet
+weder Inline-Flaggruppen mit `x` noch Zeichenklassen-freien Leerraum in Mustern
+mit anfänglich gesetztem VERBOSE-Modus. Ein Literal in `tokenize.py:39`
+enthält zwar einen lexikalischen `#`-Marker, sein anfänglicher VERBOSE-Modus
+ist aber nicht gesetzt; Parserzugang oder spätere Moduswirkung sind damit nicht
+belegt. Die `WHITESPACE`-Menge stammt aus dem exakt gebundenen
+CPython-3.12.16-Quellmodul. 304 fokussierte Regressionen bestehen. Umfang:
+ein Offlinepaket, eine Regression, keine neue Produktquelle und keine
+Interpreter-/Container-/SQL-/Lab-Ausführung oder menschliche Generalprobe.
+Der Befund bleibt `CANDIDATES_ONLY`; weitere freigegebene Entwicklungsbereiche
+werden unabhängig davon fortgesetzt.

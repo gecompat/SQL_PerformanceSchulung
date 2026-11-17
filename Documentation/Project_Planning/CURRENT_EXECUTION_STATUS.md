@@ -13250,3 +13250,20 @@ Die menschliche Generalprobe wurde nicht ausgeführt. Dieser lokale Kursrelease
 ist keine GitHub-Veröffentlichung und schließt keine SQL-Lab-, Produkt- oder
 Runtimegates. Die übrigen freigegebenen Entwicklungsbereiche bleiben im
 Backlog offen; dieser Stopp erklärt sie nicht für erledigt.
+
+### DGN-007 – VERBOSE-Leerraum und Kommentarzeichen in gebundenen Regexliteralen
+
+Der nächste statische Regexfact bindet die in `re/_parser.py` definierte
+`WHITESPACE`-Menge aus dem CPython-3.12.16-Quellarchiv mit SHA-256
+`b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c` an die
+lexikalische Prüfung der 13 quellgebundenen `re.compile`-Muster. Die Prüfung
+überspringt Escape-Sequenzen und Zeichenklassen und meldet Leerzeichen sowie
+`#`-Marker nur als Kandidaten, ohne Regexsyntax auszuwerten. Ein Literal in
+`tokenize.py:39` enthält einen `#`-Marker; sein quellengebundener anfänglicher
+VERBOSE-Modus ist jedoch nicht gesetzt. In den vier Literalen mit anfänglich
+gesetztem VERBOSE-Modus fand sich kein solcher Kandidat. Zusammen mit den zuvor
+geprüften fehlenden Inline-`x`-Gruppen ergibt sich daraus kein statischer
+Hinweis auf ignorierten Leerraum oder Kommentartext in diesen 13 Literalen.
+304 fokussierte Regressionen bestehen. Aufruf, Parserzugang und tatsächliche
+Ausführung bleiben unbeobachtet; Ergebnis weiterhin `CANDIDATES_ONLY`, ohne
+Interpreter-, P11-, Worker-, Container-, SQL- oder Runtimeattestation.
