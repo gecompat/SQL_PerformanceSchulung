@@ -79,6 +79,14 @@ Nutzung von Float16 benötigt daher einen separaten Preview-, Build-/Architektur
 Typ- und Treiberbeleg. Sie wird nicht durch den bestehenden float32-Roundtrip
 freigegeben.
 
+Für die nativen ODBC-C-Bindungen bleibt der Anwendungsbuffer auch bei
+`float16` ein Array aus 4-Byte-`float`-Werten; zwei Bytes pro Element betreffen
+die Übertragung auf dem Draht. Der Treiber konvertiert zwischen beiden
+Darstellungen. Deshalb den Puffer mit `sizeof(float)` dimensionieren. Ein
+Speichern und Zurücklesen als `float16` ist verlustbehaftet, weil Werte auf den
+nächsten darstellbaren Halbpräzisionswert gerundet werden (`SRC-173`). Das sind
+ODBC-spezifische Bufferregeln und keine allgemeine Aussage über andere Clients.
+
 ## Drei kleine Fehler- und Entscheidungsfälle
 
 ### 1. Neuer Client, ältere Engine

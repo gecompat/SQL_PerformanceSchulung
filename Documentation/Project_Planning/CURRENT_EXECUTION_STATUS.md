@@ -12662,6 +12662,17 @@ installierte Treiberversion noch eine ausgehandelte Treiberstufe oder
 Float16-Qualifikation des Projekts; es gab keine Installation, Verbindung oder
 SQL-Ausführung.
 
+### SQL Server 2025 VECTOR – ODBC-Float16-Puffergrenze ergänzt (17. November 2026)
+
+Die Kompatibilitätshilfe erklärt jetzt zusätzlich die ODBC-C-Puffersemantik:
+Der Treiber transportiert Float16 auf dem Draht mit zwei Bytes je Element,
+verwendet im Anwendungsbuffer aber weiterhin 4-Byte-`float`-Werte und rundet
+beim Speichern auf den nächsten darstellbaren Halbpräzisionswert. `sizeof(float)`
+bleibt daher die passende Elementgröße im beschriebenen ODBC-C-Puffer; aus dem
+kleineren Drahtformat folgt keine halb so große Clientallokation. `SRC-173`
+bindet diese Einschränkung. Kein ODBC-Client, Wireverhalten oder SQL-Lauf wurde
+im Projekt qualifiziert.
+
 ### RES-004 – Grant-Wait-Filter gegen `OR`-Aufweitung absichern (17. November 2026)
 
 Eine Gegenprobe zeigte, dass der Lehrabfragevalidator den korrekten
