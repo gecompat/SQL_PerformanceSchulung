@@ -12930,3 +12930,15 @@ RES-004-Abfragevalidator und 24 Offlinevertragstests bestehen lokal; der
 gezielte Datenschutzscan der beiden geänderten Prüfdateien besteht ebenfalls.
 Das bleibt ein statischer Strukturcheck ohne authentische DMV-Aufnahme, echten
 Grant-Wait, unabhängigen Methodenreview oder isolierten SQL-Server-2025-Pilot.
+
+### RES-001 – Zeilenbegrenzung aus der Scheduler-Ausgabe ausschließen (17. November 2026)
+
+Eine reproduzierte Gegenprobe ergänzte `OFFSET 0 ROWS FETCH NEXT 0 ROWS ONLY`
+nach der Scheduler-Sortierung. Der bisherige Validator akzeptierte die Abfrage,
+obwohl sie dadurch keine Schedulerzeilen ausgibt. Er verlangt jetzt, dass die
+SQL-Abfrage mit der vorgesehenen Scheduler-Sortierung endet. Eine Regression
+weist die Nullzeilenbegrenzung zurück. 17 fokussierte Lehrabfragetests, der
+RES-001-Lehrvalidator, 16 Worker-Queue-Vertragstests, 18 RES-003-
+Speichersignaltests, der gezielte Datenschutzscan und `git diff --check`
+bestehen lokal. Dies prüft nur die dokumentierte Quellform, nicht die
+authentische Scheduler-/Wait-Herkunft oder Engine-Runtime.

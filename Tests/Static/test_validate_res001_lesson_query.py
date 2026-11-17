@@ -114,6 +114,17 @@ class Res001LessonQueryTests(unittest.TestCase):
             for error in validate_lesson(broken)
         ))
 
+    def test_zero_row_fetch_cannot_suppress_the_scheduler_snapshot(self) -> None:
+        broken = SOURCE.replace(
+            "ORDER BY scheduler_id;",
+            "ORDER BY scheduler_id OFFSET 0 ROWS FETCH NEXT 0 ROWS ONLY;",
+            1,
+        )
+        self.assertTrue(any(
+            "row-suppressing clauses" in error
+            for error in validate_lesson(broken)
+        ))
+
     def test_row_multiplying_source_join_is_rejected(self) -> None:
         broken = SOURCE.replace(
             "FROM sys.dm_os_schedulers\nWHERE scheduler_id < 255",
