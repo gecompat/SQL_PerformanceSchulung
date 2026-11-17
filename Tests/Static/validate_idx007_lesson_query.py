@@ -50,7 +50,6 @@ def validate_lesson(text: str) -> tuple[str, ...]:
     required = {
         "request wait duration uses the documented DMV column": "r.wait_time",
         "page resource is decoded": "sys.fn_pagerescracker(r.page_resource)",
-        "page header is read": "sys.dm_db_page_info(",
         "missing page resources are excluded": "r.page_resource is not null",
         "distinct waiting sessions are counted": "count(distinct session_id) as waiting_sessions",
         "the minimum wait duration is reported": "min(wait_time) as shortest_wait_time_ms",
@@ -62,6 +61,20 @@ def validate_lesson(text: str) -> tuple[str, ...]:
     for label, fragment in required.items():
         if fragment not in sql:
             errors.append(f"{label}: expected `{fragment}`")
+    page_info_call = re.compile(
+        r"sys\.dm_db_page_info\s*\(\s*pr\.db_id\s*,\s*pr\.file_id\s*,\s*"
+        r"pr\.page_id\s*,\s*n?__tsql_literal_\d+__\s*\)",
+    )
+    page_info_detailed_call = re.compile(
+        r"sys\.dm_db_page_info\s*\(\s*pr\.db_id\s*,\s*pr\.file_id\s*,\s*"
+        r"pr\.page_id\s*,\s*n?'detailed'\s*\)",
+    )
+    if (page_waits_sql.count("sys.dm_db_page_info") != 1
+            or page_info_call.search(page_waits_sql) is None
+            or page_info_detailed_call.search(page_waits_with_literals) is None):
+        errors.append(
+            "page header lookup must use the decoded request database, file, and page"
+        )
     page_wait_filters = (
         "where r.wait_type =",
         "and r.page_resource is not null",

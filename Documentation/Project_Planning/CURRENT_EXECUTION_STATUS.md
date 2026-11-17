@@ -12730,3 +12730,16 @@ Blattkette. `SRC-172` ist mit dem Abrufdatum aktualisiert. Daraus folgt nur,
 dass dieser Primärbeleg den offenen Wert nicht entscheidet; die Methode bleibt
 `METHOD_DRAFT`. Unabhängiger Methodenreview, isolierter Enginepilot,
 Seiten-Cap und Splitverhalten bleiben offen.
+
+### IDX-007 – Headerlookup an die dekodierte Request-Seite binden (17. November 2026)
+
+Der Lehrabfragevalidator verlangte bisher `sys.dm_db_page_info`, prüfte aber
+nicht dessen Argumente. Eine Abfrage hätte deshalb Headerdaten einer anderen
+Seite mit dem tatsächlichen wartenden Request verknüpfen können. Der statische
+Vertrag bindet den einzigen Headeraufruf jetzt an `pr.db_id`, `pr.file_id` und
+`pr.page_id` aus `sys.fn_PageResCracker(r.page_resource)` sowie an den
+Dokumentationsmodus `DETAILED`. Zwei Regressionen weisen Datenbank- und
+Seitennummernabweichungen zurück. 25 fokussierte Tests, der Lehrvalidator und
+`git diff --check` bestehen lokal unter Python 3.13. Das bleibt ein
+Quellstrukturvertrag ohne T-SQL-Parser, DMV-Herkunft oder Enginebeleg; der
+offene Terminal-, Seiten-Cap-, Split- und Pilotnachweis ist davon unberührt.
