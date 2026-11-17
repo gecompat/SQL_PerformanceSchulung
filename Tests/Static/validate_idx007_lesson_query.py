@@ -38,6 +38,16 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         uncommented = without_tsql_comments(blocks[0])
     except ValueError as exc:
         return (f"IDX-007 query has malformed lexical structure: {exc}",)
+    if re.match(
+        r"\s*DECLARE\s+@capture_started_at_utc\s+datetime2\(7\)\s*=\s*"
+        r"SYSUTCDATETIME\(\)\s*;\s*;WITH\b",
+        uncommented,
+        flags=re.IGNORECASE,
+    ) is None:
+        return (
+            "query must start with the capture marker declaration followed only "
+            "by the PageWaits CTE",
+        )
     sql = re.sub(r"\s+", " ", without_tsql_comments_or_literals(blocks[0])).casefold()
     try:
         page_waits = extract_tsql_cte_body(blocks[0], "PageWaits")

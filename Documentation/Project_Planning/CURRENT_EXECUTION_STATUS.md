@@ -12827,6 +12827,16 @@ Methoden-/Quellenumfang keine P1/P2-Befunde; die unabhängige Gegenprüfung blei
 erforderlich. Isolierter Enginepilot, Deadlockgraph, serieller Kontrollarm und
 Cleanup bleiben unqualifiziert.
 
+### IDX-007 – zusätzliche Resultsets vor der Seitendiagnose abweisen (17. November 2026)
+
+Eine reproduzierte Gegenprobe fügte nach der Zeitmarker-Deklaration und vor dem
+`PageWaits`-CTE ein zusätzliches `SELECT` ein. Der Lehrvalidator akzeptierte die
+Abfrage, obwohl dadurch ein fremdes Resultset vor der eigentlichen Diagnose
+entstehen konnte. Er verlangt jetzt am Anfang des SQL-Blocks genau die
+Zeitmarker-Deklaration und direkt danach den vorgesehenen CTE. Eine Regression
+weist das zusätzliche Resultset zurück. Das ist ein statischer Strukturcheck;
+DMV-Herkunft, tatsächliche Seitenkette, Wait und Engine-Runtime bleiben offen.
+
 ### RES-004 – zusätzliche Quelle im OwnWaits-CTE abweisen (17. November 2026)
 
 Eine gezielte Gegenprobe ergänzte einen stets falschen `INNER JOIN` in den
