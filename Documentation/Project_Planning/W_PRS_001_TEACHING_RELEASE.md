@@ -36,3 +36,37 @@ Die `.pptx`-Varianten und PNGs bleiben reproduzierbare lokale Buildartefakte und
 ## Gate V4
 
 Die für diese Welle verlangten Notes-, Manifest-, Custom-Show-, Build-, Render-, Metadaten-, Privacy-, Branding- und Profilumfangsnachweise liegen vor. Gate V4 ist damit `VALIDATED`.
+
+## Nachfolgender Releasebuild vom 2026-11-17
+
+Die drei Profildecks wurden erneut aus dem aktuellen Master auf `main`
+(`b2a93520ccd92b6e9f14b66b192abc3dcccc0621`) gebaut. Der Master-Hash
+`17c55c8f4e6a2ff06cd1e7d81118bdc5e50021d395f157aa65ed38351054d787` stimmte
+vor und nach dem Build mit dem Manifest überein.
+
+| Profil | Folien | Releaseartefakt-SHA-256 |
+|---|---:|---|
+| `BASIS` | 41 | `bf46ab88964310c0f3fdc8d37ee94e856c05c12994216c3627f73256c6230a2d` |
+| `STANDARD` | 66 | `d0dfba6f79d7a5868f000c05da38f7803322d69ca1a120d6fd9f93c3408b74c9` |
+| `VERTIEFUNG` | 102 | `780e61e82f82ca4f67b7a7d8b237dffa3dbc9b124640eedf7a0c77132a0837dd` |
+
+Der Master und alle drei Varianten wurden mit PowerPoint Desktop gerendert.
+102/102 Masterfolien, 41/41 `BASIS`-, 66/66 `STANDARD`- und 102/102
+`VERTIEFUNG`-Renderbilder stimmen bytegenau mit den jeweiligen Masterfolien
+überein. Die sieben vollständigen Kontaktbögen wurden geprüft; es gab keine
+auffällige Abschneidung oder Überlagerung. Build-, Manifest- und
+Ausgabevalidator bestehen.
+
+Der Datenschutzscan nur der drei neuen Decks und ihres Buildprotokolls besteht
+(vier Dateien, drei PowerPoint-Pakete). Ein Scan des gesamten lokalen
+Buildverzeichnisses meldet zusätzlich alte, nicht zum Release gehörende Bilder
+unter `build/.review` als manuell zu prüfende Medien. Diese historischen
+Reviewbilder sind nicht Teil der drei ausgelieferten Profildecks und wurden
+nicht entfernt. Die menschliche Generalprobe wurde nicht ausgeführt.
+
+Die Artefakte liegen lokal unter `Presentations/variants/build/`; Render und
+maschinenlesbare Nachweise liegen unter
+`Runtime/PresentationRenders/presentation-variants/`. Sie bleiben gemäß
+Buildvertrag abgeleitete, nicht versionierte Releaseartefakte. Dieser Build ist
+kein GitHub-Release und erteilt keine zusätzliche SQL-Lab-, Produkt- oder
+Runtimefreigabe.
