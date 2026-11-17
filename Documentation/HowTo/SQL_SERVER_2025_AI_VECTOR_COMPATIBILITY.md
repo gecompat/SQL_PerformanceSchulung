@@ -66,12 +66,18 @@ bei Bedarf über `sys.columns`, weil SSMS ihn in der Oberfläche derzeit nicht
 unterscheidet (`SRC-166`).
 
 Native Float16-Übertragung ist eine weitere unabhängige Clientgrenze: Microsoft
-listet dafür JDBC Driver 13.4+ und ODBC Driver 18.7.1+. Die SqlClient-Anleitung
-zeigt aktuell `SqlVector<float>` und damit den hier bereits begrenzten
-float32-Pfad; daraus folgt keine Float16-Unterstützung für SqlClient und kein
-Wire-Nachweis (`SRC-167`). Eine Nutzung von Float16 benötigt daher einen
-separaten Preview-, Build-/Architektur-, Typ- und Treiberbeleg. Sie wird nicht
-durch den bestehenden float32-Roundtrip freigegeben.
+nennt in der allgemeinen Produktdokumentation JDBC Driver 13.4+ und ODBC Driver
+18.7.1+. Die ODBC-spezifische Anleitung präzisiert die Float16-Unterstützung auf
+Version 18.7.1.1 oder höher und verlangt für native Unterstützung außerdem die
+ausgehandelte Vektorstufe `v2`. Für eine reproduzierbare ODBC-Auswahl ist
+daher mindestens 18.7.1.1 samt `vectorTypeSupport=v2` anzusetzen; die abweichend
+verkürzte Versionsangabe der allgemeinen Seite bleibt als Quellenunterschied
+sichtbar (`SRC-173`). Die SqlClient-Anleitung zeigt aktuell `SqlVector<float>`
+und damit den hier bereits begrenzten float32-Pfad; daraus folgt keine
+Float16-Unterstützung für SqlClient und kein Wire-Nachweis (`SRC-167`). Eine
+Nutzung von Float16 benötigt daher einen separaten Preview-, Build-/Architektur-,
+Typ- und Treiberbeleg. Sie wird nicht durch den bestehenden float32-Roundtrip
+freigegeben.
 
 ## Drei kleine Fehler- und Entscheidungsfälle
 
@@ -160,7 +166,8 @@ Live-RAG-, Provider-, Modell- oder Performanceabnahme.
 
 Die Primärquellen [VECTOR](https://learn.microsoft.com/en-us/sql/t-sql/data-types/vector-data-type?view=sql-server-ver17)
 (SRC-072; erneut geprüft am 2026-11-17), [Float16](https://learn.microsoft.com/en-us/sql/t-sql/data-types/vector-data-type-half-precision-float?view=sql-server-ver17)
-(SRC-166) und [SqlClient VECTOR](https://learn.microsoft.com/en-us/sql/connect/ado-net/sql/vector-data-sql-server?view=sql-server-ver17)
+(SRC-166), die [ODBC-Vektoranleitung](https://learn.microsoft.com/en-us/sql/connect/odbc/vector-data-type?view=sql-server-ver15)
+(SRC-173) und [SqlClient VECTOR](https://learn.microsoft.com/en-us/sql/connect/ado-net/sql/vector-data-sql-server?view=sql-server-ver17)
 (SRC-167) wurden am 2026-11-17 für Typstatus, Plattformgrenze und dokumentierte native Treiberunterstützung geprüft. Die Quelle
 [AI_GENERATE_CHUNKS](https://learn.microsoft.com/en-us/sql/t-sql/functions/ai-generate-chunks-transact-sql?view=sql-server-ver17)
 (SRC-079) wurde für diesen Abgleich am 2026-10-13 erneut geprüft. Die Quellen
