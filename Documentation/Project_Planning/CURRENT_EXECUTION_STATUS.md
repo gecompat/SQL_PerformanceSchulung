@@ -13073,3 +13073,14 @@ in den synthetischen Evidenzvertrag gelangen. Der Vertrag weist jetzt IDs ab
 Hidden-Schedulerbereich ab. Die Änderung bindet Callerwerte weiterhin nicht
 an authentische DMV-Zeilen. Fachquelle: [Microsoft `sys.dm_os_schedulers`](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-os-schedulers-transact-sql?view=sql-server-ver17),
 Abruf 17.11.2026.
+
+## Lehrmittel-Releasebuild 2026-11-17
+
+Die Entwicklungswelle endete nach PRs #1028 und #1029 bei sauberem `main`,
+ohne offene PRs und mit erfolgreichen PR- sowie Main-Push-Checks. Danach wurden
+die drei Profildecks aus Master-Hash
+`17c55c8f4e6a2ff06cd1e7d81118bdc5e50021d395f157aa65ed38351054d787` gebaut,
+gerendert und geprüft. Details, Artefakt-Hashes und die Datenschutzgrenze des
+lokalen Buildordners stehen im [Releasebericht](W_PRS_001_TEACHING_RELEASE.md#nachfolgender-releasebuild-vom-2026-11-17).
+Die SQL-Runtime- und Produktgates aus anderen Entwicklungszweigen bleiben
+unverändert offen; dieser Foliensatz-Release schließt sie nicht.
