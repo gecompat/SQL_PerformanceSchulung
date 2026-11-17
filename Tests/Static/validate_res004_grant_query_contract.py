@@ -42,6 +42,18 @@ def validate_sql(sql: str) -> None:
         uncommented = without_tsql_comments(sql)
     except ValueError as exc:
         raise ContractError(str(exc)) from exc
+    executable = without_tsql_comments_or_literals(uncommented)
+    cte_match = re.search(r";\s*WITH\s+OwnWaits\b", executable, re.IGNORECASE)
+    prefix = executable[:cte_match.start()] if cte_match is not None else executable
+    if (cte_match is None or re.search(
+        r"(?:^|;)\s*(?:SELECT|INSERT|UPDATE|DELETE|MERGE|EXEC(?:UTE)?)\b",
+        prefix,
+        flags=re.IGNORECASE | re.MULTILINE,
+    ) is not None):
+        raise ContractError(
+            "query preamble must not emit resultsets or execute additional statements "
+            "before the OwnWaits CTE"
+        )
     normalized = " ".join(without_tsql_comments_or_literals(sql).split()).casefold()
     try:
         own_waits = extract_tsql_cte_body(sql, "OwnWaits")

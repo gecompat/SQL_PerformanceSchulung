@@ -22,6 +22,12 @@ class GrantQueryContractTests(unittest.TestCase):
     def test_current_teaching_query_is_bound(self) -> None:
         validate_markdown(source_markdown())
 
+    def test_additional_result_statement_before_cte_is_rejected(self) -> None:
+        query = extract_query(source_markdown())
+        altered = "SELECT CAST(0 AS int) AS unintended_result;\n" + query
+        with self.assertRaisesRegex(ContractError, "preamble must not emit resultsets"):
+            validate_sql(altered)
+
     def test_request_join_must_match_request_id(self) -> None:
         query = extract_query(source_markdown())
         altered = query.replace("AND r.request_id = mg.request_id", "AND r.request_id = 0", 1)
@@ -183,7 +189,9 @@ class GrantQueryContractTests(unittest.TestCase):
 
     def test_cte_declaration_text_inside_string_is_ignored(self) -> None:
         query = extract_query(source_markdown())
-        altered = "DECLARE @Text nvarchar(80) = N'OwnWaits AS (not a CTE)';\n" + query
+        altered = (
+            "DECLARE @Text nvarchar(80) = N'OwnWaits AS (SELECT not a CTE)';\n" + query
+        )
         validate_sql(altered)
 
     def test_unterminated_block_comment_fails_closed(self) -> None:
