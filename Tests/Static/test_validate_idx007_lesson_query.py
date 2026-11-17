@@ -33,6 +33,55 @@ class Idx007LessonQueryTests(unittest.TestCase):
         errors = validate_lesson(broken)
         self.assertTrue(any("only page latch waits" in error for error in errors))
 
+    def test_line_comment_cannot_supply_the_page_latch_filter(self) -> None:
+        broken = SOURCE.replace(
+            "WHERE r.wait_type = N'PAGELATCH_EX'",
+            "-- WHERE r.wait_type = N'PAGELATCH_EX'\nWHERE 1 = 1",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("only page latch waits" in error for error in errors))
+
+    def test_block_comment_cannot_supply_the_wait_duration(self) -> None:
+        broken = SOURCE.replace(
+            "        r.wait_time,",
+            "        /* r.wait_time, */",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("documented DMV column" in error for error in errors))
+
+    def test_comment_markers_inside_bracketed_identifiers_are_preserved(self) -> None:
+        section_start = SOURCE.index("## Lesende Zuordnung einer aktuellen Request-Seite")
+        fence = SOURCE.index("```sql", section_start)
+        injected = "SELECT 1 AS [label--/* identifier */];\n"
+        insert_at = fence + len("```sql\n")
+        with_identifier = SOURCE[:insert_at] + injected + SOURCE[insert_at:]
+        self.assertEqual(validate_lesson(with_identifier), ())
+
+    def test_unterminated_comment_is_rejected(self) -> None:
+        broken = SOURCE.replace("        r.wait_time,", "        r.wait_time, /* unfinished", 1)
+        errors = validate_lesson(broken)
+        self.assertTrue(any("malformed lexical structure" in error for error in errors))
+
+    def test_unterminated_string_is_rejected(self) -> None:
+        broken = SOURCE.replace(
+            "HAVING COUNT(DISTINCT session_id) >= 2;",
+            "HAVING COUNT(DISTINCT session_id) >= 2;\nSELECT N'unfinished",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("malformed lexical structure" in error for error in errors))
+
+    def test_unterminated_bracket_identifier_is_rejected(self) -> None:
+        broken = SOURCE.replace(
+            "HAVING COUNT(DISTINCT session_id) >= 2;",
+            "HAVING COUNT(DISTINCT session_id) >= 2;\nSELECT [unfinished",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("malformed lexical structure" in error for error in errors))
+
     def test_ambiguous_duplicate_sql_block_is_rejected(self) -> None:
         section_start = SOURCE.index("## Lesende Zuordnung einer aktuellen Request-Seite")
         fence = SOURCE.index("```sql", section_start)

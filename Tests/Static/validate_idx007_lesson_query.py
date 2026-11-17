@@ -8,6 +8,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from sql_lexical_utils import without_tsql_comments
+
 
 ROOT = Path(__file__).resolve().parents[2]
 LESSON = ROOT / "Documentation/Curriculum/LAST_PAGE_INSERT_CONTENTION_LESSON.md"
@@ -25,7 +27,11 @@ def validate_lesson(text: str) -> tuple[str, ...]:
     if len(blocks) != 1:
         return ("IDX-007 request-page section must contain exactly one SQL block",)
 
-    sql = re.sub(r"\s+", " ", blocks[0]).casefold()
+    try:
+        uncommented = without_tsql_comments(blocks[0])
+    except ValueError as exc:
+        return (f"IDX-007 query has malformed lexical structure: {exc}",)
+    sql = re.sub(r"\s+", " ", uncommented).casefold()
     required = {
         "request wait duration uses the documented DMV column": "r.wait_time",
         "page resource is decoded": "sys.fn_pagerescracker(r.page_resource)",

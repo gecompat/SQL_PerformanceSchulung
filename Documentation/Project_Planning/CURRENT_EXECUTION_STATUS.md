@@ -12283,3 +12283,15 @@ Blockkommentare ab. Fünf Regressionen schützen diese Fälle; die Abfragesuite
 besteht mit elf Tests, die Offline-Evidenzsuite weiterhin mit 24 Tests.
 Abfrage- und Methodenvertragvalidator bestehen. Der Prüfer bleibt ein
 Strukturvergleich und führt kein T-SQL-Parsing oder Runtime-/DMV-Nachweis aus.
+
+### IDX-007 – Kommentarinhalt kann Pflichtbedingungen nicht mehr vortäuschen (17. November 2026)
+
+Ein reproduzierter Negativfall zeigte, dass der statische Lehrabfragevalidator
+die entfernte `PAGELATCH_EX`-Bedingung weiter akzeptierte, wenn ihr Text nur in
+einem SQL-Kommentar stand. RES-004 und IDX-007 verwenden nun einen gemeinsamen
+lexikalischen T-SQL-Kommentarfilter, der verschachtelte Blockkommentare,
+Zeichenketten und geklammerte Bezeichner berücksichtigt und unvollständige
+Kommentare beziehungsweise Quoting-Strukturen ablehnt. Sechs neue IDX-007-
+Regressionen sichern Kommentar-Täuschung für Wait-Filter und Wait-Dauer sowie
+einen unvollständigen Kommentar. Der Prüfer bleibt statisch; Seitenketten- und
+Runtimebelege sind dadurch nicht erbracht.
