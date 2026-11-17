@@ -22,6 +22,38 @@ class Res001LessonQueryTests(unittest.TestCase):
         errors = validate_lesson(broken)
         self.assertTrue(any("capture marker declaration" in error for error in errors))
 
+    def test_conditional_result_statement_after_marker_is_rejected(self) -> None:
+        broken = SOURCE.replace(
+            "DECLARE @CapturedUtc datetime2(7) = SYSUTCDATETIME();",
+            "DECLARE @CapturedUtc datetime2(7) = SYSUTCDATETIME();\n"
+            "IF 1 = 1 SELECT CAST(0 AS int) AS unintended_result;",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("followed directly by the scheduler snapshot" in error
+                            for error in errors))
+
+    def test_block_wrapped_result_statement_after_marker_is_rejected(self) -> None:
+        broken = SOURCE.replace(
+            "DECLARE @CapturedUtc datetime2(7) = SYSUTCDATETIME();",
+            "DECLARE @CapturedUtc datetime2(7) = SYSUTCDATETIME();\n"
+            "BEGIN SELECT CAST(0 AS int) AS unintended_result; END;",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("followed directly by the scheduler snapshot" in error
+                            for error in errors))
+
+    def test_session_state_statement_after_marker_is_rejected(self) -> None:
+        broken = SOURCE.replace(
+            "DECLARE @CapturedUtc datetime2(7) = SYSUTCDATETIME();",
+            "DECLARE @CapturedUtc datetime2(7) = SYSUTCDATETIME();\nSET NOEXEC ON;",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("followed directly by the scheduler snapshot" in error
+                            for error in errors))
+
     def test_worker_queue_column_is_required(self) -> None:
         broken = SOURCE.replace("       work_queue_count\n", "", 1)
         self.assertTrue(any("worker queue count" in error for error in validate_lesson(broken)))
