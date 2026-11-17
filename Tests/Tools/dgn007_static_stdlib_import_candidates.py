@@ -80,6 +80,40 @@ HASHLIB_EXTENSION_FACTS = {
     "usr/local/lib/python3.12/lib-dynload/_sha2.cpython-312-x86_64-linux-gnu.so": "6dfdfdcd99c8a57a7218fd7f30f50d9b66c143af9793ac5b02aacd11ecb39cb7",
     "usr/local/lib/python3.12/lib-dynload/_sha3.cpython-312-x86_64-linux-gnu.so": "1cd34c41f43f6f8d93abf79e6d8d2d940062824e57ff778913a1e7bf9b4450f7",
 }
+HASHLIB_BUILTIN_FALLBACK_BRANCHES = (
+    (88, "name in {'SHA1', 'sha1'}", ("SHA1", "sha1"), "_sha1",
+     "usr/local/lib/python3.12/lib-dynload/_sha1.cpython-312-x86_64-linux-gnu.so",
+     ("import _sha1", "cache['SHA1'] = cache['sha1'] = _sha1.sha1")),
+    (91, "name in {'MD5', 'md5'}", ("MD5", "md5"), "_md5",
+     "usr/local/lib/python3.12/lib-dynload/_md5.cpython-312-x86_64-linux-gnu.so",
+     ("import _md5", "cache['MD5'] = cache['md5'] = _md5.md5")),
+    (94, "name in {'SHA256', 'sha256', 'SHA224', 'sha224'}",
+     ("SHA224", "sha224", "SHA256", "sha256"), "_sha2",
+     "usr/local/lib/python3.12/lib-dynload/_sha2.cpython-312-x86_64-linux-gnu.so",
+     ("import _sha2", "cache['SHA224'] = cache['sha224'] = _sha2.sha224",
+      "cache['SHA256'] = cache['sha256'] = _sha2.sha256")),
+    (98, "name in {'SHA512', 'sha512', 'SHA384', 'sha384'}",
+     ("SHA384", "sha384", "SHA512", "sha512"), "_sha2",
+     "usr/local/lib/python3.12/lib-dynload/_sha2.cpython-312-x86_64-linux-gnu.so",
+     ("import _sha2", "cache['SHA384'] = cache['sha384'] = _sha2.sha384",
+      "cache['SHA512'] = cache['sha512'] = _sha2.sha512")),
+    (102, "name in {'blake2b', 'blake2s'}", ("blake2b", "blake2s"), "_blake2",
+     "usr/local/lib/python3.12/lib-dynload/_blake2.cpython-312-x86_64-linux-gnu.so",
+     ("import _blake2", "cache['blake2b'] = _blake2.blake2b",
+      "cache['blake2s'] = _blake2.blake2s")),
+    (106, "name in {'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512'}",
+     ("sha3_224", "sha3_256", "sha3_384", "sha3_512"), "_sha3",
+     "usr/local/lib/python3.12/lib-dynload/_sha3.cpython-312-x86_64-linux-gnu.so",
+     ("import _sha3", "cache['sha3_224'] = _sha3.sha3_224",
+      "cache['sha3_256'] = _sha3.sha3_256",
+      "cache['sha3_384'] = _sha3.sha3_384",
+      "cache['sha3_512'] = _sha3.sha3_512")),
+    (112, "name in {'shake_128', 'shake_256'}",
+     ("shake_128", "shake_256"), "_sha3",
+     "usr/local/lib/python3.12/lib-dynload/_sha3.cpython-312-x86_64-linux-gnu.so",
+     ("import _sha3", "cache['shake_128'] = _sha3.shake_128",
+      "cache['shake_256'] = _sha3.shake_256")),
+)
 PICKLE_SOURCE_SHA256 = "7e3447b6d993a6306a7893fd2fba916010ed79f8e09ceb56158a550fa8099a14"
 POSIX_MODULE_CLINIC_MEMBER = "Python-3.12.16/Modules/clinic/posixmodule.c.h"
 POSIX_MODULE_CLINIC_SHA256 = "dd89b7a30073abfad8f082966f135a343ca4e1b7b856e3ba696a6e9c27870747"
@@ -7717,6 +7751,66 @@ def _target_hashlib_name_condition_facts(files):
     }
 
 
+def _target_hashlib_builtin_fallback_file_candidates(
+        files, condition_facts, target_image_facts):
+    """Join pinned hashlib fallback branches to target-image file candidates."""
+    if (type(files) is not dict or type(condition_facts) is not dict
+            or type(target_image_facts) is not dict):
+        return []
+    source = files.get("hashlib.py")
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != HASHLIB_SOURCE_SHA256):
+        return []
+    try:
+        tree = ast.parse(source, filename="hashlib.py")
+    except SyntaxError:
+        return []
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef)
+                 and node.name == "__get_builtin_constructor"]
+    if len(functions) != 1:
+        return []
+    expected_lines = {row[0] for row in HASHLIB_BUILTIN_FALLBACK_BRANCHES}
+    branch_nodes = {
+        node.lineno: node for node in ast.walk(functions[0])
+        if isinstance(node, ast.If) and node.lineno in expected_lines
+    }
+    if set(branch_nodes) != expected_lines:
+        return []
+
+    image_extensions = target_image_facts.get("hashlib_extension_facts")
+    if type(image_extensions) is not dict:
+        return []
+    candidates = []
+    for line, condition, names, module, image_path, body in (
+            HASHLIB_BUILTIN_FALLBACK_BRANCHES):
+        node = branch_nodes.get(line)
+        image_fact = image_extensions.get(image_path)
+        expected_digest = HASHLIB_EXTENSION_FACTS.get(image_path)
+        if (node is None or ast.unparse(node.test) != condition
+                or tuple(ast.unparse(statement) for statement in node.body) != body
+                or condition_facts.get(("hashlib", "hashlib.py", line))
+                != (False, True)
+                or type(image_fact) is not dict
+                or image_fact.get("sha256") != expected_digest
+                or type(image_fact.get("size")) is not int
+                or not 0 <= image_fact["size"] <= MAX_S15_FILE_BYTES):
+            return []
+        candidates.append({
+            "source_path": "hashlib.py",
+            "guard_line": line,
+            "algorithm_names": list(names),
+            "fallback_module": module,
+            "image_path": image_path,
+            "sha256": expected_digest,
+            "size": image_fact["size"],
+            "evidence_scope": "STATIC_BUILTIN_FALLBACK_FILE_CANDIDATE",
+            "import_attempt_observed": False,
+            "constructor_success_observed": False,
+        })
+    return candidates
+
+
 def _target_functools_lru_cache_condition_facts(files):
     """Resolve the negative-size guard across pinned stdlib call sites."""
     if type(files) is not dict:
@@ -12748,6 +12842,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         sysconfig_name_facts.update({
             "_PYTHON_BUILD": target_image_path_facts["_PYTHON_BUILD"],
         })
+    target_hashlib_builtin_fallback_file_candidates = (
+        _target_hashlib_builtin_fallback_file_candidates(
+            files, target_hashlib_name_condition_facts,
+            target_image_path_facts,
+        )
+    )
     sysconfig_project_base_env_facts = _target_sysconfig_project_base_env_facts(
         files, target_image_config_source, target_no_project_base_override,
     ) if target_image_config_source is not None else ()
@@ -13812,6 +13912,8 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             for (module, path, line), decisions
             in target_hashlib_name_condition_facts.items()
         ],
+        "target_platform_hashlib_builtin_fallback_file_candidates":
+            target_hashlib_builtin_fallback_file_candidates,
         "target_platform_functools_lru_cache_condition_facts": [
             {"module": module, "source_path": source_path, "line": line,
              "outcomes": list(outcomes)}
