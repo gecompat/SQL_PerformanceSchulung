@@ -1,5 +1,21 @@
 # CON-006 – Fachliche Prüfung des Offline-Graph- und Capturevertrags
 
+## Nachtrag zum aktuellen Stand (17.11.2026)
+
+Dieser Review dokumentiert bewusst den am 12.11.2026 geprüften damaligen
+Parservertrag. Seitdem wurde die HoBT-Bindung im Graphprüfer verpflichtend
+gemacht; die Regressiondatei umfasst nun 20 synthetische Testmethoden. Der
+aktuelle Prüfer bindet beide Ziel-Keylocks an dieselbe Datenbank, dasselbe
+Objekt, denselben Index und dieselbe HoBT. Die konkrete Zeilenidentität
+`RowId=1` stammt weiterhin aus den fixierten Actor-Skripten und wird vom
+Graphprüfer nicht aus dem XML-Schlüsselwert ausgelesen. Daher bleibt auch die
+Aussagegrenze dieses Offline-Reviews bestehen: synthetische oder caller-gelieferte
+Daten qualifizieren weder die Laufzeitrepräsentation noch die Herkunft eines
+Capture-Records. Maßgeblich für den aktuellen Vertrag sind der
+[Graphprüfer](../../Tests/Static/con006_conversion_graph_contract.py), seine
+[Regressionen](../../Tests/Static/test_con006_conversion_graph_contract.py)
+und die [CON-006-Demobeschreibung](../../Demos/07_Concurrency/CON-006_Deadlock_Cycle/README.md).
+
 | Merkmal | Wert |
 |---|---|
 | Prüfart | unabhängige Offline-Vertrags- und Quellenprüfung vom 12.11.2026; keine Runtimeprüfung |
