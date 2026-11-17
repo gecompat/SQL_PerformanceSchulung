@@ -2010,9 +2010,10 @@ CON-002-Einzelblockierungsfall und fehlendem eigenständigem Lernzuwachs. Nach
 der ausdrücklichen Wiederaufnahme der Deadlockvarianten liegt nun ein
 [CON-006-Range-Methodenentwurf](../Documentation/Project_Planning/CON006_RANGE_DEADLOCK_METHOD.md)
 vor: Er stellt eine einzelne Wait-/Freigabefolge einem möglichen Zyklus aus
-gegenseitigen Einfügungen in eine Indexlücke gegenüber. Dies ist ein
-prüfbarer Lernzuwachsvorschlag, keine formale Freigabe, tatsächliche
-Graphbestätigung oder Laufzeitqualifikation. Gemeinsame KEY-Ressource,
+gegenseitigen Einfügungen in eine Indexlücke gegenüber. Die aktuelle
+Benutzeranweisung autorisiert die methodische Weiterentwicklung dieses
+Vorschlags; tatsächliche Graphbestätigung und Laufzeitqualifikation bleiben
+offen. Gemeinsame KEY-Ressource,
 Sperrmodi, serialer Kontrollarm, unabhängiger Methodenreview und isolierter
 Enginepilot bleiben offen. Produktgrundlage: [SRC-004](../Documentation/Research/SOURCE_REGISTER.md#src-004)
 und Deadlock-Graph-/Opferbelege [SRC-066](../Documentation/Research/SOURCE_REGISTER.md#src-066).
