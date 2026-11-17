@@ -3700,3 +3700,8 @@ erste Element erkannt, bei Abweichung gestoppt, aus den Alternativen entfernt
 und in das Subpattern verschoben. Der synthetische Negativfall kehrt den
 Vergleich um und wird abgelehnt. Nächster Schritt ist die statische Einordnung
 der Übergänge von dieser Präfixschleife zum Zeichensatz- oder Branch-Pfad.
+Checkpoint 18. November 2026: Die Reihenfolge der Einzelalternative,
+Präfixextraktion, Zeichensatzverkürzung und allgemeinen Branch-Rückgabe ist als
+eine statische Struktur gebunden. Eine Gegenprobe verschiebt den Branch vor den
+Zeichensatzpfad und wird abgelehnt. Als nächstes wird `_uniq` im gepinnten
+Parser separat an seine konkrete Deduplizierungsoperation gebunden.

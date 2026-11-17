@@ -13351,6 +13351,17 @@ zugelassenen Elementart verwerfen den synthetischen Kandidaten. Die Bindung
 belegt keine tatsächliche Auswahl der Optimierung. Als nächstes werden die
 Voraussetzungen für den gemeinsamen Alternationspräfix eingegrenzt.
 
+### DGN-007 – Subpattern-Pfade in Quellreihenfolge binden (18. November 2026)
+
+Ein neuer zusammengesetzter Kandidat prüft die geordnete Struktur in `_parse_sub`:
+Einzelalternative direkt zurückgeben, gemeinsamen Präfix entfernen, den
+Zeichensatzpfad versuchen und bei dessen Fehlschlag den allgemeinen `BRANCH`
+anhängen. Eine synthetische Gegenprobe fügt den allgemeinen Branch vor dem
+Zeichensatz-Kurzpfad ein und muss den Quellkandidaten verwerfen. Es bleibt ein
+statischer Reihenfolge-Nachweis ohne Aussage zur bedingten Laufzeitauswahl.
+Nächster Kandidat: `_uniq` im gepinnten Parser an seine konkrete
+Deduplizierungsoperation binden.
+
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 
 Der statische Kandidat bindet jetzt den Präfixscan in `_parse_sub`: leere

@@ -8608,6 +8608,80 @@ def _target_re_parser_common_prefix_candidate(files):
     }
 
 
+def _target_re_parser_subpattern_branch_order_candidate(files):
+    """Bind ordering of prefix, character-set, and general branch paths."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    parsers = [node for node in tree.body
+               if isinstance(node, ast.FunctionDef) and node.name == "_parse_sub"]
+    if len(parsers) != 1:
+        return None
+    body = parsers[0].body
+    singleton = [i for i, node in enumerate(body)
+                 if isinstance(node, ast.If)
+                 and ast.unparse(node.test) == "len(items) == 1"]
+    prefix_candidate = _target_re_parser_common_prefix_candidate(files)
+    charset_candidate = _target_re_parser_charset_shortcut_candidate(files)
+    if prefix_candidate is None or charset_candidate is None or len(singleton) != 1:
+        return None
+    prefix_loops = [i for i, node in enumerate(body)
+                    if isinstance(node, ast.While)
+                    and isinstance(node.test, ast.Constant) and node.test.value is True
+                    and len(node.body) == 3
+                    and isinstance(node.body[0], ast.Assign)
+                    and ast.unparse(node.body[0]) == "prefix = None"
+                    and isinstance(node.body[1], ast.For)
+                    and "subpattern.append(prefix)" in ast.unparse(node.body[1])]
+    set_assignments = [i for i, node in enumerate(body)
+                       if isinstance(node, ast.Assign)
+                       and ast.unparse(node) == "set = []"]
+    charset_loops = [i for i, node in enumerate(body)
+                     if isinstance(node, ast.For)
+                     and isinstance(node.target, ast.Name)
+                     and node.target.id == "item"
+                     and isinstance(node.iter, ast.Name)
+                     and node.iter.id == "items"
+                     and node.orelse and node.body
+                     and isinstance(node.body[0], ast.If)
+                     and ast.unparse(node.body[0].test) == "len(item) != 1"]
+    branch_appends = [i for i, node in enumerate(body)
+                      if isinstance(node, ast.Expr)
+                      and isinstance(node.value, ast.Call)
+                      and ast.unparse(node.value)
+                      == "subpattern.append((BRANCH, (None, items)))"]
+    final_returns = [i for i, node in enumerate(body)
+                     if isinstance(node, ast.Return)
+                     and ast.unparse(node.value) == "subpattern"]
+    if (len(prefix_loops) != 1 or len(set_assignments) != 1
+            or len(charset_loops) != 1 or len(branch_appends) != 1
+            or not final_returns):
+        return None
+    order = [singleton[0], prefix_loops[0], set_assignments[0],
+             charset_loops[0], branch_appends[0], final_returns[-1]]
+    if order != sorted(order) or len(set(order)) != len(order):
+        return None
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "subpattern_paths_in_source_order": [
+            "single alternative returns item",
+            "extract shared prefix",
+            "try character-set shortcut",
+            "append general BRANCH",
+        ],
+        "character_set_success_returns_before_general_branch": True,
+        "general_branch_is_fallback_after_shortcut_loop": True,
+        "parser_execution_observed": False,
+        "evidence_scope": "PINNED_RE_PARSER_SUBPATTERN_PATH_ORDER_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8641,13 +8715,17 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     )
     parser_charset_candidate = _target_re_parser_charset_shortcut_candidate(files)
     parser_prefix_candidate = _target_re_parser_common_prefix_candidate(files)
+    parser_subpattern_order_candidate = (
+        _target_re_parser_subpattern_branch_order_candidate(files)
+    )
     if (cache_path_candidate is None or tokenizer_access_candidate is None
             or parser_sourceget_candidate is None
             or parser_sub_dispatch_candidate is None
             or parser_alternation_candidate is None
             or parser_multi_alternative_candidate is None
             or parser_charset_candidate is None
-            or parser_prefix_candidate is None):
+            or parser_prefix_candidate is None
+            or parser_subpattern_order_candidate is None):
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -8999,6 +9077,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_multi_alternative_candidate": parser_multi_alternative_candidate,
             "parser_charset_candidate": parser_charset_candidate,
             "parser_prefix_candidate": parser_prefix_candidate,
+            "parser_subpattern_order_candidate": parser_subpattern_order_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })
