@@ -13390,9 +13390,14 @@ Liste: Sie kombiniert die Zustandsflags, hängt Compile-Informationen und das
 kompilierte `p.data` an, terminiert mit `SUCCESS` und gibt dieselbe `code`-
 Liste zurück. `compile()` übergibt das Ergebnis an `_sre.compile`. Die
 Gegenprobe ersetzt die Listeninitialisierung und wird verworfen. Das beweist
-weder Bytecodeinhalt noch Compiler- oder Extensionausführung. Nächster
-Quellfact: Flags- und Gruppenmetadaten, die `compile()` an `_sre.compile`
-übergibt, statisch binden.
+weder Bytecodeinhalt noch Compiler- oder Extensionausführung. Die Erweiterung
+bindet zusätzlich `groupindex = p.state.groupdict`, die
+`indexgroup`-Liste der Länge `p.state.groups` und ihre Zuordnung aus
+`groupindex.items()`. Der Aufruf übergibt `flags | p.state.flags`,
+`p.state.groups - 1`, `groupindex` und `tuple(indexgroup)` an `_sre.compile`.
+Die synthetische Gegenprobe verändert die Gruppenmetadaten und wird verworfen.
+Das belegt ausschließlich die Struktur der gepinnten Quelle, keine
+Kompilierung, Ausführung oder konkrete Regex-Laufzeit.
 
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 
