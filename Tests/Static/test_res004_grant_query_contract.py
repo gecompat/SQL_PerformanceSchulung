@@ -141,10 +141,31 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "expose grant_time"):
             validate_sql(altered)
 
+    def test_grant_time_alias_must_project_the_dmv_value(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "    mg.grant_time,\n",
+            "    CONVERT(bigint, 0) AS grant_time,\n",
+            1,
+        )
+        with self.assertRaisesRegex(ContractError, "DMV grant_time value"):
+            validate_sql(altered)
+
     def test_result_must_expose_own_request_mapping(self) -> None:
         query = extract_query(source_markdown())
         altered = query.replace("         ELSE CONVERT(bit, 1) END AS is_mapped_own_request,\n", "", 1)
         with self.assertRaisesRegex(ContractError, "mapped own requests"):
+            validate_sql(altered)
+
+    def test_mapping_alias_must_reflect_matched_own_session(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "    CASE WHEN own.session_id IS NULL THEN CONVERT(bit, 0)\n"
+            "         ELSE CONVERT(bit, 1) END AS is_mapped_own_request,",
+            "    CONVERT(bit, 1) AS is_mapped_own_request,",
+            1,
+        )
+        with self.assertRaisesRegex(ContractError, "derive own-request mapping"):
             validate_sql(altered)
 
     def test_nested_alias_cannot_replace_final_grant_time_column(self) -> None:

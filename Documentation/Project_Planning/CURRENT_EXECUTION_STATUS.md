@@ -12637,3 +12637,15 @@ Regressionen schützen Schedulerzähler und Nachfolgerseiten-ID vor berechneten
 Ersatzwerten. Sechs Helfertests, 14 RES-001- und 22 IDX-007-Lehrtests sowie die
 beiden Validatoren bestehen. Dies bleibt eine begrenzte Strukturprüfung ohne
 T-SQL-Parser oder authentifizierte DMV-Aufnahme.
+
+### RES-004 – Grantzustand und Requestzuordnung an ihre Quellwerte binden (17. November 2026)
+
+Der finale RES-004-Vertrag verlangte `grant_time` und
+`is_mapped_own_request` zunächst nur als Ausgabenamen. Ein konstanter Ersatzwert
+hätte den Zustand gewährter Peer-Grants beziehungsweise die Zuordnung zum
+angeforderten eigenen Request verfälscht. Der Prüfer bindet `grant_time` jetzt
+als direkte DMV-Spalte und die Zuordnungsflagge an den CASE-Ausdruck über die
+Trefferzeile aus `OwnWaits`. Zwei Regressionen ersetzen die Werte jeweils durch
+Konstanten mit gleichem Alias. 23 fokussierte Lehrabfragetests, der
+Abfragevalidator und 24 RES-004-Offlinedatenvertragstests bestehen. Der
+Strukturvertrag authentifiziert weiterhin weder DMV-Zeilen noch reale Waits.
