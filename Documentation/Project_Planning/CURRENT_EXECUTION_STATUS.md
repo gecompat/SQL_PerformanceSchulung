@@ -12686,3 +12686,15 @@ Kommentar. Alle 25
 Lehrabfragetests, der Strukturvalidator und 24 Offlinevertragstests bestehen.
 Es bleibt eine Quellstrukturprüfung ohne T-SQL-Parser, DMV-Authentifizierung
 oder Laufzeitnachweis.
+
+### RES-004 – leere Grant-Wait-Ergebnisse fail-closed abweisen (17. November 2026)
+
+Eine zusätzliche Gegenprobe zeigte, dass ein `AND 1 = 0` hinter den beiden
+erforderlichen `OwnWaits`-Filtern den Validator passieren konnte. Damit hätte
+die Diagnoseabfrage alle eigenen Wait-Kandidaten stillschweigend unterdrückt.
+Der Vertrag bindet die `WHERE`-Bedingung nun vollständig an genau die beiden
+erforderlichen Filter; zusätzliche Einschränkungen werden abgewiesen. Eine
+Regression schützt diesen Fall. 26 Lehrabfrage- und 24 Offlinevertragstests,
+der Abfragevalidator und `git diff --check` bestehen. Die Prüfung bleibt ein
+statischer Strukturvertrag und weist keine authentische DMV-Aufnahme oder
+echten Grant-Wait nach.
