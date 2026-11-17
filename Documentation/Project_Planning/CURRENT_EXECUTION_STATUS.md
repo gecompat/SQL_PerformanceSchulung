@@ -12429,3 +12429,17 @@ und des Capturemarkers. Die IDX-007-Lehrabfragesuite besteht mit 17 Tests; die
 statischen Last-Page- und RES-004-Suiten bestehen weiterhin. Dies bleibt ein
 Quellstrukturcheck ohne T-SQL-Parser, authentifizierte DMV-Daten oder Nachweis
 der rechten Indexseite.
+
+
+### RES-001 – Scheduleridentität und Zähler in der Ergebnisausgabe binden (17. November 2026)
+
+Der RES-001-Lehrvalidator verlangte Scheduler-ID und Zähler bisher nur im
+Gesamttext. Weil `scheduler_id` auch in Filter und Sortierung vorkommt, konnte
+die ID aus der Ergebnisausgabe entfernt werden, ohne die bisherige Prüfung
+auszulösen. Der Validator bindet jetzt die finale SELECT-Projektion an den
+Capturemarker, `scheduler_id` und die vier Worker-/Runnable-/Queuezähler. Zwei
+Regressionen weisen fehlende Identitäts-/Zählerspalten und den fehlenden
+Capturemarker zurück. Die RES-001-Lehrabfragesuite besteht mit 11 Tests; die
+benachbarten RES-004-, IDX-007- und Curriculumprüfungen bestehen ebenfalls.
+Das attestiert weiterhin weder tatsächliche DMV-Herkunft noch Worker-Queue-
+Runtimeverhalten.

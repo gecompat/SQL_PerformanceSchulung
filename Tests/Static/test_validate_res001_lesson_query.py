@@ -16,6 +16,19 @@ class Res001LessonQueryTests(unittest.TestCase):
         broken = SOURCE.replace("       work_queue_count\n", "", 1)
         self.assertTrue(any("worker queue count" in error for error in validate_lesson(broken)))
 
+    def test_scheduler_identity_and_counts_must_be_projected(self) -> None:
+        broken = SOURCE.replace("       scheduler_id,\n", "", 1).replace(
+            "       work_queue_count\n", "", 1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("expose `scheduler_id`" in error for error in errors))
+        self.assertTrue(any("expose `work_queue_count`" in error for error in errors))
+
+    def test_capture_marker_must_be_projected(self) -> None:
+        broken = SOURCE.replace("SELECT @CapturedUtc AS captured_utc,\n", "SELECT\n", 1)
+        errors = validate_lesson(broken)
+        self.assertTrue(any("captured_utc" in error for error in errors))
+
     def test_cpu_runnable_and_worker_queue_metrics_stay_distinct(self) -> None:
         broken = SOURCE.replace("       runnable_tasks_count,\n", "", 1)
         self.assertTrue(any("runnable-task count" in error for error in validate_lesson(broken)))
