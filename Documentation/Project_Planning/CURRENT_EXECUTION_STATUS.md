@@ -2170,6 +2170,16 @@ Gegenbeleg (`FAIL`) und bindet `sys.dm_os_waiting_tasks` sowie
 geprüften Vertrags-/Quellenumfang. Die unabhängige Seitenkettenauflösung, ein
 fairer Vergleich und Laufzeitnachweise bleiben offen.
 
+Die [IDX-007-Lehrnotiz](../Curriculum/LAST_PAGE_INSERT_CONTENTION_LESSON.md)
+zeigt nun zusätzlich eine rein lesende Request-Momentaufnahme: `page_resource`
+wird mit `sys.fn_PageResCracker` und `sys.dm_db_page_info` auf Datenbank,
+Datei, Seite, Objekt, Index, Blattniveau und Nachfolgerzeiger abgebildet. Der
+Beispielpfad verlangt mindestens zwei aktuell wartende Sessions auf derselben
+Blattseite, erklärt aber ausdrücklich, dass dies allein keine Rechtsaußen-
+Qualifikation ergibt. Die Abfrage wurde nicht gegen SQL Server ausgeführt; die
+authentische Wait-/Header-Korrelation, Seitenkettenbestätigung und der faire
+Vergleich bleiben offen.
+
 Die Teilnehmer-Generalprobe ist nicht durchgeführt. Für die neun im
 [PRS-010-Plan](PRS_010_REHEARSAL_PLAN.md) ausgewählten Folien wurden Inhalt,
 Notes und referenzierte Paketbestandteile am aktuellen Master byteweise mit dem
