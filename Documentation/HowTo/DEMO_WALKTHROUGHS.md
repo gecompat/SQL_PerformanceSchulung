@@ -317,7 +317,7 @@ SARGability beschreibt, ob ein Prädikat als Suchargument (Search Argument) für
 
 **Kernaussage:** Catch-all wird einfach wiederverwendet (und kann unpassend sein), `OPTION (RECOMPILE)` tauscht Wiederverwendung gegen Einzelfalloptimierung, dynamisches SQL mit Bindung erzeugt je Filterform einen Plan und bleibt sicher.
 
-**Nicht gesagt wird:** Keine Rangfolge der Strategien; PSP/OPPO bleiben in OPT-009/OPT-010; ein absichtlich verwundbares Gegenbeispiel wird nicht gezeigt (kopierbarer Schadcode).
+**Nicht gesagt wird:** Keine Rangfolge der Strategien; PSP/OPPO bleiben in OPT-009/OPT-010; ein absichtlich verwundbares Gegenbeispiel wird nicht gezeigt (kopierbarer Schadcode). `OPTIMIZED_SP_EXECUTESQL` wird ebenfalls nicht ausgeführt oder gemessen. Der begrenzte SQL-Server-2025-Ausblick und seine Compile-Wait-/Statistikgrenzen stehen im [QRY-004-Demoeinstieg, Abschnitt 9](../../Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/README.md#9-interpretation).
 
 **Versionen:** SQL Server 2019–2025; Skip bei fehlenden Zustandsberechtigungen oder fehlender Cachestatistik.
 

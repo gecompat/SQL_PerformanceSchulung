@@ -2108,6 +2108,9 @@ Statistikkonfiguration sind eingeordnet. Die Einordnung behauptet keinen
 Leistungsgewinn und ändert weder Skripte noch Runtimevertrag. Aktivierung,
 Concurrent-Compile-Messung und Restore bleiben `DEFER`. Curriculum-, QRY-004-
 und Delta-Validatoren bestanden lokal; SQL wurde nicht ausgeführt.
+Der zentrale [QRY-004-Walkthrough](../HowTo/DEMO_WALKTHROUGHS.md) verlinkt
+denselben begrenzten Ausblick nun direkt aus seiner Aussagegrenze; beide
+Lesepfade kennzeichnen die Funktion als nicht ausgeführt und nicht gemessen.
 
 Die priorisierte Prüfung der CON-006-Deadlockvarianten wählt zuerst eine
 Konversionsvariante als `PROPOSED`: Sie soll konkurrierende S→X-Upgrades derselben
