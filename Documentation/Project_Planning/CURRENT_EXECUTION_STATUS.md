@@ -12805,3 +12805,16 @@ Detailqualifikation ausdrücklich fest. Das Erstreview fand im geprüften
 Methoden-/Quellenumfang keine P1/P2-Befunde; die unabhängige Gegenprüfung bleibt
 erforderlich. Isolierter Enginepilot, Deadlockgraph, serieller Kontrollarm und
 Cleanup bleiben unqualifiziert.
+
+### RES-004 – zusätzliche Quelle im OwnWaits-CTE abweisen (17. November 2026)
+
+Eine gezielte Gegenprobe ergänzte einen stets falschen `INNER JOIN` in den
+`OwnWaits`-CTE. Der bisherige Validator akzeptierte die Abfrage, obwohl der Join
+alle passenden Grant-Waits unterdrücken konnte. Der Lehrvertrag verlangt jetzt
+neben den vollständigen Session-/Requestschlüsseln auch genau die festgelegte
+Quellenfolge aus eigener Requesttabelle, Grant- und Request-DMV; zusätzliche
+Quellen und Joins werden abgewiesen. Die neue Regression reproduzierte den
+Fehler vor der Korrektur. Danach bestehen alle 29 fokussierten RES-004-
+Lehrabfragetests, der Validator und `git diff --check`. Die Prüfung bleibt
+statisch; DMV-Herkunft, echter Grant-Wait, unabhängiger Methodenreview und
+isolierter SQL-Server-2025-Pilot sind weiterhin offen.

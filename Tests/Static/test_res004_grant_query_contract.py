@@ -57,6 +57,17 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "bind its grant and request sources"):
             validate_sql(altered)
 
+    def test_additional_ownwaits_join_cannot_filter_or_multiply_wait_rows(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "    WHERE mg.grant_time IS NULL",
+            "    INNER JOIN sys.objects AS decoy ON 1 = 0\n"
+            "    WHERE mg.grant_time IS NULL",
+            1,
+        )
+        with self.assertRaises(ContractError):
+            validate_sql(altered)
+
     def test_block_comment_cannot_replace_request_id_binding(self) -> None:
         query = extract_query(source_markdown())
         altered = query.replace(
