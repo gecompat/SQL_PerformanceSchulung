@@ -12416,6 +12416,17 @@ sind mit Abrufdatum 2026-11-17 aktualisiert. Keine neue Engineausführung:
 Indexgeneration, Suchpfad und DML-Verhalten des Projektbuilds 17.0.5005.3
 bleiben unqualifiziert.
 
+Die Kompatibilitätshilfe enthält jetzt die von Microsoft dokumentierte
+read-only Abfrage von `$.Version` aus `sys.vector_indexes.build_parameters`,
+einschließlich explizitem `Unbekannt` bei fehlendem oder nicht numerischem Wert.
+Sie nennt außerdem die Rechteabhängigkeit der Metadatensichtbarkeit und grenzt
+die Abfrage von Plattform- und Suchplannachweisen ab. `SRC-097` wurde am
+17.11.2026 erneut geprüft. Der bestehende ScriptDom-Lauf parst den neuen
+Dokumentationsblock gegen die SQL-Server-2019-, 2022- und 2025-Grammatiken;
+dies belegt nur Syntax. Keine Engine- oder Vektorindexausführung, kein neuer
+Preview-/Runtime-Nachweis und keine Änderung des Status der Version 3 auf SQL
+Server 2025.
+
 
 ### IDX-007 – Seitenkettenfelder in der finalen Wait-Ausgabe binden (17. November 2026)
 

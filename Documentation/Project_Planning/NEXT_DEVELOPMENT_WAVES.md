@@ -25,6 +25,16 @@ Nachweis, numerische Ressourcenobergrenzen und ein separat autorisierter
 isolierter Pilot offen. Das bestehende IDX-010 mit gruppiertem Columnstore
 bleibt unverändert.
 
+PR #1009 integrierte die kontrollierte Offline-Buildbedingung `MAXDOP = 1`
+für beide NCCI-Arme; vollständige Sortierung, unabhängiger Methodenreview und
+Pilot bleiben offen. Der folgende einzelne Offlinepunkt verbessert den
+SQL-Server-2025-Vektor-Lesepfad mit der von Microsoft dokumentierten Abfrage
+der Indexgeneration aus `sys.vector_indexes`. Umfang: ein Arbeitspaket, ein PR,
+höchstens zwei bestehende Quellenkandidaten (`SRC-077` und `SRC-097`); keine
+neue Index-/Previewausführung, keine Suchqualifikation und keine menschliche
+Generalprobe. Der bestehende ScriptDom-Vertrag wird für genau diesen neuen
+SQL-Codeblock erweitert und an Dokumentänderungen gebunden.
+
 ### Begrenzung der Fortsetzung vom 12. November 2026
 
 Der Nutzer hat die Bearbeitung aller restlichen freigegebenen Themen fortgesetzt

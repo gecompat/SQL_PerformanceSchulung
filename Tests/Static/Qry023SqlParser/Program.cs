@@ -138,23 +138,26 @@ else
     }
 }
 
-ParseCurriculumLessonSql(
+ParseDocumentationSql(
     "Documentation/Curriculum/IMPLICIT_CONVERSION_LESSON.md",
     "QRY-002 implicit conversion");
-ParseCurriculumLessonSql(
+ParseDocumentationSql(
     "Documentation/Curriculum/HALF_OPEN_DATE_INTERVAL_LESSON.md",
     "QRY-003 half-open date intervals");
-ParseCurriculumLessonSql(
+ParseDocumentationSql(
     "Documentation/Curriculum/WORKER_QUEUE_PRESSURE_LESSON.md",
     "RES-001 worker queue pressure");
-ParseCurriculumLessonSql(
+ParseDocumentationSql(
     "Documentation/Curriculum/BUFFER_POOL_PRESSURE_LESSON.md",
     "RES-003 buffer pool pressure");
-ParseCurriculumLessonSql(
+ParseDocumentationSql(
     "Documentation/Curriculum/LAST_PAGE_INSERT_CONTENTION_LESSON.md",
     "IDX-007 last-page insert contention");
+ParseDocumentationSql(
+    "Documentation/HowTo/SQL_SERVER_2025_AI_VECTOR_COMPATIBILITY.md",
+    "SQL Server 2025 VECTOR compatibility");
 
-void ParseCurriculumLessonSql(string relativePath, string lessonName)
+void ParseDocumentationSql(string relativePath, string documentName)
 {
     var lessonPath = Path.Combine(repository, relativePath);
     var markdown = File.ReadAllText(lessonPath);
@@ -165,7 +168,7 @@ void ParseCurriculumLessonSql(string relativePath, string lessonName)
     if (blocks.Count == 0)
     {
         failed = true;
-        Console.Error.WriteLine($"FAIL {lessonName} has no fenced SQL examples");
+        Console.Error.WriteLine($"FAIL {documentName} has no fenced SQL examples");
         return;
     }
 
@@ -181,12 +184,12 @@ void ParseCurriculumLessonSql(string relativePath, string lessonName)
             {
                 failed = true;
                 Console.Error.WriteLine(
-                    $"FAIL {lessonName} example {blockNumber} ({dialect.Name}) " +
+                    $"FAIL {documentName} example {blockNumber} ({dialect.Name}) " +
                     $"{error.Line}:{error.Column} {error.Message}");
             }
             if (errors.Count == 0)
                 Console.WriteLine(
-                    $"PASS {lessonName} example {blockNumber} parses in {dialect.Name} " +
+                    $"PASS {documentName} example {blockNumber} parses in {dialect.Name} " +
                     "(syntax only)");
         }
     }

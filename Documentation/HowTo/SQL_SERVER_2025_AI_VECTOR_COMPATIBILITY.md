@@ -41,9 +41,42 @@ Die Suchsyntax hängt ebenfalls von der Generation ab: frühere Versionen nutzen
 APPROXIMATE`. Microsoft ordnet Postfilterung, die Read-only-Grenze nach dem
 Indexbuild und den clustered-`int`-Primärschlüssel den früheren Versionen zu.
 Ermitteln Sie vor der Wahl des Suchpfads die Generation des konkreten Indexes
-und lesen Sie dessen Metadaten. Die Plattformdokumentation beweist weder die
-Generation noch den tatsächlichen Suchplan eines bestimmten Builds. Der
-Projektbuild 17.0.5005.3 bleibt hierbei unqualifiziert; der
+und lesen Sie dessen Metadaten. Microsoft dokumentiert dafür eine
+`JSON_VALUE`-Abfrage auf `sys.vector_indexes.build_parameters` (`SRC-077`):
+
+```sql
+SELECT
+    s.name AS schema_name,
+    t.name AS table_name,
+    i.name AS index_name,
+    TRY_CONVERT(int, JSON_VALUE(v.build_parameters, '$.Version')) AS index_version,
+    CASE
+        WHEN TRY_CONVERT(int, JSON_VALUE(v.build_parameters, '$.Version')) >= 3
+            THEN N'Version 3 oder neuer'
+        WHEN TRY_CONVERT(int, JSON_VALUE(v.build_parameters, '$.Version')) < 3
+            THEN N'Frühere Version'
+        ELSE N'Unbekannt'
+    END AS version_status
+FROM sys.vector_indexes AS v
+JOIN sys.indexes AS i
+    ON i.object_id = v.object_id
+   AND i.index_id = v.index_id
+JOIN sys.tables AS t
+    ON t.object_id = v.object_id
+JOIN sys.schemas AS s
+    ON s.schema_id = t.schema_id
+WHERE v.object_id = OBJECT_ID(N'dbo.Chunks', N'U')
+ORDER BY i.name;
+```
+
+`build_parameters` ist laut Katalogdokumentation ein internes Feld. Die
+versionsbezogene Auswertung ist hier deshalb auf den von Microsoft dokumentierten
+Migrations-/Prüfpfad beschränkt; ein fehlender oder nicht numerischer Wert ergibt
+`Unbekannt` und darf nicht als frühere Generation interpretiert werden. Eine
+leere Ergebnismenge beweist ebenfalls nicht, dass kein Index existiert, denn die
+Metadatensichtbarkeit hängt von Besitz und erteilten Rechten ab (`SRC-097`). Die
+Metadaten zeigen weder die Plattformverfügbarkeit noch den tatsächlichen
+Suchplan. Der Projektbuild 17.0.5005.3 bleibt hierbei unqualifiziert; der
 [Build-/Suchbefund](../Project_Planning/SQL_SERVER_2025_AI_ANN_BUILD_REVIEW.md)
 erläutert die Grenze.
 
@@ -181,7 +214,8 @@ Die Primärquellen [VECTOR](https://learn.microsoft.com/en-us/sql/t-sql/data-typ
 (SRC-079) wurde für diesen Abgleich am 2026-10-13 erneut geprüft. Die Quellen
 [`CREATE VECTOR INDEX`](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-vector-index-transact-sql?view=sql-server-ver17)
 (SRC-077) und [`VECTOR_SEARCH`](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-search-transact-sql?view=sql-server-ver17)
-(SRC-078) wurden am 2026-11-17 nur hinsichtlich Indexgeneration,
+(SRC-078) sowie [`sys.vector_indexes`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-vector-indexes-transact-sql?view=sql-server-ver17)
+(SRC-097) wurden am 2026-11-17 hinsichtlich Indexgeneration,
 Plattformverfügbarkeit und Suchsyntax erneut geprüft. Weitere
 Quellenangaben stehen im [Quellenregister](../Research/SOURCE_REGISTER.md).
 Der allgemeine Prüfstand der übrigen Featurematrix bleibt 2026-10-11.
