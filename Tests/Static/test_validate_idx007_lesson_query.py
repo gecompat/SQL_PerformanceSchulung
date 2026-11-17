@@ -28,6 +28,23 @@ class Idx007LessonQueryTests(unittest.TestCase):
         errors = validate_lesson(broken)
         self.assertTrue(any("minimum wait duration" in error for error in errors))
 
+    def test_final_result_must_expose_page_partition_and_successor(self) -> None:
+        broken = SOURCE.replace(
+            "    index_id,\n    partition_id,\n    page_level,\n    next_page_file_id,\n    next_page_page_id,\n",
+            "    index_id,\n",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("partition_id" in error for error in errors))
+        self.assertTrue(any("next_page_file_id" in error for error in errors))
+
+    def test_final_result_must_expose_capture_marker(self) -> None:
+        broken = SOURCE.replace(
+            "    @capture_started_at_utc AS capture_started_at_utc,\n", "", 1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("capture_started_at_utc" in error for error in errors))
+
     def test_wait_filter_regression_is_rejected(self) -> None:
         broken = SOURCE.replace("r.wait_type = N'PAGELATCH_EX'", "r.wait_type = N'PAGEIOLATCH_EX'", 1)
         errors = validate_lesson(broken)
