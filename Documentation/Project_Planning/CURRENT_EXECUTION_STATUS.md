@@ -2073,6 +2073,13 @@ Fortsetzungsanweisung vom 7. November 2026 die kumulative Planungsobergrenze
 18 Arbeitspakete, 26 Pull Requests und 63 Quellen-/Testkandidaten; sie ist kein
 Geld- oder Provider-Ausgabenlimit.
 
+Die Zeitprüfung dieses Vertrages akzeptiert nun RFC-3339-Zeitpunkte mit bis zu
+sieben Nachkommastellen und vergleicht die siebte Stelle exakt. Sie ist bei
+`datetime2(7)` relevant; acht Stellen
+werden zurückgewiesen. Positiv-, Reihenfolge- und Überpräzisionsgegenproben
+stehen im bestehenden Offline-Test. Das ändert weder Caller-Eingabevertrauen
+noch die gesperrte Runtimeprobe ([Microsoft `datetime2`](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17)).
+
 Die Lehrnotiz zu konkurrierenden Grants erklärt nun zusätzlich die getrennten
 Scopes dieser Prozess- und Betriebssystemsignale und grenzt sie von
 Buffer-Pool-Verdrängung und `RESOURCE_SEMAPHORE` ab. Das ist eine quellengebundene
