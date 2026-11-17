@@ -27,13 +27,31 @@ bleibt unverändert.
 
 PR #1009 integrierte die kontrollierte Offline-Buildbedingung `MAXDOP = 1`
 für beide NCCI-Arme; vollständige Sortierung, unabhängiger Methodenreview und
-Pilot bleiben offen. Der folgende einzelne Offlinepunkt verbessert den
-SQL-Server-2025-Vektor-Lesepfad mit der von Microsoft dokumentierten Abfrage
-der Indexgeneration aus `sys.vector_indexes`. Umfang: ein Arbeitspaket, ein PR,
-höchstens zwei bestehende Quellenkandidaten (`SRC-077` und `SRC-097`); keine
-neue Index-/Previewausführung, keine Suchqualifikation und keine menschliche
-Generalprobe. Der bestehende ScriptDom-Vertrag wird für genau diesen neuen
-SQL-Codeblock erweitert und an Dokumentänderungen gebunden.
+Pilot bleiben offen. PR #1010 integrierte danach die dokumentierte Abfrage der
+Indexgeneration aus `sys.vector_indexes` samt ScriptDom-Prüfung für den
+SQL-Server-2025-Vektor-Lesepfad. Der Zusatz dokumentiert weiterhin keine
+Projektbuild- oder Suchqualifikation.
+
+Der nächste Offlinepunkt hat den Build-/Editionskandidaten anhand von `SRC-083`
+und `SRC-165` quellengebunden eingegrenzt. PR #941 erfasste Build
+`17.0.5065.9`, Digest
+`sha256:05644dad1266ca3d445d1e8f6d2ebb9a6a03df9a39376e0f7b48917356dca9d9`
+und `MSSQL_PID=Developer`; die damalige Ausgabe enthält jedoch keine
+`SERVERPROPERTY('Edition')`-Auswertung und kein NCCI-`ORDER`-Verhalten. Die
+Microsoft-Quellen belegen `ORDER` für NCCI ab SQL Server 2025 und Columnstore
+in Enterprise, Standard und Express. Sie führen `ORDER` nicht separat pro
+Edition auf; da die Methode Offlinebuilds vorsieht, wird keine Onlineoperation
+vorausgesetzt. Der Digest bleibt historische Kandidatenevidenz, kein
+unveränderlicher Pilot-Lock oder Projektqualifikation.
+
+Umfang dieser Offlinewelle: ein Arbeitspaket, ein PR und höchstens zwei bereits
+registrierte Quellen-/Vertragskandidaten. Der nächste anschlussfähige Schritt
+ist der unabhängige Methodenreview; danach können numerische Ressourcen- und
+Zeitobergrenzen sowie ein unveränderlicher Pilot-Lock festgelegt werden. Kein
+Image-Pull, Containerstart, SQL-/Lab-Lauf, keine neue Demo-ID, Such-/NCCI-
+Qualifikation oder menschliche Generalprobe. Der separat autorisierte
+isolierte Pilot bleibt ein eigenes Gate. Es gibt keinen Budgetreset;
+Token- und Geldverbrauch sind nicht verlässlich gemessen.
 
 ### Begrenzung der Fortsetzung vom 12. November 2026
 

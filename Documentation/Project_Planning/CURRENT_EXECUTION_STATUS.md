@@ -12862,3 +12862,19 @@ Buffer-Pool-Signale und Einfügungen auf der letzten Indexseite gegen alle drei
 Grammatiken geprüft. Diese Prüfung verhindert Syntaxdrift in den betroffenen
 Lesepfaden, qualifiziert aber weder aktuelle Ressourcenwerte noch Waits,
 Seitenketten oder Engine-Runtime.
+
+### IDX-010 – NCCI-Build- und Editionskandidat quellengebunden eingegrenzt (17. November 2026)
+
+Der frühere Kataloglauf aus PR #941 bindet Build `17.0.5065.9`, den damals
+beobachteten Digest `sha256:05644dad1266ca3d445d1e8f6d2ebb9a6a03df9a39376e0f7b48917356dca9d9`
+und eine Containerkonfiguration mit `MSSQL_PID=Developer`. Der Lauf enthält
+keine ausgewertete `SERVERPROPERTY('Edition')`-Ausgabe und prüft kein NCCI-
+`ORDER`-Verhalten; der Digest ist deshalb nur historische Kandidatenevidenz,
+kein Lauf-Lock. Der Quellenabgleich mit `SRC-083` und `SRC-165` bestätigt
+`ORDER` für NCCI ab SQL Server 2025 und Columnstore-Unterstützung in den
+aufgelisteten Editionen. Die Editionsmatrix nennt `ORDER` nicht separat je
+Edition; die Methodik verwendet Offlinebuilds und benötigt damit keine
+editionsabhängige Onlineoperation. Der Methodenentwurf hält fest, dass der
+spätere Lauf Digest, Build und tatsächliche Edition selbst binden muss.
+Unabhängiger Methodenreview, numerische Zeit-/Ressourcengrenzen und isolierter
+Pilot bleiben offen. Keine Imageaktion, SQL-Ausführung oder Runtimequalifikation.
