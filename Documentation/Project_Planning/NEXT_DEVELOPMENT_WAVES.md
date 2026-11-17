@@ -3695,3 +3695,8 @@ sind an genau-ein-Element-Alternativen, `LITERAL` und nicht-negierte `IN`
 gebunden. Die Schleifen-`else`-Kante führt zum `IN`-Subpattern. Eine Mutation
 der Elementart wird verworfen. Nächster statischer Kandidat: Erkennung und
 Extraktion gemeinsamer Präfixe der Alternativen.
+Checkpoint 18. November 2026: Der gemeinsame Präfix wird jetzt über das gleiche
+erste Element erkannt, bei Abweichung gestoppt, aus den Alternativen entfernt
+und in das Subpattern verschoben. Der synthetische Negativfall kehrt den
+Vergleich um und wird abgelehnt. Nächster Schritt ist die statische Einordnung
+der Übergänge von dieser Präfixschleife zum Zeichensatz- oder Branch-Pfad.

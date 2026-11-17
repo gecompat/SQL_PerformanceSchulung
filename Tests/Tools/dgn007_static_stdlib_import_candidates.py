@@ -8553,6 +8553,61 @@ def _target_re_parser_charset_shortcut_candidate(files):
     }
 
 
+def _target_re_parser_common_prefix_candidate(files):
+    """Bind common-prefix recognition and extraction in the pinned parser."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    parsers = [node for node in tree.body
+               if isinstance(node, ast.FunctionDef) and node.name == "_parse_sub"]
+    if len(parsers) != 1:
+        return None
+    expected_prefix_scan = (
+        "for item in items:\n"
+        "    if not item:\n"
+        "        break\n"
+        "    if prefix is None:\n"
+        "        prefix = item[0]\n"
+        "    elif item[0] != prefix:\n"
+        "        break\n"
+        "else:\n"
+        "    for item in items:\n"
+        "        del item[0]\n"
+        "    subpattern.append(prefix)\n"
+        "    continue"
+    )
+    candidates = [node for node in parsers[0].body
+                  if isinstance(node, ast.While)
+                  and isinstance(node.test, ast.Constant)
+                  and node.test.value is True
+                  and len(node.body) == 3
+                  and isinstance(node.body[0], ast.Assign)
+                  and ast.unparse(node.body[0]) == "prefix = None"
+                  and isinstance(node.body[1], ast.For)
+                  and ast.unparse(node.body[1]) == expected_prefix_scan
+                  and isinstance(node.body[2], ast.Break)]
+    if len(candidates) != 1:
+        return None
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "prefix_initial_value": None,
+        "prefix_comparison": "item[0] == prefix",
+        "empty_alternative_stops_prefix_scan": True,
+        "mismatch_stops_prefix_scan": True,
+        "common_prefix_removed_from_each_alternative": "del item[0]",
+        "common_prefix_added_to_subpattern": "subpattern.append(prefix)",
+        "scan_repeats_after_prefix_extraction": True,
+        "parser_execution_observed": False,
+        "evidence_scope": "PINNED_RE_PARSER_COMMON_PREFIX_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8585,12 +8640,14 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
         _target_re_parser_multi_alternative_return_candidate(files)
     )
     parser_charset_candidate = _target_re_parser_charset_shortcut_candidate(files)
+    parser_prefix_candidate = _target_re_parser_common_prefix_candidate(files)
     if (cache_path_candidate is None or tokenizer_access_candidate is None
             or parser_sourceget_candidate is None
             or parser_sub_dispatch_candidate is None
             or parser_alternation_candidate is None
             or parser_multi_alternative_candidate is None
-            or parser_charset_candidate is None):
+            or parser_charset_candidate is None
+            or parser_prefix_candidate is None):
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -8941,6 +8998,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_alternation_candidate": parser_alternation_candidate,
             "parser_multi_alternative_candidate": parser_multi_alternative_candidate,
             "parser_charset_candidate": parser_charset_candidate,
+            "parser_prefix_candidate": parser_prefix_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })
