@@ -8711,6 +8711,59 @@ def _target_re_parser_uniq_candidate(files):
     }
 
 
+def _target_re_compiler_branch_candidate(files):
+    """Bind how the pinned compiler lowers a general BRANCH subpattern."""
+    source = files.get("re/_compiler.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_COMPILER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_compiler.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef) and node.name == "_compile"]
+    if len(functions) != 1:
+        return None
+    branches = [node for node in ast.walk(functions[0])
+                if isinstance(node, ast.If)
+                and ast.unparse(node.test) == "op is BRANCH"]
+    if len(branches) != 1:
+        return None
+    body = branches[0].body
+    if (len(body) != 6 or ast.unparse(body[0]) != "emit(op)"
+            or ast.unparse(body[1]) != "tail = []"
+            or ast.unparse(body[2]) != "tailappend = tail.append"
+            or not isinstance(body[3], ast.For)
+            or ast.unparse(body[3].target) != "av"
+            or ast.unparse(body[3].iter) != "av[1]"
+            or [ast.unparse(node) for node in body[3].body] != [
+                "skip = _len(code)", "emit(0)", "_compile(code, av, flags)",
+                "emit(JUMP)", "tailappend(_len(code))", "emit(0)",
+                "code[skip] = _len(code) - skip",
+            ]
+            or ast.unparse(body[4]) != "emit(FAILURE)"
+            or not isinstance(body[5], ast.For)
+            or ast.unparse(body[5].target) != "tail"
+            or ast.unparse(body[5].iter) != "tail"
+            or len(body[5].body) != 1
+            or ast.unparse(body[5].body[0])
+            != "code[tail] = _len(code) - tail"):
+        return None
+    return {
+        "source_path": "re/_compiler.py",
+        "source_sha256": RE_COMPILER_SOURCE_SHA256,
+        "compiler_branch_operator": "BRANCH",
+        "alternative_container_expression": "av[1]",
+        "alternative_compile_call": "_compile(code, av, flags)",
+        "branch_end_marker": "FAILURE",
+        "branch_join_operator": "JUMP",
+        "tail_offsets_patched_after_alternatives": True,
+        "compiler_execution_observed": False,
+        "evidence_scope": "PINNED_RE_COMPILER_BRANCH_LOWERING_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8748,6 +8801,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
         _target_re_parser_subpattern_branch_order_candidate(files)
     )
     parser_uniq_candidate = _target_re_parser_uniq_candidate(files)
+    compiler_branch_candidate = _target_re_compiler_branch_candidate(files)
     if (cache_path_candidate is None or tokenizer_access_candidate is None
             or parser_sourceget_candidate is None
             or parser_sub_dispatch_candidate is None
@@ -8756,7 +8810,8 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or parser_charset_candidate is None
             or parser_prefix_candidate is None
             or parser_subpattern_order_candidate is None
-            or parser_uniq_candidate is None):
+            or parser_uniq_candidate is None
+            or compiler_branch_candidate is None):
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -9110,6 +9165,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_prefix_candidate": parser_prefix_candidate,
             "parser_subpattern_order_candidate": parser_subpattern_order_candidate,
             "parser_uniq_candidate": parser_uniq_candidate,
+            "compiler_branch_candidate": compiler_branch_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })

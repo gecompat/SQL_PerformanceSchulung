@@ -13372,6 +13372,17 @@ behauptet keine Ausführung oder konkrete Laufzeitmenge. Eine Mutation auf
 Branch-Opers und der Subpattern-Elementformen, die von den gebundenen
 Alternativpfaden erzeugt werden.
 
+### DGN-007 – BRANCH-Subpattern an Compilerabsenkung binden (18. November 2026)
+
+Die an `_parse_sub` gebundene allgemeine Form `(BRANCH, (None, items))` ist
+jetzt mit dem `BRANCH`-Zweig in `_compile` der gepinnten `re/_compiler.py`
+verbunden. Statisch gebunden sind die Alternativenliste `av[1]`, rekursive
+Kompilierung pro Alternative, `JUMP`-Verbinder, der abschließende
+`FAILURE`-Marker und das abschließende Patchen der Sprungziele. Der Compiler
+wurde nicht ausgeführt; es gibt keine Bytecode- oder Laufzeitbeobachtung.
+Nächster Kandidat: die Shape- und Übergabebindung zwischen Parserausgabe,
+Compilerargument und Regex-Bytecode-Container erweitern.
+
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 
 Der statische Kandidat bindet jetzt den Präfixscan in `_parse_sub`: leere
