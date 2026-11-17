@@ -12371,3 +12371,15 @@ Szenario-SQL-Bindung von Graphbefund. Die gezielte Suite besteht mit 20 Tests,
 der CON-006-Quellvalidator und `git diff --check` bestehen. Das authentifiziert
 weiterhin weder caller-geliefertes Graph-XML noch dessen Herkunft aus einer
 Engine; die bestehende Laufzeitqualifikation bleibt davon unberührt.
+
+
+### CON-006 – Graphfehlermeldung und Regressionenzahl an den Vertrag angleichen (17. November 2026)
+
+Der SQL-Fehlertext bezeichnete den Graphnachweis noch als `same-key`, obwohl
+die Abfrage Datenbank, Objekt, Index und HoBT prüft und keinen Schlüsselwert
+aus dem Graphen liest. Die Meldung nennt jetzt genau diese geprüfte Identität.
+Die Lehrnotiz gibt außerdem die durch die neue HoBT-Regression aktualisierte
+Zahl von 20 Offline-Regressionen an. Der statische CON-006-Validator, die
+20 fokussierten Regressionen, der Curriculumvalidator und `git diff --check`
+bestehen; Runtimeverhalten und qualifizierte Deadlockvariante ändern sich
+nicht.
