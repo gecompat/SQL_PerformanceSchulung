@@ -12904,3 +12904,7 @@ Requestfeld `r.wait_time` gleichsetzt. 31 Lehrabfrage- und 24 Offline-
 Grant-Wait-Vertragstests sowie Lehrvalidator und ADV-006/007-Designvalidator
 bestehen. Dies ist statische Quellen-/Synthetikevidenz; DMV-Herkunft,
 Methodenreview und isolierter SQL-Server-2025-Pilot bleiben offen.
+
+### IDX-007 – Blattfilter und Zwei-Session-Schwelle an die Endausgabe binden (17. November 2026)
+
+Eine reproduzierte Gegenprobe ersetzte den finalen Blattfilter `index_id > 0 AND page_level = 0` durch einen wirkungslosen `CASE`-Ausdruck; der bisherige Validator akzeptierte die Abfrage. Auch die Schwelle von mindestens zwei Sessions wurde nicht an die finale Gruppierung gebunden. Der Validator verlangt jetzt die vollständige Schlussklausel der Ergebnisabfrage mit Blattfilter, vollständigen Seitengruppierungsschlüsseln und `HAVING COUNT(DISTINCT session_id) >= 2`. Zwei Regressionen sichern die Filter- und Schwellenfälle. 32 fokussierte Lehrabfragetests, der Validator und 13 Offlinevertragstests bestehen lokal. Das bleibt ein statischer Strukturcheck; Wait-Herkunft, Seitenkette, Splitverhalten und SQL-Server-Laufzeit sind nicht qualifiziert.

@@ -3451,3 +3451,7 @@ Eine Negativprobe ergänzte `AND 1 = 0` hinter den Scheduler-Scope-Filtern. Der 
 ### IDX-007 – Terminaldarstellung erneut quellengeprüft (17. November 2026)
 
 Die Microsoft-Learn-Seite `sys.dm_db_page_info` wurde am aktuellen Stand erneut geprüft: Sie führt die Nachbarseitenfelder auf, dokumentiert an dieser Stelle aber keinen Terminal-Sentinel. `SRC-172` trägt das aktuelle Abrufdatum. Der Quellencheck entscheidet den Terminalwert nicht; unabhängiger Review, isolierter Enginepilot, Seiten-Cap und Splitverhalten bleiben als Gates bestehen. Kein SQL wurde ausgeführt.
+
+### IDX-007 – Blattseitenfilter und Konkurrenzschwelle an die Ergebnisabfrage binden (17. November 2026)
+
+Eine Negativprobe zeigte, dass die IDX-007-Prüfung die erforderlichen Blattfilter nur irgendwo im SQL-Text fand und deshalb einen wirkungslosen `CASE` statt des finalen Filters akzeptierte. Die Schlussklausel ist jetzt exakt an Blattindexfilter, Gruppierung sämtlicher Seitenkettenfelder und eine Mindestgruppe von zwei wartenden Sessions gebunden. Zwei Regressionen decken einen Decoy-Filter und eine abgesenkte `HAVING`-Schwelle ab. Die statischen Lehr- und Offlineverträge bestehen. Umfang: ein Arbeitspaket, ein PR, keine neue Quelle und keine SQL-/Runtimeausführung. Unabhängiger Methodenreview, bestätigter Terminalwert, Seiten-/Zeitgrenzen, Splitverhalten und isolierter Enginepilot bleiben offen.

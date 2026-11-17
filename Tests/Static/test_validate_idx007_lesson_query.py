@@ -83,6 +83,35 @@ class Idx007LessonQueryTests(unittest.TestCase):
         errors = validate_lesson(broken)
         self.assertTrue(any("aggregate value" in error for error in errors))
 
+    def test_final_page_filters_must_restrict_returned_rows(self) -> None:
+        broken = SOURCE.replace(
+            "WHERE index_id > 0\n  AND page_level = 0",
+            "WHERE 1 = 1\n  AND CASE WHEN page_level = 0 THEN 1 ELSE 1 END = 1",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("final result must apply" in error for error in errors))
+
+    def test_two_session_threshold_must_apply_to_final_groups(self) -> None:
+        broken = SOURCE.replace(
+            "HAVING COUNT(DISTINCT session_id) >= 2",
+            "HAVING COUNT(DISTINCT session_id) >= 1",
+            1,
+        ).replace(
+            "    page_level, next_page_file_id, next_page_page_id\n"
+            "HAVING COUNT(DISTINCT session_id) >= 1;",
+            "    page_level, next_page_file_id, next_page_page_id\n"
+            "HAVING COUNT(DISTINCT session_id) >= 1\n"
+            "  AND CASE WHEN COUNT(DISTINCT session_id) >= 2 THEN 1 ELSE 1 END = 1;",
+            1,
+        )
+        self.assertIn(
+            "AND CASE WHEN COUNT(DISTINCT session_id) >= 2 THEN 1 ELSE 1 END = 1",
+            broken,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("final result must apply" in error for error in errors))
+
     def test_final_result_must_expose_capture_marker(self) -> None:
         broken = SOURCE.replace(
             "    @capture_started_at_utc AS capture_started_at_utc,\n", "", 1,
