@@ -5355,7 +5355,17 @@ def deferred():
                 b"    subpattern = SubPattern(state)\n"
                 b"    if prefix:\n"
                 b"        subpattern.append(prefix)\n"
-                b"    if can_set:\n"
+                b"    for item in items:\n"
+                b"        if len(item) != 1:\n"
+                b"            break\n"
+                b"        op, av = item[0]\n"
+                b"        if op is LITERAL:\n"
+                b"            set.append((op, av))\n"
+                b"        elif op is IN and av[0][0] is not NEGATE:\n"
+                b"            set.extend(av)\n"
+                b"        else:\n"
+                b"            break\n"
+                b"    else:\n"
                 b"        subpattern.append((IN, _uniq(set)))\n"
                 b"        return subpattern\n"
                 b"    subpattern.append((BRANCH, (None, items)))\n"
@@ -5552,6 +5562,23 @@ def deferred():
                 and row["parser_multi_alternative_candidate"][
                     "subpattern_return_sites"] == 2
                 and not row["parser_multi_alternative_candidate"][
+                    "parser_execution_observed"]
+                for row in candidates
+            ))
+            self.assertTrue(all(
+                row["parser_charset_candidate"][
+                    "each_alternative_must_have_one_item"]
+                == "len(item) != 1 breaks shortcut"
+                and row["parser_charset_candidate"]["accepted_item_kinds"]
+                == ["LITERAL", "non-NEGATE IN"]
+                and row["parser_charset_candidate"]["literal_items_added_as"]
+                == "set.append((op, av))"
+                and row["parser_charset_candidate"][
+                    "positive_character_set_items_added_as"] == "set.extend(av)"
+                and row["parser_charset_candidate"][
+                    "shortcut_on_full_loop_completion"]
+                == "subpattern.append((IN, _uniq(set)))"
+                and not row["parser_charset_candidate"][
                     "parser_execution_observed"]
                 for row in candidates
             ))
@@ -5756,6 +5783,24 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_branch_shape,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_charset_kind = dict(files)
+            altered_charset_kind["re/_parser.py"] = altered_charset_kind[
+                "re/_parser.py"
+            ].replace(b"elif op is IN", b"elif op is NOT_IN", 1)
+            altered_charset_digest = hashlib.sha256(
+                altered_charset_kind["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_charset_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_charset_kind,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),

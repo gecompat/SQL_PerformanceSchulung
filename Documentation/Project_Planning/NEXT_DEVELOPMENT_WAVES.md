@@ -3690,3 +3690,8 @@ sind jetzt an `items[0]`, `SubPattern`, `IN`-Zeichensatz und allgemeinen
 muss den Kandidaten ablehnen. Nächster begrenzter Checkpoint: Voraussetzungen
 des Zeichensatz-Kurzpfads statisch binden, ohne seine Auswahl oder Ausführung
 zu behaupten.
+Checkpoint 18. November 2026: Die Voraussetzungen des Zeichensatz-Kurzpfads
+sind an genau-ein-Element-Alternativen, `LITERAL` und nicht-negierte `IN`
+gebunden. Die Schleifen-`else`-Kante führt zum `IN`-Subpattern. Eine Mutation
+der Elementart wird verworfen. Nächster statischer Kandidat: Erkennung und
+Extraktion gemeinsamer Präfixe der Alternativen.
