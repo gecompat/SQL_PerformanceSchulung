@@ -5186,15 +5186,47 @@ def deferred():
             SUBJECT._regex_inline_flag_directive_candidates(42),
         )
 
+    def test_regex_verbose_ignored_syntax_candidates_skip_escapes_and_classes(self):
+        self.assertEqual(
+            SUBJECT._regex_verbose_ignored_syntax_candidates(
+                "a b[ c]\x5c d#note\nz", frozenset(" " + "\x09\x0a\x0d\x0b\x0c"),
+            ),
+            [
+                {"offset": 1, "kind": "WHITESPACE"},
+                {"offset": 10, "kind": "COMMENT_MARKER"},
+            ],
+        )
+        self.assertEqual(
+            SUBJECT._regex_verbose_ignored_syntax_candidates(
+                b"x\x09#bytes", frozenset(" " + "\x09\x0a\x0d\x0b\x0c"),
+            ),
+            [
+                {"offset": 1, "kind": "WHITESPACE"},
+                {"offset": 2, "kind": "COMMENT_MARKER"},
+            ],
+        )
+        self.assertEqual(
+            SUBJECT._regex_verbose_ignored_syntax_candidates(
+                "escaped\x5c space[#]", frozenset(" "),
+            ),
+            [],
+        )
+        self.assertIsNone(
+            SUBJECT._regex_verbose_ignored_syntax_candidates("x", {" "}),
+        )
+        self.assertIsNone(
+            SUBJECT._regex_verbose_ignored_syntax_candidates(42, frozenset(" ")),
+        )
+
     def test_re_compile_literal_types_bind_to_pinned_tokenizer_source_flow(self):
         files = {
             "pkg.py": (
                 b"import re\n"
-                b"re.compile('text')\n"
-                b"re.compile(b'bytes')\n"
+                b"re.compile('text space')\n"
+                b"re.compile(b'bytes[ x]')\n"
                 b"FLAGS = re.VERBOSE | re.MULTILINE\n"
-                b"re.compile('flagged', re.VERBOSE | re.MULTILINE)\n"
-                b"re.compile('named', FLAGS)\n"
+                b"re.compile('flagged #note\\nnext', re.VERBOSE | re.MULTILINE)\n"
+                b"re.compile('named\\\\ pattern', FLAGS)\n"
             ),
             "re/__init__.py": (
                 b"import enum\n"
@@ -5229,6 +5261,7 @@ def deferred():
                 b"SRE_FLAG_VERBOSE = 64\n"
             ),
             "re/_parser.py": (
+                b"WHITESPACE = frozenset(' \\t\\n\\r\\v\\f')\n"
                 b"class Tokenizer:\n"
                 b"    def __init__(self, string):\n"
                 b"        self.istext = isinstance(string, str)\n"
@@ -5286,6 +5319,20 @@ def deferred():
             )
             self.assertTrue(all(row["inline_verbose_flag_scan_bound"]
                                 for row in candidates))
+            self.assertEqual(
+                [row[
+                    "verbose_ignored_syntax_candidates_if_verbose_and_literal_bound"
+                ] for row in candidates],
+                [
+                    [{"offset": 4, "kind": "WHITESPACE"}],
+                    [],
+                    [
+                        {"offset": 7, "kind": "WHITESPACE"},
+                        {"offset": 8, "kind": "COMMENT_MARKER"},
+                    ],
+                    [],
+                ],
+            )
             self.assertEqual(
                 [row["flags_resolution"] for row in candidates],
                 ["PINNED_DEFAULT_ZERO", "PINNED_DEFAULT_ZERO",
@@ -5351,6 +5398,24 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_verbose,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_whitespace = dict(files)
+            altered_whitespace["re/_parser.py"] = altered_whitespace[
+                "re/_parser.py"
+            ].replace(b"WHITESPACE =", b"OTHERSPACE =", 1)
+            altered_whitespace_digest = hashlib.sha256(
+                altered_whitespace["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_whitespace_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_whitespace,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
@@ -11270,6 +11335,10 @@ static struct PyModuleDef sysmodule = {
         )
         self.assertIn("inline_verbose_flag_scan_bound", labels)
         self.assertIn("LEXICAL_INLINE_REGEX_FLAG_CANDIDATE", labels)
+        self.assertIn(
+            "verbose_ignored_syntax_candidates_if_verbose_and_literal_bound",
+            labels,
+        )
         self.assertIn("target_platform_source_candidates", labels)
         self.assertIn(
             "MODULE_CLASS_AND_KNOWN_LINUX_CPYTHON312_IF_BUILTIN_AND_IMPORTED_MODULE_NAME_BRANCHES",
