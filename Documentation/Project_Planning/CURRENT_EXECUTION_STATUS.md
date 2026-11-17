@@ -12087,3 +12087,16 @@ CPU-Zeit warten. Kumulative Wait-Stats werden als Historie und nicht als
 Livezustand eingeordnet. Die bestehende RES-001-Offlineprüfung bleibt
 caller-supplied und synthetisch; tatsächliche DMV-Herkunft, echte
 Worker-Erschöpfung und Last-/Recovery-Qualifikation bleiben offen.
+
+### `OPTIMIZED_SP_EXECUTESQL`: separater Concurrent-Compile-Methodenentwurf (17. November 2026)
+
+Der [Methodenentwurf](OPTIMIZED_SP_EXECUTESQL_CONCURRENT_COMPILE_DESIGN.md)
+legt einen isolierten SQL-Server-2025-Versuch mit getrennten OFF-/ON-Armen,
+identischem dynamischem Batch, synchronisierten Actors, festgehaltenem
+Statistikzustand, buildgebundener Compile-/Wait-Evidenz und vollständigem
+Restore fest. Die Microsoft-Troubleshootingquellen belegen noch keine genaue
+XE-Ereignis-/Feldzuordnung für dynamische `sp_executesql`-Batches. Diese
+Zuordnung und ein unabhängiger Methodenreview sind die nächsten Gates. Es gab
+keinen SQL-, XE-, Datenbank- oder Runtimeaufruf; `QRY-004` blieb unverändert.
+Aktivierung, Demo-ID und Performanceclaim bleiben `DEFER`; menschliche
+Generalprobe ausgeschlossen.

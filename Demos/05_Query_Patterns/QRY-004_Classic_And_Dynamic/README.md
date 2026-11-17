@@ -95,6 +95,8 @@ Die Funktion ändert weder die Notwendigkeit sicherer Parameterbindung noch die 
 
 Microsoft empfiehlt bei aktivierter automatischer Statistikaktualisierung vor dem Einschalten zusätzlich `AUTO_UPDATE_STATISTICS_ASYNC` und `ASYNC_STATS_UPDATE_WAIT_AT_LOW_PRIORITY`. Das sind eigenständige Konfigurationsentscheidungen mit möglichen Auswirkungen auf Statistikfrische und Warteverhalten; asynchrone Statistikaktualisierung kann eine Kompilierung mit noch nicht aktualisierten Statistiken zulassen. Ein künftiger Vergleich müsste ihren Zustand festhalten, dazu identische und abweichende Statementtexte, Compile-/Wait-/Planablage-Evidenz sowie vollständigen Vorher-/Restore-Nachweis erfassen. Bis dahin bleiben Aktivierung, Runtimequalifikation und Performanceclaim gemäß [SQL-Server-2025-Delta-Review](../../../Documentation/Project_Planning/SQL_SERVER_2025_DELTA_REVIEW.md) zurückgestellt.
 
+Ein möglicher separater Versuch ist im [Methodenentwurf zur konkurrierenden Kompilierung](../../../Documentation/Project_Planning/OPTIMIZED_SP_EXECUTESQL_CONCURRENT_COMPILE_DESIGN.md) beschrieben. Er ist nicht ausführbar und ändert den Status oder Vertrag dieser Demo nicht.
+
 ## 10. Cleanup und Wiederherstellung
 
 `90_Cleanup.sql` liest die vier Eigentumsmarker `SQLPERF.Project`, `SQLPERF.ContractVersion`, `SQLPERF.DemoId` und `SQLPERF.RunToken` aus der Zieldatenbank und entfernt sie nur bei vollständiger Übereinstimmung. Fehlt die Datenbank, endet der Cleanup idempotent mit `PASS`.
@@ -116,6 +118,7 @@ Die Planform- und Lesewerte stammen aus `sys.dm_exec_procedure_stats` beziehungs
 | `SRC-045` (Dynamic Search Conditions in T-SQL (Transact-SQL; SQL-Server-Dialekt der Abfragesprache SQL)) | Dynamische Suchbedingungen, Recompile und parameterisiertes dynamisches SQL |
 | `SRC-049` (Handling Optional Parameters) | Catch-all-Prädikate und Schätzfehler bei optionalen Parametern |
 | `SRC-058`, `SRC-059` | `OPTIMIZED_SP_EXECUTESQL`: Verfügbarkeit, Voreinstellung, Compile-Serialisierung und eigenständiger Statistik-/Wait-Kontext; keine Runtime- oder Performancequalifikation durch QRY-004 |
+| `SRC-161`, `SRC-162` | Compile-Lock-Diagnosegrenzen und Diagnoseoverhead; keine dynamische Batchressourcen-/XE-Feldqualifikation |
 
 ## 14. Traceability
 
