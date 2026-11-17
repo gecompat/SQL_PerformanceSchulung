@@ -87,6 +87,36 @@ class MemorySignalContractTests(unittest.TestCase):
         )
         self.assertEqual(evaluate_memory_signals(TOKEN, unordered, START, "2026-11-07T10:03:00Z").verdict, Verdict.FAIL)
 
+    def test_datetime2_seven_digit_fraction_is_accepted(self):
+        samples = (
+            MemorySignalSample(TOKEN, Phase.BASELINE, "2026-11-07T10:00:00.1234566Z", False, False),
+            MemorySignalSample(TOKEN, Phase.PRESSURE, "2026-11-07T10:00:00.1234567Z", True, False),
+            MemorySignalSample(TOKEN, Phase.RECOVERY, "2026-11-07T10:00:00.1234568Z", False, False),
+        )
+        result = evaluate_memory_signals(
+            TOKEN, samples, "2026-11-07T10:00:00.1234565Z", "2026-11-07T10:00:00.1234569Z"
+        )
+        self.assertEqual(result.verdict, Verdict.PASS)
+
+    def test_seventh_fraction_digit_controls_strict_phase_order(self):
+        samples = (
+            MemorySignalSample(TOKEN, Phase.BASELINE, "2026-11-07T10:00:00.1234567Z", False, False),
+            MemorySignalSample(TOKEN, Phase.PRESSURE, "2026-11-07T10:00:00.1234568Z", True, False),
+            MemorySignalSample(TOKEN, Phase.RECOVERY, "2026-11-07T10:00:00.12345675Z", False, False),
+        )
+        result = evaluate_memory_signals(
+            TOKEN, samples, "2026-11-07T10:00:00.1234566Z", "2026-11-07T10:00:00.1234569Z"
+        )
+        self.assertEqual(result.verdict, Verdict.FAIL)
+
+    def test_eight_digit_fraction_is_rejected(self):
+        samples = list(fixture())
+        samples[1] = MemorySignalSample(TOKEN, Phase.PRESSURE, "2026-11-07T10:01:00.12345678Z", True, False)
+        self.assertEqual(
+            evaluate_memory_signals(TOKEN, tuple(samples), START, "2026-11-07T10:03:00Z").verdict,
+            Verdict.FAIL,
+        )
+
     def test_capture_outside_window_fails(self):
         self.assertEqual(evaluate_memory_signals(TOKEN, fixture(), "2026-11-07T10:00:30Z", "2026-11-07T10:03:00Z").verdict, Verdict.FAIL)
 

@@ -1,18 +1,21 @@
 """Offline contract for caller-supplied RES-003 memory signal snapshots.
 
-This checks a declared baseline/pressure/recovery sequence only. It does not
-collect or authenticate DMV data, establish causality, or qualify a pressure run.
+This checks a declared baseline/pressure/recovery sequence only. Timestamp
+ordering preserves datetime2(7)'s seventh fractional digit. It does not collect
+or authenticate DMV data, establish causality, or qualify a pressure run.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
+from decimal import Decimal, InvalidOperation
 from enum import Enum
 import re
 
 
 _RFC3339 = re.compile(
-    r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})\Z"
+    r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})"
+    r"(?:\.(\d{1,7}))?(Z|[+-]\d{2}:\d{2})\Z"
 )
 
 
@@ -46,14 +49,22 @@ class Result:
     recovery_signals_clear: bool
 
 
-def _timestamp(value: object) -> datetime | None:
-    if type(value) is not str or not _RFC3339.fullmatch(value):
+def _timestamp(value: object) -> tuple[datetime, Decimal] | None:
+    if type(value) is not str:
         return None
+    match = _RFC3339.fullmatch(value)
+    if match is None:
+        return None
+    base, fraction, offset = match.groups()
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError:
+        parsed = datetime.fromisoformat(base + ("+00:00" if offset == "Z" else offset))
+        fractional_second = Decimal("0." + fraction) if fraction is not None else Decimal(0)
+        if parsed.utcoffset() is None:
+            return None
+        instant = parsed.astimezone(timezone.utc)
+    except (ValueError, InvalidOperation, OverflowError):
         return None
-    return parsed if parsed.utcoffset() is not None else None
+    return instant, fractional_second
 
 
 def evaluate_memory_signals(
