@@ -5353,8 +5353,21 @@ def deferred():
                 b"    if len(items) == 1:\n"
                 b"        return items[0]\n"
                 b"    subpattern = SubPattern(state)\n"
-                b"    if prefix:\n"
-                b"        subpattern.append(prefix)\n"
+                b"    while True:\n"
+                b"        prefix = None\n"
+                b"        for item in items:\n"
+                b"            if not item:\n"
+                b"                break\n"
+                b"            if prefix is None:\n"
+                b"                prefix = item[0]\n"
+                b"            elif item[0] != prefix:\n"
+                b"                break\n"
+                b"        else:\n"
+                b"            for item in items:\n"
+                b"                del item[0]\n"
+                b"            subpattern.append(prefix)\n"
+                b"            continue\n"
+                b"        break\n"
                 b"    for item in items:\n"
                 b"        if len(item) != 1:\n"
                 b"            break\n"
@@ -5582,6 +5595,25 @@ def deferred():
                     "parser_execution_observed"]
                 for row in candidates
             ))
+            self.assertTrue(all(
+                row["parser_prefix_candidate"]["prefix_initial_value"] is None
+                and row["parser_prefix_candidate"]["prefix_comparison"]
+                == "item[0] == prefix"
+                and row["parser_prefix_candidate"][
+                    "empty_alternative_stops_prefix_scan"]
+                and row["parser_prefix_candidate"][
+                    "mismatch_stops_prefix_scan"]
+                and row["parser_prefix_candidate"][
+                    "common_prefix_removed_from_each_alternative"] == "del item[0]"
+                and row["parser_prefix_candidate"][
+                    "common_prefix_added_to_subpattern"]
+                == "subpattern.append(prefix)"
+                and row["parser_prefix_candidate"][
+                    "scan_repeats_after_prefix_extraction"]
+                and not row["parser_prefix_candidate"][
+                    "parser_execution_observed"]
+                for row in candidates
+            ))
             self.assertTrue(all(not row["standard_re_flag_binding_observed"]
                                 for row in candidates))
 
@@ -5801,6 +5833,24 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_charset_kind,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_prefix = dict(files)
+            altered_prefix["re/_parser.py"] = altered_prefix[
+                "re/_parser.py"
+            ].replace(b"item[0] != prefix", b"item[0] == prefix", 1)
+            altered_prefix_digest = hashlib.sha256(
+                altered_prefix["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_prefix_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_prefix,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),

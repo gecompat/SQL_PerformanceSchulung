@@ -13351,6 +13351,16 @@ zugelassenen Elementart verwerfen den synthetischen Kandidaten. Die Bindung
 belegt keine tatsächliche Auswahl der Optimierung. Als nächstes werden die
 Voraussetzungen für den gemeinsamen Alternationspräfix eingegrenzt.
 
+### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
+
+Der statische Kandidat bindet jetzt den Präfixscan in `_parse_sub`: leere
+Alternativen oder ein abweichendes erstes Element stoppen die Erkennung. Wenn
+alle Alternativen dasselbe erste Element besitzen, wird es aus jeder Alternative
+entfernt, an das Subpattern angehängt und der Scan wiederholt. Eine Mutation der
+Vergleichsrichtung verwirft den Kandidaten. Das belegt weder einen konkreten
+Musterpräfix noch Laufzeit-Optimierung. Als nächstes folgt die Zuordnung der
+Übergänge zwischen Präfixscan, Zeichensatz-Kurzpfad und allgemeinem Branch.
+
 ### DGN-007 – Mehrfachalternativen und Subpattern-Rückgaben binden (17. November 2026)
 
 Der statische Kandidat unterscheidet jetzt die Rückgabe `items[0]` für eine
