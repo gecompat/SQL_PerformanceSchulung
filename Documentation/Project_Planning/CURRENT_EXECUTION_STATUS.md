@@ -12513,3 +12513,19 @@ beobachtete Rechtsaußenlage begrenzt. Die Seitenkette wird an den Wait-Rändern
 nicht erneut gelesen; Split-/Zeitfenster- und Enginefragen bleiben offen. Das
 ist eine Methoden-/Dokumentationskorrektur ohne SQL-Ausführung, Seitenketten-
 Runtimeprobe oder Performanceaussage.
+
+
+### CON-006 – Schlüsselbereichsvariante an die dokumentierte Lockmatrix binden (17. November 2026)
+
+Der zurückgestellte Range-Methodenentwurf und die Deadlock-Lehrnotiz nennen
+jetzt die quellengestützte Hypothese hinter dem vorgeschlagenen Versuch:
+Microsoft beschreibt `RangeS-S` für serialisierbare Bereichslesungen und
+`RangeI-N` als Einfügebereichsprüfung; diese Modi sind für überlappende
+Schlüsselbereiche inkompatibel. Unter Optimized Locking wird `RangeI-N` laut
+aktuellem Guide nur erworben, wenn mindestens eine Transaktion der Instanz
+`SERIALIZABLE` nutzt; beide geplanten Actors erfüllen dies. Das belegt weder,
+dass der konkrete Plan beide Prädikate derselben physischen `KEY`-Ressource
+zuordnet, noch einen Deadlockgraphen oder Opfer/Survivor. `SRC-004` ist zum
+Quellenstand 2026-11-17 aktualisiert. Range bleibt `METHOD_DRAFT`/zurückgestellt;
+kein SQL-Lauf, keine Demo-ID und keine Erweiterung der qualifizierten
+CON-006-Grund- oder Konversionsvariante.

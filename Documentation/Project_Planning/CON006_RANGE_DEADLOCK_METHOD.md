@@ -45,6 +45,22 @@ dem gewünschten Index ausführt oder dass sie dieselbe physische KEY-Ressource
 schützen. Ein Lauf ohne diesen Nachweis ist `NOT_PROVEN`, auch wenn ein Actor
 blockiert.
 
+## Quellenbasierte Lockhypothese – kein vorweggenommener Graph
+
+Microsoft bezeichnet `RangeS-S` als geteilte Bereichs-/Ressourcensperre einer
+serialisierbaren Bereichslesung und `RangeI-N` als Einfügebereichsprüfung. Die
+Kompatibilitätsmatrix weist diese Modi für überlappende Schlüsselbereiche als
+inkompatibel aus. Sie beschreibt außerdem, dass unter Optimized Locking eine
+`RangeI-N`-Sperre nur erworben wird, wenn mindestens eine Transaktion auf der
+Instanz `SERIALIZABLE` verwendet. Beide Kandidaten-Actors erfüllen diese
+Isolationsbedingung. Diese Produktregeln machen den erwarteten Wait-Zyklus
+plausibel; sie beweisen nicht, dass die konkreten Prädikate mit dem tatsächlichen
+Plan auf denselben `KEY`-Hash abgebildet werden oder dass der Deadlockgraph genau
+diese einfachen Modi ausgibt. Der Pflichtnachweis bleibt der reale Graph samt
+Ressource, gehaltenen/angeforderten Modi, Opfer und Survivor. Konversionsmodi
+werden aus dem beobachteten Graphen gelesen, nicht aus dem Szenariotitel
+abgeleitet.
+
 ## Pflichtnachweis für einen Varianten-PASS
 
 - Beide Actors müssen im Deadlockgraph an dieselbe markergebundene Datenbank,
@@ -83,7 +99,7 @@ Offlinevertrag kann diese Gates nicht ersetzen.
 
 ## Quellen und Grenzen
 
-- [`SRC-004`: Transaction locking and row versioning guide](../Research/SOURCE_REGISTER.md#src-004) beschreibt Schlüsselbereichssperren, deren Voraussetzungen und Kompatibilität. Die Folgerung, dass zwei logisch verschiedene Suchprädikate in derselben Indexlücke konkurrieren könnten, ist eine Hypothese aus dem vorgeschlagenen Indexaufbau.
+- [`SRC-004`: Transaction locking and row versioning guide](../Research/SOURCE_REGISTER.md#src-004) beschreibt Schlüsselbereichsmodi, ihre Kompatibilität, Voraussetzungen und die Optimized-Locking-Bedingung für `RangeI-N`. Die Folgerung, dass zwei logisch verschiedene Suchprädikate in derselben Indexlücke konkurrieren könnten, ist eine Hypothese aus dem vorgeschlagenen Indexaufbau.
 - [`SRC-066`: Deadlocks guide](../Research/SOURCE_REGISTER.md#src-066) beschreibt Deadlockgraphen und Opferauflösung.
 - [`SRC-068`: system_health](../Research/SOURCE_REGISTER.md#src-068) beschreibt die vorhandene, begrenzte Deadlockereignisquelle.
 

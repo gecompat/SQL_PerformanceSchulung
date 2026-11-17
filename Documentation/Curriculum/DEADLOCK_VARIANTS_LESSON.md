@@ -84,6 +84,14 @@ legt dafür einen signalgesteuerten Kandidaten und einen seriellen Kontrollarm
 fest. Beide Varianten bleiben ohne unabhängigen Methodenreview und isolierten
 Enginepilot unqualifiziert.
 
+Die Herstellerdokumentation bezeichnet `RangeS-S` als Sperre einer
+`SERIALIZABLE`-Bereichslesung und `RangeI-N` als Einfügebereichsprüfung; für
+überlappende Bereiche sind diese Modi inkompatibel (`SRC-004`). Das erklärt,
+warum der Kandidat plausibel ist, belegt aber weder denselben physischen
+`KEY`-Eintrag noch einen Zyklus dieses konkreten Index- und Planaufbaus. Auf
+SQL Server 2025 wird zusätzlich der tatsächliche Optimized-Locking-Zustand
+festgehalten; die konkrete Graphausgabe bleibt Pflicht.
+
 ## Quellen
 
 - Microsoft Learn, [Transaction locking and row versioning guide](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-transaction-locking-and-row-versioning-guide?view=sql-server-ver17): zurückgehaltene gemeinsame Sperren, Konversion zu `X`, `UPDLOCK`-Muster und Schlüsselbereichssperren.
