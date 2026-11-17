@@ -13013,4 +13013,7 @@ Koordinator und Runtime-Receipt verlangen nun genau vier CPU und 8192 MB;
 Regressionen weisen sowohl zu große CPU- als auch Speicherlimits zurück. Die
 66 fokussierten Koordinator-/Runner-Tests bestehen lokal. Das prüft den
 deklarativen Vertrag; es attestiert weder physische Hostressourcen noch
-Exklusivität oder einen erfolgreichen SQL-Incidentlauf.
+Exklusivität oder einen erfolgreichen SQL-Incidentlauf. Das geschlossene
+DGN-007-Offline-AST-Profil bindet den geänderten Runner mit einem neu
+ermittelten Python-3.12-Digest; der Fingerprint selbst ist kein Ausführungs-
+oder Laufzeitnachweis.

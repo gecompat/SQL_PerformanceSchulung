@@ -3497,4 +3497,6 @@ Der Koordinator ließ bisher höhere CPU- und Speicherlimits als die festgelegte
 Vergleichswerte 4 CPU/8 GiB durch. Koordinator und Capture-Receipt verlangen
 jetzt exakt diese Konfiguration; synthetische Regressionen weisen größere
 Werte zurück. 66 fokussierte Tests bestehen. Hostkapazität, Hostexklusivität,
-Incidentherkunft und SQL-Runtime bleiben davon unbewiesen.
+Incidentherkunft und SQL-Runtime bleiben davon unbewiesen. Das geschlossene
+Python-3.12-AST-Profil wurde für den geänderten Runner neu gebunden; dadurch
+wird keine Ausführung attestiert.
