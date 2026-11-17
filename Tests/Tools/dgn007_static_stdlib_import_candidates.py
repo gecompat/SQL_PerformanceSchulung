@@ -8682,6 +8682,35 @@ def _target_re_parser_subpattern_branch_order_candidate(files):
     }
 
 
+def _target_re_parser_uniq_candidate(files):
+    """Bind the pinned parser's ordered deduplication helper statically."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef) and node.name == "_uniq"]
+    if (len(functions) != 1 or len(functions[0].args.args) != 1
+            or functions[0].args.args[0].arg != "items"
+            or len(functions[0].body) != 1
+            or ast.unparse(functions[0].body[0])
+            != "return list(dict.fromkeys(items))"):
+        return None
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "function_arguments": ["items"],
+        "deduplication_expression": "list(dict.fromkeys(items))",
+        "preserves_first_occurrence_order_candidate": True,
+        "helper_execution_observed": False,
+        "evidence_scope": "PINNED_RE_PARSER_ORDERED_UNIQ_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8718,6 +8747,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     parser_subpattern_order_candidate = (
         _target_re_parser_subpattern_branch_order_candidate(files)
     )
+    parser_uniq_candidate = _target_re_parser_uniq_candidate(files)
     if (cache_path_candidate is None or tokenizer_access_candidate is None
             or parser_sourceget_candidate is None
             or parser_sub_dispatch_candidate is None
@@ -8725,7 +8755,8 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or parser_multi_alternative_candidate is None
             or parser_charset_candidate is None
             or parser_prefix_candidate is None
-            or parser_subpattern_order_candidate is None):
+            or parser_subpattern_order_candidate is None
+            or parser_uniq_candidate is None):
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -9078,6 +9109,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_charset_candidate": parser_charset_candidate,
             "parser_prefix_candidate": parser_prefix_candidate,
             "parser_subpattern_order_candidate": parser_subpattern_order_candidate,
+            "parser_uniq_candidate": parser_uniq_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })
