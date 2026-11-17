@@ -14,6 +14,7 @@ import sys
 from sql_lexical_utils import (
     extract_tsql_cte_body,
     has_tsql_literal_comparison,
+    tsql_projection_output_names,
     without_tsql_comments,
     without_tsql_comments_or_literals,
 )
@@ -78,12 +79,15 @@ def validate_sql(sql: str) -> None:
     )
     if projection_match is None:
         raise ContractError("diagnostic query has no recognizable final projection")
-    projection = projection_match.group(1)
-    if not re.search(r"(?<![\w])@capturedat\s+as\s+captured_at_utc\b", projection):
+    try:
+        output_names = tsql_projection_output_names(projection_match.group(1))
+    except ValueError as exc:
+        raise ContractError(f"diagnostic final projection is malformed: {exc}") from exc
+    if "captured_at_utc" not in output_names:
         raise ContractError("diagnostic result must expose captured_at_utc")
-    if not re.search(r"(?:^|,)\s*mg\.grant_time\s*(?:,|$)", projection):
+    if "grant_time" not in output_names:
         raise ContractError("diagnostic result must expose grant_time to distinguish granted peers")
-    if not re.search(r"\bas\s+is_mapped_own_request\b", projection):
+    if "is_mapped_own_request" not in output_names:
         raise ContractError("diagnostic result must identify mapped own requests")
     if not has_tsql_literal_comparison(sql, "r.wait_type", "RESOURCE_SEMAPHORE"):
         raise ContractError("diagnostic query must filter on RESOURCE_SEMAPHORE")

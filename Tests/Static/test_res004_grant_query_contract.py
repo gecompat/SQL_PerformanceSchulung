@@ -132,6 +132,26 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "mapped own requests"):
             validate_sql(altered)
 
+    def test_nested_alias_cannot_replace_final_grant_time_column(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "    mg.grant_time,\n",
+            "    (SELECT mg.grant_time AS grant_time) AS nested_grant,\n",
+            1,
+        )
+        with self.assertRaisesRegex(ContractError, "expose grant_time"):
+            validate_sql(altered)
+
+    def test_nested_alias_cannot_replace_final_own_request_mapping(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "         ELSE CONVERT(bit, 1) END AS is_mapped_own_request,\n",
+            "         (SELECT CONVERT(bit, 1) AS is_mapped_own_request) AS nested_mapping,\n",
+            1,
+        )
+        with self.assertRaisesRegex(ContractError, "mapped own requests"):
+            validate_sql(altered)
+
     def test_capture_alias_in_cte_cannot_replace_final_result_column(self) -> None:
         query = extract_query(source_markdown())
         altered = query.replace(
