@@ -3338,3 +3338,10 @@ Der CPython-3.12.16-Linux-Quell-/Buildfact für `os._add` ist quellengebunden er
 ### DGN-007 – Logging-Stilvalidierung statisch abbilden (17. November 2026)
 
 Die zwei öffentlichen Logging-Stilguards sind nun gegen den gepinnten CPython-Quelltext gebunden. Gültige Stile und frei übergebene ungültige Werte bleiben beide im konservativen Kontrollfluss erhalten. Die Testsuite besteht mit 299 Tests. Zielscan: 60 Module, 316 Kanten, 163 Funktionen, 116 aufgelöst und 447 unbekannt; Digest `742614875c7d689dd14338bfc603928908a298a5c1253c10d36fecd705ea7f95`. Nächste statische Kandidaten sind weiterhin einzeln am Quellenstand zu prüfen. Das ersetzt keine Runtime-/P11-Qualifikation, tatsächliche Kanal-/Loader-/Parentanbindung, vollständige Inventur oder das Fünf-Formen-/64-KiB-Gate.
+
+
+### RES-004 – Grant-/Wait-Filter an den tatsächlichen `OwnWaits`-CTE binden (17. November 2026)
+
+Eine reproduzierte Negativprobe entfernte `mg.grant_time IS NULL` und den `RESOURCE_SEMAPHORE`-Filter aus dem `OwnWaits`-CTE und setzte denselben Text stattdessen in die spätere `LEFT JOIN`-Bedingung. Der bisherige globale Fragmentvergleich akzeptierte diese Abfrage, obwohl sie eigene Requests auch ohne Grant-Wait als zugeordnet markieren konnte.
+
+Der Validator extrahiert nun den genau einmal vorkommenden, balancierten `OwnWaits AS (...)`-CTE unter Beachtung von Kommentaren, Strings und geklammerten Bezeichnern und verlangt beide Filter samt passendem Wait-Literal in dessen `WHERE`-Bedingung. Die neue Regression bestätigt die Ablehnung der verschobenen Filter. Die RES-004-Testsuite besteht mit 14 Tests; der Abfragevertragvalidator besteht. Das ist weiterhin ein statischer Strukturcheck ohne T-SQL-Parser, DMV-Authentifizierung oder Runtime-/Grant-Wait-Nachweis.

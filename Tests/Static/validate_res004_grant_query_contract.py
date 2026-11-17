@@ -34,12 +34,61 @@ def extract_query(markdown: str) -> str:
     return candidates[0]
 
 
+def extract_cte_body(sql: str, name: str) -> str:
+    """Return one balanced, comment-free CTE body without parsing T-SQL."""
+    uncommented = without_tsql_comments(sql)
+    matches = list(re.finditer(
+        rf"\b{re.escape(name)}\s+AS\s*\(", uncommented, flags=re.IGNORECASE,
+    ))
+    if len(matches) != 1:
+        raise ContractError("expected exactly one required RES-004 CTE")
+    opening = matches[0].end() - 1
+    depth = 0
+    quote: str | None = None
+    bracketed = False
+    index = opening
+    while index < len(uncommented):
+        char = uncommented[index]
+        if quote is not None:
+            if char == quote:
+                if index + 1 < len(uncommented) and uncommented[index + 1] == quote:
+                    index += 2
+                    continue
+                quote = None
+            index += 1
+            continue
+        if bracketed:
+            if char == "]":
+                if index + 1 < len(uncommented) and uncommented[index + 1] == "]":
+                    index += 2
+                    continue
+                bracketed = False
+            index += 1
+            continue
+        if char in "'\"":
+            quote = char
+        elif char == "[":
+            bracketed = True
+        elif char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+            if depth == 0:
+                return uncommented[opening + 1:index]
+        index += 1
+    raise ContractError("required RES-004 CTE is not balanced")
+
+
 def validate_sql(sql: str) -> None:
     try:
         uncommented = without_tsql_comments(sql)
     except ValueError as exc:
         raise ContractError(str(exc)) from exc
     normalized = " ".join(without_tsql_comments_or_literals(sql).split()).casefold()
+    own_waits = extract_cte_body(uncommented, "OwnWaits")
+    own_waits_normalized = " ".join(
+        without_tsql_comments_or_literals(own_waits).split()
+    ).casefold()
     required = (
         "primary key (session_id, request_id)",
         "declare @capturedat datetime2(7) = sysutcdatetime()",
@@ -66,6 +115,11 @@ def validate_sql(sql: str) -> None:
         raise ContractError("diagnostic query is missing required RES-004 bindings")
     if not has_tsql_literal_comparison(sql, "r.wait_type", "RESOURCE_SEMAPHORE"):
         raise ContractError("diagnostic query must filter on RESOURCE_SEMAPHORE")
+    if ("where mg.grant_time is null and r.wait_type =" not in own_waits_normalized
+            or not has_tsql_literal_comparison(
+                own_waits, "r.wait_type", "RESOURCE_SEMAPHORE",
+            )):
+        raise ContractError("own-wait grant and wait-type filters must constrain OwnWaits")
     if normalized.count("sysutcdatetime()") != 1 or normalized.count("@capturedat") != 2:
         raise ContractError("query must use exactly one capture marker for the complete observation")
     for binding in (

@@ -115,6 +115,37 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaises(ContractError):
             validate_sql(altered)
 
+    def test_wait_filters_must_constrain_the_ownwaits_cte(self) -> None:
+        query = extract_query(source_markdown())
+        cte_filter = (
+            "       AND r.request_id = mg.request_id\n"
+            "    WHERE mg.grant_time IS NULL\n"
+            "      AND r.wait_type = N'RESOURCE_SEMAPHORE'\n),"
+        )
+        altered = query.replace(
+            cte_filter,
+            "       AND r.request_id = mg.request_id\n),",
+            1,
+        )
+        left_join = (
+            "LEFT JOIN sys.dm_exec_requests AS r\n"
+            "    ON r.session_id = mg.session_id\n"
+            "   AND r.request_id = mg.request_id\n"
+            "INNER JOIN sys.dm_exec_query_resource_semaphores AS rs"
+        )
+        altered = altered.replace(
+            left_join,
+            left_join.replace(
+                "INNER JOIN sys.dm_exec_query_resource_semaphores AS rs",
+                "   AND mg.grant_time IS NULL\n"
+                "   AND r.wait_type = N'RESOURCE_SEMAPHORE'\n"
+                "INNER JOIN sys.dm_exec_query_resource_semaphores AS rs",
+            ),
+            1,
+        )
+        with self.assertRaises(ContractError):
+            validate_sql(altered)
+
     def test_ambiguous_or_duplicate_query_fence_fails(self) -> None:
         markdown = source_markdown()
         with self.assertRaises(ContractError):
