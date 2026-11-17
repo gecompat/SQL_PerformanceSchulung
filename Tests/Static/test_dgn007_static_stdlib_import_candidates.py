@@ -7996,6 +7996,37 @@ static struct PyModuleDef sysmodule = {
                         files, changed_posix, clinic_source, pyconfig,
                     ), {})
 
+    def test_logging_style_guards_keep_both_source_bound_outcomes(self):
+        source = (
+            b"_STYLES = {'%': 1, '{': 2, '$': 3}\n"
+            b"class Formatter:\n"
+            b"    def __init__(self, fmt=None, datefmt=None, style='%'):\n"
+            b"        if style not in _STYLES:\n"
+            b"            raise ValueError('style')\n"
+            b"def basicConfig(**kwargs):\n"
+            b"    style = kwargs.pop('style', '%')\n"
+            b"    if style not in _STYLES:\n"
+            b"        raise ValueError('style')\n"
+            b"    Formatter(None, None, style)\n"
+        )
+        with patch.object(
+            SUBJECT, "LOGGING_SOURCE_SHA256", hashlib.sha256(source).hexdigest(),
+        ):
+            facts = SUBJECT._target_logging_style_line_facts(
+                {"logging/__init__.py": source},
+            )
+            self.assertEqual(facts, {
+                ("logging", "logging/__init__.py", 4): (False, True),
+                ("logging", "logging/__init__.py", 8): (False, True),
+            })
+            changed = source.replace(b"'$': 3", b"'!': 3")
+            with patch.object(
+                SUBJECT, "LOGGING_SOURCE_SHA256", hashlib.sha256(changed).hexdigest(),
+            ):
+                self.assertEqual(SUBJECT._target_logging_style_line_facts(
+                    {"logging/__init__.py": changed},
+                ), {})
+
     def test_target_pyconfig_binds_linux_descriptor_support_guard(self):
         os_source = (
             b"from posix import *\n"
