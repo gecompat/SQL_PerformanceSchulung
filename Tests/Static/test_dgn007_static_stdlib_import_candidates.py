@@ -5144,6 +5144,48 @@ def deferred():
         )
         self.assertEqual([row["line"] for row in attribute_rebound], [2])
 
+    def test_regex_inline_verbose_flag_candidates_ignore_escapes_and_classes(self):
+        self.assertEqual(
+            SUBJECT._regex_inline_flag_directive_candidates(
+                r"(?x: verbose )[(?x)]\(\?x\)(?-ix:literal)"
+            ),
+            [
+                {
+                    "offset": 0,
+                    "scope": "SCOPED",
+                    "enabled_flags": "x",
+                    "disabled_flags": "",
+                    "evidence_scope": "LEXICAL_INLINE_REGEX_FLAG_CANDIDATE",
+                },
+                {
+                    "offset": 27,
+                    "scope": "SCOPED",
+                    "enabled_flags": "",
+                    "disabled_flags": "ix",
+                    "evidence_scope": "LEXICAL_INLINE_REGEX_FLAG_CANDIDATE",
+                },
+            ],
+        )
+        self.assertEqual(
+            SUBJECT._regex_inline_flag_directive_candidates(b"(?i-x:bytes)"),
+            [
+                {
+                    "offset": 0,
+                    "scope": "SCOPED",
+                    "enabled_flags": "i",
+                    "disabled_flags": "x",
+                    "evidence_scope": "LEXICAL_INLINE_REGEX_FLAG_CANDIDATE",
+                },
+            ],
+        )
+        self.assertEqual(
+            SUBJECT._regex_inline_flag_directive_candidates(r"(?P<name>x)"),
+            [],
+        )
+        self.assertIsNone(
+            SUBJECT._regex_inline_flag_directive_candidates(42),
+        )
+
     def test_re_compile_literal_types_bind_to_pinned_tokenizer_source_flow(self):
         files = {
             "pkg.py": (
@@ -5237,6 +5279,13 @@ def deferred():
                 [row["verbose_mode_if_parser_entry_reached"] for row in candidates],
                 [False, False, True, True],
             )
+            self.assertEqual(
+                [row["inline_verbose_flag_group_candidates_if_literal_bound"]
+                 for row in candidates],
+                [[], [], [], []],
+            )
+            self.assertTrue(all(row["inline_verbose_flag_scan_bound"]
+                                for row in candidates))
             self.assertEqual(
                 [row["flags_resolution"] for row in candidates],
                 ["PINNED_DEFAULT_ZERO", "PINNED_DEFAULT_ZERO",
@@ -11216,6 +11265,11 @@ static struct PyModuleDef sysmodule = {
         self.assertIn("flags_value_if_call_evaluates", labels)
         self.assertIn("PINNED_REGEXFLAG_EXPRESSION", labels)
         self.assertIn("verbose_mode_if_parser_entry_reached", labels)
+        self.assertIn(
+            "inline_verbose_flag_group_candidates_if_literal_bound", labels,
+        )
+        self.assertIn("inline_verbose_flag_scan_bound", labels)
+        self.assertIn("LEXICAL_INLINE_REGEX_FLAG_CANDIDATE", labels)
         self.assertIn("target_platform_source_candidates", labels)
         self.assertIn(
             "MODULE_CLASS_AND_KNOWN_LINUX_CPYTHON312_IF_BUILTIN_AND_IMPORTED_MODULE_NAME_BRANCHES",
