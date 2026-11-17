@@ -8859,6 +8859,54 @@ def _target_re_compiler_group_metadata_candidate(files):
     }
 
 
+def _target_re_compiler_debug_disassembly_candidate(files):
+    """Bind the optional debug disassembly branch before native compilation."""
+    source = files.get("re/_compiler.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_COMPILER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_compiler.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef) and node.name == "compile"]
+    if len(functions) != 1:
+        return None
+    body = functions[0].body
+    debug_paths = [node for node in body if isinstance(node, ast.If)
+                   and ast.unparse(node.test) == "flags & SRE_FLAG_DEBUG"]
+    code_assignments = [index for index, node in enumerate(body)
+                        if isinstance(node, ast.Assign)
+                        and ast.unparse(node) == "code = _code(p, flags)"]
+    metadata_assignments = [index for index, node in enumerate(body)
+                            if isinstance(node, ast.Assign)
+                            and ast.unparse(node)
+                            == "groupindex = p.state.groupdict"]
+    sre_returns = [index for index, node in enumerate(body)
+                   if isinstance(node, ast.Return)
+                   and any(isinstance(child, ast.Call)
+                           and ast.unparse(child.func) == "_sre.compile"
+                           for child in ast.walk(node))]
+    if (len(debug_paths) != 1 or len(code_assignments) != 1
+            or len(metadata_assignments) != 1 or len(sre_returns) != 1
+            or [ast.unparse(node) for node in debug_paths[0].body]
+            != ["print()", "dis(code)"]
+            or not code_assignments[0] < body.index(debug_paths[0])
+            or not body.index(debug_paths[0]) < metadata_assignments[0]
+            or body.index(debug_paths[0]) >= sre_returns[0]):
+        return None
+    return {
+        "source_path": "re/_compiler.py",
+        "source_sha256": RE_COMPILER_SOURCE_SHA256,
+        "debug_flag_condition": "flags & SRE_FLAG_DEBUG",
+        "disassembled_value": "code",
+        "order": "after_code_generation_before_group_metadata_and_native_compile",
+        "compiler_execution_observed": False,
+        "evidence_scope": "PINNED_RE_COMPILER_DEBUG_DISASSEMBLY_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8899,6 +8947,9 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     compiler_branch_candidate = _target_re_compiler_branch_candidate(files)
     compiler_code_candidate = _target_re_compiler_code_container_candidate(files)
     compiler_group_candidate = _target_re_compiler_group_metadata_candidate(files)
+    compiler_debug_candidate = (
+        _target_re_compiler_debug_disassembly_candidate(files)
+    )
     if (cache_path_candidate is None or tokenizer_access_candidate is None
             or parser_sourceget_candidate is None
             or parser_sub_dispatch_candidate is None
@@ -8910,7 +8961,8 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or parser_uniq_candidate is None
             or compiler_branch_candidate is None
             or compiler_code_candidate is None
-            or compiler_group_candidate is None):
+            or compiler_group_candidate is None
+            or compiler_debug_candidate is None):
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -9267,6 +9319,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "compiler_branch_candidate": compiler_branch_candidate,
             "compiler_code_candidate": compiler_code_candidate,
             "compiler_group_candidate": compiler_group_candidate,
+            "compiler_debug_candidate": compiler_debug_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })

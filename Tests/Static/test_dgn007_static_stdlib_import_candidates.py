@@ -5358,6 +5358,9 @@ def deferred():
                 b"    else:\n"
                 b"        pattern = None\n"
                 b"    code = _code(p, flags)\n"
+                b"    if flags & SRE_FLAG_DEBUG:\n"
+                b"        print()\n"
+                b"        dis(code)\n"
                 b"    groupindex = p.state.groupdict\n"
                 b"    indexgroup = [None] * p.state.groups\n"
                 b"    for k, i in groupindex.items():\n"
@@ -5718,6 +5721,17 @@ def deferred():
                     "compiler_execution_observed"]
                 for row in candidates
             ))
+            self.assertTrue(all(
+                row["compiler_debug_candidate"]["debug_flag_condition"]
+                == "flags & SRE_FLAG_DEBUG"
+                and row["compiler_debug_candidate"]["disassembled_value"]
+                == "code"
+                and row["compiler_debug_candidate"]["order"]
+                == "after_code_generation_before_group_metadata_and_native_compile"
+                and not row["compiler_debug_candidate"][
+                    "compiler_execution_observed"]
+                for row in candidates
+            ))
             self.assertTrue(all(not row["standard_re_flag_binding_observed"]
                                 for row in candidates))
 
@@ -6050,6 +6064,24 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_group_map,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_debug_disassembly = dict(files)
+            altered_debug_disassembly["re/_compiler.py"] = altered_debug_disassembly[
+                "re/_compiler.py"
+            ].replace(b"dis(code)", b"dis(pattern)", 1)
+            altered_debug_disassembly_digest = hashlib.sha256(
+                altered_debug_disassembly["re/_compiler.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_COMPILER_SOURCE_SHA256",
+                              altered_debug_disassembly_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_debug_disassembly,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
