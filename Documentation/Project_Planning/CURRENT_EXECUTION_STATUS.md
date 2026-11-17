@@ -12334,3 +12334,10 @@ Eine neue Regression bindet diese Auflösung an die exakten OS-, C-, Clinic- und
 Der gepinnte `logging/__init__.py`-Quelltext definiert genau die drei gültigen Schlüssel `%`, `{` und `$`. `Formatter.__init__` nimmt einen öffentlichen dynamischen Stilwert an; `basicConfig` übernimmt ihn aus `kwargs` und gibt ihn an `Formatter` weiter. Deshalb können beide Guardstellen `style not in _STYLES` wahr oder falsch sein. Eine neue Condition-Observation bindet beide exakten Guards an den festgelegten Quellhash, die Stil-Schlüsselfolge und die dynamische `basicConfig`-Zuweisung; beide Kontrollflussarme bleiben erhalten.
 
 Die DGN-007-Quellsuite besteht mit 299 Tests. Der frische Zielscan bleibt `CANDIDATES_ONLY`: 60 Module, 316 Kanten, 163 Funktionen, 116 aufgelöste Bedingungen und 447 unbekannte Bedingungen; Digest `742614875c7d689dd14338bfc603928908a298a5c1253c10d36fecd705ea7f95`. Keine Laufzeit-, P11-, Worker- oder SQL-Attestation. Operative DGN-007-Gates bleiben offen.
+
+
+### RES-004 – Grant-/Wait-Filter an den tatsächlichen `OwnWaits`-CTE binden (17. November 2026)
+
+Eine reproduzierte Negativprobe entfernte `mg.grant_time IS NULL` und den `RESOURCE_SEMAPHORE`-Filter aus dem `OwnWaits`-CTE und setzte denselben Text stattdessen in die spätere `LEFT JOIN`-Bedingung. Der bisherige globale Fragmentvergleich akzeptierte diese Abfrage, obwohl sie eigene Requests auch ohne Grant-Wait als zugeordnet markieren konnte.
+
+Der Validator extrahiert nun den genau einmal vorkommenden, balancierten `OwnWaits AS (...)`-CTE unter Beachtung von Kommentaren, Strings und geklammerten Bezeichnern und verlangt beide Filter samt passendem Wait-Literal in dessen `WHERE`-Bedingung. Die neue Regression bestätigt die Ablehnung der verschobenen Filter. Die RES-004-Testsuite besteht mit 14 Tests; der Abfragevertragvalidator besteht. Das ist weiterhin ein statischer Strukturcheck ohne T-SQL-Parser, DMV-Authentifizierung oder Runtime-/Grant-Wait-Nachweis.
