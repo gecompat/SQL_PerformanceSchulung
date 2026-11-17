@@ -48,7 +48,7 @@ WHERE EventAt IS NOT NULL
   AND Graph.exist('/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock[@dbid=sql:variable("@DbId") and @objectname=sql:variable("@Object") and @indexname="PK_DeadlockRows" and @hobtid=sql:variable("@HoBT")][owner-list/owner[@id=sql:column("Bound.ProcessB") and @mode="S"]][waiter-list/waiter[@id=sql:column("Bound.ProcessA") and @mode="X" and @requestType="convert"]]')=1;
 IF @Matches<>1
 BEGIN
-    THROW 51006,'FAIL_RESULT_CONTRACT: Kein eindeutiger same-key S-to-X-Konversionsgraph fuer diesen Lauf.',1;
+    THROW 51006,'FAIL_RESULT_CONTRACT: Kein eindeutiger S-to-X-Konversionsgraph fuer Datenbank, Objekt, Index und HoBT dieses Laufs.',1;
 END;
 UPDATE lab.ConversionRun SET GraphCount=@Matches WHERE Attempt='CONVERT' AND RunToken='$(RunToken)' AND DatabaseId=@DbId;
 IF @@ROWCOUNT<>1 THROW 51006,'FAIL_RESULT_CONTRACT: Graphbefund konnte nicht an den Lauf gebunden werden.',1;

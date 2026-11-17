@@ -59,7 +59,7 @@ separate
 prüft nur synthetisch übergebene Daten und attestiert keine SQL-Server-Evidenz.
 Der ausführbare Offlinevertrag liegt in
 [`con006_conversion_graph_contract.py`](../../Tests/Static/con006_conversion_graph_contract.py);
-seine 19 synthetischen Regressionen stehen in
+seine 20 synthetischen Regressionen stehen in
 [`test_con006_conversion_graph_contract.py`](../../Tests/Static/test_con006_conversion_graph_contract.py).
 Beide prüfen die Struktur und innere Konsistenz caller-gelieferter Werte; sie
 lesen keine `system_health`-Ereignisse und qualifizieren kein Enginebuild.
