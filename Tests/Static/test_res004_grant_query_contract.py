@@ -120,6 +120,18 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaises(ContractError):
             validate_sql(altered)
 
+    def test_result_must_expose_grant_time_for_peer_state(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace("    mg.grant_time,\n", "", 1)
+        with self.assertRaisesRegex(ContractError, "expose grant_time"):
+            validate_sql(altered)
+
+    def test_result_must_expose_own_request_mapping(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace("         ELSE CONVERT(bit, 1) END AS is_mapped_own_request,\n", "", 1)
+        with self.assertRaisesRegex(ContractError, "mapped own requests"):
+            validate_sql(altered)
+
     def test_wait_filters_must_constrain_the_ownwaits_cte(self) -> None:
         query = extract_query(source_markdown())
         cte_filter = (

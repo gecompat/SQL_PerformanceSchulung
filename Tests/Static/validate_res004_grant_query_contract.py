@@ -72,6 +72,17 @@ def validate_sql(sql: str) -> None:
     missing = tuple(fragment for fragment in required if fragment not in normalized)
     if missing:
         raise ContractError("diagnostic query is missing required RES-004 bindings")
+    projection_match = re.search(
+        r"\)\s*select\s+(.*?)\s+from\s+observedsemaphores\s+as\s+observed\b",
+        normalized,
+    )
+    if projection_match is None:
+        raise ContractError("diagnostic query has no recognizable final projection")
+    projection = projection_match.group(1)
+    if not re.search(r"(?:^|,)\s*mg\.grant_time\s*(?:,|$)", projection):
+        raise ContractError("diagnostic result must expose grant_time to distinguish granted peers")
+    if not re.search(r"\bas\s+is_mapped_own_request\b", projection):
+        raise ContractError("diagnostic result must identify mapped own requests")
     if not has_tsql_literal_comparison(sql, "r.wait_type", "RESOURCE_SEMAPHORE"):
         raise ContractError("diagnostic query must filter on RESOURCE_SEMAPHORE")
     if ("where mg.grant_time is null and r.wait_type =" not in own_waits_normalized

@@ -12383,3 +12383,19 @@ Zahl von 20 Offline-Regressionen an. Der statische CON-006-Validator, die
 20 fokussierten Regressionen, der Curriculumvalidator und `git diff --check`
 bestehen; Runtimeverhalten und qualifizierte Deadlockvariante ändern sich
 nicht.
+
+
+### RES-004 – Ausgabefelder für Grant-Zustand und eigene Request-Zuordnung binden (17. November 2026)
+
+Der statische Lehrabfragevalidator prüfte bisher zwar den wartenden Grant und
+den gemeinsamen Semaphore-Schlüssel, verlangte aber nicht, dass die finale
+Ergebnisausgabe `grant_time` zur Unterscheidung gewährter Peer-Grants und
+`is_mapped_own_request` zur Kennzeichnung der callerzugeordneten eigenen
+Requests tatsächlich projiziert. Eine Negativprobe konnte beide Ausgabefelder
+entfernen und den Validator dennoch bestehen lassen. Der Validator bindet diese
+beiden Spalten jetzt in der finalen SELECT-Projektion; zwei neue Regressionen
+weisen ihr Entfernen zurück. Die Abfragevertragssuite besteht mit 17 Tests,
+der RES-004-Offlinedatenvertrag mit 24 Tests und der Curriculumvalidator.
+Das bleibt eine statische Strukturprüfung ohne T-SQL-Parser, authentische
+DMV-Herkunft oder Engine-/Grant-Wait-Nachweis; Methodenreview und isolierter
+SQL-Server-2025-Pilot sind weiterhin offen.
