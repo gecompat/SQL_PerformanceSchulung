@@ -21,6 +21,18 @@ Semaphore und denselben UTC-Capturewert positive `waiter_count` und
 `grantee_count` ausweisen. Mindestens ein weiterer Grant derselben Semaphore
 muss tatsächlich erteilt sein.
 
+Die Beobachtung muss in einer einzelnen Diagnoseabfrage erfolgen, die die
+zugeordneten eigenen Requests, die passenden Grant-Zeilen und die
+Pool-/Semaphorezeile gemeinsam projiziert. Ein einmal vor der Abfrage gesetzter
+`captured_at_utc`-Wert kennzeichnet diesen Abfragelauf; er macht die DMV-Lesezugriffe
+nicht zu einer atomaren Engine-Momentaufnahme. Deshalb lautet die maximal
+zulässige Aussage, dass der vollständige Befund in derselben begrenzten
+Abfrageaufnahme sichtbar war. Die genaue zeitliche Reihenfolge gleichzeitiger
+Engineänderungen bleibt unbekannt. Mehrere getrennte DMV-Abfragen dürfen nicht
+nachträglich mit demselben Zeitstempel zu einem gemeinsamen Snapshot verbunden
+werden. Das konkrete read-only Abfragemuster und diese Aussagegrenze stehen in
+der [Lehrnotiz](../Curriculum/COMPETING_MEMORY_GRANTS_LESSON.md#den-wartenden-eigenen-request-an-den-wait-binden).
+
 Der vorhandene Offlineprüfer kann diese Werte synthetisch auf Widersprüche
 prüfen. Er authentifiziert weder ihre Aufnahme noch die Zuordnung der
 Verbindungen. Aktive Sessions, ein Spill, ein `WAITFOR` nach Abschluss der
@@ -36,7 +48,7 @@ Speichermangel, keinen Spill und keinen Leistungsgewinn.
 | Setup | Markergebundene Datenbank mit deterministischen synthetischen Zeilen. Eine feste Abfrageform muss im tatsächlichen Plan einen grantfähigen Sort- oder Hashoperator enthalten. Nur eigene Sitzungen erhalten ein eindeutiges Run-Token in `Application Name`; geheimhaltungsbedürftige Werte kommen nicht in Manifest oder Logs. | Eigentumsmarker, Datenumfang und Actor-Identitäten sind vollständig und vor dem Start fixiert. |
 | Einzelactor-Kontrolle | Genau ein Actor führt die feste parametrisierte Abfrage aus. Der Beobachter ordnet die eigene `session_id` und aktuelle `request_id` aus dem gestarteten Clientprozess zu und sieht eine erteilte Anforderung oder beendet den Kontrollarm mit begrenztem Skip. | Kein WAIT-Anspruch; Querytext, Planform und Rowcount werden als Vergleichsgrundlage gehalten. |
 | Konkurrenz | Ein Halte-Actor startet dieselbe Abfrageform und wird erst nach beobachtetem Grant als bereit signalisiert. Danach starten höchstens zwei weitere Actors über eine Startbarriere dieselbe Abfrage. Kein Actor wartet mit einer festen Pause; jeder Client hat einen begrenzten Fetch- und Laufzeitpfad. | Nur echte Zuordnung zu gestarteten eigenen Clientprozessen zählt. Die Beobachtung endet nach dem ersten vollständigen Pflichtsnapshot oder bei Ablauf der festen Frist. |
-| Beobachtung | Eine begrenzte Pollschleife erfasst die aktuellen eigenen Requests, Grantzeilen und Pool-/Semaphorezeile samt gemeinsamem Erfassungszeitwert. Abfrage- und Session-IDs werden unmittelbar aus den eigenen Verbindungen gebunden, nicht aus einem losen Application-Name-Treffer abgeleitet. | `PASS` nur bei vollständigem RES-004-Vertrag; sonst `SKIP_NO_GRANT_WAIT`, `NOT_PROVEN` oder ein begründeter Fehlerstatus. |
+| Beobachtung | Eine begrenzte Pollschleife führt die gemeinsame read-only Diagnoseabfrage aus der Lehrnotiz aus. Sie projiziert aktuelle eigene Requests, dazu passende Grantzeilen und Pool-/Semaphorezeile mit einem gemeinsamen Abfragezeitmarker. Abfrage- und Session-IDs werden unmittelbar aus den eigenen Verbindungen gebunden, nicht aus einem losen Application-Name-Treffer abgeleitet. | `PASS` nur, wenn der vollständige Befund in dieser einen Abfrageaufnahme sichtbar ist. Der Zeitmarker belegt keinen atomaren DMV-Snapshot; getrennte Abfrageergebnisse werden nicht zusammengefügt. Sonst `SKIP_NO_GRANT_WAIT`, `NOT_PROVEN` oder ein begründeter Fehlerstatus. |
 | Abschluss | Alle gestarteten Clients werden regulär abgewartet oder über ihre eigenen Cancellation-Handles abgebrochen. Danach werden genau die gebundenen eigenen Sessions auf Abwesenheit geprüft. Die markergeprüfte Datenbank wird entfernt und ihre Abwesenheit unabhängig bestätigt. | Fremde Sessions werden weder beendet noch aufgrund von Login, Host oder Application Name als eigene behandelt. Unvollständige Rücknahme ergibt `FAIL_CLEANUP`. |
 
 Die drei Actor-Slots sind eine Planungsobergrenze, keine Behauptung, dass sie

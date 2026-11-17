@@ -12130,6 +12130,13 @@ markergebundener Cleanup bleiben die Gates vor Pilotierung. RES-003 bleibt
 getrennt; Spill, allgemeiner Speicherdruck und Leistungsgewinn werden nicht
 behauptet. Menschliche Generalprobe bleibt ausgeschlossen.
 
+Der Methodenentwurf verlangt jetzt eine einzelne gemeinsame Diagnoseabfrage
+für Request-, Grant- und Pool-/Semaphorewerte. Der gemeinsame UTC-Wert ist nur
+ein Abfragelaufmarker und keine atomare Engine-Momentaufnahme; getrennte DMV-
+Ergebnisse dürfen nicht unter einem wiederverwendeten Zeitstempel kombiniert
+werden. Diese Grenze ist mit dem bestehenden read-only Abfragemuster der
+Lehrnotiz abgeglichen. Der unabhängige Methodenreview bleibt offen.
+
 ### IDX-007 – Methodenentwurf zur rechten Blattseite (17. November 2026)
 
 Der [Seitenkettenentwurf](IDX007_RIGHTMOST_PAGE_METHOD.md) ergänzt den
