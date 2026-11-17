@@ -12088,15 +12088,25 @@ Livezustand eingeordnet. Die bestehende RES-001-Offlineprüfung bleibt
 caller-supplied und synthetisch; tatsächliche DMV-Herkunft, echte
 Worker-Erschöpfung und Last-/Recovery-Qualifikation bleiben offen.
 
-### `OPTIMIZED_SP_EXECUTESQL`: separater Concurrent-Compile-Methodenentwurf (17. November 2026)
+### `OPTIMIZED_SP_EXECUTESQL`: Katalogkandidaten für den Compile-Methodenentwurf (17. November 2026)
+
+PR #941 wurde nach erfolgreichen Vertrags-, Datenschutz-, Registry-, Governance-,
+Statik- und SQL-Server-2025-Katalogchecks als Squashcommit
+`a8a3bf9b17a3880cc653a0ae1050665484591cb0` in `origin/main` integriert. Der
+isolierte, kurzlebige Container meldete SQL Server `17.0.5065.9` aus dem Image
+`sha256:05644dad1266ca3d445d1e8f6d2ebb9a6a03df9a39376e0f7b48917356dca9d9`.
+Die Inventur fand `spexec_batch_compilation_serialization`,
+`spexec_batch_compilation_serialization_telemetry`, `sql_statement_post_compile`
+und die Actions `database_id`, `query_hash`, `query_plan_hash`, `session_id`,
+`sql_text`, `tsql_stack`. Das Telemetrieereignis führt `database_id`, `object_id`,
+`plan_handle` und `sql_handle`; `sql_statement_post_compile` führt unter anderem
+Dauer, CPU-Zeit, Recompilestatus und Textfelder. Der befristete Detailbeleg ist
+CI-Lauf `44001049329`.
 
 Der [Methodenentwurf](OPTIMIZED_SP_EXECUTESQL_CONCURRENT_COMPILE_DESIGN.md)
-legt einen isolierten SQL-Server-2025-Versuch mit getrennten OFF-/ON-Armen,
-identischem dynamischem Batch, synchronisierten Actors, festgehaltenem
-Statistikzustand, buildgebundener Compile-/Wait-Evidenz und vollständigem
-Restore fest. Die Microsoft-Troubleshootingquellen belegen noch keine genaue
-XE-Ereignis-/Feldzuordnung für dynamische `sp_executesql`-Batches. Diese
-Zuordnung und ein unabhängiger Methodenreview sind die nächsten Gates. Es gab
-keinen SQL-, XE-, Datenbank- oder Runtimeaufruf; `QRY-004` blieb unverändert.
-Aktivierung, Demo-ID und Performanceclaim bleiben `DEFER`; menschliche
-Generalprobe ausgeschlossen.
+bindet diese Felder jetzt als Kandidatenliste. Katalogverfügbarkeit belegt
+weder Ereignisauslösung für dynamische `sp_executesql`-Batches noch zuverlässige
+Batch-/Wait-Zuordnung. Der unabhängige Methodenreview und die empirische
+Feuer-/Zuordnungsprüfung bleiben offen; kein Compile-Sturm oder XE-Session wurde
+ausgeführt. `QRY-004` blieb unverändert. Aktivierung, Demo-ID und
+Performanceclaim bleiben `DEFER`; menschliche Generalprobe ausgeschlossen.
