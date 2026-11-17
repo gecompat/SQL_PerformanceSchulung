@@ -14,6 +14,12 @@
 
 Die optionale Beobachtung liest nur die vorhandene `system_health`-Ringbuffer-Evidenz für die markergebundene Datenbank. Fehlt dort noch ein passender Graph, ergibt das `WARN_OPTIONAL_EVIDENCE_SKIPPED`, nicht einen erfundenen Nachweis. Die Gegenprobe greift in identischer Reihenfolge zu und muss ohne Opfer enden.
 
+Die [Lehrnotiz zu Deadlockvarianten](../../../Documentation/Curriculum/DEADLOCK_VARIANTS_LESSON.md)
+ordnet den hier gezeigten Gegenreihenfolgefall gegenüber einer möglichen
+Sperrumwandlungsvariante ein. Diese Variante ist kein Bestandteil dieses Demos;
+der synthetische Graphvertrag ersetzt weder ihre tatsächliche Graphaufnahme noch
+eine Enginequalifikation.
+
 ## Safety und Cleanup
 
 Offene Transaktionen sind auf 15 Sekunden begrenzt und werden in jedem CATCH zurückgerollt. Das Szenario benötigt `--confirm-isolated-lab`; Cleanup entfernt nur die vierfach markierte Datenbank. Am 2026-08-29 erzeugten SQL Server 2019, 2022 und 2025 jeweils zweimal genau ein Opfer, einen Survivor, den markergebundenen Deadlock-Graph und eine erfolgreiche geordnete Gegenprobe; Cleanup war jeweils vollständig.
