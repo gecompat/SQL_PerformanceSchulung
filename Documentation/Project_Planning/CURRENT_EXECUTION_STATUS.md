@@ -2177,8 +2177,13 @@ Datei, Seite, Objekt, Index, Blattniveau und Nachfolgerzeiger abgebildet. Der
 Beispielpfad verlangt mindestens zwei aktuell wartende Sessions auf derselben
 Blattseite, erklärt aber ausdrücklich, dass dies allein keine Rechtsaußen-
 Qualifikation ergibt. Die Abfrage wurde nicht gegen SQL Server ausgeführt; die
-authentische Wait-/Header-Korrelation, Seitenkettenbestätigung und der faire
-Vergleich bleiben offen.
+authentische Wait-/Header-Korrelation und Seitenkettenbestätigung bleiben
+offen. Die Lehrnotiz legt jetzt außerdem einen gepaarten OFF/ON-Mindestvertrag
+fest: gleiche Indexdefinition bis auf die Option, gleiche erfolgreiche Arbeit
+und Messreichweite, wechselnde Reihenfolge, Worker-/Ergebniskontrolle und ein
+kontrollierter Skip ohne nachgewiesene Konkurrenz. Das ist Methodik, keine
+Laufqualifikation; konkrete Grenzen, isolierte Umgebung, tatsächliche
+Seitenkettenbestätigung und Messwerte fehlen weiterhin.
 
 Die Teilnehmer-Generalprobe ist nicht durchgeführt. Für die neun im
 [PRS-010-Plan](PRS_010_REHEARSAL_PLAN.md) ausgewählten Folien wurden Inhalt,

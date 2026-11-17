@@ -130,6 +130,45 @@ Zugriffsmuster und Indexstruktur. Daraus folgt keine pauschale Empfehlung.
 Eine quantitative Variante benötigt einen fairen, gleich belasteten
 Vergleichsvertrag und eigene Messnachweise; diese kurze Notiz behauptet keinen.
 
+## Fairer OFF/ON-Vergleich: Mindestvertrag
+
+Vergleiche `OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF` und `ON` als getrennte,
+gepaarte Varianten. Der Index muss bis auf diese Option identisch sein:
+Tabellen- und Indexdefinition, Datentyp und Breite des sequentiellen
+Schlüssels, Nutzdaten, Füllfaktor, weitere Indizes, Datenbankoptionen und
+Kompatibilitätsgrad. Jede Variante startet mit demselben leeren beziehungsweise
+gleichwertig vorbereiteten Datenbestand. Innerhalb eines Messarms darf keine
+Variante Inserts in den Index der anderen Variante schreiben.
+
+Lege vor dem Lauf für beide Arme dieselbe Zahl von erfolgreichen Inserts je
+Worker, Batch- und Transaktionsgrenzen, Workerzahl und Startbarriere fest.
+Verwende denselben Messablauf mit gleicher Aufwärmphase und gleicher
+Messreichweite; führe mehrere gepaarte Wiederholungen durch und wechsle die
+Reihenfolge OFF/ON, damit Reihenfolgeeffekte sichtbar werden. Verändere nicht
+zwischen Armen globale Instanzlast oder Cachezustand. Definiere ein endliches
+Arbeits- oder Zeitlimit und Abbruch-/Cleanupverhalten im späteren Laufvertrag,
+statt hardwareabhängige absolute Durchsatzschwellen vorzugeben.
+
+Prüfe pro Arm Worker-Erfolg, tatsächliche Zeilenzahl und identische
+Endergebnisse. Berichte erfolgreiche Inserts pro Messdauer, Latenzverteilung
+und Wait-Differenzen samt Messfenster und Zählergrenzen. Ordne einen
+Last-Page-Befund nur zu, wenn gleichzeitig beobachtete `PAGELATCH_EX`-Waits
+derselben Zielseite und der für diesen Enginezustand bestätigten Rechtsaußen-
+Seitenkette zugeordnet sind. Ohne diese Evidenz bleiben Seitenzähler und
+Durchsatzunterschiede Messbeobachtungen, kein Nachweis, dass die Option einen
+Last-Page-Engpass behoben hat.
+
+Zeigt der OFF-Arm keine Konkurrenz auf derselben Seite, lautet das Ergebnis
+„Engpass nicht demonstriert“; der Lauf wird kontrolliert übersprungen oder als
+nicht aussagekräftig beendet. Ein Vergleich mit verteiltem Schlüssel oder Heap
+ist ein eigener Strukturvergleich mit eigener Erfolgs- und Messauswertung und
+begründet keine allgemeine Überlegenheit.
+
+Dieser Mindestvertrag beschreibt die Methodik, keinen ausführbaren Benchmark.
+Konkrete Wiederholungszahl, Zeit-/Arbeitslimit, Rechte, Zielbuilds,
+Isolationsprüfung und sichere Bereinigung müssen vor einer späteren Ausführung
+im Laufvertrag festgelegt werden.
+
 ## Prüffragen
 
 1. Belegt ein positiver Insertzähler Last-Page-Contention? Nein; er belegt nur
