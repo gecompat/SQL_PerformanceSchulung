@@ -3661,3 +3661,11 @@ Generalprobe bleibt ausgeschlossen. Nach diesem Checkpoint wird als nächster
 Quellfact die Zuweisung `sourceget = source.get` in `_parse` und ihr Aufrufpfad
 zu `Tokenizer.get` geprüft. Statische Kandidatenbefunde ersetzen keine
 Tokenizerausführung oder P11-Qualifikation.
+
+Checkpoint 17. November 2026: Der `sourceget`-Alias ist an die gepinnte
+`Tokenizer.get`-Methode gebunden; der vollständige Archivscan fand zehn
+syntaktische Alias-Aufrufstellen bei weiterhin 13 Regexliteral-Kandidaten und
+`CANDIDATES_ONLY`. Als nächster begrenzter statischer Kandidat wird der
+Aufrufpfad von `_parse_sub` zu `_parse` geprüft. Es bleibt bei einem Paket und
+einem PR je Welle; Interpreter-, Container-, SQL-, Lab-, Runtime- und
+Generalprobenläufe sind davon nicht umfasst.

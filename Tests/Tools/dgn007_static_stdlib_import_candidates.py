@@ -8295,6 +8295,54 @@ def _target_re_tokenizer_access_candidate(files):
     }
 
 
+def _target_re_parser_sourceget_candidate(files):
+    """Bind the parser's local sourceget alias to Tokenizer.get statically."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    parsers = [node for node in tree.body
+               if isinstance(node, ast.FunctionDef) and node.name == "_parse"]
+    tokenizers = [node for node in tree.body
+                  if isinstance(node, ast.ClassDef) and node.name == "Tokenizer"]
+    if len(parsers) != 1 or len(tokenizers) != 1:
+        return None
+    assignments = [node for node in ast.walk(parsers[0])
+                   if isinstance(node, ast.Assign)
+                   and any(isinstance(target, ast.Name)
+                           and target.id == "sourceget" for target in node.targets)]
+    get_methods = [node for node in tokenizers[0].body
+                   if isinstance(node, ast.FunctionDef) and node.name == "get"]
+    calls = [node for node in ast.walk(parsers[0])
+             if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+             and node.func.id == "sourceget"]
+    if (len(assignments) != 1 or len(get_methods) != 1
+            or len(get_methods[0].body) != 3
+            or not calls
+            or ast.unparse(assignments[0]) != "sourceget = source.get"
+            or assignments[0].lineno >= min(
+                node.lineno for node in calls
+            )
+            or ast.unparse(get_methods[0].body[0]) != "this = self.next"
+            or ast.unparse(get_methods[0].body[1]) != "self.__next()"
+            or ast.unparse(get_methods[0].body[2]) != "return this"):
+        return None
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "_parse_alias_assignment": "sourceget = source.get",
+        "tokenizer_get_returns_current_then_advances": True,
+        "sourceget_call_sites_in_pinned_parse_function": len(calls),
+        "alias_call_execution_observed": False,
+        "pattern_parse_observed": False,
+        "evidence_scope": "PINNED_RE_PARSER_SOURCEGET_ALIAS_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8320,7 +8368,9 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
         return []
     cache_path_candidate = _target_re_compile_cache_path_candidate(files)
     tokenizer_access_candidate = _target_re_tokenizer_access_candidate(files)
-    if cache_path_candidate is None or tokenizer_access_candidate is None:
+    parser_sourceget_candidate = _target_re_parser_sourceget_candidate(files)
+    if (cache_path_candidate is None or tokenizer_access_candidate is None
+            or parser_sourceget_candidate is None):
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -8666,6 +8716,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "standard_re_compile_binding_observed": False,
             "cache_path_candidate": cache_path_candidate,
             "tokenizer_access_candidate": tokenizer_access_candidate,
+            "parser_sourceget_candidate": parser_sourceget_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })

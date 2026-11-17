@@ -13302,3 +13302,17 @@ hashgeprüfte Quellscan bleibt bei 13 Regexliteral-Kandidaten und
 `CANDIDATES_ONLY`; Tokenizerausführung und tatsächlicher Parse bleiben
 unbeobachtet. 305 fokussierte Regressionen bestehen. Kein Interpreter-, P11-,
 Worker-, Container-, SQL- oder Runtime-Lauf.
+
+### DGN-007 – `sourceget`-Alias im Regexparser binden (17. November 2026)
+
+Der statische Kandidatenbericht bindet zusätzlich die Zuweisung
+`sourceget = source.get` in `_parse` der gepinnten CPython-3.12.16-Datei
+`re/_parser.py` (SHA-256
+`a51a85b37cf3f44ba7ff25754da5f31306e4ccfa6eb3c017f9d37bdf4e770840`). Er
+bestätigt die Übereinstimmung mit dem bereits gebundenen `Tokenizer.get`, zählt
+zehn syntaktische Alias-Aufrufstellen und weist keine Ausführung nach. Der
+hashgeprüfte Archivlauf bleibt bei 13 Regexliteral-Kandidaten und
+`CANDIDATES_ONLY`; Parserlauf und Laufzeitverhalten bleiben unbeobachtet. Alle
+305 fokussierten Regressionen bestehen, einschließlich einer Mutation des
+Aliasziels. Der nächste Kandidat ist der statische Aufrufpfad von `_parse_sub`
+zu `_parse`, ohne Parserausführung oder P11-Qualifikation.
