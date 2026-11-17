@@ -24,6 +24,22 @@ class Res001LessonQueryTests(unittest.TestCase):
         broken = SOURCE.replace("  AND is_online = 1\n", "", 1)
         self.assertTrue(any("offline schedulers" in error for error in validate_lesson(broken)))
 
+    def test_comment_cannot_supply_online_scheduler_filter(self) -> None:
+        broken = SOURCE.replace(
+            "  AND is_online = 1",
+            "  -- AND is_online = 1\n  AND 1 = 1",
+            1,
+        )
+        self.assertTrue(any("offline schedulers" in error for error in validate_lesson(broken)))
+
+    def test_block_comment_cannot_supply_user_scheduler_filter(self) -> None:
+        broken = SOURCE.replace(
+            "WHERE scheduler_id < 255",
+            "WHERE /* scheduler_id < 255 */ 1 = 1",
+            1,
+        )
+        self.assertTrue(any("hidden schedulers" in error for error in validate_lesson(broken)))
+
     def test_ambiguous_duplicate_sql_block_is_rejected(self) -> None:
         section_start = SOURCE.index("## Workerbedarf und CPU-Warteschlange sind verschiedene Signale")
         fence = SOURCE.index("```sql", section_start)

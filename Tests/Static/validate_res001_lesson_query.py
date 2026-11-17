@@ -4,6 +4,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from sql_lexical_utils import without_tsql_comments
+
 
 ROOT = Path(__file__).resolve().parents[2]
 LESSON = ROOT / "Documentation/Curriculum/WORKER_QUEUE_PRESSURE_LESSON.md"
@@ -20,7 +22,11 @@ def validate_lesson(text: str) -> tuple[str, ...]:
     if len(blocks) != 1:
         return ("RES-001 worker-scheduler section must contain exactly one SQL block",)
 
-    sql = re.sub(r"\s+", " ", blocks[0]).casefold()
+    try:
+        uncommented = without_tsql_comments(blocks[0])
+    except ValueError as exc:
+        return (f"RES-001 query has malformed lexical structure: {exc}",)
+    sql = re.sub(r"\s+", " ", uncommented).casefold()
     required = {
         "snapshot marker uses datetime2(7)": "declare @capturedutc datetime2(7) = sysutcdatetime()",
         "scheduler DMV is queried": "from sys.dm_os_schedulers",

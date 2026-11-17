@@ -12295,3 +12295,12 @@ Kommentare beziehungsweise Quoting-Strukturen ablehnt. Sechs neue IDX-007-
 Regressionen sichern Kommentar-Täuschung für Wait-Filter und Wait-Dauer sowie
 einen unvollständigen Kommentar. Der Prüfer bleibt statisch; Seitenketten- und
 Runtimebelege sind dadurch nicht erbracht.
+
+### RES-001 – Schedulerbedingungen im Lehrvalidator gegen Kommentare absichern (17. November 2026)
+
+Der statische RES-001-Lehrvalidator akzeptierte die Abfrage, wenn der Filter
+`is_online = 1` nur in einem Kommentar stand. Er nutzt nun denselben
+T-SQL-Kommentarfilter wie RES-004 und IDX-007. Regressionen stellen sicher,
+dass auskommentierte Online- und Benutzerschedulerbedingungen nicht als
+ausführbare Abfragefilter gelten. Die Prüfung bleibt statisch und belegt keine
+Scheduler- oder Worker-Runtimewerte.
