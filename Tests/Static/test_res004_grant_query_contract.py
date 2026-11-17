@@ -48,6 +48,16 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaises(ContractError):
             validate_sql(altered)
 
+    def test_string_literal_cannot_supply_resource_semaphore_filter(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "r.wait_type = N'RESOURCE_SEMAPHORE'",
+            "N'r.wait_type = N''RESOURCE_SEMAPHORE''' = N'no'",
+            1,
+        )
+        with self.assertRaises(ContractError):
+            validate_sql(altered)
+
     def test_nested_block_comments_are_removed(self) -> None:
         query = extract_query(source_markdown())
         altered = query.replace(

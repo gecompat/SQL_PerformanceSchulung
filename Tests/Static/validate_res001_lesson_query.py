@@ -4,7 +4,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from sql_lexical_utils import without_tsql_comments
+from sql_lexical_utils import without_tsql_comments, without_tsql_comments_or_literals
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -26,7 +26,7 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         uncommented = without_tsql_comments(blocks[0])
     except ValueError as exc:
         return (f"RES-001 query has malformed lexical structure: {exc}",)
-    sql = re.sub(r"\s+", " ", uncommented).casefold()
+    sql = re.sub(r"\s+", " ", without_tsql_comments_or_literals(blocks[0])).casefold()
     required = {
         "snapshot marker uses datetime2(7)": "declare @capturedutc datetime2(7) = sysutcdatetime()",
         "scheduler DMV is queried": "from sys.dm_os_schedulers",

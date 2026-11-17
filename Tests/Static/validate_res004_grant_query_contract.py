@@ -11,7 +11,7 @@ from pathlib import Path
 import re
 import sys
 
-from sql_lexical_utils import without_tsql_comments
+from sql_lexical_utils import without_tsql_comments, without_tsql_comments_or_literals
 
 ROOT = Path(__file__).resolve().parents[2]
 LESSON = ROOT / "Documentation/Curriculum/COMPETING_MEMORY_GRANTS_LESSON.md"
@@ -35,7 +35,7 @@ def validate_sql(sql: str) -> None:
         uncommented = without_tsql_comments(sql)
     except ValueError as exc:
         raise ContractError(str(exc)) from exc
-    normalized = " ".join(uncommented.split()).casefold()
+    normalized = " ".join(without_tsql_comments_or_literals(sql).split()).casefold()
     required = (
         "primary key (session_id, request_id)",
         "declare @capturedat datetime2(7) = sysutcdatetime()",
@@ -45,7 +45,7 @@ def validate_sql(sql: str) -> None:
         "r.session_id = mg.session_id",
         "r.request_id = mg.request_id",
         "mg.grant_time is null",
-        "r.wait_type = n'resource_semaphore'",
+        "r.wait_type = n__literal__",
         "select distinct pool_id, resource_semaphore_id from ownwaits",
         "mg.pool_id = observed.pool_id",
         "mg.resource_semaphore_id = observed.resource_semaphore_id",
@@ -61,6 +61,8 @@ def validate_sql(sql: str) -> None:
     missing = tuple(fragment for fragment in required if fragment not in normalized)
     if missing:
         raise ContractError("diagnostic query is missing required RES-004 bindings")
+    if "N'resource_semaphore'".casefold() not in uncommented.casefold():
+        raise ContractError("diagnostic query must retain the RESOURCE_SEMAPHORE wait literal")
     if normalized.count("sysutcdatetime()") != 1 or normalized.count("@capturedat") != 2:
         raise ContractError("query must use exactly one capture marker for the complete observation")
     for binding in (
