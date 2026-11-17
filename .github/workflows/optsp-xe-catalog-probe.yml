@@ -113,8 +113,8 @@ jobs:
               if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd;
               elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd;
               else exit 127; fi
-              "$sqlcmd" -S localhost -U sa -C -b -l 20 -h -1 -y 65535 -w 65535'
-            | tee "${RUNNER_TEMP}/optsp-xe-catalog.json"
+              "$sqlcmd" -S localhost -U sa -C -b -l 20 -h -1 -y 8000 -w 8000'
+            | tee "${RUNNER_TEMP}/optsp-xe-catalog.jsonl"
       - name: Show container logs on failure
         if: failure()
         shell: bash
@@ -131,6 +131,6 @@ jobs:
           name: optsp-xe-catalog-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             ${{ runner.temp }}/optsp-xe-image-identity.txt
-            ${{ runner.temp }}/optsp-xe-catalog.json
+            ${{ runner.temp }}/optsp-xe-catalog.jsonl
           if-no-files-found: warn
           retention-days: 3
