@@ -214,3 +214,87 @@ def has_tsql_literal_comparison(sql: str, expression: str, expected: str) -> boo
         literals[int(match.group(1))].casefold() == expected.casefold()
         for match in re.finditer(pattern, masked, flags=re.IGNORECASE)
     )
+
+
+def split_tsql_projection_items(projection: str) -> tuple[str, ...]:
+    """Split SELECT projection items at top-level commas."""
+    source = without_tsql_comments_or_literals(projection)
+    items = []
+    start = 0
+    depth = 0
+    bracketed = False
+    index = 0
+    while index < len(source):
+        char = source[index]
+        if bracketed:
+            if char == "]":
+                if index + 1 < len(source) and source[index + 1] == "]":
+                    index += 2
+                    continue
+                bracketed = False
+        elif char == "[":
+            bracketed = True
+        elif char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+            if depth < 0:
+                raise ValueError("projection has unbalanced parentheses")
+        elif char == "," and depth == 0:
+            items.append(source[start:index].strip())
+            start = index + 1
+        index += 1
+    if depth != 0 or bracketed:
+        raise ValueError("projection has unbalanced syntax")
+    items.append(source[start:].strip())
+    return tuple(items)
+
+
+def _projection_alias(item: str) -> str | None:
+    """Find a trailing AS alias only when AS is outside nested expressions."""
+    positions = []
+    depth = 0
+    bracketed = False
+    index = 0
+    while index < len(item):
+        char = item[index]
+        if bracketed:
+            if char == "]":
+                if index + 1 < len(item) and item[index + 1] == "]":
+                    index += 2
+                    continue
+                bracketed = False
+        elif char == "[":
+            bracketed = True
+        elif char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+        elif depth == 0 and item[index:index + 2].casefold() == "as":
+            before = item[index - 1] if index else " "
+            after = item[index + 2] if index + 2 < len(item) else " "
+            if before.isspace() and after.isspace():
+                positions.append(index)
+        index += 1
+    if not positions:
+        return None
+    identifier = r"(?:\[[^\]]+(?:\]\][^\]]*)*\]|[A-Za-z_][\w$#@]*)"
+    match = re.fullmatch(rf"\s*AS\s+({identifier})\s*", item[positions[-1]:], re.IGNORECASE)
+    if match is None:
+        return None
+    return match.group(1).strip("[]").replace("]]", "]").casefold()
+
+
+def tsql_projection_output_names(projection: str) -> frozenset[str]:
+    """Return output names for simple columns and explicitly aliased items."""
+    identifier = r"(?:\[[^\]]+(?:\]\][^\]]*)*\]|[A-Za-z_][\w$#@]*)"
+    names = set()
+    for item in split_tsql_projection_items(projection):
+        alias = _projection_alias(item)
+        if alias is not None:
+            names.add(alias)
+            continue
+        column = re.fullmatch(rf"\s*(?:{identifier}\s*\.\s*)*({identifier})\s*", item)
+        if column:
+            names.add(column.group(1).strip("[]").replace("]]", "]").casefold())
+    return frozenset(names)

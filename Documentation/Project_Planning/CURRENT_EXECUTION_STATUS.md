@@ -12557,3 +12557,17 @@ jetzt innerhalb der erkannten finalen SELECT-Projektion. Eine Regression schütz
 die CTE-Verschiebung. Die 18 RES-004-Lehrabfragetests, der Offlinedatenvertrag
 und der Abfragevalidator bestehen. Das bleibt statische Quellstrukturprüfung;
 DMV-Herkunft, Methodenreview und isolierter Grant-Wait-Pilot bleiben offen.
+
+
+### RES-001 und IDX-007 – Ergebnisspalten auf SELECT-Ebene binden (17. November 2026)
+
+Die Scheduler-Lehrabfrage konnte einen `captured_utc`-Alias in einer
+verschachtelten Unterabfrage als Ergebnis-Capturemarker missverstehen. Ein
+gemeinsamer lexikalischer Helfer zerlegt SELECT-Projektionen nun an
+Kommata außerhalb von Klammern und Bezeichnern und erkennt nur Ausgabenamen
+der obersten SELECT-Ebene. RES-001 bindet damit den Capturemarker, die
+Scheduleridentität und Worker-/Warteschlangenzähler; IDX-007 verwendet denselben
+Helfer für Seiten-, Index- und Partitionsfelder. Vier Helfertests, zwölf
+RES-001- und 19 IDX-007-Lehrabfragetests sowie 13 IDX-007-Offlinedatenvertrag-
+Regressionen bestehen. Das bleibt lexikalische Quellstrukturprüfung ohne
+T-SQL-Parser, DMV-Herkunft oder Runtimequalifikation.
