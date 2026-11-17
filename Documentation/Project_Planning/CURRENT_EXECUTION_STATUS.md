@@ -12818,3 +12818,13 @@ Fehler vor der Korrektur. Danach bestehen alle 29 fokussierten RES-004-
 Lehrabfragetests, der Validator und `git diff --check`. Die Prüfung bleibt
 statisch; DMV-Herkunft, echter Grant-Wait, unabhängiger Methodenreview und
 isolierter SQL-Server-2025-Pilot sind weiterhin offen.
+
+### RES-004 – Lehrabfrage gegen drei T-SQL-Grammatiken parsen (17. November 2026)
+
+Der vorhandene ScriptDom-Prüflauf kontrollierte QRY-023 und die DGN-004-
+Kandidatenabfrage, aber nicht die RES-004-Lehrabfrage. Er extrahiert jetzt
+genau den SQL-Block mit der eigenen Requesttabelle aus der Curriculum-Lehrnotiz
+und prüft ihn gegen die Grammatikversionen SQL Server 2019, 2022 und 2025.
+Änderungen an der Lehrnotiz lösen den statischen Vertragworkflow aus. Alle drei
+Parserläufe bestehen lokal. Das ist Syntaxevidenz, keine SQL-Server-
+Kompilierung, Berechtigungsprüfung, DMV-Qualifikation oder Runtimeevidenz.

@@ -108,6 +108,36 @@ foreach (var dialect in dialects)
         Console.WriteLine($"PASS SnapshotPlanCandidates.sql parses in {dialect.Name} (syntax only)");
 }
 
+var res004Lesson = Path.Combine(repository, "Documentation/Curriculum/COMPETING_MEMORY_GRANTS_LESSON.md");
+var res004Markdown = File.ReadAllText(res004Lesson);
+var res004Queries = System.Text.RegularExpressions.Regex.Matches(
+    res004Markdown,
+    @"(?is)```sql\s*(.*?)```"
+)
+    .Select(match => match.Groups[1].Value)
+    .Where(sql => sql.Contains("DECLARE @OwnRequests TABLE", StringComparison.OrdinalIgnoreCase))
+    .ToArray();
+if (res004Queries.Length != 1)
+{
+    failed = true;
+    Console.Error.WriteLine("FAIL expected exactly one RES-004 teaching query in the curriculum lesson");
+}
+else
+{
+    foreach (var dialect in dialects)
+    {
+        using var reader = new StringReader(res004Queries[0]);
+        _ = dialect.Parser.Parse(reader, out var errors);
+        foreach (var error in errors)
+        {
+            failed = true;
+            Console.Error.WriteLine($"FAIL RES-004 competing memory grants ({dialect.Name}) {error.Line}:{error.Column} {error.Message}");
+        }
+        if (errors.Count == 0)
+            Console.WriteLine($"PASS RES-004 competing memory grants parses in {dialect.Name} (syntax only)");
+    }
+}
+
 // This is a SQLCMD include wrapper, not a standalone T-SQL source file.
 var frameworkWrapper = File.ReadAllText(Path.Combine(demo, "15_Framework.sql"));
 if (!frameworkWrapper.Contains(":r Demos/00_Framework/Sql/FWK_Measurement.sql", StringComparison.Ordinal))

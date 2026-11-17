@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'Demos/05_Query_Patterns/QRY-023_Graph_Tables/**'
+      - 'Documentation/Curriculum/COMPETING_MEMORY_GRANTS_LESSON.md'
       - 'Tests/Static/validate_qry023_proposed_harness.py'
       - 'Tests/Static/test_qry023_proposed_harness.py'
       - 'Tests/Runtime/qry023_image_matrix.py'
@@ -15,6 +16,7 @@ on:
     branches: [main]
     paths:
       - 'Demos/05_Query_Patterns/QRY-023_Graph_Tables/**'
+      - 'Documentation/Curriculum/COMPETING_MEMORY_GRANTS_LESSON.md'
       - 'Tests/Static/validate_qry023_proposed_harness.py'
       - 'Tests/Static/test_qry023_proposed_harness.py'
       - 'Tests/Runtime/qry023_image_matrix.py'
