@@ -7,6 +7,10 @@
 | Geltungsbereich | caller-gelieferter XML-Graph und Capturefelder |
 | Laufstatus | keine SQL-, Lab- oder Runtimeausführung |
 
+Die verknüpfte [Regressiondatei](../../Tests/Static/test_con006_conversion_graph_contract.py)
+enthält 19 synthetische Testmethoden. Sie prüft den unten beschriebenen
+Parservertrag, nicht die Echtheit oder Engineherkunft eines Graphen.
+
 ## Quellenbefund
 
 `SRC-066` dokumentiert `xml_deadlock_report` als empfohlenen Erfassungsweg,
