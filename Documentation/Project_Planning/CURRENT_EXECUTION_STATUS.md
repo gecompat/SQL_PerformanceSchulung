@@ -13062,3 +13062,14 @@ Coverage-Vertragsvalidatoren bestehen. Die Capturefelder bleiben caller-
 geliefert; Engineherkunft und Runtimequalifikation sind dadurch nicht belegt.
 Quellenbeispiel: [Microsoft Q&A – Deadlock Report](https://learn.microsoft.com/en-us/answers/questions/336204/deadlock-report),
 Abruf 17.11.2026.
+
+### RES-001 – Scheduler-Evidenz auf den User-Schedulerbereich begrenzen (17. November 2026)
+
+Der Offlinevertrag akzeptierte bisher Worker-Queue-Proben von Scheduler-ID 255
+und darüber, obwohl der zugehörige Lehrquery `scheduler_id < 255` fordert.
+Damit konnten die DAC- und interne Scheduler als scheinbarer User-Workerengpass
+in den synthetischen Evidenzvertrag gelangen. Der Vertrag weist jetzt IDs ab
+255 ab; Gegenproben decken DAC 255, interne ID 257 und den dokumentierten
+Hidden-Schedulerbereich ab. Die Änderung bindet Callerwerte weiterhin nicht
+an authentische DMV-Zeilen. Fachquelle: [Microsoft `sys.dm_os_schedulers`](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-os-schedulers-transact-sql?view=sql-server-ver17),
+Abruf 17.11.2026.

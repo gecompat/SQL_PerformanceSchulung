@@ -120,6 +120,16 @@ class WorkerQueueContractTests(unittest.TestCase):
         samples = (SchedulerSample(0, 1, 0, CAPTURE), SchedulerSample(0, 1, 0, CAPTURE))
         self.assertEqual(evaluate_worker_queue(wait, samples, start, end).verdict, Verdict.FAIL)
 
+    def test_dac_and_internal_scheduler_ids_fail(self) -> None:
+        wait, _, start, end = fixture()
+        for scheduler_id in (255, 257, 1048576):
+            with self.subTest(scheduler_id=scheduler_id):
+                samples = (SchedulerSample(scheduler_id, 1, 0, CAPTURE),)
+                self.assertEqual(
+                    evaluate_worker_queue(wait, samples, start, end).verdict,
+                    Verdict.FAIL,
+                )
+
     def test_boolean_is_not_an_integer_queue_count(self) -> None:
         wait, samples, start, end = fixture()
         samples = (SchedulerSample(0, True, 0, CAPTURE), samples[1])

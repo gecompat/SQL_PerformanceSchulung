@@ -16,6 +16,7 @@ _RFC3339 = re.compile(
     r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})"
     r"(?:\.(\d{1,7}))?(Z|[+-]\d{2}:\d{2})\Z"
 )
+MAX_VISIBLE_SCHEDULER_ID = 254
 
 
 class Verdict(str, Enum):
@@ -122,6 +123,7 @@ def evaluate_worker_queue(
     for sample in samples:
         if (
             not _nonnegative_int(sample.scheduler_id)
+            or sample.scheduler_id > MAX_VISIBLE_SCHEDULER_ID
             or not _nonnegative_int(sample.work_queue_count)
             or not _nonnegative_int(sample.runnable_tasks_count)
             or not _valid_timestamp(sample.captured_at)
