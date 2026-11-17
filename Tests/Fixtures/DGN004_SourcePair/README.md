@@ -92,8 +92,8 @@ Quellen-/Query-/Ausführungsbindung bereits belegt haben. Das SQL kann weder
 beweisen, dass das Handle zum beabsichtigten aktuellen Aufruf gehört, noch
 Plan- oder Engineidentität herstellen. Es prüft die 512-KiB-Grenze erst nach
 der XML-Serialisierung. Die Prozessgrenzen sind mit synthetischen lokalen
-Prozessen geprüft, aber nicht gegen SQL Server ausgeführt; SQL-Syntax-/Build-
-Qualifikation bleibt offen. Auf POSIX beendet der Runner seine eigene
+Prozessen geprüft, aber nicht gegen SQL Server ausgeführt; Enginekompilierung
+und Buildqualifikation bleiben offen. Auf POSIX beendet der Runner seine eigene
 Prozessgruppe. Unter Windows ist die Baumbeendigung nach Ende des Launchers
 nicht nachgewiesen; bleibt ein Pipe-Reader offen, endet der Aufruf mit
 `CaptureProcessEndUnknown` und darf nicht wiederholt werden. Das Fixture ist
@@ -126,4 +126,8 @@ zusätzliche Ausführungen werden abgewiesen. Die Tests verwenden ausschließlic
 synthetische Frames und Prozesse. Der Cache-Locator ist nicht SQL-kompiliert
 oder live ausgeführt; seine Ein-Writer-Kausalzuordnung bleibt Inferenz und ist
 keine authentifizierte Invocation-ID. Die drei vorhandenen
-Metadatenbeobachtungen pro Flush und alle DGN-Budgets bleiben bindend.
+Metadatenbeobachtungen pro Flush und alle DGN-Budgets bleiben bindend. Alle vier
+SQL-Dateien des Quellpaars werden zusätzlich mit Microsoft ScriptDom gegen die
+Grammatiken SQL Server 2019, 2022 und 2025 geparst. Das belegt nur statische
+Syntaxannahme; SQL-Server-Kompilierung und Build-/Runtimequalifikation bleiben
+offen.

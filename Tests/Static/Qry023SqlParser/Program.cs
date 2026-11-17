@@ -86,26 +86,54 @@ foreach (var dialect in dialects)
         Console.WriteLine($"PASS qry023_tempdb_resource_guard.sql parses in {dialect.Name}");
 }
 
-var dgn004Candidates = Path.Combine(repository, "Tests/Fixtures/DGN004_SourcePair/SnapshotPlanCandidates.sql");
-var candidateSql = File.ReadAllText(dgn004Candidates)
-    .Replace("$(DGN004_RUN)", "dgn004-run-1", StringComparison.Ordinal)
-    .Replace("$(DGN004_ROLE)", "R", StringComparison.Ordinal)
-    .Replace("$(DGN004_CALL)", "3", StringComparison.Ordinal)
-    .Replace("$(DGN004_DATABASE_ID)", "73", StringComparison.Ordinal)
-    .Replace("$(DGN004_OBJECT_ID)", "101", StringComparison.Ordinal)
-    .Replace("$(DGN004_STATEMENT_START_OFFSET)", "0", StringComparison.Ordinal)
-    .Replace("__DGN004_EXPECTED_MODULE_UTF16_HEX__", "4100", StringComparison.Ordinal);
-foreach (var dialect in dialects)
+var dgn004Directory = Path.Combine(repository, "Tests/Fixtures/DGN004_SourcePair");
+var expectedDgn004Files = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 {
-    using var reader = new StringReader(candidateSql);
-    _ = dialect.Parser.Parse(reader, out var errors);
-    foreach (var error in errors)
+    "CapturePlanFrame.sql",
+    "ReplayHintControl.sql",
+    "ReplayReference.sql",
+    "SnapshotPlanCandidates.sql",
+};
+var dgn004Files = Directory.GetFiles(dgn004Directory, "*.sql")
+    .OrderBy(Path.GetFileName, StringComparer.OrdinalIgnoreCase)
+    .ToArray();
+var actualDgn004Names = dgn004Files.Select(path => Path.GetFileName(path)!)
+    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+if (!expectedDgn004Files.SetEquals(actualDgn004Names))
+{
+    failed = true;
+    Console.Error.WriteLine("FAIL DGN-004 SQL fixture set differs from the declared syntax-check scope.");
+    foreach (var missing in expectedDgn004Files.Except(actualDgn004Names, StringComparer.OrdinalIgnoreCase))
+        Console.Error.WriteLine($"Missing: {missing}");
+    foreach (var extra in actualDgn004Names.Except(expectedDgn004Files, StringComparer.OrdinalIgnoreCase))
+        Console.Error.WriteLine($"Unexpected: {extra}");
+}
+
+foreach (var file in dgn004Files)
+{
+    var fileName = Path.GetFileName(file)!;
+    var dgn004Sql = File.ReadAllText(file);
+    dgn004Sql = dgn004Sql
+        .Replace("$(DGN004_RUN)", "dgn004-run-1", StringComparison.Ordinal)
+        .Replace("$(DGN004_ROLE)", "R", StringComparison.Ordinal)
+        .Replace("$(DGN004_CALL)", "3", StringComparison.Ordinal)
+        .Replace("$(DGN004_DATABASE_ID)", "73", StringComparison.Ordinal)
+        .Replace("$(DGN004_OBJECT_ID)", "101", StringComparison.Ordinal)
+        .Replace("$(DGN004_STATEMENT_START_OFFSET)", "0", StringComparison.Ordinal)
+        .Replace("$(DGN004_PLAN_HANDLE)", "0000", StringComparison.Ordinal)
+        .Replace("__DGN004_EXPECTED_MODULE_UTF16_HEX__", "4100", StringComparison.Ordinal);
+    foreach (var dialect in dialects)
     {
-        failed = true;
-        Console.Error.WriteLine($"FAIL SnapshotPlanCandidates.sql ({dialect.Name}) {error.Line}:{error.Column} {error.Message}");
+        using var reader = new StringReader(dgn004Sql);
+        _ = dialect.Parser.Parse(reader, out var errors);
+        foreach (var error in errors)
+        {
+            failed = true;
+            Console.Error.WriteLine($"FAIL {fileName} ({dialect.Name}) {error.Line}:{error.Column} {error.Message}");
+        }
+        if (errors.Count == 0)
+            Console.WriteLine($"PASS {fileName} parses in {dialect.Name} (syntax only)");
     }
-    if (errors.Count == 0)
-        Console.WriteLine($"PASS SnapshotPlanCandidates.sql parses in {dialect.Name} (syntax only)");
 }
 
 var res004Lesson = Path.Combine(repository, "Documentation/Curriculum/COMPETING_MEMORY_GRANTS_LESSON.md");
