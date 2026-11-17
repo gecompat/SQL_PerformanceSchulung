@@ -3719,6 +3719,8 @@ Shape- und Übergabebindung zwischen Parserausgabe, Compilerargument und
 Bytecode-Container.
 
 Checkpoint 18. November 2026: `_code` bindet die geordnete Erzeugung und
-Rückgabe des Listencontainers; `compile()` übergibt ihn an `_sre.compile`.
-Eine Mutation der Containerinitialisierung wird verworfen. Als nächstes
-werden die mitgegebenen Flags- und Gruppenmetadaten statisch gebunden.
+Rückgabe des Listencontainers; `compile()` übergibt ihn zusammen mit den
+Flags `flags | p.state.flags` sowie `p.state.groups - 1`, `groupindex` und
+`tuple(indexgroup)` an `_sre.compile`. Die Gruppenabbildung wird aus
+`p.state.groupdict` aufgebaut; die synthetische Metadatenmutation wird
+verworfen. Das ist ein statischer Quellenbefund und keine Laufzeitqualifikation.

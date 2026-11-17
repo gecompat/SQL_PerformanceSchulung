@@ -5358,6 +5358,10 @@ def deferred():
                 b"    else:\n"
                 b"        pattern = None\n"
                 b"    code = _code(p, flags)\n"
+                b"    groupindex = p.state.groupdict\n"
+                b"    indexgroup = [None] * p.state.groups\n"
+                b"    for k, i in groupindex.items():\n"
+                b"        indexgroup[i] = k\n"
                 b"    return _sre.compile(pattern, flags | p.state.flags, code, p.state.groups - 1, groupindex, tuple(indexgroup))\n"
             ),
             "re/_constants.py": (
@@ -5696,6 +5700,24 @@ def deferred():
                     "compiler_execution_observed"]
                 for row in candidates
             ))
+            self.assertTrue(all(
+                row["compiler_group_candidate"]["groupindex_source"]
+                == "p.state.groupdict"
+                and row["compiler_group_candidate"]["indexgroup_length"]
+                == "p.state.groups"
+                and row["compiler_group_candidate"]["indexgroup_population"]
+                == "indexgroup[i] = k"
+                and row["compiler_group_candidate"]["compiled_group_count"]
+                == "p.state.groups - 1"
+                and row["compiler_group_candidate"]["compile_flags_expression"]
+                == "flags | p.state.flags"
+                and row["compiler_group_candidate"][
+                    "metadata_passed_to_sre_compile"]
+                == ["groupindex", "tuple(indexgroup)"]
+                and not row["compiler_group_candidate"][
+                    "compiler_execution_observed"]
+                for row in candidates
+            ))
             self.assertTrue(all(not row["standard_re_flag_binding_observed"]
                                 for row in candidates))
 
@@ -6009,6 +6031,25 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_code_container,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_group_map = dict(files)
+            altered_group_map["re/_compiler.py"] = altered_group_map[
+                "re/_compiler.py"
+            ].replace(b"groupindex = p.state.groupdict",
+                     b"groupindex = p.state.groups", 1)
+            altered_group_map_digest = hashlib.sha256(
+                altered_group_map["re/_compiler.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_COMPILER_SOURCE_SHA256",
+                              altered_group_map_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_group_map,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),

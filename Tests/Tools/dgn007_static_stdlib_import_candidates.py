@@ -8811,6 +8811,54 @@ def _target_re_compiler_code_container_candidate(files):
     }
 
 
+def _target_re_compiler_group_metadata_candidate(files):
+    """Bind group count and named-group metadata passed to _sre.compile."""
+    source = files.get("re/_compiler.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_COMPILER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_compiler.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef) and node.name == "compile"]
+    if len(functions) != 1:
+        return None
+    body = functions[0].body
+    assignments = [ast.unparse(node) for node in body if isinstance(node, ast.Assign)]
+    group_mapping = [node for node in body if isinstance(node, ast.For)
+                     and ast.unparse(node.target) == "(k, i)"
+                     and ast.unparse(node.iter) == "groupindex.items()"]
+    calls = [node for node in ast.walk(functions[0])
+             if isinstance(node, ast.Call)
+             and ast.unparse(node.func) == "_sre.compile"]
+    if ("groupindex = p.state.groupdict" not in assignments
+            or "indexgroup = [None] * p.state.groups" not in assignments
+            or len(group_mapping) != 1
+            or len(group_mapping[0].body) != 1
+            or ast.unparse(group_mapping[0].body[0]) != "indexgroup[i] = k"
+            or len(calls) != 1
+            or [ast.unparse(arg) for arg in calls[0].args]
+            != ["pattern", "flags | p.state.flags", "code",
+                "p.state.groups - 1", "groupindex", "tuple(indexgroup)"]):
+        return None
+    return {
+        "source_path": "re/_compiler.py",
+        "source_sha256": RE_COMPILER_SOURCE_SHA256,
+        "groupindex_source": "p.state.groupdict",
+        "indexgroup_length": "p.state.groups",
+        "indexgroup_population": "indexgroup[i] = k",
+        "compiled_group_count": "p.state.groups - 1",
+        "compile_flags_expression": "flags | p.state.flags",
+        "metadata_passed_to_sre_compile": [
+            "groupindex", "tuple(indexgroup)",
+        ],
+        "compiler_execution_observed": False,
+        "evidence_scope": "PINNED_RE_COMPILER_GROUP_METADATA_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8850,6 +8898,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     parser_uniq_candidate = _target_re_parser_uniq_candidate(files)
     compiler_branch_candidate = _target_re_compiler_branch_candidate(files)
     compiler_code_candidate = _target_re_compiler_code_container_candidate(files)
+    compiler_group_candidate = _target_re_compiler_group_metadata_candidate(files)
     if (cache_path_candidate is None or tokenizer_access_candidate is None
             or parser_sourceget_candidate is None
             or parser_sub_dispatch_candidate is None
@@ -8860,7 +8909,8 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or parser_subpattern_order_candidate is None
             or parser_uniq_candidate is None
             or compiler_branch_candidate is None
-            or compiler_code_candidate is None):
+            or compiler_code_candidate is None
+            or compiler_group_candidate is None):
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -9216,6 +9266,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_uniq_candidate": parser_uniq_candidate,
             "compiler_branch_candidate": compiler_branch_candidate,
             "compiler_code_candidate": compiler_code_candidate,
+            "compiler_group_candidate": compiler_group_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })
