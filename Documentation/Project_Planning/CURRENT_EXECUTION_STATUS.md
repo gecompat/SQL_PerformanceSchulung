@@ -12304,3 +12304,20 @@ T-SQL-Kommentarfilter wie RES-004 und IDX-007. Regressionen stellen sicher,
 dass auskommentierte Online- und Benutzerschedulerbedingungen nicht als
 ausführbare Abfragefilter gelten. Die Prüfung bleibt statisch und belegt keine
 Scheduler- oder Worker-Runtimewerte.
+
+### RES-001, IDX-007 und RES-004 – Stringliterale aus Quellvergleichen ausschließen (17. November 2026)
+
+Eine Negativprobe zeigte, dass RES-001 `is_online = 1` akzeptierte, wenn der
+Ausdruck nur in einem Stringliteral stand und der aktive Schedulerfilter fehlte.
+Die drei statischen Lehrabfragevalidatoren maskieren jetzt Kommentare und
+Stringliterale vor dem Vergleich ausführbarer Pflichtfragmente. Weitere
+Gegenproben binden bei IDX-007 und RES-004 den tatsächlichen
+`r.wait_type = N'…'`-Vergleich an den dekodierten Wert genau desselben
+Stringtokens; ein separates, unverbundenes Literal kann den Waittyp nicht mehr
+vortäuschen. PR [#963](https://github.com/gecompat/SQL_PerformanceSchulung/pull/963)
+und die gezielte Nachhärtung in PR
+[#964](https://github.com/gecompat/SQL_PerformanceSchulung/pull/964) sind in
+`main` integriert. Die drei fokussierten Suiten bestehen mit 35 Tests; alle
+drei statischen Verträge, `py_compile`, `git diff --check`, Datenschutzprüfung
+und die fünf PR-CI-Gates bestanden. Das bleibt eine Quellstrukturprüfung ohne
+T-SQL-Parser, authentische DMV-Herkunft oder Runtime-/Waitnachweis.
