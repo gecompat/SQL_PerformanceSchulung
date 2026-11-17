@@ -12443,3 +12443,22 @@ Capturemarker zurück. Die RES-001-Lehrabfragesuite besteht mit 11 Tests; die
 benachbarten RES-004-, IDX-007- und Curriculumprüfungen bestehen ebenfalls.
 Das attestiert weiterhin weder tatsächliche DMV-Herkunft noch Worker-Queue-
 Runtimeverhalten.
+
+
+### IDX-010 – Methodenentwurf für geordnete NCCI (17. November 2026)
+
+Der neue [Offlineentwurf](IDX010_ORDERED_NCCI_METHOD.md) beschreibt einen
+separaten Vergleich von ungeordnetem und nach `EventDate` geordnetem
+nicht gruppiertem Columnstore-Index auf zwei identischen synthetischen
+Rowstore-Datenbanken. Die bestehende IDX-010-Demo mit gruppiertem Columnstore
+bleibt unverändert und weiterhin `VALIDATED` ausschließlich in ihrem bisherigen
+Geltungsbereich. `SRC-017` wurde hinsichtlich der Segmentwerte aus
+`SET STATISTICS IO` und `SRC-063` am 17.11.2026 erneut abgerufen; `SRC-165`
+bindet CREATE-Syntax, Segmentmetadaten, Verfügbarkeit und das offizielle
+Microsoft Order-Quality-Skript. Die Quellen dokumentieren Best-Effort-Ordnung,
+build-/editionsabhängige Grenzen und nicht für alle Datentypen/Encodings
+auswertbare Segmentmetadaten; interne Min-/Max-Spalten werden nicht als stabile
+öffentliche API ausgegeben. Es wurden keine SQL-Befehle ausgeführt. Status
+`METHOD_DRAFT`; unabhängiger Methodenreview, konkrete Build-/Edition- und
+Imagebindung, numerische Zeit-/Ressourcenobergrenzen und isolierter Pilot stehen
+aus. Kein Performanceclaim, keine Demo-ID und keine menschliche Generalprobe.
