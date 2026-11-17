@@ -12878,3 +12878,17 @@ editionsabhängige Onlineoperation. Der Methodenentwurf hält fest, dass der
 spätere Lauf Digest, Build und tatsächliche Edition selbst binden muss.
 Unabhängiger Methodenreview, numerische Zeit-/Ressourcengrenzen und isolierter
 Pilot bleiben offen. Keine Imageaktion, SQL-Ausführung oder Runtimequalifikation.
+
+### RES-004 – Grant-Wartezeit an die finale Diagnoseausgabe binden (17. November 2026)
+
+Der Lehrabfragevalidator verlangte `mg.wait_time_ms` bisher nur irgendwo im
+SQL-Text. Ein Decoy im `OwnWaits`-CTE konnte damit die Wartezeit aus der finalen
+Ausgabe entfernen, ohne den Strukturcheck auszulösen. Der Vertrag verlangt
+jetzt den direkten DMV-Wert `mg.wait_time_ms` in der finalen Projektion. Zwei
+Negativregressionen weisen eine fehlende Endausgabe und einen konstanten Ersatz
+zurück. Die Lehrnotiz erklärt außerdem, dass der RES-004-Pilot einen positiven
+Grant-Wartewert verlangt und `mg.wait_time_ms` nicht mit dem getrennten
+Requestfeld `r.wait_time` gleichsetzt. 31 Lehrabfrage- und 24 Offline-
+Grant-Wait-Vertragstests sowie Lehrvalidator und ADV-006/007-Designvalidator
+bestehen. Dies ist statische Quellen-/Synthetikevidenz; DMV-Herkunft,
+Methodenreview und isolierter SQL-Server-2025-Pilot bleiben offen.

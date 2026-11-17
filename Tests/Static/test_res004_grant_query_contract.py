@@ -175,6 +175,34 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaises(ContractError):
             validate_sql(altered)
 
+    def test_grant_wait_duration_must_be_in_final_result(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "    mg.wait_time_ms,\n",
+            "",
+            1,
+        ).replace(
+            "    SELECT own.session_id, own.request_id, mg.pool_id,\n",
+            "    SELECT own.session_id, own.request_id, mg.wait_time_ms, mg.pool_id,\n",
+            1,
+        )
+        with self.assertRaisesRegex(ContractError, "expose grant wait_time_ms"):
+            validate_sql(altered)
+
+    def test_grant_wait_duration_must_project_the_dmv_value(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "    mg.wait_time_ms,\n",
+            "    CONVERT(bigint, 1) AS wait_time_ms,\n",
+            1,
+        ).replace(
+            "    SELECT own.session_id, own.request_id, mg.pool_id,\n",
+            "    SELECT own.session_id, own.request_id, mg.wait_time_ms, mg.pool_id,\n",
+            1,
+        )
+        with self.assertRaisesRegex(ContractError, "grant DMV wait_time_ms value"):
+            validate_sql(altered)
+
     def test_result_must_expose_grant_time_for_peer_state(self) -> None:
         query = extract_query(source_markdown())
         altered = query.replace("    mg.grant_time,\n", "", 1)
