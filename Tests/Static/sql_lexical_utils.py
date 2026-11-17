@@ -307,3 +307,43 @@ def tsql_projection_has_exact_item(projection: str, expected_item: str) -> bool:
         " ".join(item.split()).casefold() == expected
         for item in split_tsql_projection_items(projection)
     )
+
+
+def tsql_projection_has_direct_column_binding(
+    projection: str, column_name: str, output_name: str | None = None,
+) -> bool:
+    """Check that a projected output is the named column, optionally qualified."""
+    identifier = r"(?:\[[^\]]+(?:\]\][^\]]*)*\]|[A-Za-z_][\w$#@]*)"
+    expected_output = (output_name or column_name).casefold()
+    expected_column = column_name.casefold()
+    for item in split_tsql_projection_items(projection):
+        alias = _projection_alias(item)
+        if alias is not None:
+            if alias != expected_output:
+                continue
+            match = re.fullmatch(
+                rf"\s*(.*?)\s+AS\s+{identifier}\s*", item, re.IGNORECASE,
+            )
+            if match is None:
+                continue
+            expression = match.group(1)
+        else:
+            expression = item
+            output = re.fullmatch(
+                rf"\s*(?:{identifier}\s*\.\s*)*({identifier})\s*", item,
+            )
+            if output is None:
+                continue
+            actual_output = output.group(1).strip("[]").replace("]]", "]").casefold()
+            if actual_output != expected_output:
+                continue
+
+        direct = re.fullmatch(
+            rf"\s*(?:{identifier}\s*\.\s*)*({identifier})\s*", expression,
+        )
+        if direct is None:
+            continue
+        actual_column = direct.group(1).strip("[]").replace("]]", "]").casefold()
+        if actual_column == expected_column:
+            return True
+    return False

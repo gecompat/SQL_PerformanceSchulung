@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 
 from sql_lexical_utils import (
+    tsql_projection_has_direct_column_binding,
     tsql_projection_has_exact_item,
     tsql_projection_output_names,
     without_tsql_comments,
@@ -77,6 +78,10 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         ):
             if field not in output_names:
                 errors.append(f"scheduler result must expose `{field}`")
+            elif not tsql_projection_has_direct_column_binding(
+                projection_match.group(1), field,
+            ):
+                errors.append(f"scheduler result must project the `{field}` DMV column")
     return tuple(errors)
 
 

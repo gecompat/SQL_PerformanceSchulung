@@ -10,6 +10,7 @@ from pathlib import Path
 
 from sql_lexical_utils import (
     extract_tsql_cte_body,
+    tsql_projection_has_direct_column_binding,
     tsql_projection_has_exact_item,
     tsql_projection_output_names,
     without_tsql_comments,
@@ -102,6 +103,10 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         ):
             if field not in output_names:
                 errors.append(f"final result must expose `{field}` for page-chain inspection")
+            elif not tsql_projection_has_direct_column_binding(
+                projection_match.group(1), field,
+            ):
+                errors.append(f"final result must project the `{field}` source value")
     if "wait_duration_ms" in sql:
         errors.append("query must use documented `wait_time`, not `wait_duration_ms`")
     return tuple(errors)

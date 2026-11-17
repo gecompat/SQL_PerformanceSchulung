@@ -72,6 +72,17 @@ class Idx007LessonQueryTests(unittest.TestCase):
         )
         self.assertEqual(validate_lesson(equivalent), ())
 
+    def test_page_chain_alias_must_project_the_source_value(self) -> None:
+        broken = SOURCE.replace(
+            "    next_page_page_id,",
+            "    CASE WHEN next_page_page_id IS NULL THEN NULL ELSE 1 END "
+            "AS next_page_page_id,",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("project the `next_page_page_id` source value" in error
+                            for error in errors))
+
     def test_wait_filter_regression_is_rejected(self) -> None:
         broken = SOURCE.replace("r.wait_type = N'PAGELATCH_EX'", "r.wait_type = N'PAGEIOLATCH_EX'", 1)
         errors = validate_lesson(broken)

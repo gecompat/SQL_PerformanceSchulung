@@ -24,6 +24,16 @@ class Res001LessonQueryTests(unittest.TestCase):
         self.assertTrue(any("expose `scheduler_id`" in error for error in errors))
         self.assertTrue(any("expose `work_queue_count`" in error for error in errors))
 
+    def test_scheduler_count_alias_must_project_the_dmv_column(self) -> None:
+        broken = SOURCE.replace(
+            "       current_workers_count,",
+            "       CASE WHEN current_workers_count > 0 THEN 0 ELSE 0 END "
+            "AS current_workers_count,",
+            1,
+        )
+        self.assertTrue(any("project the `current_workers_count` DMV column" in error
+                            for error in validate_lesson(broken)))
+
     def test_capture_marker_must_be_projected(self) -> None:
         broken = SOURCE.replace("SELECT @CapturedUtc AS captured_utc,\n", "SELECT\n", 1)
         errors = validate_lesson(broken)

@@ -12624,3 +12624,16 @@ Helfertests, 13 RES-001-, 21 IDX-007-, 21 RES-004-Lehrabfrage- und 24
 RES-004-Offlinedatenvertragstests bestehen. Die Validatoren prüfen weiterhin nur
 statische Quellstruktur; sie authentifizieren keine Aufnahme und qualifizieren
 keine Laufzeit.
+
+### RES-001 und IDX-007 – direkte Quellspalten in der Endprojektion binden (17. November 2026)
+
+Die RES-001- und IDX-007-Lehrvalidatoren prüften erforderliche Ergebnisspalten
+bisher über ihre Ausgabenamen. Ein berechneter oder konstanter Ausdruck konnte
+daher einen Schedulerzähler beziehungsweise eine Seitenkettenadresse unter
+dem erwarteten Alias ersetzen. Der lexikalische Helfer erkennt jetzt direkte
+Spaltenbindungen auch mit Qualifizierer oder identischem Alias. Beide
+Lehrvalidatoren verlangen die direkten Werte für ihre fachlichen DMV-Felder;
+Regressionen schützen Schedulerzähler und Nachfolgerseiten-ID vor berechneten
+Ersatzwerten. Sechs Helfertests, 14 RES-001- und 22 IDX-007-Lehrtests sowie die
+beiden Validatoren bestehen. Dies bleibt eine begrenzte Strukturprüfung ohne
+T-SQL-Parser oder authentifizierte DMV-Aufnahme.
