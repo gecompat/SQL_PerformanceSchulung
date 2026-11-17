@@ -58,9 +58,25 @@ seine 19 synthetischen Regressionen stehen in
 Beide prüfen die Struktur und innere Konsistenz caller-gelieferter Werte; sie
 lesen keine `system_health`-Ereignisse und qualifizieren kein Enginebuild.
 
-Die Range-Variante bleibt hier ausgespart: Ihre Schlüsselbereichssperren
-überschneiden sich fachlich mit `CON-002` und erfordern einen eigenen
-Lernzuwachsnachweis.
+## Schlüsselbereichsblockierung und möglicher Deadlock
+
+Der geplante `CON-002`-Fall soll zeigen, wie ein `SERIALIZABLE`-Bereichsschutz
+einen einzelnen Einfügeversuch blockiert, bis die Lesetransaktion endet. Ein
+möglicher zusätzlicher `CON-006`-Fall stellt eine andere Frage: Wenn zwei
+Transaktionen getrennte leere Suchbereiche lesen, die innerhalb derselben
+physischen Indexlücke liegen, kann eine Einfügung in den jeweils anderen
+logischen Bereich einen Deadlockzyklus bilden? Der Lernunterschied wäre der
+nachgewiesene Zyklus mit Opfer und Survivor gegenüber einer einzelnen
+Wait-und-Freigabefolge.
+
+Das ist eine Hypothese, kein beschriebenes Standardverhalten. Unterschiedliche
+Prädikate beweisen weder getrennte noch gemeinsame Sperrressourcen. Erst ein
+laufgebundener Deadlockgraph darf zeigen, welche Indexressource und Sperrmodi
+tatsächlich beteiligt waren. Der
+[Range-Methodenentwurf](../Project_Planning/CON006_RANGE_DEADLOCK_METHOD.md)
+legt dafür einen signalgesteuerten Kandidaten und einen seriellen Kontrollarm
+fest. Beide Varianten bleiben ohne unabhängigen Methodenreview und isolierten
+Enginepilot unqualifiziert.
 
 ## Quellen
 
@@ -69,5 +85,5 @@ Lernzuwachsnachweis.
 - Das [Quellenregister](../Research/SOURCE_REGISTER.md) führt die Deadlock-, Sperr- und `system_health`-Quellen unter `SRC-004`, `SRC-066` und `SRC-068`; die konkreten Aussage- und Provenienzgrenzen fasst der [CON-006-Offline-Review](../Project_Planning/CON006_OFFLINE_EVIDENCE_REVIEW.md) zusammen.
 
 Die Erklärung ergänzt den Lernpfad und beschreibt die buildqualifizierte
-Konversionsvariante. Die Range-Variante bleibt wegen der Überschneidung mit
-CON-002 zurückgestellt.
+Konversionsvariante. Die Range-Variante ist nur als Methodenentwurf vorhanden;
+sie erweitert weder CON-002 noch den validierten CON-006-Demovertrag.
