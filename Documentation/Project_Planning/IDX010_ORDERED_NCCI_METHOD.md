@@ -30,10 +30,15 @@ bestehenden IDX-010-Demo.
    geordneten Clustered Index. Erzeuge je Datenbank dieselbe NCCI-Spaltenliste,
    die `EventDate` und alle von der Testabfrage benötigten Werte enthält.
 3. Der Kontrollarm baut den NCCI ohne `ORDER`; der Versuchsarm verwendet
-   `ORDER (EventDate)`. DDL, Daten, Indexspalten, Kompression, Partitionierung,
-   Buildoptionen und Reihenfolge der Ausführung sind ansonsten gleich. Führe
-   die Builds nacheinander aus und schreibe keine Daten zwischen Build und
-   Messung.
+   `ORDER (EventDate)`. Beide Builds laufen offline mit `MAXDOP = 1`; die
+   Option gilt identisch für beide Arme. Damit ist die Buildparallelität
+   kontrolliert; höhere Parallelität kann laut Microsoft zusätzliche
+   Segmentüberlappung verursachen, weil jeder Thread nur lokal sortiert.
+   `MAXDOP = 1` garantiert für diesen NCCI dennoch keine vollständige
+   Ordnung. DDL, Daten,
+   Indexspalten, Kompression, Partitionierung, Buildoptionen und Reihenfolge
+   der Ausführung sind ansonsten gleich. Führe die Builds nacheinander aus
+   und schreibe keine Daten zwischen Build und Messung.
 4. Das synthetische Profil muss ausreichend viele vollständige komprimierte
    Rowgroups ergeben, um Segmentüberlappung sinnvoll zu vergleichen. Es mischt
    deterministisch mehrere Datumsbereiche innerhalb jeder Ladeportion, damit
@@ -93,7 +98,10 @@ die Voraussetzungen des ausgewählten Online-/Offline-Builds und die
 erforderlichen Rechte zu prüfen. Das offizielle Featureblatt nennt `ORDER` für
 NCCI ab SQL Server 2025; Onlineoperationen sind editionsabhängig.
 
-Der Pilot benötigt eine eigene dedizierte Wegwerfinstanz. Vor Start sind
+Der Pilot benötigt eine eigene dedizierte Wegwerfinstanz. Da `MAXDOP = 1` die
+Builddauer eines geordneten Columnstore-Index deutlich verlängern kann, muss
+das numerische Zeitbudget den gemessenen Aufbau beider NCCI-Builds einschließen;
+ein Timeout beendet den Pilot fail-closed und führt zum Cleanup. Vor Start sind
 Instanzidentität, Image-Digest, CPU-/Speicher-/Datenträgergrenzen und freie
 Kapazität zu prüfen. Ein numerisches Gesamtzeitbudget für Aufbau, beide Builds,
 Abfragen und Cleanup sowie Höchstwerte für Datenbankgröße und Speicherbedarf
@@ -128,4 +136,11 @@ für die bisherige CCI-Demo.
 - `SRC-063`: [Performance tuning with ordered columnstore indexes](https://learn.microsoft.com/en-us/sql/relational-databases/indexes/ordered-columnstore-indexes?view=sql-server-ver17)
 - `SRC-017`: [Columnstore query performance](https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-query-performance?view=sql-server-ver17), einschließlich der dokumentierten `SET STATISTICS IO`-Ausgabe für gelesene und übersprungene Segmente.
 - `SRC-165`: Microsoft Learn, [CREATE COLUMNSTORE INDEX](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-columnstore-index-transact-sql?view=sql-server-ver17), [sys.column_store_segments](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-column-store-segments-transact-sql?view=sql-server-ver17) und [What's new in columnstore indexes](https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-what-s-new?view=sql-server-ver17); ergänzend Microsofts [Order-Quality-Skript](https://github.com/microsoft/sql-server-samples/blob/master/samples/features/columnstore/ordered-columnstore/order-quality.sql).
+
+Die Microsoft-Dokumentation beschreibt, dass geordnete Columnstore-Builds mit
+`MAXDOP > 1` je Thread lokal sortieren und dadurch mehr Segmentüberlappung
+erzeugen können. `MAXDOP = 1` wird deshalb hier als kontrollierte
+Versuchsbedingung gewählt, nicht als allgemeine Buildempfehlung oder Garantie
+vollständiger Ordnung. Der Offlinebuild bleibt von der verfügbaren
+Arbeitsbereichsspeichermenge und dem konkreten NCCI-Verhalten abhängig.
 

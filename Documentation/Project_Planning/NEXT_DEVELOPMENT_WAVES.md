@@ -14,7 +14,11 @@ geordnete nicht gruppierte Columnstore-Indizes](IDX010_ORDERED_NCCI_METHOD.md)
 vergleicht denselben synthetischen Rowstore-Bestand mit ungeordnetem und
 `ORDER (EventDate)`-NCCI. `SRC-063` wurde aktuell abgerufen; `SRC-165` bindet
 die CREATE-Syntax, Segmentmetadaten, SQL-Server-2025-Verfügbarkeit und das
-Microsoft Order-Quality-Skript. Keine SQL-/Lab-/Runtimeausführung, keine
+Microsoft Order-Quality-Skript. Der Methodenkandidat fixiert jetzt beide
+Builds auf offline und `MAXDOP = 1`, damit die Parallelität kontrolliert ist;
+die Methode behauptet damit keine vollständige Ordnung für NCCI. Das Zeitbudget
+muss den potenziell längeren geordneten Build beider Arme enthalten. Keine
+SQL-/Lab-/Runtimeausführung, keine
 Demoerweiterung und keine menschliche Generalprobe. Nach dem Dokumentations-
 checkpoint bleiben unabhängiger Methodenreview, exakter Image-/Build-/Edition-
 Nachweis, numerische Ressourcenobergrenzen und ein separat autorisierter
