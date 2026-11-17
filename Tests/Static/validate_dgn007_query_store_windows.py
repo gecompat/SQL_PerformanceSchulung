@@ -131,6 +131,7 @@ ORDER BY start_time DESC;
 SELECT TOP(1) @IntervalId=runtime_stats_interval_id,@IntervalStart=start_time,@IntervalEnd=end_time
 FROM sys.query_store_runtime_stats_interval
 WHERE runtime_stats_interval_id<>@PreviousIntervalId AND start_time>=@PreviousEnd
+  AND DATEADD(second,2,start_time)<=TODATETIMEOFFSET(SYSUTCDATETIME(),'+00:00')
   AND start_time<=TODATETIMEOFFSET(SYSUTCDATETIME(),'+00:00')
   AND end_time>TODATETIMEOFFSET(SYSUTCDATETIME(),'+00:00')
 AND runtime_stats_interval_id IN (

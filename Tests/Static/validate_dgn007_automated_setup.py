@@ -189,13 +189,16 @@ def runner_findings(text: str) -> list[str]:
                    "0 <= self.lifecycle_started_ns <= self.cleanup_started_ns",
                    "<= self.lifecycle_finished_ns", "phase_timing",
                    "configured_cpus", "configured_memory_mb",
-                   "active_sql_sessions_before", "active_sql_sessions_after"):
+                   "active_sql_sessions_before", "active_sql_sessions_after",
+                   "source_freeze_before", "source_freeze_after"):
         if marker not in receipt_text:
             findings.append(f"Interner Capturebeleg fehlt monotone Lifecyclegrenze: {marker}")
     for marker in ("PHASE_TIME = re.compile", "phase_timing_protocol=True",
                    "_capture_phase_timing(result, contract=contract)",
                    "_docker_resource_snapshot(target)", "resource_after != resource_before",
-                   "_active_sql_session_snapshot(target)", "sessions_after != 1"):
+                   "_active_sql_session_snapshot(target)", "sessions_after != 1",
+                   "capture_source_snapshot(ROOT, expected_contract)",
+                   "verify_source_freeze(source_freeze_before, source_freeze_after,"):
         if marker not in text:
             findings.append(f"Runnerreceipt bindet keine tatsächlichen Harness-Phasenzeiten: {marker}")
     resource_probe = functions.get("_docker_resource_snapshot")

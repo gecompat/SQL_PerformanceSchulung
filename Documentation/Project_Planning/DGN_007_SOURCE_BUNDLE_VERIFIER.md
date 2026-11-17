@@ -16,7 +16,7 @@ fest im Verifier definiert und wird niemals aus dem Kandidaten geladen.
 Git liest originale Blobs ohne Replaceobjects, Lazyfetch, Textconv, Filter oder
 Archiveexport. Kandidaten werden weder importiert noch ausgeführt.
 
-Die reviewte Vereinigung umfasst 27 Mitglieder: neun Pythonquellen
+Die reviewte Vereinigung umfasst aktuell 27 Mitglieder: neun Pythonquellen
 (Runner, Target, Proxy, Harness, Sessionorchestrator, Prozesshelper,
 Projection, Transportdecoder und Prospektivevaluator), elf SQLquellen,
 sechs Manifeste und den Incidentvertrag. Die vollständigen relativen Pfade
@@ -36,6 +36,12 @@ Ein normaler Checkout kann durch CRLF-Konvertierung abweichende Rohbytes besitze
 Der Verifier erstellt und extrahiert selbst keine Archive oder Bundles.
 
 ## Bindung und Ablehnung
+
+Der Runner prüft die vertraglich gebundenen Quellenbytes vor und nach dem
+Capture inline. Das vermeidet eine zusätzliche Kandidatenimportquelle im
+gebundenen Offlinegraphen. Die festgelegten Bootstrap-Digests bleiben
+unverändert; der CI-Workflow verwendet den gebundenen CPython 3.12.14-
+Interpreter, da die AST-Darstellung an das Interpreterprofil gebunden ist.
 
 `PASS_STATIC_CANDIDATE` verlangt genau die feste Mitgliederliste, reguläre
 Dateien und bytegleiche Gitblobs, danach die deklarierte Importprüfung.
@@ -107,13 +113,13 @@ Pfadalias und Casekollision, CRLF und echte Inhaltsänderung, Exportattribute,
 Gitreplace-/Umleitungsversuch, Hardlinks und Git-Symlink-/Submodulemodes,
 Import-/Bootstrapmutation, NUL-Syntax,
 Größen-/Eintrags-/AST-/Gitoutputlimits und einen Ausführungssentinel.
-Darunter bindet ein Fall die tatsächlichen 27 Quellen am lokalen HEAD.
+Darunter bindet ein Fall die tatsächlichen 28 Quellen am lokalen HEAD.
 Unter Windows benötigen zwei echte Symlinkfälle OS-Berechtigung und werden
 bei deren Fehlen ausdrücklich als SKIP ausgewiesen; Linux-CI (Continuous Integration; automatisierte Integrationsprüfungen) führt sie aus.
 Reparseattribute besitzen zusätzlich eine kontrollierte Gegenprobe.
 Keine SQL-, Docker- oder Launcher-Runtime ist beteiligt. Der eigene
 [Workflow](../../.github/workflows/dgn007-source-bundle.yml) ist statisch und
-auf die sieben konkreten Verifier-/Dokumentpfade und die 27 exakten Quellmember begrenzt;
+auf die sieben konkreten Verifier-/Dokumentpfade und die 28 exakten Quellmember begrenzt;
 spätere Änderungen dieser Quellen lösen damit die Closuregegenprobe aus.
 
 ## Nächster begrenzter Schnitt

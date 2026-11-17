@@ -15,8 +15,9 @@ PR [#918](https://github.com/gecompat/SQL_PerformanceSchulung/pull/918) wurde
 als `2bcb8a70798c583f8a417cd1a7293c67fa1c75cc` integriert. Die begrenzte
 Präqualifikation prüft sechs deklarierte vollständige Records in DEC-068-
 Reihenfolge, Phasen-/Lifecyclemonotonie, 180-/60-Sekundenlimits,
-Ressourcendeklarationen sowie Freeze-/Cleanupflags. Der Caller liefert diese
-Zusicherungen weiterhin; sie sind keine Herkunftsattestation. Der Runnerreceipt
+Ressourcendeklarationen sowie Freeze-/Cleanupflags. Freeze-Snapshots werden
+inzwischen vor/nach dem Capture durch den Runner gebunden; Hostbelegung und
+Quellenherkunft bleiben Caller-/Provenienzgrenzen. Der Runnerreceipt
 bindet jetzt zusätzlich tatsächliche monotone Außenkanten für Start,
 Cleanupstart und Ende. Der Runner-AST wurde nach unabhängiger Codeprüfung für
 Python 3.12.14 neu gebunden.
@@ -33,9 +34,8 @@ Speichergrenzen an gleichlautende `docker inspect`-Snapshots vor und nach jedem
 Capture. Eine administrative SQL-Abfrage zählt zusätzlich laufende
 Benutzersessions an beiden Capture-Rändern und lässt nur genau eine zu. Das
 belegt nur Randzustände, weder physische Hostkapazität noch durchgehende
-Ressourcenstabilität oder SQL-Exklusivität. Hostbelegung, integrierter
-Source-Freeze, Quellenherkunft und der vollständige verlustfreie Coordinator
-bleiben offen.
+Ressourcenstabilität oder SQL-Exklusivität. Hostbelegung, externe
+Quellenherkunft und der vollständige verlustfreie Coordinator bleiben offen.
 
 Der Head-Lauf
 [#70](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/43818717528)
@@ -51,16 +51,17 @@ DEC-068-Incidentmatrix noch einen vertrauensgebundenen Coordinator oder
 qualifizierte Incident-/Ursachenevidenz; die menschliche Generalprobe bleibt
 ausgeschlossen.
 
-Am 16. November 2026 kam ein read-only Quellenfreeze-Prüfer hinzu:
-`Tests/Runtime/dgn007_source_freeze.py` vergleicht die 14 normalisierten
-SQL-/Manifestdateien mit den Hashes des Acceptance-Vertrags und kann zwei
-Snapshots auf identische Bindung prüfen. Zwei lokale Prüffälle decken den
-vollständigen Bestand und eine nachträgliche Byteänderung ab. Der neue isolierte
-Statikworkflow prüft diese Fixtures. Das schließt die lokale Snapshot-Prüfung,
-aber nicht die Integration in den Runner: `source_freeze_verified` bleibt bis
-dahin Callerangabe, tatsächliche Prozessquellennutzung und Herkunft bleiben
-unattestiert. Die bestehenden Coordinator-/Receipt-Tests bestehen weiterhin
-(5/5 und 10/10); eine SQL-Runtime wurde für diesen Quellenprüfer nicht gestartet.
+Der in PR #928 integrierte read-only Quellenfreeze-Prüfer ist jetzt im
+Capture-Runner eingebunden. Der Runner bindet zwei Snapshots der 14
+normalisierten SQL-/Manifestdateien vor Capture und nach Cleanup an das interne
+Runnerreceipt; die Receipt-Bindung leitet das Freeze-Flag ab und akzeptiert
+keine Callerzusicherung mehr. Der Freeze-Code bleibt inline im ohnehin
+gebundenen Runner, damit das geschlossene Importprofil nicht um eine zusätzliche
+Kandidatenquelle erweitert werden muss. 60 Runner-, 11 Receipt-, fünf
+Coordinator- und zwei Snapshottests sowie der Runnervertrag bestanden vor der
+Integration lokal. Der offline geprüfte Quellenverbund bleibt bei 27 Mitgliedern
+und neun Pythonquellen. Unattestiert bleiben die tatsächlich vom Kindprozess
+geladenen Bytes, Quellenherkunft und Hostbelegung.
 
 Die erneute read-only Prüfung des historischen G13-Laufs
 [#37570814577](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/37570814577)
@@ -12010,3 +12011,28 @@ Locale-Fallbacklogik aus ([CPython CLI](https://docs.python.org/3.12/using/cmdli
 Die fokussierte Scanner-Suite besteht lokal mit 296 Tests. Dies bleibt
 `CANDIDATES_ONLY`: kein beobachteter Worker-/Runtimewert, keine vollständige
 P11-Inventur und keine SQL-/Incidentqualifikation.
+
+### DGN-007 – Intervallgrenze im SQL-Server-2025-Fenstercapture
+
+Der vollständige isolierte PR-Lauf 43978922259 bestand die Datenmodell- und
+Query-Store-Fenster-Lifecycles auf SQL Server 2019 und 2022; beide Enginejobs
+schlossen auch ihre AB/BA/AA-Captures und Cleanup erfolgreich ab. Auf SQL Server
+2025 endete der neutrale Profilvergleich im Fenstervertrag mit
+`FAIL_RESULT_CONTRACT` (Fehler 51002): Das eigene Requestlog enthielt vier
+erfolgreiche Requests, die Query-Store-Sicht für das erste Fenster aber nur
+drei reguläre Ausführungen. Im zweiten Fenster waren alle vier sichtbar. Der
+erste gespeicherte Laufzeitzeitpunkt lag exakt auf der Intervallstartzeit. Das
+weist auf eine mögliche Grenzrennen-Hypothese hin, beweist sie aber nicht;
+Cleanup und unabhängige Containerentfernung bestanden.
+
+Der Fensterpoll wartet jetzt mindestens zwei Sekunden nach dem Beginn eines
+neuen aktiven Intervalls, bevor die gemessene Requestgruppe startet, und prüft
+weiterhin, dass genau dieses Intervall noch aktiv ist. Derselbe Guard gilt für
+neutralen und kontrollierten Capture; der statische Validator bindet ihn an den
+Pollpfad. Prospektivvertrag und Source-Freeze bestehen lokal. Die breite
+Bundle-Suite besteht mit 35 Tests und zwei Plattform-Skips; ihr einziger
+Current-Candidate-Fehler `BOOTSTRAP_CHANGED` entsteht, weil die lokale
+Python-3.13-Umgebung nicht dem gebundenen CPython 3.12 entspricht. Die Ursache
+und eine tatsächliche Behebung sind erst nach einer frischen isolierten
+SQL-Server-2025-Gegenprobe bestätigt; bis dahin bleibt die Versionsqualifikation
+offen.

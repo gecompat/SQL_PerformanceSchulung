@@ -45,8 +45,8 @@ DATA_MEMBERS = tuple(DEMO + "Automated/" + name for name in (
 STDLIB = frozenset(("__future__", "argparse", "ctypes", "dataclasses", "datetime", "decimal",
                     "fractions", "hashlib", "json", "os", "pathlib", "re", "shutil",
                     "signal", "subprocess", "sys", "threading", "time", "typing"))
-MODULES = tuple((Path(p).stem if "/Contracts/" not in p else
-                 "Tests.Contracts." + Path(p).stem, p) for p in PYTHON_MEMBERS)
+MODULES = tuple(("Tests.Contracts." + Path(p).stem if "/Contracts/" in p else
+                 Path(p).stem, p) for p in PYTHON_MEMBERS)
 # Exakte AST-Bindung der bereits reviewten Suchpfadblöcke, keine Ausführung.
 BOOTSTRAPS = (
     (PYTHON_MEMBERS[0], ("ROOT", "RUNTIME", "FRAMEWORK"),
