@@ -12755,3 +12755,16 @@ Decoy-Aufruf. Alle 27 fokussierten IDX-007-Lehrtests, der Validator und
 `git diff --check` bestehen lokal unter Python 3.13. Das ist weiterhin nur
 statische Quellform; Herkunft und Runtime der DMV-Zeilen sowie die Seitenkette
 sind nicht qualifiziert.
+
+### RES-004 – Requestidentität im OwnWaits-Join durchgängig binden (17. November 2026)
+
+Der RES-004-Lehrvalidator verlangte die Session-/Request-Gleichheiten bisher
+zum Teil nur irgendwo in der Gesamtquery. Ein korrektes späteres Joinfragment
+hätte dadurch einen fehlerhaften Join im `OwnWaits`-CTE verdecken können. Der
+Validator prüft jetzt direkt im CTE die Quellfolge aus `@OwnRequests`,
+`sys.dm_exec_query_memory_grants` und `sys.dm_exec_requests` samt vollständigen
+Session-/Request-Schlüsseln. Zwei Regressionen schützen einen Join ohne
+Schlüsselbindung und eine falsche DMV-Quelle. Alle 28 fokussierten
+RES-004-Lehrabfragetests und der Abfragevalidator bestehen lokal unter Python
+3.13. Der Vertrag bleibt statisch und authentifiziert keine DMV-Aufnahme oder
+reale Grant-Waits.
