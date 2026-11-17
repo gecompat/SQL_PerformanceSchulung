@@ -59,23 +59,24 @@ BEGIN
         FROM Targets
         CROSS APPLY TargetData.nodes('//event[@name="xml_deadlock_report"]') AS X(e)
     )
-    SELECT TOP (10)
+    SELECT TOP (20)
         Graph.value('(/event/@timestamp)[1]','nvarchar(40)') AS EventTimestamp,
-        Graph.value('count(/event/data[@name="xml_report"]/value/deadlock/process-list/process)','int') AS ProcessCount,
-        Graph.value('count(/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock)','int') AS KeyLockCount,
-        Graph.value('(/event/data[@name="xml_report"]/value/deadlock/process-list/process[1]/@spid)[1]','nvarchar(20)') AS Process1Spid,
-        Graph.value('(/event/data[@name="xml_report"]/value/deadlock/process-list/process[1]/@currentdb)[1]','nvarchar(20)') AS Process1Db,
-        Graph.value('(/event/data[@name="xml_report"]/value/deadlock/process-list/process[2]/@spid)[1]','nvarchar(20)') AS Process2Spid,
-        Graph.value('(/event/data[@name="xml_report"]/value/deadlock/process-list/process[2]/@currentdb)[1]','nvarchar(20)') AS Process2Db,
-        Graph.value('(/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock/@dbid)[1]','nvarchar(20)') AS LockDb,
-        Graph.value('(/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock/@hobtid)[1]','nvarchar(40)') AS LockHoBT,
-        Graph.value('(/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock/@objectname)[1]','nvarchar(260)') AS LockObject,
-        Graph.value('(/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock/@indexname)[1]','nvarchar(128)') AS LockIndex,
-        Graph.value('(/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock/owner-list/owner[1]/@mode)[1]','nvarchar(20)') AS Owner1Mode,
-        Graph.value('(/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock/owner-list/owner[2]/@mode)[1]','nvarchar(20)') AS Owner2Mode,
-        Graph.value('(/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock/waiter-list/waiter[1]/@requestType)[1]','nvarchar(20)') AS Waiter1Type,
-        Graph.value('(/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock/waiter-list/waiter[2]/@requestType)[1]','nvarchar(20)') AS Waiter2Type
+        Resource.value('(@dbid)[1]','nvarchar(20)') AS LockDb,
+        Resource.value('(@hobtid)[1]','nvarchar(40)') AS LockHoBT,
+        Resource.value('(@objectname)[1]','nvarchar(260)') AS LockObject,
+        Resource.value('(@indexname)[1]','nvarchar(128)') AS LockIndex,
+        Resource.value('(owner-list/owner[1]/@id)[1]','nvarchar(128)') AS Owner1,
+        Resource.value('(owner-list/owner[1]/@mode)[1]','nvarchar(20)') AS Owner1Mode,
+        Resource.value('(owner-list/owner[2]/@id)[1]','nvarchar(128)') AS Owner2,
+        Resource.value('(owner-list/owner[2]/@mode)[1]','nvarchar(20)') AS Owner2Mode,
+        Resource.value('(waiter-list/waiter[1]/@id)[1]','nvarchar(128)') AS Waiter1,
+        Resource.value('(waiter-list/waiter[1]/@mode)[1]','nvarchar(20)') AS Waiter1Mode,
+        Resource.value('(waiter-list/waiter[1]/@requestType)[1]','nvarchar(20)') AS Waiter1Type,
+        Resource.value('(waiter-list/waiter[2]/@id)[1]','nvarchar(128)') AS Waiter2,
+        Resource.value('(waiter-list/waiter[2]/@mode)[1]','nvarchar(20)') AS Waiter2Mode,
+        Resource.value('(waiter-list/waiter[2]/@requestType)[1]','nvarchar(20)') AS Waiter2Type
     FROM Events
+    CROSS APPLY Graph.nodes('/event/data[@name="xml_report"]/value/deadlock/resource-list/keylock') AS Locks(Resource)
     WHERE Graph.exist('/event/data[@name="xml_report"]/value/deadlock/process-list/process[@spid=sql:variable("@A")]')=1
        OR Graph.exist('/event/data[@name="xml_report"]/value/deadlock/process-list/process[@spid=sql:variable("@B")]')=1;
     THROW 51006,'FAIL_RESULT_CONTRACT: Kein eindeutiger same-key S-to-X-Konversionsgraph fuer diesen Lauf.',1;
