@@ -3500,3 +3500,12 @@ Werte zurück. 66 fokussierte Tests bestehen. Hostkapazität, Hostexklusivität,
 Incidentherkunft und SQL-Runtime bleiben davon unbewiesen. Das geschlossene
 Python-3.12-AST-Profil wurde für den geänderten Runner neu gebunden; dadurch
 wird keine Ausführung attestiert.
+
+### RES-004 – Request-Wartezeit an die finale Ausgabe binden (17. November 2026)
+
+Der Abfragevalidator akzeptierte `r.wait_time AS request_wait_time_ms` als
+Decoy im `OwnWaits`-CTE, obwohl die finale Ausgabe das Feld nicht mehr enthielt.
+Er verlangt nun den direkten Request-DMV-Wert in der Schlussprojektion;
+`mg.wait_time_ms` bleibt separat. Eine synthetische Regression deckt den
+verschobenen Ausdruck ab. 37 Lehrabfragetests und der Validator bestehen lokal.
+Keine authentische DMV-Aufnahme oder Runtimeprüfung.
