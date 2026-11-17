@@ -69,6 +69,10 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         errors.append(
             "scheduler snapshot must read directly from sys.dm_os_schedulers without row-multiplying joins"
         )
+    if not sql.rstrip().endswith("order by scheduler_id;"):
+        errors.append(
+            "scheduler final clause must not add pagination or other row-suppressing clauses"
+        )
     projection_match = re.search(
         r"\bselect\s+(.*?)\s+from\s+sys\.dm_os_schedulers\b", sql,
     )
