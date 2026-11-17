@@ -161,6 +161,11 @@ ergänzt `LO-M06-01`/`LO-M06-03` erklärend: `work_queue_count`,
 `runnable_tasks_count` und `THREADPOOL`-Waits haben getrennte Aussagen.
 Sie fügt keinen Claim oder Demo-Nachweis hinzu.
 
+Die [Lehrnotiz zu Buffer-Pool-Belegung und Speicherdruck](BUFFER_POOL_PRESSURE_LESSON.md)
+ergänzt die Vertiefung erklärend. Sie trennt die Cache-Seiteninventur von
+Low-Memory-Signalen und Grant-Waits; sie fügt keine aktive Folien- oder
+Runtimequalifikation hinzu.
+
 ## 4. Geplante Vertiefung nach ADV-003
 
 | Claim | Aktive Folie | Aussagekern | Curriculum | Pfad | Quellen | Kanonische Demo/LAB | Testprofil | Status |
