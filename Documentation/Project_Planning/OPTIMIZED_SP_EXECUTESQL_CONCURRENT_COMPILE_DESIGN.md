@@ -5,7 +5,7 @@
 | Status | `METHOD_DRAFT` – keine Implementierungs- oder Runtimefreigabe |
 | Geltungsbereich | Separater, isolierter SQL-Server-2025-Versuch zu gleichzeitigen `sp_executesql`-Aufrufen |
 | Bestehende Demo | `QRY-004` bleibt unverändert und qualifiziert dieses Verhalten nicht |
-| Produktquellen | `SRC-059`, `SRC-161`, `SRC-162` |
+| Produktquellen | `SRC-059`, `SRC-161`, `SRC-162`, `SRC-163` |
 
 ## Ziel und Grenze
 
@@ -35,5 +35,6 @@ Microsoft dokumentiert, dass die datenbankbezogene Option ab SQL Server 2025 sta
 - `SRC-059` dokumentiert Option, Verfügbarkeit, Default, gleiche Batchtexte und Statistikempfehlung.
 - `SRC-161` beschreibt Compile-Lock-Diagnosebeispiele für Prozeduren/Trigger. Es ist keine Evidenz für die exakte dynamische Batchressource.
 - `SRC-162` weist auf möglichen Diagnoseoverhead breit erfasster Compile-/Showplan-Ereignisse hin; daher sind Filterung und Zeitbegrenzung Teil des Designs.
+- `SRC-163` dokumentiert, wie Extended-Events-Pakete, Ereignisse, Actions und deren Metadaten aus den XE-Systemkatalogen gelesen werden. Die neue [read-only Katalogabfrage](../../Tests/Runtime/optsp_xe_catalog_probe.sql) prüft diese Metadaten auf SQL Server 2025 in einem kurzlebigen CI-Container. Selbst ein erfolgreicher Kataloglauf belegt nur verfügbare Ereignis-/Action-Schemas auf genau diesem Build; er belegt weder, dass ein Ereignis bei `sp_executesql` feuert, noch konkurrierende Compile-Waits oder Planwiederverwendung.
 
 Der Entwurf ist ein prüfbarer Methodenstand, keine Produkt- oder Enginequalifikation. Die menschliche Generalprobe ist ausgeschlossen.
