@@ -13316,3 +13316,15 @@ hashgeprüfte Archivlauf bleibt bei 13 Regexliteral-Kandidaten und
 305 fokussierten Regressionen bestehen, einschließlich einer Mutation des
 Aliasziels. Der nächste Kandidat ist der statische Aufrufpfad von `_parse_sub`
 zu `_parse`, ohne Parserausführung oder P11-Qualifikation.
+
+### DGN-007 – `_parse_sub`-Übergang an `_parse` binden (17. November 2026)
+
+Der gepinnte Parser weist in `_parse_sub` genau einen syntaktischen Aufruf von
+`_parse` auf. Er übergibt `source`, `state`, `verbose`, `nested + 1` sowie den
+Ausdruck `not nested and (not items)` an `itemsappend`. Der Bericht bindet damit
+den strukturellen Weg von der Alternationsroutine in die zuvor geprüfte
+`_parse`-Funktion; er weist weder dessen Ausführung noch Parseergebnisse nach.
+Mutationstests verwerfen einen geänderten Verschachtelungswert. Die lokale
+Regression bleibt bei 305 erfolgreichen Fällen. Nächster Kandidat: die
+Rückkehr- und Alternationsbedingungen von `_parse_sub` für den Aufrufpfad
+einordnen, weiterhin ausschließlich statisch.
