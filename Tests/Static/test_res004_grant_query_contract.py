@@ -132,6 +132,21 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "mapped own requests"):
             validate_sql(altered)
 
+    def test_capture_alias_in_cte_cannot_replace_final_result_column(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "    SELECT own.session_id, own.request_id, mg.pool_id,\n",
+            "    SELECT @CapturedAt AS captured_at_utc, own.session_id, "
+            "own.request_id, mg.pool_id,\n",
+            1,
+        ).replace(
+            "    @CapturedAt AS captured_at_utc,\n",
+            "",
+            1,
+        )
+        with self.assertRaisesRegex(ContractError, "captured_at_utc"):
+            validate_sql(altered)
+
     def test_wait_filters_must_constrain_the_ownwaits_cte(self) -> None:
         query = extract_query(source_markdown())
         cte_filter = (
