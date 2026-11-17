@@ -88,7 +88,7 @@ def good_capture() -> CaptureEvidence:
 
 
 class ConversionGraphContractTests(unittest.TestCase):
-    def test_complete_same_key_s_to_x_cycle_passes(self) -> None:
+    def test_complete_same_hobt_s_to_x_cycle_passes(self) -> None:
         result = evaluate_conversion_graph(good_graph(), IDENTITY)
         self.assertEqual(result.verdict, Verdict.PASS)
         self.assertEqual(result.reasons, ())
@@ -97,6 +97,14 @@ class ConversionGraphContractTests(unittest.TestCase):
     def test_missing_graph_or_identity_is_not_proven(self) -> None:
         self.assertEqual(evaluate_conversion_graph(None, IDENTITY).verdict, Verdict.NOT_PROVEN)
         self.assertEqual(evaluate_conversion_graph(good_graph(), None).verdict, Verdict.NOT_PROVEN)
+
+    def test_hobt_identity_is_required_for_a_graph_pass(self) -> None:
+        unbound = replace(IDENTITY, hobt_id=None)
+        self.assertEqual(evaluate_conversion_graph(good_graph(), unbound).verdict, Verdict.FAIL)
+        self.assertEqual(
+            evaluate_conversion_graph(good_graph(), replace(IDENTITY, hobt_id="72057594000000002")).verdict,
+            Verdict.FAIL,
+        )
 
     def test_wrong_root_or_malformed_xml_fails(self) -> None:
         for source in ("<event><deadlock /></event>", "<deadlock>", "<deadlock /> trailing"):
@@ -145,14 +153,14 @@ class ConversionGraphContractTests(unittest.TestCase):
                 source = change_graph(lambda root: root.find("resource-list/keylock").set(name, value))
                 self.assertEqual(evaluate_conversion_graph(source, IDENTITY).verdict, Verdict.FAIL)
 
-    def test_both_processes_must_hold_shared_lock_on_same_key(self) -> None:
+    def test_both_processes_must_hold_shared_lock_on_same_hobt_resource(self) -> None:
         missing_owner = change_graph(lambda root: root.find("resource-list/keylock/owner-list").remove(root.find("resource-list/keylock/owner-list/owner[@id='processA']")))
         wrong_owner_mode = change_graph(lambda root: root.find("resource-list/keylock/owner-list/owner[@id='processA']").set("mode", "U"))
         for source in (missing_owner, wrong_owner_mode):
             with self.subTest(source=source):
                 self.assertEqual(evaluate_conversion_graph(source, IDENTITY).verdict, Verdict.FAIL)
 
-    def test_both_processes_must_request_x_conversion_on_same_key(self) -> None:
+    def test_both_processes_must_request_x_conversion_on_same_hobt_resource(self) -> None:
         wrong_mode = change_graph(lambda root: root.find("resource-list/keylock/waiter-list/waiter[@id='processB']").set("mode", "S"))
         ordinary_wait = change_graph(lambda root: root.find("resource-list/keylock/waiter-list/waiter[@id='processB']").set("requestType", "wait"))
         missing_waiter = change_graph(lambda root: root.find("resource-list/keylock/waiter-list").remove(root.find("resource-list/keylock/waiter-list/waiter[@id='processB']")))

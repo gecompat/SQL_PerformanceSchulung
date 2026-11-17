@@ -36,7 +36,7 @@ class GraphIdentity:
     actor_spids: tuple[tuple[str, int], ...]
     object_name: str
     index_name: str
-    hobt_id: str | None = None
+    hobt_id: str
 
 
 @dataclass(frozen=True)
@@ -99,9 +99,7 @@ def _valid_identity(identity: object) -> bool:
         return False
     if type(identity.index_name) is not str or not identity.index_name.strip():
         return False
-    if identity.hobt_id is not None and (
-        type(identity.hobt_id) is not str or not _UNSIGNED.fullmatch(identity.hobt_id)
-    ):
+    if type(identity.hobt_id) is not str or not _UNSIGNED.fullmatch(identity.hobt_id):
         return False
     return True
 
@@ -183,7 +181,7 @@ def _timestamp(
 
 
 def evaluate_conversion_graph(graph_xml: str | bytes | None, identity: GraphIdentity | None) -> GraphResult:
-    """Check the two-actor, same-key S-to-X conversion cycle in one deadlock XML."""
+    """Check a two-actor S-to-X cycle on a caller-bound HoBT in one deadlock XML."""
     if graph_xml is None:
         return GraphResult(Verdict.NOT_PROVEN, ("deadlock graph evidence is missing",))
     if identity is None:
@@ -263,7 +261,7 @@ def evaluate_conversion_graph(graph_xml: str | bytes | None, identity: GraphIden
         and node.get("objectname") == identity.object_name
         and node.get("indexname") == identity.index_name
         and node.get("dbid") == str(identity.database_id)
-        and (identity.hobt_id is None or node.get("hobtid") == identity.hobt_id)
+        and node.get("hobtid") == identity.hobt_id
     ]
     if len(target_resources) != 2:
         failures.append("graph must contain exactly two keylocks for the supplied database, object, index, and HoBT")

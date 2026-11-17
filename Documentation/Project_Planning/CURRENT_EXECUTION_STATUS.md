@@ -12355,3 +12355,19 @@ Ein gemeinsamer T-SQL-Helfer extrahiert jetzt genau einen benannten, balancierte
 Eine Negativprobe entfernte `scheduler_id < 255` und `is_online = 1` aus dem Abfragefilter, beließ beide Ausdrücke aber in einem wirkungslosen `CASE`. Der bisherige globale Fragmentvergleich akzeptierte dadurch eine Query, die auch verborgene oder offline Scheduler zurückgeben konnte.
 
 Der statische Lehrvalidator verlangt nun die zusammenhängende Scheduler-Scope-Bedingung im aktiven `WHERE` vor der Sortierung. Eine Regression schützt den reproduzierten Gegenfall. Neun Lehrvalidator-Tests, der Validator und 16 Tests der getrennten Worker-Queue-Evidenzsuite bestehen. Es entsteht kein Scheduler-Runtime- oder Worker-Erschöpfungsnachweis.
+
+
+### CON-006 – HoBT-Bindung im Offline-Graphvertrag erzwingen (17. November 2026)
+
+Der Offlineprüfer akzeptierte bislang eine `GraphIdentity` ohne HoBT-Angabe und
+beschrieb seinen erfolgreichen Strukturcheck zugleich als Nachweis eines
+„same-key“-Zyklus. Der Deadlockgraph bindet in diesem Vertrag Datenbank, Objekt,
+Index und HoBT, aber keinen ausgewerteten Schlüsselwert. Die konkreten beiden
+Zugriffe auf `RowId=1` stammen aus den festgelegten Session-Skripten. Der
+Prüfer verlangt nun eine explizite HoBT-ID, bindet beide Keylock-Einträge daran
+und benennt seinen engeren Claim entsprechend. Regressionen weisen fehlende
+und abweichende HoBT-IDs zurück. Die Demo- und Lehrpfadtexte trennen jetzt
+Szenario-SQL-Bindung von Graphbefund. Die gezielte Suite besteht mit 20 Tests,
+der CON-006-Quellvalidator und `git diff --check` bestehen. Das authentifiziert
+weiterhin weder caller-geliefertes Graph-XML noch dessen Herkunft aus einer
+Engine; die bestehende Laufzeitqualifikation bleibt davon unberührt.
