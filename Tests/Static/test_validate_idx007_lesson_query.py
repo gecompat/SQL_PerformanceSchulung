@@ -13,6 +13,16 @@ class Idx007LessonQueryTests(unittest.TestCase):
     def test_documented_query_meets_source_contract(self) -> None:
         self.assertEqual(validate_lesson(SOURCE), ())
 
+    def test_additional_result_statement_before_cte_is_rejected(self) -> None:
+        broken = SOURCE.replace(
+            "DECLARE @capture_started_at_utc datetime2(7) = SYSUTCDATETIME();",
+            "DECLARE @capture_started_at_utc datetime2(7) = SYSUTCDATETIME();\n\n"
+            "SELECT CAST(0 AS int) AS unintended_result;",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("capture marker declaration" in error for error in errors))
+
     def test_missing_wait_duration_capture_is_rejected(self) -> None:
         broken = SOURCE.replace("r.wait_time,\n", "", 1)
         errors = validate_lesson(broken)
@@ -305,11 +315,12 @@ class Idx007LessonQueryTests(unittest.TestCase):
         self.assertTrue(any("PageWaits must restrict" in error for error in errors))
 
     def test_comment_markers_inside_bracketed_identifiers_are_preserved(self) -> None:
-        section_start = SOURCE.index("## Lesende Zuordnung einer aktuellen Request-Seite")
-        fence = SOURCE.index("```sql", section_start)
-        injected = "SELECT 1 AS [label--/* identifier */];\n"
-        insert_at = fence + len("```sql\n")
-        with_identifier = SOURCE[:insert_at] + injected + SOURCE[insert_at:]
+        with_identifier = SOURCE.replace(
+            "    @capture_started_at_utc AS capture_started_at_utc,\n",
+            "    1 AS [label--/* identifier */],\n"
+            "    @capture_started_at_utc AS capture_started_at_utc,\n",
+            1,
+        )
         self.assertEqual(validate_lesson(with_identifier), ())
 
     def test_unterminated_comment_is_rejected(self) -> None:

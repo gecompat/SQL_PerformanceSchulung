@@ -3456,6 +3456,15 @@ Die Microsoft-Learn-Seite `sys.dm_db_page_info` wurde am aktuellen Stand erneut 
 
 Eine Negativprobe zeigte, dass die IDX-007-Prüfung die erforderlichen Blattfilter nur irgendwo im SQL-Text fand und deshalb einen wirkungslosen `CASE` statt des finalen Filters akzeptierte. Die Schlussklausel ist jetzt exakt an Blattindexfilter, Gruppierung sämtlicher Seitenkettenfelder und eine Mindestgruppe von zwei wartenden Sessions gebunden. Zwei Regressionen decken einen Decoy-Filter und eine abgesenkte `HAVING`-Schwelle ab. Die statischen Lehr- und Offlineverträge bestehen. Umfang: ein Arbeitspaket, ein PR, keine neue Quelle und keine SQL-/Runtimeausführung. Unabhängiger Methodenreview, bestätigter Terminalwert, Seiten-/Zeitgrenzen, Splitverhalten und isolierter Enginepilot bleiben offen.
 
+### IDX-007 – zusätzliche Resultsets vor der Seitendiagnose abweisen (17. November 2026)
+
+Eine Negativprobe fügte nach der Zeitmarker-Deklaration und vor dem
+`PageWaits`-CTE ein zusätzliches `SELECT` ein. Der Lehrvalidator akzeptierte
+dadurch ein fremdes Resultset vor der Seitendiagnose. Die Quellformprüfung
+verlangt jetzt die erwartete Deklaration unmittelbar vor dem CTE; eine
+Regression deckt das zusätzliche Resultset ab. Dies bleibt ein statischer
+Quellcheck ohne authentische DMV-Aufnahme oder Engine-Nachweis.
+
 ### DGN-004 – vollständige Quellfixture-Syntax in der CI absichern (17. November 2026)
 
 Der DGN-004-ScriptDom-Check erfasste nur die Kandidatensnapshot-Abfrage. Er bindet jetzt genau alle vier SQL-Fixtures – Plantransport, R-Prozedur, H-Kontrollprozedur und Kandidatensnapshot – und parst sie mit den SQL-Server-Grammatiken 2019, 2022 und 2025. Der Workflow wird bei Änderungen an jeder Fixturedatei ausgelöst. Lokaler Parserlauf und DGN-004-Quelltests bestehen; der Syntaxnachweis behauptet keine Serverkompilierung oder Engineausführung. Umfang: ein Arbeitspaket, ein PR, keine neue Quelle und keine SQL-/Runtimeausführung. Quellen-/Ergebnisreview, vollständige Kandidatenerfassung, Plan-/Handleidentität, Windows-Prozessbaumabbruch und Versions-/Runtimegates bleiben offen.
