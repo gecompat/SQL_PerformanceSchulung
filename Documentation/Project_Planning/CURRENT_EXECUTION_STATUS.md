@@ -12088,6 +12088,12 @@ Livezustand eingeordnet. Die bestehende RES-001-Offlineprüfung bleibt
 caller-supplied und synthetisch; tatsächliche DMV-Herkunft, echte
 Worker-Erschöpfung und Last-/Recovery-Qualifikation bleiben offen.
 
+Die Scheduler-Momentaufnahme ist jetzt zusätzlich durch einen statischen
+Quellvertrag gebunden: Worker-/Runnable-Zähler, `scheduler_id < 255`,
+Onlinefilter und Reihenfolge müssen im Lehr-SQL erhalten bleiben. Validator
+und Regressionen laufen im Framework-Contracts-Workflow. Das belegt weiterhin
+weder SQL-Kompilierbarkeit noch DMV-Herkunft oder Worker-Erschöpfung.
+
 ### `OPTIMIZED_SP_EXECUTESQL`: Katalogkandidaten für den Compile-Methodenentwurf (17. November 2026)
 
 PR #941 wurde nach erfolgreichen Vertrags-, Datenschutz-, Registry-, Governance-,
