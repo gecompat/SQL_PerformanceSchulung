@@ -234,6 +234,26 @@ class GrantQueryContractTests(unittest.TestCase):
         with self.assertRaises(ContractError):
             validate_sql(altered)
 
+    def test_or_cannot_widen_the_own_wait_filter(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "      AND r.wait_type = N'RESOURCE_SEMAPHORE'\n),",
+            "      AND r.wait_type = N'RESOURCE_SEMAPHORE' OR 1 = 1\n),",
+            1,
+        )
+        with self.assertRaisesRegex(ContractError, "must not contain OR"):
+            validate_sql(altered)
+
+    def test_or_in_sql_comment_does_not_change_the_own_wait_filter(self) -> None:
+        query = extract_query(source_markdown())
+        altered = query.replace(
+            "    WHERE mg.grant_time IS NULL",
+            "    -- OR 1 = 1 is an inactive comment\n"
+            "    WHERE mg.grant_time IS NULL",
+            1,
+        )
+        validate_sql(altered)
+
     def test_ambiguous_or_duplicate_query_fence_fails(self) -> None:
         markdown = source_markdown()
         with self.assertRaises(ContractError):

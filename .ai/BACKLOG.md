@@ -46,6 +46,10 @@ Pool-/Semaphore-Kombination. Der ergänzte Vertrag bindet außerdem positive
 Erfassungszeitpunkt. Er authentifiziert keine Aufnahme und weist keine Ursache
 oder reale Konkurrenz nach. Die synthetischen Gegenproben sind im
 Framework-Contracts-Workflow enthalten; SQL-/Runtimequalifikation bleibt offen.
+Der Strukturvalidator für die Lehrabfrage verwirft nun außerdem zusätzliche
+`OR`-Prädikate im `OwnWaits`-Filter, die den geforderten eigenen
+`RESOURCE_SEMAPHORE`-Wait hätten aufweiten können. Die Regression beweist nur
+die fail-closed Strukturprüfung, keine authentische DMV-Aufnahme.
 
 **TSK-015 – abgeschlossener Lesepfad-Schnitt:** Der 22.-Oktober-Pausen- und
 Prioritätsstand ist als historischer Snapshot markiert und mit dem aktuellen
