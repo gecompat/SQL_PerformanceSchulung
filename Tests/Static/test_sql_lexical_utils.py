@@ -4,6 +4,7 @@ import unittest
 
 from sql_lexical_utils import (
     split_tsql_projection_items,
+    tsql_projection_has_exact_item,
     tsql_projection_output_names,
 )
 
@@ -31,6 +32,20 @@ class TsqlProjectionTests(unittest.TestCase):
             "(SELECT @captured AS captured_utc) END AS nested_marker"
         )
         self.assertEqual(names, frozenset({"nested_marker"}))
+
+    def test_exact_item_binds_capture_expression_to_top_level_alias(self) -> None:
+        self.assertTrue(tsql_projection_has_exact_item(
+            "@captured AS captured_utc, scheduler_id",
+            "@captured AS captured_utc",
+        ))
+        self.assertFalse(tsql_projection_has_exact_item(
+            "CONVERT(datetime2(7), 0) AS captured_utc",
+            "@captured AS captured_utc",
+        ))
+        self.assertFalse(tsql_projection_has_exact_item(
+            "CASE WHEN x = 1 THEN (SELECT @captured AS captured_utc) END AS nested_marker",
+            "@captured AS captured_utc",
+        ))
 
     def test_unbalanced_projection_fails_closed(self) -> None:
         with self.assertRaisesRegex(ValueError, "unbalanced"):

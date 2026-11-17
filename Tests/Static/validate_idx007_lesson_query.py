@@ -10,6 +10,7 @@ from pathlib import Path
 
 from sql_lexical_utils import (
     extract_tsql_cte_body,
+    tsql_projection_has_exact_item,
     tsql_projection_output_names,
     without_tsql_comments,
     without_tsql_comments_or_literals,
@@ -83,6 +84,11 @@ def validate_lesson(text: str) -> tuple[str, ...]:
             output_names = frozenset()
         if "capture_started_at_utc" not in output_names:
             errors.append("final result must expose `capture_started_at_utc` for page-chain inspection")
+        if not tsql_projection_has_exact_item(
+            projection_match.group(1),
+            "@capture_started_at_utc AS capture_started_at_utc",
+        ):
+            errors.append("final result must project the `@capture_started_at_utc` marker value")
         for field in (
             "database_id",
             "file_id",

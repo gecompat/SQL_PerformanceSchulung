@@ -29,6 +29,15 @@ class Res001LessonQueryTests(unittest.TestCase):
         errors = validate_lesson(broken)
         self.assertTrue(any("captured_utc" in error for error in errors))
 
+    def test_capture_alias_must_project_the_declared_capture_value(self) -> None:
+        broken = SOURCE.replace(
+            "SELECT @CapturedUtc AS captured_utc,",
+            "SELECT CONVERT(datetime2(7), 0) AS captured_utc,",
+            1,
+        )
+        self.assertTrue(any("project the `@CapturedUtc` marker value" in error
+                            for error in validate_lesson(broken)))
+
     def test_nested_capture_alias_cannot_replace_output_marker(self) -> None:
         broken = SOURCE.replace(
             "SELECT @CapturedUtc AS captured_utc,",

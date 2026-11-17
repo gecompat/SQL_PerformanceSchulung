@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 
 from sql_lexical_utils import (
+    tsql_projection_has_exact_item,
     tsql_projection_output_names,
     without_tsql_comments,
     without_tsql_comments_or_literals,
@@ -63,6 +64,10 @@ def validate_lesson(text: str) -> tuple[str, ...]:
             output_names = frozenset()
         if "captured_utc" not in output_names:
             errors.append("scheduler result must expose the `captured_utc` marker")
+        if not tsql_projection_has_exact_item(
+            projection_match.group(1), "@capturedutc AS captured_utc",
+        ):
+            errors.append("scheduler result must project the `@CapturedUtc` marker value")
         for field in (
             "scheduler_id",
             "current_workers_count",

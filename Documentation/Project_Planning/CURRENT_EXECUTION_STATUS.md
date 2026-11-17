@@ -12610,3 +12610,17 @@ den Fall mit einem decoy-Literal im `CASE`. Die fokussierten Suiten bestehen mit
 20 IDX-007- und 21 RES-004-Lehrabfragefällen; beide Validatoren sowie 24
 RES-004-Offlinedatenfälle bestehen. Die Änderungen prüfen weiterhin nur
 statische SQL-Struktur und weisen keine DMV-Herkunft oder Runtimewarte nach.
+
+### RES-001, IDX-007 und RES-004 – Capturewert an den finalen Alias binden (17. November 2026)
+
+Die drei Lehrabfrageprüfer verlangten den Capture-Spaltennamen, banden den
+Ausgabewert aber nicht an die zuvor erfasste UTC-Variable. Eine konstante
+Zeitangabe mit demselben Alias konnte deshalb als Marker durchgehen. Der
+gemeinsame lexikalische Helfer prüft jetzt exakte oberste SELECT-Elemente;
+die drei Verträge verlangen den jeweiligen Capturevariablen-Ausdruck mit
+passendem Alias. Gegenproben ersetzen den echten Ausdruck durch einen konstanten
+Wert; RES-004 verschiebt den echten Marker zusätzlich in einen CTE. Fünf
+Helfertests, 13 RES-001-, 21 IDX-007-, 21 RES-004-Lehrabfrage- und 24
+RES-004-Offlinedatenvertragstests bestehen. Die Validatoren prüfen weiterhin nur
+statische Quellstruktur; sie authentifizieren keine Aufnahme und qualifizieren
+keine Laufzeit.
