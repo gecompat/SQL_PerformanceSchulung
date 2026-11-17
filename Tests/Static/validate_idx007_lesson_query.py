@@ -111,6 +111,19 @@ def validate_lesson(text: str) -> tuple[str, ...]:
             or page_wait_where.group(1).strip() != expected_page_wait_where
             or "where r.wait_type = n'pagelatch_ex'" not in page_waits_with_literals):
         errors.append("PageWaits must restrict the target database to PAGELATCH_EX requests")
+    final_query_match = re.search(r"\bfrom\s+pagewaits\b(.*?);", sql)
+    expected_final_tail = (
+        "where index_id > 0 and page_level = 0 "
+        "group by database_id, file_id, page_id, object_id, index_id, partition_id, "
+        "page_level, next_page_file_id, next_page_page_id "
+        "having count(distinct session_id) >= 2"
+    )
+    if (final_query_match is None
+            or " ".join(final_query_match.group(1).split()) != expected_final_tail):
+        errors.append(
+            "final result must apply the leaf-index filter, full page grouping, "
+            "and two-session threshold to the PageWaits rows"
+        )
     projection_match = re.search(
         r"\)\s*select\s+(.*?)\s+from\s+pagewaits\b", sql,
     )
