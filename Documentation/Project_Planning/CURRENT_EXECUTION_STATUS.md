@@ -2078,7 +2078,7 @@ sieben Nachkommastellen und vergleicht die siebte Stelle exakt. Sie ist bei
 `datetime2(7)` relevant; acht Stellen
 werden zurückgewiesen. Positiv-, Reihenfolge- und Überpräzisionsgegenproben
 stehen im bestehenden Offline-Test. Das ändert weder Caller-Eingabevertrauen
-noch die gesperrte Runtimeprobe ([Microsoft `datetime2`](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17)).
+noch die gesperrte Runtimeprobe ([Microsoft `datetime2`](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17)). PR [#956](https://github.com/gecompat/SQL_PerformanceSchulung/pull/956) integrierte diese Korrektur.
 
 Die Lehrnotiz zu konkurrierenden Grants erklärt nun zusätzlich die getrennten
 Scopes dieser Prozess- und Betriebssystemsignale und grenzt sie von
@@ -12099,13 +12099,14 @@ Die Scheduler-Momentaufnahme ist jetzt zusätzlich durch einen statischen
 Quellvertrag gebunden: Worker-/Runnable-Zähler, `scheduler_id < 255`,
 Onlinefilter und Reihenfolge müssen im Lehr-SQL erhalten bleiben. Validator
 und Regressionen laufen im Framework-Contracts-Workflow. Das belegt weiterhin
-weder SQL-Kompilierbarkeit noch DMV-Herkunft oder Worker-Erschöpfung.
+weder SQL-Kompilierbarkeit noch DMV-Herkunft oder Worker-Erschöpfung. PR
+[#955](https://github.com/gecompat/SQL_PerformanceSchulung/pull/955) integrierte diesen Quellvertrag.
 
 Der RES-001-Offlinevertrag akzeptiert jetzt bis zu sieben RFC-3339-
 Nachkommastellen und erhält die 100-ns-Stelle auch beim Vergleich mit den
 Run-Grenzen. Acht Nachkommastellen werden abgewiesen. Drei Regressionen prüfen
 die zulässige 7-Stellenform, deren Reihenfolge und die Ablehnung von 8 Stellen;
-Caller-Eingaben bleiben unauthentifiziert. [Microsoft `datetime2`](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17).
+Caller-Eingaben bleiben unauthentifiziert. [Microsoft `datetime2`](https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17). PR [#957](https://github.com/gecompat/SQL_PerformanceSchulung/pull/957) integrierte die Präzisionskorrektur.
 
 ### `OPTIMIZED_SP_EXECUTESQL`: Katalogkandidaten für den Compile-Methodenentwurf (17. November 2026)
 
@@ -12186,7 +12187,7 @@ Die begleitende Lesemomentaufnahme ergänzt jetzt minimale und maximale
 `wait_time`-Werte der erfassten Request-Gruppe. Das sind keine Summen- oder
 Verlaufswerte. Ein statischer Quellvertrag bindet die Wait-Dauerfelder an die
 Lehrabfrage; Seitenkette, tatsächliche DMV-Herkunft und Enginequalifikation
-bleiben davon unberührt.
+bleiben davon unberührt. PR [#952](https://github.com/gecompat/SQL_PerformanceSchulung/pull/952) integrierte die Abfragekorrektur und den Strukturvertrag.
 
 ### CON-006 – integrierte Sperrumwandlungsvariante (17. November 2026)
 
@@ -12212,7 +12213,7 @@ CON-002-Einfügewait und einem CON-006-Zyklus aus gegenseitigen Einfügungen in
 eine Indexlücke. Das bleibt `METHOD_DRAFT`: Die gemeinsame KEY-Ressource,
 konkreten Sperrmodi, der seriale Kontrollarm, unabhängiger Methodenreview und
 isolierter Enginepilot sind offen. CON-002 und der qualifizierte CON-006-
-Demovertrag wurden nicht geändert.
+Demovertrag wurden nicht geändert. PR [#953](https://github.com/gecompat/SQL_PerformanceSchulung/pull/953) integrierte den Entwurf; PR [#954](https://github.com/gecompat/SQL_PerformanceSchulung/pull/954) präzisierte den Backlog-Geltungsbereich.
 
 ### DGN-007 – zusätzlicher CPython-Quellfact für `threading` (17. November 2026)
 
