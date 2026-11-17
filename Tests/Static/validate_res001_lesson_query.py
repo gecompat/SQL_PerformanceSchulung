@@ -41,11 +41,30 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         "scheduler scope filters constrain the returned rows":
             "where scheduler_id < 255 and is_online = 1 order by scheduler_id",
     }
-    return tuple(
+    errors = [
         f"{label}: expected `{fragment}`"
         for label, fragment in required.items()
         if fragment not in sql
+    ]
+    projection_match = re.search(
+        r"\bselect\s+(.*?)\s+from\s+sys\.dm_os_schedulers\b", sql,
     )
+    if projection_match is None:
+        errors.append("RES-001 query has no recognizable scheduler result projection")
+    else:
+        projection = projection_match.group(1)
+        if not re.search(r"\bas\s+captured_utc\b", projection):
+            errors.append("scheduler result must expose the `captured_utc` marker")
+        for field in (
+            "scheduler_id",
+            "current_workers_count",
+            "active_workers_count",
+            "runnable_tasks_count",
+            "work_queue_count",
+        ):
+            if not re.search(rf"(?:^|,)\s*{re.escape(field)}\s*(?:,|$)", projection):
+                errors.append(f"scheduler result must expose `{field}`")
+    return tuple(errors)
 
 
 def main() -> int:
