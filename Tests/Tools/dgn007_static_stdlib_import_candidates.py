@@ -5902,6 +5902,96 @@ def _target_os_have_functions_call_facts(files, posix_source, clinic_source):
     return (("_exists('_have_functions')", True),)
 
 
+def _target_os_feature_add_condition_facts(
+        files, posix_source, clinic_source, pyconfig_source):
+    """Bound both possible outcomes of os.py's fixed POSIX feature-add calls."""
+    source = files.get("os.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != OS_SOURCE_SHA256
+            or type(posix_source) is not bytes
+            or hashlib.sha256(posix_source).hexdigest() != POSIX_MODULE_C_SHA256
+            or type(clinic_source) is not bytes
+            or hashlib.sha256(clinic_source).hexdigest() != POSIX_MODULE_CLINIC_SHA256
+            or type(pyconfig_source) is not bytes
+            or len(pyconfig_source) > MAX_TARGET_PYCONFIG_BYTES
+            or hashlib.sha256(pyconfig_source).hexdigest() != TARGET_PYCONFIG_SHA256
+            or _target_os_have_functions_call_facts(
+                files, posix_source, clinic_source
+            ) != (("_exists('_have_functions')", True),)):
+        return {}
+    try:
+        tree = ast.parse(source, filename="os.py")
+    except SyntaxError:
+        return {}
+    imports = [node for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)
+               and node.module == "posix" and len(node.names) == 1
+               and node.names[0].name == "*" and node.names[0].asname is None]
+    globals_assignments = [node for node in ast.walk(tree) if isinstance(node, ast.Assign)
+                           and any(isinstance(target, ast.Name)
+                                   and target.id == "_globals" for target in node.targets)]
+    helpers = [node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)
+               and node.name == "_add"]
+    if (len(imports) != 1 or len(globals_assignments) != 1
+            or ast.unparse(globals_assignments[0]) != "_globals = globals()"
+            or len(helpers) != 1
+            or [arg.arg for arg in helpers[0].args.args] != ["str", "fn"]):
+        return {}
+    guards = [node for node in ast.walk(helpers[0])
+              if isinstance(node, ast.If)
+              and ast.unparse(node.test) == "fn in _globals and str in _have_functions"]
+    if len(guards) != 1:
+        return {}
+    calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call)
+             and isinstance(node.func, ast.Name) and node.func.id == "_add"]
+    call_pairs = []
+    for node in calls:
+        if (len(node.args) != 2
+                or not all(isinstance(arg, ast.Constant) and type(arg.value) is str
+                           for arg in node.args)):
+            continue
+        call_pairs.append(tuple(arg.value for arg in node.args))
+    if (call_pairs.count(("HAVE_FCHMOD", "chmod")) != 1
+            or call_pairs.count(("HAVE_LCHFLAGS", "chflags")) != 1):
+        return {}
+
+    config_text = pyconfig_source.decode("ascii")
+    if (len(re.findall(r"(?m)^#define HAVE_FCHMOD 1$", config_text)) != 1
+            or re.search(r"(?m)^#\s*define\s+HAVE_LCHFLAGS\b", config_text)):
+        return {}
+    c_text = posix_source.decode("utf-8")
+    clinic_text = clinic_source.decode("utf-8")
+    table = re.search(
+        r"(?s)static const struct have_function\s*\{.*?\}\s*have_functions\[\]\s*=\s*\{(.*?)\n\};",
+        c_text,
+    )
+    methods = re.search(
+        r"(?s)static PyMethodDef posix_methods\[\]\s*=\s*\{(.*?)\n\};",
+        c_text,
+    )
+    chmod_rows = re.findall(
+        r'(?s)#ifdef HAVE_FCHMOD\s*(\{\s*"HAVE_FCHMOD"\s*,\s*NULL\s*\})\s*,?\s*#endif',
+        table.group(1) if table else "",
+    )
+    lchflags_rows = re.findall(
+        r'(?s)#ifdef HAVE_LCHFLAGS\s*(\{\s*"HAVE_LCHFLAGS"\s*,\s*NULL\s*\})\s*,?\s*#endif',
+        table.group(1) if table else "",
+    )
+    chmod_definition = re.findall(
+        r'(?m)^#define OS_CHMOD_METHODDEF[^\n]*\\\r?\n\s*\{"chmod"\s*,',
+        clinic_text,
+    )
+    normalize_c = lambda value: re.sub(r"\s+", "", value)
+    if (table is None or methods is None or len(chmod_rows) != 1
+            or normalize_c(chmod_rows[0]) != '{"HAVE_FCHMOD",NULL}'
+            or len(lchflags_rows) != 1
+            or normalize_c(lchflags_rows[0]) != '{"HAVE_LCHFLAGS",NULL}'
+            or methods.group(1).split().count("OS_CHMOD_METHODDEF") != 1
+            or len(chmod_definition) != 1
+            or not re.search(r"\.m_methods\s*=\s*posix_methods", c_text)):
+        return {}
+    return {("os", "os.py", guards[0].lineno): (False, True)}
+
+
 def _target_posix_build_call_facts(files, posix_source, clinic_source,
                                   pyconfig_source):
     """Bind compile-time posix methods to the selected image's pyconfig.h."""
@@ -13018,6 +13108,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         files, posix_module_c_source, posix_module_clinic_source,
         target_pyconfig_source,
     ) if target_pyconfig_source is not None else ()
+    target_os_feature_add_condition_facts = (
+        _target_os_feature_add_condition_facts(
+            files, posix_module_c_source, posix_module_clinic_source,
+            target_pyconfig_source,
+        ) if target_pyconfig_source is not None else {}
+    )
     os_descriptor_support_facts = _target_os_descriptor_support_facts(
         files, posix_module_c_source, posix_module_clinic_source,
         target_pyconfig_source,
@@ -13202,6 +13298,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             **target_functools_lru_cache_condition_facts,
             **target_collections_namedtuple_call_condition_facts,
             **target_sysconfig_userbase_env_condition_facts,
+            **target_os_feature_add_condition_facts,
         },
         trusted_empty_for_facts={
             "warnings": target_warning_options_empty_for_facts.get("warnings", {}),
