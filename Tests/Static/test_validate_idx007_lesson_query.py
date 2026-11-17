@@ -38,6 +38,51 @@ class Idx007LessonQueryTests(unittest.TestCase):
         self.assertTrue(any("partition_id" in error for error in errors))
         self.assertTrue(any("next_page_file_id" in error for error in errors))
 
+    def test_aggregate_results_must_be_final_output_columns(self) -> None:
+        broken = SOURCE.replace(
+            "    COUNT(DISTINCT session_id) AS waiting_sessions,\n",
+            "    (SELECT COUNT(DISTINCT session_id) AS waiting_sessions "
+            "FROM (VALUES (1)) AS Waits(session_id)) AS decoy_waiting_sessions,\n",
+            1,
+        ).replace(
+            "    MIN(wait_time) AS shortest_wait_time_ms,\n",
+            "    (SELECT MIN(wait_time) AS shortest_wait_time_ms "
+            "FROM (VALUES (1)) AS Waits(wait_time)) AS decoy_shortest_wait_time_ms,\n",
+            1,
+        ).replace(
+            "    MAX(wait_time) AS longest_wait_time_ms\n",
+            "    (SELECT MAX(wait_time) AS longest_wait_time_ms "
+            "FROM (VALUES (1)) AS Waits(wait_time)) AS decoy_longest_wait_time_ms\n",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("waiting_sessions" in error for error in errors))
+        self.assertTrue(any("shortest_wait_time_ms" in error for error in errors))
+        self.assertTrue(any("longest_wait_time_ms" in error for error in errors))
+
+    def test_aggregate_output_aliases_must_use_the_aggregate_values(self) -> None:
+        broken = SOURCE.replace(
+            "    COUNT(DISTINCT session_id) AS waiting_sessions,\n",
+            "    (SELECT COUNT(DISTINCT session_id) AS waiting_sessions "
+            "FROM (VALUES (1)) AS Waits(session_id)) AS decoy_waiting_sessions,\n"
+            "    CONVERT(bigint, 0) AS waiting_sessions,\n",
+            1,
+        ).replace(
+            "    MIN(wait_time) AS shortest_wait_time_ms,\n",
+            "    (SELECT MIN(wait_time) AS shortest_wait_time_ms "
+            "FROM (VALUES (1)) AS Waits(wait_time)) AS decoy_shortest_wait_time_ms,\n"
+            "    CONVERT(bigint, 0) AS shortest_wait_time_ms,\n",
+            1,
+        ).replace(
+            "    MAX(wait_time) AS longest_wait_time_ms\n",
+            "    (SELECT MAX(wait_time) AS longest_wait_time_ms "
+            "FROM (VALUES (1)) AS Waits(wait_time)) AS decoy_longest_wait_time_ms,\n"
+            "    CONVERT(bigint, 0) AS longest_wait_time_ms\n",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("aggregate value" in error for error in errors))
+
     def test_final_result_must_expose_capture_marker(self) -> None:
         broken = SOURCE.replace(
             "    @capture_started_at_utc AS capture_started_at_utc,\n", "", 1,

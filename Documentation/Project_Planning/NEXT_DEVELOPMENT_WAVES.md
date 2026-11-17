@@ -68,6 +68,19 @@ Ausführung und keine menschliche Generalprobe. Methodenreview, echte DMV-
 Herkunft, numerische Ressourcen- und Zeitgrenzen sowie isolierter Pilot bleiben
 offen.
 
+### IDX-007 – finale Warteaggregate der Seitendiagnose binden (17. November 2026)
+
+Dieser freigegebene Offlinepunkt bindet `waiting_sessions`,
+`shortest_wait_time_ms` und `longest_wait_time_ms` an die finale Projektion der
+letzten-Indexseite-Lehrabfrage. Eine reproduzierte Decoy-Gegenprobe zeigte, dass
+die bisherigen Textprüfungen korrekte Aggregate in verschachtelten
+Unterabfragen akzeptierten, obwohl die tatsächliche Ergebnisausgabe andere
+Werte trug. Die Prüfer verlangen jetzt die drei Aggregate als echte
+Endausgabespalten. 30 Lehrabfragetests und der Validator bestehen. Umfang: ein
+Arbeitspaket, ein PR, keine neue Quelle und keine SQL-/Runtimeausführung. Die
+fehlende Terminaldarstellung, Seiten-/Zeitobergrenzen, Splitverhalten und
+isolierter Enginepilot bleiben offen.
+
 ### Begrenzung der Fortsetzung vom 12. November 2026
 
 Der Nutzer hat die Bearbeitung aller restlichen freigegebenen Themen fortgesetzt

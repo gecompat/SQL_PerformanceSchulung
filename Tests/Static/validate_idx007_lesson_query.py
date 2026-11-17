@@ -146,6 +146,28 @@ def validate_lesson(text: str) -> tuple[str, ...]:
                 projection_match.group(1), field,
             ):
                 errors.append(f"final result must project the `{field}` source value")
+        aggregate_outputs = (
+            (
+                "waiting_sessions",
+                "COUNT(DISTINCT session_id) AS waiting_sessions",
+                "the distinct waiting-session count",
+            ),
+            (
+                "shortest_wait_time_ms",
+                "MIN(wait_time) AS shortest_wait_time_ms",
+                "the minimum wait duration",
+            ),
+            (
+                "longest_wait_time_ms",
+                "MAX(wait_time) AS longest_wait_time_ms",
+                "the maximum wait duration",
+            ),
+        )
+        for output_name, item, label in aggregate_outputs:
+            if output_name not in output_names:
+                errors.append(f"final result must expose {label} as `{output_name}`")
+            elif not tsql_projection_has_exact_item(projection_match.group(1), item):
+                errors.append(f"final result must project {label} from its aggregate value")
     if "wait_duration_ms" in sql:
         errors.append("query must use documented `wait_time`, not `wait_duration_ms`")
     return tuple(errors)
