@@ -5340,9 +5340,9 @@ def deferred():
             ),
             "re/_parser.py": (
                 b"WHITESPACE = frozenset(' \\t\\n\\r\\v\\f')\n"
-                b"def sourceget():\n"
-                b"    pass\n"
                 b"def _parse(source, state, verbose, nested, first=False):\n"
+                b"    sourceget = source.get\n"
+                b"    sourceget()\n"
                 b"    if verbose:\n"
                 b"        if this in WHITESPACE:\n"
                 b"            continue\n"
@@ -5477,6 +5477,17 @@ def deferred():
                 and not row["tokenizer_access_candidate"]["pattern_parse_observed"]
                 for row in candidates
             ))
+            self.assertTrue(all(
+                row["parser_sourceget_candidate"]["_parse_alias_assignment"]
+                == "sourceget = source.get"
+                and row["parser_sourceget_candidate"][
+                    "tokenizer_get_returns_current_then_advances"]
+                and row["parser_sourceget_candidate"][
+                    "sourceget_call_sites_in_pinned_parse_function"] == 2
+                and not row["parser_sourceget_candidate"][
+                    "alias_call_execution_observed"]
+                for row in candidates
+            ))
             self.assertTrue(all(not row["standard_re_flag_binding_observed"]
                                 for row in candidates))
 
@@ -5606,6 +5617,24 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_tokenizer_escape,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_sourceget = dict(files)
+            altered_sourceget["re/_parser.py"] = altered_sourceget[
+                "re/_parser.py"
+            ].replace(b"sourceget = source.get", b"sourceget = source.match", 1)
+            altered_sourceget_digest = hashlib.sha256(
+                altered_sourceget["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_sourceget_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_sourceget,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
