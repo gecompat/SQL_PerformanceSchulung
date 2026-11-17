@@ -58,6 +58,8 @@ class CoordinatorTests(unittest.TestCase):
         overlap[1] = replace(overlap[1], started_ns=overlap[0].finished_ns - 1)
         self.reject(tuple(overlap))
         self.reject((replace(self.runs[0], configured_memory_mb=8191), *self.runs[1:]))
+        self.reject((replace(self.runs[0], configured_cpus=5), *self.runs[1:]))
+        self.reject((replace(self.runs[0], configured_memory_mb=16384), *self.runs[1:]))
         self.reject((replace(self.runs[0], cleanup_independently_confirmed=False), *self.runs[1:]),
                     "FAIL_CLEANUP")
         phases = list(self.runs[0].phases)

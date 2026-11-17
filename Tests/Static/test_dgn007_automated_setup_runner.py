@@ -254,6 +254,14 @@ class CleanupTests(unittest.TestCase):
             with self.subTest(times=times), self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
                 runner._CaptureReceipt(1, body, (), "PASS", "OK", *times, 4, 8192, 1, 1)
 
+    def test_capture_receipt_requires_exact_comparison_resource_limits(self):
+        body = SimpleNamespace()
+        for cpus, memory_mb in ((5, 8192), (4, 16384)):
+            with self.subTest(cpus=cpus, memory_mb=memory_mb), \
+                 self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
+                runner._CaptureReceipt(1, body, (), "PASS", "OK", 10, 20, 30,
+                                       cpus, memory_mb, 1, 1)
+
     def test_absence_is_checked_after_success_and_each_failure(self):
         failures = (None, runner.RunnerFailure("FAIL_CONTRACT"),
                     subprocess.TimeoutExpired("synthetic", 260, output="synthetic-raw-output"),
