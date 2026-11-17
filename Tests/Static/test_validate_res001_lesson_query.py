@@ -44,6 +44,23 @@ class Res001LessonQueryTests(unittest.TestCase):
         broken = SOURCE.replace("  AND is_online = 1", "  AND N'is_online = 1' = N'no'", 1)
         self.assertTrue(any("offline schedulers" in error for error in validate_lesson(broken)))
 
+    def test_scheduler_scope_text_in_case_cannot_replace_where_filters(self) -> None:
+        broken = SOURCE.replace("  AND is_online = 1", "", 1).replace(
+            "WHERE scheduler_id < 255",
+            "WHERE 1 = 1",
+            1,
+        ).replace(
+            "       active_workers_count,",
+            "       CASE WHEN scheduler_id < 255 AND is_online = 1 "
+            "THEN 1 ELSE 1 END AS scope_marker,\n"
+            "       active_workers_count,",
+            1,
+        )
+        self.assertTrue(any(
+            "scheduler scope filters constrain" in error
+            for error in validate_lesson(broken)
+        ))
+
     def test_ambiguous_duplicate_sql_block_is_rejected(self) -> None:
         section_start = SOURCE.index("## Workerbedarf und CPU-Warteschlange sind verschiedene Signale")
         fence = SOURCE.index("```sql", section_start)

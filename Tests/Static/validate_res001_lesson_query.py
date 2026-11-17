@@ -38,6 +38,8 @@ def validate_lesson(text: str) -> tuple[str, ...]:
         "hidden schedulers are excluded": "scheduler_id < 255",
         "offline schedulers are excluded": "is_online = 1",
         "results are ordered by scheduler": "order by scheduler_id",
+        "scheduler scope filters constrain the returned rows":
+            "where scheduler_id < 255 and is_online = 1 order by scheduler_id",
     }
     return tuple(
         f"{label}: expected `{fragment}`"
