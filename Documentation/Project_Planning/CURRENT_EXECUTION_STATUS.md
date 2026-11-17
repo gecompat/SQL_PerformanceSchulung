@@ -13196,3 +13196,27 @@ aufgelöste und 447 unbekannte Bedingungen; der Unknown-Digest bleibt
 belegt weder ihren Import noch einen erfolgreichen Konstruktorpfad. Ergebnis
 weiterhin `CANDIDATES_ONLY`, ohne Interpreterstart, P11-, Worker- oder
 Runtimeattestation.
+
+### DGN-007 – initialen Regex-Parsermodus quellenbinden: PR #1040
+
+PR #1040 wurde am 17. November 2026 als Commit
+`15834673e79a55c25f1b7dd100beffd7d1380e2d` in `main` integriert. Die statische
+Regex-Quellprüfung bindet für 13 direkte Literal-Kandidaten den anfänglichen
+`VERBOSE`-Modus an `flags & SRE_FLAG_VERBOSE` im gepinnten CPython-3.12.16-
+Parserpfad: vier Kandidaten starten bedingt mit gesetztem und neun mit
+nichtgesetztem Modus. Inline-Flags können den Modus innerhalb eines Musters
+ändern; weder Aufruf noch Parserzugang oder Ausführung wurden beobachtet. Die
+302 fokussierten Regressionen, alle sieben PR-Gates und die vier Main-Push-
+Workflows bestanden. Ergebnis bleibt `CANDIDATES_ONLY`; Laufzeit-, P11-,
+Worker- und SQL-Attestation folgen daraus nicht.
+
+### Lehrmittelrelease nach PR #1040
+
+Nach den erfolgreichen Main-Push-Workflows wurde der Releasebuild auf dem
+sauberen Main-Commit `15834673e79a55c25f1b7dd100beffd7d1380e2d` erstellt. Alle
+drei Profildecks, die 311 Profilrenderings, der Mastererhalt sowie die
+Profil-, Ausgabe- und gezielten Datenschutzprüfungen bestanden. Die
+artefaktbezogenen Hashes und der SlideKey-gebundene Bytevergleich stehen im
+[Releasebericht](W_PRS_001_TEACHING_RELEASE.md#nachfolgender-releasebuild-auf-main-nach-pr-1040).
+Der Build bleibt ein lokaler Kursrelease; menschliche Generalprobe sowie
+SQL-Lab-, Produkt- und Runtimegates sind davon unabhängig und offen.
