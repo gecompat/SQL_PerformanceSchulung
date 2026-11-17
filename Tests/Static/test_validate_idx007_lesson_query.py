@@ -45,6 +45,24 @@ class Idx007LessonQueryTests(unittest.TestCase):
         errors = validate_lesson(broken)
         self.assertTrue(any("capture_started_at_utc" in error for error in errors))
 
+    def test_source_column_name_cannot_stand_in_for_a_renamed_output_alias(self) -> None:
+        broken = SOURCE.replace(
+            "    database_id,\n",
+            "    database_id AS source_database_id,\n",
+            1,
+        )
+        errors = validate_lesson(broken)
+        self.assertTrue(any("final result must expose `database_id`" in error
+                            for error in errors))
+
+    def test_required_name_is_recognized_as_an_explicit_output_alias(self) -> None:
+        equivalent = SOURCE.replace(
+            "    database_id,\n",
+            "    database_id AS database_id,\n",
+            1,
+        )
+        self.assertEqual(validate_lesson(equivalent), ())
+
     def test_wait_filter_regression_is_rejected(self) -> None:
         broken = SOURCE.replace("r.wait_type = N'PAGELATCH_EX'", "r.wait_type = N'PAGEIOLATCH_EX'", 1)
         errors = validate_lesson(broken)
