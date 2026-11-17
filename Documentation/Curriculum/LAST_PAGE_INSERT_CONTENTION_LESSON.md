@@ -13,6 +13,12 @@ authentifiziert keine DMV-Werte und bestätigt nicht selbst die Seitenkette.
 Insbesondere ist sein `PASS` kein SQL-Server-Lauf, kein unabhängiger
 Rechtsaußen-Nachweis und keine Engpass- oder Leistungsqualifikation.
 
+Der offene Methodenstand für die unabhängige Seitenkettenbindung steht im
+[IDX-007-Rechtsaußen-Methodenentwurf](../Project_Planning/IDX007_RIGHTMOST_PAGE_METHOD.md).
+Er präzisiert, wie Wait-Seite, Indexpartition und Nachfolgerkette begrenzt
+geprüft werden könnten; Terminaldarstellung, Captureklammer und Splitverhalten
+sind noch nicht enginequalifiziert.
+
 ## Was „Last-Page-Contention“ beschreibt
 
 Wenn viele gleichzeitige Einfügungen denselben sequentiellen führenden
