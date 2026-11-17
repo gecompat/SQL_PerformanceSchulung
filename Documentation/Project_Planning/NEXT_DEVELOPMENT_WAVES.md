@@ -3595,3 +3595,17 @@ Ausführung bleiben unbeobachtet; ein Regexcachetreffer kann den Parserpfad
 überspringen. Umfang: ein Paket, ein PR, eine gezielte Regression; keine neue
 Produktquelle, kein Interpreter-/Container-/SQL-/Lab-Lauf und keine menschliche
 Generalprobe. Mit dem nächsten einzeln belegbaren Quellenkandidaten fortfahren.
+
+### DGN-007 – Compile-Flags der Regex-Quellkandidaten auflösen (17. November 2026)
+
+Der Regex-Quellvorschnitt ordnet jetzt auch die Compile-Flags der 13 direkten
+Literal-Kandidaten zu. Fünf Aufrufe lassen `flags` weg und verwenden bedingt
+auf die gepinnte `re.compile`-Signatur den Standard `0`. Acht benannte
+`RegexFlag`-Ausdrücke werden über die gebundene Enum- und Konstantenquelle zu
+`88` (vier Aufrufe), `8` (zwei) beziehungsweise `256` (zwei) ausgewertet. 302
+Regressionen und der Vollscan bestehen; 447 Bedingungen bleiben unbekannt.
+Weder Aufruf, Standardbindung noch Parserzugang sind beobachtet, und ein
+Regexcachetreffer kann den Parse vermeiden. Umfang: ein Paket, ein PR, eine
+gezielte Regression; keine neue Produktquelle, kein Interpreter-/Container-/
+SQL-/Lab-Lauf und keine menschliche Generalprobe. Mit dem nächsten einzeln
+belegbaren Quellenkandidaten autonom fortfahren.
