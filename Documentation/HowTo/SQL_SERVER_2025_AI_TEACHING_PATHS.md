@@ -30,8 +30,14 @@ gemeinsame Ausgangspunkt. Wer SELECT/ORDER BY noch nicht kennt, erhält vor der
 Einheit eine eigene SQL-Grundlageneinführung; diese Planung ersetzt sie nicht.
 Die Lehrperson klärt dies vorab und stellt eine eigene vorbereitete Labverbindung
 bereit. Serverversion, Client, Compatibility Level und Rechte werden ausdrücklich
-unterschieden. Teilnehmende benötigen für den Einstieg weder Cloudkonto noch
-Modelldownload, Credentialanlage oder Previewkonfiguration.
+unterschieden. Die [VECTOR-Kompatibilitätslesehilfe](SQL_SERVER_2025_AI_VECTOR_COMPATIBILITY.md)
+erklärt die konkreten Engine-, Kompatibilitätsstufen- und Clientgrenzen. Für die
+vorbereiteten QRY-014-/QRY-015-Übungen mit float32 ist kein nativer Float16-ODBC-
+Pfad erforderlich. Wer den optionalen .NET-Clientweg vertiefen möchte, findet ihn
+in der [VECTOR-Clientlesehilfe](SQL_SERVER_2025_AI_VECTOR_CLIENT.md); ihr
+begrenzter Nachweis gilt für den beschriebenen float32-Fall. Teilnehmende
+benötigen für den Einstieg weder Cloudkonto noch Modelldownload,
+Credentialanlage oder Previewkonfiguration.
 
 Die zuerst gezeigten Zahlen sind eine geometrische Zuordnung, keine echten
 Sprach-Embeddings. Ohne passend vorbereiteten SQL-2025-Server bespricht die Gruppe
