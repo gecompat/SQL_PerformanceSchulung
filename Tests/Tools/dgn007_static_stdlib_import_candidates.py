@@ -8205,9 +8205,10 @@ def _target_re_tokenizer_access_candidate(files):
     class_methods = [node for node in tokenizers[0].body
                      if isinstance(node, ast.FunctionDef)]
     methods = {node.name: node for node in class_methods}
-    if (any(name not in methods for name in ("__init__", "__next", "get"))
+    if (any(name not in methods for name in
+            ("__init__", "__next", "get", "getuntil"))
             or any(sum(node.name == name for node in class_methods) != 1
-                   for name in ("__init__", "__next", "get"))):
+                   for name in ("__init__", "__next", "get", "getuntil"))):
         return None
 
     init_body = methods["__init__"].body
@@ -8282,12 +8283,37 @@ def _target_re_tokenizer_access_candidate(files):
             or ast.unparse(get_body[1]) != "self.__next()"
             or ast.unparse(get_body[2]) != "return this"):
         return None
+    getuntil_source = (
+        "def getuntil(self, terminator, name):\n"
+        "    result = ''\n"
+        "    while True:\n"
+        "        c = self.next\n"
+        "        self.__next()\n"
+        "        if c is None:\n"
+        "            if not result:\n"
+        "                raise self.error('missing ' + name)\n"
+        "            raise self.error('missing %s, unterminated name' % terminator, len(result))\n"
+        "        if c == terminator:\n"
+        "            if not result:\n"
+        "                raise self.error('missing ' + name, 1)\n"
+        "            break\n"
+        "        result += c\n"
+        "    return result"
+    )
+    if ast.unparse(methods["getuntil"]) != getuntil_source:
+        return None
     return {
         "source_path": "re/_parser.py",
         "source_sha256": RE_PARSER_SOURCE_SHA256,
         "bytes_to_text_expression": "str(string, 'latin1')",
         "escaped_character_access": "backslash plus following character",
         "trailing_backslash_behavior": "parser error candidate",
+        "getuntil_group_name_error_cases": [
+            "empty name at terminator: missing name at offset 1",
+            "end of pattern before any name: missing name at current position",
+            "end of pattern after partial name: missing terminator at len(result) offset",
+        ],
+        "getuntil_result_returned_only_after_terminator": True,
         "get_advances_after_returning_current_character": True,
         "tokenizer_execution_observed": False,
         "pattern_parse_observed": False,

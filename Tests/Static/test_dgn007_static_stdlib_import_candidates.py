@@ -5625,6 +5625,21 @@ def deferred():
                 b"        this = self.next\n"
                 b"        self.__next()\n"
                 b"        return this\n"
+                b"    def getuntil(self, terminator, name):\n"
+                b"        result = ''\n"
+                b"        while True:\n"
+                b"            c = self.next\n"
+                b"            self.__next()\n"
+                b"            if c is None:\n"
+                b"                if not result:\n"
+                b"                    raise self.error('missing ' + name)\n"
+                b"                raise self.error('missing %s, unterminated name' % terminator, len(result))\n"
+                b"            if c == terminator:\n"
+                b"                if not result:\n"
+                b"                    raise self.error('missing ' + name, 1)\n"
+                b"                break\n"
+                b"            result += c\n"
+                b"        return result\n"
                 b"    def checkgroupname(self, name, offset):\n"
                 b"        if not (self.istext or name.isascii()):\n"
                 b"            msg = 'bad character in group name %a' % name\n"
@@ -5728,6 +5743,14 @@ def deferred():
                 == "backslash plus following character"
                 and row["tokenizer_access_candidate"]["trailing_backslash_behavior"]
                 == "parser error candidate"
+                and row["tokenizer_access_candidate"][
+                    "getuntil_group_name_error_cases"] == [
+                        "empty name at terminator: missing name at offset 1",
+                        "end of pattern before any name: missing name at current position",
+                        "end of pattern after partial name: missing terminator at len(result) offset",
+                    ]
+                and row["tokenizer_access_candidate"][
+                    "getuntil_result_returned_only_after_terminator"]
                 and not row["tokenizer_access_candidate"]["tokenizer_execution_observed"]
                 and not row["tokenizer_access_candidate"]["pattern_parse_observed"]
                 for row in candidates
@@ -6243,6 +6266,28 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_tokenizer_escape,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_getuntil_offset = dict(files)
+            altered_getuntil_offset["re/_parser.py"] = altered_getuntil_offset[
+                "re/_parser.py"
+            ].replace(
+                b"self.error('missing %s, unterminated name' % terminator, len(result))",
+                b"self.error('missing %s, unterminated name' % terminator, len(result) + 1)",
+                1,
+            )
+            altered_getuntil_offset_digest = hashlib.sha256(
+                altered_getuntil_offset["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_getuntil_offset_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_getuntil_offset,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
