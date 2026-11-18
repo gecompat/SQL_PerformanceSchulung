@@ -9899,14 +9899,18 @@ def _target_re_group_name_to_pattern_groupindex_candidate(
     """Join parser registration, compiler handoff, native storage, and view."""
     parser_state = _target_re_parser_group_state_candidate(files)
     parser_source = files.get("re/_parser.py") if type(files) is dict else None
+    compiler_input = _target_re_compiler_parsed_pattern_input_candidate(files)
     compiler_metadata = _target_re_compiler_group_metadata_candidate(files)
     native_groupindex = _target_re_pattern_groupindex_native_candidate(
         sre_c_source, sre_h_source,
     )
     if (parser_state is None or type(parser_source) is not bytes
             or hashlib.sha256(parser_source).hexdigest() != RE_PARSER_SOURCE_SHA256
-            or compiler_metadata is None or native_groupindex is None
+            or compiler_input is None or compiler_metadata is None
+            or native_groupindex is None
             or parser_state["named_group_mapping"] != "self.groupdict[name] = gid"
+            or compiler_input["string_input_branch"]
+            != "pattern = p; p = _parser.parse(p, flags)"
             or compiler_metadata["groupindex_source"] != "p.state.groupdict"
             or compiler_metadata["metadata_passed_to_sre_compile"]
             != ["groupindex", "tuple(indexgroup)"]
@@ -9972,6 +9976,7 @@ def _target_re_group_name_to_pattern_groupindex_candidate(
         "native_c_source_sha256": native_groupindex["c_source_sha256"],
         "native_header_source_sha256": native_groupindex["header_source_sha256"],
         "named_group_mapping": parser_state["named_group_mapping"],
+        "text_input_parser_route": compiler_input["string_input_branch"],
         "named_capture_source_order": [
             "source.getuntil('>', 'group name')",
             "source.checkgroupname(name, 1)",

@@ -13670,7 +13670,8 @@ kein Parser-, Regex-, Compiler- oder Runtime-Nachweis.
 Der statische DGN-007-Kandidat umfasst nun den Quellfluss von der benannten
 Capturegruppe über `State.groupdict` und die `re/_compiler.py`-Übergabe bis zum
 `PatternObject.groupindex`-Feld und der öffentlichen read-only
-`Pattern.groupindex`-Ansicht. Der native Vertrag folgt den offiziellen
+`Pattern.groupindex`-Ansicht; der gebundene Stringeingabepfad führt über
+`_parser.parse`. Der native Vertrag folgt den offiziellen
 [CPython-3.12.16-Quellen für `_sre.c`](https://github.com/python/cpython/blob/v3.12.16/Modules/_sre/sre.c#L1432-L1525)
 und [`sre.h`](https://github.com/python/cpython/blob/v3.12.16/Modules/_sre/sre.h#L24-L42).
 Beide C-Dateien sind als eindeutige Archivmitglieder mit Größenlimits und

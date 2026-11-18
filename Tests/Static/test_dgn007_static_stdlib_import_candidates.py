@@ -282,6 +282,9 @@ class StaticImportCandidateTests(unittest.TestCase):
                     "groupindex", "tuple(indexgroup)",
                 ],
             }
+            compiler_input = {
+                "string_input_branch": "pattern = p; p = _parser.parse(p, flags)",
+            }
             flow_files = {"re/_parser.py": parser_source}
             with (patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
                                hashlib.sha256(parser_source).hexdigest()),
@@ -293,7 +296,10 @@ class StaticImportCandidateTests(unittest.TestCase):
                                return_value=candidate),
                   patch.object(SUBJECT,
                                "_target_re_compiler_group_metadata_candidate",
-                               return_value=compiler_metadata)):
+                               return_value=compiler_metadata),
+                  patch.object(SUBJECT,
+                               "_target_re_compiler_parsed_pattern_input_candidate",
+                               return_value=compiler_input)):
                 joined = SUBJECT._target_re_group_name_to_pattern_groupindex_candidate(
                     flow_files, sre_c, sre_h,
                 )
@@ -311,6 +317,18 @@ class StaticImportCandidateTests(unittest.TestCase):
                 with patch.object(
                         SUBJECT, "_target_re_compiler_group_metadata_candidate",
                         return_value=changed_flow):
+                    self.assertIsNone(
+                        SUBJECT._target_re_group_name_to_pattern_groupindex_candidate(
+                            flow_files, sre_c, sre_h,
+                        )
+                    )
+                changed_input = {
+                    "string_input_branch": "pattern = None",
+                }
+                with patch.object(
+                        SUBJECT,
+                        "_target_re_compiler_parsed_pattern_input_candidate",
+                        return_value=changed_input):
                     self.assertIsNone(
                         SUBJECT._target_re_group_name_to_pattern_groupindex_candidate(
                             flow_files, sre_c, sre_h,
@@ -5930,6 +5948,10 @@ def deferred():
             self.assertEqual(
                 joined_groupindex_flow["compiler_to_native_argument"],
                 "groupindex",
+            )
+            self.assertEqual(
+                joined_groupindex_flow["text_input_parser_route"],
+                "pattern = p; p = _parser.parse(p, flags)",
             )
             self.assertEqual(
                 joined_groupindex_flow["public_read_only_view"],
