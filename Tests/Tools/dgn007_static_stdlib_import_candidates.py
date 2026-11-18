@@ -9511,6 +9511,12 @@ def _target_re_group_reference_compiler_candidate(files):
             "state.checklookbehindgroup(gid, source)",
             "subpatternappend((GROUPREF, gid))",
         ],
+        "named_reference_name_parse": "source.getuntil(')', 'group name')",
+        "named_reference_name_validation": "source.checkgroupname(name, 1)",
+        "named_reference_error_offsets": [
+            "unknown group name: len(name) + 1",
+            "open group: len(name) + 1",
+        ],
         "named_group_name_validation": [
             "non-text names must be ASCII",
             "all names must satisfy str.isidentifier()",
@@ -9535,6 +9541,64 @@ def _target_re_group_reference_compiler_candidate(files):
         "conditional_jump_offsets_patched": True,
         "parser_or_compiler_execution_observed": False,
         "evidence_scope": "PINNED_RE_GROUP_REFERENCE_COMPILER_CANDIDATE",
+    }
+
+
+def _target_re_group_name_error_offset_candidate(files):
+    """Join capture and backreference name offsets to tokenizer error positions."""
+    tokenizer = _target_re_tokenizer_access_candidate(files)
+    capture = _target_re_parser_group_call_candidate(files)
+    reference = _target_re_group_reference_compiler_candidate(files)
+    if tokenizer is None or capture is None or reference is None:
+        return None
+    source_sha256 = hashlib.sha256(files["re/_parser.py"]).hexdigest()
+    if (capture["source_sha256"] != source_sha256
+            or tokenizer["source_sha256"] != source_sha256
+            or reference["parser_source_sha256"] != source_sha256
+            or capture["named_capture_name_parse"]
+            != "source.getuntil('>', 'group name')"
+            or capture["named_capture_name_validation"]
+            != "source.checkgroupname(name, 1)"
+            or capture["capture_group_open_error_conversion"]
+            != "source.error(err.msg, len(name) + 1) from None"
+            or reference["named_reference_name_parse"]
+            != "source.getuntil(')', 'group name')"
+            or reference["named_reference_name_validation"]
+            != "source.checkgroupname(name, 1)"
+            or reference["named_reference_error_offsets"] != [
+                "unknown group name: len(name) + 1",
+                "open group: len(name) + 1",
+            ]
+            or tokenizer["getuntil_group_name_error_cases"] != [
+                "empty name at terminator: missing name at offset 1",
+                "end of pattern before any name: missing name at current position",
+                "end of pattern after partial name: missing terminator at len(result) offset",
+            ]
+            or tokenizer["error_source_position_expression"]
+            != "self.tell() - offset"):
+        return None
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": source_sha256,
+        "capture_group_getuntil": capture["named_capture_name_parse"],
+        "capture_group_name_validation": capture["named_capture_name_validation"],
+        "capture_group_registration_error_offset": "len(name) + 1",
+        "named_backreference_getuntil": reference["named_reference_name_parse"],
+        "named_backreference_name_validation": (
+            reference["named_reference_name_validation"]
+        ),
+        "named_backreference_error_offsets": (
+            reference["named_reference_error_offsets"]
+        ),
+        "tokenizer_getuntil_error_offsets": (
+            tokenizer["getuntil_group_name_error_cases"]
+        ),
+        "tokenizer_error_source_position_expression": (
+            tokenizer["error_source_position_expression"]
+        ),
+        "all_offsets_bound_to_same_pinned_source": True,
+        "parser_or_tokenizer_execution_observed": False,
+        "evidence_scope": "PINNED_RE_GROUP_NAME_ERROR_OFFSET_JOIN_CANDIDATE",
     }
 
 
@@ -9821,6 +9885,9 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     parser_group_compiler_candidate = (
         _target_re_group_reference_compiler_candidate(files)
     )
+    parser_group_name_error_offset_candidate = (
+        _target_re_group_name_error_offset_candidate(files)
+    )
     compiler_branch_candidate = _target_re_compiler_branch_candidate(files)
     compiler_code_candidate = _target_re_compiler_code_container_candidate(files)
     compiler_group_candidate = _target_re_compiler_group_metadata_candidate(files)
@@ -9845,6 +9912,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or parser_lookbehind_candidate is None
             or parser_group_width_candidate is None
             or parser_group_compiler_candidate is None
+            or parser_group_name_error_offset_candidate is None
             or compiler_branch_candidate is None
             or compiler_code_candidate is None
             or compiler_group_candidate is None
@@ -10209,6 +10277,9 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_lookbehind_candidate": parser_lookbehind_candidate,
             "parser_group_width_candidate": parser_group_width_candidate,
             "parser_group_compiler_candidate": parser_group_compiler_candidate,
+            "parser_group_name_error_offset_candidate": (
+                parser_group_name_error_offset_candidate
+            ),
             "compiler_branch_candidate": compiler_branch_candidate,
             "compiler_code_candidate": compiler_code_candidate,
             "compiler_group_candidate": compiler_group_candidate,

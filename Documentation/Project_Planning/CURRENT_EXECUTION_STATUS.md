@@ -14,10 +14,20 @@ Generalprobe bleibt ausgeschlossen.
 Auf dem sauberen, mit `origin/main` synchronen Stand
 `a1b5d312b8057b32e51dd89466ffcbd6a75deb16` wurde der W-PRS-001-Lehrmittelrelease
 gebaut und abgenommen. Die lokale Verarbeitungswelle ist am Releasecheckpoint
-auf Nutzerwunsch angehalten. Der übergeordnete Entwicklungsauftrag und offene
-Gates bleiben bestehen; es wird bis zur ausdrücklichen Fortsetzung keine neue
-Entwicklungswelle begonnen. Buildnachweis, Profilhashes und Prüfungen stehen in
+auf Nutzerwunsch angehalten und durch den anschließenden Fortsetzungsauftrag
+wieder aufgenommen worden. Der übergeordnete Entwicklungsauftrag und offene
+Gates bleiben bestehen. Buildnachweis, Profilhashes und Prüfungen stehen in
 [`W-PRS-001 – Lehrmittelfreigabe`](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-a1b5d312-nach-pr-1077).
+
+### DGN-007 – Parser- und Tokenizer-Gruppennamenoffsets verbinden
+
+Der aktuelle Offlinekandidat bindet Capturegruppen (`getuntil('>')`), benannte
+Rückverweise (`getuntil(')')`), deren `len(name) + 1`-Fehleroffsets und die
+Tokenizerrückrechnung `tell() - offset` an denselben gepinnten
+CPython-3.12.16-Quellstand. Drei synthetische Offset-/Positionsmutationen
+werden verworfen; 305 fokussierte Regressionen bestehen lokal. Das bleibt ein
+statischer Quellenbefund ohne Parser-/Tokenizerlauf oder tatsächliche
+Fehlermeldung. Die PR-Gates stehen noch aus.
 
 ### DGN-007 – Collector-Präqualifikation und aktueller Runtime-Stand
 
