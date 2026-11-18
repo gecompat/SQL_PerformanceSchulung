@@ -3846,7 +3846,14 @@ Capturegruppen: `source.getuntil('>', 'group name')` liest den Namen,
 synthetische Mutation, die den Check entfernt, wird verworfen. Die Quellform
 stimmt mit dem offiziellen
 [CPython-3.12.16-Parser](https://github.com/python/cpython/blob/v3.12.16/Lib/re/_parser.py#L694-L698)
-überein; der fokussierte Satz besteht mit 305 Tests. Es gibt weiterhin keinen
-Parserlaufzeitnachweis. Nächste sinnvolle Prüfung: die Fehlerposition und den
-Gruppenöffnungsfehler dieses benannten Capturepfads gemeinsam an die
-Tokenizer-/State-Fehlerkonvertierung binden.
+überein; der fokussierte Satz besteht mit 305 Tests. PR #1074 integrierte den
+Schnitt als `7b0c6509`; alle PR-Gates und vier Main-Push-Workflows bestanden.
+Es gibt weiterhin keinen Parserlaufzeitnachweis.
+
+Der nächste lokale Folgeschnitt bindet den Fehlerpfad nach der Registrierung:
+Eine `error` aus `state.opengroup(name)` wird mit
+`source.error(err.msg, len(name) + 1) from None` auf den Gruppennamenoffset
+abgebildet. Eine synthetische Offsetmutation wird verworfen; der fokussierte
+Satz besteht mit 305 Tests. Das belegt weder einen tatsächlich doppelten Namen
+noch Parserlaufzeit. Als nächstes folgt die Fehlerposition für fehlende oder
+nicht abgeschlossene Gruppennamen beim `Tokenizer.getuntil`-Pfad.

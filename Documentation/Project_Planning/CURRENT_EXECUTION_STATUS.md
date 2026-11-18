@@ -13582,4 +13582,16 @@ Quellform stimmt mit dem offiziellen
 überein und ist durch den bereits gepinnten Dateidigest abgesichert. Der
 fokussierte Testlauf besteht mit 305 Tests. Das bleibt statische Quellbindung;
 es wurden weder Muster geparst noch Regexlaufzeit oder konkrete
-Namensakzeptanz gemessen. PR- und Offlinearchivprüfungen stehen aus.
+Namensakzeptanz gemessen. PR #1074 integrierte den Schnitt als
+`7b0c6509`; alle PR-Gates einschließlich des vollständigen
+Offline-Quellenbundles und alle vier Main-Push-Workflows bestanden.
+
+### DGN-007 – Registrierungsfehler benannter Capturegruppen an Quelloffset binden
+
+Der Parser wandelt jetzt auch den Fehlerpfad der benannten Gruppenregistrierung
+quellgebunden ab: Eine `error` aus `state.opengroup(name)` wird mit
+`source.error(err.msg, len(name) + 1) from None` auf den Gruppennamenoffset
+abgebildet. Eine synthetische Änderung des Offsets wird verworfen. 305
+fokussierte DGN-007-Tests bestehen lokal. Dies beschreibt die Fehlerstruktur
+des gepinnten CPython-3.12.16-Parsers; ein tatsächlicher doppelter Gruppenname,
+Parserlauf oder Regexlaufzeit wurden nicht ausgeführt. PR-Gates stehen aus.

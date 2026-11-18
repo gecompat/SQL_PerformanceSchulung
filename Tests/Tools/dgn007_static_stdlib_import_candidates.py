@@ -8852,6 +8852,13 @@ def _target_re_parser_group_call_candidate(files):
                               for call in ast.walk(statement))
                       and [ast.unparse(statement) for statement in node.orelse]
                       == ["group = None"]]
+    open_group_error_conversion = [handler
+                                   for guard in capture_guards
+                                   for statement in guard.body
+                                   if isinstance(statement, ast.Try)
+                                   for handler in statement.handlers
+                                   if ast.unparse(handler)
+                                   == "except error as err:\n    raise source.error(err.msg, len(name) + 1) from None"]
     close_guards = [node for node in ast.walk(functions["_parse"])
                     if isinstance(node, ast.If)
                     and ast.unparse(node.test) == "group is not None"
@@ -8880,6 +8887,7 @@ def _target_re_parser_group_call_candidate(files):
             or [ast.unparse(arg) for arg in escape_group_checks[0].args]
             != ["group"]
             or len(capture_guards) != 1
+            or len(open_group_error_conversion) != 1
             or len(close_guards) != 1):
         return None
 
@@ -8901,6 +8909,9 @@ def _target_re_parser_group_call_candidate(files):
         "named_capture_name_validation": "source.checkgroupname(name, 1)",
         "named_capture_validation_before_registration": True,
         "capture_group_open_call": "state.opengroup(name)",
+        "capture_group_open_error_conversion":
+            "source.error(err.msg, len(name) + 1) from None",
+        "capture_group_open_error_offset_bound": True,
         "capture_group_body_call":
             "_parse_sub(source, state, sub_verbose, nested + 1)",
         "conditional_group_arm_call":
