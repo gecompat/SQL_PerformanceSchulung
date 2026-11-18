@@ -8711,6 +8711,64 @@ def _target_re_parser_uniq_candidate(files):
     }
 
 
+def _target_re_parser_group_state_candidate(files):
+    """Bind the parser's source for group counts and named-group indexes."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    states = [node for node in tree.body
+              if isinstance(node, ast.ClassDef) and node.name == "State"]
+    if len(states) != 1:
+        return None
+    methods = {node.name: node for node in states[0].body
+               if isinstance(node, ast.FunctionDef)
+               and node.name in {"__init__", "groups", "opengroup"}}
+    if len(methods) != 3:
+        return None
+    init_body = [ast.unparse(node) for node in methods["__init__"].body]
+    groups = methods["groups"]
+    open_group = methods["opengroup"]
+    open_body = [ast.unparse(node) for node in open_group.body]
+    named_group = [node for node in open_group.body
+                   if isinstance(node, ast.If)
+                   and ast.unparse(node.test) == "name is not None"]
+    if (init_body != ["self.flags = 0", "self.groupdict = {}",
+                      "self.groupwidths = [None]",
+                      "self.lookbehindgroups = None", "self.grouprefpos = {}"]
+            or [ast.unparse(node) for node in groups.decorator_list]
+            != ["property"]
+            or ast.unparse(groups.body[0])
+            != "return len(self.groupwidths)"
+            or len(open_body) != 5
+            or open_body[0:2] != ["gid = self.groups",
+                                  "self.groupwidths.append(None)"]
+            or open_body[-1] != "return gid"
+            or len(named_group) != 1
+            or len(named_group[0].body) != 3
+            or ast.unparse(named_group[0].body[0])
+            != "ogid = self.groupdict.get(name, None)"
+            or not isinstance(named_group[0].body[1], ast.If)
+            or ast.unparse(named_group[0].body[2])
+            != "self.groupdict[name] = gid"):
+        return None
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "group_zero_width_initializer": "self.groupwidths = [None]",
+        "group_count_source": "len(self.groupwidths)",
+        "new_group_index_source": "gid = self.groups",
+        "named_group_mapping": "self.groupdict[name] = gid",
+        "duplicate_name_guard": "self.groupdict.get(name, None)",
+        "parser_execution_observed": False,
+        "evidence_scope": "PINNED_RE_PARSER_GROUP_STATE_CANDIDATE",
+    }
+
+
 def _target_re_compiler_branch_candidate(files):
     """Bind how the pinned compiler lowers a general BRANCH subpattern."""
     source = files.get("re/_compiler.py") if type(files) is dict else None
@@ -8982,6 +9040,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
         _target_re_parser_subpattern_branch_order_candidate(files)
     )
     parser_uniq_candidate = _target_re_parser_uniq_candidate(files)
+    parser_group_state_candidate = _target_re_parser_group_state_candidate(files)
     compiler_branch_candidate = _target_re_compiler_branch_candidate(files)
     compiler_code_candidate = _target_re_compiler_code_container_candidate(files)
     compiler_group_candidate = _target_re_compiler_group_metadata_candidate(files)
@@ -9000,6 +9059,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or parser_prefix_candidate is None
             or parser_subpattern_order_candidate is None
             or parser_uniq_candidate is None
+            or parser_group_state_candidate is None
             or compiler_branch_candidate is None
             or compiler_code_candidate is None
             or compiler_group_candidate is None
@@ -9358,6 +9418,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_prefix_candidate": parser_prefix_candidate,
             "parser_subpattern_order_candidate": parser_subpattern_order_candidate,
             "parser_uniq_candidate": parser_uniq_candidate,
+            "parser_group_state_candidate": parser_group_state_candidate,
             "compiler_branch_candidate": compiler_branch_candidate,
             "compiler_code_candidate": compiler_code_candidate,
             "compiler_group_candidate": compiler_group_candidate,
