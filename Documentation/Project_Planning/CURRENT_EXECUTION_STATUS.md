@@ -9,6 +9,16 @@ einer Nutzerdatenbank. QRY-023 bleibt bis zu gesonderter Produkt-/Katalog-
 freigabe `PROPOSED` und `runtime_authorized: false`. Die menschliche
 Generalprobe bleibt ausgeschlossen.
 
+### Verarbeitung am 18. November 2026 angehalten; Lehrmittelrelease erstellt
+
+Auf dem sauberen, mit `origin/main` synchronen Stand
+`a1b5d312b8057b32e51dd89466ffcbd6a75deb16` wurde der W-PRS-001-Lehrmittelrelease
+gebaut und abgenommen. Die lokale Verarbeitungswelle ist am Releasecheckpoint
+auf Nutzerwunsch angehalten. Der übergeordnete Entwicklungsauftrag und offene
+Gates bleiben bestehen; es wird bis zur ausdrücklichen Fortsetzung keine neue
+Entwicklungswelle begonnen. Buildnachweis, Profilhashes und Prüfungen stehen in
+[`W-PRS-001 – Lehrmittelfreigabe`](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-a1b5d312-nach-pr-1077).
+
 ### DGN-007 – Collector-Präqualifikation und aktueller Runtime-Stand
 
 PR [#918](https://github.com/gecompat/SQL_PerformanceSchulung/pull/918) wurde
