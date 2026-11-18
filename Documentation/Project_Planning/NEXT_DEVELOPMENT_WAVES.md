@@ -3730,3 +3730,10 @@ Ergänzender Checkpoint 18. November 2026: Der optionale Debugpfad ist an
 Codeerzeugung und vor Gruppenmetadaten sowie nativer Kompilierung. Die
 synthetische Mutation des Disassemblierungsarguments wird abgelehnt. Es gibt
 keinen Nachweis eines konkreten Debugaufrufs oder einer Compilerlaufzeit.
+
+Ergänzender Checkpoint 18. November 2026: `compile()` behält für String-/Byte-
+Eingaben das Original als `pattern` und ruft den Parser auf; für bereits
+geparste Eingaben setzt die Quelle `pattern = None`. Beide Pfade führen
+anschließend `p` an `_code(p, flags)` weiter. Eine Mutation der `None`-Übergabe
+wird abgelehnt. Dies belegt keine tatsächliche Verwendung des internen
+SubPattern-Pfads.
