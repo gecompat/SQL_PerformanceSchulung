@@ -8817,6 +8817,12 @@ def _target_re_parser_group_call_candidate(files):
                        and node.func.id == "_parse_sub"
                        and [ast.unparse(arg) for arg in node.args]
                        == ["source", "state", "sub_verbose", "nested + 1"]]
+    conditional_parse_calls = [node for node in ast.walk(functions["_parse"])
+                               if isinstance(node, ast.Call)
+                               and isinstance(node.func, ast.Name)
+                               and node.func.id == "_parse"
+                               and [ast.unparse(arg) for arg in node.args]
+                               == ["source", "state", "verbose", "nested + 1"]]
     closing_match_calls = [node for node in ast.walk(functions["_parse"])
                            if isinstance(node, ast.Call)
                            and isinstance(node.func, ast.Attribute)
@@ -8845,6 +8851,7 @@ def _target_re_parser_group_call_candidate(files):
             or [ast.unparse(arg) for arg in close_calls[0].args]
             != ["group", "p"]
             or len(parse_sub_calls) != 1
+            or len(conditional_parse_calls) != 2
             or len(closing_match_calls) < 1
             or len(parser_group_checks) != 2
             or any([ast.unparse(arg) for arg in call.args] != ["gid"]
@@ -8873,6 +8880,9 @@ def _target_re_parser_group_call_candidate(files):
         "capture_group_open_call": "state.opengroup(name)",
         "capture_group_body_call":
             "_parse_sub(source, state, sub_verbose, nested + 1)",
+        "conditional_group_arm_call":
+            "_parse(source, state, verbose, nested + 1)",
+        "conditional_group_arm_call_sites": 2,
         "capture_group_close_guard": "source.match(')') succeeds",
         "capture_group_close_call": "state.closegroup(group, p)",
         "group_width_lifecycle_order": [
@@ -9234,6 +9244,11 @@ def _target_re_group_reference_compiler_candidate(files):
         if isinstance(node, ast.If)
         and ast.unparse(node.test) == "sourcematch('=')"
     ]
+    conditional_arm_branches = [
+        node for node in ast.walk(parser_functions["_parse"])
+        if isinstance(node, ast.If)
+        and ast.unparse(node.test) == "source.match('|')"
+    ]
     parser_calls = [node for node in ast.walk(parser_functions["_parse"])
                     if isinstance(node, ast.Call)
                     and isinstance(node.func, ast.Name)
@@ -9291,11 +9306,27 @@ def _target_re_group_reference_compiler_candidate(files):
         "        raise source.error('unexpected end of pattern')\n"
         "    raise source.error('unknown extension ?P' + char, len(char) + 2)"
     )
+    conditional_arm_source = (
+        "if source.match('|'):\n"
+        "    item_no = _parse(source, state, verbose, nested + 1)\n"
+        "    if source.next == '|':\n"
+        "        raise source.error('conditional backref with more than two branches')\n"
+        "else:\n"
+        "    item_no = None"
+    )
+    conditional_arm_parents = [
+        node for node in ast.walk(parser_functions["_parse"])
+        if isinstance(node, ast.If)
+        and any(child is conditional_arm_branches[0] for child in node.body)
+    ] if len(conditional_arm_branches) == 1 else []
     if (len(escape_returns) != 1
             or len(numeric_escape_branches) != 1
             or ast.unparse(numeric_escape_branches[0]) != numeric_escape_source
             or len(named_reference_branches) != 1
             or ast.unparse(named_reference_branches[0]) != named_reference_source
+            or len(conditional_arm_branches) != 1
+            or ast.unparse(conditional_arm_branches[0]) != conditional_arm_source
+            or len(conditional_arm_parents) != 1
             or len(groupref_outputs) != 1
             or len(conditional_outputs) != 1
             or len(groupref_branches) != 1
@@ -9305,6 +9336,40 @@ def _target_re_group_reference_compiler_candidate(files):
             or ast.unparse(groupref_branches[0].body[0])
             != "if not flags & SRE_FLAG_IGNORECASE:\n    emit(op)\nelif flags & SRE_FLAG_LOCALE:\n    emit(GROUPREF_LOC_IGNORE)\nelif not fixes:\n    emit(GROUPREF_IGNORE)\nelse:\n    emit(GROUPREF_UNI_IGNORE)"
             or ast.unparse(groupref_branches[0].body[1]) != "emit(av - 1)"):
+        return None
+
+    conditional_parent = conditional_arm_parents[0]
+    conditional_yes_assignments = [
+        node for node in conditional_parent.body
+        if isinstance(node, ast.Assign)
+        and [ast.unparse(target) for target in node.targets] == ["item_yes"]
+        and ast.unparse(node.value)
+        == "_parse(source, state, verbose, nested + 1)"
+    ]
+    conditional_close_checks = [
+        node for node in conditional_parent.body
+        if isinstance(node, ast.If)
+        and ast.unparse(node.test) == "not source.match(')')"
+        and len(node.body) == 1
+        and isinstance(node.body[0], ast.Raise)
+        and "missing ), unterminated subpattern" in ast.unparse(node.body[0])
+    ]
+    conditional_parser_outputs = [
+        node for node in conditional_parent.body
+        if isinstance(node, ast.Expr)
+        and isinstance(node.value, ast.Call)
+        and isinstance(node.value.func, ast.Name)
+        and node.value.func.id == "subpatternappend"
+        and [ast.unparse(arg) for arg in node.value.args]
+        == ["(GROUPREF_EXISTS, (condgroup, item_yes, item_no))"]
+    ]
+    if (len(conditional_yes_assignments) != 1
+            or len(conditional_close_checks) != 1
+            or len(conditional_parser_outputs) != 1
+            or not (conditional_yes_assignments[0].lineno
+                    < conditional_arm_branches[0].lineno
+                    < conditional_close_checks[0].lineno
+                    < conditional_parser_outputs[0].lineno)):
         return None
 
     conditional_body = conditional_branches[0].body
@@ -9351,6 +9416,11 @@ def _target_re_group_reference_compiler_candidate(files):
         "named_reference_parser_output": "(GROUPREF, gid)",
         "conditional_reference_parser_output":
             "(GROUPREF_EXISTS, (condgroup, item_yes, item_no))",
+        "conditional_yes_arm": "_parse(source, state, verbose, nested + 1)",
+        "conditional_no_arm": "_parse(source, state, verbose, nested + 1)",
+        "conditional_missing_no_arm": "item_no = None",
+        "conditional_extra_arm_rejected": True,
+        "conditional_close_before_subpattern_output": True,
         "group_reference_ignore_case_lowering": [
             "GROUPREF", "GROUPREF_LOC_IGNORE", "GROUPREF_IGNORE",
             "GROUPREF_UNI_IGNORE",

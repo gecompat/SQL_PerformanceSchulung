@@ -5509,9 +5509,7 @@ def deferred():
                 b"        state.closegroup(group, p)\n"
                 b"    if not state.checkgroup(gid):\n"
                 b"        raise source.error('open group')\n"
-                b"    subpatternappend((GROUPREF_EXISTS, (condgroup, item_yes, item_no)))\n"
                 b"    state.checklookbehindgroup(gid, source)\n"
-                b"    state.checklookbehindgroup(condgroup, source)\n"
                 b"    lookbehindgroups = state.lookbehindgroups\n"
                 b"    if lookbehindgroups is None:\n"
                 b"        state.lookbehindgroups = state.groups\n"
@@ -5562,6 +5560,18 @@ def deferred():
                 b"        if char is None:\n"
                 b"            raise source.error('unexpected end of pattern')\n"
                 b"        raise source.error('unknown extension ?P' + char, len(char) + 2)\n"
+                b"    if char == '(':\n"
+                b"        state.checklookbehindgroup(condgroup, source)\n"
+                b"        item_yes = _parse(source, state, verbose, nested + 1)\n"
+                b"        if source.match('|'):\n"
+                b"            item_no = _parse(source, state, verbose, nested + 1)\n"
+                b"            if source.next == '|':\n"
+                b"                raise source.error('conditional backref with more than two branches')\n"
+                b"        else:\n"
+                b"            item_no = None\n"
+                b"        if not source.match(')'):\n"
+                b"            raise source.error('missing ), unterminated subpattern', source.tell() - start)\n"
+                b"        subpatternappend((GROUPREF_EXISTS, (condgroup, item_yes, item_no)))\n"
                 b"def _escape(source, escape, state):\n"
                 b"    if c == '0':\n"
                 b"        escape += source.getwhile(2, OCTDIGITS)\n"
@@ -5852,6 +5862,11 @@ def deferred():
                 == "state.opengroup(name)"
                 and row["parser_group_call_candidate"]["capture_group_body_call"]
                 == "_parse_sub(source, state, sub_verbose, nested + 1)"
+                and row["parser_group_call_candidate"][
+                    "conditional_group_arm_call"]
+                == "_parse(source, state, verbose, nested + 1)"
+                and row["parser_group_call_candidate"][
+                    "conditional_group_arm_call_sites"] == 2
                 and row["parser_group_call_candidate"]["capture_group_close_call"]
                 == "state.closegroup(group, p)"
                 and row["parser_group_call_candidate"][
@@ -5967,6 +5982,18 @@ def deferred():
                 and row["parser_group_compiler_candidate"][
                     "conditional_reference_parser_output"]
                 == "(GROUPREF_EXISTS, (condgroup, item_yes, item_no))"
+                and row["parser_group_compiler_candidate"][
+                    "conditional_yes_arm"]
+                == "_parse(source, state, verbose, nested + 1)"
+                and row["parser_group_compiler_candidate"][
+                    "conditional_no_arm"]
+                == "_parse(source, state, verbose, nested + 1)"
+                and row["parser_group_compiler_candidate"][
+                    "conditional_missing_no_arm"] == "item_no = None"
+                and row["parser_group_compiler_candidate"][
+                    "conditional_extra_arm_rejected"]
+                and row["parser_group_compiler_candidate"][
+                    "conditional_close_before_subpattern_output"]
                 and row["parser_group_compiler_candidate"][
                     "group_reference_ignore_case_lowering"]
                 == ["GROUPREF", "GROUPREF_LOC_IGNORE", "GROUPREF_IGNORE",
@@ -6628,6 +6655,27 @@ def deferred():
                 self.assertIsNone(
                     SUBJECT._target_re_forward_group_reference_candidate(
                         altered_named_conditional
+                    )
+                )
+
+            altered_conditional_arm_guard = dict(files)
+            altered_conditional_arm_guard["re/_parser.py"] = (
+                altered_conditional_arm_guard["re/_parser.py"].replace(
+                    b"if source.next == '|':",
+                    b"if source.next == '&':",
+                    1,
+                )
+            )
+            altered_conditional_arm_digest = hashlib.sha256(
+                altered_conditional_arm_guard["re/_parser.py"]
+            ).hexdigest()
+            with (patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                               altered_conditional_arm_digest),
+                  patch.object(SUBJECT, "RE_COMPILER_SOURCE_SHA256",
+                               digests["RE_COMPILER_SOURCE_SHA256"])):
+                self.assertIsNone(
+                    SUBJECT._target_re_group_reference_compiler_candidate(
+                        altered_conditional_arm_guard
                     )
                 )
 

@@ -3821,6 +3821,11 @@ Parserausführung oder Runtimeaussage.
 Der nächste lokale Kandidat bindet den benannten Zweig bedingter
 Gruppenreferenzen über `state.groupdict`, einschließlich Namensvalidierung und
 Ablehnung unbekannter Namen. Der bestehende Zahlenzweig und seine spätere
-Vorwärtsreferenzprüfung bleiben unverändert. Mutation des benannten Lookups
-wird verworfen; 305 fokussierte Regressionen bestehen. PR-Gates stehen noch
-aus.
+Vorwärtsreferenzprüfung bleiben unverändert. PR #1070 und alle vier
+Main-Push-Workflows bestanden auf `38b580af`.
+
+Der lokale Folgeschnitt bindet die Ja-/Nein-Parsearme der bedingten
+Gruppenreferenz, das optionale `None` des Nein-Arms, die Ablehnung eines dritten
+Arms und die schließende Klammer vor Ausgabe als `GROUPREF_EXISTS`. Die Mutation
+der zusätzlichen Armprüfung wird verworfen; 305 fokussierte Regressionen
+bestehen. PR-Gates stehen noch aus.

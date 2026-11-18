@@ -13542,5 +13542,17 @@ Der statische Kandidat bindet nun den benannten Zweig der bedingten Referenz
 ein unbekannter Name wird mit der gebundenen Quellposition abgelehnt. Der
 Zahlenzweig samt aufgeschobener Prüfung vorwärts referenzierter Gruppen bleibt
 separat gebunden. Eine Mutation des benannten Lookup-Ausdrucks wird
-zurückgewiesen. 305 fokussierte Regressionen bestehen lokal; PR- und
-Main-Push-Gates stehen noch aus. Es gibt keinen Parser- oder Laufzeitnachweis.
+zurückgewiesen. 305 fokussierte Regressionen bestehen lokal. PR #1070
+integrierte den Schnitt; sämtliche PR-Gates und alle vier Main-Push-Workflows
+bestanden auf `38b580af`. Es gibt keinen Parser- oder Laufzeitnachweis.
+
+### DGN-007 – bedingte Gruppenarme und Abschlussgrenzen binden
+
+Der nächste statische Kandidat verbindet die bedingte Gruppenreferenz mit
+ihren beiden Parsearmen: Der Ja-Arm wird immer geparst; der Nein-Arm folgt nur
+bei `|`, andernfalls ist er `None`. Ein dritter Arm wird abgelehnt. Die
+schließende Klammer wird vor der `GROUPREF_EXISTS`-Ausgabe verlangt. Die
+zugehörigen `_parse`-Aufrufinventare unterscheiden jetzt beide Armaufrufe von
+der Erfassung eines Capturegruppeninhalts. Eine Mutation der zusätzlichen
+Armprüfung wird zurückgewiesen. 305 fokussierte Regressionen bestehen lokal;
+PR-Gates stehen noch aus. Kein Parser- oder Laufzeitnachweis.
