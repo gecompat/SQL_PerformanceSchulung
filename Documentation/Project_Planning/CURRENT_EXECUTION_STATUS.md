@@ -13423,6 +13423,15 @@ Namen anschließend dem neuen Index in `groupdict` zu. Eine synthetische
 Indexmutation wird verworfen. Dies belegt weder einen tatsächlich geparsten
 Gruppeninhalt noch einen Aufruf des Compilers.
 
+Die Gruppen-State-Bindung umfasst nun auch den Abschluss einer Gruppe und die
+Prüfung, ob ihre Breite bereits gesetzt ist: `closegroup` speichert
+`p.getwidth()` am Gruppenindex, und `checkgroup` verlangt einen gültigen Index
+mit gesetzter Breite. Eine synthetische Mutation der Breitenzuweisung wird
+zurückgewiesen. Die 305 fokussierten DGN-007-Regressionen bestehen. Der Befund
+bleibt statisch und belegt weder Gruppen-Parsing noch Compiler- oder
+Regexlaufzeit. Nächster Schritt: die Aufrufstellen im Parser an diese
+Gruppen-State-Methoden binden.
+
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 
 Der statische Kandidat bindet jetzt den Präfixscan in `_parse_sub`: leere
