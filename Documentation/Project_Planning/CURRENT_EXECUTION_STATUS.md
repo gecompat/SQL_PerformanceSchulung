@@ -13518,4 +13518,17 @@ innerhalb der registrierten Gruppen liegen, geschlossen sein und die aktive
 Lookbehind-Grenze einhalten. Eine synthetische Änderung der Oktalbedingung wird
 fail-closed zurückgewiesen. 305 fokussierte Regressionen bestehen. Der Befund
 ist statisch; er belegt weder eine konkrete Escape-Auflösung noch Parser- oder
-Regexlaufzeit.
+Regexlaufzeit. PR #1068 integrierte den Schnitt; alle PR-Gates, der vollständige
+Offline-Archivworkflow sowie alle vier Main-Push-Workflows bestanden auf
+`79abac80`.
+
+### DGN-007 – benannte Gruppenrückverweise binden
+
+Der gepinnte Parserkandidat bindet in `_parse` jetzt die Auflösung von
+`(?P=name)`: Namensvalidierung und `groupdict`-Lookup, Ablehnung unbekannter
+oder noch offener Gruppen, die Lookbehind-Gruppenprüfung und die Ausgabe als
+`GROUPREF`. Die statischen Aufrufinventare bilden beide benannten
+Rückverweisformen ab. Eine synthetische Änderung des Gruppennamen-Lookups wird
+verworfen. 305 fokussierte Regressionen bestehen lokal; PR- und
+Main-Push-Gates stehen noch aus. Das bleibt auf den CPython-3.12.16-Quellstand
+begrenzt und behauptet weder Parserausführung noch Regexlaufzeit.

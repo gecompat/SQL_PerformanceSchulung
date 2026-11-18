@@ -8846,9 +8846,9 @@ def _target_re_parser_group_call_candidate(files):
             != ["group", "p"]
             or len(parse_sub_calls) != 1
             or len(closing_match_calls) < 1
-            or len(parser_group_checks) != 1
-            or [ast.unparse(arg) for arg in parser_group_checks[0].args]
-            != ["gid"]
+            or len(parser_group_checks) != 2
+            or any([ast.unparse(arg) for arg in call.args] != ["gid"]
+                   for call in parser_group_checks)
             or len(escape_group_checks) != 1
             or [ast.unparse(arg) for arg in escape_group_checks[0].args]
             != ["group"]
@@ -8880,6 +8880,7 @@ def _target_re_parser_group_call_candidate(files):
             "store parsed group width",
         ],
         "parser_group_check_call": "state.checkgroup(gid)",
+        "parser_group_check_call_sites": 2,
         "escape_group_check_call": "state.checkgroup(group)",
         "parser_execution_observed": False,
         "evidence_scope": "PINNED_RE_PARSER_GROUP_CALL_CANDIDATE",
@@ -9064,10 +9065,11 @@ def _target_re_lookbehind_group_candidate(files):
     if (len(initial_boundary) != 1
             or len(boundary_guards) != 1
             or len(reset_guards) != 1
-            or len(parser_calls) != 2
+            or len(parser_calls) != 3
             or sorted(tuple(ast.unparse(arg) for arg in call.args)
                       for call in parser_calls)
-            != [("condgroup", "source"), ("gid", "source")]
+            != [("condgroup", "source"), ("gid", "source"),
+                ("gid", "source")]
             or len(escape_calls) != 1
             or [ast.unparse(arg) for arg in escape_calls[0].args]
             != ["group", "source"]):
@@ -9082,6 +9084,7 @@ def _target_re_lookbehind_group_candidate(files):
         "open_group_guard": "not self.checkgroup(gid)",
         "same_lookbehind_group_guard": "gid >= self.lookbehindgroups",
         "parser_reference_calls": [
+            "state.checklookbehindgroup(gid, source)",
             "state.checklookbehindgroup(gid, source)",
             "state.checklookbehindgroup(condgroup, source)",
         ],
@@ -9187,6 +9190,11 @@ def _target_re_group_reference_compiler_candidate(files):
         if isinstance(node, ast.If)
         and ast.unparse(node.test) == "c == '0'"
     ]
+    named_reference_branches = [
+        node for node in ast.walk(parser_functions["_parse"])
+        if isinstance(node, ast.If)
+        and ast.unparse(node.test) == "sourcematch('=')"
+    ]
     parser_calls = [node for node in ast.walk(parser_functions["_parse"])
                     if isinstance(node, ast.Call)
                     and isinstance(node.func, ast.Name)
@@ -9225,9 +9233,30 @@ def _target_re_group_reference_compiler_candidate(files):
         "        return (GROUPREF, group)\n"
         "    raise source.error('invalid group reference %d' % group, len(escape) - 1)"
     )
+    named_reference_source = (
+        "if sourcematch('='):\n"
+        "    name = source.getuntil(')', 'group name')\n"
+        "    source.checkgroupname(name, 1)\n"
+        "    gid = state.groupdict.get(name)\n"
+        "    if gid is None:\n"
+        "        msg = 'unknown group name %r' % name\n"
+        "        raise source.error(msg, len(name) + 1)\n"
+        "    if not state.checkgroup(gid):\n"
+        "        raise source.error('cannot refer to an open group', len(name) + 1)\n"
+        "    state.checklookbehindgroup(gid, source)\n"
+        "    subpatternappend((GROUPREF, gid))\n"
+        "    continue\n"
+        "else:\n"
+        "    char = sourceget()\n"
+        "    if char is None:\n"
+        "        raise source.error('unexpected end of pattern')\n"
+        "    raise source.error('unknown extension ?P' + char, len(char) + 2)"
+    )
     if (len(escape_returns) != 1
             or len(numeric_escape_branches) != 1
             or ast.unparse(numeric_escape_branches[0]) != numeric_escape_source
+            or len(named_reference_branches) != 1
+            or ast.unparse(named_reference_branches[0]) != named_reference_source
             or len(groupref_outputs) != 1
             or len(conditional_outputs) != 1
             or len(groupref_branches) != 1
@@ -9272,6 +9301,13 @@ def _target_re_group_reference_compiler_candidate(files):
             "group < state.groups",
             "state.checkgroup(group)",
             "state.checklookbehindgroup(group, source)",
+        ],
+        "named_reference_resolution": [
+            "state.groupdict.get(name)",
+            "unknown group name rejected",
+            "state.checkgroup(gid)",
+            "state.checklookbehindgroup(gid, source)",
+            "subpatternappend((GROUPREF, gid))",
         ],
         "named_reference_parser_output": "(GROUPREF, gid)",
         "conditional_reference_parser_output":
