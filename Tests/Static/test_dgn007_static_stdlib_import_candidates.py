@@ -5878,6 +5878,11 @@ def deferred():
                     "named_capture_validation_before_registration"]
                 and row["parser_group_call_candidate"]["capture_group_open_call"]
                 == "state.opengroup(name)"
+                and row["parser_group_call_candidate"][
+                    "capture_group_open_error_conversion"]
+                == "source.error(err.msg, len(name) + 1) from None"
+                and row["parser_group_call_candidate"][
+                    "capture_group_open_error_offset_bound"]
                 and not row["parser_group_call_candidate"][
                     "parser_execution_observed"]
                 for row in candidates
@@ -6716,6 +6721,25 @@ def deferred():
                 self.assertIsNone(
                     SUBJECT._target_re_parser_group_call_candidate(
                         altered_capture_name_validation
+                    )
+                )
+
+            altered_capture_error_offset = dict(files)
+            altered_capture_error_offset["re/_parser.py"] = (
+                altered_capture_error_offset["re/_parser.py"].replace(
+                    b"source.error(err.msg, len(name) + 1) from None",
+                    b"source.error(err.msg, len(name)) from None",
+                    1,
+                )
+            )
+            altered_capture_error_digest = hashlib.sha256(
+                altered_capture_error_offset["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_capture_error_digest):
+                self.assertIsNone(
+                    SUBJECT._target_re_parser_group_call_candidate(
+                        altered_capture_error_offset
                     )
                 )
 
