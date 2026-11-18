@@ -5449,6 +5449,20 @@ def deferred():
                 b"def _parse(source, state, verbose, nested, first=False):\n"
                 b"    sourceget = source.get\n"
                 b"    sourceget()\n"
+                b"    if capture:\n"
+                b"        try:\n"
+                b"            group = state.opengroup(name)\n"
+                b"        except error as err:\n"
+                b"            raise source.error(err.msg, len(name) + 1) from None\n"
+                b"    else:\n"
+                b"        group = None\n"
+                b"    p = _parse_sub(source, state, sub_verbose, nested + 1)\n"
+                b"    if not source.match(')'):\n"
+                b"        raise source.error('missing close')\n"
+                b"    if group is not None:\n"
+                b"        state.closegroup(group, p)\n"
+                b"    if not state.checkgroup(gid):\n"
+                b"        raise source.error('open group')\n"
                 b"    if verbose:\n"
                 b"        if this in WHITESPACE:\n"
                 b"            continue\n"
@@ -5458,6 +5472,12 @@ def deferred():
                 b"                if this is None or this == '\\n':\n"
                 b"                    break\n"
                 b"            continue\n"
+                b"def _escape(source, escape, state):\n"
+                b"    if group < state.groups:\n"
+                b"        if not state.checkgroup(group):\n"
+                b"            raise source.error('open group')\n"
+                b"        state.checklookbehindgroup(group, source)\n"
+                b"        return GROUPREF, group\n"
                 b"class Tokenizer:\n"
                 b"    def __init__(self, string):\n"
                 b"        self.istext = isinstance(string, str)\n"
@@ -5716,6 +5736,25 @@ def deferred():
                 and row["parser_group_state_candidate"]["completed_group_check"]
                 == "gid < self.groups and self.groupwidths[gid] is not None"
                 and not row["parser_group_state_candidate"][
+                    "parser_execution_observed"]
+                for row in candidates
+            ))
+            self.assertTrue(all(
+                row["parser_group_call_candidate"]["capture_group_open_call"]
+                == "state.opengroup(name)"
+                and row["parser_group_call_candidate"]["capture_group_body_call"]
+                == "_parse_sub(source, state, sub_verbose, nested + 1)"
+                and row["parser_group_call_candidate"]["capture_group_close_call"]
+                == "state.closegroup(group, p)"
+                and row["parser_group_call_candidate"][
+                    "group_width_lifecycle_order"]
+                == ["allocate group index", "parse group body",
+                    "match closing parenthesis", "store parsed group width"]
+                and row["parser_group_call_candidate"]["parser_group_check_call"]
+                == "state.checkgroup(gid)"
+                and row["parser_group_call_candidate"]["escape_group_check_call"]
+                == "state.checkgroup(group)"
+                and not row["parser_group_call_candidate"][
                     "parser_execution_observed"]
                 for row in candidates
             ))
@@ -6195,6 +6234,25 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_group_close,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_group_call = dict(files)
+            altered_group_call["re/_parser.py"] = altered_group_call[
+                "re/_parser.py"
+            ].replace(b"state.closegroup(group, p)",
+                     b"state.closegroup(group, group)", 1)
+            altered_group_call_digest = hashlib.sha256(
+                altered_group_call["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_group_call_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_group_call,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),

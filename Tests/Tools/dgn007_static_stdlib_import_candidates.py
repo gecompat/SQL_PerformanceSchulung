@@ -8785,6 +8785,107 @@ def _target_re_parser_group_state_candidate(files):
     }
 
 
+def _target_re_parser_group_call_candidate(files):
+    """Bind capture-group parser call sites to the pinned State lifecycle."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    functions = {node.name: node for node in tree.body
+                 if isinstance(node, ast.FunctionDef)
+                 and node.name in {"_parse", "_escape"}}
+    if len(functions) != 2:
+        return None
+
+    def state_calls(function, method):
+        return [node for node in ast.walk(function)
+                if isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "state"
+                and node.func.attr == method]
+
+    open_calls = state_calls(functions["_parse"], "opengroup")
+    close_calls = state_calls(functions["_parse"], "closegroup")
+    parse_sub_calls = [node for node in ast.walk(functions["_parse"])
+                       if isinstance(node, ast.Call)
+                       and isinstance(node.func, ast.Name)
+                       and node.func.id == "_parse_sub"
+                       and [ast.unparse(arg) for arg in node.args]
+                       == ["source", "state", "sub_verbose", "nested + 1"]]
+    closing_match_calls = [node for node in ast.walk(functions["_parse"])
+                           if isinstance(node, ast.Call)
+                           and isinstance(node.func, ast.Attribute)
+                           and isinstance(node.func.value, ast.Name)
+                           and node.func.value.id == "source"
+                           and node.func.attr == "match"
+                           and [ast.unparse(arg) for arg in node.args] == ["')'"]]
+    parser_group_checks = state_calls(functions["_parse"], "checkgroup")
+    escape_group_checks = state_calls(functions["_escape"], "checkgroup")
+    capture_guards = [node for node in ast.walk(functions["_parse"])
+                      if isinstance(node, ast.If)
+                      and ast.unparse(node.test) == "capture"
+                      and any(open_calls and call is open_calls[0]
+                              for statement in node.body
+                              for call in ast.walk(statement))
+                      and [ast.unparse(statement) for statement in node.orelse]
+                      == ["group = None"]]
+    close_guards = [node for node in ast.walk(functions["_parse"])
+                    if isinstance(node, ast.If)
+                    and ast.unparse(node.test) == "group is not None"
+                    and [ast.unparse(statement) for statement in node.body]
+                    == ["state.closegroup(group, p)"]]
+    if (len(open_calls) != 1
+            or [ast.unparse(arg) for arg in open_calls[0].args] != ["name"]
+            or len(close_calls) != 1
+            or [ast.unparse(arg) for arg in close_calls[0].args]
+            != ["group", "p"]
+            or len(parse_sub_calls) != 1
+            or len(closing_match_calls) < 1
+            or len(parser_group_checks) != 1
+            or [ast.unparse(arg) for arg in parser_group_checks[0].args]
+            != ["gid"]
+            or len(escape_group_checks) != 1
+            or [ast.unparse(arg) for arg in escape_group_checks[0].args]
+            != ["group"]
+            or len(capture_guards) != 1
+            or len(close_guards) != 1):
+        return None
+
+    close_match = max(
+        (call for call in closing_match_calls
+         if parse_sub_calls[0].lineno < call.lineno < close_calls[0].lineno),
+        key=lambda call: call.lineno,
+        default=None,
+    )
+    if (close_match is None
+            or not (open_calls[0].lineno < parse_sub_calls[0].lineno
+                    < close_match.lineno < close_calls[0].lineno)):
+        return None
+
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "capture_group_open_call": "state.opengroup(name)",
+        "capture_group_body_call":
+            "_parse_sub(source, state, sub_verbose, nested + 1)",
+        "capture_group_close_guard": "source.match(')') succeeds",
+        "capture_group_close_call": "state.closegroup(group, p)",
+        "group_width_lifecycle_order": [
+            "allocate group index", "parse group body", "match closing parenthesis",
+            "store parsed group width",
+        ],
+        "parser_group_check_call": "state.checkgroup(gid)",
+        "escape_group_check_call": "state.checkgroup(group)",
+        "parser_execution_observed": False,
+        "evidence_scope": "PINNED_RE_PARSER_GROUP_CALL_CANDIDATE",
+    }
+
+
 def _target_re_compiler_branch_candidate(files):
     """Bind how the pinned compiler lowers a general BRANCH subpattern."""
     source = files.get("re/_compiler.py") if type(files) is dict else None
@@ -9057,6 +9158,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     )
     parser_uniq_candidate = _target_re_parser_uniq_candidate(files)
     parser_group_state_candidate = _target_re_parser_group_state_candidate(files)
+    parser_group_call_candidate = _target_re_parser_group_call_candidate(files)
     compiler_branch_candidate = _target_re_compiler_branch_candidate(files)
     compiler_code_candidate = _target_re_compiler_code_container_candidate(files)
     compiler_group_candidate = _target_re_compiler_group_metadata_candidate(files)
@@ -9076,6 +9178,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or parser_subpattern_order_candidate is None
             or parser_uniq_candidate is None
             or parser_group_state_candidate is None
+            or parser_group_call_candidate is None
             or compiler_branch_candidate is None
             or compiler_code_candidate is None
             or compiler_group_candidate is None
@@ -9435,6 +9538,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_subpattern_order_candidate": parser_subpattern_order_candidate,
             "parser_uniq_candidate": parser_uniq_candidate,
             "parser_group_state_candidate": parser_group_state_candidate,
+            "parser_group_call_candidate": parser_group_call_candidate,
             "compiler_branch_candidate": compiler_branch_candidate,
             "compiler_code_candidate": compiler_code_candidate,
             "compiler_group_candidate": compiler_group_candidate,
