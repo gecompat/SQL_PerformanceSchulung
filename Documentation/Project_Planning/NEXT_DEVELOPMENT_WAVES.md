@@ -1,19 +1,17 @@
 # Nächste Entwicklungswellen
 
-## Verarbeitungswelle nach dem Releasecheckpoint fortgesetzt
+## Verarbeitungswelle am Releasecheckpoint angehalten
 
-Auf Nutzerwunsch wurde die Verarbeitungswelle zunächst am sauberen Stand
-`b42392478ab5113df858ff7cffe0e656eaa113ad` angehalten und der W-PRS-001-
-Kursrelease gebaut. Der Releasecheckpoint bleibt dokumentiert im
-[Releaseprotokoll](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-b4239247-nach-pr-1079).
-Der übergeordnete Auftrag zur autonomen Umsetzung der freigegebenen
-Entwicklungszweige läuft weiter. PR #1081 integrierte den
-VECTOR-Kompatibilitäts- und Clientlesepfad in den Einstieg der Teaching Paths;
-PR #1082 glich anschließend Wellen- und DGN-007-Status mit den integrierten
-Prüfbelegen ab. Weitere Kandidaten folgen dieser Planung und den fachlichen
-Gates. Die
-menschliche Generalprobe sowie offene SQL-Lab-, Produkt- und Runtimegates
-bleiben unberührt.
+Nach PR #1084 wurde der W-PRS-001-Kursrelease auf dem sauberen `main`-Commit
+`89ccc0a109be6d059dc3b3f77fcdf7335196ae56` gebaut und die Verarbeitungswelle
+auf Nutzerwunsch angehalten. Build, vollständige Renderprüfung, 209
+SlideKey-gebundene Bytevergleiche und gezielter Datenschutzscan bestanden.
+Details stehen im
+[Releaseprotokoll](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-89ccc0a1-nach-pr-1084).
+Die nachfolgenden Abschnitte halten noch offene Kandidaten und Gates für eine
+spätere Fortsetzung fest; sie sind kein Auftrag, die angehaltene Welle
+fortzusetzen. Die menschliche Generalprobe bleibt ausgeschlossen; offene
+SQL-Lab-, Produkt- und Runtimegates bleiben bestehen.
 
 ## Aktuelle autonome Fortsetzungsplanung vom 8. November 2026
 ### SQL Server 2025 `OPTIMIZED_SP_EXECUTESQL`: Methodenentwurf
