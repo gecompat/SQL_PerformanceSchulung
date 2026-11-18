@@ -5463,6 +5463,11 @@ def deferred():
                 b"        state.closegroup(group, p)\n"
                 b"    if not state.checkgroup(gid):\n"
                 b"        raise source.error('open group')\n"
+                b"    condgroup = int(condname)\n"
+                b"    if condgroup >= MAXGROUPS:\n"
+                b"        raise source.error('invalid group')\n"
+                b"    if condgroup not in state.grouprefpos:\n"
+                b"        state.grouprefpos[condgroup] = source.tell() - len(condname) - 1\n"
                 b"    if verbose:\n"
                 b"        if this in WHITESPACE:\n"
                 b"            continue\n"
@@ -5510,6 +5515,10 @@ def deferred():
                 b"def parse(str, flags=0, state=None):\n"
                 b"    source = Tokenizer(str)\n"
                 b"    p = _parse_sub(source, state, flags & SRE_FLAG_VERBOSE, 0)\n"
+                b"    for g in p.state.grouprefpos:\n"
+                b"        if g >= p.state.groups:\n"
+                b"            msg = 'invalid group reference %d' % g\n"
+                b"            raise error(msg, str, p.state.grouprefpos[g])\n"
             ),
         }
         digests = {
@@ -5756,6 +5765,28 @@ def deferred():
                 == "state.checkgroup(group)"
                 and not row["parser_group_call_candidate"][
                     "parser_execution_observed"]
+                for row in candidates
+            ))
+            self.assertTrue(all(
+                row["parser_forward_group_candidate"][
+                    "conditional_group_number_conversion"]
+                == "condgroup = int(condname)"
+                and row["parser_forward_group_candidate"][
+                    "maximum_group_guard"] == "condgroup >= MAXGROUPS"
+                and row["parser_forward_group_candidate"][
+                    "deferred_group_position_assignment"]
+                == "state.grouprefpos[condgroup] = source.tell() - len(condname) - 1"
+                and row["parser_forward_group_candidate"][
+                    "post_parse_registry_iteration"] == "for g in p.state.grouprefpos"
+                and row["parser_forward_group_candidate"][
+                    "final_group_count_guard"] == "g >= p.state.groups"
+                and row["parser_forward_group_candidate"][
+                    "invalid_reference_error"]
+                == "error(msg, str, p.state.grouprefpos[g])"
+                and row["parser_forward_group_candidate"][
+                    "validation_after_pattern_parse"]
+                and not row["parser_forward_group_candidate"][
+                    "forward_reference_execution_observed"]
                 for row in candidates
             ))
             self.assertTrue(all(
@@ -6253,6 +6284,26 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_group_call,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_forward_group_position = dict(files)
+            altered_forward_group_position["re/_parser.py"] = (
+                altered_forward_group_position["re/_parser.py"].replace(
+                    b"source.tell() - len(condname) - 1", b"source.tell()", 1
+                )
+            )
+            altered_forward_group_digest = hashlib.sha256(
+                altered_forward_group_position["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_forward_group_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_forward_group_position,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
