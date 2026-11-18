@@ -8886,6 +8886,100 @@ def _target_re_parser_group_call_candidate(files):
     }
 
 
+def _target_re_forward_group_reference_candidate(files):
+    """Bind deferred numeric conditional-group reference validation."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    functions = {node.name: node for node in tree.body
+                 if isinstance(node, ast.FunctionDef)
+                 and node.name in {"_parse", "parse"}}
+    if len(functions) != 2:
+        return None
+    parser = functions["_parse"]
+    parse_entry = functions["parse"]
+
+    numeric_conversions = [node for node in ast.walk(parser)
+                           if isinstance(node, ast.Assign)
+                           and [ast.unparse(target) for target in node.targets]
+                           == ["condgroup"]
+                           and ast.unparse(node.value) == "int(condname)"]
+    max_group_guards = [node for node in ast.walk(parser)
+                        if isinstance(node, ast.If)
+                        and ast.unparse(node.test) == "condgroup >= MAXGROUPS"]
+    deferred_registry = [node for node in ast.walk(parser)
+                         if isinstance(node, ast.Assign)
+                         and [ast.unparse(target) for target in node.targets]
+                         == ["state.grouprefpos[condgroup]"]
+                         and ast.unparse(node.value)
+                         == "source.tell() - len(condname) - 1"]
+    registry_guards = [node for node in ast.walk(parser)
+                       if isinstance(node, ast.If)
+                       and ast.unparse(node.test)
+                       == "condgroup not in state.grouprefpos"
+                       and len(node.body) == 1
+                       and deferred_registry
+                       and node.body[0] is deferred_registry[0]]
+
+    final_loops = [node for node in ast.walk(parse_entry)
+                   if isinstance(node, ast.For)
+                   and ast.unparse(node.target) == "g"
+                   and ast.unparse(node.iter) == "p.state.grouprefpos"]
+    final_group_guards = [node for node in ast.walk(parse_entry)
+                          if isinstance(node, ast.If)
+                          and ast.unparse(node.test) == "g >= p.state.groups"]
+    invalid_reference_messages = [node for node in ast.walk(parse_entry)
+                                  if isinstance(node, ast.Assign)
+                                  and [ast.unparse(target) for target in node.targets]
+                                  == ["msg"]
+                                  and ast.unparse(node.value)
+                                  == "'invalid group reference %d' % g"]
+    invalid_reference_raises = [node for node in ast.walk(parse_entry)
+                                if isinstance(node, ast.Call)
+                                and isinstance(node.func, ast.Name)
+                                and node.func.id == "error"
+                                and [ast.unparse(arg) for arg in node.args]
+                                == ["msg", "str", "p.state.grouprefpos[g]"]]
+    parse_sub_calls = [node for node in ast.walk(parse_entry)
+                       if isinstance(node, ast.Call)
+                       and isinstance(node.func, ast.Name)
+                       and node.func.id == "_parse_sub"]
+    if (len(numeric_conversions) != 1
+            or len(max_group_guards) != 1
+            or len(deferred_registry) != 1
+            or len(registry_guards) != 1
+            or len(final_loops) != 1
+            or len(final_group_guards) != 1
+            or len(invalid_reference_messages) != 1
+            or len(invalid_reference_raises) != 1
+            or len(parse_sub_calls) != 1
+            or not (parse_sub_calls[0].lineno < final_loops[0].lineno
+                    < final_group_guards[0].lineno
+                    < invalid_reference_raises[0].lineno)):
+        return None
+
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "conditional_group_number_conversion": "condgroup = int(condname)",
+        "maximum_group_guard": "condgroup >= MAXGROUPS",
+        "deferred_group_position_assignment":
+            "state.grouprefpos[condgroup] = source.tell() - len(condname) - 1",
+        "post_parse_registry_iteration": "for g in p.state.grouprefpos",
+        "final_group_count_guard": "g >= p.state.groups",
+        "invalid_reference_error":
+            "error(msg, str, p.state.grouprefpos[g])",
+        "validation_after_pattern_parse": True,
+        "forward_reference_execution_observed": False,
+        "evidence_scope": "PINNED_RE_PARSER_DEFERRED_GROUP_REFERENCE_CANDIDATE",
+    }
+
+
 def _target_re_compiler_branch_candidate(files):
     """Bind how the pinned compiler lowers a general BRANCH subpattern."""
     source = files.get("re/_compiler.py") if type(files) is dict else None
@@ -9159,6 +9253,9 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     parser_uniq_candidate = _target_re_parser_uniq_candidate(files)
     parser_group_state_candidate = _target_re_parser_group_state_candidate(files)
     parser_group_call_candidate = _target_re_parser_group_call_candidate(files)
+    parser_forward_group_candidate = (
+        _target_re_forward_group_reference_candidate(files)
+    )
     compiler_branch_candidate = _target_re_compiler_branch_candidate(files)
     compiler_code_candidate = _target_re_compiler_code_container_candidate(files)
     compiler_group_candidate = _target_re_compiler_group_metadata_candidate(files)
@@ -9179,6 +9276,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or parser_uniq_candidate is None
             or parser_group_state_candidate is None
             or parser_group_call_candidate is None
+            or parser_forward_group_candidate is None
             or compiler_branch_candidate is None
             or compiler_code_candidate is None
             or compiler_group_candidate is None
@@ -9539,6 +9637,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_uniq_candidate": parser_uniq_candidate,
             "parser_group_state_candidate": parser_group_state_candidate,
             "parser_group_call_candidate": parser_group_call_candidate,
+            "parser_forward_group_candidate": parser_forward_group_candidate,
             "compiler_branch_candidate": compiler_branch_candidate,
             "compiler_code_candidate": compiler_code_candidate,
             "compiler_group_candidate": compiler_group_candidate,

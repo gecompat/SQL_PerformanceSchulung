@@ -3763,3 +3763,13 @@ des vollständigen gepinnten CPython-3.12.16-Offlineworkflows bestanden für PR
 #1063. Der Befund bleibt statisch. Nächster Kandidat: Registrierung einer
 vorwärts gerichteten numerischen Gruppenbedingung und spätere Bereichsprüfung
 in `parse()` binden.
+
+Checkpoint 18. November 2026: Die bedingte numerische Gruppenreferenz wird
+statisch an die spätere Prüfung gebunden. `_parse` wandelt `condname` in eine
+Zahl um, prüft `MAXGROUPS` und speichert bei fehlender Gruppe deren Quellposition
+in `state.grouprefpos`. Nach dem Parsen prüft `parse()` die gespeicherten
+Nummern gegen `p.state.groups` und erzeugt den Fehler mit der gebundenen
+Quellposition. Eine Positionsmutation wird zurückgewiesen. 305 fokussierte
+Regressionen bestehen lokal; die gepinnte Archivprüfung folgt als PR-Gate.
+Keine beobachtete Vorwärtsreferenz oder Runtimeausführung. Nächster Kandidat:
+die Lookbehind-Gruppenmarke an ihre Schutzprüfungen binden.

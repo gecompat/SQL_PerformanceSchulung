@@ -13444,6 +13444,17 @@ Nächster Kandidat:
 die Registrierung einer vorwärts gerichteten numerischen Gruppenbedingung und
 ihre spätere Bereichsprüfung im Parserabschluss binden.
 
+Die numerische bedingte Gruppenreferenz ist nun mit ihrer aufgeschobenen
+Validierung verbunden: Der Parser wandelt den Namen in eine Zahl um, begrenzt
+ihn mit `MAXGROUPS` und speichert die Quellposition in `state.grouprefpos`, wenn
+die Gruppe noch nicht registriert wurde. Nach dem Parsen prüft `parse()` jeden
+gespeicherten Index gegen `p.state.groups` und verwendet die gemerkte Position
+für den Fehler. Eine Mutation der gespeicherten Position wird zurückgewiesen.
+305 fokussierte Regressionen bestehen lokal; der vollständige Archivworkflow
+und die PR-Gates stehen noch aus. Es gibt keinen Nachweis einer tatsächlich
+ausgeführten Vorwärtsreferenz oder Regexlaufzeit. Als nächster Kandidat folgt
+die Bindung der Lookbehind-Gruppenmarke an ihre Schutzprüfungen.
+
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 
 Der statische Kandidat bindet jetzt den Präfixscan in `_parse_sub`: leere
