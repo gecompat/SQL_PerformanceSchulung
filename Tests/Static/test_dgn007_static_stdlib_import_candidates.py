@@ -5495,6 +5495,10 @@ def deferred():
                 b"def _parse(source, state, verbose, nested, first=False):\n"
                 b"    sourceget = source.get\n"
                 b"    sourceget()\n"
+                b"    if char == 'P':\n"
+                b"        if sourcematch('<'):\n"
+                b"            name = source.getuntil('>', 'group name')\n"
+                b"            source.checkgroupname(name, 1)\n"
                 b"    if capture:\n"
                 b"        try:\n"
                 b"            group = state.opengroup(name)\n"
@@ -5861,6 +5865,20 @@ def deferred():
                 and row["parser_group_state_candidate"]["completed_group_check"]
                 == "gid < self.groups and self.groupwidths[gid] is not None"
                 and not row["parser_group_state_candidate"][
+                    "parser_execution_observed"]
+                for row in candidates
+            ))
+            self.assertTrue(all(
+                row["parser_group_call_candidate"]["named_capture_name_parse"]
+                == "source.getuntil('>', 'group name')"
+                and row["parser_group_call_candidate"][
+                    "named_capture_name_validation"]
+                == "source.checkgroupname(name, 1)"
+                and row["parser_group_call_candidate"][
+                    "named_capture_validation_before_registration"]
+                and row["parser_group_call_candidate"]["capture_group_open_call"]
+                == "state.opengroup(name)"
+                and not row["parser_group_call_candidate"][
                     "parser_execution_observed"]
                 for row in candidates
             ))
@@ -6674,6 +6692,31 @@ def deferred():
                          "re._parser"),
                     ),
                     [],
+                )
+
+            altered_capture_name_validation = dict(files)
+            altered_capture_name_validation["re/_parser.py"] = (
+                altered_capture_name_validation["re/_parser.py"].replace(
+                    b"if char == 'P':\n"
+                    b"        if sourcematch('<'):\n"
+                    b"            name = source.getuntil('>', 'group name')\n"
+                    b"            source.checkgroupname(name, 1)",
+                    b"if char == 'P':\n"
+                    b"        if sourcematch('<'):\n"
+                    b"            name = source.getuntil('>', 'group name')\n"
+                    b"            pass",
+                    1,
+                )
+            )
+            altered_capture_name_digest = hashlib.sha256(
+                altered_capture_name_validation["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_capture_name_digest):
+                self.assertIsNone(
+                    SUBJECT._target_re_parser_group_call_candidate(
+                        altered_capture_name_validation
+                    )
                 )
 
             altered_named_conditional = dict(files)
