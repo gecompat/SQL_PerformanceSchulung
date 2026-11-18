@@ -13683,5 +13683,9 @@ der Analyzer liefert den zusammenhängenden Kandidaten mit Status
 `CANDIDATES_ONLY`. 307 fokussierte Regressionen bestehen, darunter synthetische
 Mutationen an Archivmitgliedern, Metadatenübergabe, nativer Speicherung und
 read-only Ansicht. Das belegt keinen CPython-Build, Parser-/Regexlauf oder
-Runtimeverhalten. Für die PR-Freigabe stehen noch Diffreview, unabhängige
-Review und die CI-Prüfungen des vollständigen Offlinebundles an.
+Runtimeverhalten. Das manuelle Diffreview wurde abgeschlossen. PR #1086 auf
+Head `294567ac85d5e2c978b8e287b18c35d850e0304c` besteht alle sieben PR-Checks,
+einschließlich des vollständigen DGN-007-Offlinebundles und des
+Katalogchecks. Die Repository-Regeln verlangen keine zusätzliche
+Approving-Review; es gibt keine Codeowner-/Reviewerzuweisung. Dieser Befund ist
+eine statische Kandidatenprüfung und keine Runtimequalifikation.

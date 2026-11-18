@@ -20,9 +20,9 @@ Die wiederaufgenommene Arbeit ergänzt den digestgebundenen CPython-3.12.16-
 Offlinecandidate vom `re/_parser.py`-Gruppennamenpfad bis zur nativen
 `Pattern.groupindex`-Ansicht. Der aktuelle Stand, die Quellhashes und die
 fokussierten Prüfungen stehen im [Ausführungsstand](CURRENT_EXECUTION_STATUS.md).
-Als nächstes sind Diffreview, vollständiger DGN-007-Offline-Workflow im Pull
-Request und danach die erforderlichen Review-/Merge-Gates offen. Der Kandidat
-führt keine Parser-, Regex- oder Runtimeausführung aus.
+Diffreview und alle sieben PR-Checks von PR #1086 auf Head `294567ac` sind
+bestanden. Das Repository verlangt keine Approving-Review; offen ist der
+Mergegate. Der Kandidat führt keine Parser-, Regex- oder Runtimeausführung aus.
 
 ## Aktuelle autonome Fortsetzungsplanung vom 8. November 2026
 ### SQL Server 2025 `OPTIMIZED_SP_EXECUTESQL`: Methodenentwurf
