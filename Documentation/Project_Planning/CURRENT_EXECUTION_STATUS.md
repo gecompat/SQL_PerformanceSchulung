@@ -13554,5 +13554,16 @@ bei `|`, andernfalls ist er `None`. Ein dritter Arm wird abgelehnt. Die
 schließende Klammer wird vor der `GROUPREF_EXISTS`-Ausgabe verlangt. Die
 zugehörigen `_parse`-Aufrufinventare unterscheiden jetzt beide Armaufrufe von
 der Erfassung eines Capturegruppeninhalts. Eine Mutation der zusätzlichen
-Armprüfung wird zurückgewiesen. 305 fokussierte Regressionen bestehen lokal;
-PR-Gates stehen noch aus. Kein Parser- oder Laufzeitnachweis.
+Armprüfung wird zurückgewiesen. 305 fokussierte Regressionen bestehen lokal.
+PR #1071 integrierte den Schnitt; sämtliche PR-Gates und alle vier
+Main-Push-Workflows bestanden auf `63786aae`. Kein Parser- oder
+Laufzeitnachweis.
+
+### DGN-007 – Namen benannter Gruppen an die Quellregel binden
+
+Der nächste statische Kandidat bindet `Tokenizer.checkgroupname`: Bytebasierte
+Gruppennamen müssen ASCII sein; alle Namen müssen `str.isidentifier()` erfüllen.
+Ablehnungen verwenden jeweils den übergebenen Quelloffset. Eine synthetische
+Änderung der Identifierprüfung wird verworfen. Der Befund beschreibt nur die
+gepinnten CPython-3.12.16-Quellzweige, nicht konkrete akzeptierte Namen oder
+Parserlaufzeit. 305 fokussierte Tests; PR-Gates noch ausstehend.

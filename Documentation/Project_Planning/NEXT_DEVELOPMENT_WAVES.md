@@ -3828,4 +3828,10 @@ Der lokale Folgeschnitt bindet die Ja-/Nein-Parsearme der bedingten
 Gruppenreferenz, das optionale `None` des Nein-Arms, die Ablehnung eines dritten
 Arms und die schließende Klammer vor Ausgabe als `GROUPREF_EXISTS`. Die Mutation
 der zusätzlichen Armprüfung wird verworfen; 305 fokussierte Regressionen
-bestehen. PR-Gates stehen noch aus.
+bestehen. PR #1071 und alle vier Main-Push-Workflows bestanden auf `63786aae`.
+
+Der nächste lokale Kandidat bindet `Tokenizer.checkgroupname`: bytebasierte
+Gruppennamen benötigen ASCII, alle Gruppennamen müssen `str.isidentifier()`
+erfüllen, und beide Ablehnungszweige verwenden den angegebenen Quelloffset.
+Eine Mutation der Identifierprüfung wird verworfen. Keine konkrete
+Namensakzeptanz oder Parserlaufzeit wird daraus abgeleitet.

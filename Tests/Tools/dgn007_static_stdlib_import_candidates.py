@@ -9225,11 +9225,28 @@ def _target_re_group_reference_compiler_candidate(files):
     parser_functions = {node.name: node for node in parser_tree.body
                         if isinstance(node, ast.FunctionDef)
                         and node.name in {"_parse", "_escape"}}
+    tokenizer_classes = [node for node in parser_tree.body
+                         if isinstance(node, ast.ClassDef)
+                         and node.name == "Tokenizer"]
     compiler_functions = [node for node in compiler_tree.body
                           if isinstance(node, ast.FunctionDef)
                           and node.name == "_compile"]
-    if len(parser_functions) != 2 or len(compiler_functions) != 1:
+    if (len(parser_functions) != 2 or len(tokenizer_classes) != 1
+            or len(compiler_functions) != 1):
         return None
+
+    name_validation_methods = [node for node in tokenizer_classes[0].body
+                               if isinstance(node, ast.FunctionDef)
+                               and node.name == "checkgroupname"]
+    named_group_name_validation_source = (
+        "def checkgroupname(self, name, offset):\n"
+        "    if not (self.istext or name.isascii()):\n"
+        "        msg = 'bad character in group name %a' % name\n"
+        "        raise self.error(msg, len(name) + offset)\n"
+        "    if not name.isidentifier():\n"
+        "        msg = 'bad character in group name %r' % name\n"
+        "        raise self.error(msg, len(name) + offset)"
+    )
 
     escape_returns = [node for node in ast.walk(parser_functions["_escape"])
                       if isinstance(node, ast.Return)
@@ -9320,6 +9337,9 @@ def _target_re_group_reference_compiler_candidate(files):
         and any(child is conditional_arm_branches[0] for child in node.body)
     ] if len(conditional_arm_branches) == 1 else []
     if (len(escape_returns) != 1
+            or len(name_validation_methods) != 1
+            or ast.unparse(name_validation_methods[0])
+            != named_group_name_validation_source
             or len(numeric_escape_branches) != 1
             or ast.unparse(numeric_escape_branches[0]) != numeric_escape_source
             or len(named_reference_branches) != 1
@@ -9412,6 +9432,11 @@ def _target_re_group_reference_compiler_candidate(files):
             "state.checkgroup(gid)",
             "state.checklookbehindgroup(gid, source)",
             "subpatternappend((GROUPREF, gid))",
+        ],
+        "named_group_name_validation": [
+            "non-text names must be ASCII",
+            "all names must satisfy str.isidentifier()",
+            "errors use the supplied source offset",
         ],
         "named_reference_parser_output": "(GROUPREF, gid)",
         "conditional_reference_parser_output":
