@@ -1,5 +1,16 @@
 # Nächste Entwicklungswellen
 
+## Verarbeitungswelle am 18. November 2026 angehalten
+
+Auf Nutzerwunsch endet die aktuelle Verarbeitungswelle am konsistenten,
+integrierten Stand `a1b5d312b8057b32e51dd89466ffcbd6a75deb16` nach PR #1077.
+Der W-PRS-001-Lehrmittelrelease wurde auf diesem Stand gebaut und geprüft;
+die Details stehen im
+[Releaseprotokoll](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-a1b5d312-nach-pr-1077).
+Bis zur ausdrücklichen Fortsetzung wird kein weiterer Entwicklungskandidat
+begonnen. Nicht erledigte Entwicklungs- und Qualifikationspunkte bleiben in
+dieser Planung und im aktuellen Ausführungsstand offen.
+
 ## Aktuelle autonome Fortsetzungsplanung vom 8. November 2026
 ### SQL Server 2025 `OPTIMIZED_SP_EXECUTESQL`: Methodenentwurf
 
