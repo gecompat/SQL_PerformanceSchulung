@@ -16,6 +16,43 @@ TOOL = Path(__file__).resolve().parents[1] / "Tools/dgn007_static_stdlib_import_
 SPEC = importlib.util.spec_from_file_location("dgn007_static_stdlib_import_candidates", TOOL)
 SUBJECT = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(SUBJECT)
+SRE_C_FIXTURE = (
+    b"static PyObject *\n"
+    b"_sre_compile_impl(PyObject *module, PyObject *pattern, int flags,\n"
+    b"                  PyObject *code, Py_ssize_t groups, PyObject *groupindex,\n"
+    b"                  PyObject *indexgroup)\n"
+    b"{\n"
+    b"    self->groupindex = NULL;\n"
+    b"    if (PyDict_GET_SIZE(groupindex) > 0) {\n"
+    b"        self->groupindex = Py_NewRef(groupindex);\n"
+    b"        if (PyTuple_GET_SIZE(indexgroup) > 0) {\n"
+    b"            self->indexgroup = Py_NewRef(indexgroup);\n"
+    b"        }\n"
+    b"    }\n"
+    b"    return (PyObject*) self;\n"
+    b"}\n"
+    b"/*[clinic input]\n_sre.template\n*/\n"
+    b"static PyObject *\n"
+    b"pattern_groupindex(PatternObject *self, void *Py_UNUSED(ignored))\n"
+    b"{\n"
+    b"    if (self->groupindex == NULL)\n"
+    b"        return PyDict_New();\n"
+    b"    return PyDictProxy_New(self->groupindex);\n"
+    b"}\n"
+    b"static PyGetSetDef pattern_getset[] = {\n"
+    b'    {"groupindex", (getter)pattern_groupindex, (setter)NULL,\n'
+    b'      "A dictionary mapping group names to group numbers."},\n'
+    b"    {NULL}\n"
+    b"};\n"
+)
+SRE_H_FIXTURE = (
+    b"typedef struct {\n"
+    b"    PyObject_VAR_HEAD\n"
+    b"    Py_ssize_t groups; /* must be first! */\n"
+    b"    PyObject* groupindex; /* dict */\n"
+    b"    PyObject* indexgroup; /* tuple */\n"
+    b"} PatternObject;\n"
+)
 
 
 class StaticImportCandidateTests(unittest.TestCase):
@@ -169,7 +206,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             INITCONFIG_C_SHA256=hashlib.sha256(initconfig).hexdigest(),
         ):
             result = SUBJECT._source_archive_data(make_archive(members))
-            self.assertEqual(result[-2:], (preconfig, initconfig))
+            self.assertEqual(result[-4:-2], (preconfig, initconfig))
             with self.assertRaisesRegex(ValueError, "PYTHON_CONFIG_SOURCE_MEMBER"):
                 SUBJECT._source_archive_data(make_archive(
                     members + [(SUBJECT.PRECONFIG_C_MEMBER, preconfig)]
@@ -180,6 +217,133 @@ class StaticImportCandidateTests(unittest.TestCase):
                     (SUBJECT.PRECONFIG_C_MEMBER, preconfig),
                     (SUBJECT.INITCONFIG_C_MEMBER, changed),
                 ]))
+
+    def test_sre_sources_are_bounded_digest_checked_and_unique(self):
+        sre_c = b"synthetic sre c source"
+        sre_h = b"synthetic sre h source"
+
+        def make_archive(members):
+            output = io.BytesIO()
+            with SUBJECT.tarfile.open(fileobj=output, mode="w:xz") as archive:
+                for name, content in members:
+                    info = SUBJECT.tarfile.TarInfo(name)
+                    info.size = len(content)
+                    archive.addfile(info, io.BytesIO(content))
+            return output.getvalue()
+
+        members = [(SUBJECT.SRE_C_MEMBER, sre_c), (SUBJECT.SRE_H_MEMBER, sre_h)]
+        with patch.multiple(
+                SUBJECT,
+                SRE_C_SHA256=hashlib.sha256(sre_c).hexdigest(),
+                SRE_H_SHA256=hashlib.sha256(sre_h).hexdigest()):
+            result = SUBJECT._source_archive_data(make_archive(members))
+            self.assertEqual(result[-2:], (sre_c, sre_h))
+            with self.assertRaisesRegex(ValueError, "SRE_SOURCE_MEMBER"):
+                SUBJECT._source_archive_data(make_archive(
+                    members + [(SUBJECT.SRE_C_MEMBER, sre_c)]
+                ))
+            with self.assertRaisesRegex(ValueError, "SRE_SOURCE_DIGEST"):
+                SUBJECT._source_archive_data(make_archive([
+                    (SUBJECT.SRE_C_MEMBER, b"changed source"),
+                    (SUBJECT.SRE_H_MEMBER, sre_h),
+                ]))
+            with patch.object(SUBJECT, "MAX_SRE_C_BYTES", len(sre_c) - 1):
+                with self.assertRaisesRegex(ValueError, "SRE_SOURCE_MEMBER"):
+                    SUBJECT._source_archive_data(make_archive(members))
+
+    def test_native_pattern_groupindex_candidate_binds_handoff_storage_and_view(self):
+        sre_c, sre_h = SRE_C_FIXTURE, SRE_H_FIXTURE
+        c_digest = hashlib.sha256(sre_c).hexdigest()
+        h_digest = hashlib.sha256(sre_h).hexdigest()
+        with patch.multiple(SUBJECT, SRE_C_SHA256=c_digest, SRE_H_SHA256=h_digest):
+            candidate = SUBJECT._target_re_pattern_groupindex_native_candidate(
+                sre_c, sre_h,
+            )
+            self.assertEqual(candidate["native_compile_groupindex_parameter"],
+                             "groupindex")
+            self.assertEqual(candidate["nonempty_groupindex_storage"],
+                             "Py_NewRef(groupindex)")
+            self.assertEqual(candidate["public_groupindex_view"],
+                             "Pattern.groupindex -> pattern_groupindex -> "
+                             "PyDictProxy_New(self->groupindex)")
+            self.assertFalse(candidate["native_execution_observed"])
+            parser_source = (
+                b"def _parse(source, state):\n"
+                b"    if sourcematch('<'):\n"
+                b"        name = source.getuntil('>', 'group name')\n"
+                b"        source.checkgroupname(name, 1)\n"
+                b"        state.opengroup(name)\n"
+            )
+            parser_state = {"named_group_mapping": "self.groupdict[name] = gid"}
+            compiler_metadata = {
+                "source_sha256": "b" * 64,
+                "groupindex_source": "p.state.groupdict",
+                "metadata_passed_to_sre_compile": [
+                    "groupindex", "tuple(indexgroup)",
+                ],
+            }
+            flow_files = {"re/_parser.py": parser_source}
+            with (patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                               hashlib.sha256(parser_source).hexdigest()),
+                  patch.object(SUBJECT,
+                               "_target_re_parser_group_state_candidate",
+                               return_value=parser_state),
+                  patch.object(SUBJECT,
+                               "_target_re_pattern_groupindex_native_candidate",
+                               return_value=candidate),
+                  patch.object(SUBJECT,
+                               "_target_re_compiler_group_metadata_candidate",
+                               return_value=compiler_metadata)):
+                joined = SUBJECT._target_re_group_name_to_pattern_groupindex_candidate(
+                    flow_files, sre_c, sre_h,
+                )
+                self.assertEqual(joined["compiler_to_native_argument"], "groupindex")
+                self.assertEqual(joined["public_read_only_view"],
+                                 "Pattern.groupindex -> pattern_groupindex -> "
+                                 "PyDictProxy_New(self->groupindex)")
+                self.assertFalse(
+                    joined["parser_compiler_or_native_execution_observed"]
+                )
+                changed_flow = dict(compiler_metadata)
+                changed_flow["metadata_passed_to_sre_compile"] = [
+                    "indexgroup", "tuple(indexgroup)",
+                ]
+                with patch.object(
+                        SUBJECT, "_target_re_compiler_group_metadata_candidate",
+                        return_value=changed_flow):
+                    self.assertIsNone(
+                        SUBJECT._target_re_group_name_to_pattern_groupindex_candidate(
+                            flow_files, sre_c, sre_h,
+                        )
+                    )
+            mutations = (
+                (sre_c.replace(b"PyObject *groupindex,", b"PyObject *metadata,", 1),
+                 sre_h),
+                (sre_c.replace(b"Py_NewRef(groupindex)", b"Py_NewRef(indexgroup)", 1),
+                 sre_h),
+                (sre_c.replace(b"return PyDict_New();", b"return NULL;", 1), sre_h),
+                (sre_c.replace(b"PyDictProxy_New(self->groupindex)",
+                               b"self->groupindex", 1), sre_h),
+                (sre_c.replace(b"PyDict_GET_SIZE(groupindex)",
+                               b"PyDict_GET_SIZE(indexgroup)", 1), sre_h),
+                (sre_c.replace(b"(setter)NULL", b"(setter)pattern_groupindex", 1),
+                 sre_h),
+                (sre_c.replace(b'{"groupindex", (getter)pattern_groupindex',
+                               b'{"indexgroup", (getter)pattern_groupindex', 1),
+                 sre_h),
+                (sre_c, sre_h.replace(b"PyObject* groupindex;", b"PyObject* names;", 1)),
+            )
+            for changed_c, changed_h in mutations:
+                with self.subTest(c=changed_c != sre_c, h=changed_h != sre_h):
+                    with patch.multiple(
+                            SUBJECT,
+                            SRE_C_SHA256=hashlib.sha256(changed_c).hexdigest(),
+                            SRE_H_SHA256=hashlib.sha256(changed_h).hexdigest()):
+                        self.assertIsNone(
+                            SUBJECT._target_re_pattern_groupindex_native_candidate(
+                                changed_c, changed_h,
+                            )
+                        )
 
     def test_target_image_save_requires_verified_config_layers_and_path_facts(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -5744,6 +5908,38 @@ def deferred():
             )
             self.assertFalse(
                 group_name_compile_flow["parser_or_compiler_execution_observed"]
+            )
+            with patch.multiple(
+                    SUBJECT,
+                    SRE_C_SHA256=hashlib.sha256(SRE_C_FIXTURE).hexdigest(),
+                    SRE_H_SHA256=hashlib.sha256(SRE_H_FIXTURE).hexdigest()):
+                joined_groupindex_flow = (
+                    SUBJECT._target_re_group_name_to_pattern_groupindex_candidate(
+                        files, SRE_C_FIXTURE, SRE_H_FIXTURE,
+                    )
+                )
+            self.assertIsNotNone(joined_groupindex_flow)
+            self.assertEqual(
+                joined_groupindex_flow["named_capture_source_order"],
+                [
+                    "source.getuntil('>', 'group name')",
+                    "source.checkgroupname(name, 1)",
+                    "state.opengroup(name)",
+                ],
+            )
+            self.assertEqual(
+                joined_groupindex_flow["compiler_to_native_argument"],
+                "groupindex",
+            )
+            self.assertEqual(
+                joined_groupindex_flow["public_read_only_view"],
+                "Pattern.groupindex -> pattern_groupindex -> "
+                "PyDictProxy_New(self->groupindex)",
+            )
+            self.assertFalse(
+                joined_groupindex_flow[
+                    "parser_compiler_or_native_execution_observed"
+                ]
             )
             for original, replacement in (
                 (b"source.error(err.msg, len(name) + 1) from None",

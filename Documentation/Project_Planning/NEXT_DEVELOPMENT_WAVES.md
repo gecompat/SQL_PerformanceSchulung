@@ -1,17 +1,28 @@
 # Nächste Entwicklungswellen
 
-## Verarbeitungswelle am Releasecheckpoint angehalten
+## Releasecheckpoint vom 18. November 2026 und Fortsetzung der Welle
 
 Nach PR #1084 wurde der W-PRS-001-Kursrelease auf dem sauberen `main`-Commit
-`89ccc0a109be6d059dc3b3f77fcdf7335196ae56` gebaut und die Verarbeitungswelle
-auf Nutzerwunsch angehalten. Build, vollständige Renderprüfung, 209
-SlideKey-gebundene Bytevergleiche und gezielter Datenschutzscan bestanden.
-Details stehen im
+`89ccc0a109be6d059dc3b3f77fcdf7335196ae56` gebaut. Die Welle wurde danach
+auf Nutzerwunsch angehalten; mit dem späteren Auftrag, das übergeordnete
+Entwicklungsziel weiterzuverfolgen, ist sie auf dem sauberen `main`-Stand
+`ede7851bf7df223106100841dd3845c84030875f` wieder aktiv. Build,
+Vollständigrender, 209 SlideKey-gebundene Bytevergleiche und gezielter
+Datenschutzscan bestanden. Details stehen im
 [Releaseprotokoll](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-89ccc0a1-nach-pr-1084).
-Die nachfolgenden Abschnitte halten noch offene Kandidaten und Gates für eine
-spätere Fortsetzung fest; sie sind kein Auftrag, die angehaltene Welle
-fortzusetzen. Die menschliche Generalprobe bleibt ausgeschlossen; offene
-SQL-Lab-, Produkt- und Runtimegates bleiben bestehen.
+Die nachfolgenden Abschnitte führen offene Entwicklungs- und Qualifikations-
+Gates. Die menschliche Generalprobe bleibt ausgeschlossen; SQL-Lab-, Produkt-
+und Runtimegates bleiben offen.
+
+### Aktiver DGN-007-Folgeschnitt: native `Pattern.groupindex`-Quellbindung
+
+Die wiederaufgenommene Arbeit ergänzt den digestgebundenen CPython-3.12.16-
+Offlinecandidate vom `re/_parser.py`-Gruppennamenpfad bis zur nativen
+`Pattern.groupindex`-Ansicht. Der aktuelle Stand, die Quellhashes und die
+fokussierten Prüfungen stehen im [Ausführungsstand](CURRENT_EXECUTION_STATUS.md).
+Als nächstes sind Diffreview, vollständiger DGN-007-Offline-Workflow im Pull
+Request und danach die erforderlichen Review-/Merge-Gates offen. Der Kandidat
+führt keine Parser-, Regex- oder Runtimeausführung aus.
 
 ## Aktuelle autonome Fortsetzungsplanung vom 8. November 2026
 ### SQL Server 2025 `OPTIMIZED_SP_EXECUTESQL`: Methodenentwurf
