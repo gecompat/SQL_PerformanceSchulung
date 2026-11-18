@@ -3789,5 +3789,14 @@ Checkpoint 18. November 2026: `SubPattern.getwidth()` bindet die gespeicherte
 Breite für `GROUPREF` und die minimale sowie maximale Zweigbreite für
 `GROUPREF_EXISTS`. Ohne Else-Zweig ist die minimale Breite null. Eine Mutation
 von `min(i, l)` zu `max(i, l)` wird zurückgewiesen. 305 fokussierte
+Regressionen und alle PR-Gates einschließlich des vollständigen
+CPython-3.12.16-Archivworkflows bestanden für PR #1066. Keine konkreten
+Gruppenbreiten oder Laufzeitmessung.
+
+Checkpoint 18. November 2026: Parserausgaben `GROUPREF` und `GROUPREF_EXISTS`
+sind an `_compile` gebunden. Der Rückverweis wählt den Opcode nach den
+Ignore-Case-Flags und verschiebt den Gruppenindex von einsbasiert auf
+nullbasiert. Die bedingte Referenz kompiliert beide Zweige und patcht die
+Sprungoffsets. Eine Mutation von `av - 1` wird verworfen. 305 fokussierte
 Regressionen bestehen lokal; der vollständige CPython-3.12.16-Archivworkflow
-folgt als PR-Gate. Keine konkreten Gruppenbreiten oder Laufzeitmessung.
+folgt als PR-Gate. Kein Bytecode- oder Laufzeitnachweis.

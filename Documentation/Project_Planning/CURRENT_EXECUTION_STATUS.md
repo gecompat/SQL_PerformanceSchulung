@@ -13471,8 +13471,17 @@ gebunden: `GROUPREF` addiert die gespeicherte Gruppenbreite; `GROUPREF_EXISTS`
 verwendet die minimale und maximale Breite der beiden Zweige und setzt die
 Mindestbreite ohne Else-Zweig auf null. Eine Mutation der Minimumsauswahl wird
 zurückgewiesen. 305 fokussierte Regressionen bestehen lokal; der vollständige
-Archivworkflow und die PR-Gates stehen noch aus. Das ist ein statischer
-Quellbefund ohne konkrete Gruppenbreiten oder Laufzeitmessung.
+CPython-3.12.16-Archivworkflow und alle PR-Gates bestanden für PR #1066. Das
+ist ein statischer Quellbefund ohne konkrete Gruppenbreiten oder Laufzeitmessung.
+
+Die Parserformen für Rückverweise und bedingte Rückverweise sind nun an die
+Compilerabsenkung gebunden. `GROUPREF` wählt den Opcode anhand der
+Ignore-Case-Flags und wandelt den einsbasierten Gruppenindex mit `av - 1` um;
+`GROUPREF_EXISTS` senkt den bedingten Gruppenindex ab und kompiliert die
+Ja-/Nein-Zweige mit gepatchten Sprungoffsets. Eine Mutation des Indexabzugs
+wird zurückgewiesen. 305 fokussierte Regressionen bestehen lokal; der
+vollständige Archivworkflow und die PR-Gates stehen noch aus. Es wurden weder
+Bytecode noch Compilerlaufzeit beobachtet.
 
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 
