@@ -8907,6 +8907,44 @@ def _target_re_compiler_debug_disassembly_candidate(files):
     }
 
 
+def _target_re_compiler_parsed_pattern_input_candidate(files):
+    """Bind string parsing versus an already parsed SubPattern input."""
+    source = files.get("re/_compiler.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_COMPILER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_compiler.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef) and node.name == "compile"]
+    if len(functions) != 1:
+        return None
+    body = functions[0].body
+    branches = [node for node in body if isinstance(node, ast.If)
+                and ast.unparse(node.test) == "isstring(p)"]
+    code_assignments = [index for index, node in enumerate(body)
+                        if isinstance(node, ast.Assign)
+                        and ast.unparse(node) == "code = _code(p, flags)"]
+    if (len(branches) != 1 or len(branches[0].orelse) != 1
+            or [ast.unparse(node) for node in branches[0].body]
+            != ["pattern = p", "p = _parser.parse(p, flags)"]
+            or ast.unparse(branches[0].orelse[0]) != "pattern = None"
+            or len(code_assignments) != 1
+            or body.index(branches[0]) >= code_assignments[0]):
+        return None
+    return {
+        "source_path": "re/_compiler.py",
+        "source_sha256": RE_COMPILER_SOURCE_SHA256,
+        "string_input_branch": "pattern = p; p = _parser.parse(p, flags)",
+        "preparsed_input_branch": "pattern = None",
+        "code_generation_after_input_selection": "code = _code(p, flags)",
+        "compiler_execution_observed": False,
+        "evidence_scope": "PINNED_RE_COMPILER_PARSED_PATTERN_INPUT_CANDIDATE",
+    }
+
+
 def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     """Bind literal compile-input types to the pinned parser entry path."""
     if type(files) is not dict or type(modules) is not tuple:
@@ -8950,6 +8988,9 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     compiler_debug_candidate = (
         _target_re_compiler_debug_disassembly_candidate(files)
     )
+    compiler_input_candidate = (
+        _target_re_compiler_parsed_pattern_input_candidate(files)
+    )
     if (cache_path_candidate is None or tokenizer_access_candidate is None
             or parser_sourceget_candidate is None
             or parser_sub_dispatch_candidate is None
@@ -8962,7 +9003,8 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or compiler_branch_candidate is None
             or compiler_code_candidate is None
             or compiler_group_candidate is None
-            or compiler_debug_candidate is None):
+            or compiler_debug_candidate is None
+            or compiler_input_candidate is None):
         return []
     try:
         constants_tree = ast.parse(constants_source.decode("utf-8"),
@@ -9320,6 +9362,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "compiler_code_candidate": compiler_code_candidate,
             "compiler_group_candidate": compiler_group_candidate,
             "compiler_debug_candidate": compiler_debug_candidate,
+            "compiler_input_candidate": compiler_input_candidate,
             "parser_source_sha256": chain_hashes,
             "evidence_scope": "PINNED_RE_COMPILE_TO_TOKENIZER_TYPE_CANDIDATE",
         })

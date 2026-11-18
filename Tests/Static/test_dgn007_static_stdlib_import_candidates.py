@@ -5732,6 +5732,18 @@ def deferred():
                     "compiler_execution_observed"]
                 for row in candidates
             ))
+            self.assertTrue(all(
+                row["compiler_input_candidate"]["string_input_branch"]
+                == "pattern = p; p = _parser.parse(p, flags)"
+                and row["compiler_input_candidate"]["preparsed_input_branch"]
+                == "pattern = None"
+                and row["compiler_input_candidate"][
+                    "code_generation_after_input_selection"]
+                == "code = _code(p, flags)"
+                and not row["compiler_input_candidate"][
+                    "compiler_execution_observed"]
+                for row in candidates
+            ))
             self.assertTrue(all(not row["standard_re_flag_binding_observed"]
                                 for row in candidates))
 
@@ -6082,6 +6094,24 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_debug_disassembly,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_preparsed_input = dict(files)
+            altered_preparsed_input["re/_compiler.py"] = altered_preparsed_input[
+                "re/_compiler.py"
+            ].replace(b"pattern = None", b"pattern = p", 1)
+            altered_preparsed_input_digest = hashlib.sha256(
+                altered_preparsed_input["re/_compiler.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_COMPILER_SOURCE_SHA256",
+                              altered_preparsed_input_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_preparsed_input,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),

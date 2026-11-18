@@ -13407,6 +13407,14 @@ Disassemblierungsarguments wird verworfen. Der Bericht behauptet weder gesetzte
 Debugflags in einem konkreten Aufruf noch eine tatsächliche Ausgabe oder
 Compilerausführung.
 
+Ein weiterer Kandidat bindet die Eingabeform in derselben gepinnten
+`compile()`-Funktion: `isstring(p)` behält den Eingabewert als `pattern` und
+parst ihn mit `_parser.parse(p, flags)`; der `else`-Pfad setzt `pattern = None`
+und führt das bereits geparste Objekt weiter in `_code(p, flags)`. Die
+synthetische Mutation der `None`-Übergabe wird verworfen. Das beschreibt nur
+zwei quellseitige Pfade und beweist weder, dass die String- oder
+SubPattern-Variante tatsächlich aufgerufen wird, noch deren Laufzeit.
+
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 
 Der statische Kandidat bindet jetzt den Präfixscan in `_parse_sub`: leere
