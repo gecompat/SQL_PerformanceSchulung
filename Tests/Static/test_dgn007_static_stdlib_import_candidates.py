@@ -5374,6 +5374,27 @@ def deferred():
                 b"SRE_FLAG_VERBOSE = 64\n"
             ),
             "re/_parser.py": (
+                b"class State:\n"
+                b"    def __init__(self):\n"
+                b"        self.flags = 0\n"
+                b"        self.groupdict = {}\n"
+                b"        self.groupwidths = [None]\n"
+                b"        self.lookbehindgroups = None\n"
+                b"        self.grouprefpos = {}\n"
+                b"    @property\n"
+                b"    def groups(self):\n"
+                b"        return len(self.groupwidths)\n"
+                b"    def opengroup(self, name=None):\n"
+                b"        gid = self.groups\n"
+                b"        self.groupwidths.append(None)\n"
+                b"        if self.groups > MAXGROUPS:\n"
+                b"            raise error('too many groups')\n"
+                b"        if name is not None:\n"
+                b"            ogid = self.groupdict.get(name, None)\n"
+                b"            if ogid is not None:\n"
+                b"                raise error('duplicate')\n"
+                b"            self.groupdict[name] = gid\n"
+                b"        return gid\n"
                 b"WHITESPACE = frozenset(' \\t\\n\\r\\v\\f')\n"
                 b"def _uniq(items):\n"
                 b"    return list(dict.fromkeys(items))\n"
@@ -5672,6 +5693,21 @@ def deferred():
                 and row["parser_uniq_candidate"][
                     "preserves_first_occurrence_order_candidate"]
                 and not row["parser_uniq_candidate"]["helper_execution_observed"]
+                for row in candidates
+            ))
+            self.assertTrue(all(
+                row["parser_group_state_candidate"][
+                    "group_zero_width_initializer"] == "self.groupwidths = [None]"
+                and row["parser_group_state_candidate"]["group_count_source"]
+                == "len(self.groupwidths)"
+                and row["parser_group_state_candidate"]["new_group_index_source"]
+                == "gid = self.groups"
+                and row["parser_group_state_candidate"]["named_group_mapping"]
+                == "self.groupdict[name] = gid"
+                and row["parser_group_state_candidate"]["duplicate_name_guard"]
+                == "self.groupdict.get(name, None)"
+                and not row["parser_group_state_candidate"][
+                    "parser_execution_observed"]
                 for row in candidates
             ))
             self.assertTrue(all(
@@ -6112,6 +6148,25 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_preparsed_input,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_group_state = dict(files)
+            altered_group_state["re/_parser.py"] = altered_group_state[
+                "re/_parser.py"
+            ].replace(b"self.groupdict[name] = gid",
+                     b"self.groupdict[name] = self.groups", 1)
+            altered_group_state_digest = hashlib.sha256(
+                altered_group_state["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_group_state_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_group_state,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),

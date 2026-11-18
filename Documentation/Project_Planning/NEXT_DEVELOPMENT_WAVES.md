@@ -3737,3 +3737,9 @@ geparste Eingaben setzt die Quelle `pattern = None`. Beide Pfade führen
 anschließend `p` an `_code(p, flags)` weiter. Eine Mutation der `None`-Übergabe
 wird abgelehnt. Dies belegt keine tatsächliche Verwendung des internen
 SubPattern-Pfads.
+
+Ergänzender Checkpoint 18. November 2026: `State.groups` leitet die Zahl der
+Gruppen aus `groupwidths` ab; `opengroup` nutzt sie für den nächsten Index und
+ordnet einen benannten Gruppenwert nach Duplikatprüfung in `groupdict` zu.
+Gruppe 0 ist in der Breitenliste initial vorhanden. Eine Mutation der
+Namenszuordnung wird abgelehnt. Das bleibt ein statischer Parserquellenbefund.

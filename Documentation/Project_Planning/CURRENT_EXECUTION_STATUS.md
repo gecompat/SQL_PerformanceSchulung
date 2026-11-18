@@ -13415,6 +13415,14 @@ synthetische Mutation der `None`-Übergabe wird verworfen. Das beschreibt nur
 zwei quellseitige Pfade und beweist weder, dass die String- oder
 SubPattern-Variante tatsächlich aufgerufen wird, noch deren Laufzeit.
 
+Der Gruppenmetadatenpfad ist jetzt statisch an `State` im gepinnten Parser
+zurückgebunden: Gruppe 0 beginnt mit einer `None`-Breite, `groups` liefert die
+Länge dieser Liste, und `opengroup` verwendet diese Anzahl als nächsten Index.
+Für benannte Gruppen prüft die Quelle den vorhandenen Namen und ordnet den
+Namen anschließend dem neuen Index in `groupdict` zu. Eine synthetische
+Indexmutation wird verworfen. Dies belegt weder einen tatsächlich geparsten
+Gruppeninhalt noch einen Aufruf des Compilers.
+
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 
 Der statische Kandidat bindet jetzt den Präfixscan in `_parse_sub`: leere
