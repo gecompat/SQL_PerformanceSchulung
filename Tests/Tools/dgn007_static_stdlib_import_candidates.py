@@ -9152,6 +9152,105 @@ def _target_re_group_reference_width_candidate(files):
     }
 
 
+def _target_re_group_reference_compiler_candidate(files):
+    """Bind parser group-reference forms to compiler lowering paths."""
+    parser_source = files.get("re/_parser.py") if type(files) is dict else None
+    compiler_source = files.get("re/_compiler.py") if type(files) is dict else None
+    if (type(parser_source) is not bytes
+            or hashlib.sha256(parser_source).hexdigest()
+            != RE_PARSER_SOURCE_SHA256
+            or type(compiler_source) is not bytes
+            or hashlib.sha256(compiler_source).hexdigest()
+            != RE_COMPILER_SOURCE_SHA256):
+        return None
+    try:
+        parser_tree = ast.parse(parser_source.decode("utf-8"),
+                                filename="re/_parser.py")
+        compiler_tree = ast.parse(compiler_source.decode("utf-8"),
+                                  filename="re/_compiler.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    parser_functions = {node.name: node for node in parser_tree.body
+                        if isinstance(node, ast.FunctionDef)
+                        and node.name in {"_parse", "_escape"}}
+    compiler_functions = [node for node in compiler_tree.body
+                          if isinstance(node, ast.FunctionDef)
+                          and node.name == "_compile"]
+    if len(parser_functions) != 2 or len(compiler_functions) != 1:
+        return None
+
+    escape_returns = [node for node in ast.walk(parser_functions["_escape"])
+                      if isinstance(node, ast.Return)
+                      and ast.unparse(node.value) == "(GROUPREF, group)"]
+    parser_calls = [node for node in ast.walk(parser_functions["_parse"])
+                    if isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Name)
+                    and node.func.id == "subpatternappend"]
+    groupref_outputs = [node for node in parser_calls
+                       if ast.unparse(node.args[0]) == "(GROUPREF, gid)"]
+    conditional_outputs = [node for node in parser_calls
+                           if ast.unparse(node.args[0])
+                           == "(GROUPREF_EXISTS, (condgroup, item_yes, item_no))"]
+
+    compile_function = compiler_functions[0]
+    groupref_branches = [node for node in ast.walk(compile_function)
+                         if isinstance(node, ast.If)
+                         and ast.unparse(node.test) == "op is GROUPREF"]
+    conditional_branches = [node for node in ast.walk(compile_function)
+                            if isinstance(node, ast.If)
+                            and ast.unparse(node.test) == "op is GROUPREF_EXISTS"]
+    if (len(escape_returns) != 1
+            or len(groupref_outputs) != 1
+            or len(conditional_outputs) != 1
+            or len(groupref_branches) != 1
+            or len(conditional_branches) != 1
+            or len(groupref_branches[0].body) != 2
+            or not isinstance(groupref_branches[0].body[0], ast.If)
+            or ast.unparse(groupref_branches[0].body[0])
+            != "if not flags & SRE_FLAG_IGNORECASE:\n    emit(op)\nelif flags & SRE_FLAG_LOCALE:\n    emit(GROUPREF_LOC_IGNORE)\nelif not fixes:\n    emit(GROUPREF_IGNORE)\nelse:\n    emit(GROUPREF_UNI_IGNORE)"
+            or ast.unparse(groupref_branches[0].body[1]) != "emit(av - 1)"):
+        return None
+
+    conditional_body = conditional_branches[0].body
+    if (len(conditional_body) != 6
+            or [ast.unparse(node) for node in conditional_body[:3]]
+            != ["emit(op)", "emit(av[0] - 1)", "skipyes = _len(code)"]
+            or ast.unparse(conditional_body[3]) != "emit(0)"
+            or ast.unparse(conditional_body[4]) != "_compile(code, av[1], flags)"
+            or not isinstance(conditional_body[5], ast.If)
+            or ast.unparse(conditional_body[5].test) != "av[2]"
+            or [ast.unparse(node) for node in conditional_body[5].body]
+            != ["emit(JUMP)", "skipno = _len(code)", "emit(0)",
+                "code[skipyes] = _len(code) - skipyes + 1",
+                "_compile(code, av[2], flags)",
+                "code[skipno] = _len(code) - skipno"]
+            or [ast.unparse(node) for node in conditional_body[5].orelse]
+            != ["code[skipyes] = _len(code) - skipyes + 1"]
+            or not groupref_branches[0].lineno
+            < conditional_branches[0].lineno):
+        return None
+
+    return {
+        "parser_source_sha256": RE_PARSER_SOURCE_SHA256,
+        "compiler_source_sha256": RE_COMPILER_SOURCE_SHA256,
+        "numeric_reference_parser_output": "(GROUPREF, group)",
+        "named_reference_parser_output": "(GROUPREF, gid)",
+        "conditional_reference_parser_output":
+            "(GROUPREF_EXISTS, (condgroup, item_yes, item_no))",
+        "group_reference_ignore_case_lowering": [
+            "GROUPREF", "GROUPREF_LOC_IGNORE", "GROUPREF_IGNORE",
+            "GROUPREF_UNI_IGNORE",
+        ],
+        "compiled_group_reference_index": "emit(av - 1)",
+        "conditional_group_index": "emit(av[0] - 1)",
+        "conditional_yes_branch": "_compile(code, av[1], flags)",
+        "conditional_no_branch": "_compile(code, av[2], flags) when av[2]",
+        "conditional_jump_offsets_patched": True,
+        "parser_or_compiler_execution_observed": False,
+        "evidence_scope": "PINNED_RE_GROUP_REFERENCE_COMPILER_CANDIDATE",
+    }
+
+
 def _target_re_compiler_branch_candidate(files):
     """Bind how the pinned compiler lowers a general BRANCH subpattern."""
     source = files.get("re/_compiler.py") if type(files) is dict else None
@@ -9432,6 +9531,9 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     parser_group_width_candidate = (
         _target_re_group_reference_width_candidate(files)
     )
+    parser_group_compiler_candidate = (
+        _target_re_group_reference_compiler_candidate(files)
+    )
     compiler_branch_candidate = _target_re_compiler_branch_candidate(files)
     compiler_code_candidate = _target_re_compiler_code_container_candidate(files)
     compiler_group_candidate = _target_re_compiler_group_metadata_candidate(files)
@@ -9455,6 +9557,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or parser_forward_group_candidate is None
             or parser_lookbehind_candidate is None
             or parser_group_width_candidate is None
+            or parser_group_compiler_candidate is None
             or compiler_branch_candidate is None
             or compiler_code_candidate is None
             or compiler_group_candidate is None
@@ -9818,6 +9921,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_forward_group_candidate": parser_forward_group_candidate,
             "parser_lookbehind_candidate": parser_lookbehind_candidate,
             "parser_group_width_candidate": parser_group_width_candidate,
+            "parser_group_compiler_candidate": parser_group_compiler_candidate,
             "compiler_branch_candidate": compiler_branch_candidate,
             "compiler_code_candidate": compiler_code_candidate,
             "compiler_group_candidate": compiler_group_candidate,

@@ -5342,6 +5342,29 @@ def deferred():
                 b"            emit(FAILURE)\n"
                 b"            for tail in tail:\n"
                 b"                code[tail] = _len(code) - tail\n"
+                b"        elif op is GROUPREF:\n"
+                b"            if not flags & SRE_FLAG_IGNORECASE:\n"
+                b"                emit(op)\n"
+                b"            elif flags & SRE_FLAG_LOCALE:\n"
+                b"                emit(GROUPREF_LOC_IGNORE)\n"
+                b"            elif not fixes:\n"
+                b"                emit(GROUPREF_IGNORE)\n"
+                b"            else:\n"
+                b"                emit(GROUPREF_UNI_IGNORE)\n"
+                b"            emit(av - 1)\n"
+                b"        elif op is GROUPREF_EXISTS:\n"
+                b"            emit(op)\n"
+                b"            emit(av[0] - 1)\n"
+                b"            skipyes = _len(code); emit(0)\n"
+                b"            _compile(code, av[1], flags)\n"
+                b"            if av[2]:\n"
+                b"                emit(JUMP)\n"
+                b"                skipno = _len(code); emit(0)\n"
+                b"                code[skipyes] = _len(code) - skipyes + 1\n"
+                b"                _compile(code, av[2], flags)\n"
+                b"                code[skipno] = _len(code) - skipno\n"
+                b"            else:\n"
+                b"                code[skipyes] = _len(code) - skipyes + 1\n"
                 b"def _code(p, flags):\n"
                 b"    flags = p.state.flags | flags\n"
                 b"    code = []\n"
@@ -5486,6 +5509,8 @@ def deferred():
                 b"        state.closegroup(group, p)\n"
                 b"    if not state.checkgroup(gid):\n"
                 b"        raise source.error('open group')\n"
+                b"    subpatternappend((GROUPREF, gid))\n"
+                b"    subpatternappend((GROUPREF_EXISTS, (condgroup, item_yes, item_no)))\n"
                 b"    state.checklookbehindgroup(gid, source)\n"
                 b"    state.checklookbehindgroup(condgroup, source)\n"
                 b"    lookbehindgroups = state.lookbehindgroups\n"
@@ -5859,6 +5884,28 @@ def deferred():
                     "conditional_without_else_minimum"] == "i = 0"
                 and not row["parser_group_width_candidate"][
                     "width_execution_observed"]
+                for row in candidates
+            ))
+            self.assertTrue(all(
+                row["parser_group_compiler_candidate"][
+                    "numeric_reference_parser_output"] == "(GROUPREF, group)"
+                and row["parser_group_compiler_candidate"][
+                    "named_reference_parser_output"] == "(GROUPREF, gid)"
+                and row["parser_group_compiler_candidate"][
+                    "conditional_reference_parser_output"]
+                == "(GROUPREF_EXISTS, (condgroup, item_yes, item_no))"
+                and row["parser_group_compiler_candidate"][
+                    "group_reference_ignore_case_lowering"]
+                == ["GROUPREF", "GROUPREF_LOC_IGNORE", "GROUPREF_IGNORE",
+                    "GROUPREF_UNI_IGNORE"]
+                and row["parser_group_compiler_candidate"][
+                    "compiled_group_reference_index"] == "emit(av - 1)"
+                and row["parser_group_compiler_candidate"][
+                    "conditional_group_index"] == "emit(av[0] - 1)"
+                and row["parser_group_compiler_candidate"][
+                    "conditional_jump_offsets_patched"]
+                and not row["parser_group_compiler_candidate"][
+                    "parser_or_compiler_execution_observed"]
                 for row in candidates
             ))
             self.assertTrue(all(
@@ -6416,6 +6463,28 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_group_width,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_group_index_lowering = dict(files)
+            altered_group_index_lowering["re/_compiler.py"] = (
+                altered_group_index_lowering["re/_compiler.py"].replace(
+                    b"emit(av - 1)", b"emit(av)", 1
+                )
+            )
+            altered_group_index_digest = hashlib.sha256(
+                altered_group_index_lowering["re/_compiler.py"]
+            ).hexdigest()
+            with (patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                               digests["RE_PARSER_SOURCE_SHA256"]),
+                  patch.object(SUBJECT, "RE_COMPILER_SOURCE_SHA256",
+                               altered_group_index_digest)):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_group_index_lowering,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
