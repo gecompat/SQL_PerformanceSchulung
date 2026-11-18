@@ -13561,9 +13561,12 @@ Laufzeitnachweis.
 
 ### DGN-007 – Namen benannter Gruppen an die Quellregel binden
 
-Der nächste statische Kandidat bindet `Tokenizer.checkgroupname`: Bytebasierte
-Gruppennamen müssen ASCII sein; alle Namen müssen `str.isidentifier()` erfüllen.
-Ablehnungen verwenden jeweils den übergebenen Quelloffset. Eine synthetische
-Änderung der Identifierprüfung wird verworfen. Der Befund beschreibt nur die
-gepinnten CPython-3.12.16-Quellzweige, nicht konkrete akzeptierte Namen oder
-Parserlaufzeit. 305 fokussierte Tests; PR-Gates noch ausstehend.
+`Tokenizer.checkgroupname` ist im gepinnten CPython-3.12.16-Quellstand an die
+Namensregeln gebunden: Byte-Muster verlangen ASCII-Gruppennamen; anschließend
+müssen Gruppennamen `str.isidentifier()` erfüllen. Beide Ablehnungszweige
+verwenden den angegebenen Quelloffset. Eine synthetische Mutation der
+Identifierprüfung wird verworfen. PR #1072 integrierte den Schnitt in Commit
+`d0f7382d`; 305 fokussierte Tests, sämtliche PR-Gates einschließlich des
+vollständigen Offline-Quellenbundles und alle vier Main-Push-Workflows bestanden.
+Das ist ein statischer Quellenbefund, kein Nachweis konkreter akzeptierter
+Namen oder von Parser- und Regexlaufzeit.

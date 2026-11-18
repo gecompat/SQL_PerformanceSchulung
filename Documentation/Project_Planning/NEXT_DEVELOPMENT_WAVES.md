@@ -3830,8 +3830,12 @@ Arms und die schließende Klammer vor Ausgabe als `GROUPREF_EXISTS`. Die Mutatio
 der zusätzlichen Armprüfung wird verworfen; 305 fokussierte Regressionen
 bestehen. PR #1071 und alle vier Main-Push-Workflows bestanden auf `63786aae`.
 
-Der nächste lokale Kandidat bindet `Tokenizer.checkgroupname`: bytebasierte
-Gruppennamen benötigen ASCII, alle Gruppennamen müssen `str.isidentifier()`
-erfüllen, und beide Ablehnungszweige verwenden den angegebenen Quelloffset.
-Eine Mutation der Identifierprüfung wird verworfen. Keine konkrete
-Namensakzeptanz oder Parserlaufzeit wird daraus abgeleitet.
+`Tokenizer.checkgroupname` ist im gepinnten CPython-3.12.16-Quellstand an
+die Namensregeln gebunden: Byte-Muster verlangen ASCII-Gruppennamen;
+anschließend müssen Gruppennamen `str.isidentifier()` erfüllen. Beide
+Ablehnungszweige verwenden den angegebenen Quelloffset. Eine synthetische
+Mutation der Identifierprüfung wird verworfen. PR #1072 integrierte den Schnitt
+in Commit `d0f7382d`; 305 fokussierte Tests, sämtliche PR-Gates einschließlich
+des vollständigen Offline-Quellenbundles und alle vier Main-Push-Workflows
+bestanden. Der statische Befund belegt weder konkrete akzeptierte Namen noch
+Parser- oder Regexlaufzeit.
