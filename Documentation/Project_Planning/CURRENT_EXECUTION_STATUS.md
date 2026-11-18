@@ -13432,6 +13432,17 @@ bleibt statisch und belegt weder Gruppen-Parsing noch Compiler- oder
 Regexlaufzeit. Nächster Schritt: die Aufrufstellen im Parser an diese
 Gruppen-State-Methoden binden.
 
+Der Aufrufpfad ist jetzt ebenfalls statisch gebunden: `_parse` reserviert den
+Gruppenindex, parst den Gruppeninhalt, prüft die schließende Klammer und ruft
+anschließend `closegroup(group, p)` auf. Die Namensreferenz im Parser und die
+numerische Escape-Referenz sind an ihre jeweiligen `checkgroup`-Aufrufe
+gebunden. Eine Mutation des an `closegroup` übergebenen Subpatterns wird
+zurückgewiesen. Die 305 fokussierten Regressionen bestehen lokal; der
+vollständige gepinnte Archivworkflow läuft als PR-Gate. Der Nachweis beschreibt
+nur die Quellstruktur und keine Parser- oder Regexlaufzeit. Nächster Kandidat:
+die Registrierung einer vorwärts gerichteten numerischen Gruppenbedingung und
+ihre spätere Bereichsprüfung im Parserabschluss binden.
+
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 
 Der statische Kandidat bindet jetzt den Präfixscan in `_parse_sub`: leere

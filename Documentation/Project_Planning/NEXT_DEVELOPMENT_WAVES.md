@@ -3752,3 +3752,13 @@ zurückgewiesen. 305 fokussierte Regressionen bestehen. Weiterhin keine
 Parserausführung, Compilerqualifikation oder Regexlaufzeit. Nächster Schritt:
 die quellgebundenen Parseraufrufe zu `opengroup`, `closegroup` und
 `checkgroup` mit diesen State-Methoden verbinden.
+
+Checkpoint 18. November 2026: `_parse` ist nun an den geordneten
+Capturegruppenpfad gebunden: `opengroup(name)`, Gruppeninhalt über `_parse_sub`,
+Prüfung der schließenden Klammer und anschließend `closegroup(group, p)`.
+Zusätzlich sind die `checkgroup`-Aufrufstellen für benannte und numerische
+Gruppenreferenzen gebunden. Eine Mutation des `closegroup`-Arguments wird
+zurückgewiesen. 305 fokussierte Regressionen bestehen lokal; der vollständige
+gepinnte CPython-3.12.16-Offlineworkflow läuft als PR-Gate. Der Befund bleibt
+statisch. Nächster Kandidat: Registrierung einer vorwärts gerichteten
+numerischen Gruppenbedingung und spätere Bereichsprüfung in `parse()` binden.
