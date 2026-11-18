@@ -9,19 +9,22 @@ einer Nutzerdatenbank. QRY-023 bleibt bis zu gesonderter Produkt-/Katalog-
 freigabe `PROPOSED` und `runtime_authorized: false`. Die menschliche
 Generalprobe bleibt ausgeschlossen.
 
-### Releasecheckpoint und anschließende Fortsetzung der Verarbeitungswelle
+### Aktueller Releasecheckpoint und Stopp der Verarbeitungswelle
 
-Die Verarbeitungswelle wurde auf Nutzerwunsch zunächst am sauberen Stand
-`b42392478ab5113df858ff7cffe0e656eaa113ad` angehalten; der dort gebaute
-W-PRS-001-Kursrelease bestand den Profilbuild (41/66/102 Folien), 209
-bytegleiche Profil-/Masterrenders, Mastererhalt und gezielten Privacy-Scan.
-Hashes und Prüfumfang stehen im
-[Releaseprotokoll](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-b4239247-nach-pr-1079).
-Der übergeordnete Auftrag zur autonomen Umsetzung der freigegebenen Zweige
-läuft weiter. PR #1081 integrierte den VECTOR-Lesepfad; PR #1082 glich die
-Wellen- und DGN-007-Statusangaben mit den integrierten Prüfbelegen ab. Die
-menschliche Generalprobe sowie offene SQL-Lab-, Produkt- und Runtimegates
-bleiben offen.
+Nach Integration von PR #1084 ist `main` konsistent und sauber auf
+`89ccc0a109be6d059dc3b3f77fcdf7335196ae56`. Auf diesem Commit wurde der
+W-PRS-001-Kursrelease mit PowerPoint Desktop neu gebaut: `BASIS` 41,
+`STANDARD` 66 und `VERTIEFUNG` 102 Folien. Der Manifest-/Ausgabevalidator,
+Mastererhalt, vollständige Master- und Profilrenders sowie 209
+SlideKey-gebundene bytegleiche Profil-/Mastervergleiche bestanden. Der
+gezielte Datenschutzscan der drei Release-Decks und des Buildprotokolls
+bestand. Hashes und Prüfumfang stehen im
+[Releaseprotokoll](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-89ccc0a1-nach-pr-1084).
+Auf Nutzerwunsch ist die Verarbeitungswelle nach diesem Release angehalten;
+die weiteren unten dokumentierten Entwicklungs- und Qualifikationsthemen
+bleiben offen und werden in dieser Welle nicht weiter abgearbeitet. Die
+menschliche Generalprobe sowie SQL-Lab-, Produkt- und Runtimegates bleiben
+offen.
 
 ### DGN-007 – Parser- und Tokenizer-Gruppennamenoffsets verbinden
 
