@@ -5687,6 +5687,59 @@ def deferred():
                         "re._parser"),
             )
             self.assertEqual(len(candidates), 4)
+            group_name_offset_candidate = candidates[0][
+                "parser_group_name_error_offset_candidate"
+            ]
+            self.assertEqual(
+                group_name_offset_candidate["capture_group_getuntil"],
+                "source.getuntil('>', 'group name')",
+            )
+            self.assertEqual(
+                group_name_offset_candidate["named_backreference_getuntil"],
+                "source.getuntil(')', 'group name')",
+            )
+            self.assertEqual(
+                group_name_offset_candidate["capture_group_registration_error_offset"],
+                "len(name) + 1",
+            )
+            self.assertEqual(
+                group_name_offset_candidate["named_backreference_error_offsets"],
+                ["unknown group name: len(name) + 1",
+                 "open group: len(name) + 1"],
+            )
+            self.assertEqual(
+                group_name_offset_candidate[
+                    "tokenizer_error_source_position_expression"
+                ],
+                "self.tell() - offset",
+            )
+            self.assertTrue(
+                group_name_offset_candidate[
+                    "all_offsets_bound_to_same_pinned_source"
+                ]
+            )
+            for original, replacement in (
+                (b"source.error(err.msg, len(name) + 1) from None",
+                 b"source.error(err.msg, len(name)) from None"),
+                (b"source.error(msg, len(name) + 1)",
+                 b"source.error(msg, len(name))"),
+                (b"return self.index - len(self.next or '')",
+                 b"return self.index"),
+            ):
+                mutated_files = dict(files)
+                mutated_source = files["re/_parser.py"].replace(
+                    original, replacement, 1
+                )
+                self.assertNotEqual(mutated_source, files["re/_parser.py"])
+                mutated_files["re/_parser.py"] = mutated_source
+                with patch.object(
+                        SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                        hashlib.sha256(mutated_source).hexdigest()):
+                    self.assertIsNone(
+                        SUBJECT._target_re_group_name_error_offset_candidate(
+                            mutated_files
+                        )
+                    )
             self.assertEqual(
                 [row["pattern_type_if_call_evaluates"] for row in candidates],
                 ["str", "bytes", "str", "str"],

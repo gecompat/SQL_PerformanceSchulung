@@ -11,6 +11,11 @@ Bis zur ausdrücklichen Fortsetzung wird kein weiterer Entwicklungskandidat
 begonnen. Nicht erledigte Entwicklungs- und Qualifikationspunkte bleiben in
 dieser Planung und im aktuellen Ausführungsstand offen.
 
+Die ausdrückliche Fortsetzung nach dem Releasecheckpoint hat die Bearbeitung
+wieder aufgenommen. Der aktuelle Offlinekandidat bleibt an den unmittelbar
+vorherigen DGN-007-Tokenizerstand gebunden; die offenen SQL-, Lab-, Methoden-
+und Runtimegates werden davon nicht verändert.
+
 ## Aktuelle autonome Fortsetzungsplanung vom 8. November 2026
 ### SQL Server 2025 `OPTIMIZED_SP_EXECUTESQL`: Methodenentwurf
 
@@ -3888,3 +3893,14 @@ bestehen. Die Bindung stützt sich auf den gepinnten CPython-3.12.16-Quelltext,
 ohne Tokenizer- oder Parserlaufzeit. Als nächster Schritt folgt die Prüfung,
 dass die Capture- und Rückverweiscallsites dieselben `getuntil`-Offsets wie die
 Tokenizerfehlerkonvertierung verwenden.
+
+Checkpoint 18. November 2026: Die Capturegruppe liest mit
+`getuntil('>', 'group name')`, validiert mit Offset 1 und bindet den
+Registrierungsfehler an `len(name) + 1`. Der benannte Rückverweis liest mit
+`getuntil(')', 'group name')` und bindet unbekannte sowie offene Gruppen an
+denselben Namenoffset. Beide Pfade verwenden den gepinnten `getuntil`-Vertrag;
+`Tokenizer.error` bildet ihn über `tell() - offset` auf die Quellposition ab.
+Drei synthetische Änderungen an Captureoffset, Rückverweisoffset und
+Tokenizerposition werden verworfen; 305 fokussierte Regressionen bestehen
+lokal. Das ist weiterhin statische Quellbindung ohne Regex-/Tokenizerlauf,
+Parserfehlerbeobachtung oder Runtimequalifikation. Der PR-Gate-Lauf steht aus.
