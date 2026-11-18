@@ -14,15 +14,26 @@ Die nachfolgenden Abschnitte führen offene Entwicklungs- und Qualifikations-
 Gates. Die menschliche Generalprobe bleibt ausgeschlossen; SQL-Lab-, Produkt-
 und Runtimegates bleiben offen.
 
-### Aktiver DGN-007-Folgeschnitt: native `Pattern.groupindex`-Quellbindung
+### Abgeschlossener DGN-007-Folgeschnitt: native `Pattern.groupindex`-Quellbindung
 
-Die wiederaufgenommene Arbeit ergänzt den digestgebundenen CPython-3.12.16-
-Offlinecandidate vom `re/_parser.py`-Gruppennamenpfad bis zur nativen
-`Pattern.groupindex`-Ansicht. Der aktuelle Stand, die Quellhashes und die
-fokussierten Prüfungen stehen im [Ausführungsstand](CURRENT_EXECUTION_STATUS.md).
-Diffreview und alle sieben PR-Checks von PR #1086 auf Head `294567ac` sind
-bestanden. Das Repository verlangt keine Approving-Review; offen ist der
-Mergegate. Der Kandidat führt keine Parser-, Regex- oder Runtimeausführung aus.
+PR #1086 integrierte den digestgebundenen CPython-3.12.16-Offlinecandidate vom
+`re/_parser.py`-Gruppennamenpfad bis zur nativen `Pattern.groupindex`-Ansicht.
+Alle sieben PR-Checks und die vier Main-Push-Workflows bestanden; der Stand ist
+als Snapshot [`snapshot-2026-11-18-4`](https://github.com/gecompat/SQL_PerformanceSchulung/releases/tag/snapshot-2026-11-18-4)
+auf Commit `d86a13e4` veröffentlicht. Der Kandidat führt keine Parser-, Regex-
+oder Runtimeausführung aus.
+
+### DGN-007-Folgeschnitt: Capture-Gruppenzahl bis `Pattern.groups` binden
+
+Der nächste Offlinezuschnitt verknüpft `State.groups` und
+`p.state.groups - 1` mit der nativen Speicherung in `self->groups` sowie der
+schreibgeschützten `Pattern.groups`-Mitgliedseigenschaft. Der bereits gepinnte
+CPython-3.12.16-Quellstand liefert dafür `sre.c` und `sre.h`; der kombinierte
+Quellfluss bleibt `CANDIDATES_ONLY`. Der vollständige Archiv-Analyzerlauf
+liefert den gebundenen Kandidaten; 308 fokussierte Regressionen bestehen lokal.
+Keine Parser-/Regexausführung,
+kein CPython-Build und keine Laufzeitqualifikation. DGN-004 bleibt separat am
+YELLOW-Isolationsgate blockiert, solange fremde SQL-Server-Container aktiv sind.
 
 ## Aktuelle autonome Fortsetzungsplanung vom 8. November 2026
 ### SQL Server 2025 `OPTIMIZED_SP_EXECUTESQL`: Methodenentwurf

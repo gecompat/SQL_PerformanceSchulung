@@ -13689,3 +13689,24 @@ einschließlich des vollständigen DGN-007-Offlinebundles und des
 Katalogchecks. Die Repository-Regeln verlangen keine zusätzliche
 Approving-Review; es gibt keine Codeowner-/Reviewerzuweisung. Dieser Befund ist
 eine statische Kandidatenprüfung und keine Runtimequalifikation.
+
+### DGN-007 – Capture-Gruppenzahl bis zur schreibgeschützten Pattern-Eigenschaft binden (18. November 2026)
+
+Nach PR #1086 bindet der nächste Offlinezuschnitt zusätzlich die Zahl der
+Capturegruppen durch denselben gepinnten CPython-3.12.16-Quellstand:
+`State.groups` zählt `len(self.groupwidths)`, der Compiler übergibt
+`p.state.groups - 1`, `_sre.compile` speichert den Wert in `self->groups`,
+und `Pattern.groups` exponiert das Feld als `READONLY`-Mitglied. Der Prüfer
+verknüpft diese Spur mit dem bereits integrierten `groupindex`-Quellfluss.
+Der offizielle CPython-3.12.16-Archivdigest und die `sre.c`-/`sre.h`-Digests
+stimmen mit den registrierten Pins überein; der kombinierte Analyzer liefert
+`CANDIDATES_ONLY`. 308 fokussierte Regressionen bestehen lokal, einschließlich
+synthetischer Mutationen an nativer Zuweisung, Feld und Read-only-Deskriptor.
+Es gab weder Parser-/Regexausführung noch einen CPython-Build; der Befund ist
+keine Runtimequalifikation.
+
+DGN-004 bleibt durch fünf aktive, fremde SQL-Server-Container am
+YELLOW-/Isolationsvorstart blockiert. Sie wurden read-only identifiziert und
+nicht verändert. Die autorisierten DGN-004-Serverläufe starten erst nach
+nachgewiesener Isolation, kontrollierter Last, Ressourcen-, Rechte-,
+Image-/Build- und Ausgangszustandsprüfung.
