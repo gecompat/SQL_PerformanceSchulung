@@ -9602,6 +9602,52 @@ def _target_re_group_name_error_offset_candidate(files):
     }
 
 
+def _target_re_group_name_compile_metadata_candidate(files):
+    """Join named-group parsing and State registration to compiler metadata."""
+    parser_state = _target_re_parser_group_state_candidate(files)
+    parser_call = _target_re_parser_group_call_candidate(files)
+    parser_offsets = _target_re_group_name_error_offset_candidate(files)
+    compiler_input = _target_re_compiler_parsed_pattern_input_candidate(files)
+    compiler_metadata = _target_re_compiler_group_metadata_candidate(files)
+    if any(candidate is None for candidate in (
+            parser_state, parser_call, parser_offsets,
+            compiler_input, compiler_metadata)):
+        return None
+
+    parser_digest = hashlib.sha256(files["re/_parser.py"]).hexdigest()
+    compiler_digest = hashlib.sha256(files["re/_compiler.py"]).hexdigest()
+    if (parser_state["source_sha256"] != parser_digest
+            or parser_call["source_sha256"] != parser_digest
+            or parser_offsets["source_sha256"] != parser_digest
+            or parser_state["named_group_mapping"] != "self.groupdict[name] = gid"
+            or parser_call["capture_group_open_call"] != "state.opengroup(name)"
+            or not parser_call["named_capture_validation_before_registration"]
+            or not parser_offsets["all_offsets_bound_to_same_pinned_source"]
+            or compiler_input["source_sha256"] != compiler_digest
+            or compiler_metadata["source_sha256"] != compiler_digest
+            or compiler_input["string_input_branch"]
+            != "pattern = p; p = _parser.parse(p, flags)"
+            or compiler_metadata["groupindex_source"] != "p.state.groupdict"
+            or compiler_metadata["metadata_passed_to_sre_compile"]
+            != ["groupindex", "tuple(indexgroup)"]):
+        return None
+
+    return {
+        "parser_source_sha256": parser_digest,
+        "compiler_source_sha256": compiler_digest,
+        "named_capture_registration": parser_call["capture_group_open_call"],
+        "named_group_mapping": parser_state["named_group_mapping"],
+        "text_input_parser_route": compiler_input["string_input_branch"],
+        "compiler_groupindex_source": compiler_metadata["groupindex_source"],
+        "native_compile_group_metadata": compiler_metadata[
+            "metadata_passed_to_sre_compile"
+        ],
+        "all_facts_bound_to_pinned_parser_and_compiler_sources": True,
+        "parser_or_compiler_execution_observed": False,
+        "evidence_scope": "PINNED_RE_GROUP_NAME_TO_COMPILER_METADATA_FLOW_CANDIDATE",
+    }
+
+
 def _target_re_compiler_branch_candidate(files):
     """Bind how the pinned compiler lowers a general BRANCH subpattern."""
     source = files.get("re/_compiler.py") if type(files) is dict else None
@@ -9888,6 +9934,9 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     parser_group_name_error_offset_candidate = (
         _target_re_group_name_error_offset_candidate(files)
     )
+    parser_group_name_compile_metadata_candidate = (
+        _target_re_group_name_compile_metadata_candidate(files)
+    )
     compiler_branch_candidate = _target_re_compiler_branch_candidate(files)
     compiler_code_candidate = _target_re_compiler_code_container_candidate(files)
     compiler_group_candidate = _target_re_compiler_group_metadata_candidate(files)
@@ -9913,6 +9962,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or parser_group_width_candidate is None
             or parser_group_compiler_candidate is None
             or parser_group_name_error_offset_candidate is None
+            or parser_group_name_compile_metadata_candidate is None
             or compiler_branch_candidate is None
             or compiler_code_candidate is None
             or compiler_group_candidate is None
@@ -10279,6 +10329,9 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_group_compiler_candidate": parser_group_compiler_candidate,
             "parser_group_name_error_offset_candidate": (
                 parser_group_name_error_offset_candidate
+            ),
+            "parser_group_name_compile_metadata_candidate": (
+                parser_group_name_compile_metadata_candidate
             ),
             "compiler_branch_candidate": compiler_branch_candidate,
             "compiler_code_candidate": compiler_code_candidate,
