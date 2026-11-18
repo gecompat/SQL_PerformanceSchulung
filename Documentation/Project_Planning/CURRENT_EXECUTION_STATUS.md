@@ -13530,5 +13530,17 @@ oder noch offener Gruppen, die Lookbehind-Gruppenprüfung und die Ausgabe als
 `GROUPREF`. Die statischen Aufrufinventare bilden beide benannten
 Rückverweisformen ab. Eine synthetische Änderung des Gruppennamen-Lookups wird
 verworfen. 305 fokussierte Regressionen bestehen lokal; PR- und
-Main-Push-Gates stehen noch aus. Das bleibt auf den CPython-3.12.16-Quellstand
-begrenzt und behauptet weder Parserausführung noch Regexlaufzeit.
+PR #1069 integrierte den Schnitt; alle PR-Gates einschließlich des
+vollständigen Offline-Workflows und alle vier Main-Push-Workflows bestanden auf
+`86812041`. Das bleibt auf den CPython-3.12.16-Quellstand begrenzt und behauptet
+weder Parserausführung noch Regexlaufzeit.
+
+### DGN-007 – benannte bedingte Gruppenreferenzen binden
+
+Der statische Kandidat bindet nun den benannten Zweig der bedingten Referenz
+`(?(name)yes|no)`: Der Name wird validiert und über `state.groupdict` aufgelöst;
+ein unbekannter Name wird mit der gebundenen Quellposition abgelehnt. Der
+Zahlenzweig samt aufgeschobener Prüfung vorwärts referenzierter Gruppen bleibt
+separat gebunden. Eine Mutation des benannten Lookup-Ausdrucks wird
+zurückgewiesen. 305 fokussierte Regressionen bestehen lokal; PR- und
+Main-Push-Gates stehen noch aus. Es gibt keinen Parser- oder Laufzeitnachweis.

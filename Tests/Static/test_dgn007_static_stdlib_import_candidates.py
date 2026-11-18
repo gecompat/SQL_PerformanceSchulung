@@ -5518,11 +5518,24 @@ def deferred():
                 b"    if dir < 0:\n"
                 b"        if lookbehindgroups is None:\n"
                 b"            state.lookbehindgroups = None\n"
-                b"    condgroup = int(condname)\n"
-                b"    if condgroup >= MAXGROUPS:\n"
-                b"        raise source.error('invalid group')\n"
-                b"    if condgroup not in state.grouprefpos:\n"
-                b"        state.grouprefpos[condgroup] = source.tell() - len(condname) - 1\n"
+                b"    if not (condname.isdecimal() and condname.isascii()):\n"
+                b"        source.checkgroupname(condname, 1)\n"
+                b"        condgroup = state.groupdict.get(condname)\n"
+                b"        if condgroup is None:\n"
+                b"            msg = 'unknown group name %r' % condname\n"
+                b"            raise source.error(msg, len(condname) + 1)\n"
+                b"    else:\n"
+                b"        condgroup = int(condname)\n"
+                b"        if not condgroup:\n"
+                b"            raise source.error('bad group number', len(condname) + 1)\n"
+                b"        if condgroup >= MAXGROUPS:\n"
+                b"            msg = 'invalid group reference %d' % condgroup\n"
+                b"            raise source.error(msg, len(condname) + 1)\n"
+                b"        if condgroup not in state.grouprefpos:\n"
+                b"            state.grouprefpos[condgroup] = source.tell() - len(condname) - 1\n"
+                b"        if not (condname.isdecimal() and condname.isascii()):\n"
+                b"            import warnings\n"
+                b"            warnings.warn('bad character in group name %s at position %d' % (repr(condname) if source.istext else ascii(condname), source.tell() - len(condname) - 1), DeprecationWarning, stacklevel=nested + 6)\n"
                 b"    if verbose:\n"
                 b"        if this in WHITESPACE:\n"
                 b"            continue\n"
@@ -5857,6 +5870,12 @@ def deferred():
             ))
             self.assertTrue(all(
                 row["parser_forward_group_candidate"][
+                    "named_conditional_group_resolution"] == [
+                        "name validated by source.checkgroupname",
+                        "condgroup = state.groupdict.get(condname)",
+                        "unknown group name rejected",
+                    ]
+                and row["parser_forward_group_candidate"][
                     "conditional_group_number_conversion"]
                 == "condgroup = int(condname)"
                 and row["parser_forward_group_candidate"][
@@ -6591,6 +6610,25 @@ def deferred():
                          "re._parser"),
                     ),
                     [],
+                )
+
+            altered_named_conditional = dict(files)
+            altered_named_conditional["re/_parser.py"] = (
+                altered_named_conditional["re/_parser.py"].replace(
+                    b"condgroup = state.groupdict.get(condname)",
+                    b"condgroup = state.groupdict.get(condname.lower())",
+                    1,
+                )
+            )
+            altered_named_conditional_digest = hashlib.sha256(
+                altered_named_conditional["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_named_conditional_digest):
+                self.assertIsNone(
+                    SUBJECT._target_re_forward_group_reference_candidate(
+                        altered_named_conditional
+                    )
                 )
 
     def test_functools_negative_cache_size_guard_requires_all_pinned_callers(self):
