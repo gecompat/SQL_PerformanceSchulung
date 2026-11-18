@@ -3815,5 +3815,12 @@ Der lokale Offlinekandidat bindet die benannte Rückreferenz `(?P=name)` an
 Namensvalidierung, `groupdict`-Auflösung, Fehler für unbekannte oder offene
 Gruppen, Lookbehind-Grenze und `GROUPREF`-Parserausgabe. Eine Mutation des
 Lookup-Ausdrucks wird verworfen; 305 fokussierte Regressionen bestehen lokal.
-PR- und Main-Push-Gates stehen noch aus. Keine Parserausführung oder
-Runtimeaussage.
+PR #1069 und alle vier Main-Push-Workflows bestanden auf `86812041`. Keine
+Parserausführung oder Runtimeaussage.
+
+Der nächste lokale Kandidat bindet den benannten Zweig bedingter
+Gruppenreferenzen über `state.groupdict`, einschließlich Namensvalidierung und
+Ablehnung unbekannter Namen. Der bestehende Zahlenzweig und seine spätere
+Vorwärtsreferenzprüfung bleiben unverändert. Mutation des benannten Lookups
+wird verworfen; 305 fokussierte Regressionen bestehen. PR-Gates stehen noch
+aus.

@@ -8905,6 +8905,37 @@ def _target_re_forward_group_reference_candidate(files):
     parser = functions["_parse"]
     parse_entry = functions["parse"]
 
+    named_condition_branches = [
+        node for node in ast.walk(parser)
+        if isinstance(node, ast.If)
+        and ast.unparse(node.test)
+        == "not (condname.isdecimal() and condname.isascii())"
+        and any(isinstance(call, ast.Call)
+                and ast.unparse(call.func) == "state.groupdict.get"
+                and [ast.unparse(arg) for arg in call.args] == ["condname"]
+                for call in ast.walk(node))
+    ]
+    named_condition_source = (
+        "if not (condname.isdecimal() and condname.isascii()):\n"
+        "    source.checkgroupname(condname, 1)\n"
+        "    condgroup = state.groupdict.get(condname)\n"
+        "    if condgroup is None:\n"
+        "        msg = 'unknown group name %r' % condname\n"
+        "        raise source.error(msg, len(condname) + 1)\n"
+        "else:\n"
+        "    condgroup = int(condname)\n"
+        "    if not condgroup:\n"
+        "        raise source.error('bad group number', len(condname) + 1)\n"
+        "    if condgroup >= MAXGROUPS:\n"
+        "        msg = 'invalid group reference %d' % condgroup\n"
+        "        raise source.error(msg, len(condname) + 1)\n"
+        "    if condgroup not in state.grouprefpos:\n"
+        "        state.grouprefpos[condgroup] = source.tell() - len(condname) - 1\n"
+        "    if not (condname.isdecimal() and condname.isascii()):\n"
+        "        import warnings\n"
+        "        warnings.warn('bad character in group name %s at position %d' % (repr(condname) if source.istext else ascii(condname), source.tell() - len(condname) - 1), DeprecationWarning, stacklevel=nested + 6)"
+    )
+
     numeric_conversions = [node for node in ast.walk(parser)
                            if isinstance(node, ast.Assign)
                            and [ast.unparse(target) for target in node.targets]
@@ -8950,7 +8981,10 @@ def _target_re_forward_group_reference_candidate(files):
                        if isinstance(node, ast.Call)
                        and isinstance(node.func, ast.Name)
                        and node.func.id == "_parse_sub"]
-    if (len(numeric_conversions) != 1
+    if (len(named_condition_branches) != 1
+            or ast.unparse(named_condition_branches[0])
+            != named_condition_source
+            or len(numeric_conversions) != 1
             or len(max_group_guards) != 1
             or len(deferred_registry) != 1
             or len(registry_guards) != 1
@@ -8967,6 +9001,11 @@ def _target_re_forward_group_reference_candidate(files):
     return {
         "source_path": "re/_parser.py",
         "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "named_conditional_group_resolution": [
+            "name validated by source.checkgroupname",
+            "condgroup = state.groupdict.get(condname)",
+            "unknown group name rejected",
+        ],
         "conditional_group_number_conversion": "condgroup = int(condname)",
         "maximum_group_guard": "condgroup >= MAXGROUPS",
         "deferred_group_position_assignment":
