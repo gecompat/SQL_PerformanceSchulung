@@ -5718,6 +5718,33 @@ def deferred():
                     "all_offsets_bound_to_same_pinned_source"
                 ]
             )
+            group_name_compile_flow = candidates[0][
+                "parser_group_name_compile_metadata_candidate"
+            ]
+            self.assertEqual(
+                group_name_compile_flow["named_group_mapping"],
+                "self.groupdict[name] = gid",
+            )
+            self.assertEqual(
+                group_name_compile_flow["text_input_parser_route"],
+                "pattern = p; p = _parser.parse(p, flags)",
+            )
+            self.assertEqual(
+                group_name_compile_flow["compiler_groupindex_source"],
+                "p.state.groupdict",
+            )
+            self.assertEqual(
+                group_name_compile_flow["native_compile_group_metadata"],
+                ["groupindex", "tuple(indexgroup)"],
+            )
+            self.assertTrue(
+                group_name_compile_flow[
+                    "all_facts_bound_to_pinned_parser_and_compiler_sources"
+                ]
+            )
+            self.assertFalse(
+                group_name_compile_flow["parser_or_compiler_execution_observed"]
+            )
             for original, replacement in (
                 (b"source.error(err.msg, len(name) + 1) from None",
                  b"source.error(err.msg, len(name)) from None"),
@@ -5737,6 +5764,42 @@ def deferred():
                         hashlib.sha256(mutated_source).hexdigest()):
                     self.assertIsNone(
                         SUBJECT._target_re_group_name_error_offset_candidate(
+                            mutated_files
+                        )
+                    )
+            for original, replacement in (
+                (b"self.groupdict[name] = gid",
+                 b"self.groupdict[gid] = name"),
+            ):
+                mutated_files = dict(files)
+                mutated_source = files["re/_parser.py"].replace(
+                    original, replacement, 1
+                )
+                self.assertNotEqual(mutated_source, files["re/_parser.py"])
+                mutated_files["re/_parser.py"] = mutated_source
+                with patch.object(
+                        SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                        hashlib.sha256(mutated_source).hexdigest()):
+                    self.assertIsNone(
+                        SUBJECT._target_re_group_name_compile_metadata_candidate(
+                            mutated_files
+                        )
+                    )
+            for original, replacement in (
+                (b"groupindex = p.state.groupdict",
+                 b"groupindex = p.state.groupwidths"),
+            ):
+                mutated_files = dict(files)
+                mutated_source = files["re/_compiler.py"].replace(
+                    original, replacement, 1
+                )
+                self.assertNotEqual(mutated_source, files["re/_compiler.py"])
+                mutated_files["re/_compiler.py"] = mutated_source
+                with patch.object(
+                        SUBJECT, "RE_COMPILER_SOURCE_SHA256",
+                        hashlib.sha256(mutated_source).hexdigest()):
+                    self.assertIsNone(
+                        SUBJECT._target_re_group_name_compile_metadata_candidate(
                             mutated_files
                         )
                     )

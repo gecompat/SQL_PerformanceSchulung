@@ -7,10 +7,11 @@ Auf Nutzerwunsch wurde die Verarbeitungswelle zunächst am sauberen Stand
 Kursrelease gebaut. Der Releasecheckpoint bleibt dokumentiert im
 [Releaseprotokoll](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-b4239247-nach-pr-1079).
 Der übergeordnete Auftrag zur autonomen Umsetzung der freigegebenen
-Entwicklungszweige läuft weiter. PR #1081 integrierte anschließend den
+Entwicklungszweige läuft weiter. PR #1081 integrierte den
 VECTOR-Kompatibilitäts- und Clientlesepfad in den Einstieg der Teaching Paths;
-`main` steht nun auf `b74b20a84907fa4c06b5dd362a24a3ac2f1021ee`.
-Weitere Kandidaten folgen dieser Planung und den fachlichen Gates. Die
+PR #1082 glich anschließend Wellen- und DGN-007-Status mit den integrierten
+Prüfbelegen ab. Weitere Kandidaten folgen dieser Planung und den fachlichen
+Gates. Die
 menschliche Generalprobe sowie offene SQL-Lab-, Produkt- und Runtimegates
 bleiben unberührt.
 
@@ -3904,3 +3905,16 @@ lokal. PR #1079 integrierte den Kandidaten auf `main` (`b4239247`); alle sieben
 PR-Gates einschließlich Offlinebundle und Katalogprobe sowie die vier
 Main-Push-Workflows bestanden. Dies bleibt statische Quellbindung ohne
 Regex-/Tokenizerlauf, Parserfehlerbeobachtung oder Runtimequalifikation.
+
+### DGN-007 – benannte Gruppennamen bis zur Compiler-Metadatenübergabe verbinden (18. November 2026)
+
+Der neue Offlinecandidate verbindet den Namen- und Capturepfad aus
+`re/_parser.py` mit der späteren Übergabe in `re/_compiler.py`: `State`
+registriert `groupdict[name] = gid`, benannte Capturegruppen rufen
+`state.opengroup(name)` erst nach der Namensvalidierung auf, und der
+String-Eingabepfad führt über `_parser.parse` zu Compiler-Metadaten aus
+`p.state.groupdict`, die an `_sre.compile` weitergereicht werden. Beide
+Quelldateien bleiben digestgebunden. Synthetische Mutationen der Registrierung
+und des Compiler-Metadatenursprungs werden abgewiesen; 305 fokussierte
+Regressionstests bestehen. Das ist eine statische Quellflussbindung, kein
+Parser-, Regex-, Compiler- oder Runtime-Nachweis.
