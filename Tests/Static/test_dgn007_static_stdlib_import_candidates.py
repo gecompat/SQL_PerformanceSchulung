@@ -5399,6 +5399,12 @@ def deferred():
                 b"        self.groupwidths[gid] = p.getwidth()\n"
                 b"    def checkgroup(self, gid):\n"
                 b"        return gid < self.groups and self.groupwidths[gid] is not None\n"
+                b"    def checklookbehindgroup(self, gid, source):\n"
+                b"        if self.lookbehindgroups is not None:\n"
+                b"            if not self.checkgroup(gid):\n"
+                b"                raise source.error('cannot refer to an open group')\n"
+                b"            if gid >= self.lookbehindgroups:\n"
+                b"                raise source.error('cannot refer to group defined in the same lookbehind subpattern')\n"
                 b"WHITESPACE = frozenset(' \\t\\n\\r\\v\\f')\n"
                 b"def _uniq(items):\n"
                 b"    return list(dict.fromkeys(items))\n"
@@ -5463,6 +5469,14 @@ def deferred():
                 b"        state.closegroup(group, p)\n"
                 b"    if not state.checkgroup(gid):\n"
                 b"        raise source.error('open group')\n"
+                b"    state.checklookbehindgroup(gid, source)\n"
+                b"    state.checklookbehindgroup(condgroup, source)\n"
+                b"    lookbehindgroups = state.lookbehindgroups\n"
+                b"    if lookbehindgroups is None:\n"
+                b"        state.lookbehindgroups = state.groups\n"
+                b"    if dir < 0:\n"
+                b"        if lookbehindgroups is None:\n"
+                b"            state.lookbehindgroups = None\n"
                 b"    condgroup = int(condname)\n"
                 b"    if condgroup >= MAXGROUPS:\n"
                 b"        raise source.error('invalid group')\n"
@@ -5787,6 +5801,26 @@ def deferred():
                     "validation_after_pattern_parse"]
                 and not row["parser_forward_group_candidate"][
                     "forward_reference_execution_observed"]
+                for row in candidates
+            ))
+            self.assertTrue(all(
+                row["parser_lookbehind_candidate"]["lookbehind_boundary_source"]
+                == "state.lookbehindgroups = state.groups"
+                and row["parser_lookbehind_candidate"]["lookbehind_boundary_reset"]
+                == "state.lookbehindgroups = None when no prior boundary existed"
+                and row["parser_lookbehind_candidate"]["open_group_guard"]
+                == "not self.checkgroup(gid)"
+                and row["parser_lookbehind_candidate"][
+                    "same_lookbehind_group_guard"]
+                == "gid >= self.lookbehindgroups"
+                and row["parser_lookbehind_candidate"][
+                    "parser_reference_calls"]
+                == ["state.checklookbehindgroup(gid, source)",
+                    "state.checklookbehindgroup(condgroup, source)"]
+                and row["parser_lookbehind_candidate"]["escape_reference_call"]
+                == "state.checklookbehindgroup(group, source)"
+                and not row["parser_lookbehind_candidate"][
+                    "lookbehind_execution_observed"]
                 for row in candidates
             ))
             self.assertTrue(all(
@@ -6304,6 +6338,28 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_forward_group_position,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_lookbehind_boundary = dict(files)
+            altered_lookbehind_boundary["re/_parser.py"] = (
+                altered_lookbehind_boundary["re/_parser.py"].replace(
+                    b"gid >= self.lookbehindgroups",
+                    b"gid > self.lookbehindgroups",
+                    1,
+                )
+            )
+            altered_lookbehind_digest = hashlib.sha256(
+                altered_lookbehind_boundary["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_lookbehind_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_lookbehind_boundary,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),

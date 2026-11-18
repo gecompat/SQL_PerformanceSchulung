@@ -13455,6 +13455,17 @@ und die PR-Gates stehen noch aus. Es gibt keinen Nachweis einer tatsächlich
 ausgeführten Vorwärtsreferenz oder Regexlaufzeit. Als nächster Kandidat folgt
 die Bindung der Lookbehind-Gruppenmarke an ihre Schutzprüfungen.
 
+Die Lookbehind-Gruppenmarke ist jetzt mit der State-Prüfung verbunden:
+`checklookbehindgroup` prüft bei aktiver Grenze zuerst, ob die Gruppe bereits
+geschlossen ist, und lehnt anschließend Gruppen ab, deren Index innerhalb der
+Grenze liegt. `_parse` setzt die Grenze auf die aktuelle Gruppenzahl und setzt
+sie nur zurück, wenn keine vorherige Grenze existierte. Die Aufrufstellen für
+benannte, bedingte und numerische Referenzen sind gebunden; eine Mutation der
+Vergleichsgrenze wird verworfen. 305 fokussierte Regressionen bestehen lokal;
+der vollständige Archivworkflow und PR-Gates stehen noch aus. Es gibt keinen
+Lookbehind-Laufzeitnachweis. Nächster Kandidat: Breitenberechnung für
+Gruppenreferenzen und bedingte Gruppenreferenzen binden.
+
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 
 Der statische Kandidat bindet jetzt den Präfixscan in `_parse_sub`: leere

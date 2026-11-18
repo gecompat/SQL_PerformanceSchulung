@@ -8980,6 +8980,117 @@ def _target_re_forward_group_reference_candidate(files):
     }
 
 
+def _target_re_lookbehind_group_candidate(files):
+    """Bind the parser's lookbehind boundary and group-reference guards."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    classes = [node for node in tree.body
+               if isinstance(node, ast.ClassDef) and node.name == "State"]
+    functions = {node.name: node for node in tree.body
+                 if isinstance(node, ast.FunctionDef)
+                 and node.name in {"_parse", "_escape"}}
+    if len(classes) != 1 or len(functions) != 2:
+        return None
+    state_methods = [node for node in classes[0].body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name == "checklookbehindgroup"]
+    if len(state_methods) != 1:
+        return None
+    method = state_methods[0]
+    method_body = method.body
+    if (len(method.args.args) != 3
+            or [arg.arg for arg in method.args.args]
+            != ["self", "gid", "source"]
+            or len(method_body) != 1
+            or not isinstance(method_body[0], ast.If)
+            or ast.unparse(method_body[0].test)
+            != "self.lookbehindgroups is not None"
+            or len(method_body[0].body) != 2):
+        return None
+    open_group_guard, lookbehind_index_guard = method_body[0].body
+    if (not isinstance(open_group_guard, ast.If)
+            or ast.unparse(open_group_guard.test) != "not self.checkgroup(gid)"
+            or len(open_group_guard.body) != 1
+            or ast.unparse(open_group_guard.body[0])
+            != "raise source.error('cannot refer to an open group')"
+            or not isinstance(lookbehind_index_guard, ast.If)
+            or ast.unparse(lookbehind_index_guard.test)
+            != "gid >= self.lookbehindgroups"
+            or len(lookbehind_index_guard.body) != 1
+            or ast.unparse(lookbehind_index_guard.body[0])
+            != "raise source.error('cannot refer to group defined in the same lookbehind subpattern')"):
+        return None
+
+    parser = functions["_parse"]
+    initial_boundary = [node for node in ast.walk(parser)
+                        if isinstance(node, ast.Assign)
+                        and [ast.unparse(target) for target in node.targets]
+                        == ["lookbehindgroups"]
+                        and ast.unparse(node.value) == "state.lookbehindgroups"]
+    boundary_guards = [node for node in ast.walk(parser)
+                       if isinstance(node, ast.If)
+                       and ast.unparse(node.test) == "lookbehindgroups is None"
+                       and any(ast.unparse(statement)
+                               == "state.lookbehindgroups = state.groups"
+                               for statement in node.body)]
+    negative_direction_guards = [node for node in ast.walk(parser)
+                                 if isinstance(node, ast.If)
+                                 and ast.unparse(node.test) == "dir < 0"]
+    if len(negative_direction_guards) != 1:
+        return None
+    reset_guards = [node for node in ast.walk(negative_direction_guards[0])
+                    if isinstance(node, ast.If)
+                    and ast.unparse(node.test) == "lookbehindgroups is None"
+                    and any(ast.unparse(statement)
+                            == "state.lookbehindgroups = None"
+                            for statement in node.body)]
+
+    def lookbehind_calls(function):
+        return [node for node in ast.walk(function)
+                if isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "state"
+                and node.func.attr == "checklookbehindgroup"]
+
+    parser_calls = lookbehind_calls(parser)
+    escape_calls = lookbehind_calls(functions["_escape"])
+    if (len(initial_boundary) != 1
+            or len(boundary_guards) != 1
+            or len(reset_guards) != 1
+            or len(parser_calls) != 2
+            or sorted(tuple(ast.unparse(arg) for arg in call.args)
+                      for call in parser_calls)
+            != [("condgroup", "source"), ("gid", "source")]
+            or len(escape_calls) != 1
+            or [ast.unparse(arg) for arg in escape_calls[0].args]
+            != ["group", "source"]):
+        return None
+
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "lookbehind_boundary_source": "state.lookbehindgroups = state.groups",
+        "lookbehind_boundary_reset":
+            "state.lookbehindgroups = None when no prior boundary existed",
+        "open_group_guard": "not self.checkgroup(gid)",
+        "same_lookbehind_group_guard": "gid >= self.lookbehindgroups",
+        "parser_reference_calls": [
+            "state.checklookbehindgroup(gid, source)",
+            "state.checklookbehindgroup(condgroup, source)",
+        ],
+        "escape_reference_call": "state.checklookbehindgroup(group, source)",
+        "lookbehind_execution_observed": False,
+        "evidence_scope": "PINNED_RE_PARSER_LOOKBEHIND_GROUP_CANDIDATE",
+    }
+
+
 def _target_re_compiler_branch_candidate(files):
     """Bind how the pinned compiler lowers a general BRANCH subpattern."""
     source = files.get("re/_compiler.py") if type(files) is dict else None
@@ -9256,6 +9367,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
     parser_forward_group_candidate = (
         _target_re_forward_group_reference_candidate(files)
     )
+    parser_lookbehind_candidate = _target_re_lookbehind_group_candidate(files)
     compiler_branch_candidate = _target_re_compiler_branch_candidate(files)
     compiler_code_candidate = _target_re_compiler_code_container_candidate(files)
     compiler_group_candidate = _target_re_compiler_group_metadata_candidate(files)
@@ -9277,6 +9389,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or parser_group_state_candidate is None
             or parser_group_call_candidate is None
             or parser_forward_group_candidate is None
+            or parser_lookbehind_candidate is None
             or compiler_branch_candidate is None
             or compiler_code_candidate is None
             or compiler_group_candidate is None
@@ -9638,6 +9751,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_group_state_candidate": parser_group_state_candidate,
             "parser_group_call_candidate": parser_group_call_candidate,
             "parser_forward_group_candidate": parser_forward_group_candidate,
+            "parser_lookbehind_candidate": parser_lookbehind_candidate,
             "compiler_branch_candidate": compiler_branch_candidate,
             "compiler_code_candidate": compiler_code_candidate,
             "compiler_group_candidate": compiler_group_candidate,

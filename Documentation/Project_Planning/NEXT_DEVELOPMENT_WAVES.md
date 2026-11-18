@@ -3773,3 +3773,14 @@ Quellposition. Eine Positionsmutation wird zurückgewiesen. 305 fokussierte
 Regressionen bestehen lokal; die gepinnte Archivprüfung folgt als PR-Gate.
 Keine beobachtete Vorwärtsreferenz oder Runtimeausführung. Nächster Kandidat:
 die Lookbehind-Gruppenmarke an ihre Schutzprüfungen binden.
+
+Checkpoint 18. November 2026: `checklookbehindgroup` ist an die aktive
+Lookbehind-Grenze gebunden. Bei gesetzter Grenze prüft es zuerst die
+Gruppenabgeschlossenheit und verwirft danach Indizes ab der Grenzgruppenzahl.
+`_parse` setzt die Grenze auf `state.groups` und stellt sie nur dann zurück,
+wenn keine vorherige Grenze aktiv war. Aufrufstellen für numerische, benannte
+und bedingte Referenzen sind gebunden. Eine Mutation von `>=` auf `>` wird
+zurückgewiesen. 305 fokussierte Regressionen bestehen lokal; der vollständige
+CPython-3.12.16-Archivworkflow folgt als PR-Gate. Kein Laufzeitnachweis.
+Nächster Kandidat: Breitenberechnung für Gruppenreferenzen und bedingte
+Gruppenreferenzen binden.
