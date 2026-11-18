@@ -5534,11 +5534,25 @@ def deferred():
                 b"                    break\n"
                 b"            continue\n"
                 b"def _escape(source, escape, state):\n"
-                b"    if group < state.groups:\n"
-                b"        if not state.checkgroup(group):\n"
-                b"            raise source.error('open group')\n"
-                b"        state.checklookbehindgroup(group, source)\n"
-                b"        return GROUPREF, group\n"
+                b"    if c == '0':\n"
+                b"        escape += source.getwhile(2, OCTDIGITS)\n"
+                b"        return LITERAL, int(escape[1:], 8)\n"
+                b"    elif c in DIGITS:\n"
+                b"        if source.next in DIGITS:\n"
+                b"            escape += source.get()\n"
+                b"            if escape[1] in OCTDIGITS and escape[2] in OCTDIGITS and source.next in OCTDIGITS:\n"
+                b"                escape += source.get()\n"
+                b"                c = int(escape[1:], 8)\n"
+                b"                if c > 0o377:\n"
+                b"                    raise source.error('octal escape value %s outside of range 0-0o377' % escape, len(escape))\n"
+                b"                return LITERAL, c\n"
+                b"        group = int(escape[1:])\n"
+                b"        if group < state.groups:\n"
+                b"            if not state.checkgroup(group):\n"
+                b"                raise source.error('cannot refer to an open group', len(escape))\n"
+                b"            state.checklookbehindgroup(group, source)\n"
+                b"            return GROUPREF, group\n"
+                b"        raise source.error('invalid group reference %d' % group, len(escape) - 1)\n"
                 b"class Tokenizer:\n"
                 b"    def __init__(self, string):\n"
                 b"        self.istext = isinstance(string, str)\n"
@@ -5889,6 +5903,19 @@ def deferred():
             self.assertTrue(all(
                 row["parser_group_compiler_candidate"][
                     "numeric_reference_parser_output"] == "(GROUPREF, group)"
+                and row["parser_group_compiler_candidate"][
+                    "numeric_escape_classification"] == [
+                        "leading-zero octal consumes up to two following octal digits",
+                        "exactly three octal digits are an octal literal",
+                        "octal literal value must be at most 0o377",
+                        "remaining digit escape prefix is parsed as a decimal group reference",
+                    ]
+                and row["parser_group_compiler_candidate"][
+                    "numeric_escape_group_guards"] == [
+                        "group < state.groups",
+                        "state.checkgroup(group)",
+                        "state.checklookbehindgroup(group, source)",
+                    ]
                 and row["parser_group_compiler_candidate"][
                     "named_reference_parser_output"] == "(GROUPREF, gid)"
                 and row["parser_group_compiler_candidate"][
@@ -6485,6 +6512,30 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_group_index_lowering,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_numeric_escape = dict(files)
+            altered_numeric_escape["re/_parser.py"] = altered_numeric_escape[
+                "re/_parser.py"
+            ].replace(
+                b"if escape[1] in OCTDIGITS and escape[2] in OCTDIGITS and ",
+                b"if escape[1] in OCTDIGITS or escape[2] in OCTDIGITS and ",
+                1,
+            )
+            altered_numeric_escape_digest = hashlib.sha256(
+                altered_numeric_escape["re/_parser.py"]
+            ).hexdigest()
+            with (patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                               altered_numeric_escape_digest),
+                  patch.object(SUBJECT, "RE_COMPILER_SOURCE_SHA256",
+                               digests["RE_COMPILER_SOURCE_SHA256"])):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_numeric_escape,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),

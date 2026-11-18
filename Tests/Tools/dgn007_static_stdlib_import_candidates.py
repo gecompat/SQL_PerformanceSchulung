@@ -9182,6 +9182,11 @@ def _target_re_group_reference_compiler_candidate(files):
     escape_returns = [node for node in ast.walk(parser_functions["_escape"])
                       if isinstance(node, ast.Return)
                       and ast.unparse(node.value) == "(GROUPREF, group)"]
+    numeric_escape_branches = [
+        node for node in ast.walk(parser_functions["_escape"])
+        if isinstance(node, ast.If)
+        and ast.unparse(node.test) == "c == '0'"
+    ]
     parser_calls = [node for node in ast.walk(parser_functions["_parse"])
                     if isinstance(node, ast.Call)
                     and isinstance(node.func, ast.Name)
@@ -9199,7 +9204,30 @@ def _target_re_group_reference_compiler_candidate(files):
     conditional_branches = [node for node in ast.walk(compile_function)
                             if isinstance(node, ast.If)
                             and ast.unparse(node.test) == "op is GROUPREF_EXISTS"]
+    numeric_escape_source = (
+        "if c == '0':\n"
+        "    escape += source.getwhile(2, OCTDIGITS)\n"
+        "    return (LITERAL, int(escape[1:], 8))\n"
+        "elif c in DIGITS:\n"
+        "    if source.next in DIGITS:\n"
+        "        escape += source.get()\n"
+        "        if escape[1] in OCTDIGITS and escape[2] in OCTDIGITS and (source.next in OCTDIGITS):\n"
+        "            escape += source.get()\n"
+        "            c = int(escape[1:], 8)\n"
+        "            if c > 255:\n"
+        "                raise source.error('octal escape value %s outside of range 0-0o377' % escape, len(escape))\n"
+        "            return (LITERAL, c)\n"
+        "    group = int(escape[1:])\n"
+        "    if group < state.groups:\n"
+        "        if not state.checkgroup(group):\n"
+        "            raise source.error('cannot refer to an open group', len(escape))\n"
+        "        state.checklookbehindgroup(group, source)\n"
+        "        return (GROUPREF, group)\n"
+        "    raise source.error('invalid group reference %d' % group, len(escape) - 1)"
+    )
     if (len(escape_returns) != 1
+            or len(numeric_escape_branches) != 1
+            or ast.unparse(numeric_escape_branches[0]) != numeric_escape_source
             or len(groupref_outputs) != 1
             or len(conditional_outputs) != 1
             or len(groupref_branches) != 1
@@ -9234,6 +9262,17 @@ def _target_re_group_reference_compiler_candidate(files):
         "parser_source_sha256": RE_PARSER_SOURCE_SHA256,
         "compiler_source_sha256": RE_COMPILER_SOURCE_SHA256,
         "numeric_reference_parser_output": "(GROUPREF, group)",
+        "numeric_escape_classification": [
+            "leading-zero octal consumes up to two following octal digits",
+            "exactly three octal digits are an octal literal",
+            "octal literal value must be at most 0o377",
+            "remaining digit escape prefix is parsed as a decimal group reference",
+        ],
+        "numeric_escape_group_guards": [
+            "group < state.groups",
+            "state.checkgroup(group)",
+            "state.checklookbehindgroup(group, source)",
+        ],
         "named_reference_parser_output": "(GROUPREF, gid)",
         "conditional_reference_parser_output":
             "(GROUPREF_EXISTS, (condgroup, item_yes, item_no))",
