@@ -5647,6 +5647,12 @@ def deferred():
                 b"        if not name.isidentifier():\n"
                 b"            msg = 'bad character in group name %r' % name\n"
                 b"            raise self.error(msg, len(name) + offset)\n"
+                b"    def tell(self):\n"
+                b"        return self.index - len(self.next or '')\n"
+                b"    def error(self, msg, offset=0):\n"
+                b"        if not self.istext:\n"
+                b"            msg = msg.encode('ascii', 'backslashreplace').decode('ascii')\n"
+                b"        return error(msg, self.string, self.tell() - offset)\n"
                 b"def parse(str, flags=0, state=None):\n"
                 b"    source = Tokenizer(str)\n"
                 b"    p = _parse_sub(source, state, flags & SRE_FLAG_VERBOSE, 0)\n"
@@ -5751,6 +5757,15 @@ def deferred():
                     ]
                 and row["tokenizer_access_candidate"][
                     "getuntil_result_returned_only_after_terminator"]
+                and row["tokenizer_access_candidate"][
+                    "tell_position_expression"]
+                == "self.index - len(self.next or '')"
+                and row["tokenizer_access_candidate"][
+                    "error_source_position_expression"] == "self.tell() - offset"
+                and row["tokenizer_access_candidate"][
+                    "byte_error_message_encoding"] == "ascii with backslashreplace"
+                and row["tokenizer_access_candidate"][
+                    "getuntil_error_offsets_bound_to_source_position"]
                 and not row["tokenizer_access_candidate"]["tokenizer_execution_observed"]
                 and not row["tokenizer_access_candidate"]["pattern_parse_observed"]
                 for row in candidates
@@ -6288,6 +6303,28 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_getuntil_offset,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_error_position = dict(files)
+            altered_error_position["re/_parser.py"] = altered_error_position[
+                "re/_parser.py"
+            ].replace(
+                b"self.tell() - offset",
+                b"self.index - offset",
+                1,
+            )
+            altered_error_position_digest = hashlib.sha256(
+                altered_error_position["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_error_position_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_error_position,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),

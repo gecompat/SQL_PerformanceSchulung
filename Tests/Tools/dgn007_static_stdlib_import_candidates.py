@@ -8206,9 +8206,10 @@ def _target_re_tokenizer_access_candidate(files):
                      if isinstance(node, ast.FunctionDef)]
     methods = {node.name: node for node in class_methods}
     if (any(name not in methods for name in
-            ("__init__", "__next", "get", "getuntil"))
+            ("__init__", "__next", "get", "getuntil", "tell", "error"))
             or any(sum(node.name == name for node in class_methods) != 1
-                   for name in ("__init__", "__next", "get", "getuntil"))):
+                   for name in
+                   ("__init__", "__next", "get", "getuntil", "tell", "error"))):
         return None
 
     init_body = methods["__init__"].body
@@ -8302,6 +8303,19 @@ def _target_re_tokenizer_access_candidate(files):
     )
     if ast.unparse(methods["getuntil"]) != getuntil_source:
         return None
+    tell_source = (
+        "def tell(self):\n"
+        "    return self.index - len(self.next or '')"
+    )
+    error_source = (
+        "def error(self, msg, offset=0):\n"
+        "    if not self.istext:\n"
+        "        msg = msg.encode('ascii', 'backslashreplace').decode('ascii')\n"
+        "    return error(msg, self.string, self.tell() - offset)"
+    )
+    if (ast.unparse(methods["tell"]) != tell_source
+            or ast.unparse(methods["error"]) != error_source):
+        return None
     return {
         "source_path": "re/_parser.py",
         "source_sha256": RE_PARSER_SOURCE_SHA256,
@@ -8314,6 +8328,10 @@ def _target_re_tokenizer_access_candidate(files):
             "end of pattern after partial name: missing terminator at len(result) offset",
         ],
         "getuntil_result_returned_only_after_terminator": True,
+        "tell_position_expression": "self.index - len(self.next or '')",
+        "error_source_position_expression": "self.tell() - offset",
+        "byte_error_message_encoding": "ascii with backslashreplace",
+        "getuntil_error_offsets_bound_to_source_position": True,
         "get_advances_after_returning_current_character": True,
         "tokenizer_execution_observed": False,
         "pattern_parse_observed": False,
