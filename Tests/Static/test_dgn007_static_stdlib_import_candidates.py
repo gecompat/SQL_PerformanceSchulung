@@ -5621,6 +5621,13 @@ def deferred():
                 b"        this = self.next\n"
                 b"        self.__next()\n"
                 b"        return this\n"
+                b"    def checkgroupname(self, name, offset):\n"
+                b"        if not (self.istext or name.isascii()):\n"
+                b"            msg = 'bad character in group name %a' % name\n"
+                b"            raise self.error(msg, len(name) + offset)\n"
+                b"        if not name.isidentifier():\n"
+                b"            msg = 'bad character in group name %r' % name\n"
+                b"            raise self.error(msg, len(name) + offset)\n"
                 b"def parse(str, flags=0, state=None):\n"
                 b"    source = Tokenizer(str)\n"
                 b"    p = _parse_sub(source, state, flags & SRE_FLAG_VERBOSE, 0)\n"
@@ -5976,6 +5983,12 @@ def deferred():
                         "state.checkgroup(gid)",
                         "state.checklookbehindgroup(gid, source)",
                         "subpatternappend((GROUPREF, gid))",
+                    ]
+                and row["parser_group_compiler_candidate"][
+                    "named_group_name_validation"] == [
+                        "non-text names must be ASCII",
+                        "all names must satisfy str.isidentifier()",
+                        "errors use the supplied source offset",
                     ]
                 and row["parser_group_compiler_candidate"][
                     "named_reference_parser_output"] == "(GROUPREF, gid)"
@@ -6633,6 +6646,30 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_named_group_lookup,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_groupname_grammar = dict(files)
+            altered_groupname_grammar["re/_parser.py"] = (
+                altered_groupname_grammar["re/_parser.py"].replace(
+                    b"if not name.isidentifier():",
+                    b"if not name.isalnum():",
+                    1,
+                )
+            )
+            altered_groupname_digest = hashlib.sha256(
+                altered_groupname_grammar["re/_parser.py"]
+            ).hexdigest()
+            with (patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                               altered_groupname_digest),
+                  patch.object(SUBJECT, "RE_COMPILER_SOURCE_SHA256",
+                               digests["RE_COMPILER_SOURCE_SHA256"])):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_groupname_grammar,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
