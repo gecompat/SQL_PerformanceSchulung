@@ -3781,6 +3781,13 @@ Gruppenabgeschlossenheit und verwirft danach Indizes ab der Grenzgruppenzahl.
 wenn keine vorherige Grenze aktiv war. Aufrufstellen für numerische, benannte
 und bedingte Referenzen sind gebunden. Eine Mutation von `>=` auf `>` wird
 zurückgewiesen. 305 fokussierte Regressionen bestehen lokal; der vollständige
-CPython-3.12.16-Archivworkflow folgt als PR-Gate. Kein Laufzeitnachweis.
-Nächster Kandidat: Breitenberechnung für Gruppenreferenzen und bedingte
-Gruppenreferenzen binden.
+CPython-3.12.16-Archivworkflow und alle PR-Gates bestanden für PR #1065. Kein
+Laufzeitnachweis. Nächster Kandidat: Breitenberechnung für Gruppenreferenzen
+und bedingte Gruppenreferenzen binden.
+
+Checkpoint 18. November 2026: `SubPattern.getwidth()` bindet die gespeicherte
+Breite für `GROUPREF` und die minimale sowie maximale Zweigbreite für
+`GROUPREF_EXISTS`. Ohne Else-Zweig ist die minimale Breite null. Eine Mutation
+von `min(i, l)` zu `max(i, l)` wird zurückgewiesen. 305 fokussierte
+Regressionen bestehen lokal; der vollständige CPython-3.12.16-Archivworkflow
+folgt als PR-Gate. Keine konkreten Gruppenbreiten oder Laufzeitmessung.

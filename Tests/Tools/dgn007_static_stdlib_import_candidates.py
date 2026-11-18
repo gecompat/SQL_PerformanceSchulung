@@ -9091,6 +9091,67 @@ def _target_re_lookbehind_group_candidate(files):
     }
 
 
+def _target_re_group_reference_width_candidate(files):
+    """Bind width propagation for group references and conditional branches."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        tree = ast.parse(source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    subpatterns = [node for node in tree.body
+                   if isinstance(node, ast.ClassDef)
+                   and node.name == "SubPattern"]
+    if len(subpatterns) != 1:
+        return None
+    methods = [node for node in subpatterns[0].body
+               if isinstance(node, ast.FunctionDef) and node.name == "getwidth"]
+    if len(methods) != 1:
+        return None
+    group_refs = [node for node in ast.walk(methods[0])
+                  if isinstance(node, ast.If)
+                  and ast.unparse(node.test) == "op is GROUPREF"]
+    conditional_refs = [node for node in ast.walk(methods[0])
+                        if isinstance(node, ast.If)
+                        and ast.unparse(node.test) == "op is GROUPREF_EXISTS"]
+    if (len(group_refs) != 1 or len(group_refs[0].body) != 3
+            or [ast.unparse(node) for node in group_refs[0].body]
+            != ["i, j = self.state.groupwidths[av]", "lo = lo + i",
+                "hi = hi + j"]
+            or len(conditional_refs) != 1
+            or len(conditional_refs[0].body) != 4):
+        return None
+    conditional_body = conditional_refs[0].body
+    if ([ast.unparse(node) for node in conditional_body[0:1]]
+            != ["i, j = av[1].getwidth()"]
+            or not isinstance(conditional_body[1], ast.If)
+            or ast.unparse(conditional_body[1].test) != "av[2] is not None"
+            or [ast.unparse(node) for node in conditional_body[1].body]
+            != ["l, h = av[2].getwidth()", "i = min(i, l)",
+                "j = max(j, h)"]
+            or [ast.unparse(node) for node in conditional_body[1].orelse]
+            != ["i = 0"]
+            or [ast.unparse(node) for node in conditional_body[2:]]
+            != ["lo = lo + i", "hi = hi + j"]):
+        return None
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "group_reference_width_source": "self.state.groupwidths[av]",
+        "group_reference_minimum_update": "lo = lo + i",
+        "group_reference_maximum_update": "hi = hi + j",
+        "conditional_yes_width": "av[1].getwidth()",
+        "conditional_no_width": "av[2].getwidth()",
+        "conditional_minimum": "min(i, l)",
+        "conditional_maximum": "max(j, h)",
+        "conditional_without_else_minimum": "i = 0",
+        "width_execution_observed": False,
+        "evidence_scope": "PINNED_RE_PARSER_GROUP_REFERENCE_WIDTH_CANDIDATE",
+    }
+
+
 def _target_re_compiler_branch_candidate(files):
     """Bind how the pinned compiler lowers a general BRANCH subpattern."""
     source = files.get("re/_compiler.py") if type(files) is dict else None
@@ -9368,6 +9429,9 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
         _target_re_forward_group_reference_candidate(files)
     )
     parser_lookbehind_candidate = _target_re_lookbehind_group_candidate(files)
+    parser_group_width_candidate = (
+        _target_re_group_reference_width_candidate(files)
+    )
     compiler_branch_candidate = _target_re_compiler_branch_candidate(files)
     compiler_code_candidate = _target_re_compiler_code_container_candidate(files)
     compiler_group_candidate = _target_re_compiler_group_metadata_candidate(files)
@@ -9390,6 +9454,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             or parser_group_call_candidate is None
             or parser_forward_group_candidate is None
             or parser_lookbehind_candidate is None
+            or parser_group_width_candidate is None
             or compiler_branch_candidate is None
             or compiler_code_candidate is None
             or compiler_group_candidate is None
@@ -9752,6 +9817,7 @@ def _target_re_compile_tokenizer_input_type_candidates(files, modules):
             "parser_group_call_candidate": parser_group_call_candidate,
             "parser_forward_group_candidate": parser_forward_group_candidate,
             "parser_lookbehind_candidate": parser_lookbehind_candidate,
+            "parser_group_width_candidate": parser_group_width_candidate,
             "compiler_branch_candidate": compiler_branch_candidate,
             "compiler_code_candidate": compiler_code_candidate,
             "compiler_group_candidate": compiler_group_candidate,

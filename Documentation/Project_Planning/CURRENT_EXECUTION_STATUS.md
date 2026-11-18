@@ -13461,10 +13461,18 @@ geschlossen ist, und lehnt anschließend Gruppen ab, deren Index innerhalb der
 Grenze liegt. `_parse` setzt die Grenze auf die aktuelle Gruppenzahl und setzt
 sie nur zurück, wenn keine vorherige Grenze existierte. Die Aufrufstellen für
 benannte, bedingte und numerische Referenzen sind gebunden; eine Mutation der
-Vergleichsgrenze wird verworfen. 305 fokussierte Regressionen bestehen lokal;
-der vollständige Archivworkflow und PR-Gates stehen noch aus. Es gibt keinen
-Lookbehind-Laufzeitnachweis. Nächster Kandidat: Breitenberechnung für
-Gruppenreferenzen und bedingte Gruppenreferenzen binden.
+Vergleichsgrenze wird verworfen. 305 fokussierte Regressionen und alle PR-Gates
+einschließlich des vollständigen CPython-3.12.16-Archivworkflows bestanden für
+PR #1065. Es gibt keinen Lookbehind-Laufzeitnachweis. Nächster Kandidat:
+Breitenberechnung für Gruppenreferenzen und bedingte Gruppenreferenzen binden.
+
+Die Breitenberechnung für Gruppenreferenzen ist nun an `SubPattern.getwidth()`
+gebunden: `GROUPREF` addiert die gespeicherte Gruppenbreite; `GROUPREF_EXISTS`
+verwendet die minimale und maximale Breite der beiden Zweige und setzt die
+Mindestbreite ohne Else-Zweig auf null. Eine Mutation der Minimumsauswahl wird
+zurückgewiesen. 305 fokussierte Regressionen bestehen lokal; der vollständige
+Archivworkflow und die PR-Gates stehen noch aus. Das ist ein statischer
+Quellbefund ohne konkrete Gruppenbreiten oder Laufzeitmessung.
 
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 

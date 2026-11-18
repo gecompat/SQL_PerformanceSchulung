@@ -5405,6 +5405,23 @@ def deferred():
                 b"                raise source.error('cannot refer to an open group')\n"
                 b"            if gid >= self.lookbehindgroups:\n"
                 b"                raise source.error('cannot refer to group defined in the same lookbehind subpattern')\n"
+                b"class SubPattern:\n"
+                b"    def getwidth(self):\n"
+                b"        for op, av in self.data:\n"
+                b"            if op is GROUPREF:\n"
+                b"                i, j = self.state.groupwidths[av]\n"
+                b"                lo = lo + i\n"
+                b"                hi = hi + j\n"
+                b"            elif op is GROUPREF_EXISTS:\n"
+                b"                i, j = av[1].getwidth()\n"
+                b"                if av[2] is not None:\n"
+                b"                    l, h = av[2].getwidth()\n"
+                b"                    i = min(i, l)\n"
+                b"                    j = max(j, h)\n"
+                b"                else:\n"
+                b"                    i = 0\n"
+                b"                lo = lo + i\n"
+                b"                hi = hi + j\n"
                 b"WHITESPACE = frozenset(' \\t\\n\\r\\v\\f')\n"
                 b"def _uniq(items):\n"
                 b"    return list(dict.fromkeys(items))\n"
@@ -5821,6 +5838,27 @@ def deferred():
                 == "state.checklookbehindgroup(group, source)"
                 and not row["parser_lookbehind_candidate"][
                     "lookbehind_execution_observed"]
+                for row in candidates
+            ))
+            self.assertTrue(all(
+                row["parser_group_width_candidate"]["group_reference_width_source"]
+                == "self.state.groupwidths[av]"
+                and row["parser_group_width_candidate"][
+                    "group_reference_minimum_update"] == "lo = lo + i"
+                and row["parser_group_width_candidate"][
+                    "group_reference_maximum_update"] == "hi = hi + j"
+                and row["parser_group_width_candidate"]["conditional_yes_width"]
+                == "av[1].getwidth()"
+                and row["parser_group_width_candidate"]["conditional_no_width"]
+                == "av[2].getwidth()"
+                and row["parser_group_width_candidate"]["conditional_minimum"]
+                == "min(i, l)"
+                and row["parser_group_width_candidate"]["conditional_maximum"]
+                == "max(j, h)"
+                and row["parser_group_width_candidate"][
+                    "conditional_without_else_minimum"] == "i = 0"
+                and not row["parser_group_width_candidate"][
+                    "width_execution_observed"]
                 for row in candidates
             ))
             self.assertTrue(all(
@@ -6360,6 +6398,24 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_lookbehind_boundary,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_group_width = dict(files)
+            altered_group_width["re/_parser.py"] = altered_group_width[
+                "re/_parser.py"
+            ].replace(b"i = min(i, l)", b"i = max(i, l)", 1)
+            altered_group_width_digest = hashlib.sha256(
+                altered_group_width["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_group_width_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_group_width,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
