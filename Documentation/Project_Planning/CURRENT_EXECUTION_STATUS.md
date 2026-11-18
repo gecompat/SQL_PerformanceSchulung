@@ -13607,4 +13607,17 @@ Position; ein Musterende nach Teilname meldet den fehlenden Terminator mit
 Offset `len(result)`. Das Ergebnis wird erst nach gelesenem Terminator
 zurückgegeben. Eine Mutation des Teilnamenoffsets wird verworfen. 305
 fokussierte DGN-007-Tests bestehen lokal. Das ist statischer Quellbefund ohne
-konkrete Fehlermeldung, Parserlauf oder Regexlaufzeit. PR-Gates stehen aus.
+konkrete Fehlermeldung, Parserlauf oder Regexlaufzeit. PR #1076 integrierte den
+Schnitt als `8372b5e8`; sämtliche PR-Gates einschließlich des vollständigen
+Offline-Quellenbundles und alle vier Main-Push-Workflows bestanden.
+
+### DGN-007 – Tokenizerfehler an aktuelle Quellposition binden
+
+`Tokenizer.tell()` liefert die nächste ungelesene Quellposition als
+`self.index - len(self.next or '')`; `Tokenizer.error(msg, offset)` erstellt
+den Parserfehler an `self.tell() - offset`. Bei Byte-Mustern werden
+Fehlermeldungen zusätzlich mit ASCII und `backslashreplace` aufbereitet.
+Damit sind die drei `getuntil`-Offsets an ihre Quellposition rückgebunden.
+Eine Mutation zu `self.index - offset` wird verworfen. 305 fokussierte
+DGN-007-Tests bestehen lokal. Das bleibt statische Quellbindung ohne
+Tokenizerlauf, konkrete Fehlermeldung oder Regexlaufzeit. PR-Gates stehen aus.

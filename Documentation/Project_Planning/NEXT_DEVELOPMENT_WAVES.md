@@ -3865,6 +3865,15 @@ Teilnamenoffset `len(result)`. Namen werden erst nach erkanntem Terminator
 zurückgegeben. Eine Offsetmutation wird verworfen; 305 fokussierte Tests
 bestehen. Der Quellpfad ist im offiziellen
 [CPython-3.12.16-Parser](https://github.com/python/cpython/blob/v3.12.16/Lib/re/_parser.py#L263-L278)
-digestgebunden. Es gibt keinen Parserlaufzeitnachweis. Als nächstes ist der
-Tokenizer-Fehlerkontext `tell() - offset` mit diesen drei Fehlerpositionen zu
-verknüpfen.
+digestgebunden. PR #1076 integrierte den Schnitt als `8372b5e8`; alle PR-Gates
+und vier Main-Push-Workflows bestanden. Es gibt keinen Parserlaufzeitnachweis.
+
+Der aktuelle lokale Folgekandidat bindet nun `Tokenizer.tell()` und
+`Tokenizer.error()`: Die Position der nächsten ungelesenen Einheit ist
+`self.index - len(self.next or '')`; `error` verwendet `self.tell() - offset`.
+Bytefehlermeldungen werden mit ASCII und `backslashreplace` aufbereitet. Eine
+Mutation auf `self.index - offset` wird verworfen; 305 fokussierte Tests
+bestehen. Die Bindung stützt sich auf den gepinnten CPython-3.12.16-Quelltext,
+ohne Tokenizer- oder Parserlaufzeit. Als nächster Schritt folgt die Prüfung,
+dass die Capture- und Rückverweiscallsites dieselben `getuntil`-Offsets wie die
+Tokenizerfehlerkonvertierung verwenden.
