@@ -3807,5 +3807,13 @@ auch die Klassifizierung numerischer Escapes: führende Null mit bis zu zwei
 Oktalziffern, dreistellige Oktalliterale mit dem Grenzwert `0o377` und sonstige
 Ziffernpräfixe als dezimale Gruppenreferenz, einschließlich Gruppenstatus- und
 Lookbehind-Prüfung. Die Mutation der Oktalbedingung wird verworfen. 305
-fokussierte Regressionen bestehen. Dies bleibt ein statischer Quellenbefund,
-ohne Parserausführung oder Laufzeitqualifikation.
+fokussierte Regressionen, PR #1068 und alle vier Main-Push-Workflows bestanden
+auf `79abac80`. Dies bleibt ein statischer Quellenbefund, ohne Parserausführung
+oder Laufzeitqualifikation.
+
+Der lokale Offlinekandidat bindet die benannte Rückreferenz `(?P=name)` an
+Namensvalidierung, `groupdict`-Auflösung, Fehler für unbekannte oder offene
+Gruppen, Lookbehind-Grenze und `GROUPREF`-Parserausgabe. Eine Mutation des
+Lookup-Ausdrucks wird verworfen; 305 fokussierte Regressionen bestehen lokal.
+PR- und Main-Push-Gates stehen noch aus. Keine Parserausführung oder
+Runtimeaussage.

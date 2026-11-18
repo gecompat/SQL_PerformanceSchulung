@@ -5509,7 +5509,6 @@ def deferred():
                 b"        state.closegroup(group, p)\n"
                 b"    if not state.checkgroup(gid):\n"
                 b"        raise source.error('open group')\n"
-                b"    subpatternappend((GROUPREF, gid))\n"
                 b"    subpatternappend((GROUPREF_EXISTS, (condgroup, item_yes, item_no)))\n"
                 b"    state.checklookbehindgroup(gid, source)\n"
                 b"    state.checklookbehindgroup(condgroup, source)\n"
@@ -5533,6 +5532,23 @@ def deferred():
                 b"                if this is None or this == '\\n':\n"
                 b"                    break\n"
                 b"            continue\n"
+                b"    if sourcematch('='):\n"
+                b"        name = source.getuntil(')', 'group name')\n"
+                b"        source.checkgroupname(name, 1)\n"
+                b"        gid = state.groupdict.get(name)\n"
+                b"        if gid is None:\n"
+                b"            msg = 'unknown group name %r' % name\n"
+                b"            raise source.error(msg, len(name) + 1)\n"
+                b"        if not state.checkgroup(gid):\n"
+                b"            raise source.error('cannot refer to an open group', len(name) + 1)\n"
+                b"        state.checklookbehindgroup(gid, source)\n"
+                b"        subpatternappend((GROUPREF, gid))\n"
+                b"        continue\n"
+                b"    else:\n"
+                b"        char = sourceget()\n"
+                b"        if char is None:\n"
+                b"            raise source.error('unexpected end of pattern')\n"
+                b"        raise source.error('unknown extension ?P' + char, len(char) + 2)\n"
                 b"def _escape(source, escape, state):\n"
                 b"    if c == '0':\n"
                 b"        escape += source.getwhile(2, OCTDIGITS)\n"
@@ -5688,7 +5704,7 @@ def deferred():
                 and row["parser_sourceget_candidate"][
                     "tokenizer_get_returns_current_then_advances"]
                 and row["parser_sourceget_candidate"][
-                    "sourceget_call_sites_in_pinned_parse_function"] == 2
+                    "sourceget_call_sites_in_pinned_parse_function"] == 3
                 and not row["parser_sourceget_candidate"][
                     "alias_call_execution_observed"]
                 for row in candidates
@@ -5831,6 +5847,8 @@ def deferred():
                     "match closing parenthesis", "store parsed group width"]
                 and row["parser_group_call_candidate"]["parser_group_check_call"]
                 == "state.checkgroup(gid)"
+                and row["parser_group_call_candidate"][
+                    "parser_group_check_call_sites"] == 2
                 and row["parser_group_call_candidate"]["escape_group_check_call"]
                 == "state.checkgroup(group)"
                 and not row["parser_group_call_candidate"][
@@ -5872,6 +5890,7 @@ def deferred():
                 and row["parser_lookbehind_candidate"][
                     "parser_reference_calls"]
                 == ["state.checklookbehindgroup(gid, source)",
+                    "state.checklookbehindgroup(gid, source)",
                     "state.checklookbehindgroup(condgroup, source)"]
                 and row["parser_lookbehind_candidate"]["escape_reference_call"]
                 == "state.checklookbehindgroup(group, source)"
@@ -5915,6 +5934,14 @@ def deferred():
                         "group < state.groups",
                         "state.checkgroup(group)",
                         "state.checklookbehindgroup(group, source)",
+                    ]
+                and row["parser_group_compiler_candidate"][
+                    "named_reference_resolution"] == [
+                        "state.groupdict.get(name)",
+                        "unknown group name rejected",
+                        "state.checkgroup(gid)",
+                        "state.checklookbehindgroup(gid, source)",
+                        "subpatternappend((GROUPREF, gid))",
                     ]
                 and row["parser_group_compiler_candidate"][
                     "named_reference_parser_output"] == "(GROUPREF, gid)"
@@ -6536,6 +6563,30 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_numeric_escape,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_named_group_lookup = dict(files)
+            altered_named_group_lookup["re/_parser.py"] = (
+                altered_named_group_lookup["re/_parser.py"].replace(
+                    b"gid = state.groupdict.get(name)",
+                    b"gid = state.groupdict.get(name.lower())",
+                    1,
+                )
+            )
+            altered_named_group_digest = hashlib.sha256(
+                altered_named_group_lookup["re/_parser.py"]
+            ).hexdigest()
+            with (patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                               altered_named_group_digest),
+                  patch.object(SUBJECT, "RE_COMPILER_SOURCE_SHA256",
+                               digests["RE_COMPILER_SOURCE_SHA256"])):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_named_group_lookup,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),
