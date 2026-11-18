@@ -1,14 +1,14 @@
 # SQL Server 2025 – KI-Feature- und Provider-Matrix
 
-Allgemeine Matrixprüfung: 2026-10-11; gezielter VECTOR-Float16-Quellenabgleich: 2026-11-17. Arbeitspaket: `TSK-003` (KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen) mit und für Microsoft SQL Server 2025: Planungsintegration); Folgequalifikation: `TSK-004` (KI-Feature-, Build- und Providerqualifikation).
+Allgemeine Matrixprüfung: 2026-10-11; gezielter VECTOR-Float16-Quellenabgleich: 2026-11-18. Arbeitspaket: `TSK-003` (KI (künstliche Intelligenz; Verfahren für Aufgaben wie Textverarbeitung oder Vorhersagen) mit und für Microsoft SQL Server 2025: Planungsintegration); Folgequalifikation: `TSK-004` (KI-Feature-, Build- und Providerqualifikation).
 Dies ist die fachliche Matrix zum [Workstream-Plan](../Project_Planning/SQL_SERVER_2025_AI_WORKSTREAM_PLAN.md).
-Quellenautorität bleibt [Projektweites Quellenregister](SOURCE_REGISTER.md), insbesondere die einschlägigen Einträge `SRC-072` (Vector data type), `SRC-166` (Vector float16) und `SRC-167` (SqlClient VECTOR).
+Quellenautorität bleibt [Projektweites Quellenregister](SOURCE_REGISTER.md), insbesondere die einschlägigen Einträge `SRC-072` (Vector data type), `SRC-166` (Vector float16) und `SRC-167` (SqlClient VECTOR) sowie `SRC-173` (ODBC VECTOR).
 Die folgenden Aussagen sind **Dokumentiert**, soweit eine Quelle angegeben ist.
 Diese Matrix ersetzt keine empirische Build-/Runtime-/Providerqualifikation;
 konkrete Teilnachweise und offene Gates stehen im kanonischen Ausführungsstand.
 
 Die begrenzte Float16-Aktualisierung ist ebenfalls nur Quellenabgleich: Sie
-ordnet SQL Server 2025s Previewanforderung und dokumentierte Treibergrenzen ein,
+ordnet SQL Server 2025s Previewanforderung sowie JDBC-, allgemeine ODBC- und ODBC-spezifische Treibergrenzen ein,
 qualifiziert aber keinen Float16-Build, Architektur- oder Clientpfad.
 
 ## 1. Plattform- und Freigabegrenzen
@@ -34,7 +34,7 @@ Die Frage bleibt bei `TSK-004` offen; der geplante ONNX-Pfad ist ausschließlich
 
 Die Spalte CL trennt eine dokumentierte Mindestanforderung vom gewählten Laborprofil CL 170.
 „Nicht separat genannt“ ist keine Behauptung über beliebige CLs; `TSK-004` prüft dies vor Implementierung.
-Die übrigen Matrixquellen tragen weiterhin den Prüfstand 2026-10-11; der gezielte Float16-Abgleich aktualisiert nur `SRC-072`, `SRC-166` und `SRC-167`. Edition/OS (Operating System; Betriebssystem) folgt §1, außer bei ONNX (Open Neural Network Exchange; Austauschformat für Modelle).
+Die übrigen Matrixquellen tragen weiterhin den Prüfstand 2026-10-11; der gezielte Float16-Abgleich aktualisiert `SRC-072`, `SRC-166`, `SRC-167` und ergänzt die treiberspezifische ODBC-Quelle `SRC-173`. Edition/OS (Operating System; Betriebssystem) folgt §1, außer bei ONNX (Open Neural Network Exchange; Austauschformat für Modelle).
 
 | Funktion / Zweck und Mechanismus | Engine / Status | CL und Konfiguration | Berechtigung / Infrastruktur | Security und Performance | Quelle / Syntax |
 |---|---|---|---|---|---|
@@ -67,7 +67,7 @@ am 2026-10-13 erneut geprüft. Der allgemeine Prüfstand dieser Matrix bleibt
 |---|---|---|
 | Engine | VECTOR gehört zu SQL Server 2025 / 17.x. Ein Client oder ein höherer CL ergänzt die Funktion nicht in einer älteren Engine (SRC-072). | Der [Providerteilnachweis](../Project_Planning/SQL_SERVER_2025_AI_PROVIDER_REVIEW.md) bindet konkrete Builds; 15.x/16.x endeten vor Setup mit Versions-SKIPs. Das ist kein Test nativer VECTOR-Verarbeitung dieser älteren Engines. |
 | Compatibility Level | Der VECTOR-Typ ist unter allen CLs verfügbar; AI_GENERATE_CHUNKS verlangt mindestens CL 170 (SRC-072/079). | Die [CL-Istwertqualifikation](../Project_Planning/SQL_SERVER_2025_AI_CL_RESULT_REVIEW.md) bestand auf 17.0.5005.3 mit float32-Skalaren bei CL 150/160/170. Der feste Chunkaufruf lieferte bei CL 150/160 Error 102 und bei CL 170 beide vollständigen Rows. Error 102 bleibt OBSERVED_OTHER_ERROR_NO_AVAILABILITY_CLAIM; keine allgemeine Low-CL-Freigabe. |
-| Clienttransport | Native binäre Übertragung benötigt den dokumentierten TDS-/Treiberpfad: TDS (Tabular Data Stream; Übertragungsprotokoll zwischen SQL-Client und Server) 7.4 oder höher und einen unterstützenden Treiber. Die SqlClient-Anleitung zeigt `SqlVector<float>` für float32; Microsoft listet native float16-Unterstützung für JDBC 13.4+ und ODBC 18.7.1+. Für ältere oder nicht unterstützende Clients ist VARCHAR(MAX)/JSON (JavaScript Object Notation; strukturiertes Textformat) als Pfad dokumentiert (SRC-072, SRC-166, SRC-167). | Der [Corpus-SQL-Nachweis](../Project_Planning/SQL_SERVER_2025_AI_CORPUS_SQL_REVIEW.md) prüfte alle Koordinaten über JSON sowie vollständige Cosine-Ergebnisse. Der begrenzte Client-Roundtrip qualifiziert nur float32. Native binäre Treiberbindung ist hier für float16 empirisch UNQUALIFIED; JSON ist kein Nachweis identischer physischer VECTORbits. |
+| Clienttransport | Native binäre Übertragung benötigt den dokumentierten TDS-/Treiberpfad: TDS (Tabular Data Stream; Übertragungsprotokoll zwischen SQL-Client und Server) 7.4 oder höher und einen unterstützenden Treiber. Die SqlClient-Anleitung zeigt `SqlVector<float>` für float32. Die allgemeine Produktseite nennt JDBC 13.4+ und ODBC 18.7.1+ für Float16; die ODBC-spezifische Anleitung präzisiert ODBC auf mindestens 18.7.1.1 und ausgehandeltes `vectorTypeSupport=v2`. Im ODBC-C-Anwendungsbuffer bleiben die Elemente auch bei Float16 vier Byte (`sizeof(float)`); die zwei Bytes je Element betreffen den Drahttransport (`SRC-173`). Für ältere oder nicht unterstützende Clients ist VARCHAR(MAX)/JSON (JavaScript Object Notation; strukturiertes Textformat) als Pfad dokumentiert (SRC-072, SRC-166, SRC-167, SRC-173). | Der [Corpus-SQL-Nachweis](../Project_Planning/SQL_SERVER_2025_AI_CORPUS_SQL_REVIEW.md) prüfte alle Koordinaten über JSON sowie vollständige Cosine-Ergebnisse. Der begrenzte Client-Roundtrip qualifiziert nur float32. Native binäre Treiberbindung ist hier für float16 empirisch UNQUALIFIED; JSON ist kein Nachweis identischer physischer VECTORbits. |
 
 Dokumentierte Treiberunterstützung bedeutet nicht, dass die konkrete Anwendung
 bereits qualifiziert wurde. Umgekehrt bedeutet der offene Binärtransportnachweis
