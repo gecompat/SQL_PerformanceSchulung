@@ -3758,7 +3758,8 @@ Capturegruppenpfad gebunden: `opengroup(name)`, Gruppeninhalt über `_parse_sub`
 Prüfung der schließenden Klammer und anschließend `closegroup(group, p)`.
 Zusätzlich sind die `checkgroup`-Aufrufstellen für benannte und numerische
 Gruppenreferenzen gebunden. Eine Mutation des `closegroup`-Arguments wird
-zurückgewiesen. 305 fokussierte Regressionen bestehen lokal; der vollständige
-gepinnte CPython-3.12.16-Offlineworkflow läuft als PR-Gate. Der Befund bleibt
-statisch. Nächster Kandidat: Registrierung einer vorwärts gerichteten
-numerischen Gruppenbedingung und spätere Bereichsprüfung in `parse()` binden.
+zurückgewiesen. 305 fokussierte Regressionen und alle PR-Gates einschließlich
+des vollständigen gepinnten CPython-3.12.16-Offlineworkflows bestanden für PR
+#1063. Der Befund bleibt statisch. Nächster Kandidat: Registrierung einer
+vorwärts gerichteten numerischen Gruppenbedingung und spätere Bereichsprüfung
+in `parse()` binden.
