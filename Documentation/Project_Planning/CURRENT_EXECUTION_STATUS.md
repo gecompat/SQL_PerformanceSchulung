@@ -9,21 +9,21 @@ einer Nutzerdatenbank. QRY-023 bleibt bis zu gesonderter Produkt-/Katalog-
 freigabe `PROPOSED` und `runtime_authorized: false`. Die menschliche
 Generalprobe bleibt ausgeschlossen.
 
-### Aktueller Releasecheckpoint und Stopp der Verarbeitungswelle
+### Releasecheckpoint und Wiederaufnahme der Entwicklungswelle
 
-Nach Integration von PR #1084 ist `main` konsistent und sauber auf
-`89ccc0a109be6d059dc3b3f77fcdf7335196ae56`. Auf diesem Commit wurde der
-W-PRS-001-Kursrelease mit PowerPoint Desktop neu gebaut: `BASIS` 41,
-`STANDARD` 66 und `VERTIEFUNG` 102 Folien. Der Manifest-/Ausgabevalidator,
-Mastererhalt, vollständige Master- und Profilrenders sowie 209
-SlideKey-gebundene bytegleiche Profil-/Mastervergleiche bestanden. Der
-gezielte Datenschutzscan der drei Release-Decks und des Buildprotokolls
-bestand. Hashes und Prüfumfang stehen im
+Nach Integration von PR #1084 wurde der W-PRS-001-Kursrelease auf dem sauberen
+`main`-Commit `89ccc0a109be6d059dc3b3f77fcdf7335196ae56` gebaut. Manifest und
+Ausgabevertrag, Mastererhalt, vollständige Master- und Profilrenders, 209
+SlideKey-gebundene bytegleiche Profil-/Mastervergleiche sowie der gezielte
+Datenschutzscan bestanden. PR #1085 dokumentierte den Releasecheckpoint. Die
+Verarbeitungswelle wurde zunächst auf Nutzerwunsch angehalten und mit dem
+anschließenden Auftrag zur Fortsetzung des übergeordneten Entwicklungsziels
+wieder aufgenommen. Zu Beginn der Wiederaufnahme war `main` sauber und synchron auf
+`ede7851bf7df223106100841dd3845c84030875f`; der Release bleibt ein gültiger,
+lokaler Build, da die Folgeänderungen ausschließlich Release- und
+Planungsdokumentation betreffen. Hashes und Prüfumfang stehen im
 [Releaseprotokoll](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-89ccc0a1-nach-pr-1084).
-Auf Nutzerwunsch ist die Verarbeitungswelle nach diesem Release angehalten;
-die weiteren unten dokumentierten Entwicklungs- und Qualifikationsthemen
-bleiben offen und werden in dieser Welle nicht weiter abgearbeitet. Die
-menschliche Generalprobe sowie SQL-Lab-, Produkt- und Runtimegates bleiben
+Die menschliche Generalprobe sowie SQL-Lab-, Produkt- und Runtimegates bleiben
 offen.
 
 ### DGN-007 – Parser- und Tokenizer-Gruppennamenoffsets verbinden
@@ -13664,3 +13664,28 @@ Quelldateien bleiben digestgebunden. Synthetische Mutationen der Registrierung
 und des Compiler-Metadatenursprungs werden abgewiesen; 305 fokussierte
 Regressionstests bestehen lokal. Das ist eine statische Quellflussbindung,
 kein Parser-, Regex-, Compiler- oder Runtime-Nachweis.
+
+### DGN-007 – benannte Gruppen bis zur nativen `Pattern.groupindex`-Ansicht verbinden (18. November 2026)
+
+Der statische DGN-007-Kandidat umfasst nun den Quellfluss von der benannten
+Capturegruppe über `State.groupdict` und die `re/_compiler.py`-Übergabe bis zum
+`PatternObject.groupindex`-Feld und der öffentlichen read-only
+`Pattern.groupindex`-Ansicht; der gebundene Stringeingabepfad führt über
+`_parser.parse`. Der native Vertrag folgt den offiziellen
+[CPython-3.12.16-Quellen für `_sre.c`](https://github.com/python/cpython/blob/v3.12.16/Modules/_sre/sre.c#L1432-L1525)
+und [`sre.h`](https://github.com/python/cpython/blob/v3.12.16/Modules/_sre/sre.h#L24-L42).
+Beide C-Dateien sind als eindeutige Archivmitglieder mit Größenlimits und
+SHA-256-Prüfung eingebunden. Auf dem offiziellen CPython-3.12.16-Quellarchiv
+stimmen Archivdigest `b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c`
+und C-Quellhashes (`sre.c`: `06310987facf48c7dbeddf80b70265ecf386868acc01066e50ae699f51d0f9ff`,
+`sre.h`: `f8e2cdbd2d71ca972b662834250cb7d635d8de79e81b7683732614ecaffcf959`);
+der Analyzer liefert den zusammenhängenden Kandidaten mit Status
+`CANDIDATES_ONLY`. 307 fokussierte Regressionen bestehen, darunter synthetische
+Mutationen an Archivmitgliedern, Metadatenübergabe, nativer Speicherung und
+read-only Ansicht. Das belegt keinen CPython-Build, Parser-/Regexlauf oder
+Runtimeverhalten. Das manuelle Diffreview wurde abgeschlossen. PR #1086 auf
+Head `294567ac85d5e2c978b8e287b18c35d850e0304c` besteht alle sieben PR-Checks,
+einschließlich des vollständigen DGN-007-Offlinebundles und des
+Katalogchecks. Die Repository-Regeln verlangen keine zusätzliche
+Approving-Review; es gibt keine Codeowner-/Reviewerzuweisung. Dieser Befund ist
+eine statische Kandidatenprüfung und keine Runtimequalifikation.

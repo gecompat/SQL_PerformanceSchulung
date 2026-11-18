@@ -75,6 +75,10 @@ PICKLE_MODULE_C_MEMBER = "Python-3.12.16/Modules/_pickle.c"
 PICKLE_MODULE_C_SHA256 = "c3ec3ad77fbb84d902bc7366f9b7cd76f17f9c106cb984ef3e99894cf0f9698b"
 PYTHON_IMPORT_C_MEMBER = "Python-3.12.16/Python/import.c"
 PYTHON_IMPORT_C_SHA256 = "1cf484fe5a261c742f2da95a720f5d0eb92b10649bf186ca55eedf4557f1b9d0"
+SRE_C_MEMBER = "Python-3.12.16/Modules/_sre/sre.c"
+SRE_C_SHA256 = "06310987facf48c7dbeddf80b70265ecf386868acc01066e50ae699f51d0f9ff"
+SRE_H_MEMBER = "Python-3.12.16/Modules/_sre/sre.h"
+SRE_H_SHA256 = "f8e2cdbd2d71ca972b662834250cb7d635d8de79e81b7683732614ecaffcf959"
 PICKLE_EXTENSION_PATH = "usr/local/lib/python3.12/lib-dynload/_pickle.cpython-312-x86_64-linux-gnu.so"
 PICKLE_EXTENSION_SHA256 = "f6cdd4a784089665d18243b944051052b8a9452f3b1e40be88bdf685b2afb83d"
 HASHLIB_EXTENSION_FACTS = {
@@ -239,6 +243,8 @@ MAX_WARNINGS_C_BYTES = 64 * 1024
 MAX_WARNINGS_CLINIC_BYTES = 16 * 1024
 MAX_POSIX_MODULE_C_BYTES = 512 * 1024
 MAX_PYTHON_IMPORT_C_BYTES = 256 * 1024
+MAX_SRE_C_BYTES = 128 * 1024
+MAX_SRE_H_BYTES = 16 * 1024
 MAX_POSIX_MODULE_CLINIC_BYTES = 384 * 1024
 MAX_TARGET_PYCONFIG_BYTES = 64 * 1024
 MAX_TARGET_IMAGE_CONFIG_BYTES = 16 * 1024
@@ -290,6 +296,8 @@ def _source_archive_data(archive_bytes):
     posix_module_clinic_source = None
     pickle_module_c_source = None
     python_import_c_source = None
+    sre_c_source = None
+    sre_h_source = None
     thread_native_id_header = None
     preconfig_header_source = None
     long_header_source = None
@@ -528,6 +536,24 @@ def _source_archive_data(archive_bytes):
                         != PYTHON_IMPORT_C_SHA256):
                     raise ValueError("PYTHON_IMPORT_SOURCE_DIGEST")
                 continue
+            if member.name in (SRE_C_MEMBER, SRE_H_MEMBER):
+                is_sre_c = member.name == SRE_C_MEMBER
+                current = sre_c_source if is_sre_c else sre_h_source
+                limit = MAX_SRE_C_BYTES if is_sre_c else MAX_SRE_H_BYTES
+                expected = SRE_C_SHA256 if is_sre_c else SRE_H_SHA256
+                if not member.isfile() or current is not None or member.size > limit:
+                    raise ValueError("SRE_SOURCE_MEMBER")
+                stream = source.extractfile(member)
+                if stream is None:
+                    raise ValueError("SRE_SOURCE_MEMBER")
+                body = stream.read(member.size + 1)
+                if len(body) != member.size or hashlib.sha256(body).hexdigest() != expected:
+                    raise ValueError("SRE_SOURCE_DIGEST")
+                if is_sre_c:
+                    sre_c_source = body
+                else:
+                    sre_h_source = body
+                continue
             if member.name in thread_source_members:
                 source_key = thread_source_members[member.name]
                 current = {
@@ -596,7 +622,7 @@ def _source_archive_data(archive_bytes):
             platform_source_data["getplatform"], platform_source_data["makefile_pre"],
             python_import_c_source, preconfig_header_source, long_header_source,
             preconfig_c_source,
-            initconfig_c_source)
+            initconfig_c_source, sre_c_source, sre_h_source)
 
 
 def _source_files(archive_path):
@@ -9796,6 +9822,175 @@ def _target_re_compiler_group_metadata_candidate(files):
     }
 
 
+def _target_re_pattern_groupindex_native_candidate(sre_c_source, sre_h_source):
+    """Bind compiler metadata to native Pattern storage and its read-only view."""
+    if (type(sre_c_source) is not bytes or type(sre_h_source) is not bytes
+            or len(sre_c_source) > MAX_SRE_C_BYTES
+            or len(sre_h_source) > MAX_SRE_H_BYTES
+            or hashlib.sha256(sre_c_source).hexdigest() != SRE_C_SHA256
+            or hashlib.sha256(sre_h_source).hexdigest() != SRE_H_SHA256):
+        return None
+    try:
+        c_text = sre_c_source.decode("utf-8")
+        h_text = sre_h_source.decode("utf-8")
+    except UnicodeError:
+        return None
+
+    compile_start = c_text.find("_sre_compile_impl(")
+    clinic_end = c_text.find("/*[clinic input]\n_sre.template", compile_start)
+    if compile_start < 0 or clinic_end < 0:
+        return None
+    compile_region = c_text[compile_start:clinic_end]
+    groupindex_method = re.findall(
+        r"static PyObject \*\s*pattern_groupindex\(PatternObject \*self,"
+        r"\s*void \*Py_UNUSED\(ignored\)\)\s*\{(.*?)\n\}",
+        c_text, re.S,
+    )
+    pattern_structs = re.findall(
+        r"typedef struct \{(.*?)\} PatternObject;", h_text, re.S,
+    )
+    pattern_getsets = re.findall(
+        r"static PyGetSetDef pattern_getset\[\] = \{(.*?)\n\};",
+        c_text, re.S,
+    )
+    signature = re.search(
+        r"_sre_compile_impl\(PyObject \*module, PyObject \*pattern, int flags,"
+        r"\s*PyObject \*code, Py_ssize_t groups, PyObject \*groupindex,"
+        r"\s*PyObject \*indexgroup\)",
+        compile_region,
+    )
+    storage_init = "self->groupindex = NULL;"
+    storage_assign = (
+        "if (PyDict_GET_SIZE(groupindex) > 0) {\n"
+        "        self->groupindex = Py_NewRef(groupindex);"
+    )
+    if (len(groupindex_method) != 1 or len(pattern_structs) != 1
+            or len(pattern_getsets) != 1
+            or signature is None
+            or compile_region.count(storage_init) != 1
+            or compile_region.count(storage_assign) != 1
+            or "PyObject* groupindex; /* dict */" not in pattern_structs[0]
+            or "if (self->groupindex == NULL)\n        return PyDict_New();"
+            not in groupindex_method[0]
+            or "return PyDictProxy_New(self->groupindex);" not in groupindex_method[0]
+            or '{"groupindex", (getter)pattern_groupindex, (setter)NULL,'
+            not in pattern_getsets[0]):
+        return None
+    return {
+        "c_source_path": "Modules/_sre/sre.c",
+        "c_source_sha256": SRE_C_SHA256,
+        "header_source_path": "Modules/_sre/sre.h",
+        "header_source_sha256": SRE_H_SHA256,
+        "native_compile_groupindex_parameter": "groupindex",
+        "pattern_object_groupindex_field": "PyObject* groupindex",
+        "empty_groupindex_storage_fallback": "PyDict_New()",
+        "nonempty_groupindex_storage": "Py_NewRef(groupindex)",
+        "public_groupindex_view": (
+            "Pattern.groupindex -> pattern_groupindex -> "
+            "PyDictProxy_New(self->groupindex)"
+        ),
+        "native_execution_observed": False,
+        "evidence_scope": "PINNED_SRE_PATTERN_GROUPINDEX_NATIVE_SOURCE_CANDIDATE",
+    }
+
+
+def _target_re_group_name_to_pattern_groupindex_candidate(
+        files, sre_c_source, sre_h_source):
+    """Join parser registration, compiler handoff, native storage, and view."""
+    parser_state = _target_re_parser_group_state_candidate(files)
+    parser_source = files.get("re/_parser.py") if type(files) is dict else None
+    compiler_input = _target_re_compiler_parsed_pattern_input_candidate(files)
+    compiler_metadata = _target_re_compiler_group_metadata_candidate(files)
+    native_groupindex = _target_re_pattern_groupindex_native_candidate(
+        sre_c_source, sre_h_source,
+    )
+    if (parser_state is None or type(parser_source) is not bytes
+            or hashlib.sha256(parser_source).hexdigest() != RE_PARSER_SOURCE_SHA256
+            or compiler_input is None or compiler_metadata is None
+            or native_groupindex is None
+            or parser_state["named_group_mapping"] != "self.groupdict[name] = gid"
+            or compiler_input["string_input_branch"]
+            != "pattern = p; p = _parser.parse(p, flags)"
+            or compiler_metadata["groupindex_source"] != "p.state.groupdict"
+            or compiler_metadata["metadata_passed_to_sre_compile"]
+            != ["groupindex", "tuple(indexgroup)"]
+            or native_groupindex["native_compile_groupindex_parameter"]
+            != compiler_metadata["metadata_passed_to_sre_compile"][0]):
+        return None
+    try:
+        parser_tree = ast.parse(parser_source.decode("utf-8"), filename="re/_parser.py")
+    except (UnicodeError, SyntaxError):
+        return None
+    parse_functions = [node for node in parser_tree.body
+                       if isinstance(node, ast.FunctionDef) and node.name == "_parse"]
+    if len(parse_functions) != 1:
+        return None
+    named_capture_reads = [node for node in ast.walk(parse_functions[0])
+                           if isinstance(node, ast.Call)
+                           and isinstance(node.func, ast.Attribute)
+                           and isinstance(node.func.value, ast.Name)
+                           and node.func.value.id == "source"
+                           and node.func.attr == "getuntil"
+                           and [ast.unparse(arg) for arg in node.args]
+                           == ["'>'", "'group name'"]]
+    name_checks = [node for node in ast.walk(parse_functions[0])
+                   if isinstance(node, ast.Call)
+                   and isinstance(node.func, ast.Attribute)
+                   and isinstance(node.func.value, ast.Name)
+                   and node.func.value.id == "source"
+                   and node.func.attr == "checkgroupname"
+                   and [ast.unparse(arg) for arg in node.args] == ["name", "1"]]
+    group_registrations = [node for node in ast.walk(parse_functions[0])
+                           if isinstance(node, ast.Call)
+                           and isinstance(node.func, ast.Attribute)
+                           and isinstance(node.func.value, ast.Name)
+                           and node.func.value.id == "state"
+                           and node.func.attr == "opengroup"
+                           and [ast.unparse(arg) for arg in node.args] == ["name"]]
+    named_capture_guards = [node for node in ast.walk(parse_functions[0])
+                            if isinstance(node, ast.If)
+                            and ast.unparse(node.test) == "sourcematch('<')"]
+    named_capture_branches = [node for node in named_capture_guards
+                              if named_capture_reads
+                              and any(child is named_capture_reads[0]
+                                      for statement in node.body
+                                      for child in ast.walk(statement))
+                              and any(check in list(ast.walk(statement))
+                                      for statement in node.body
+                                      for check in name_checks)]
+    if (len(named_capture_reads) != 1 or not name_checks
+            or len(named_capture_branches) != 1
+            or len(group_registrations) != 1
+            or not named_capture_reads[0].lineno
+            < min(node.lineno for statement in named_capture_branches[0].body
+                  for node in ast.walk(statement)
+                  if node in name_checks)
+            or min(node.lineno for statement in named_capture_branches[0].body
+                   for node in ast.walk(statement)
+                   if node in name_checks)
+            >= group_registrations[0].lineno):
+        return None
+    return {
+        "parser_source_sha256": RE_PARSER_SOURCE_SHA256,
+        "compiler_source_sha256": compiler_metadata["source_sha256"],
+        "native_c_source_sha256": native_groupindex["c_source_sha256"],
+        "native_header_source_sha256": native_groupindex["header_source_sha256"],
+        "named_group_mapping": parser_state["named_group_mapping"],
+        "text_input_parser_route": compiler_input["string_input_branch"],
+        "named_capture_source_order": [
+            "source.getuntil('>', 'group name')",
+            "source.checkgroupname(name, 1)",
+            "state.opengroup(name)",
+        ],
+        "compiler_groupindex_source": compiler_metadata["groupindex_source"],
+        "compiler_to_native_argument": "groupindex",
+        "native_storage": native_groupindex["nonempty_groupindex_storage"],
+        "public_read_only_view": native_groupindex["public_groupindex_view"],
+        "parser_compiler_or_native_execution_observed": False,
+        "evidence_scope": "PINNED_RE_GROUP_NAME_TO_PATTERN_GROUPINDEX_SOURCE_FLOW_CANDIDATE",
+    }
+
+
 def _target_re_compiler_debug_disassembly_candidate(files):
     """Bind the optional debug disassembly branch before native compilation."""
     source = files.get("re/_compiler.py") if type(files) is dict else None
@@ -15206,6 +15401,8 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         python_import_c_source, preconfig_header_source, long_header_source,
         preconfig_c_source,
         initconfig_c_source,
+        sre_c_source,
+        sre_h_source,
     ) = _source_archive_data(_archive_bytes(archive_path))
     if stdlib_header is None:
         raise ValueError("STDLIB_MODULE_NAMES_MISSING")
@@ -15217,6 +15414,15 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         raise ValueError("STDLIB_SETUP_MISSING")
     if python_import_c_source is None:
         raise ValueError("PYTHON_IMPORT_SOURCE_MISSING")
+    if sre_c_source is None or sre_h_source is None:
+        raise ValueError("SRE_SOURCE_MISSING")
+    target_re_group_name_to_pattern_groupindex_candidate = (
+        _target_re_group_name_to_pattern_groupindex_candidate(
+            files, sre_c_source, sre_h_source,
+        )
+    )
+    if target_re_group_name_to_pattern_groupindex_candidate is None:
+        raise ValueError("SRE_GROUPINDEX_CANDIDATE")
     zipimport_hook_registration_candidate = (
         _target_zipimport_hook_registration_candidate(python_import_c_source)
     )
@@ -16459,6 +16665,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_re_compile_input_candidates,
         "target_module_init_re_compile_tokenizer_input_type_candidates":
             target_re_compile_tokenizer_input_type_candidates,
+        "target_re_group_name_to_pattern_groupindex_candidate": (
+            target_re_group_name_to_pattern_groupindex_candidate
+        ),
         "target_platform_functools_lru_cache_condition_facts": [
             {"module": module, "source_path": source_path, "line": line,
              "outcomes": list(outcomes)}
