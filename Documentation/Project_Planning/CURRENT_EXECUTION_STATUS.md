@@ -9,20 +9,18 @@ einer Nutzerdatenbank. QRY-023 bleibt bis zu gesonderter Produkt-/Katalog-
 freigabe `PROPOSED` und `runtime_authorized: false`. Die menschliche
 Generalprobe bleibt ausgeschlossen.
 
-### Verarbeitungswelle am 18. November 2026 angehalten; Kursrelease gebaut
+### Releasecheckpoint und anschließende Fortsetzung der Verarbeitungswelle
 
-Nach PR #1079 steht `main` sauber und synchron mit `origin/main` auf
-`b42392478ab5113df858ff7cffe0e656eaa113ad`. Die Verarbeitungswelle wurde an
-diesem konsistenten Integrationsstand auf Nutzerwunsch angehalten. W-PRS-001
-wurde mit PowerPoint Desktop gebaut und geprüft: Profile 41/66/102 Folien,
-209 bytegleiche Profil-/Masterrenders, Master unverändert und gezielter
-Privacy-Scan bestanden. Hashes und Prüfumfang stehen im
+Die Verarbeitungswelle wurde auf Nutzerwunsch zunächst am sauberen Stand
+`b42392478ab5113df858ff7cffe0e656eaa113ad` angehalten; der dort gebaute
+W-PRS-001-Kursrelease bestand den Profilbuild (41/66/102 Folien), 209
+bytegleiche Profil-/Masterrenders, Mastererhalt und gezielten Privacy-Scan.
+Hashes und Prüfumfang stehen im
 [Releaseprotokoll](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-b4239247-nach-pr-1079).
-Die abgeleiteten Dateien bleiben lokal. Die menschliche Generalprobe sowie
-offene SQL-Lab-, Produkt- und Runtimegates wurden nicht ausgeführt oder
-geschlossen. Noch offene Entwicklungs- und Qualifikationspunkte bleiben
-weiter unten und in der Wellenplanung dokumentiert; während dieses Stopps
-beginnt kein weiterer Kandidat.
+Der übergeordnete Auftrag zur autonomen Umsetzung der freigegebenen Zweige
+läuft weiter. PR #1081 integrierte den VECTOR-Lesepfad; der aktuelle `main`-Stand
+ist `b74b20a84907fa4c06b5dd362a24a3ac2f1021ee`. Die menschliche Generalprobe
+sowie offene SQL-Lab-, Produkt- und Runtimegates bleiben offen.
 
 ### DGN-007 – Parser- und Tokenizer-Gruppennamenoffsets verbinden
 
@@ -13644,5 +13642,8 @@ den Parserfehler an `self.tell() - offset`. Bei Byte-Mustern werden
 Fehlermeldungen zusätzlich mit ASCII und `backslashreplace` aufbereitet.
 Damit sind die drei `getuntil`-Offsets an ihre Quellposition rückgebunden.
 Eine Mutation zu `self.index - offset` wird verworfen. 305 fokussierte
-DGN-007-Tests bestehen lokal. Das bleibt statische Quellbindung ohne
-Tokenizerlauf, konkrete Fehlermeldung oder Regexlaufzeit. PR-Gates stehen aus.
+DGN-007-Tests bestehen lokal. PR #1079 integrierte diesen statischen
+Quellbefund auf `main` (`b4239247`); alle sieben PR-Gates einschließlich
+Offlinebundle und Katalogprobe sowie die vier Main-Push-Workflows bestanden.
+Das bleibt Quellbindung ohne Tokenizerlauf, konkrete Fehlermeldung oder
+Regexlaufzeit.
