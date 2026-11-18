@@ -22,6 +22,7 @@ SRE_C_FIXTURE = (
     b"                  PyObject *code, Py_ssize_t groups, PyObject *groupindex,\n"
     b"                  PyObject *indexgroup)\n"
     b"{\n"
+    b"    self->groups = groups;\n"
     b"    self->groupindex = NULL;\n"
     b"    if (PyDict_GET_SIZE(groupindex) > 0) {\n"
     b"        self->groupindex = Py_NewRef(groupindex);\n"
@@ -42,6 +43,11 @@ SRE_C_FIXTURE = (
     b"static PyGetSetDef pattern_getset[] = {\n"
     b'    {"groupindex", (getter)pattern_groupindex, (setter)NULL,\n'
     b'      "A dictionary mapping group names to group numbers."},\n'
+    b"    {NULL}\n"
+    b"};\n"
+    b"static PyMemberDef pattern_members[] = {\n"
+    b'    {"groups",     T_PYSSIZET,  PAT_OFF(groups),        READONLY,\n'
+    b'     "The number of capturing groups in the pattern."},\n'
     b"    {NULL}\n"
     b"};\n"
 )
@@ -274,10 +280,14 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"        source.checkgroupname(name, 1)\n"
                 b"        state.opengroup(name)\n"
             )
-            parser_state = {"named_group_mapping": "self.groupdict[name] = gid"}
+            parser_state = {
+                "named_group_mapping": "self.groupdict[name] = gid",
+                "group_count_source": "len(self.groupwidths)",
+            }
             compiler_metadata = {
                 "source_sha256": "b" * 64,
                 "groupindex_source": "p.state.groupdict",
+                "compiled_group_count": "p.state.groups - 1",
                 "metadata_passed_to_sre_compile": [
                     "groupindex", "tuple(indexgroup)",
                 ],
@@ -307,6 +317,17 @@ class StaticImportCandidateTests(unittest.TestCase):
                 self.assertEqual(joined["public_read_only_view"],
                                  "Pattern.groupindex -> pattern_groupindex -> "
                                  "PyDictProxy_New(self->groupindex)")
+                self.assertEqual(
+                    joined["capture_group_count_flow"],
+                    {
+                        "parser_state_count": "len(self.groupwidths)",
+                        "compiler_count_expression": "p.state.groups - 1",
+                        "native_storage": "self->groups = groups",
+                        "public_read_only_view": (
+                            "Pattern.groups -> pattern_members[groups, READONLY]"
+                        ),
+                    },
+                )
                 self.assertFalse(
                     joined["parser_compiler_or_native_execution_observed"]
                 )
@@ -317,6 +338,16 @@ class StaticImportCandidateTests(unittest.TestCase):
                 with patch.object(
                         SUBJECT, "_target_re_compiler_group_metadata_candidate",
                         return_value=changed_flow):
+                    self.assertIsNone(
+                        SUBJECT._target_re_group_name_to_pattern_groupindex_candidate(
+                            flow_files, sre_c, sre_h,
+                        )
+                    )
+                changed_count_flow = dict(compiler_metadata)
+                changed_count_flow["compiled_group_count"] = "p.state.groups"
+                with patch.object(
+                        SUBJECT, "_target_re_compiler_group_metadata_candidate",
+                        return_value=changed_count_flow):
                     self.assertIsNone(
                         SUBJECT._target_re_group_name_to_pattern_groupindex_candidate(
                             flow_files, sre_c, sre_h,
@@ -362,6 +393,41 @@ class StaticImportCandidateTests(unittest.TestCase):
                                 changed_c, changed_h,
                             )
                         )
+
+    def test_native_pattern_groups_candidate_binds_storage_and_read_only_member(self):
+        sre_c, sre_h = SRE_C_FIXTURE, SRE_H_FIXTURE
+        with patch.multiple(
+                SUBJECT,
+                SRE_C_SHA256=hashlib.sha256(sre_c).hexdigest(),
+                SRE_H_SHA256=hashlib.sha256(sre_h).hexdigest()):
+            candidate = SUBJECT._target_re_pattern_groups_native_candidate(
+                sre_c, sre_h,
+            )
+        self.assertEqual(candidate["header_group_count_field"], "Py_ssize_t groups")
+        self.assertEqual(candidate["compiled_group_count_storage"],
+                         "self->groups = groups")
+        self.assertEqual(candidate["public_read_only_count"],
+                         "Pattern.groups -> pattern_members[groups, READONLY]")
+        self.assertFalse(candidate["native_execution_observed"])
+        mutations = (
+            (sre_c.replace(b"self->groups = groups;", b"self->groups = 0;", 1),
+             sre_h),
+            (sre_c.replace(b"T_PYSSIZET,  PAT_OFF(groups),        READONLY",
+                           b"T_PYSSIZET,  PAT_OFF(groups),        0", 1), sre_h),
+            (sre_c, sre_h.replace(b"Py_ssize_t groups; /* must be first! */",
+                                  b"Py_ssize_t count;", 1)),
+        )
+        for changed_c, changed_h in mutations:
+            with self.subTest(c=changed_c != sre_c, h=changed_h != sre_h):
+                with patch.multiple(
+                        SUBJECT,
+                        SRE_C_SHA256=hashlib.sha256(changed_c).hexdigest(),
+                        SRE_H_SHA256=hashlib.sha256(changed_h).hexdigest()):
+                    self.assertIsNone(
+                        SUBJECT._target_re_pattern_groups_native_candidate(
+                            changed_c, changed_h,
+                        )
+                    )
 
     def test_target_image_save_requires_verified_config_layers_and_path_facts(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -5957,6 +6023,12 @@ def deferred():
                 joined_groupindex_flow["public_read_only_view"],
                 "Pattern.groupindex -> pattern_groupindex -> "
                 "PyDictProxy_New(self->groupindex)",
+            )
+            self.assertEqual(
+                joined_groupindex_flow["capture_group_count_flow"][
+                    "public_read_only_view"
+                ],
+                "Pattern.groups -> pattern_members[groups, READONLY]",
             )
             self.assertFalse(
                 joined_groupindex_flow[

@@ -9894,6 +9894,52 @@ def _target_re_pattern_groupindex_native_candidate(sre_c_source, sre_h_source):
     }
 
 
+def _target_re_pattern_groups_native_candidate(sre_c_source, sre_h_source):
+    """Bind the compiled capture count to the public read-only groups member."""
+    if (type(sre_c_source) is not bytes or type(sre_h_source) is not bytes
+            or len(sre_c_source) > MAX_SRE_C_BYTES
+            or len(sre_h_source) > MAX_SRE_H_BYTES
+            or hashlib.sha256(sre_c_source).hexdigest() != SRE_C_SHA256
+            or hashlib.sha256(sre_h_source).hexdigest() != SRE_H_SHA256):
+        return None
+    try:
+        c_text = sre_c_source.decode("utf-8")
+        h_text = sre_h_source.decode("utf-8")
+    except UnicodeError:
+        return None
+
+    compile_start = c_text.find("_sre_compile_impl(")
+    clinic_end = c_text.find("/*[clinic input]\n_sre.template", compile_start)
+    if compile_start < 0 or clinic_end < 0:
+        return None
+    compile_region = c_text[compile_start:clinic_end]
+    pattern_structs = re.findall(
+        r"typedef struct \{(.*?)\} PatternObject;", h_text, re.S,
+    )
+    pattern_members = re.findall(
+        r"static PyMemberDef pattern_members\[\] = \{(.*?)\n\};",
+        c_text, re.S,
+    )
+    groups_member = (
+        '{"groups",     T_PYSSIZET,  PAT_OFF(groups),        READONLY,'
+    )
+    if (len(pattern_structs) != 1 or len(pattern_members) != 1
+            or pattern_structs[0].count("Py_ssize_t groups; /* must be first! */") != 1
+            or compile_region.count("self->groups = groups;") != 1
+            or pattern_members[0].count(groups_member) != 1):
+        return None
+    return {
+        "header_group_count_field": "Py_ssize_t groups",
+        "native_compile_group_count_parameter": "groups",
+        "compiled_group_count_storage": "self->groups = groups",
+        "public_read_only_count": (
+            "Pattern.groups -> pattern_members[groups, READONLY]"
+        ),
+        "native_execution_observed": False,
+        "evidence_scope": "PINNED_SRE_PATTERN_GROUPS_NATIVE_SOURCE_CANDIDATE",
+    }
+
+
 def _target_re_group_name_to_pattern_groupindex_candidate(
         files, sre_c_source, sre_h_source):
     """Join parser registration, compiler handoff, native storage, and view."""
@@ -9904,18 +9950,24 @@ def _target_re_group_name_to_pattern_groupindex_candidate(
     native_groupindex = _target_re_pattern_groupindex_native_candidate(
         sre_c_source, sre_h_source,
     )
+    native_groups = _target_re_pattern_groups_native_candidate(
+        sre_c_source, sre_h_source,
+    )
     if (parser_state is None or type(parser_source) is not bytes
             or hashlib.sha256(parser_source).hexdigest() != RE_PARSER_SOURCE_SHA256
             or compiler_input is None or compiler_metadata is None
-            or native_groupindex is None
+            or native_groupindex is None or native_groups is None
             or parser_state["named_group_mapping"] != "self.groupdict[name] = gid"
+            or parser_state["group_count_source"] != "len(self.groupwidths)"
             or compiler_input["string_input_branch"]
             != "pattern = p; p = _parser.parse(p, flags)"
             or compiler_metadata["groupindex_source"] != "p.state.groupdict"
             or compiler_metadata["metadata_passed_to_sre_compile"]
             != ["groupindex", "tuple(indexgroup)"]
+            or compiler_metadata["compiled_group_count"] != "p.state.groups - 1"
             or native_groupindex["native_compile_groupindex_parameter"]
-            != compiler_metadata["metadata_passed_to_sre_compile"][0]):
+            != compiler_metadata["metadata_passed_to_sre_compile"][0]
+            or native_groups["native_compile_group_count_parameter"] != "groups"):
         return None
     try:
         parser_tree = ast.parse(parser_source.decode("utf-8"), filename="re/_parser.py")
@@ -9986,8 +10038,14 @@ def _target_re_group_name_to_pattern_groupindex_candidate(
         "compiler_to_native_argument": "groupindex",
         "native_storage": native_groupindex["nonempty_groupindex_storage"],
         "public_read_only_view": native_groupindex["public_groupindex_view"],
+        "capture_group_count_flow": {
+            "parser_state_count": parser_state["group_count_source"],
+            "compiler_count_expression": compiler_metadata["compiled_group_count"],
+            "native_storage": native_groups["compiled_group_count_storage"],
+            "public_read_only_view": native_groups["public_read_only_count"],
+        },
         "parser_compiler_or_native_execution_observed": False,
-        "evidence_scope": "PINNED_RE_GROUP_NAME_TO_PATTERN_GROUPINDEX_SOURCE_FLOW_CANDIDATE",
+        "evidence_scope": "PINNED_RE_GROUP_METADATA_TO_PATTERN_SOURCE_FLOW_CANDIDATE",
     }
 
 
