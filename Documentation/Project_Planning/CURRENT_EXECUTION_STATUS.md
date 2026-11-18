@@ -13529,8 +13529,8 @@ Der gepinnte Parserkandidat bindet in `_parse` jetzt die Auflösung von
 oder noch offener Gruppen, die Lookbehind-Gruppenprüfung und die Ausgabe als
 `GROUPREF`. Die statischen Aufrufinventare bilden beide benannten
 Rückverweisformen ab. Eine synthetische Änderung des Gruppennamen-Lookups wird
-verworfen. 305 fokussierte Regressionen bestehen lokal; PR- und
-PR #1069 integrierte den Schnitt; alle PR-Gates einschließlich des
+verworfen. 305 fokussierte Regressionen bestehen lokal. PR #1069 integrierte
+den Schnitt; alle PR-Gates einschließlich des
 vollständigen Offline-Workflows und alle vier Main-Push-Workflows bestanden auf
 `86812041`. Das bleibt auf den CPython-3.12.16-Quellstand begrenzt und behauptet
 weder Parserausführung noch Regexlaufzeit.
@@ -13570,3 +13570,16 @@ Identifierprüfung wird verworfen. PR #1072 integrierte den Schnitt in Commit
 vollständigen Offline-Quellenbundles und alle vier Main-Push-Workflows bestanden.
 Das ist ein statischer Quellenbefund, kein Nachweis konkreter akzeptierter
 Namen oder von Parser- und Regexlaufzeit.
+
+### DGN-007 – Namensprüfung benannter Capturegruppen an Registrierung binden
+
+Der gepinnte Parserpfad für `(?P<name>...)` ist jetzt an die gemeinsame
+Namensprüfung gebunden: `source.getuntil('>', 'group name')` liest den Namen,
+`source.checkgroupname(name, 1)` prüft ihn vor `state.opengroup(name)`. Die
+Offline-Gegenprobe verwirft eine Mutation, die diese Prüfung entfernt. Die
+Quellform stimmt mit dem offiziellen
+[CPython-3.12.16-Parser](https://github.com/python/cpython/blob/v3.12.16/Lib/re/_parser.py#L694-L698)
+überein und ist durch den bereits gepinnten Dateidigest abgesichert. Der
+fokussierte Testlauf besteht mit 305 Tests. Das bleibt statische Quellbindung;
+es wurden weder Muster geparst noch Regexlaufzeit oder konkrete
+Namensakzeptanz gemessen. PR- und Offlinearchivprüfungen stehen aus.

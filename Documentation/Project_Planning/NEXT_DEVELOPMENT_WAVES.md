@@ -3839,3 +3839,14 @@ in Commit `d0f7382d`; 305 fokussierte Tests, sämtliche PR-Gates einschließlich
 des vollständigen Offline-Quellenbundles und alle vier Main-Push-Workflows
 bestanden. Der statische Befund belegt weder konkrete akzeptierte Namen noch
 Parser- oder Regexlaufzeit.
+
+Der lokale Folgekandidat verbindet diese Namensregel nun mit benannten
+Capturegruppen: `source.getuntil('>', 'group name')` liest den Namen,
+`source.checkgroupname(name, 1)` prüft ihn vor `state.opengroup(name)`. Eine
+synthetische Mutation, die den Check entfernt, wird verworfen. Die Quellform
+stimmt mit dem offiziellen
+[CPython-3.12.16-Parser](https://github.com/python/cpython/blob/v3.12.16/Lib/re/_parser.py#L694-L698)
+überein; der fokussierte Satz besteht mit 305 Tests. Es gibt weiterhin keinen
+Parserlaufzeitnachweis. Nächste sinnvolle Prüfung: die Fehlerposition und den
+Gruppenöffnungsfehler dieses benannten Capturepfads gemeinsam an die
+Tokenizer-/State-Fehlerkonvertierung binden.

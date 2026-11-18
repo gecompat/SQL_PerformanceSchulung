@@ -8811,6 +8811,18 @@ def _target_re_parser_group_call_candidate(files):
 
     open_calls = state_calls(functions["_parse"], "opengroup")
     close_calls = state_calls(functions["_parse"], "closegroup")
+    named_capture_guards = [node for node in ast.walk(functions["_parse"])
+                            if isinstance(node, ast.If)
+                            and ast.unparse(node.test) == "sourcematch('<')"]
+    named_capture_validation = [node for node in named_capture_guards
+                                if len(node.body) == 2
+                                and ast.unparse(node.body[0])
+                                == "name = source.getuntil('>', 'group name')"
+                                and isinstance(node.body[1], ast.Expr)
+                                and ast.unparse(node.body[1])
+                                == "source.checkgroupname(name, 1)"]
+    parents = {child: parent for parent in ast.walk(functions["_parse"])
+               for child in ast.iter_child_nodes(parent)}
     parse_sub_calls = [node for node in ast.walk(functions["_parse"])
                        if isinstance(node, ast.Call)
                        and isinstance(node.func, ast.Name)
@@ -8847,6 +8859,14 @@ def _target_re_parser_group_call_candidate(files):
                     == ["state.closegroup(group, p)"]]
     if (len(open_calls) != 1
             or [ast.unparse(arg) for arg in open_calls[0].args] != ["name"]
+            or len(named_capture_guards) != 1
+            or len(named_capture_validation) != 1
+            or not isinstance(parents.get(named_capture_guards[0]), ast.If)
+            or ast.unparse(parents[named_capture_guards[0]].test)
+            != "char == 'P'"
+            or named_capture_guards[0]
+            not in parents[named_capture_guards[0]].body
+            or not named_capture_validation[0].lineno < open_calls[0].lineno
             or len(close_calls) != 1
             or [ast.unparse(arg) for arg in close_calls[0].args]
             != ["group", "p"]
@@ -8877,6 +8897,9 @@ def _target_re_parser_group_call_candidate(files):
     return {
         "source_path": "re/_parser.py",
         "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "named_capture_name_parse": "source.getuntil('>', 'group name')",
+        "named_capture_name_validation": "source.checkgroupname(name, 1)",
+        "named_capture_validation_before_registration": True,
         "capture_group_open_call": "state.opengroup(name)",
         "capture_group_body_call":
             "_parse_sub(source, state, sub_verbose, nested + 1)",
