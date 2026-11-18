@@ -1,20 +1,16 @@
 # Nächste Entwicklungswellen
 
-## Verarbeitungswelle am 18. November 2026 angehalten
+## Verarbeitungswelle am 18. November 2026 angehalten; Kursrelease erstellt
 
-Auf Nutzerwunsch endet die aktuelle Verarbeitungswelle am konsistenten,
-integrierten Stand `a1b5d312b8057b32e51dd89466ffcbd6a75deb16` nach PR #1077.
-Der W-PRS-001-Lehrmittelrelease wurde auf diesem Stand gebaut und geprüft;
-die Details stehen im
-[Releaseprotokoll](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-a1b5d312-nach-pr-1077).
-Bis zur ausdrücklichen Fortsetzung wird kein weiterer Entwicklungskandidat
-begonnen. Nicht erledigte Entwicklungs- und Qualifikationspunkte bleiben in
-dieser Planung und im aktuellen Ausführungsstand offen.
-
-Die ausdrückliche Fortsetzung nach dem Releasecheckpoint hat die Bearbeitung
-wieder aufgenommen. Der aktuelle Offlinekandidat bleibt an den unmittelbar
-vorherigen DGN-007-Tokenizerstand gebunden; die offenen SQL-, Lab-, Methoden-
-und Runtimegates werden davon nicht verändert.
+Nach PR #1079 wurde der saubere, mit `origin/main` synchronisierte Stand
+`b42392478ab5113df858ff7cffe0e656eaa113ad` erreicht. Auf Nutzerwunsch ist die
+Verarbeitungswelle dort angehalten; der W-PRS-001-Kursrelease wurde gebaut und
+geprüft. Profilhashes, Rendervergleich und Prüfungen stehen im
+[Releaseprotokoll](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-b4239247-nach-pr-1079).
+Offene Entwicklungs- und Qualifikationspunkte bleiben in dieser Planung und
+im aktuellen Ausführungsstand verzeichnet. Während des Stopps wird kein neuer
+Entwicklungskandidat begonnen. Die menschliche Generalprobe und offene
+SQL-Lab-, Produkt- und Runtimegates bleiben unberührt.
 
 ## Aktuelle autonome Fortsetzungsplanung vom 8. November 2026
 ### SQL Server 2025 `OPTIMIZED_SP_EXECUTESQL`: Methodenentwurf

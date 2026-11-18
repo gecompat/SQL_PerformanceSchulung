@@ -190,3 +190,33 @@ Die Artefakte und Renderbelege liegen lokal unter
 nicht versioniert. Dieser Kursrelease ist kein GitHub-Release. Die menschliche
 Generalprobe wurde nicht ausgeführt. SQL-Lab-, Produkt- und Runtimegates
 bleiben unberührt.
+
+
+## Releasebuild auf `main` `b4239247` nach PR #1079
+
+Am 18. November 2026 wurde der Kursrelease auf dem sauberen, mit
+`origin/main` synchronen Stand `b42392478ab5113df858ff7cffe0e656eaa113ad`
+gebaut. Der Master blieb unverändert; sein SHA-256 ist
+`17c55c8f4e6a2ff06cd1e7d81118bdc5e50021d395f157aa65ed38351054d787`.
+
+| Profil | Folien | Releaseartefakt-SHA-256 |
+|---|---:|---|
+| `BASIS` | 41 | `f4027015d71753d660043af7fc80a35b9ac3f056b96cd7f6e9fd9e0073880917` |
+| `STANDARD` | 66 | `ac1863edc5915bd19122b25df74de18947ea1a2472781a4e03cfce6935c1f60b` |
+| `VERTIEFUNG` | 102 | `c4a62d3908c3b2496403fb08ec4f1789e2a0d798044e05829032e417a1a0ce10` |
+
+PowerPoint Desktop baute alle Profile und renderte 102 Masterfolien sowie
+41/66/102 Profilfolien. Manifest- und Ausgabevalidatoren bestanden; der
+SlideKey-gebundene Rendervergleich ergab 209 bytegleiche Profil-/Masterbilder.
+Der gezielte Datenschutzscan über die drei Decks und das Buildprotokoll
+bestand (vier Dateien, drei PowerPoint-Pakete). Ein erster Scan direkt auf dem
+Buildordner erfasste zusätzlich bereits vorhandene `.review`-Renderbilder;
+die isolierte Releaseprüfung grenzt sich auf die vorgesehenen vier Dateien ein.
+
+Die Artefakte und Renderbelege liegen lokal unter
+`Presentations/variants/build/` und
+`Runtime/PresentationRenders/presentation-variants/`; sie sind abgeleitet und
+nicht versioniert. Dieser Kursrelease ist kein GitHub-Release. Die menschliche
+Generalprobe wurde nicht ausgeführt. SQL-Lab-, Produkt- und Runtimegates
+bleiben offen. Die Verarbeitungswelle wurde nach diesem Release auf
+Nutzerwunsch angehalten.

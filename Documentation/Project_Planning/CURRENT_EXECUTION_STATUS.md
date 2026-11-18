@@ -9,15 +9,20 @@ einer Nutzerdatenbank. QRY-023 bleibt bis zu gesonderter Produkt-/Katalog-
 freigabe `PROPOSED` und `runtime_authorized: false`. Die menschliche
 Generalprobe bleibt ausgeschlossen.
 
-### Verarbeitung am 18. November 2026 angehalten; Lehrmittelrelease erstellt
+### Verarbeitungswelle am 18. November 2026 angehalten; Kursrelease gebaut
 
-Auf dem sauberen, mit `origin/main` synchronen Stand
-`a1b5d312b8057b32e51dd89466ffcbd6a75deb16` wurde der W-PRS-001-Lehrmittelrelease
-gebaut und abgenommen. Die lokale Verarbeitungswelle ist am Releasecheckpoint
-auf Nutzerwunsch angehalten und durch den anschließenden Fortsetzungsauftrag
-wieder aufgenommen worden. Der übergeordnete Entwicklungsauftrag und offene
-Gates bleiben bestehen. Buildnachweis, Profilhashes und Prüfungen stehen in
-[`W-PRS-001 – Lehrmittelfreigabe`](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-a1b5d312-nach-pr-1077).
+Nach PR #1079 steht `main` sauber und synchron mit `origin/main` auf
+`b42392478ab5113df858ff7cffe0e656eaa113ad`. Die Verarbeitungswelle wurde an
+diesem konsistenten Integrationsstand auf Nutzerwunsch angehalten. W-PRS-001
+wurde mit PowerPoint Desktop gebaut und geprüft: Profile 41/66/102 Folien,
+209 bytegleiche Profil-/Masterrenders, Master unverändert und gezielter
+Privacy-Scan bestanden. Hashes und Prüfumfang stehen im
+[Releaseprotokoll](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-b4239247-nach-pr-1079).
+Die abgeleiteten Dateien bleiben lokal. Die menschliche Generalprobe sowie
+offene SQL-Lab-, Produkt- und Runtimegates wurden nicht ausgeführt oder
+geschlossen. Noch offene Entwicklungs- und Qualifikationspunkte bleiben
+weiter unten und in der Wellenplanung dokumentiert; während dieses Stopps
+beginnt kein weiterer Kandidat.
 
 ### DGN-007 – Parser- und Tokenizer-Gruppennamenoffsets verbinden
 
