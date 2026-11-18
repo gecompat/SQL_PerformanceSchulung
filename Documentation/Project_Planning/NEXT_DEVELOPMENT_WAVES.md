@@ -3798,5 +3798,14 @@ sind an `_compile` gebunden. Der Rückverweis wählt den Opcode nach den
 Ignore-Case-Flags und verschiebt den Gruppenindex von einsbasiert auf
 nullbasiert. Die bedingte Referenz kompiliert beide Zweige und patcht die
 Sprungoffsets. Eine Mutation von `av - 1` wird verworfen. 305 fokussierte
-Regressionen bestehen lokal; der vollständige CPython-3.12.16-Archivworkflow
-folgt als PR-Gate. Kein Bytecode- oder Laufzeitnachweis.
+Regressionen und der vollständige Offline-Archivworkflow bestanden; PR #1067
+und die vier Main-Push-Workflows sind auf `64a17cdb` integriert. Kein
+Bytecode- oder Laufzeitnachweis.
+
+Checkpoint 18. November 2026: Der gepinnte CPython-3.12.16-Parser bindet nun
+auch die Klassifizierung numerischer Escapes: führende Null mit bis zu zwei
+Oktalziffern, dreistellige Oktalliterale mit dem Grenzwert `0o377` und sonstige
+Ziffernpräfixe als dezimale Gruppenreferenz, einschließlich Gruppenstatus- und
+Lookbehind-Prüfung. Die Mutation der Oktalbedingung wird verworfen. 305
+fokussierte Regressionen bestehen. Dies bleibt ein statischer Quellenbefund,
+ohne Parserausführung oder Laufzeitqualifikation.

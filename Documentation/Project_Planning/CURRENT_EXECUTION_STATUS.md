@@ -1,6 +1,6 @@
 # Aktueller Ausführungsstand
 
-Aktualisiert am 17. November 2026: Der QRY-023-Stand vom 14. November 2026
+Aktualisiert am 18. November 2026: Der QRY-023-Stand vom 14. November 2026
 bestätigt die vorgeschlagene CI-Route und die
 konkreten ADMIN-/READER-Rechtekontrollen sind auf SQL Server 2019/2022/2025
 enginequalifiziert. PRs #586–#588 ergänzten Live-Nachweise für die exakte
@@ -13479,9 +13479,10 @@ Compilerabsenkung gebunden. `GROUPREF` wählt den Opcode anhand der
 Ignore-Case-Flags und wandelt den einsbasierten Gruppenindex mit `av - 1` um;
 `GROUPREF_EXISTS` senkt den bedingten Gruppenindex ab und kompiliert die
 Ja-/Nein-Zweige mit gepatchten Sprungoffsets. Eine Mutation des Indexabzugs
-wird zurückgewiesen. 305 fokussierte Regressionen bestehen lokal; der
-vollständige Archivworkflow und die PR-Gates stehen noch aus. Es wurden weder
-Bytecode noch Compilerlaufzeit beobachtet.
+wird zurückgewiesen. PR #1067 integrierte den Schnitt. 305 fokussierte
+Regressionen, alle PR-Gates einschließlich des vollständigen
+CPython-3.12.16-Archivworkflows und alle vier Main-Push-Workflows bestanden.
+Es wurden weder Bytecode noch Compilerlaufzeit beobachtet.
 
 ### DGN-007 – Gemeinsamen Alternationspräfix binden (18. November 2026)
 
@@ -13501,5 +13502,20 @@ Er bindet den gemeinsamen Präfixeintrag, den Zeichensatzpfad
 `(IN, _uniq(set))`, den allgemeinen Zweig `(BRANCH, (None, items))` und die
 beiden `subpattern`-Rückgaben. Eine synthetische Mutation des allgemeinen
 Branch-Opers wird verworfen. Das ist ein Quellstruktur-Befund und kein Nachweis
-der Optimierungsauswahl oder Parserausführung. Als nächster Kandidat folgt die
-Voraussetzungsprüfung des Zeichensatz-Kurzpfads.
+der Optimierungsauswahl oder Parserausführung. Für diesen Zwischenstand war
+als nächster Kandidat die Voraussetzungprüfung des Zeichensatz-Kurzpfads
+vorgesehen; die aktuelle Fortsetzung steht im nachfolgenden DGN-007-Eintrag.
+
+### DGN-007 – numerische Escape-Klassifizierung im Regexparser binden (18. November 2026)
+
+Die an CPython 3.12.16 gepinnte Funktion `_escape` ist nun auch für den
+gemeinsamen Zahlen-Escapepfad strukturell gebunden. Ein Escape mit führender
+Null sammelt höchstens zwei weitere Oktalziffern. Bei anderen Ziffern wird
+genau eine weitere Ziffer geprüft; nur drei Oktalziffern werden als Oktalliteral
+behandelt und auf den Wertebereich `0..0o377` begrenzt. Sonst wird der bisher
+gesammelte Ziffernpräfix dezimal als Gruppenreferenz ausgewertet. Diese muss
+innerhalb der registrierten Gruppen liegen, geschlossen sein und die aktive
+Lookbehind-Grenze einhalten. Eine synthetische Änderung der Oktalbedingung wird
+fail-closed zurückgewiesen. 305 fokussierte Regressionen bestehen. Der Befund
+ist statisch; er belegt weder eine konkrete Escape-Auflösung noch Parser- oder
+Regexlaufzeit.
