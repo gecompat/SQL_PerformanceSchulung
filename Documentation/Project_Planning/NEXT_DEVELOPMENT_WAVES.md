@@ -1,16 +1,18 @@
 # Nächste Entwicklungswellen
 
-## Verarbeitungswelle am 18. November 2026 angehalten; Kursrelease erstellt
+## Verarbeitungswelle nach dem Releasecheckpoint fortgesetzt
 
-Nach PR #1079 wurde der saubere, mit `origin/main` synchronisierte Stand
-`b42392478ab5113df858ff7cffe0e656eaa113ad` erreicht. Auf Nutzerwunsch ist die
-Verarbeitungswelle dort angehalten; der W-PRS-001-Kursrelease wurde gebaut und
-geprüft. Profilhashes, Rendervergleich und Prüfungen stehen im
+Auf Nutzerwunsch wurde die Verarbeitungswelle zunächst am sauberen Stand
+`b42392478ab5113df858ff7cffe0e656eaa113ad` angehalten und der W-PRS-001-
+Kursrelease gebaut. Der Releasecheckpoint bleibt dokumentiert im
 [Releaseprotokoll](W_PRS_001_TEACHING_RELEASE.md#releasebuild-auf-main-b4239247-nach-pr-1079).
-Offene Entwicklungs- und Qualifikationspunkte bleiben in dieser Planung und
-im aktuellen Ausführungsstand verzeichnet. Während des Stopps wird kein neuer
-Entwicklungskandidat begonnen. Die menschliche Generalprobe und offene
-SQL-Lab-, Produkt- und Runtimegates bleiben unberührt.
+Der übergeordnete Auftrag zur autonomen Umsetzung der freigegebenen
+Entwicklungszweige läuft weiter. PR #1081 integrierte anschließend den
+VECTOR-Kompatibilitäts- und Clientlesepfad in den Einstieg der Teaching Paths;
+`main` steht nun auf `b74b20a84907fa4c06b5dd362a24a3ac2f1021ee`.
+Weitere Kandidaten folgen dieser Planung und den fachlichen Gates. Die
+menschliche Generalprobe sowie offene SQL-Lab-, Produkt- und Runtimegates
+bleiben unberührt.
 
 ## Aktuelle autonome Fortsetzungsplanung vom 8. November 2026
 ### SQL Server 2025 `OPTIMIZED_SP_EXECUTESQL`: Methodenentwurf
@@ -3898,5 +3900,7 @@ denselben Namenoffset. Beide Pfade verwenden den gepinnten `getuntil`-Vertrag;
 `Tokenizer.error` bildet ihn über `tell() - offset` auf die Quellposition ab.
 Drei synthetische Änderungen an Captureoffset, Rückverweisoffset und
 Tokenizerposition werden verworfen; 305 fokussierte Regressionen bestehen
-lokal. Das ist weiterhin statische Quellbindung ohne Regex-/Tokenizerlauf,
-Parserfehlerbeobachtung oder Runtimequalifikation. Der PR-Gate-Lauf steht aus.
+lokal. PR #1079 integrierte den Kandidaten auf `main` (`b4239247`); alle sieben
+PR-Gates einschließlich Offlinebundle und Katalogprobe sowie die vier
+Main-Push-Workflows bestanden. Dies bleibt statische Quellbindung ohne
+Regex-/Tokenizerlauf, Parserfehlerbeobachtung oder Runtimequalifikation.
