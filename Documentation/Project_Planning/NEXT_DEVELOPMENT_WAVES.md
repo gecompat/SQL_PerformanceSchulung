@@ -3854,6 +3854,17 @@ Der nächste lokale Folgeschnitt bindet den Fehlerpfad nach der Registrierung:
 Eine `error` aus `state.opengroup(name)` wird mit
 `source.error(err.msg, len(name) + 1) from None` auf den Gruppennamenoffset
 abgebildet. Eine synthetische Offsetmutation wird verworfen; der fokussierte
-Satz besteht mit 305 Tests. Das belegt weder einen tatsächlich doppelten Namen
-noch Parserlaufzeit. Als nächstes folgt die Fehlerposition für fehlende oder
-nicht abgeschlossene Gruppennamen beim `Tokenizer.getuntil`-Pfad.
+Satz besteht mit 305 Tests. PR #1075 integrierte den Schnitt als `93303d10`;
+alle PR-Gates und vier Main-Push-Workflows bestanden. Das belegt weder einen
+tatsächlich doppelten Namen noch Parserlaufzeit.
+
+Der aktuelle lokale Folgeschnitt bindet `Tokenizer.getuntil`: einen leeren
+Namen am Terminator mit Offset 1, ein Musterende vor jedem Namenszeichen an
+der aktuellen Position und ein Musterende nach Teilname mit dem
+Teilnamenoffset `len(result)`. Namen werden erst nach erkanntem Terminator
+zurückgegeben. Eine Offsetmutation wird verworfen; 305 fokussierte Tests
+bestehen. Der Quellpfad ist im offiziellen
+[CPython-3.12.16-Parser](https://github.com/python/cpython/blob/v3.12.16/Lib/re/_parser.py#L263-L278)
+digestgebunden. Es gibt keinen Parserlaufzeitnachweis. Als nächstes ist der
+Tokenizer-Fehlerkontext `tell() - offset` mit diesen drei Fehlerpositionen zu
+verknüpfen.

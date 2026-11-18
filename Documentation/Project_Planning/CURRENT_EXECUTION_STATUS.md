@@ -13594,4 +13594,17 @@ quellgebunden ab: Eine `error` aus `state.opengroup(name)` wird mit
 abgebildet. Eine synthetische Änderung des Offsets wird verworfen. 305
 fokussierte DGN-007-Tests bestehen lokal. Dies beschreibt die Fehlerstruktur
 des gepinnten CPython-3.12.16-Parsers; ein tatsächlicher doppelter Gruppenname,
-Parserlauf oder Regexlaufzeit wurden nicht ausgeführt. PR-Gates stehen aus.
+Parserlauf oder Regexlaufzeit wurden nicht ausgeführt. PR #1075 integrierte den
+Schnitt als `93303d10`; sämtliche PR-Gates einschließlich des vollständigen
+Offline-Quellenbundles und alle vier Main-Push-Workflows bestanden.
+
+### DGN-007 – Abschluss- und Fehlerpositionen beim Gruppennamenlesen binden
+
+Der gepinnte `Tokenizer.getuntil`-Pfad unterscheidet jetzt drei Fehlerfälle:
+ein leerer Name am Terminator meldet den fehlenden Namen mit Offset 1; ein
+Musterende vor jedem Namenszeichen meldet den fehlenden Namen an der aktuellen
+Position; ein Musterende nach Teilname meldet den fehlenden Terminator mit
+Offset `len(result)`. Das Ergebnis wird erst nach gelesenem Terminator
+zurückgegeben. Eine Mutation des Teilnamenoffsets wird verworfen. 305
+fokussierte DGN-007-Tests bestehen lokal. Das ist statischer Quellbefund ohne
+konkrete Fehlermeldung, Parserlauf oder Regexlaufzeit. PR-Gates stehen aus.
