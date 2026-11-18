@@ -5395,6 +5395,10 @@ def deferred():
                 b"                raise error('duplicate')\n"
                 b"            self.groupdict[name] = gid\n"
                 b"        return gid\n"
+                b"    def closegroup(self, gid, p):\n"
+                b"        self.groupwidths[gid] = p.getwidth()\n"
+                b"    def checkgroup(self, gid):\n"
+                b"        return gid < self.groups and self.groupwidths[gid] is not None\n"
                 b"WHITESPACE = frozenset(' \\t\\n\\r\\v\\f')\n"
                 b"def _uniq(items):\n"
                 b"    return list(dict.fromkeys(items))\n"
@@ -5706,6 +5710,11 @@ def deferred():
                 == "self.groupdict[name] = gid"
                 and row["parser_group_state_candidate"]["duplicate_name_guard"]
                 == "self.groupdict.get(name, None)"
+                and row["parser_group_state_candidate"][
+                    "closed_group_width_assignment"]
+                == "self.groupwidths[gid] = p.getwidth()"
+                and row["parser_group_state_candidate"]["completed_group_check"]
+                == "gid < self.groups and self.groupwidths[gid] is not None"
                 and not row["parser_group_state_candidate"][
                     "parser_execution_observed"]
                 for row in candidates
@@ -6167,6 +6176,25 @@ def deferred():
                 self.assertEqual(
                     SUBJECT._target_re_compile_tokenizer_input_type_candidates(
                         altered_group_state,
+                        ("pkg", "re", "re._compiler", "re._constants",
+                         "re._parser"),
+                    ),
+                    [],
+                )
+
+            altered_group_close = dict(files)
+            altered_group_close["re/_parser.py"] = altered_group_close[
+                "re/_parser.py"
+            ].replace(b"self.groupwidths[gid] = p.getwidth()",
+                     b"self.groupwidths[gid] = (0, 0)", 1)
+            altered_group_close_digest = hashlib.sha256(
+                altered_group_close["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_group_close_digest):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_tokenizer_input_type_candidates(
+                        altered_group_close,
                         ("pkg", "re", "re._compiler", "re._constants",
                          "re._parser"),
                     ),

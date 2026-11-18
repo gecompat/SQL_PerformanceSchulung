@@ -3743,3 +3743,12 @@ Gruppen aus `groupwidths` ab; `opengroup` nutzt sie für den nächsten Index und
 ordnet einen benannten Gruppenwert nach Duplikatprüfung in `groupdict` zu.
 Gruppe 0 ist in der Breitenliste initial vorhanden. Eine Mutation der
 Namenszuordnung wird abgelehnt. Das bleibt ein statischer Parserquellenbefund.
+
+Checkpoint 18. November 2026: Die Gruppen-State-Bindung enthält zusätzlich
+`closegroup(gid, p)`, das die Breite aus `p.getwidth()` am Gruppenindex
+speichert, sowie `checkgroup(gid)`, das den Index und eine gesetzte Breite
+prüft. Die synthetische Mutation der Breitenzuweisung wird fail-closed
+zurückgewiesen. 305 fokussierte Regressionen bestehen. Weiterhin keine
+Parserausführung, Compilerqualifikation oder Regexlaufzeit. Nächster Schritt:
+die quellgebundenen Parseraufrufe zu `opengroup`, `closegroup` und
+`checkgroup` mit diesen State-Methoden verbinden.

@@ -8727,13 +8727,16 @@ def _target_re_parser_group_state_candidate(files):
         return None
     methods = {node.name: node for node in states[0].body
                if isinstance(node, ast.FunctionDef)
-               and node.name in {"__init__", "groups", "opengroup"}}
-    if len(methods) != 3:
+               and node.name in {"__init__", "groups", "opengroup",
+                                 "closegroup", "checkgroup"}}
+    if len(methods) != 5:
         return None
     init_body = [ast.unparse(node) for node in methods["__init__"].body]
     groups = methods["groups"]
     open_group = methods["opengroup"]
     open_body = [ast.unparse(node) for node in open_group.body]
+    close_body = [ast.unparse(node) for node in methods["closegroup"].body]
+    check_body = [ast.unparse(node) for node in methods["checkgroup"].body]
     named_group = [node for node in open_group.body
                    if isinstance(node, ast.If)
                    and ast.unparse(node.test) == "name is not None"]
@@ -8754,7 +8757,17 @@ def _target_re_parser_group_state_candidate(files):
             != "ogid = self.groupdict.get(name, None)"
             or not isinstance(named_group[0].body[1], ast.If)
             or ast.unparse(named_group[0].body[2])
-            != "self.groupdict[name] = gid"):
+            != "self.groupdict[name] = gid"
+            or len(methods["closegroup"].args.args) != 3
+            or [arg.arg for arg in methods["closegroup"].args.args]
+            != ["self", "gid", "p"]
+            or close_body != ["self.groupwidths[gid] = p.getwidth()"]
+            or len(methods["checkgroup"].args.args) != 2
+            or [arg.arg for arg in methods["checkgroup"].args.args]
+            != ["self", "gid"]
+            or check_body != [
+                "return gid < self.groups and self.groupwidths[gid] is not None"
+            ]):
         return None
     return {
         "source_path": "re/_parser.py",
@@ -8764,6 +8777,9 @@ def _target_re_parser_group_state_candidate(files):
         "new_group_index_source": "gid = self.groups",
         "named_group_mapping": "self.groupdict[name] = gid",
         "duplicate_name_guard": "self.groupdict.get(name, None)",
+        "closed_group_width_assignment": "self.groupwidths[gid] = p.getwidth()",
+        "completed_group_check":
+            "gid < self.groups and self.groupwidths[gid] is not None",
         "parser_execution_observed": False,
         "evidence_scope": "PINNED_RE_PARSER_GROUP_STATE_CANDIDATE",
     }
