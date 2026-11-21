@@ -373,12 +373,9 @@ def _active_sql_session_snapshot(target: ExecutionTarget) -> int:
     )
     match = re.fullmatch(r"\s*([0-9]{1,3})\s*", output)
     if match is None:
-        reason = "EMPTY" if not output.strip() else "MALFORMED"
-        print(f"DGN007_SESSION_PROBE|{reason}")
         raise RunnerFailure("FAIL_CONTRACT")
     count = int(match.group(1))
     if count < 1:
-        print("DGN007_SESSION_PROBE|ZERO")
         raise RunnerFailure("FAIL_CONTRACT")
     return count
 
@@ -1018,8 +1015,6 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
     first_absence_confirmed = False
     source_freeze_before: SourceSnapshot | None = None
     source_freeze_after: SourceSnapshot | None = None
-    diagnostic_stage = "INITIALIZE"
-    failure_stage: str | None = None
     try:
         if check_capture_projection:
             if (contract not in KNOWN_CONTRACTS or contract.scope not in CONTROL_SCOPES
@@ -1027,31 +1022,24 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
                     or type(expected_contract) is not AcceptanceContract
                     or not _contract_valid(expected_contract)):
                 raise RunnerFailure("FAIL_CONTRACT")
-            diagnostic_stage = "SOURCE_FREEZE_BEFORE"
             source_freeze_before = capture_source_snapshot(ROOT, expected_contract)
-            diagnostic_stage = "SESSIONS_BEFORE"
             sessions_before = _active_sql_session_snapshot(target)
             if sessions_before != 1:
                 print(f"DGN007_SESSION_BOUNDARY|BEFORE|count={sessions_before}")
                 raise RunnerFailure("FAIL_CONTRACT")
-            diagnostic_stage = "RESOURCES_BEFORE"
             resource_before = _docker_resource_snapshot(target)
-            diagnostic_stage = "HARNESS"
             if check_phase_diagnostics:
                 result = run_harness(target, contract=contract, check_capture_projection=True,
                                      check_phase_diagnostics=True, phase_timing_protocol=True)
             else:
                 result = run_harness(target, contract=contract, check_capture_projection=True,
                                      phase_timing_protocol=True)
-            diagnostic_stage = "CAPTURE_BODY"
             capture = _check_capture_body(result, contract=contract, expected_major=expected_major,
                                           expected_contract=expected_contract)
-            diagnostic_stage = "SESSIONS_AFTER"
             sessions_after = _active_sql_session_snapshot(target)
             if sessions_after != 1:
                 print(f"DGN007_SESSION_BOUNDARY|AFTER|count={sessions_after}")
                 raise RunnerFailure("FAIL_CONTRACT")
-            diagnostic_stage = "RESOURCES_AFTER"
             resource_after = _docker_resource_snapshot(target)
             if resource_after != resource_before:
                 raise RunnerFailure("FAIL_CONTRACT")
@@ -1065,16 +1053,12 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
             check_harness(result, contract=contract)
     except RunnerFailure as exc:
         failure = exc
-        failure_stage = diagnostic_stage
     except SourceFreezeError:
         failure = RunnerFailure("FAIL_CONTRACT")
-        failure_stage = diagnostic_stage
     except subprocess.TimeoutExpired:
         failure = RunnerFailure("FAIL_TIMEOUT")
-        failure_stage = diagnostic_stage
     except (ExecutionTargetError, OSError, ValueError, KeyboardInterrupt):
         failure = RunnerFailure("FAIL_EXECUTION")
-        failure_stage = diagnostic_stage
     finally:
         cleanup_started_ns = time.monotonic_ns()
         cleanup_failed = False
@@ -1095,20 +1079,16 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
                     pass
         if cleanup_failed or (failure is not None and failure.code == "FAIL_CLEANUP"):
             failure = RunnerFailure("FAIL_CLEANUP")
-            failure_stage = "CLEANUP"
         if source_freeze_before is not None:
-            diagnostic_stage = "SOURCE_FREEZE_AFTER"
             try:
                 source_freeze_after = capture_source_snapshot(ROOT, expected_contract)
                 if not verify_source_freeze(source_freeze_before, source_freeze_after,
                                             expected_contract):
                     if failure is None:
                         failure = RunnerFailure("FAIL_CONTRACT")
-                        failure_stage = "SOURCE_FREEZE_AFTER"
             except (SourceFreezeError, OSError, ValueError):
                 if failure is None:
                     failure = RunnerFailure("FAIL_CONTRACT")
-                    failure_stage = "SOURCE_FREEZE_AFTER"
         cleanup_outcome = "FAIL|FAIL_CLEANUP" if failure and failure.code == "FAIL_CLEANUP" else "PASS|OK"
         print(f"DGN007_CLEANUP|RUN_{repetition}|{cleanup_outcome}")
     lifecycle_finished_ns = time.monotonic_ns()
@@ -1116,8 +1096,6 @@ def _run_one(target: ExecutionTarget, repetition: int, *, contract: RunContract 
         if result is not None:
             for diagnostic in capture_failure_diagnostics(result, contract=contract):
                 print(diagnostic)
-        if check_phase_diagnostics:
-            print(f"DGN007_FAILURE|RUNNER_STAGE|{contract.scope}|{failure_stage or diagnostic_stage}|{failure.code}")
         print(f"DGN007_STAGE|{contract.scope}|RUN_{repetition}|FAIL|{failure.code}")
         raise failure
     print(f"DGN007_STAGE|{contract.scope}|RUN_{repetition}|PASS|OK")
