@@ -8,8 +8,9 @@ freigegeben. Die Implementierung baut die eigene markierte synthetische
 Datenbank auf, führt die feste Folge aus neun R/H-Aufrufen aus, bindet
 Kandidaten, Query Store, aktuellen Showplan und vollständige Ergebnistupel und
 stellt Force-Zustände, Datenbankoptionen sowie die eigene Umgebung sicher
-wieder her. Fremde Container, Hostlast und Leistungsmessungen sind weder
-Voraussetzung noch Ziel.
+wieder her. Weder eine exklusive Hostumgebung noch Leistungsmessungen sind
+Voraussetzung oder Ziel. Ausreichender Kernelspielraum für asynchrone I/O-
+Kontexte bleibt eine technische Startvoraussetzung.
 
 Der letzte vollständige Lauf mit der aktuellen Lifecycle-Implementierung und
 registrierten Zwei-Kern-Grenze lieferte für SQL Server 2022
@@ -38,7 +39,7 @@ Der [Implementierungsplan](DGN_004_RUNTIME_IMPLEMENTATION_PLAN.md) und die
 [Quell-/Runnerbeschreibung](../../Tests/Fixtures/DGN004_SourcePair/README.md)
 dokumentieren Laufstrecke, Nutzung und Grenzen.
 
-Die Diagnoseschritte bis zu diesen beiden vollständigen Läufen fanden mehrere
+Die Diagnoseschritte um die bisherigen vollständigen und aktuellen Matrixläufe fanden mehrere
 Integrationsfehler und wurden jeweils nach Codeänderung erneut ausgeführt:
 SQLCMD-Transport des registrierten Quelltexts, rechtsbündige Integerausgabe,
 API-Feldnamen des Kandidaten-Binders, tatsächliche Modultextform im Showplan,
@@ -47,9 +48,11 @@ mehrzeiliger Query-Store-Metadatentransport und Phasenbindung von
 Ergebnis und die Auswertung von SQL-Server-Startlogs über stderr. Diese Fehler
 sind korrigiert; ein grüner Teillauf wurde nicht als Qualifikation gewertet.
 Die gezielte DGN-004-Statiksuite und die unabhängige Runtime-/Cleanup-Sichtung
-sind bestanden. Foundation-, Registry-, ScriptDom- und Datenschutzprüfungen
-werden nach der abschließenden Dokumentationskorrektur erneut ausgeführt. Die
-Integration bleibt bis zur vollständigen 2022/2025-Requalifikation offen.
+sind bestanden. Foundation-, Registry- und Datenschutzprüfungen der betroffenen
+Dateien sind nach der abschließenden Statuskorrektur bestanden. Die
+ScriptDom-Prüfung der unveränderten SQL-Fixtures bleibt im vorherigen grünen
+Nachweis gebunden. Die Integration bleibt bis zur vollständigen
+2022/2025-Requalifikation offen.
 
 Der aktive Umfang bleibt eng: `PASS` belegt ausschließlich Standard-Force/
 Unforce und H als `CONTROL_ONLY`-Hintkontrolle auf genau diesen zwei Builds.

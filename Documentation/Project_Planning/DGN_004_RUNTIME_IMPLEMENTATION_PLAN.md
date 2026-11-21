@@ -38,7 +38,9 @@ Docker-Logkanälen behoben. Die Container-Affinität ist an die freigegebene
 Zwei-Kern-Grenze gebunden. Die DGN-004-Statiksuite mit 127 Tests (ein
 plattformbedingter Skip) und die unabhängige Sichtung der Runtime-/Cleanup-
 Semantik sind bestanden. Foundation-, Registry-, ScriptDom- und
-Datenschutzprüfungen werden nach der finalen Statuskorrektur ausgeführt.
+Foundation-, Registry- und Datenschutzprüfungen der betroffenen Dateien sind
+nach der finalen Statuskorrektur bestanden. ScriptDom bleibt für die
+unveränderten SQL-Fixtures durch den vorherigen grünen Nachweis gebunden.
 Ein paketiertes Unterrichtsrelease und die unten benannten zurückgestellten
 Erweiterungen sind nicht Bestandteil dieses Runtime-Umfangs.
 

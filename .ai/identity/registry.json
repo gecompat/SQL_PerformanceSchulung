@@ -1857,7 +1857,7 @@
           "active_plan": "classical_forcing_hint_control_plan",
           "classical_forcing_hint_control_plan": {
             "recorded_on": "2026-11-22",
-            "basis_revision": "91cf120fdd2e4bf2ba88a25791271c2914815178",
+            "basis_revision": "e98e084d660d9369e36f755a0dc1ef1065fcdea2",
             "status": "Letzter Stand 2026-11-22 für CLASSICAL_FORCING_AND_HINT_CONTROL: Im letzten vollständigen Matrixlauf auf dem aktuellen Lifecycle-Code endete SQL Server 2022/16.0.4265.3 beim Start ohne Bereitschaftssignal (NOT_PROVEN, Cleanup bestätigt). SQL Server 2025/17.0.4075.5 bestand alle neun Aufrufe, neun Query-Store-Flushes, 84 SQL-Batches und Cleanup (PASS). Gesamtqualifikation und Integration nach origin/main bleiben offen. Die aktuelle DGN-004-Suite führte 127 Tests aus (126 bestanden, ein plattformbedingter Skip); der unabhängige Runtime-/Cleanup-Review fand keine offenen P1/P2. Die letzte read-only Hostabfrage ergab aio-nr=65536 bei aio-max-nr=65536; frühere SQL-Server-2022-Logs nannten fehlende Kapazität für einen asynchronen I/O-Kontext. Keine Replay-, Leistungs- oder Unterrichtsrelease-Aussage.",
             "authorization": "Der Nutzer hat den DGN-004-Runtimeplan am 21. November 2026 freigegeben und am 22. November ausdrücklich klargestellt, dass die autonome Verarbeitung keine Freigabe jedes Einzelschritts erfordert. Qualifikations- und Diagnosearbeiten bleiben an dieselben registrierten Ressourcen-, Zeit-, SQL-, Ausgabe- und Cleanupgrenzen gebunden; kein Limit wird angehoben. Bei wieder verfügbarer Host-AIO-Kapazität kann die nächste begrenzte 2025-Qualifikation autonom starten. Kein fremder Container, globaler Cache oder Hostparameter wird verändert.",
             "precedence_and_history": [
