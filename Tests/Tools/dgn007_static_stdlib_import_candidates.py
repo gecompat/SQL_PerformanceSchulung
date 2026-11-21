@@ -8104,6 +8104,29 @@ def _regex_inline_flag_directive_candidates(pattern):
     return candidates
 
 
+def _regex_leading_global_flag_names(pattern):
+    """Recognize only a simple leading global inline-flag group candidate."""
+    if type(pattern) is bytes:
+        text = pattern.decode("latin-1")
+    elif type(pattern) is str:
+        text = pattern
+    else:
+        return None
+    if "(?" not in text:
+        return ""
+    if not text.startswith("(?"):
+        return None
+    close = text.find(")", 2)
+    if close < 0:
+        return None
+    names = text[2:close]
+    if (not names or any(name not in "aiLmsux" for name in names)
+            or len(set(names)) != len(names)
+            or "(?" in text[close + 1:]):
+        return None
+    return names
+
+
 def _regex_verbose_ignored_syntax_candidates(pattern, whitespace):
     """Locate lexical VERBOSE whitespace/comments without parsing patterns."""
     if type(pattern) is bytes:
@@ -9993,6 +10016,69 @@ def _target_re_compiler_flags_to_pattern_flags_candidate(
     }
 
 
+def _target_re_parser_global_flags_to_pattern_flags_candidate(files):
+    """Bind parser state updates and type-based flag normalization."""
+    source = files.get("re/_parser.py") if type(files) is dict else None
+    if (type(source) is not bytes
+            or hashlib.sha256(source).hexdigest() != RE_PARSER_SOURCE_SHA256):
+        return None
+    try:
+        source_text = source.decode("utf-8")
+    except UnicodeError:
+        return None
+    parse_start = source_text.find("def parse(str, flags=0, state=None):")
+    template_start = source_text.find("\ndef parse_template(", parse_start)
+    fix_start = source_text.find("def fix_flags(src, flags):")
+    if parse_start < 0 or template_start < 0 or fix_start < 0:
+        return None
+    parse_region = source_text[parse_start:template_start]
+    fix_region = source_text[fix_start:parse_start]
+    inline_parse_start = source_text.find(
+        "def _parse(source, state, verbose, nested, first=False):"
+    )
+    inline_parse_end = source_text.find("\ndef ", inline_parse_start + 1)
+    global_update = (
+        'if char == ")":\n'
+        "        state.flags |= add_flags\n"
+        "        return None"
+    )
+    if (source_text.count("state.flags |= add_flags") != 1
+            or global_update not in source_text
+            or inline_parse_start < 0 or inline_parse_end < 0
+            or source_text[inline_parse_start:inline_parse_end].count(
+                "flags = _parse_flags(source, state, char)") != 1
+            or source_text[inline_parse_start:inline_parse_end].count(
+                "if flags is None:  # global flags") != 1
+            or source_text[inline_parse_start:inline_parse_end].count(
+                "if not first or subpattern:") != 1
+            or parse_region.count("state.flags = flags") != 1
+            or parse_region.count(
+                "_parse_sub(source, state, flags & SRE_FLAG_VERBOSE, 0)") != 1
+            or parse_region.count(
+                "p.state.flags = fix_flags(str, p.state.flags)") != 1
+            or parse_region.count("return p") != 1
+            or "if isinstance(src, str):" not in fix_region
+            or "flags |= SRE_FLAG_UNICODE" not in fix_region
+            or "elif flags & SRE_FLAG_UNICODE:" not in fix_region
+            or "if flags & SRE_FLAG_UNICODE:" not in fix_region
+            or "if flags & SRE_FLAG_LOCALE and flags & SRE_FLAG_ASCII:" not in fix_region
+            or fix_region.count("return flags") != 1):
+        return None
+    return {
+        "source_path": "re/_parser.py",
+        "source_sha256": RE_PARSER_SOURCE_SHA256,
+        "initial_state_flags": "state.flags = flags",
+        "parser_global_flag_call": "_parse_flags(source, state, char)",
+        "global_flag_position_guard": "if not first or subpattern",
+        "leading_global_inline_flags": "state.flags |= add_flags",
+        "post_parse_normalization": "p.state.flags = fix_flags(str, p.state.flags)",
+        "text_default": "add SRE_FLAG_UNICODE unless SRE_FLAG_ASCII is set",
+        "bytes_rejections": ["SRE_FLAG_UNICODE", "SRE_FLAG_LOCALE|SRE_FLAG_ASCII"],
+        "parser_execution_observed": False,
+        "evidence_scope": "PINNED_RE_PARSER_GLOBAL_FLAGS_SOURCE_CANDIDATE",
+    }
+
+
 def _target_re_compiler_pattern_to_pattern_pattern_candidate(
         files, sre_c_source, sre_h_source):
     """Join compiler input selection to native Pattern.pattern storage/view."""
@@ -10102,7 +10188,8 @@ def _target_re_compile_pattern_property_candidates(
 
 
 def _target_re_compile_pattern_flags_candidates(
-        files, compile_candidates, flag_candidates, flags_pattern_candidate):
+        files, compile_candidates, flag_candidates, flags_pattern_candidate,
+        parser_flags_candidate):
     """Join direct literal flag facts to native Pattern.flags provenance."""
     if (type(files) is not dict or type(compile_candidates) is not list
             or type(flag_candidates) is not list
@@ -10114,7 +10201,15 @@ def _target_re_compile_pattern_flags_candidates(
             or flags_pattern_candidate.get("pattern_object_storage")
             != "self->flags = flags"
             or flags_pattern_candidate.get("public_read_only_view")
-            != "Pattern.flags -> pattern_members[flags, READONLY]"):
+            != "Pattern.flags -> pattern_members[flags, READONLY]"
+            or type(parser_flags_candidate) is not dict
+            or parser_flags_candidate.get("source_path") != "re/_parser.py"
+            or parser_flags_candidate.get("source_sha256")
+            != RE_PARSER_SOURCE_SHA256
+            or parser_flags_candidate.get("leading_global_inline_flags")
+            != "state.flags |= add_flags"
+            or parser_flags_candidate.get("post_parse_normalization")
+            != "p.state.flags = fix_flags(str, p.state.flags)"):
         return []
     by_call = {}
     for candidate in flag_candidates:
@@ -10169,6 +10264,30 @@ def _target_re_compile_pattern_flags_candidates(
         if ((flags_value is not None and type(flags_value) is not int)
                 or (verbose_mode is not None and type(verbose_mode) is not bool)):
             return []
+        try:
+            tree = ast.parse(source.decode("utf-8"), filename=path)
+        except (UnicodeError, SyntaxError):
+            return []
+        literal_calls = [
+            node for node in ast.walk(tree)
+            if isinstance(node, ast.Call) and node.lineno == key[2]
+            and node.args
+        ]
+        if len(literal_calls) != 1:
+            return []
+        try:
+            pattern_literal = ast.literal_eval(literal_calls[0].args[0])
+        except (ValueError, TypeError, SyntaxError):
+            return []
+        expected_pattern_hash = (
+            hashlib.sha256(pattern_literal.encode("utf-8")).hexdigest()
+            if type(pattern_literal) is str
+            else hashlib.sha256(pattern_literal).hexdigest()
+            if type(pattern_literal) is bytes else None
+        )
+        if expected_pattern_hash != candidate["argument_sha256"]:
+            return []
+        global_flag_names = _regex_leading_global_flag_names(pattern_literal)
         result.append({
             "module": key[0],
             "source_path": path,
@@ -10179,6 +10298,11 @@ def _target_re_compile_pattern_flags_candidates(
             "compile_flags_value_if_call_evaluates": flags_value,
             "compile_flags_resolution": facts["flags_resolution"],
             "initial_verbose_mode_if_parser_entry_reached": verbose_mode,
+            "leading_global_inline_flag_names_candidate": global_flag_names,
+            "parser_global_flag_state_update": parser_flags_candidate[
+                "leading_global_inline_flags"],
+            "parser_post_parse_flag_normalization": parser_flags_candidate[
+                "post_parse_normalization"],
             "native_flags_expression": flags_pattern_candidate[
                 "compiler_expression"],
             "public_property": "Pattern.flags",
@@ -15741,6 +15865,11 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     )
     if target_re_compiler_flags_to_pattern_flags_candidate is None:
         raise ValueError("SRE_PATTERN_FLAGS_CANDIDATE")
+    target_re_parser_global_flags_to_pattern_flags_candidate = (
+        _target_re_parser_global_flags_to_pattern_flags_candidate(files)
+    )
+    if target_re_parser_global_flags_to_pattern_flags_candidate is None:
+        raise ValueError("SRE_PARSER_FLAGS_CANDIDATE")
     target_re_compiler_pattern_to_pattern_pattern_candidate = (
         _target_re_compiler_pattern_to_pattern_pattern_candidate(
             files, sre_c_source, sre_h_source,
@@ -16562,6 +16691,7 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             files, target_re_compile_input_candidates,
             target_re_compile_tokenizer_input_type_candidates,
             target_re_compiler_flags_to_pattern_flags_candidate,
+            target_re_parser_global_flags_to_pattern_flags_candidate,
         )
     )
     call_roots = {name.partition(".")[0] for name in call_modules}
@@ -17014,6 +17144,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_re_compiler_flags_to_pattern_flags_candidate": (
             target_re_compiler_flags_to_pattern_flags_candidate
+        ),
+        "target_re_parser_global_flags_to_pattern_flags_candidate": (
+            target_re_parser_global_flags_to_pattern_flags_candidate
         ),
         "target_re_compiler_pattern_to_pattern_pattern_candidate": (
             target_re_compiler_pattern_to_pattern_pattern_candidate
