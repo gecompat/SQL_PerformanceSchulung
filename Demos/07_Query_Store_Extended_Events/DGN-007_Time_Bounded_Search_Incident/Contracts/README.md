@@ -35,7 +35,10 @@ Je Zielversion sind genau sechs frische Lifecycles in zwei festen Blöcken
 vorgesehen: `AB → BA → AA` und `AA → BA → AB`. Für SQL Server 2019, 2022 und
 2025 gelten Major/Compatibility-Paare `15/150`, `16/160` und `17/170`.
 Jede Version wird einzeln bewertet; Metriken verschiedener Versionen werden
-nicht gepoolt. Die künftige vollständige Matrix verlangt alle drei Ergebnisse.
+nicht gepoolt. Die vollständige prospektive Matrix verlangt weiterhin alle drei
+Ergebnisse; der integrierte Coordinator-Matrixlauf für 2019/2022/2025 ist im
+PR #1096 (Actions-Lauf #44921319212) bestanden und belegt den damaligen
+Coordinatorumfang.
 
 Die Lifecycles einer Version laufen seriell. Das bestehende Mindestprofil
 von vier logischen CPU-Kernen und 8 GB sowie höchstens eine gleichzeitig
@@ -62,8 +65,9 @@ acht Suchrequests jedes Lifecycles einschließlich IDs, Reihenfolge,
 Parameterpaaren und gemessener Ergebniszeilen als Skalarprojektion. Der neue
 [Runtime-Coordinator](COLLECTOR_TRANSPORT.md#laufzeit-coordinator-und-qualifikationsgrenze)
 bildet daraus vollständige `RunRecord`s und bindet Lifecycle-Attestationen.
-Seine Runtime-Integration ist bis zum frischen Drei-Engine-Matrixlauf
-unqualifiziert.
+Seine Runtime-Integration bestand den frischen isolierten
+Drei-Engine-Matrixlauf (PR #1096, Actions-Lauf #44921319212); die getrennte
+Incident-Runtime-Abnahme bleibt offen.
 
 ## Gerichtetes Symptom und getrennte zusätzliche Evidenz
 
@@ -184,8 +188,8 @@ und nach dem Capture, kein Beleg durchgehender Exklusivität oder eines geschlos
 Zugriffsumfangs. Der integrierte Runtime-Coordinator bindet inzwischen diese
 Randproben, sechs geordnete Receipts und den Evaluator zusammen. Da er keine
 durchgehende Hostexklusivität oder externe Quellherkunft attestiert, bleiben
-vollständige Vertrauens- und Incidentqualifikation offen; seine neue isolierte
-2019/2022/2025-Matrix ist noch auszuführen.
+vollständige Vertrauens- und Incidentqualifikation offen; seine isolierte
+2019/2022/2025-Matrix bestand im PR #1096 (Actions-Lauf #44921319212).
 Die Parent-/Child-Bindung verwendet `time.monotonic_ns()`; Python dokumentiert
 für `time.monotonic()` dieselbe Systemuhr über Prozesse hinweg und empfiehlt
 die Nanosekundenvariante gegen Float-Präzisionsverlust ([Python 3.12
@@ -236,8 +240,8 @@ die [deklarative Matrixpräqualifikation](COLLECTOR_TRANSPORT.md#deklarative-mat
 prüft Reihenfolge, deklarierte monotone Budgets, Ressourcenfelder und Cleanup-
 Flags für sechs Records. Sie misst oder attestiert diese Eingaben nicht. Der
 neue [Runtime-Coordinator](COLLECTOR_TRANSPORT.md#laufzeit-coordinator-und-qualifikationsgrenze)
-bindet sie nun an tatsächliche Receipts; bis zum erfolgreichen isolierten
-Drei-Engine-Lauf bleibt die Runtime-Integration unqualifiziert. Die Incident-
+bindet sie nun an tatsächliche Receipts; der integrierte isolierte
+Drei-Engine-Lauf bestand im PR #1096 (Actions-Lauf #44921319212). Die Incident-
 Runtime-Abnahme bleibt offen.
 
 ## Statische Prüfung
