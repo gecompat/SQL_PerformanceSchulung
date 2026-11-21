@@ -82,6 +82,8 @@ Fehlerklassen sind gesonderte, zurückgestellte Erweiterungen.
 - Microsoft Learn, [`sp_query_store_unforce_plan`](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-query-store-unforce-plan-transact-sql?view=sql-server-ver17): Rücknahme und Berechtigungen.
 - Das [Quellenregister SRC-027](../Research/SOURCE_REGISTER.md#dgn-004-detailverweise-zum-bestehenden-query-store-quellenumfang-src-027) enthält den projektspezifischen Aussagebezug und seine Grenzen.
 
-Die Erklärung ändert keinen Demo- oder Runtime-Status. Die DGN-004-Laufzeit- und
-Buildqualifikation bleibt offen, solange das YELLOW-Vorstartgate nicht erfüllt
-ist.
+Die DGN-004-Runtimequalifikation besteht auf SQL Server 2022 und 2025 für den
+ausdrücklich begrenzten Umfang `CLASSICAL_FORCING_AND_HINT_CONTROL`. Diese
+Quellenerklärung ist weiterhin keine paketierte Unterrichtsdemo. Die
+zurückgestellten Replay-Gates, Leistungs- und Kausalitätsaussagen bleiben offen;
+der Runtime-PASS erweitert sie nicht.

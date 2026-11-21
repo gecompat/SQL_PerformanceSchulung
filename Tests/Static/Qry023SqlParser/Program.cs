@@ -93,6 +93,7 @@ var expectedDgn004Files = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     "ReplayHintControl.sql",
     "ReplayReference.sql",
     "SnapshotPlanCandidates.sql",
+    "SetupSchemaAndData.sql",
 };
 var dgn004Files = Directory.GetFiles(dgn004Directory, "*.sql")
     .OrderBy(Path.GetFileName, StringComparer.OrdinalIgnoreCase)
@@ -121,17 +122,26 @@ foreach (var file in dgn004Files)
         .Replace("$(DGN004_OBJECT_ID)", "101", StringComparison.Ordinal)
         .Replace("$(DGN004_STATEMENT_START_OFFSET)", "0", StringComparison.Ordinal)
         .Replace("$(DGN004_PLAN_HANDLE)", "0000", StringComparison.Ordinal)
-        .Replace("__DGN004_EXPECTED_MODULE_UTF16_HEX__", "4100", StringComparison.Ordinal);
+        .Replace("CONVERT(varbinary(max), N'DGN004_MODULE_SOURCE_TOKEN')", "CONVERT(varbinary(max), N'A')", StringComparison.Ordinal);
+    var dgn004Batches = System.Text.RegularExpressions.Regex.Split(
+        dgn004Sql,
+        @"(?im)^[ \t]*GO[ \t]*(?:--.*)?\r?$"
+    ).Where(batch => !string.IsNullOrWhiteSpace(batch)).ToArray();
     foreach (var dialect in dialects)
     {
-        using var reader = new StringReader(dgn004Sql);
-        _ = dialect.Parser.Parse(reader, out var errors);
-        foreach (var error in errors)
+        var batchFailed = false;
+        foreach (var batch in dgn004Batches)
         {
-            failed = true;
-            Console.Error.WriteLine($"FAIL {fileName} ({dialect.Name}) {error.Line}:{error.Column} {error.Message}");
+            using var reader = new StringReader(batch);
+            _ = dialect.Parser.Parse(reader, out var errors);
+            foreach (var error in errors)
+            {
+                failed = true;
+                batchFailed = true;
+                Console.Error.WriteLine($"FAIL {fileName} ({dialect.Name}) {error.Line}:{error.Column} {error.Message}");
+            }
         }
-        if (errors.Count == 0)
+        if (!batchFailed)
             Console.WriteLine($"PASS {fileName} parses in {dialect.Name} (syntax only)");
     }
 }

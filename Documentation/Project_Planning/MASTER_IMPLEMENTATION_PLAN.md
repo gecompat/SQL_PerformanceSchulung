@@ -19,9 +19,13 @@ Force/Unforce und einen festen Inline-Hint-Kontrollzustand. R ist Referenz ohne
 Hint, H die getrennte Hint-Kontrolle. Der autonome Auftrag vom 26. Oktober
 autorisiert die priorisierte Entwicklung und Integration innerhalb dieses
 Umfangs. Der source-only-Locator für vollständige Plan-Kandidaten ist über
-PR #593 integriert; er wurde weder gegen SQL Server kompiliert noch live
-ausgeführt. Das YELLOW-Isolations-/Lastgate und die übrigen empirischen
-Vorstartnachweise sperren weiterhin jeden SQL-/Lab-Lauf. Die menschliche
+PR #593 integriert; die anschließende Runtimeverwendung wurde jetzt auf beiden
+registrierten Builds qualifiziert. Der konkrete Plan für die Runtime-Implementierung,
+einschließlich Setup, Orchestrator, Erfassung, Cleanup, Qualifikation und
+unveränderter Budgets, steht in
+[DGN_004_RUNTIME_IMPLEMENTATION_PLAN.md](DGN_004_RUNTIME_IMPLEMENTATION_PLAN.md).
+Die Entwicklung nach diesem Plan wurde am 21. November 2026 freigegeben und
+innerhalb der dort dokumentierten Budgets abgeschlossen. Die menschliche
 Generalprobe bleibt ausgeschlossen.
 
 Die [kanonische Registry](../../.ai/identity/registry.json) wählt bei TSK-016 für
@@ -41,12 +45,12 @@ strenger Kompilierungszuwachs +1, eigener regulärer Ausführungszuwachs und
 Fehlerfreiheit bleiben Pflicht. H verlangt zusätzlich den vollständigen festen
 Inline-Hint und keine fremde überschreibende Steuerung.
 
-Ein späterer PASS (bestanden) gilt ausschließlich für
-CLASSICAL_FORCING_AND_HINT_CONTROL. H bleibt CONTROL_ONLY (nur Kontrollzustand
-belegt), ohne empirische Replay-Abschaltung oder isolierte kausale Hintwirkung.
-Gesamt-PASS im engeren Umfang erst nach allen neun Aufrufen und sicherer
-Bereinigung auf beiden Builds. Fehlende aktive Pflichtbelege bleiben Nichtabnahme;
-Vertrags-/Bereinigungsfehler dürfen nicht durch die Begrenzung verdeckt werden.
+SQL Server 2022 und 2025 bestanden CLASSICAL_FORCING_AND_HINT_CONTROL mit je
+neun Aufrufen, neun Query-Store-Flushes, 84 SQL-Batches und bestätigtem Cleanup.
+H bleibt CONTROL_ONLY (nur Kontrollzustand belegt), ohne empirische
+Replay-Abschaltung oder isolierte kausale Hintwirkung. Frühere
+NOT_PROVEN-/FAIL-Läufe bleiben historische Ergebnisse und werden nicht als
+Abnahme umgedeutet.
 
 Replay-Vergleich samt offenen Marker-Gates, alter Ein–Aus–Ein-/Gleichidentitäts-
 vergleich, erweiterte Deaktivierungssignatur, gezielte Fehler-/Fallback-Demo,
@@ -62,12 +66,18 @@ Cleanup und alle bisherigen Text-/Transport-/Eigentums-/Ressourcengrenzen.
 Der unabhängige Methoden-/Quellen-/Zuordnungs-/Transport-/Messreview vor
 Umsetzung wurde am 12. November abgeschlossen; der unabhängige Review des
 Locator-Patches zu PR #593 fand nach Korrektur eines veralteten Backlogstatus
-keine weiteren P1/P2. Der begrenzte Quellstand besteht die gezielten statischen
-Prüfungen; tatsächliche Build-/Text-/Planqualifikation, YELLOW-Isolation,
-Rechte, Ausgangszustand und Cleanup bleiben offen. Kein SQL-/Lab-Start vor
-vollständigem YELLOW- und Vorstartgate. Die folgenden älteren Abschnitte sind
-historische Befunde und Pläne; ihre Replay-Abnahme wird nicht zum Erfolg oder
-zur aktuellen Eintrittsbedingung umgedeutet.
+keine weiteren P1/P2. Der Runtime-Quellstand besteht die gezielte
+DGN-004-Statiksuite, ScriptDom-, Registry-, Foundation- und Datenschutzprüfung.
+Beide Buildprofile bestanden die neun Aufrufe und den Cleanup; die
+vorgeschriebene unabhängige Sichtung der neuen Runtime-/Cleanupsemantik und
+Integration nach `origin/main` stehen noch aus. Die bisherige Auslegung,
+wonach fremde Container oder hostweite Leerlaufbedingungen den Lauf sperren,
+ist für den kontrollierten eigenen Containerlauf kein Vorstartgate; feste
+Ressourcen-/Zeitlimits bleiben bindend, ein Performancevergleich ist nicht
+beabsichtigt.
+Die folgenden älteren Abschnitte
+sind historische Befunde und Pläne; ihre Replay-Abnahme wird nicht zum Erfolg
+oder zur aktuellen Eintrittsbedingung umgedeutet.
 
 ## DGN-004: Quellenklärung der Marker-Gates vom 25. Oktober 2026
 

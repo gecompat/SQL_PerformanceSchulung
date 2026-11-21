@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT / "Tests" / "Static"))
 
 from dgn004_candidate_runner import (  # noqa: E402
     CandidateRunnerError,
-    MODULE_HEX_TOKEN,
+    MODULE_SOURCE_TOKEN,
     build_candidate_command,
     run_candidate_snapshot,
 )
@@ -37,7 +37,7 @@ def target() -> ExecutionTarget:
 
 
 def empty_frame(value: PlanCandidateInput) -> bytes:
-    source = registered_text_views()[value.role].module_text.encode("utf-16le")
+    source = (registered_text_views()[value.role].module_text + "\n").encode("utf-16le")
     digest = hashlib.sha256(source).hexdigest().upper()
     marker = f"{value.run}|{value.role}|{value.call}|0|{len(source)}|{digest}"
     return f"DGN004_CACHE_START|{marker}\r\nDGN004_CACHE_END|{marker}\r\n".encode("ascii")
@@ -51,15 +51,18 @@ class Dgn004CandidateRunnerTests(unittest.TestCase):
             command, sql_source, environment = build_candidate_command(
                 target(), database="DGN004_Test_DB", inputs=value
             )
-        expected_module = registered_text_views()["R"].module_text.encode("utf-16le").hex().upper()
+        expected_module = (registered_text_views()["R"].module_text + "\n").encode("utf-16le").hex().upper()
         self.assertIn("-t", command)
         self.assertIn("15", command)
+        self.assertEqual(command[command.index("-S") + 1], "127.0.0.1")
         self.assertIn("DGN004_DATABASE_ID=73", command)
         self.assertIn("DGN004_OBJECT_ID=101", command)
         self.assertNotIn(fake_password, command)
         self.assertEqual(environment["SQLCMDPASSWORD"], fake_password)
-        self.assertIn(expected_module.encode("ascii"), sql_source)
-        self.assertNotIn(MODULE_HEX_TOKEN.encode("ascii"), sql_source)
+        expected_text = (registered_text_views()["R"].module_text + "\n").replace("'", "''")
+        self.assertIn(("CONVERT(varbinary(max), N'" + expected_text + "')").encode("ascii"), sql_source)
+        self.assertLessEqual(len(expected_text), 4000)
+        self.assertNotIn(MODULE_SOURCE_TOKEN.encode("ascii"), sql_source)
 
     def test_builder_rejects_host_and_option_like_database(self) -> None:
         value = PlanCandidateInput("dgn004-run-1", "R", 3, 73, 101)

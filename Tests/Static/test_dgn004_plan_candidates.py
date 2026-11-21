@@ -26,7 +26,7 @@ EXECUTED = datetime(2026, 11, 13, 10, 0, 0, 0)
 
 
 def _registered_bytes(role: str = "R") -> bytes:
-    return registered_text_views()[role].module_text.encode("utf-16le")
+    return (registered_text_views()[role].module_text + "\n").encode("utf-16le")
 
 
 def _row_line(

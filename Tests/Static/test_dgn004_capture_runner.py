@@ -22,6 +22,7 @@ from dgn004_capture_runner import (
     build_capture_command,
     collect_bounded_process,
     run_plan_capture,
+    _safe_sqlcmd_failure_category,
 )
 from dgn004_plan_frame import encode_plan_frame
 from execution_target import DOCKER, ExecutionTarget
@@ -48,6 +49,13 @@ def target() -> ExecutionTarget:
 
 
 class Dgn004CaptureRunnerTests(unittest.TestCase):
+    def test_sqlcmd_failure_category_keeps_only_safe_error_number(self):
+        category = _safe_sqlcmd_failure_category(
+            1, b"Msg 207, Level 16, Invalid column name 'secret_column'.", b""
+        )
+        self.assertEqual(category, "sql-server-error-207")
+        self.assertNotIn("secret_column", category)
+
     def test_bounded_reader_accepts_exact_channel_limits_and_stdin(self) -> None:
         result = collect_bounded_process(
             child("import sys; d=sys.stdin.buffer.read(); sys.stdout.buffer.write(d); sys.stderr.buffer.write(b'err')"),
@@ -118,6 +126,7 @@ class Dgn004CaptureRunnerTests(unittest.TestCase):
                 inputs=CaptureInput("dgn004-run-1", "R", 3, "ab" * 64),
             )
         self.assertEqual(command[1:5], ["exec", "-i", "-e", "SQLCMDPASSWORD"])
+        self.assertEqual(command[command.index("-S") + 1], "127.0.0.1")
         self.assertIn("-t", command)
         self.assertIn("15", command)
         self.assertNotIn(fake_password, command)

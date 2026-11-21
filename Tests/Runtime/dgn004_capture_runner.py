@@ -35,6 +35,7 @@ STDOUT_LIMIT_BYTES = 2 * 1024 * 1024
 STDERR_LIMIT_BYTES = 64 * 1024
 PROCESS_TIMEOUT_SECONDS = 20.0
 SQL_TIMEOUT_SECONDS = 15.0
+SQLCMD_SERVER_ADDRESS = "127.0.0.1"
 _READ_BLOCK_BYTES = 64 * 1024
 _PIPE_EOF_GRACE_SECONDS = 1.0
 
@@ -57,6 +58,30 @@ class CaptureProcessEndUnknown(CaptureRunnerError):
 
 class CaptureSqlcmdError(CaptureRunnerError):
     """The bounded process ended unsuccessfully or wrote diagnostic output."""
+
+
+def _safe_sqlcmd_failure_category(returncode: int, stdout: bytes, stderr: bytes) -> str:
+    """Classify only allowlisted SQL/client diagnostics; never expose raw text."""
+    diagnostic = (stderr + stdout).decode("utf-8", errors="replace").casefold()
+    if "login failed for user" in diagnostic:
+        return "authentication-failed"
+    error = re.search(r"\bmsg\s+([0-9]{1,5}),\s*level\s+[0-9]{1,2}\b", diagnostic)
+    if error is not None:
+        if error.group(1) == "102":
+            near = re.search(r"\bnear\s+(?:the keyword\s+)?'([^']{1,64})'", diagnostic)
+            if near is not None:
+                token = near.group(1).casefold()
+                if re.fullmatch(r"[a-z_][a-z0-9_]{0,39}", token):
+                    return f"sql-server-error-102-near-{token}"
+                if token.startswith("0x"):
+                    return f"sql-server-error-102-near-binary-literal-{len(token)}-chars"
+                if token[:1].isdigit():
+                    return f"sql-server-error-102-near-numeric-literal-{len(token)}-chars"
+                return f"sql-server-error-102-near-punctuation-{len(token)}-chars"
+        return f"sql-server-error-{error.group(1)}"
+    if returncode != 0:
+        return f"exit-{returncode}"
+    return f"stderr-{len(stderr)}-bytes"
 
 
 @dataclass(frozen=True)
@@ -288,7 +313,7 @@ def build_capture_command(
         shutil.which("docker") or "docker",
         "exec", "-i", "-e", "SQLCMDPASSWORD", target.container,
         target.sqlcmd_path,
-        "-S", "localhost", "-d", database, "-U", "sa", "-C",
+        "-S", SQLCMD_SERVER_ADDRESS, "-d", database, "-U", "sa", "-C",
         "-b", "-r", "1", "-t", "15", "-W", "-s", "|", "-h", "-1", "-w", "65535",
         "-v", *(f"{name}={value}" for name, value in sorted(variables.items())),
     ]
@@ -304,6 +329,7 @@ def run_plan_capture(
     *,
     database: str,
     inputs: CaptureInput,
+    timeout_seconds: float = PROCESS_TIMEOUT_SECONDS,
 ) -> DecodedPlanCapture:
     """Run the bounded read-only transport and bind only invocation labels."""
     command, sql_source, environment = build_capture_command(
@@ -313,11 +339,14 @@ def run_plan_capture(
         command,
         input_bytes=sql_source,
         environment=environment,
+        timeout_seconds=timeout_seconds,
     )
     if result.returncode != 0:
-        raise CaptureSqlcmdError("sqlcmd ended unsuccessfully")
+        category = _safe_sqlcmd_failure_category(result.returncode, result.stdout, result.stderr)
+        raise CaptureSqlcmdError(f"sqlcmd ended unsuccessfully: {category}")
     if result.stderr:
-        raise CaptureSqlcmdError("sqlcmd wrote diagnostic output")
+        category = _safe_sqlcmd_failure_category(result.returncode, result.stdout, result.stderr)
+        raise CaptureSqlcmdError(f"sqlcmd wrote diagnostic output: {category}")
     try:
         frame_text = result.stdout.decode("ascii", errors="strict")
     except UnicodeDecodeError as exc:
