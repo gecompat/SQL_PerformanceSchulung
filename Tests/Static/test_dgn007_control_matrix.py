@@ -14,6 +14,15 @@ PROCESS = ((CONTAINER_ID, 4321),)
 
 
 class DockerInventoryTests(unittest.TestCase):
+    def test_uses_the_existing_runner_execution_target_module_identity(self):
+        self.assertIs(matrix.execution_target, matrix.runner.execution_target)
+
+    def test_resolved_target_passes_the_runner_session_type_guard(self):
+        target = matrix.execution_target.docker_target(
+            container="fake-container", sqlcmd_path="/opt/mssql-tools18/bin/sqlcmd")
+        with patch.object(matrix.execution_target, "run_sql", return_value="1\n"):
+            self.assertEqual(matrix.runner._active_sql_session_snapshot(target), 1)
+
     def test_resolves_only_supported_sqlcmd_paths_with_bounded_docker(self):
         target = object()
         with patch.object(matrix, "_docker", return_value="/opt/mssql-tools18/bin/sqlcmd\n") as docker, \

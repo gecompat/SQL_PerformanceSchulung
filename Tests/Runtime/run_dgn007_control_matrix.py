@@ -25,7 +25,10 @@ from Tests.Contracts.dgn007_collector_receipt_binding import (
 )
 from Tests.Contracts.dgn007_prospective_acceptance import contract_from_mapping, evaluate_version
 from Tests.Runtime import run_dgn007_automated_setup as runner
-from Tests.Runtime import execution_target
+
+# Keep the exact module object used by the legacy runner; importing the file
+# under both its package and top-level names creates incompatible target types.
+execution_target = runner.execution_target
 
 CONTROL_CONTRACTS = {
     "AB": runner.CONTROL_AB_CONTRACT,
