@@ -13841,3 +13841,13 @@ Eingabe-Literal. Berechnete Muster und sonstige Argumentformen werden nicht
 aufgelöst. 311 fokussierte Tests bestehen lokal. Diese Zuordnung ist
 `CANDIDATES_ONLY` und behauptet weder einen Aufruf noch Cachezustand,
 Patternerzeugung oder Regexlaufzeit.
+
+### DGN-007 – Literal-Compileflags bis `Pattern.flags` verbinden (21. November 2026)
+
+Der direkte Regexliteral-Kandidat kann nun mit den quellengebundenen
+Compile-Flags und dem nativen `Pattern.flags`-Propertypfad verbunden werden.
+Berichtet werden nur der Compile-Flagwert, falls der Kandidatenaufruf erfolgt,
+und der anfängliche VERBOSE-Modus, falls der Parser erreicht wird. Der endgültige
+`Pattern.flags`-Wert bleibt offen, da der Parser Inline-Flags in
+`p.state.flags` einbringen kann. Unbeobachtete Aufruf-/Parser-/Laufzeitgrenzen
+bleiben erhalten. 312 fokussierte Tests bestehen lokal; keine Regexausführung.

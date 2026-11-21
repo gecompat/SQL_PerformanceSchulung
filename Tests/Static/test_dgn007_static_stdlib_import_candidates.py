@@ -230,6 +230,67 @@ class StaticImportCandidateTests(unittest.TestCase):
                     [],
                 )
 
+    def test_direct_compile_literal_flags_join_native_pattern_flags_candidate(self):
+        source = b"import re\npattern = re.compile('abc')\npattern2 = re.compile(b'x')\n"
+        digest = hashlib.sha256(source).hexdigest()
+        inputs = [
+            {"module": "fixture", "source_path": "fixture.py",
+             "source_sha256": digest, "line": 2,
+             "argument_kind": "STRING_LITERAL", "argument_sha256": "a" * 64,
+             "compile_call_observed": False, "pattern_parse_observed": False},
+            {"module": "fixture", "source_path": "fixture.py",
+             "source_sha256": digest, "line": 3,
+             "argument_kind": "BYTES_LITERAL", "argument_sha256": "b" * 64,
+             "compile_call_observed": False, "pattern_parse_observed": False},
+        ]
+        flags = [
+            {**inputs[0], "flags_resolution": "PINNED_DEFAULT_ZERO",
+             "flags_value_if_call_evaluates": 0,
+             "verbose_mode_if_parser_entry_reached": False,
+             "standard_re_compile_binding_observed": False,
+             "parser_entry_observed": False},
+            {**inputs[1], "flags_resolution": "UNRESOLVED",
+             "flags_value_if_call_evaluates": None,
+             "verbose_mode_if_parser_entry_reached": None,
+             "standard_re_compile_binding_observed": False,
+             "parser_entry_observed": False},
+        ]
+        native_flags = {
+            "compiler_expression": "flags | p.state.flags",
+            "pattern_object_storage": "self->flags = flags",
+            "public_read_only_view": "Pattern.flags -> pattern_members[flags, READONLY]",
+        }
+        result = SUBJECT._target_re_compile_pattern_flags_candidates(
+            {"fixture.py": source}, inputs, flags, native_flags,
+        )
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["compile_flags_value_if_call_evaluates"], 0)
+        self.assertEqual(result[0]["initial_verbose_mode_if_parser_entry_reached"],
+                         False)
+        self.assertIsNone(result[1]["compile_flags_value_if_call_evaluates"])
+        self.assertTrue(all(not row["final_flags_value_resolved"] for row in result))
+        self.assertTrue(all(
+            not row["compile_parse_and_regex_execution_observed"] for row in result
+        ))
+        changed = [
+            (inputs, [flags[0]], native_flags),
+            (inputs, [{**flags[0], "argument_sha256": "0" * 64}], native_flags),
+            (inputs, [{**flags[0], "parser_entry_observed": True}], native_flags),
+            (inputs, [{**flags[0], "flags_resolution": []}], native_flags),
+            ([{**inputs[0], "source_path": []}], flags, native_flags),
+            (inputs, flags, {**native_flags, "compiler_expression": "flags"}),
+            (inputs, flags, {**native_flags, "pattern_object_storage": "self->flags = 0"}),
+        ]
+        for changed_inputs, changed_flags, changed_native in changed:
+            with self.subTest(flags=changed_flags, native=changed_native):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_pattern_flags_candidates(
+                        {"fixture.py": source}, changed_inputs, changed_flags,
+                        changed_native,
+                    ),
+                    [],
+                )
+
     @staticmethod
     def _worker_sys_flag_fact_fixture():
         preconfig_header_source = (

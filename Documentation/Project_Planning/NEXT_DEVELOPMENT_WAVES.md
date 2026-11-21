@@ -3124,12 +3124,13 @@ Eine Mutation, die den Erfolg als `PROFILE_VALIDATED` ausgibt, wird verworfen.
 
 Die Fortsetzung hat den Compiler-Flagfluss bis zur schreibgeschützten
 `Pattern.flags`-Eigenschaft, den Eingabemusterpfad bis zur schreibgeschützten
-`Pattern.pattern`-Eigenschaft und die Zuordnung direkter String-/Byte-Literale
-zu diesem Patternwert anhand der gepinnten CPython-3.12.16-Quellen gebunden.
-Alle Kandidaten bleiben `CANDIDATES_ONLY`; daraus folgt keine Interpreter-,
-P11- oder Runtimeattestation. Als Nächstes wird ein weiterer abgegrenzter
-Quellpfad der DGN-007-Belegmatrix ausgewählt und mit einer präzisen Regression
-gebunden.
+`Pattern.pattern`-Eigenschaft, die Zuordnung direkter String-/Byte-Literale zu
+diesem Patternwert und den bedingten Literal-Compileflagfluss bis
+`Pattern.flags` anhand der gepinnten CPython-3.12.16-Quellen gebunden. Alle
+Kandidaten bleiben `CANDIDATES_ONLY`; der endgültige Eigenschaftswert bleibt
+wegen Parser-/Inline-Flags offen. Daraus folgt keine Interpreter-, P11- oder
+Runtimeattestation. Als Nächstes wird ein weiterer abgegrenzter Quellpfad der
+DGN-007-Belegmatrix ausgewählt und mit einer präzisen Regression gebunden.
 
 Der erste Quellschritt bindet alle fünf produktiven `copyreg.pickle`-Aufrufe
 und begrenzt `copyreg.py:19` auf `{False, True}`. PR #882 integrierte ihn als
