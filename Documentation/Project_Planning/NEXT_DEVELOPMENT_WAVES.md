@@ -3127,6 +3127,7 @@ Die Fortsetzung hat den Compiler-Flagfluss bis zur schreibgeschützten
 `Pattern.pattern`-Eigenschaft, die Zuordnung direkter String-/Byte-Literale zu
 diesem Patternwert und den bedingten Literal-Compileflagfluss bis
 `Pattern.flags` anhand der gepinnten CPython-3.12.16-Quellen gebunden. Die
+Der Lookup `FLAGS[char]`, die zugehörige gepinnte Symbol-/Zahlentabelle, die
 Parser-State-Übernahme und die nachträgliche `fix_flags`-Normalisierung sind
 ebenfalls an diese Provenienzkette angeschlossen. Erkannte führende
 Inline-Flags fließen in eine symbolische Formel und, für kompatible bekannte

@@ -13854,8 +13854,9 @@ bleiben erhalten. 312 fokussierte Tests bestehen lokal; keine Regexausführung.
 
 ### DGN-007 – Parser-Flags bis zur finalen Pattern-Flagsnormalisierung binden (21. November 2026)
 
-Der gepinnte Parser setzt den Eingabewert zunächst in `state.flags`, übernimmt
-eine führende globale Inline-Flaggruppe mit `state.flags |= add_flags` und
+Der gepinnte Parser löst globale Inline-Flagzeichen über `add_flags = FLAGS[char]`
+in der geprüften Flag-Tabelle auf, setzt den Eingabewert zunächst in
+`state.flags`, übernimmt eine führende Gruppe mit `state.flags |= add_flags` und
 normalisiert nach dem Parsen `p.state.flags` über `fix_flags`. Die gebundene
 Normalisierung ergänzt für Textmuster Unicode, sofern ASCII nicht aktiv ist,
 und weist inkompatible Text-/Byte-Flagkombinationen zurück. Die neue

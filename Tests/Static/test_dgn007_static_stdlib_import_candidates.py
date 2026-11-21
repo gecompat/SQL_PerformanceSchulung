@@ -144,6 +144,8 @@ class StaticImportCandidateTests(unittest.TestCase):
             )
         self.assertEqual(candidate["leading_global_inline_flags"],
                          "state.flags |= add_flags")
+        self.assertEqual(candidate["global_flag_lookup"],
+                         "add_flags = FLAGS[char]")
         self.assertEqual(candidate["text_default"],
                          "add SRE_FLAG_UNICODE unless SRE_FLAG_ASCII is set")
         self.assertEqual(candidate["inline_flag_value_map_candidate"]["i"], 2)
@@ -155,6 +157,8 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"flags = _parse_flags(source, other, char)", 1),
             parser_source.replace(b"state.flags |= add_flags",
                                   b"state.flags = add_flags", 1),
+            parser_source.replace(b"add_flags = FLAGS[char]",
+                                  b"add_flags = OTHER[char]", 1),
             parser_source.replace(b"flags |= SRE_FLAG_UNICODE",
                                   b"flags = SRE_FLAG_UNICODE", 1),
             parser_source.replace(
@@ -380,6 +384,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             "parser_global_flag_call": "_parse_flags(source, state, char)",
             "global_flag_position_guard": "if not first or subpattern",
             "leading_global_inline_flags": "state.flags |= add_flags",
+            "global_flag_lookup": "add_flags = FLAGS[char]",
             "inline_flag_symbol_map_candidate": {
                 "i": "SRE_FLAG_IGNORECASE", "L": "SRE_FLAG_LOCALE",
                 "m": "SRE_FLAG_MULTILINE", "s": "SRE_FLAG_DOTALL",
@@ -474,6 +479,8 @@ class StaticImportCandidateTests(unittest.TestCase):
              parser_flags),
             (inputs, flags, native_flags,
              {**parser_flags, "leading_global_inline_flags": "state.flags = add_flags"}),
+            (inputs, flags, native_flags,
+             {**parser_flags, "global_flag_lookup": "add_flags = OTHER[char]"}),
             (inputs, flags, native_flags,
              {**parser_flags, "inline_flag_symbol_map_candidate": {"i": "0"}}),
             (inputs, flags, native_flags,
