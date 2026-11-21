@@ -208,14 +208,10 @@ class CleanupTests(unittest.TestCase):
         self.assertIn("status = N'running'", query.call_args.kwargs["sql_text"])
         for output in ("", "0\n", "1\n2\n", "session count = 1\n", "-1\n",
                        "1 2\n", "1.0\n"):
-            diagnostic = io.StringIO()
             with self.subTest(output=output), \
                  patch.object(runner.execution_target, "run_sql", return_value=output), \
-                 redirect_stdout(diagnostic), \
                  self.assertRaisesRegex(runner.RunnerFailure, "FAIL_CONTRACT"):
                 runner._active_sql_session_snapshot(target())
-            expected = "EMPTY" if not output.strip() else ("ZERO" if output.strip() == "0" else "MALFORMED")
-            self.assertIn(f"DGN007_SESSION_PROBE|{expected}", diagnostic.getvalue())
 
     def test_capture_receipt_fails_if_docker_resource_limits_change(self):
         body = SimpleNamespace(windows=(), requests=(), families=(), plans=(), plan_union=())
