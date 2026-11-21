@@ -70,6 +70,13 @@ SRE_H_FIXTURE = (
 
 
 class StaticImportCandidateTests(unittest.TestCase):
+    RE_CONSTANTS_FLAGS_FIXTURE = (
+        b"SRE_FLAG_IGNORECASE = 2\nSRE_FLAG_LOCALE = 4\n"
+        b"SRE_FLAG_MULTILINE = 8\nSRE_FLAG_DOTALL = 16\n"
+        b"SRE_FLAG_UNICODE = 32\nSRE_FLAG_VERBOSE = 64\n"
+        b"SRE_FLAG_TEMPLATE = 1\nSRE_FLAG_ASCII = 256\n"
+    )
+
     def test_leading_global_inline_flag_candidate_is_bounded(self):
         cases = (
             ("(?im)abc", "im"), (b"(?a)bytes", "a"),
@@ -86,6 +93,10 @@ class StaticImportCandidateTests(unittest.TestCase):
 
     def test_parser_global_flags_candidate_binds_normalization(self):
         parser_source = (
+            b"FLAGS = {'i': SRE_FLAG_IGNORECASE, 'L': SRE_FLAG_LOCALE, "
+            b"'m': SRE_FLAG_MULTILINE, 's': SRE_FLAG_DOTALL, "
+            b"'x': SRE_FLAG_VERBOSE, 'a': SRE_FLAG_ASCII, "
+            b"'t': SRE_FLAG_TEMPLATE, 'u': SRE_FLAG_UNICODE}\n"
             b"def _parse(source, state, verbose, nested, first=False):\n"
             b"    flags = _parse_flags(source, state, char)\n"
             b"    if flags is None:  # global flags\n"
@@ -120,16 +131,23 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"def parse_template(source, pattern):\n"
             b"    return None\n"
         )
-        with patch.object(
+        constants_source = self.RE_CONSTANTS_FLAGS_FIXTURE
+        with (patch.object(
                 SUBJECT, "RE_PARSER_SOURCE_SHA256",
-                hashlib.sha256(parser_source).hexdigest()):
+                hashlib.sha256(parser_source).hexdigest()),
+              patch.object(
+                SUBJECT, "RE_CONSTANTS_SOURCE_SHA256",
+                hashlib.sha256(constants_source).hexdigest())):
             candidate = SUBJECT._target_re_parser_global_flags_to_pattern_flags_candidate(
-                {"re/_parser.py": parser_source},
+                {"re/_parser.py": parser_source,
+                 "re/_constants.py": constants_source},
             )
         self.assertEqual(candidate["leading_global_inline_flags"],
                          "state.flags |= add_flags")
         self.assertEqual(candidate["text_default"],
                          "add SRE_FLAG_UNICODE unless SRE_FLAG_ASCII is set")
+        self.assertEqual(candidate["inline_flag_value_map_candidate"]["i"], 2)
+        self.assertEqual(candidate["inline_flag_value_map_candidate"]["u"], 32)
         self.assertFalse(candidate["parser_execution_observed"])
         mutations = (
             parser_source.replace(
@@ -151,6 +169,18 @@ class StaticImportCandidateTests(unittest.TestCase):
                         {"re/_parser.py": changed},
                     )
                 )
+        changed_constants = constants_source.replace(
+            b"SRE_FLAG_IGNORECASE = 2", b"SRE_FLAG_IGNORECASE = 4", 1)
+        with (patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                           hashlib.sha256(parser_source).hexdigest()),
+              patch.object(SUBJECT, "RE_CONSTANTS_SOURCE_SHA256",
+                           hashlib.sha256(changed_constants).hexdigest())):
+            self.assertEqual(
+                SUBJECT._target_re_parser_global_flags_to_pattern_flags_candidate(
+                    {"re/_parser.py": parser_source,
+                     "re/_constants.py": changed_constants}),
+                None,
+            )
 
     def test_compiler_flags_candidate_binds_native_storage_and_read_only_view(self):
         sre_c, sre_h = SRE_C_FIXTURE, SRE_H_FIXTURE
@@ -356,6 +386,10 @@ class StaticImportCandidateTests(unittest.TestCase):
                 "x": "SRE_FLAG_VERBOSE", "a": "SRE_FLAG_ASCII",
                 "t": "SRE_FLAG_TEMPLATE", "u": "SRE_FLAG_UNICODE",
             },
+            "inline_flag_value_map_candidate": {
+                "i": 2, "L": 4, "m": 8, "s": 16,
+                "x": 64, "a": 256, "t": 1, "u": 32,
+            },
             "post_parse_normalization": "p.state.flags = fix_flags(str, p.state.flags)",
         }
         result = SUBJECT._target_re_compile_pattern_flags_candidates(
@@ -375,6 +409,50 @@ class StaticImportCandidateTests(unittest.TestCase):
         )
         self.assertEqual(result[1]["normalized_pattern_flags_symbolic_candidate"],
                          "compile_flags")
+        self.assertEqual(
+            result[0]["pattern_flags_numeric_candidate_if_compile_and_parse_succeed"],
+            34,
+        )
+        self.assertEqual(
+            result[1]["pattern_flags_numeric_candidate_if_compile_and_parse_succeed"],
+            0,
+        )
+        for pattern, kind, expected in (
+                ("(?a)ascii", "STRING_LITERAL", 256),
+                (b"(?i)bytes", "BYTES_LITERAL", 2),
+                ("(?L)locale-text", "STRING_LITERAL", None),
+                (b"(?u)unicode-bytes", "BYTES_LITERAL", None)):
+            candidate_source = (
+                b"import re\np = re.compile(" + repr(pattern).encode("ascii") + b")\n"
+            )
+            candidate_digest = hashlib.sha256(candidate_source).hexdigest()
+            candidate_hash = (
+                hashlib.sha256(pattern.encode("utf-8")).hexdigest()
+                if type(pattern) is str else hashlib.sha256(pattern).hexdigest()
+            )
+            candidate = {
+                "module": "fixture", "source_path": "fixture.py",
+                "source_sha256": candidate_digest, "line": 2,
+                "argument_kind": kind, "argument_sha256": candidate_hash,
+                "compile_call_observed": False, "pattern_parse_observed": False,
+            }
+            facts = {
+                **candidate, "flags_resolution": "PINNED_DEFAULT_ZERO",
+                "flags_value_if_call_evaluates": 0,
+                "verbose_mode_if_parser_entry_reached": False,
+                "standard_re_compile_binding_observed": False,
+                "parser_entry_observed": False,
+            }
+            with self.subTest(pattern=pattern):
+                derived = SUBJECT._target_re_compile_pattern_flags_candidates(
+                    {"fixture.py": candidate_source}, [candidate], [facts],
+                    native_flags, parser_flags,
+                )
+                self.assertEqual(len(derived), 1)
+                self.assertEqual(
+                    derived[0]["pattern_flags_numeric_candidate_if_compile_and_parse_succeed"],
+                    expected,
+                )
         self.assertTrue(all(not row["final_pattern_flags_value_resolved"]
                             for row in result))
         self.assertTrue(all(not row["final_flags_value_resolved"] for row in result))
@@ -398,6 +476,8 @@ class StaticImportCandidateTests(unittest.TestCase):
              {**parser_flags, "leading_global_inline_flags": "state.flags = add_flags"}),
             (inputs, flags, native_flags,
              {**parser_flags, "inline_flag_symbol_map_candidate": {"i": "0"}}),
+            (inputs, flags, native_flags,
+             {**parser_flags, "inline_flag_value_map_candidate": {"i": 0}}),
         ]
         for changed_inputs, changed_flags, changed_native, changed_parser in changed:
             with self.subTest(flags=changed_flags, native=changed_native):

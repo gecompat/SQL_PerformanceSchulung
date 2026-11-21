@@ -3129,9 +3129,10 @@ diesem Patternwert und den bedingten Literal-Compileflagfluss bis
 `Pattern.flags` anhand der gepinnten CPython-3.12.16-Quellen gebunden. Die
 Parser-State-Übernahme und die nachträgliche `fix_flags`-Normalisierung sind
 ebenfalls an diese Provenienzkette angeschlossen. Erkannte führende
-Inline-Flags fließen in eine symbolische Formel mit bedingtem Unicode-Default
-für Textmuster ein; Byte-Muster erhalten keinen Text-Default. Alle Befunde
-bleiben `CANDIDATES_ONLY`; daraus folgt keine Interpreter-, P11- oder
+Inline-Flags fließen in eine symbolische Formel und, für kompatible bekannte
+Flags, in einen bedingten Zahlenwertkandidaten mit Unicode-Default für
+Textmuster ein; Byte-Muster erhalten keinen Text-Default. Alle Befunde bleiben
+`CANDIDATES_ONLY`; daraus folgt keine Interpreter-, P11- oder
 Runtimeattestation. Als Nächstes wird ein weiterer abgegrenzter Quellpfad der
 DGN-007-Belegmatrix ausgewählt und mit einer präzisen Regression gebunden.
 
