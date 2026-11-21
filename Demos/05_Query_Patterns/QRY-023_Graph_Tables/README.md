@@ -381,3 +381,17 @@ Anwendungsressourcen oder Performancegrenzen.
 - [Normative Laufgrenze und Entwurf der Effektivrechtequalifikation](../../../Documentation/Project_Planning/QRY023_EFFECTIVE_PERMISSION_DESIGN.md)
 - Vorgeschlagener unveränderlicher Image-Lock: [`container-images.proposed.json`](container-images.proposed.json). Der isolierte Qualifikationsworkflow erzeugt seine geordnete Matrix über `Tests/Runtime/qry023_image_matrix.py` direkt aus dem Lock. Der Resolver akzeptiert ausschließlich die drei festgelegten Versionen und Image-Digests und weist einen Statuswechsel oder `runtime_authorized: true` zurück. Das qualifiziert diesen begrenzten Workflow; allgemeine Runtime-/Katalogfreigabe bleibt offen.
 - Framework: `FWK-002`, `FWK-003`, `FWK-004`, `FWK-005`, `FWK-008`, `FWK-010`, `FWK-011` und `FWK-012`.
+
+### Erneute isolierte Qualifikation (21. November 2026)
+
+Der manuell gestartete [Actions-Lauf 44905615769](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44905615769)
+auf `main`-Commit `0bce320c03e4d30df4479838a2f9bf48d35aeba3` bestand den
+Image-Lock-Resolver, die statische Caller-/ScriptDom-Prüfung und alle drei
+Enginejobs. SQL Server 2019, 2022 und 2025 bestanden jeweils Hostressourcen-
+und TempDB-Gates, die vollständigen zehn FWK-010-Phasen, die Negativfälle für
+RunToken, Zielnamen, Demo-ID und unerwartete Effektivrechte sowie Timeout-
+Recovery. Alle Jobs entfernten ihre owner-markierten Wegwerfcontainer nach
+bestätigtem Cleanup erfolgreich. Damit ist die vorgeschlagene isolierte
+Qualifikationsroute auf den festgelegten Builds erneut bestätigt. Der Lauf
+misst keine tatsächliche Anwendungsressourcennutzung oder Performance; QRY-023
+bleibt `PROPOSED`, nicht katalogisiert und `runtime_authorized: false`.

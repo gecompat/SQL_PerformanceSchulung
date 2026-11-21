@@ -13730,3 +13730,19 @@ sowie die neun Demos mit je zwei Durchläufen auf SQL Server 2019, 2022 und
 2025; alle Runtimejobs und die Bereinigung der Wegwerfcontainer waren
 erfolgreich. Die vorhandenen W-COV-001-`VALIDATED`-Claims sind damit erneut
 belegt. Das schließt keine der separat zurückgestellten Erweiterungen ab.
+
+
+### QRY-023 – isolierte Drei-Engine-Qualifikation erneut bestanden (21. November 2026)
+
+Der manuell gestartete [Actions-Lauf 44905615769](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44905615769)
+auf `main`-Commit `0bce320c03e4d30df4479838a2f9bf48d35aeba3` bestand den
+digestgebundenen Image-Lock-Resolver, die statischen Caller- und
+ScriptDom-Prüfungen und die isolierten SQL-Server-2019/2022/2025-Jobs. Je Build
+bestanden Hostressourcen- und TempDB-Gates, der vollständige FWK-010-Lifecycle
+mit zehn Phasen, die RunToken-/Zielnamen-/Demo-ID-Gegenproben, die
+Effektivrechte-Negativfälle, Timeout-Recovery und die owner-geprüfte
+Containerbereinigung. Der Lauf bestätigt erneut die vorgeschlagene isolierte
+Qualifikationsroute. Er misst keine tatsächliche Anwendungsressourcennutzung
+und erteilt keine allgemeine Runtime-, Produkt- oder Katalogfreigabe. QRY-023
+bleibt `PROPOSED`, nicht katalogisiert und `runtime_authorized: false`; die
+menschliche Generalprobe bleibt ausgeschlossen.
