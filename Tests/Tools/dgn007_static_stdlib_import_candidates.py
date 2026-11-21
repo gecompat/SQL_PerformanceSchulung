@@ -10101,6 +10101,98 @@ def _target_re_compile_pattern_property_candidates(
     return result
 
 
+def _target_re_compile_pattern_flags_candidates(
+        files, compile_candidates, flag_candidates, flags_pattern_candidate):
+    """Join direct literal flag facts to native Pattern.flags provenance."""
+    if (type(files) is not dict or type(compile_candidates) is not list
+            or type(flag_candidates) is not list
+            or len(compile_candidates) > MAX_RE_COMPILE_INPUT_CANDIDATES
+            or len(flag_candidates) > MAX_RE_COMPILE_INPUT_CANDIDATES
+            or type(flags_pattern_candidate) is not dict
+            or flags_pattern_candidate.get("compiler_expression")
+            != "flags | p.state.flags"
+            or flags_pattern_candidate.get("pattern_object_storage")
+            != "self->flags = flags"
+            or flags_pattern_candidate.get("public_read_only_view")
+            != "Pattern.flags -> pattern_members[flags, READONLY]"):
+        return []
+    by_call = {}
+    for candidate in flag_candidates:
+        if (type(candidate) is not dict
+                or candidate.get("argument_kind")
+                not in ("STRING_LITERAL", "BYTES_LITERAL")
+                or candidate.get("standard_re_compile_binding_observed") is not False
+                or candidate.get("parser_entry_observed") is not False
+                or type(candidate.get("module")) is not str
+                or type(candidate.get("source_path")) is not str
+                or type(candidate.get("line")) is not int
+                or candidate["line"] < 1):
+            return []
+        key = (candidate.get("module"), candidate.get("source_path"),
+               candidate.get("line"))
+        if key in by_call:
+            return []
+        by_call[key] = candidate
+    result = []
+    for candidate in compile_candidates:
+        if (type(candidate) is not dict
+                or candidate.get("argument_kind")
+                not in ("STRING_LITERAL", "BYTES_LITERAL")
+                or candidate.get("compile_call_observed") is not False
+                or candidate.get("pattern_parse_observed") is not False
+                or type(candidate.get("module")) is not str
+                or type(candidate.get("source_path")) is not str
+                or type(candidate.get("line")) is not int
+                or candidate["line"] < 1
+                or type(candidate.get("source_sha256")) is not str
+                or not re.fullmatch(r"[0-9a-f]{64}", candidate["source_sha256"])
+                or type(candidate.get("argument_sha256")) is not str
+                or not re.fullmatch(r"[0-9a-f]{64}", candidate["argument_sha256"])):
+            return []
+        key = (candidate.get("module"), candidate.get("source_path"),
+               candidate.get("line"))
+        facts = by_call.pop(key, None)
+        path = candidate.get("source_path")
+        source = files.get(path)
+        digest = candidate.get("source_sha256")
+        if (facts is None or facts.get("source_sha256") != digest
+                or facts.get("argument_sha256") != candidate.get("argument_sha256")
+                or facts.get("flags_resolution") not in (
+                    "PINNED_DEFAULT_ZERO", "INTEGER_LITERAL",
+                    "PINNED_REGEXFLAG_EXPRESSION", "UNRESOLVED",
+                )
+                or type(source) is not bytes
+                or hashlib.sha256(source).hexdigest() != digest):
+            return []
+        flags_value = facts.get("flags_value_if_call_evaluates")
+        verbose_mode = facts.get("verbose_mode_if_parser_entry_reached")
+        if ((flags_value is not None and type(flags_value) is not int)
+                or (verbose_mode is not None and type(verbose_mode) is not bool)):
+            return []
+        result.append({
+            "module": key[0],
+            "source_path": path,
+            "source_sha256": digest,
+            "line": key[2],
+            "pattern_input_kind": candidate["argument_kind"],
+            "pattern_source_sha256": candidate.get("argument_sha256"),
+            "compile_flags_value_if_call_evaluates": flags_value,
+            "compile_flags_resolution": facts["flags_resolution"],
+            "initial_verbose_mode_if_parser_entry_reached": verbose_mode,
+            "native_flags_expression": flags_pattern_candidate[
+                "compiler_expression"],
+            "public_property": "Pattern.flags",
+            "final_flags_value_resolved": False,
+            "compile_parse_and_regex_execution_observed": False,
+            "evidence_scope": "MODULE_BODY_RE_PATTERN_FLAGS_SOURCE_CANDIDATE",
+        })
+        if len(result) > MAX_RE_COMPILE_INPUT_CANDIDATES:
+            return []
+    if by_call:
+        return []
+    return result
+
+
 def _target_re_group_name_to_pattern_groupindex_candidate(
         files, sre_c_source, sre_h_source):
     """Join parser registration, compiler handoff, native storage, and view."""
@@ -16465,6 +16557,13 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             files, target_call_modules,
         )
     )
+    target_re_compile_pattern_flags_candidates = (
+        _target_re_compile_pattern_flags_candidates(
+            files, target_re_compile_input_candidates,
+            target_re_compile_tokenizer_input_type_candidates,
+            target_re_compiler_flags_to_pattern_flags_candidate,
+        )
+    )
     call_roots = {name.partition(".")[0] for name in call_modules}
     call_roots_outside_stdlib = tuple(sorted(call_roots - set(stdlib_names)))
     frozen_roots = {
@@ -16907,6 +17006,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_module_init_re_compile_tokenizer_input_type_candidates":
             target_re_compile_tokenizer_input_type_candidates,
+        "target_module_init_re_pattern_flags_candidates": (
+            target_re_compile_pattern_flags_candidates
+        ),
         "target_re_group_name_to_pattern_groupindex_candidate": (
             target_re_group_name_to_pattern_groupindex_candidate
         ),
