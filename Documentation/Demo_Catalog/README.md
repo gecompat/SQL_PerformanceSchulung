@@ -86,6 +86,7 @@ Instanz. Nach einem Abbruch gilt der verlinkte Erhaltungsweg.
 | [`OPT-016`](../../Demos/04_Optimizer_Statistics_Plans/OPT-016_Rebind_Rewind_Spools/README.md) | Rebind, Rewind, Outer References und Spools | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`QRY-013`](../../Demos/05_Query_Patterns/QRY-013_Client_Session_Context/README.md) | Anwendung langsam, SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug) schnell | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`QRY-004`](../../Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/README.md) | Catch-all, Recompile und dynamisches SQL | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
+| [`QRY-006`](../../Demos/05_Query_Patterns/QRY-006_NULL_Semantics/README.md) | NULL bei `NOT IN` und `NOT EXISTS` | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` – Linux/Docker 2019/150, 2022/160 und 2025/170; Szenariopromotion nicht eingeschlossen |
 | [`OPT-009`](../../Demos/04_Optimizer_Statistics_Plans/OPT-009_Parameter_Sensitive_Plans/README.md) | Parametersensitive Planoptimierung | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`OPT-010`](../../Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans/README.md) | Optional Parameter Plan Optimization | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`OPT-013`](../../Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/README.md) | Controlled Spill | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
@@ -191,9 +192,9 @@ Die Zeitangaben hier sind die von GitHub gelieferten UTC-Erstellungszeiten (`cre
 | die neun `W-COV-001`-Demos | [33222989644](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33222989644) | 2026-08-29 00:15:31 | `6fd2b1d5170f7658cf0b86ee05314f2ab543adc7` |
 | `OPT-017` | [33447840232](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33447840232) | 2026-08-31 22:47:34 | `782799ea65d6c6c826d7aa9a86603f1689de897d` |
 
-### Zusätzlich vorhandene Implementierungen
+### Weitere Status- und Qualifikationsgrenzen
 
-[`QRY-006` – NULL bei NOT IN und NOT EXISTS](../../Demos/05_Query_Patterns/QRY-006_NULL_Semantics/README.md) bleibt `IMPLEMENTED`: Der [lokale Docker-Nachweis vom 2026-09-20](../Project_Planning/QRY_006_RUNTIME_EVIDENCE.md) umfasst je zwei `PASS` auf 2019/150, 2022/160 und 2025/170 mit Cleanup. Ein Actions-/Runtime-Gate-Nachweis ist dort ausdrücklich nicht ausgeführt. Die Demo gehört deshalb nicht zu den 22 vollständig abgenommenen Einträgen oben.
+`QRY-006` ist seit dem [Actions-Runtimegate vom 2026-11-21](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44896346186) für die dokumentierte Linux-/Docker-Matrix `VALIDATED`. Der Status umfasst zwei vollständige Manifestausführungen je Version und erfolgreichen Cleanup; eine SQL_Server_Lab-Szenariopromotion ist nicht eingeschlossen. Der Lauf ist in der Tabelle der aktuellen Ausführungspfade geführt. Die nachfolgende Runtime-Ergebnistabelle hält die früheren Reviews und Matrixläufe als historischen Stand unverändert fest.
 
 `DGN-007` (Zeitabhängige Regression eines Suchworkloads) besitzt getrennte statische und lokale Runtime-Teilnachweise. Die Grenzen und offenen Fehler stehen im [aktuellen Ausführungsstand](../Project_Planning/CURRENT_EXECUTION_STATUS.md); daraus folgt keine Abnahme des vollständigen Incidents und kein neuer Katalogstatus.
 

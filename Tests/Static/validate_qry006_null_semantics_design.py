@@ -72,7 +72,7 @@ def main() -> int:
         scripts = [item.get("script") for item in manifest.get("phases", [])] + [manifest.get("cleanup", {}).get("script")]
         if scripts != EXPECTED_SCRIPTS: findings.append("manifest scripts are not the minimal QRY-006 phase set")
         readme = read(readme_path)
-        for marker in ("`IMPLEMENTED`", "lokale Docker-Runtime-Matrix bestanden", "Runtime-Gate noch ausstehend", "`TSQL_TESTDB`", "`GREEN`", "2019", "150", "2022", "160", "2025", "170", "keine Aussage über Performance", "Eine Mitigation-Phase ist absichtlich nicht vorhanden", "`SRC-069`", "`SRC-070`", "`SRC-071`"):
+        for marker in ("`VALIDATED`", "begrenzte SQL-Server-2019/2022/2025-Docker-Matrix", "GitHub-Actions-Runtime-Lauf 44896346186", "Linux-/Docker-Matrix", "Szenariopromotion", "`TSQL_TESTDB`", "`GREEN`", "2019", "150", "2022", "160", "2025", "170", "keine Aussage über Performance", "Eine Mitigation-Phase ist absichtlich nicht vorhanden", "`SRC-069`", "`SRC-070`", "`SRC-071`"):
             if marker not in readme: findings.append(f"README marker missing: {marker}")
     for script in EXPECTED_SCRIPTS:
         if not (DEMO / script).is_file(): findings.append(f"phase script missing: {script}")
@@ -115,7 +115,7 @@ def main() -> int:
         print(f"qry006-null-semantics: FAIL ({len(findings)} finding(s))")
         print("\n".join(f"- {item}" for item in findings))
         return 1
-    print("qry006-null-semantics: PASS (implemented GREEN result contract; local Docker matrix passed; runtime gate pending)")
+    print("qry006-null-semantics: PASS (VALIDATED for the bounded Linux/Docker matrix; scenario promotion remains separate)")
     return 0
 
 if __name__ == "__main__":

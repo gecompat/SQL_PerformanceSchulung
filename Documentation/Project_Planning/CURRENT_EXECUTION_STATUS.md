@@ -13710,3 +13710,13 @@ YELLOW-/Isolationsvorstart blockiert. Sie wurden read-only identifiziert und
 nicht verändert. Die autorisierten DGN-004-Serverläufe starten erst nach
 nachgewiesener Isolation, kontrollierter Last, Ressourcen-, Rechte-,
 Image-/Build- und Ausgangszustandsprüfung.
+
+### QRY-006 – Runtime-Gate auf drei Engineversionen bestanden (21. November 2026)
+
+Der manuell gestartete [GitHub-Actions-Lauf 44896346186](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44896346186)
+auf dem sauberen `main`-Commit `bbe60b8413c10c65f7facd365cf3188d8ee779ef`
+bestand die statischen Vertragsprüfungen und je zwei vollständige Manifestläufe
+auf SQL Server 2019/150, 2022/160 und 2025/170. Alle drei frischen Linux-
+Container wurden nach erfolgreichem Lauf entfernt. Damit ist QRY-006 für diese
+abgegrenzte Linux-/Docker-Matrix `VALIDATED`; Windows-Abnahme und
+SQL_Server_Lab-Szenariopromotion bleiben getrennte, nicht behauptete Gates.

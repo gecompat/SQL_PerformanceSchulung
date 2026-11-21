@@ -2,11 +2,11 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IMPLEMENTED` – lokale Docker-Runtime-Matrix bestanden; Runtime-Gate noch ausstehend |
+| Status | `VALIDATED` – begrenzte SQL-Server-2019/2022/2025-Docker-Matrix |
 | Sicherheitsstufe | `GREEN` |
 | Zielversionen | SQL Server 2019, 2022 und 2025 |
 | Compatibility Level | 150, 160 und 170 |
-| Edition / Plattform | Database Engine; Windows oder Linux |
+| Edition / Plattform | Database Engine; validierter Lauf auf SQL-Server-Linux-Containern |
 | Sessions | 1 |
 | Ausführungspfad | `TSQL_TESTDB` |
 | Testprofil | `TP-RUN` |
@@ -69,7 +69,7 @@ Für Parent-Werte ohne passende Child-Zeile wird der Vergleich mit der `NULL`-Ze
 
 ## 11. Tests
 
-`Tests/Static/validate_qry006_null_semantics_design.py` prüft den implementierten Bündelvertrag, die feste Datenmenge, die Ergebnisassertion, den bewussten Verzicht auf Mitigation sowie das Fehlen von Performance-, Index- und Planformbehauptungen. Die lokale Runtime-Matrix auf SQL Server 2019/150, 2022/160 und 2025/170 ist mit je zwei vollständigen Manifestläufen bestanden. Die Evidenz steht in [QRY-006 – lokaler Runtime-Nachweis](../../../Documentation/Project_Planning/QRY_006_RUNTIME_EVIDENCE.md). Der Status bleibt bis zum vorgesehenen Runtime-Gate `IMPLEMENTED`, nicht `VALIDATED`; ein GitHub-Actions-Lauf und eine SQL_Server_Lab-Szenariopromotion sind damit nicht behauptet.
+`Tests/Static/validate_qry006_null_semantics_design.py` prüft den Demo-Vertrag, die feste Datenmenge, die Ergebnisassertion, den bewussten Verzicht auf Mitigation sowie das Fehlen von Performance-, Index- und Planformbehauptungen. Die lokale Runtime-Matrix und der [GitHub-Actions-Runtime-Lauf 44896346186](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44896346186) bestanden für SQL Server 2019/150, 2022/160 und 2025/170 je zwei vollständige Manifestläufe mit anschließendem Container-Cleanup. Der abgegrenzte Status `VALIDATED` gilt für diese Linux-/Docker-Matrix. Eine SQL_Server_Lab-Szenariopromotion oder Windows-Qualifikation folgt daraus nicht.
 
 ## 12. Bekannte Grenzen
 

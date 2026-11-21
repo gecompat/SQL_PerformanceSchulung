@@ -1,11 +1,11 @@
-# QRY-006 – lokaler Runtime-Nachweis
+# QRY-006 – Runtime-Nachweis
 
 | Merkmal | Wert |
 |---|---|
-| Status der Demo | `IMPLEMENTED` |
-| Nachweisart | lokaler empirischer Nachweis auf ephemeren Docker-Containern |
-| Ausführungsdatum | 2026-09-20 |
-| Workflow-/Actions-Nachweis | nicht ausgeführt |
+| Status der Demo | `VALIDATED` – abgegrenzte SQL-Server-2019/2022/2025-Matrix |
+| Nachweisart | lokaler Docker-Nachweis und GitHub-Actions-Runtimegate auf ephemeren Containern |
+| Ausführungsdatum | 2026-11-21 |
+| Workflow-/Actions-Nachweis | [Lauf 44896346186](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44896346186), `workflow_dispatch`, Head `bbe60b8413c10c65f7facd365cf3188d8ee779ef`, alle statischen und Runtimejobs erfolgreich |
 | SQL_Server_Lab-Szenario | nicht promotet |
 
 ## Matrix
@@ -18,8 +18,8 @@ Der vorhandene Runner `Tests/Runtime/run_qry006_null_semantics.py` wurde je Ziel
 | 2022 | 16 | 160 | 2 | `PASS` | Container und Testdatenbank entfernt |
 | 2025 | 17 | 170 | 2 | `PASS` | Container und Testdatenbank entfernt |
 
-Damit sind für den lokalen Docker-Nachweis alle sechs vollständigen Manifestausführungen bestanden. Der Nachweis ändert den Implementierungsstatus nicht in `VALIDATED`: Für diese Einstufung ist weiterhin der im Projektvertrag vorgesehene Runtime-Gate-Nachweis maßgeblich. Es wurde kein Eintrag in `SQL_Server_Lab`, kein `scenario.json` und kein `READY_FOR_USER` erzeugt.
+Damit bestanden lokal und im Runtimegate je sechs vollständige Manifestausführungen. Im Actions-Lauf wurde pro Engine ein frischer Linux-Container gestartet, die statischen Verträge liefen erfolgreich, und die beiden vollständigen Manifestausführungen bestanden. Die vorgesehenen Cleanup-Schritte entfernten alle drei Container erfolgreich. Das qualifiziert den abgegrenzten Demo-Vertrag als `VALIDATED` für die geprüften Linux-/Docker-Profile; es belegt keine Windows- oder SQL_Server_Lab-Szenariopromotion. Es wurde kein `scenario.json` und kein `READY_FOR_USER` erzeugt.
 
 ## Reproduzierbarkeit
 
-Die Ausführung erfolgt je Zielversion mit einem zufälligen Containernamen und einem temporären SQL-Login. Der Container wird auch bei Fehlern im `finally`-Pfad entfernt; Zugangsdaten werden nicht protokolliert oder im Repository gespeichert. Der dokumentierte Nachweis behauptet keinen Lauf des GitHub-Actions-Workflows.
+Die lokale Ausführung erfolgt je Zielversion mit einem zufälligen Containernamen und einem temporären SQL-Login. Der GitHub-Actions-Workflow verwendet ebenfalls eigene ephemere Container und entfernt diese im Cleanup-Schritt. Zugangsdaten werden nicht protokolliert oder im Repository gespeichert.
