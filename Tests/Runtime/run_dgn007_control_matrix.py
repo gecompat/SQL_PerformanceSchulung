@@ -97,7 +97,7 @@ def observe_sqlserver_processes(target_container: str) -> tuple[tuple[str, int],
     sql_processes: list[tuple[str, int]] = []
     for container_id in container_ids:
         output = _docker(
-            ["docker", "top", container_id, "-eo", "pid=,comm="],
+            ["docker", "top", container_id, "-eo", "pid,comm"],
             failure_code="FAIL_DOCKER_TOP",
         )
         for line in output.splitlines():

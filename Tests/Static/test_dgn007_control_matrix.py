@@ -33,14 +33,14 @@ class DockerInventoryTests(unittest.TestCase):
     def test_requires_exactly_the_target_sql_server_process(self):
         with patch.object(matrix, "_docker", side_effect=(
                 CONTAINER_ID, CONTAINER_ID + "\n",
-                "4321 sqlservr\n800 bash\n")) as docker:
+                "PID COMMAND\n4321 sqlservr\n800 bash\n")) as docker:
             self.assertEqual(matrix.observe_sqlserver_processes("sql-container"), PROCESS)
         self.assertEqual(docker.call_args_list, [
             call(["docker", "inspect", "--format", "{{.Id}}", "sql-container"],
                  failure_code="FAIL_DOCKER_INSPECT"),
             call(["docker", "ps", "--no-trunc", "--quiet"],
                  failure_code="FAIL_DOCKER_INVENTORY"),
-            call(["docker", "top", CONTAINER_ID, "-eo", "pid=,comm="],
+            call(["docker", "top", CONTAINER_ID, "-eo", "pid,comm"],
                  failure_code="FAIL_DOCKER_TOP"),
         ])
 
