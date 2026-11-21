@@ -13851,3 +13851,16 @@ und der anfängliche VERBOSE-Modus, falls der Parser erreicht wird. Der endgült
 `Pattern.flags`-Wert bleibt offen, da der Parser Inline-Flags in
 `p.state.flags` einbringen kann. Unbeobachtete Aufruf-/Parser-/Laufzeitgrenzen
 bleiben erhalten. 312 fokussierte Tests bestehen lokal; keine Regexausführung.
+
+### DGN-007 – Parser-Flags bis zur finalen Pattern-Flagsnormalisierung binden (21. November 2026)
+
+Der gepinnte Parser setzt den Eingabewert zunächst in `state.flags`, übernimmt
+eine führende globale Inline-Flaggruppe mit `state.flags |= add_flags` und
+normalisiert nach dem Parsen `p.state.flags` über `fix_flags`. Die gebundene
+Normalisierung ergänzt für Textmuster Unicode, sofern ASCII nicht aktiv ist,
+und weist inkompatible Text-/Byte-Flagkombinationen zurück. Die neue
+Quellclosure verknüpft diesen Parserpfad mit den bereits gebundenen
+Literal-Flags und der nativen `Pattern.flags`-Speicherung; einfache führende
+Inline-Flagnamen werden nur lexikalisch als Kandidaten ausgewiesen. 314
+fokussierte Tests bestehen. Endgültige Flags werden weiterhin nicht als
+beobachtete Regexobjektwerte ausgegeben.

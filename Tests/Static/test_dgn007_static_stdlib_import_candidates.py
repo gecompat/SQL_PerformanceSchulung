@@ -70,6 +70,88 @@ SRE_H_FIXTURE = (
 
 
 class StaticImportCandidateTests(unittest.TestCase):
+    def test_leading_global_inline_flag_candidate_is_bounded(self):
+        cases = (
+            ("(?im)abc", "im"), (b"(?a)bytes", "a"),
+            ("plain", ""), ("(?i:scoped)", None),
+            ("prefix(?i)late", None), ("(?i)one(?m)two", None),
+            ("(?ii)duplicate", None), ("(?i", None),
+            ("(?-i)disabled", None),
+        )
+        for pattern, expected in cases:
+            with self.subTest(pattern=pattern):
+                self.assertEqual(
+                    SUBJECT._regex_leading_global_flag_names(pattern), expected,
+                )
+
+    def test_parser_global_flags_candidate_binds_normalization(self):
+        parser_source = (
+            b"def _parse(source, state, verbose, nested, first=False):\n"
+            b"    flags = _parse_flags(source, state, char)\n"
+            b"    if flags is None:  # global flags\n"
+            b"        if not first or subpattern:\n"
+            b"            raise error('global flags not at start')\n"
+            b"def _parse_sub(source, state, verbose, nested):\n"
+            b"    return None\n"
+            b"def _parse_flags(source, state, char):\n"
+            b"    add_flags = FLAGS[char]\n"
+            b'    if char == ")":\n'
+            b"        state.flags |= add_flags\n"
+            b"        return None\n"
+            b"def fix_flags(src, flags):\n"
+            b"    if isinstance(src, str):\n"
+            b"        if flags & SRE_FLAG_LOCALE:\n"
+            b"            raise ValueError('locale with text')\n"
+            b"        if not flags & SRE_FLAG_ASCII:\n"
+            b"            flags |= SRE_FLAG_UNICODE\n"
+            b"        elif flags & SRE_FLAG_UNICODE:\n"
+            b"            raise ValueError('ascii and unicode')\n"
+            b"    else:\n"
+            b"        if flags & SRE_FLAG_UNICODE:\n"
+            b"            raise ValueError('unicode with bytes')\n"
+            b"        if flags & SRE_FLAG_LOCALE and flags & SRE_FLAG_ASCII:\n"
+            b"            raise ValueError('ascii and locale')\n"
+            b"    return flags\n"
+            b"def parse(str, flags=0, state=None):\n"
+            b"    state.flags = flags\n"
+            b"    p = _parse_sub(source, state, flags & SRE_FLAG_VERBOSE, 0)\n"
+            b"    p.state.flags = fix_flags(str, p.state.flags)\n"
+            b"    return p\n"
+            b"def parse_template(source, pattern):\n"
+            b"    return None\n"
+        )
+        with patch.object(
+                SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                hashlib.sha256(parser_source).hexdigest()):
+            candidate = SUBJECT._target_re_parser_global_flags_to_pattern_flags_candidate(
+                {"re/_parser.py": parser_source},
+            )
+        self.assertEqual(candidate["leading_global_inline_flags"],
+                         "state.flags |= add_flags")
+        self.assertEqual(candidate["text_default"],
+                         "add SRE_FLAG_UNICODE unless SRE_FLAG_ASCII is set")
+        self.assertFalse(candidate["parser_execution_observed"])
+        mutations = (
+            parser_source.replace(
+                b"flags = _parse_flags(source, state, char)",
+                b"flags = _parse_flags(source, other, char)", 1),
+            parser_source.replace(b"state.flags |= add_flags",
+                                  b"state.flags = add_flags", 1),
+            parser_source.replace(b"flags |= SRE_FLAG_UNICODE",
+                                  b"flags = SRE_FLAG_UNICODE", 1),
+            parser_source.replace(
+                b"p.state.flags = fix_flags(str, p.state.flags)",
+                b"p.state.flags = flags", 1),
+        )
+        for changed in mutations:
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              hashlib.sha256(changed).hexdigest()):
+                self.assertIsNone(
+                    SUBJECT._target_re_parser_global_flags_to_pattern_flags_candidate(
+                        {"re/_parser.py": changed},
+                    )
+                )
+
     def test_compiler_flags_candidate_binds_native_storage_and_read_only_view(self):
         sre_c, sre_h = SRE_C_FIXTURE, SRE_H_FIXTURE
         compiler = {"compile_flags_expression": "flags | p.state.flags"}
@@ -231,16 +313,18 @@ class StaticImportCandidateTests(unittest.TestCase):
                 )
 
     def test_direct_compile_literal_flags_join_native_pattern_flags_candidate(self):
-        source = b"import re\npattern = re.compile('abc')\npattern2 = re.compile(b'x')\n"
+        source = b"import re\npattern = re.compile('(?i)abc')\npattern2 = re.compile(b'x')\n"
         digest = hashlib.sha256(source).hexdigest()
         inputs = [
             {"module": "fixture", "source_path": "fixture.py",
              "source_sha256": digest, "line": 2,
-             "argument_kind": "STRING_LITERAL", "argument_sha256": "a" * 64,
+             "argument_kind": "STRING_LITERAL",
+             "argument_sha256": hashlib.sha256(b"(?i)abc").hexdigest(),
              "compile_call_observed": False, "pattern_parse_observed": False},
             {"module": "fixture", "source_path": "fixture.py",
              "source_sha256": digest, "line": 3,
-             "argument_kind": "BYTES_LITERAL", "argument_sha256": "b" * 64,
+             "argument_kind": "BYTES_LITERAL",
+             "argument_sha256": hashlib.sha256(b"x").hexdigest(),
              "compile_call_observed": False, "pattern_parse_observed": False},
         ]
         flags = [
@@ -260,33 +344,50 @@ class StaticImportCandidateTests(unittest.TestCase):
             "pattern_object_storage": "self->flags = flags",
             "public_read_only_view": "Pattern.flags -> pattern_members[flags, READONLY]",
         }
+        parser_flags = {
+            "source_path": "re/_parser.py",
+            "source_sha256": SUBJECT.RE_PARSER_SOURCE_SHA256,
+            "parser_global_flag_call": "_parse_flags(source, state, char)",
+            "global_flag_position_guard": "if not first or subpattern",
+            "leading_global_inline_flags": "state.flags |= add_flags",
+            "post_parse_normalization": "p.state.flags = fix_flags(str, p.state.flags)",
+        }
         result = SUBJECT._target_re_compile_pattern_flags_candidates(
-            {"fixture.py": source}, inputs, flags, native_flags,
+            {"fixture.py": source}, inputs, flags, native_flags, parser_flags,
         )
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]["compile_flags_value_if_call_evaluates"], 0)
         self.assertEqual(result[0]["initial_verbose_mode_if_parser_entry_reached"],
                          False)
         self.assertIsNone(result[1]["compile_flags_value_if_call_evaluates"])
+        self.assertEqual(result[0]["leading_global_inline_flag_names_candidate"], "i")
+        self.assertEqual(result[1]["leading_global_inline_flag_names_candidate"], "")
         self.assertTrue(all(not row["final_flags_value_resolved"] for row in result))
         self.assertTrue(all(
             not row["compile_parse_and_regex_execution_observed"] for row in result
         ))
         changed = [
-            (inputs, [flags[0]], native_flags),
-            (inputs, [{**flags[0], "argument_sha256": "0" * 64}], native_flags),
-            (inputs, [{**flags[0], "parser_entry_observed": True}], native_flags),
-            (inputs, [{**flags[0], "flags_resolution": []}], native_flags),
-            ([{**inputs[0], "source_path": []}], flags, native_flags),
-            (inputs, flags, {**native_flags, "compiler_expression": "flags"}),
-            (inputs, flags, {**native_flags, "pattern_object_storage": "self->flags = 0"}),
+            (inputs, [flags[0]], native_flags, parser_flags),
+            (inputs, [{**flags[0], "argument_sha256": "0" * 64}], native_flags,
+             parser_flags),
+            (inputs, [{**flags[0], "parser_entry_observed": True}], native_flags,
+             parser_flags),
+            (inputs, [{**flags[0], "flags_resolution": []}], native_flags,
+             parser_flags),
+            ([{**inputs[0], "source_path": []}], flags, native_flags, parser_flags),
+            (inputs, flags, {**native_flags, "compiler_expression": "flags"},
+             parser_flags),
+            (inputs, flags, {**native_flags, "pattern_object_storage": "self->flags = 0"},
+             parser_flags),
+            (inputs, flags, native_flags,
+             {**parser_flags, "leading_global_inline_flags": "state.flags = add_flags"}),
         ]
-        for changed_inputs, changed_flags, changed_native in changed:
+        for changed_inputs, changed_flags, changed_native, changed_parser in changed:
             with self.subTest(flags=changed_flags, native=changed_native):
                 self.assertEqual(
                     SUBJECT._target_re_compile_pattern_flags_candidates(
                         {"fixture.py": source}, changed_inputs, changed_flags,
-                        changed_native,
+                        changed_native, changed_parser,
                     ),
                     [],
                 )

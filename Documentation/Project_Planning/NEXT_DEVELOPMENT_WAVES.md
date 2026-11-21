@@ -3126,9 +3126,11 @@ Die Fortsetzung hat den Compiler-Flagfluss bis zur schreibgeschützten
 `Pattern.flags`-Eigenschaft, den Eingabemusterpfad bis zur schreibgeschützten
 `Pattern.pattern`-Eigenschaft, die Zuordnung direkter String-/Byte-Literale zu
 diesem Patternwert und den bedingten Literal-Compileflagfluss bis
-`Pattern.flags` anhand der gepinnten CPython-3.12.16-Quellen gebunden. Alle
-Kandidaten bleiben `CANDIDATES_ONLY`; der endgültige Eigenschaftswert bleibt
-wegen Parser-/Inline-Flags offen. Daraus folgt keine Interpreter-, P11- oder
+`Pattern.flags` anhand der gepinnten CPython-3.12.16-Quellen gebunden. Die
+Parser-State-Übernahme und die nachträgliche `fix_flags`-Normalisierung sind
+ebenfalls an diese Provenienzkette angeschlossen; einfacher globaler
+Inline-Flagtext bleibt nur ein lexikalischer Kandidat. Alle Befunde bleiben
+`CANDIDATES_ONLY`; daraus folgt keine Interpreter-, P11- oder
 Runtimeattestation. Als Nächstes wird ein weiterer abgegrenzter Quellpfad der
 DGN-007-Belegmatrix ausgewählt und mit einer präzisen Regression gebunden.
 
