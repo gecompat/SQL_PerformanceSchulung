@@ -37,3 +37,11 @@ Die Läufe verwendeten Docker 29.7.2, die lokalen Microsoft-Images `2019-latest`
 ## GitHub-Actions-Nachweis
 
 [Actions-Lauf 33222989644](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/33222989644) bestätigte für alle neun Demos die vollständige 2019/2022/2025-Matrix. `CON-009` endete dabei auf allen drei Zielversionen jeweils zweimal mit `PASS/OK`; die unabhängigen Cleanup-Prüfungen waren erfolgreich.
+
+Der erneute vollständige [Actions-Lauf 44897453528](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44897453528)
+auf `main` (`3d3923ab`) bestand am 21. November 2026 alle 29 ausgewählten
+Jobs einschließlich der statischen Gates und der neun Demo-Matrizen auf SQL
+Server 2019, 2022 und 2025. Die Runtimejobs führten jede Demo zweimal aus und
+bereinigten ihre Wegwerfcontainer erfolgreich. Das bestätigt die vorhandenen
+`VALIDATED`-Claims erneut; es erweitert weder den Demo-Scope noch die jeweilige
+fachliche Aussage.

@@ -13720,3 +13720,13 @@ auf SQL Server 2019/150, 2022/160 und 2025/170. Alle drei frischen Linux-
 Container wurden nach erfolgreichem Lauf entfernt. Damit ist QRY-006 für diese
 abgegrenzte Linux-/Docker-Matrix `VALIDATED`; Windows-Abnahme und
 SQL_Server_Lab-Szenariopromotion bleiben getrennte, nicht behauptete Gates.
+
+### W-COV-001 – vollständige Matrix erneut bestätigt (21. November 2026)
+
+Der nachfolgende [GitHub-Actions-Lauf 44897453528](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44897453528)
+auf `main`-Commit `3d3923abd72e6c5b5f85423d1e3f8bd9f1f9febc` bestand alle 29
+ausgewählten Jobs. Dazu gehörten die statischen Katalog-/Governanceprüfungen
+sowie die neun Demos mit je zwei Durchläufen auf SQL Server 2019, 2022 und
+2025; alle Runtimejobs und die Bereinigung der Wegwerfcontainer waren
+erfolgreich. Die vorhandenen W-COV-001-`VALIDATED`-Claims sind damit erneut
+belegt. Das schließt keine der separat zurückgestellten Erweiterungen ab.
