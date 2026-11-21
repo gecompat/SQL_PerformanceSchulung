@@ -76,6 +76,8 @@ def capture(
     unified = [line[3:] for line in cgroup_lines if line.startswith("0::")]
     if len(unified) != 1 or not CGROUP_PATH_RE.fullmatch(unified[0]):
         raise ResourceCaptureError("container does not expose one safe cgroup-v2 path")
+    if any(part in {".", ".."} for part in unified[0].split("/")):
+        raise ResourceCaptureError("cgroup path contains a traversal component")
     if container_id not in unified[0]:
         raise ResourceCaptureError("cgroup path is not bound to the inspected container ID")
 

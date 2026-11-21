@@ -89,6 +89,28 @@ class Qry023ResourceUsageTests(unittest.TestCase):
                 with self.assertRaisesRegex(resource_usage.ResourceCaptureError, "container ID"):
                     resource_usage.capture(CONTAINER, OWNER, proc_root=proc, cgroup_root=cgroup)
 
+    def test_rejects_cgroup_path_traversal(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            proc, cgroup = self._fixture(base / "sys")
+            (proc / PID / "cgroup").write_text(
+                f"0::/docker/../docker/{CONTAINER_ID}\n", encoding="ascii"
+            )
+            with mock.patch.object(resource_usage, "_inspect", side_effect=self._inspect()):
+                with self.assertRaisesRegex(resource_usage.ResourceCaptureError, "traversal"):
+                    resource_usage.capture(CONTAINER, OWNER, proc_root=proc, cgroup_root=cgroup)
+
+    def test_rejects_non_two_core_cgroup_quota(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            proc, cgroup = self._fixture(base / "sys")
+            (cgroup / "docker" / CONTAINER_ID / "cpu.max").write_text(
+                "100000 100000\n", encoding="ascii"
+            )
+            with mock.patch.object(resource_usage, "_inspect", side_effect=self._inspect()):
+                with self.assertRaisesRegex(resource_usage.ResourceCaptureError, "CPU quota"):
+                    resource_usage.capture(CONTAINER, OWNER, proc_root=proc, cgroup_root=cgroup)
+
     def test_rejects_memory_peak_above_limit(self):
         with tempfile.TemporaryDirectory() as temporary:
             base = Path(temporary)

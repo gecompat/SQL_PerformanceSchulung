@@ -364,11 +364,32 @@ aufeinanderfolgende stabile, begrenzte Beobachtungen innerhalb von höchstens
 Der Ressourcenrahmen steht als Vorschlag im `resources`-Abschnitt von
 [`container-images.proposed.json`](container-images.proposed.json). Er ist aus
 Microsofts Linux-Mindestanforderungen und der geforderten Trennung zwischen
-Container- und SQL-Server-Speichergrenze abgeleitet. 8/20 GiB Hostreserve sowie
-4/3 GiB Container-/Enginegrenze sind Projektwerte ohne QRY-023-Laufmessung;
-der vorgeschlagene CI-Aufrufer prüft Hostressourcen und setzt die Container-
-und SQL-Server-Grenzen vor Start durch. Diese Werte sind keine gemessenen
-Anwendungsressourcen oder Performancegrenzen.
+Container- und SQL-Server-Speichergrenze abgeleitet. Der vorgeschlagene
+CI-Aufrufer prüft Hostressourcen und setzt vor dem Start zwei CPU-Kerne, 4 GiB
+Containerspeicher und 3 GiB SQL-Server-Speicher als Obergrenzen. Er erfasst
+jetzt zusätzlich den `memory.peak`- und `cpu.stat`-Wert des cgroup-v2-Pfads,
+nachdem der Container über Name, ID und Owner-Marker gebunden wurde.
+
+Im erfolgreichen isolierten [Actions-Lauf 44906835593, Versuch 2](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44906835593)
+wurden pro Engine ein Containerpeak und die kumulative CPU-Zeit vom Container-
+Start bis unmittelbar vor seiner Bereinigung beobachtet. Der Messrahmen enthält
+den vollständigen positiven QRY-023-Lifecycle und die Negativ-/Recovery-
+Gegenproben:
+
+| SQL Server | Beobachteter Container-Speicherpeak | Kumulative Container-CPU-Zeit | Konfiguriertes Maximum |
+|---:|---:|---:|---:|
+| 2019 | 718,7 MiB | 39,07 s | 4.096 MiB und 2 Kerne |
+| 2022 | 746,2 MiB | 30,09 s | 4.096 MiB und 2 Kerne |
+| 2025 | 534,7 MiB | 43,63 s | 4.096 MiB und 2 Kerne |
+
+Das sind Einzelbeobachtungen dieser drei CI-Container und keine garantierten
+Anwendungsbedarfe, Hostreserven oder Performancegrenzen. Die vorgeschlagenen
+8 GiB freie Host-RAM- und 20 GiB freie Datenträgerreserve werden vor Start
+geprüft, aber nicht als tatsächlicher Hostverbrauch gemessen. Versuch 1 des
+gleichen Actions-Laufs scheiterte auf SQL Server 2025 beim read-only TempDB-
+Vorstart mit einem `sa`-Loginfehler vor Setup; der frische Versuch 2 bestand.
+Der fehlgeschlagene Job blieb als Evidenz erhalten und entfernte seinen
+owner-markierten Container.
 
 ## Verträge und Reviews
 

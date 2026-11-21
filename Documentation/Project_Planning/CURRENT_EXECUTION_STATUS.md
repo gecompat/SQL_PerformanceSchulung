@@ -13746,3 +13746,19 @@ Qualifikationsroute. Er misst keine tatsächliche Anwendungsressourcennutzung
 und erteilt keine allgemeine Runtime-, Produkt- oder Katalogfreigabe. QRY-023
 bleibt `PROPOSED`, nicht katalogisiert und `runtime_authorized: false`; die
 menschliche Generalprobe bleibt ausgeschlossen.
+
+### QRY-023 – cgroup-Ressourcenwerte im isolierten Lauf erfasst (21. November 2026)
+
+PR #1092 ergänzt den owner-gebundenen cgroup-v2-Messschritt vor Container-
+Cleanup. Im erfolgreichen [Actions-Lauf 44906835593, Versuch 2](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44906835593)
+bestanden Lockauflösung, statische Tests und alle drei isolierten Enginejobs.
+Die erfassten Speicherpeaks betrugen 753.651.712 Byte (2019), 782.458.880 Byte
+(2022) und 560.627.712 Byte (2025); die kumulative Container-CPU-Zeit lag bei
+39,07 s, 30,09 s beziehungsweise 43,63 s. Der Messbereich umfasst den Lauf ab
+Containerstart bis vor Cleanup einschließlich positiver Phasen und
+Negativ-/Recovery-Gegenproben. Es sind drei CI-Einzelbeobachtungen, keine
+allgemeine Nutzungs- oder Performancegrenze. Versuch 1 scheiterte beim
+read-only TempDB-Vorstart auf SQL Server 2025 mit `sa`-Loginfehler vor Setup;
+der fehlgeschlagene Versuch blieb dokumentiert und sein eigener Container
+wurde bereinigt. Hostreserven und allgemeine Produkt-/Katalogfreigabe bleiben
+getrennte Gates; QRY-023 bleibt `PROPOSED`/nicht katalogisiert.
