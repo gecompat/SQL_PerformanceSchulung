@@ -298,10 +298,16 @@ Ein Fenster- oder Vergleichs-PASS belegt weder unterschiedliche Pläne noch eine
 Performanceverschlechterung oder Reproduktion eines Incidents. Auch PSP (Parameter Sensitive Plan Optimization; Planoptimierung für unterschiedliche Parameterwerte) wird
 nicht deaktiviert. Die Akzeptanzmethodik ist im
 [prospektiven Vertrag](../Contracts/README.md) durch `DEC-068` (Prospektive Duration- und Kontrollseparation für DGN-007 festlegen) vorab festgelegt.
-Nach der begrenzten Producer-Prüfung folgt der Collector-Coordinator mit
-verifiziertem Freeze, Ressourcen, Reihenfolge, Budgets und unabhängigem
-Cleanup. Erst danach folgen frische Bestätigungsläufe. Das ist weiterhin
-kein Incident-Gate und kein Nachweis von Clientlatenz oder statistischer
+Der CI-Workflow führt die sechs neutralen Kontrollcaptures jetzt über den
+[Collector-Coordinator](../../../../Tests/Runtime/run_dgn007_control_matrix.py)
+in der festgelegten Reihenfolge aus. Er bindet die privaten Capture-Receipts,
+Quellenfreeze-Snapshots, Ressourcen- und Session-Randproben, Lifecyclezeiten,
+Cleanupbelege und die vollständigen Request-/Familienrecords an den
+prospektiven Evaluator. Ein gültiger `SKIP_EVIDENCE_MISSING` bleibt ein Skip.
+Die neue isolierte 2019/2022/2025-Matrix muss noch erfolgreich laufen, bevor
+diese Integration als qualifiziert gilt; Randproben belegen keine fortlaufende
+Hostexklusivität oder externe Quellherkunft. Das ist weiterhin kein
+Incident-Gate und kein Nachweis von Clientlatenz oder statistischer
 Signifikanz. Danach folgen Requestscope, Alternativhypothesen,
 reversible Mitigation und T2-Vergleich. Szenariopromotion, `READY_FOR_USER`,
 Katalogaufnahme, vollständige Capstone-Matrix und Änderungen an

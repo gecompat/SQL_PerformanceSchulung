@@ -57,11 +57,13 @@ Je Fenster sind genau vier reguläre Suchausführungen und insgesamt
 4.229 Ergebniszeilen erforderlich. AB bezeichnet T0=A/T1=B, BA T0=B/T1=A,
 AA T0=A/T1=A. T0 und T1 behalten ihre chronologischen WindowIds; insbesondere
 wird das BA-Vorzeichen nicht aus einem unverändert übernommenen T1−T0-Delta
-abgeleitet. Die künftige Übertragung muss die acht Suchrequests jedes
-Lifecycles einschließlich IDs, Reihenfolge, Parameterpaaren und Ergebniszeilen
-liefern. Der getrennte [SQL-Producer](SQL_CAPTURE_PRODUCER.md) ergänzt jetzt
-gemessene Skalarprojektion und Transport. Vollständige `RunRecord`s samt
-Lifecycle-Attestationen bleiben Coordinator-Folgearbeit.
+abgeleitet. Der getrennte [SQL-Producer](SQL_CAPTURE_PRODUCER.md) liefert die
+acht Suchrequests jedes Lifecycles einschließlich IDs, Reihenfolge,
+Parameterpaaren und gemessener Ergebniszeilen als Skalarprojektion. Der neue
+[Runtime-Coordinator](COLLECTOR_TRANSPORT.md#laufzeit-coordinator-und-qualifikationsgrenze)
+bildet daraus vollständige `RunRecord`s und bindet Lifecycle-Attestationen.
+Seine Runtime-Integration ist bis zum frischen Drei-Engine-Matrixlauf
+unqualifiziert.
 
 ## Gerichtetes Symptom und getrennte zusätzliche Evidenz
 
@@ -179,8 +181,11 @@ Docker-konfigurierte CPU-/Speichergrenzen und laufende SQL-Benutzersessions
 stammen aus Vorher- und Nachherproben. Physische Hostbelegung und
 Freeze bleiben Callerangaben. Die SQL-Probe ist nur eine Momentaufnahme vor
 und nach dem Capture, kein Beleg durchgehender Exklusivität oder eines geschlossenen
-Zugriffsumfangs. Der vollständige vertrauensgebundene Collector-Coordinator
-bleibt offen.
+Zugriffsumfangs. Der integrierte Runtime-Coordinator bindet inzwischen diese
+Randproben, sechs geordnete Receipts und den Evaluator zusammen. Da er keine
+durchgehende Hostexklusivität oder externe Quellherkunft attestiert, bleiben
+vollständige Vertrauens- und Incidentqualifikation offen; seine neue isolierte
+2019/2022/2025-Matrix ist noch auszuführen.
 Die Parent-/Child-Bindung verwendet `time.monotonic_ns()`; Python dokumentiert
 für `time.monotonic()` dieselbe Systemuhr über Prozesse hinweg und empfiehlt
 die Nanosekundenvariante gegen Float-Präzisionsverlust ([Python 3.12
@@ -230,7 +235,10 @@ Transport-Vorschnitt. Der getrennte SQL-Producer hat eine eigene Prüfgrenze;
 die [deklarative Matrixpräqualifikation](COLLECTOR_TRANSPORT.md#deklarative-matrixpräqualifikation)
 prüft Reihenfolge, deklarierte monotone Budgets, Ressourcenfelder und Cleanup-
 Flags für sechs Records. Sie misst oder attestiert diese Eingaben nicht. Der
-vertrauensgebundene Coordinator und die Incident-Runtime-Abnahme bleiben offen.
+neue [Runtime-Coordinator](COLLECTOR_TRANSPORT.md#laufzeit-coordinator-und-qualifikationsgrenze)
+bindet sie nun an tatsächliche Receipts; bis zum erfolgreichen isolierten
+Drei-Engine-Lauf bleibt die Runtime-Integration unqualifiziert. Die Incident-
+Runtime-Abnahme bleibt offen.
 
 ## Statische Prüfung
 

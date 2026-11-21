@@ -64,6 +64,7 @@ class RuntimeSelectorTests(unittest.TestCase):
             "Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/20_Query_Store_Windows.sql",
             "Demos/00_Framework/Tools/run_demo.py",
             "Tests/Runtime/execution_target.py",
+            "Tests/Runtime/run_dgn007_control_matrix.py",
         ):
             with self.subTest(path=path):
                 self.assertTrue(selector.select_runtime(

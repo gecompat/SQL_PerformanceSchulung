@@ -283,10 +283,15 @@ def runner_projection_findings(source):
 def workflow_findings(source):
     findings=[]
     calls=re.findall(r'(?m)^          python Tests/Runtime/run_dgn007_automated_setup.py \\\n((?:            .*\n)+)',source)
-    if len(calls)!=6 or [('--check-capture-projection' in call) for call in calls]!=[False,False,False,True,True,True]:
-        findings.append('Nur dieselben sechs Controls-Lifecycles benötigen die Produceroption')
-    if (len(calls)!=6 or [call.count('--check-phase-diagnostics') for call in calls]!=[1,1,1,0,0,0]):
+    if len(calls)!=3 or any('--check-capture-projection' in call for call in calls):
+        findings.append('Datenmodell, Fenster und Profilvergleich dürfen keine Control-Produceroption verwenden')
+    if len(calls)!=3 or [call.count('--check-phase-diagnostics') for call in calls]!=[1,1,1]:
         findings.append('Genau Datenmodell, Fenster und Profilvergleich benötigen die private Phasendiagnostik')
+    matrix_calls=re.findall(r'(?m)^          python Tests/Runtime/run_dgn007_control_matrix.py \\\n((?:            .*\n)+)',source)
+    if (len(matrix_calls)!=1 or '--container "${SQLPERF_SQL_CONTAINER}"' not in matrix_calls[0]
+            or '--expected-major \'${{ matrix.major }}\'' not in matrix_calls[0]
+            or '--confirm-disposable-instance --confirm-isolated-lab' not in matrix_calls[0]):
+        findings.append('Der DEC-068-Control-Coordinator muss die sechs privaten Captures ausführen')
     for name in ('validate_dgn007_capture_projection','test_dgn007_capture_projection',
                  'validate_dgn007_collector_transport','test_dgn007_collector_transport',
                  'validate_dgn007_prospective_acceptance','test_dgn007_prospective_acceptance'):

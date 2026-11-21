@@ -30,9 +30,11 @@ TRIGGER_PATHS = {
     "Tests/Static/test_dgn007_prospective_acceptance.py",
     "Tests/Static/validate_dgn007_prospective_acceptance.py",
     "Tests/Runtime/run_dgn007_automated_setup.py",
+    "Tests/Runtime/run_dgn007_control_matrix.py",
     "Tests/Runtime/execution_target.py",
     "Tests/Runtime/docker_sqlcmd_proxy.py",
     "Tests/Static/test_dgn007_automated_setup_runner.py",
+    "Tests/Static/test_dgn007_control_matrix.py",
     "Tests/Static/test_dgn007_compatibility.py",
     "Tests/Static/test_dgn007_profile_comparison.py",
     "Tests/Static/test_dgn007_control_capture.py",
@@ -110,8 +112,8 @@ def workflow_findings(text: str) -> list[str]:
         "python Tests/Static/test_dgn007_control_capture.py",
         "python Tests/Runtime/run_dgn007_automated_setup.py", "--target docker",
         "--scope data-model", "--scope query-store-windows", "--scope profile-comparison",
-        "--scope control-ab", "--scope control-ba", "--scope control-aa",
         '--container "${SQLPERF_SQL_CONTAINER}"', "--expected-major '${{ matrix.major }}'",
+        "python Tests/Runtime/run_dgn007_control_matrix.py",
         "--confirm-disposable-instance --confirm-isolated-lab",
         'container="sqlperf-dgn007-auto-${{ matrix.major }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"',
         "::add-mask::${password}", "export SQLCMDPASSWORD=", "export MSSQL_SA_PASSWORD=",
@@ -149,11 +151,19 @@ def workflow_findings(text: str) -> list[str]:
     if re.search(r"(?:^|\s)(?:-p|--publish|--publish-all|-v|--volume|--mount)(?:=|\s|$)", start):
         findings.append("Datenmodell-Container darf keine Ports oder Volumes freigeben")
     commands = re.findall(r"(?m)^          python Tests/Runtime/run_dgn007_automated_setup.py \\\n((?:            .*\n)+)", text)
-    if len(commands) != 6 or not all(
+    if len(commands) != 3 or not all(
         f"--scope {scope}" in command and '--container "${SQLPERF_SQL_CONTAINER}"' in command
-        for scope, command in zip(("data-model", "query-store-windows", "profile-comparison", "control-ab", "control-ba", "control-aa"), commands)
+        for scope, command in zip(("data-model", "query-store-windows", "profile-comparison"), commands)
     ):
-        findings.append("Alle sechs Scopes müssen in der festgelegten Reihenfolge denselben bereinigten Container verwenden")
+        findings.append("Datenmodell, Fenster und Profilvergleich müssen denselben bereinigten Container verwenden")
+    matrix_calls = re.findall(
+        r"(?m)^          python Tests/Runtime/run_dgn007_control_matrix.py \\\n((?:            .*\n)+)", text
+    )
+    if (len(matrix_calls) != 1
+            or '--container "${SQLPERF_SQL_CONTAINER}"' not in matrix_calls[0]
+            or "--expected-major '${{ matrix.major }}'" not in matrix_calls[0]
+            or "--confirm-disposable-instance --confirm-isolated-lab" not in matrix_calls[0]):
+        findings.append("Der DEC-068-Coordinator muss dieselbe isolierte Matrixinstanz verwenden")
     if len(re.findall(r"(?m)^          docker run\b", text)) != 1:
         findings.append("Alle Prüfschnitte benötigen genau einen frischen Matrixcontainer")
     # Tatsächliche ausführbare Pullzeile prüfen, keine kommentierte Markerkopie.

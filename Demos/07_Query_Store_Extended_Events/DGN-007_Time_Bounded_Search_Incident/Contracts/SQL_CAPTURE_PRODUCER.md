@@ -104,7 +104,10 @@ Recovery erzeugt keinen Erfolgsbeleg. Öffentliche Counts, CLI und `RunResult`
 bleiben erhalten; der Body bleibt privat und `runtime_attested=False`.
 Ressourcen, Budgets, Freeze, Reihenfolge und vollständige Herkunft sind damit
 nicht attestiert. Der [Integrationsreview](../../../../Documentation/Project_Planning/DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md)
-führt den aktuellen Prüfstand und die Abgrenzung zur Coordinator-Folgearbeit.
+führt den Stand der Receipt-Schnittstelle. Der übergeordnete
+[Runtime-Coordinator](COLLECTOR_TRANSPORT.md#laufzeit-coordinator-und-qualifikationsgrenze)
+bindet diese Receipts inzwischen an die geordnete Matrix; seine neue
+Drei-Engine-Integration ist noch nicht qualifiziert.
 
 Der interne `_CaptureReceipt` bindet zusätzlich die tatsächlichen
 Lifecycle-Start-, Cleanup-Start- und Lifecycle-Endpunkte des überwachenden

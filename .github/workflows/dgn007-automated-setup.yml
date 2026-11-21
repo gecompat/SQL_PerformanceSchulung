@@ -19,9 +19,11 @@ on:
       - 'Tests/Static/test_dgn007_prospective_acceptance.py'
       - 'Tests/Static/validate_dgn007_prospective_acceptance.py'
       - 'Tests/Runtime/run_dgn007_automated_setup.py'
+      - 'Tests/Runtime/run_dgn007_control_matrix.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/docker_sqlcmd_proxy.py'
       - 'Tests/Static/test_dgn007_automated_setup_runner.py'
+      - 'Tests/Static/test_dgn007_control_matrix.py'
       - 'Tests/Static/test_dgn007_compatibility.py'
       - 'Tests/Static/test_dgn007_profile_comparison.py'
       - 'Tests/Static/test_dgn007_control_capture.py'
@@ -48,9 +50,11 @@ on:
       - 'Tests/Static/test_dgn007_prospective_acceptance.py'
       - 'Tests/Static/validate_dgn007_prospective_acceptance.py'
       - 'Tests/Runtime/run_dgn007_automated_setup.py'
+      - 'Tests/Runtime/run_dgn007_control_matrix.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Runtime/docker_sqlcmd_proxy.py'
       - 'Tests/Static/test_dgn007_automated_setup_runner.py'
+      - 'Tests/Static/test_dgn007_control_matrix.py'
       - 'Tests/Static/test_dgn007_compatibility.py'
       - 'Tests/Static/test_dgn007_profile_comparison.py'
       - 'Tests/Static/test_dgn007_control_capture.py'
@@ -99,6 +103,8 @@ jobs:
           python-version: '3.12'
       - name: Runner-Negativkontrollen prüfen
         run: python -m unittest discover -s Tests/Static -p test_dgn007_automated_setup_runner.py
+      - name: DEC-068-Coordinator und Hostinventar prüfen
+        run: python -m unittest discover -s Tests/Static -p test_dgn007_control_matrix.py
       - name: Compatibility-Level-Katalog und NULL-Guards prüfen
         run: python Tests/Static/test_dgn007_compatibility.py
       - name: Datenmodell- und CI-Vertrag prüfen
@@ -192,6 +198,14 @@ jobs:
             sleep 2
           done
           [ "${login_ready}" = '1' ] || { echo 'Authentifizierte SQL-Readiness fehlgeschlagen.'; exit 1; }
+      - name: Sechs neutrale Kontrollcaptures in DEC-068-Reihenfolge
+        shell: bash
+        run: |
+          set -euo pipefail
+          python Tests/Runtime/run_dgn007_control_matrix.py \
+            --container "${SQLPERF_SQL_CONTAINER}" \
+            --expected-major '${{ matrix.major }}' \
+            --confirm-disposable-instance --confirm-isolated-lab
       - name: Zwei Datenmodell-Lifecycles mit unabhängiger Cleanup-Prüfung
         shell: bash
         run: |
@@ -218,36 +232,6 @@ jobs:
           set -euo pipefail
           python Tests/Runtime/run_dgn007_automated_setup.py \
             --scope profile-comparison --check-phase-diagnostics \
-            --target docker \
-            --container "${SQLPERF_SQL_CONTAINER}" \
-            --expected-major '${{ matrix.major }}' \
-            --confirm-disposable-instance --confirm-isolated-lab
-      - name: Zwei neutrale AB-Kontrollcapture-Lifecycles
-        shell: bash
-        run: |
-          set -euo pipefail
-          python Tests/Runtime/run_dgn007_automated_setup.py \
-            --scope control-ab --check-capture-projection \
-            --target docker \
-            --container "${SQLPERF_SQL_CONTAINER}" \
-            --expected-major '${{ matrix.major }}' \
-            --confirm-disposable-instance --confirm-isolated-lab
-      - name: Zwei neutrale BA-Kontrollcapture-Lifecycles
-        shell: bash
-        run: |
-          set -euo pipefail
-          python Tests/Runtime/run_dgn007_automated_setup.py \
-            --scope control-ba --check-capture-projection \
-            --target docker \
-            --container "${SQLPERF_SQL_CONTAINER}" \
-            --expected-major '${{ matrix.major }}' \
-            --confirm-disposable-instance --confirm-isolated-lab
-      - name: Zwei neutrale AA-Kontrollcapture-Lifecycles
-        shell: bash
-        run: |
-          set -euo pipefail
-          python Tests/Runtime/run_dgn007_automated_setup.py \
-            --scope control-aa --check-capture-projection \
             --target docker \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \
