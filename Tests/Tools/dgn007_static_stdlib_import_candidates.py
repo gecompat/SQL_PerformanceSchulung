@@ -9940,6 +9940,59 @@ def _target_re_pattern_groups_native_candidate(sre_c_source, sre_h_source):
     }
 
 
+def _target_re_compiler_flags_to_pattern_flags_candidate(
+        files, sre_c_source, sre_h_source):
+    """Join pinned compiler flag expression to Pattern.flags storage/view."""
+    compiler = _target_re_compiler_group_metadata_candidate(files)
+    if (compiler is None
+            or compiler.get("compile_flags_expression") != "flags | p.state.flags"):
+        return None
+    if (type(sre_c_source) is not bytes or type(sre_h_source) is not bytes
+            or len(sre_c_source) > MAX_SRE_C_BYTES
+            or len(sre_h_source) > MAX_SRE_H_BYTES
+            or hashlib.sha256(sre_c_source).hexdigest() != SRE_C_SHA256
+            or hashlib.sha256(sre_h_source).hexdigest() != SRE_H_SHA256):
+        return None
+    try:
+        c_text = sre_c_source.decode("utf-8")
+        h_text = sre_h_source.decode("utf-8")
+    except UnicodeError:
+        return None
+    compile_start = c_text.find("_sre_compile_impl(")
+    clinic_end = c_text.find("/*[clinic input]\n_sre.template", compile_start)
+    if compile_start < 0 or clinic_end < 0:
+        return None
+    region = c_text[compile_start:clinic_end]
+    structs = re.findall(r"typedef struct \{(.*?)\} PatternObject;", h_text, re.S)
+    members = re.findall(
+        r"static PyMemberDef pattern_members\[\] = \{(.*?)\n\};", c_text, re.S,
+    )
+    flag_member = '{"flags",      T_INT,       PAT_OFF(flags),         READONLY,'
+    if (not re.search(
+            r"_sre_compile_impl\(PyObject \*module, PyObject \*pattern, int flags,"
+            r"\s*PyObject \*code, Py_ssize_t groups, PyObject \*groupindex,"
+            r"\s*PyObject \*indexgroup\)", region)
+            or region.count("self->flags = flags;") != 1
+            or len(structs) != 1
+            or structs[0].count(
+                "int flags; /* flags used when compiling pattern source */") != 1
+            or len(members) != 1
+            or members[0].count(flag_member) != 1):
+        return None
+    return {
+        "compiler_expression": compiler["compile_flags_expression"],
+        "native_compile_parameter": "int flags",
+        "pattern_object_storage": "self->flags = flags",
+        "public_read_only_view": "Pattern.flags -> pattern_members[flags, READONLY]",
+        "c_source_sha256": SRE_C_SHA256,
+        "header_source_sha256": SRE_H_SHA256,
+        "source_paths": ["re/_compiler.py", "Modules/_sre/sre.c",
+                         "Modules/_sre/sre.h"],
+        "execution_observed": False,
+        "evidence_scope": "PINNED_RE_FLAGS_TO_PATTERN_FLAGS_SOURCE_CANDIDATE",
+    }
+
+
 def _target_re_group_name_to_pattern_groupindex_candidate(
         files, sre_c_source, sre_h_source):
     """Join parser registration, compiler handoff, native storage, and view."""
@@ -15481,6 +15534,13 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     )
     if target_re_group_name_to_pattern_groupindex_candidate is None:
         raise ValueError("SRE_GROUPINDEX_CANDIDATE")
+    target_re_compiler_flags_to_pattern_flags_candidate = (
+        _target_re_compiler_flags_to_pattern_flags_candidate(
+            files, sre_c_source, sre_h_source,
+        )
+    )
+    if target_re_compiler_flags_to_pattern_flags_candidate is None:
+        raise ValueError("SRE_PATTERN_FLAGS_CANDIDATE")
     zipimport_hook_registration_candidate = (
         _target_zipimport_hook_registration_candidate(python_import_c_source)
     )
@@ -16725,6 +16785,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_re_compile_tokenizer_input_type_candidates,
         "target_re_group_name_to_pattern_groupindex_candidate": (
             target_re_group_name_to_pattern_groupindex_candidate
+        ),
+        "target_re_compiler_flags_to_pattern_flags_candidate": (
+            target_re_compiler_flags_to_pattern_flags_candidate
         ),
         "target_platform_functools_lru_cache_condition_facts": [
             {"module": module, "source_path": source_path, "line": line,

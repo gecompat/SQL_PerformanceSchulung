@@ -23,6 +23,7 @@ SRE_C_FIXTURE = (
     b"                  PyObject *indexgroup)\n"
     b"{\n"
     b"    self->groups = groups;\n"
+    b"    self->flags = flags;\n"
     b"    self->groupindex = NULL;\n"
     b"    if (PyDict_GET_SIZE(groupindex) > 0) {\n"
     b"        self->groupindex = Py_NewRef(groupindex);\n"
@@ -48,6 +49,8 @@ SRE_C_FIXTURE = (
     b"static PyMemberDef pattern_members[] = {\n"
     b'    {"groups",     T_PYSSIZET,  PAT_OFF(groups),        READONLY,\n'
     b'     "The number of capturing groups in the pattern."},\n'
+    b'    {"flags",      T_INT,       PAT_OFF(flags),         READONLY,\n'
+    b'     "flags used when compiling pattern source."},\n'
     b"    {NULL}\n"
     b"};\n"
 )
@@ -55,6 +58,7 @@ SRE_H_FIXTURE = (
     b"typedef struct {\n"
     b"    PyObject_VAR_HEAD\n"
     b"    Py_ssize_t groups; /* must be first! */\n"
+    b"    int flags; /* flags used when compiling pattern source */\n"
     b"    PyObject* groupindex; /* dict */\n"
     b"    PyObject* indexgroup; /* tuple */\n"
     b"} PatternObject;\n"
@@ -62,6 +66,53 @@ SRE_H_FIXTURE = (
 
 
 class StaticImportCandidateTests(unittest.TestCase):
+    def test_compiler_flags_candidate_binds_native_storage_and_read_only_view(self):
+        sre_c, sre_h = SRE_C_FIXTURE, SRE_H_FIXTURE
+        compiler = {"compile_flags_expression": "flags | p.state.flags"}
+        with (patch.multiple(
+                SUBJECT,
+                SRE_C_SHA256=hashlib.sha256(sre_c).hexdigest(),
+                SRE_H_SHA256=hashlib.sha256(sre_h).hexdigest()),
+              patch.object(SUBJECT,
+                           "_target_re_compiler_group_metadata_candidate",
+                           return_value=compiler)):
+            candidate = SUBJECT._target_re_compiler_flags_to_pattern_flags_candidate(
+                {}, sre_c, sre_h,
+            )
+            self.assertEqual(candidate["compiler_expression"],
+                             "flags | p.state.flags")
+            self.assertEqual(candidate["pattern_object_storage"],
+                             "self->flags = flags")
+            self.assertEqual(candidate["public_read_only_view"],
+                             "Pattern.flags -> pattern_members[flags, READONLY]")
+            self.assertFalse(candidate["execution_observed"])
+            mutations = (
+                (sre_c.replace(b"self->flags = flags;", b"self->flags = 0;", 1), sre_h),
+                (sre_c.replace(b"PAT_OFF(flags),         READONLY",
+                               b"PAT_OFF(flags),         0", 1), sre_h),
+                (sre_c, sre_h.replace(b"int flags; /* flags used when compiling pattern source */",
+                                      b"int options;", 1)),
+            )
+            for changed_c, changed_h in mutations:
+                with self.subTest(c=changed_c != sre_c, h=changed_h != sre_h):
+                    with patch.multiple(
+                            SUBJECT,
+                            SRE_C_SHA256=hashlib.sha256(changed_c).hexdigest(),
+                            SRE_H_SHA256=hashlib.sha256(changed_h).hexdigest()):
+                        self.assertIsNone(
+                            SUBJECT._target_re_compiler_flags_to_pattern_flags_candidate(
+                                {}, changed_c, changed_h,
+                            )
+                        )
+            with patch.object(SUBJECT,
+                              "_target_re_compiler_group_metadata_candidate",
+                              return_value={"compile_flags_expression": "flags"}):
+                self.assertIsNone(
+                    SUBJECT._target_re_compiler_flags_to_pattern_flags_candidate(
+                        {}, sre_c, sre_h,
+                    )
+                )
+
     @staticmethod
     def _worker_sys_flag_fact_fixture():
         preconfig_header_source = (
