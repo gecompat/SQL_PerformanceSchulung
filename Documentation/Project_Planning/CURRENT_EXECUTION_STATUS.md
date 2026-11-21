@@ -13747,6 +13747,19 @@ und erteilt keine allgemeine Runtime-, Produkt- oder Katalogfreigabe. QRY-023
 bleibt `PROPOSED`, nicht katalogisiert und `runtime_authorized: false`; die
 menschliche Generalprobe bleibt ausgeschlossen.
 
+### DGN-007 – Compilerflags bis `Pattern.flags` quellenbinden (21. November 2026)
+
+Die statische CPython-3.12.16-Quellclosure bindet nun den Compiler-Ausdruck
+`flags | p.state.flags` aus `re/_compiler.py` an den Parameter `int flags` von
+`_sre_compile_impl`, die Zuweisung `self->flags = flags`, das Feld in
+`PatternObject` und den schreibgeschützten Eintrag `Pattern.flags` in
+`pattern_members`. Compiler- und native Quellen bleiben durch feste
+SHA-256-Werte, Größenlimits und exakte Strukturprüfungen gebunden. Der
+Kandidat wird als `CANDIDATES_ONLY` ausgewiesen; es wurde kein Interpreter,
+Regexlauf oder SQL-Server-Runtimeverhalten damit beobachtet. 309 fokussierte
+DGN-007-Tests bestehen lokal; die lokale Umgebung verwendet kein CPython 3.12,
+die gepinnte Vollqualifikation bleibt daher CI vorbehalten.
+
 ### QRY-023 – cgroup-Ressourcenwerte im isolierten Lauf erfasst (21. November 2026)
 
 PR #1092 ergänzt den owner-gebundenen cgroup-v2-Messschritt vor Container-
