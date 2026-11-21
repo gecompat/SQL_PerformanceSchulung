@@ -52,8 +52,6 @@ class CoordinatorRuntimeError(RuntimeError):
             "FAIL_SQLCMD_RESOLUTION",
             "FAIL_SQLSERVER_PROCESS_MISSING",
             "FAIL_SQLSERVER_PROCESS_OUTSIDE_TARGET",
-            "FAIL_SQLSERVER_PROCESS_MULTIPLE_IN_TARGET",
-            "FAIL_SQLSERVER_PROCESS_MULTIPLE_CONTAINERS",
             "FAIL_DOCKER_ID", "FAIL_DOCKER_TARGET_MISSING",
             "FAIL_DOCKER_INVENTORY_INVALID", "FAIL_DOCKER_INVENTORY_SIZE",
             "FAIL_DOCKER_PROCESS_ID_CHANGED",
@@ -76,27 +74,13 @@ def _docker(command: list[str], *, timeout: int = 10,
     return result.stdout
 
 
-def _container_init_process(container_id: str) -> tuple[int, str]:
-    pid_text = _docker(
-        ["docker", "inspect", "--format", "{{.State.Pid}}", container_id],
-        failure_code="FAIL_DOCKER_INVENTORY",
-    ).strip()
-    if not pid_text.isdecimal() or int(pid_text) <= 0:
-        raise CoordinatorRuntimeError("FAIL_DOCKER_PROCESS_ID_CHANGED")
-    pid = int(pid_text)
-    try:
-        name = (Path("/proc") / str(pid) / "comm").read_text(encoding="ascii").strip()
-    except OSError:
-        raise CoordinatorRuntimeError("FAIL_EXECUTION") from None
-    return pid, name.casefold()
-
-
 def observe_sqlserver_processes(target_container: str) -> tuple[tuple[str, int], ...]:
-    """Return container-ID/PID pairs for containers initialized as SQL Server.
+    """Return container-ID/PID pairs for SQL Server processes.
 
-    Every running Docker container's host init PID is resolved with inspect,
-    then its Linux /proc command name is checked. An uninspectable or ambiguous
-    inventory fails closed; process output is never forwarded to the caller.
+    Every running Docker container is inspected. Exactly one container must
+    host one or more SQL Server processes. Multiple processes in that same
+    server container are allowed; an uninspectable inventory fails closed and
+    process output is never forwarded to the caller.
     """
     if (type(target_container) is not str or not re.fullmatch(
             r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", target_container)):
@@ -122,18 +106,25 @@ def observe_sqlserver_processes(target_container: str) -> tuple[tuple[str, int],
         raise CoordinatorRuntimeError("FAIL_DOCKER_TARGET_MISSING")
     sql_processes: list[tuple[str, int]] = []
     for container_id in container_ids:
-        pid, process_name = _container_init_process(container_id)
-        if process_name in SQLSERVER_COMM:
-            sql_processes.append((container_id, pid))
+        output = _docker(
+            ["docker", "top", container_id],
+            failure_code="FAIL_DOCKER_INVENTORY",
+        )
+        for line in output.splitlines():
+            fields = line.strip().split(None, 7)
+            if len(fields) != 8 or not fields[1].isdecimal():
+                continue
+            executable = fields[7].split(None, 1)[0].replace("\\", "/").rsplit("/", 1)[-1].casefold()
+            if executable in SQLSERVER_COMM:
+                sql_processes.append((container_id, int(fields[1])))
     if not sql_processes:
         raise CoordinatorRuntimeError("FAIL_SQLSERVER_PROCESS_MISSING")
-    if len(sql_processes) != 1:
-        if len({container_id for container_id, _pid in sql_processes}) == 1:
-            raise CoordinatorRuntimeError("FAIL_SQLSERVER_PROCESS_MULTIPLE_IN_TARGET")
-        raise CoordinatorRuntimeError("FAIL_SQLSERVER_PROCESS_MULTIPLE_CONTAINERS")
-    if sql_processes[0][0] != target_id:
+    server_containers = {container_id for container_id, _pid in sql_processes}
+    if len(server_containers) > 1:
         raise CoordinatorRuntimeError("FAIL_SQLSERVER_PROCESS_OUTSIDE_TARGET")
-    if sql_processes[0][1] <= 0:
+    if server_containers != {target_id}:
+        raise CoordinatorRuntimeError("FAIL_SQLSERVER_PROCESS_OUTSIDE_TARGET")
+    if any(pid <= 0 for _container_id, pid in sql_processes):
         raise CoordinatorRuntimeError("FAIL_DOCKER_PROCESS_ID_CHANGED")
     return tuple(sql_processes)
 
@@ -188,7 +179,7 @@ def run_control_matrix(container: str, expected_major: int):
             runner.assert_empty_instance(target)
             receipt = runner._run_capture_one(
                 target, index, contract=run_contract, expected_major=expected_major,
-                expected_contract=contract,
+                expected_contract=contract, check_phase_diagnostics=True,
             )
             after = observe_sqlserver_processes(container)
             if after != before:

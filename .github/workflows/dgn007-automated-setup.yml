@@ -198,6 +198,14 @@ jobs:
             sleep 2
           done
           [ "${login_ready}" = '1' ] || { echo 'Authentifizierte SQL-Readiness fehlgeschlagen.'; exit 1; }
+      - name: Sechs neutrale Kontrollcaptures in DEC-068-Reihenfolge
+        shell: bash
+        run: |
+          set -euo pipefail
+          python Tests/Runtime/run_dgn007_control_matrix.py \
+            --container "${SQLPERF_SQL_CONTAINER}" \
+            --expected-major '${{ matrix.major }}' \
+            --confirm-disposable-instance --confirm-isolated-lab
       - name: Zwei Datenmodell-Lifecycles mit unabhängiger Cleanup-Prüfung
         shell: bash
         run: |
@@ -225,14 +233,6 @@ jobs:
           python Tests/Runtime/run_dgn007_automated_setup.py \
             --scope profile-comparison --check-phase-diagnostics \
             --target docker \
-            --container "${SQLPERF_SQL_CONTAINER}" \
-            --expected-major '${{ matrix.major }}' \
-            --confirm-disposable-instance --confirm-isolated-lab
-      - name: Sechs neutrale Kontrollcaptures in DEC-068-Reihenfolge
-        shell: bash
-        run: |
-          set -euo pipefail
-          python Tests/Runtime/run_dgn007_control_matrix.py \
             --container "${SQLPERF_SQL_CONTAINER}" \
             --expected-major '${{ matrix.major }}' \
             --confirm-disposable-instance --confirm-isolated-lab
