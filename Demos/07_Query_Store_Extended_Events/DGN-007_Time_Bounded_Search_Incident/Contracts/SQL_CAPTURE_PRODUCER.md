@@ -106,8 +106,11 @@ Ressourcen, Budgets, Freeze, Reihenfolge und vollständige Herkunft sind damit
 nicht attestiert. Der [Integrationsreview](../../../../Documentation/Project_Planning/DGN_007_INTERNAL_CAPTURE_RECEIPT_REVIEW.md)
 führt den Stand der Receipt-Schnittstelle. Der übergeordnete
 [Runtime-Coordinator](COLLECTOR_TRANSPORT.md#laufzeit-coordinator-und-qualifikationsgrenze)
-bindet diese Receipts inzwischen an die geordnete Matrix; seine neue
-Drei-Engine-Integration ist noch nicht qualifiziert.
+bindet diese Receipts inzwischen an die geordnete Matrix; seine
+Drei-Engine-Integration für SQL Server 2019, 2022 und 2025 bestand im
+integrierten Lauf (PR #1096, Actions-Lauf #44921319212). Das qualifiziert den
+damals geprüften Coordinatorumfang, nicht die davon getrennte
+Incident-Runtime-Abnahme oder externe Quellherkunft.
 
 Der interne `_CaptureReceipt` bindet zusätzlich die tatsächlichen
 Lifecycle-Start-, Cleanup-Start- und Lifecycle-Endpunkte des überwachenden
