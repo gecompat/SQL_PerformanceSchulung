@@ -36,9 +36,12 @@ class DockerInventoryTests(unittest.TestCase):
                 "4321 sqlservr\n800 bash\n")) as docker:
             self.assertEqual(matrix.observe_sqlserver_processes("sql-container"), PROCESS)
         self.assertEqual(docker.call_args_list, [
-            call(["docker", "inspect", "--format", "{{.Id}}", "sql-container"]),
-            call(["docker", "ps", "--no-trunc", "--quiet"]),
-            call(["docker", "top", CONTAINER_ID, "-eo", "pid=,comm="]),
+            call(["docker", "inspect", "--format", "{{.Id}}", "sql-container"],
+                 failure_code="FAIL_DOCKER_INSPECT"),
+            call(["docker", "ps", "--no-trunc", "--quiet"],
+                 failure_code="FAIL_DOCKER_INVENTORY"),
+            call(["docker", "top", CONTAINER_ID, "-eo", "pid=,comm="],
+                 failure_code="FAIL_DOCKER_TOP"),
         ])
 
     def test_rejects_a_second_sql_server_container(self):
@@ -51,9 +54,22 @@ class DockerInventoryTests(unittest.TestCase):
 
     def test_rejects_an_uninspectable_container(self):
         with patch.object(matrix, "_docker", side_effect=(
-                CONTAINER_ID, f"{CONTAINER_ID}\n", matrix.CoordinatorRuntimeError("FAIL_EXECUTION"))):
-            with self.assertRaisesRegex(matrix.CoordinatorRuntimeError, "FAIL_EXECUTION"):
+                CONTAINER_ID, f"{CONTAINER_ID}\n", matrix.CoordinatorRuntimeError("FAIL_DOCKER_TOP"))):
+            with self.assertRaisesRegex(matrix.CoordinatorRuntimeError, "FAIL_DOCKER_TOP"):
                 matrix.observe_sqlserver_processes("sql-container")
+
+    def test_docker_command_failures_use_bounded_operation_codes(self):
+        failure_codes = (
+            "FAIL_DOCKER_INSPECT", "FAIL_DOCKER_INVENTORY", "FAIL_DOCKER_TOP",
+            "FAIL_SQLCMD_RESOLUTION",
+        )
+        for code in failure_codes:
+            with self.subTest(code=code), patch.object(matrix.subprocess, "run",
+                    return_value=SimpleNamespace(returncode=1, stdout="", stderr="sensitive")):
+                with self.assertRaises(matrix.CoordinatorRuntimeError) as raised:
+                    matrix._docker(["docker", "synthetic"], failure_code=code)
+                self.assertEqual(raised.exception.code, code)
+                self.assertNotIn("sensitive", str(raised.exception))
 
     def test_rejects_invalid_or_oversized_inventory_before_inspection(self):
         with patch.object(matrix, "_docker", side_effect=("not-an-id",)):

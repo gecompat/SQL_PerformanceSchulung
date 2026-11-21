@@ -48,11 +48,14 @@ class CoordinatorRuntimeError(RuntimeError):
         self.code = code if code in (
             "FAIL_CONTRACT", "FAIL_RESULT_CONTRACT", "FAIL_TIMEOUT",
             "FAIL_CLEANUP", "FAIL_EXECUTION", "FAIL_SAFETY",
+            "FAIL_DOCKER_INSPECT", "FAIL_DOCKER_INVENTORY", "FAIL_DOCKER_TOP",
+            "FAIL_SQLCMD_RESOLUTION",
         ) else "FAIL_CONTRACT"
         super().__init__(self.code)
 
 
-def _docker(command: list[str], *, timeout: int = 10) -> str:
+def _docker(command: list[str], *, timeout: int = 10,
+            failure_code: str = "FAIL_EXECUTION") -> str:
     try:
         result = subprocess.run(command, check=False, capture_output=True,
                                 text=True, encoding="utf-8", errors="replace",
@@ -62,7 +65,7 @@ def _docker(command: list[str], *, timeout: int = 10) -> str:
     except OSError:
         raise CoordinatorRuntimeError("FAIL_EXECUTION") from None
     if result.returncode != 0:
-        raise CoordinatorRuntimeError("FAIL_EXECUTION")
+        raise CoordinatorRuntimeError(failure_code)
     return result.stdout
 
 
@@ -76,10 +79,16 @@ def observe_sqlserver_processes(target_container: str) -> tuple[tuple[str, int],
     if (type(target_container) is not str or not re.fullmatch(
             r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", target_container)):
         raise CoordinatorRuntimeError()
-    target_id = _docker(["docker", "inspect", "--format", "{{.Id}}", target_container]).strip()
+    target_id = _docker(
+        ["docker", "inspect", "--format", "{{.Id}}", target_container],
+        failure_code="FAIL_DOCKER_INSPECT",
+    ).strip()
     if DOCKER_ID.fullmatch(target_id) is None:
         raise CoordinatorRuntimeError()
-    container_text = _docker(["docker", "ps", "--no-trunc", "--quiet"])
+    container_text = _docker(
+        ["docker", "ps", "--no-trunc", "--quiet"],
+        failure_code="FAIL_DOCKER_INVENTORY",
+    )
     container_ids = tuple(line.strip() for line in container_text.splitlines() if line.strip())
     if (not container_ids or len(container_ids) > MAX_CONTAINERS
             or any(DOCKER_ID.fullmatch(value) is None for value in container_ids)
@@ -87,7 +96,10 @@ def observe_sqlserver_processes(target_container: str) -> tuple[tuple[str, int],
         raise CoordinatorRuntimeError()
     sql_processes: list[tuple[str, int]] = []
     for container_id in container_ids:
-        output = _docker(["docker", "top", container_id, "-eo", "pid=,comm="])
+        output = _docker(
+            ["docker", "top", container_id, "-eo", "pid=,comm="],
+            failure_code="FAIL_DOCKER_TOP",
+        )
         for line in output.splitlines():
             fields = line.strip().split(None, 1)
             if len(fields) != 2 or not fields[0].isdecimal():
@@ -118,7 +130,7 @@ def resolve_target(container: str):
         "elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then "
         "printf /opt/mssql-tools/bin/sqlcmd; "
         "else exit 127; fi",
-    ]).strip()
+    ], failure_code="FAIL_SQLCMD_RESOLUTION").strip()
     if output not in ("/opt/mssql-tools18/bin/sqlcmd", "/opt/mssql-tools/bin/sqlcmd"):
         raise CoordinatorRuntimeError("FAIL_EXECUTION")
     return execution_target.docker_target(container=container, sqlcmd_path=output)
