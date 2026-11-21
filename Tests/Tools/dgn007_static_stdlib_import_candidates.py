@@ -10024,7 +10024,55 @@ def _target_re_parser_global_flags_to_pattern_flags_candidate(files):
         return None
     try:
         source_text = source.decode("utf-8")
+        constants_source = files.get("re/_constants.py")
+        if (type(constants_source) is not bytes
+                or hashlib.sha256(constants_source).hexdigest()
+                != RE_CONSTANTS_SOURCE_SHA256):
+            return None
+        parser_tree = ast.parse(source_text, filename="re/_parser.py")
+        constants_tree = ast.parse(constants_source.decode("utf-8"),
+                                   filename="re/_constants.py")
     except UnicodeError:
+        return None
+    except SyntaxError:
+        return None
+    expected_flag_map = {
+        "i": "SRE_FLAG_IGNORECASE", "L": "SRE_FLAG_LOCALE",
+        "m": "SRE_FLAG_MULTILINE", "s": "SRE_FLAG_DOTALL",
+        "x": "SRE_FLAG_VERBOSE", "a": "SRE_FLAG_ASCII",
+        "t": "SRE_FLAG_TEMPLATE", "u": "SRE_FLAG_UNICODE",
+    }
+    expected_flag_values = {
+        "SRE_FLAG_IGNORECASE": 2, "SRE_FLAG_LOCALE": 4,
+        "SRE_FLAG_MULTILINE": 8, "SRE_FLAG_DOTALL": 16,
+        "SRE_FLAG_UNICODE": 32, "SRE_FLAG_VERBOSE": 64,
+        "SRE_FLAG_TEMPLATE": 1, "SRE_FLAG_ASCII": 256,
+    }
+    flag_tables = [
+        node.value for node in parser_tree.body
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "FLAGS"
+                for target in node.targets)
+        and isinstance(node.value, ast.Dict)
+    ]
+    observed_flag_map = {}
+    if len(flag_tables) == 1:
+        for key, value in zip(flag_tables[0].keys, flag_tables[0].values):
+            if (isinstance(key, ast.Constant) and type(key.value) is str
+                    and isinstance(value, ast.Name)):
+                observed_flag_map[key.value] = value.id
+    if observed_flag_map != expected_flag_map:
+        return None
+    flag_values = {}
+    for node in constants_tree.body:
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id.startswith("SRE_FLAG_")
+                and isinstance(node.value, ast.Constant)
+                and type(node.value.value) is int):
+            flag_values[node.targets[0].id] = node.value.value
+    if any(flag_values.get(name) != value
+           for name, value in expected_flag_values.items()):
         return None
     parse_start = source_text.find("def parse(str, flags=0, state=None):")
     template_start = source_text.find("\ndef parse_template(", parse_start)
@@ -10072,10 +10120,11 @@ def _target_re_parser_global_flags_to_pattern_flags_candidate(files):
         "global_flag_position_guard": "if not first or subpattern",
         "leading_global_inline_flags": "state.flags |= add_flags",
         "inline_flag_symbol_map_candidate": {
-            "i": "SRE_FLAG_IGNORECASE", "L": "SRE_FLAG_LOCALE",
-            "m": "SRE_FLAG_MULTILINE", "s": "SRE_FLAG_DOTALL",
-            "x": "SRE_FLAG_VERBOSE", "a": "SRE_FLAG_ASCII",
-            "t": "SRE_FLAG_TEMPLATE", "u": "SRE_FLAG_UNICODE",
+            **expected_flag_map,
+        },
+        "inline_flag_value_map_candidate": {
+            key: flag_values[symbol]
+            for key, symbol in expected_flag_map.items()
         },
         "post_parse_normalization": "p.state.flags = fix_flags(str, p.state.flags)",
         "text_default": "add SRE_FLAG_UNICODE unless SRE_FLAG_ASCII is set",
@@ -10203,6 +10252,10 @@ def _target_re_compile_pattern_flags_candidates(
         "x": "SRE_FLAG_VERBOSE", "a": "SRE_FLAG_ASCII",
         "t": "SRE_FLAG_TEMPLATE", "u": "SRE_FLAG_UNICODE",
     }
+    inline_flag_values = {
+        "i": 2, "L": 4, "m": 8, "s": 16,
+        "x": 64, "a": 256, "t": 1, "u": 32,
+    }
     if (type(files) is not dict or type(compile_candidates) is not list
             or type(flag_candidates) is not list
             or len(compile_candidates) > MAX_RE_COMPILE_INPUT_CANDIDATES
@@ -10222,6 +10275,8 @@ def _target_re_compile_pattern_flags_candidates(
             != "state.flags |= add_flags"
             or parser_flags_candidate.get("inline_flag_symbol_map_candidate")
             != inline_flag_symbols
+            or parser_flags_candidate.get("inline_flag_value_map_candidate")
+            != inline_flag_values
             or parser_flags_candidate.get("post_parse_normalization")
             != "p.state.flags = fix_flags(str, p.state.flags)"):
         return []
@@ -10307,6 +10362,7 @@ def _target_re_compile_pattern_flags_candidates(
             if global_flag_names is not None else None
         )
         symbolic_flags_candidate = None
+        numeric_flags_candidate = None
         if flags_value is not None and symbolic_inline_flags is not None:
             terms = ["compile_flags"] + symbolic_inline_flags
             expression = (
@@ -10319,6 +10375,24 @@ def _target_re_compile_pattern_flags_candidates(
                     "SRE_FLAG_ASCII is absent)"
                 )
             symbolic_flags_candidate = expression
+            numeric_flags = flags_value
+            for name in global_flag_names:
+                numeric_flags |= inline_flag_values[name]
+            ascii_value = inline_flag_values["a"]
+            locale_value = inline_flag_values["L"]
+            unicode_value = inline_flag_values["u"]
+            if candidate["argument_kind"] == "STRING_LITERAL":
+                if not numeric_flags & locale_value:
+                    if numeric_flags & ascii_value:
+                        if not numeric_flags & unicode_value:
+                            numeric_flags_candidate = numeric_flags
+                    else:
+                        numeric_flags |= unicode_value
+                        numeric_flags_candidate = numeric_flags
+            elif (not numeric_flags & unicode_value
+                  and not (numeric_flags & locale_value
+                           and numeric_flags & ascii_value)):
+                numeric_flags_candidate = numeric_flags
         result.append({
             "module": key[0],
             "source_path": path,
@@ -10332,6 +10406,9 @@ def _target_re_compile_pattern_flags_candidates(
             "leading_global_inline_flag_names_candidate": global_flag_names,
             "leading_global_inline_flag_symbols_candidate": symbolic_inline_flags,
             "normalized_pattern_flags_symbolic_candidate": symbolic_flags_candidate,
+            "pattern_flags_numeric_candidate_if_compile_and_parse_succeed": (
+                numeric_flags_candidate
+            ),
             "final_pattern_flags_value_resolved": False,
             "parser_global_flag_state_update": parser_flags_candidate[
                 "leading_global_inline_flags"],
