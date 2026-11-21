@@ -13781,3 +13781,25 @@ nachgelagerte Main-Matrix
 bestand anschließend alle 29 Jobs, einschließlich der ausgewählten
 2019/2022/2025-Läufe und Cleanup-Prüfungen. Der Runtime-Nachlauf ist damit für
 diesen Coverage-Scope erfolgreich abgeschlossen.
+
+### DGN-007 – Runtime-Coordinator für neutrale Kontrollcaptures integriert (21. November 2026)
+
+PR [#1096](https://github.com/gecompat/SQL_PerformanceSchulung/pull/1096)
+wurde mit Squash-Commit `b8404977c0a37cfe7f7137fc2796afc67c5f4731` in
+`origin/main` integriert. Der Coordinator führt die sechs neutralen
+AB-/BA-/AA-Kontrollcaptures in DEC-068-Reihenfolge aus, prüft die
+Container-/SQL-Server-Prozessmenge, bindet die Quellenfreeze-Snapshots,
+konfigurierte Ressourcen und aktiven SQL-Sessions an Capture-Ränder und
+verwendet interne Receipts sowie die bestehenden Phasen-/Cleanup-Budgets.
+Statische DGN-Verträge und die vollständige isolierte SQL-Server-2019/2022/2025-
+Matrix bestanden im [Actions-Lauf 44921319212](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44921319212).
+Je Version waren sechs neutrale Captures, zwei Datenmodell-, zwei
+Query-Store-Fenster- und zwei Profilvergleichs-Lifecycles erfolgreich; SQL
+Server 2025 bestand zusätzlich die lesenden Compatibility-Level-Gegenproben.
+Eigene Container einschließlich anonymer Volumes wurden entfernt.
+
+Die Messungen sind Randproben. Sie attestieren weder fortlaufende
+Hostexklusivität noch externe Quellenherkunft oder geladene Runtimebytes. Der
+verlustfreie Collector des prospektiven Vertrags, eine vollständige
+DEC-068-Incidentmatrix und Incident-/Ursachennachweis bleiben offen. Die
+menschliche Generalprobe bleibt ausgeschlossen.
