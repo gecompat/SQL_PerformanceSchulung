@@ -10050,6 +10050,57 @@ def _target_re_compiler_pattern_to_pattern_pattern_candidate(
     }
 
 
+def _target_re_compile_pattern_property_candidates(
+        files, compile_candidates, pattern_candidate):
+    """Project direct literal inputs to their source Pattern.pattern value."""
+    if (type(files) is not dict or type(compile_candidates) is not list
+            or len(compile_candidates) > MAX_RE_COMPILE_INPUT_CANDIDATES
+            or type(pattern_candidate) is not dict
+            or pattern_candidate.get("compiler_string_input")
+            != "pattern = p; p = _parser.parse(p, flags)"
+            or pattern_candidate.get("native_compile_parameter") != "PyObject *pattern"
+            or pattern_candidate.get("pattern_object_storage")
+            != "self->pattern = Py_NewRef(pattern)"
+            or pattern_candidate.get("public_read_only_view")
+            != "Pattern.pattern -> pattern_members[pattern, READONLY]"):
+        return []
+    result = []
+    for candidate in compile_candidates:
+        if (type(candidate) is not dict
+                or candidate.get("argument_kind")
+                not in ("STRING_LITERAL", "BYTES_LITERAL")
+                or candidate.get("compile_call_observed") is not False
+                or candidate.get("pattern_parse_observed") is not False):
+            return []
+        path = candidate.get("source_path")
+        source = files.get(path)
+        digest = candidate.get("source_sha256")
+        pattern_digest = candidate.get("argument_sha256")
+        if (type(path) is not str or type(source) is not bytes
+                or type(digest) is not str
+                or hashlib.sha256(source).hexdigest() != digest
+                or type(pattern_digest) is not str
+                or not re.fullmatch(r"[0-9a-f]{64}", pattern_digest)
+                or type(candidate.get("module")) is not str
+                or type(candidate.get("line")) is not int
+                or candidate["line"] < 1):
+            return []
+        result.append({
+            "module": candidate["module"],
+            "source_path": path,
+            "source_sha256": digest,
+            "line": candidate["line"],
+            "input_kind": candidate["argument_kind"],
+            "pattern_attribute_source_sha256": pattern_digest,
+            "conditional_source_value": "Pattern.pattern preserves the compile input",
+            "compile_or_pattern_observed": False,
+            "evidence_scope": "MODULE_BODY_RE_PATTERN_PROPERTY_SOURCE_CANDIDATE",
+        })
+        if len(result) > MAX_RE_COMPILE_INPUT_CANDIDATES:
+            return []
+    return result
+
+
 def _target_re_group_name_to_pattern_groupindex_candidate(
         files, sre_c_source, sre_h_source):
     """Join parser registration, compiler handoff, native storage, and view."""
@@ -16403,6 +16454,12 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     target_re_compile_input_candidates = _target_re_compile_input_candidates(
         files, target_call_modules,
     )
+    target_re_compile_pattern_property_candidates = (
+        _target_re_compile_pattern_property_candidates(
+            files, target_re_compile_input_candidates,
+            target_re_compiler_pattern_to_pattern_pattern_candidate,
+        )
+    )
     target_re_compile_tokenizer_input_type_candidates = (
         _target_re_compile_tokenizer_input_type_candidates(
             files, target_call_modules,
@@ -16845,6 +16902,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
             target_hashlib_builtin_fallback_file_candidates,
         "target_module_init_re_compile_input_candidates":
             target_re_compile_input_candidates,
+        "target_module_init_re_pattern_property_candidates": (
+            target_re_compile_pattern_property_candidates
+        ),
         "target_module_init_re_compile_tokenizer_input_type_candidates":
             target_re_compile_tokenizer_input_type_candidates,
         "target_re_group_name_to_pattern_groupindex_candidate": (

@@ -176,6 +176,60 @@ class StaticImportCandidateTests(unittest.TestCase):
                     )
                 )
 
+    def test_direct_compile_literals_project_to_pattern_property_candidates(self):
+        source = b"import re\npattern = re.compile('abc')\n"
+        digest = hashlib.sha256(source).hexdigest()
+        candidates = [
+            {"module": "fixture", "source_path": "fixture.py",
+             "source_sha256": digest, "line": 2,
+             "argument_kind": "STRING_LITERAL",
+             "argument_sha256": "a" * 64,
+             "compile_call_observed": False, "pattern_parse_observed": False},
+            {"module": "fixture", "source_path": "fixture.py",
+             "source_sha256": digest, "line": 3,
+             "argument_kind": "BYTES_LITERAL",
+             "argument_sha256": "b" * 64,
+             "compile_call_observed": False, "pattern_parse_observed": False},
+        ]
+        pattern_candidate = {
+            "compiler_string_input": "pattern = p; p = _parser.parse(p, flags)",
+            "native_compile_parameter": "PyObject *pattern",
+            "pattern_object_storage": "self->pattern = Py_NewRef(pattern)",
+            "public_read_only_view": (
+                "Pattern.pattern -> pattern_members[pattern, READONLY]"
+            ),
+        }
+        result = SUBJECT._target_re_compile_pattern_property_candidates(
+            {"fixture.py": source}, candidates, pattern_candidate,
+        )
+        self.assertEqual([row["input_kind"] for row in result],
+                         ["STRING_LITERAL", "BYTES_LITERAL"])
+        self.assertEqual(
+            [row["pattern_attribute_source_sha256"] for row in result],
+            ["a" * 64, "b" * 64],
+        )
+        self.assertTrue(all(not row["compile_or_pattern_observed"] for row in result))
+        mutations = [
+            ([{**candidates[0], "argument_kind": "STRING_FORMAT_EXPRESSION"}],
+             pattern_candidate, {"fixture.py": source}),
+            ([{**candidates[0], "compile_call_observed": True}],
+             pattern_candidate, {"fixture.py": source}),
+            ([{**candidates[0], "source_sha256": "0" * 64}],
+             pattern_candidate, {"fixture.py": source}),
+            (candidates, {**pattern_candidate, "pattern_object_storage": "other"},
+             {"fixture.py": source}),
+            (candidates, pattern_candidate, {"fixture.py": b"changed source"}),
+        ]
+        for changed_candidates, changed_pattern, changed_files in mutations:
+            with self.subTest(candidate=changed_candidates[0], pattern=changed_pattern,
+                              files=changed_files):
+                self.assertEqual(
+                    SUBJECT._target_re_compile_pattern_property_candidates(
+                        changed_files, changed_candidates, changed_pattern,
+                    ),
+                    [],
+                )
+
     @staticmethod
     def _worker_sys_flag_fact_fixture():
         preconfig_header_source = (

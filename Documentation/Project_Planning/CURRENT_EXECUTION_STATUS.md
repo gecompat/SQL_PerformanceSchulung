@@ -13829,3 +13829,15 @@ ebenfalls digestgebunden. Mutationstests decken Übergabe, Speicherung,
 Felddeklaration und Read-only-Deskriptor ab. 310 fokussierte Tests bestehen
 lokal. Das bleibt `CANDIDATES_ONLY`: Es beobachtet weder Parsing noch ein
 kompiliertes Patternobjekt oder Regexlaufzeit.
+
+### DGN-007 – direkte Regexliterale bis zum Pattern-Eingabewert abbilden (21. November 2026)
+
+Die 13 digestgebundenen direkten `re.compile`-Quellkandidaten werden jetzt
+zusätzlich auf den späteren `Pattern.pattern`-Eingabewert projiziert, sofern
+es sich um String- oder Byte-Literale handelt. Der Kandidat verlangt die
+unveränderte Modulquelle, den gebundenen Compiler-/Native-Propertypfad und
+unbeobachtete Compile-/Parse-Aufrufe; der Property-Digest entspricht dem
+Eingabe-Literal. Berechnete Muster und sonstige Argumentformen werden nicht
+aufgelöst. 311 fokussierte Tests bestehen lokal. Diese Zuordnung ist
+`CANDIDATES_ONLY` und behauptet weder einen Aufruf noch Cachezustand,
+Patternerzeugung oder Regexlaufzeit.
