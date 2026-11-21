@@ -51,7 +51,15 @@ class DockerInventoryTests(unittest.TestCase):
                 CONTAINER_ID, f"{CONTAINER_ID}\n{second_id}\n",
                 "UID PID PPID C STIME TTY TIME CMD\nmssql 4321 1 0 10:00 ? 00:01:00 sqlservr\n",
                 "UID PID PPID C STIME TTY TIME CMD\nmssql 9876 1 0 10:00 ? 00:01:00 sqlservr\n")):
-            with self.assertRaisesRegex(matrix.CoordinatorRuntimeError, "FAIL_CONTRACT"):
+            with self.assertRaisesRegex(matrix.CoordinatorRuntimeError,
+                                         "FAIL_SQLSERVER_PROCESS_AMBIGUOUS"):
+                matrix.observe_sqlserver_processes("sql-container")
+
+    def test_requires_sqlservr_in_the_process_inventory(self):
+        with patch.object(matrix, "_docker", side_effect=(
+                CONTAINER_ID, f"{CONTAINER_ID}\n", "UID PID PPID C STIME TTY TIME CMD\nroot 8 1 0 10:00 ? 00:00:00 bash\n")):
+            with self.assertRaisesRegex(matrix.CoordinatorRuntimeError,
+                                         "FAIL_SQLSERVER_PROCESS_MISSING"):
                 matrix.observe_sqlserver_processes("sql-container")
 
     def test_rejects_an_uninspectable_container(self):

@@ -38,9 +38,6 @@ ACCEPTANCE_CONTRACT = (
 )
 MAX_CONTAINERS = 8
 DOCKER_ID = re.compile(r"[0-9a-f]{64}")
-SQLSERVER_COMM = frozenset(("sqlservr", "sqlservr.exe"))
-
-
 class CoordinatorRuntimeError(RuntimeError):
     """A bounded, payload-free failure from the runtime coordinator."""
 
@@ -50,6 +47,8 @@ class CoordinatorRuntimeError(RuntimeError):
             "FAIL_CLEANUP", "FAIL_EXECUTION", "FAIL_SAFETY",
             "FAIL_DOCKER_INSPECT", "FAIL_DOCKER_INVENTORY", "FAIL_DOCKER_TOP",
             "FAIL_SQLCMD_RESOLUTION",
+            "FAIL_SQLSERVER_PROCESS_MISSING", "FAIL_SQLSERVER_PROCESS_AMBIGUOUS",
+            "FAIL_SQLSERVER_PROCESS_OUTSIDE_TARGET",
         ) else "FAIL_CONTRACT"
         super().__init__(self.code)
 
@@ -104,11 +103,16 @@ def observe_sqlserver_processes(target_container: str) -> tuple[tuple[str, int],
             fields = line.strip().split(None, 7)
             if len(fields) != 8 or not fields[1].isdecimal():
                 continue
-            command = fields[7].split(None, 1)[0].replace("\\", "/").rsplit("/", 1)[-1].casefold()
-            if command in SQLSERVER_COMM:
+            command = fields[7].replace("\\", "/").casefold()
+            if re.search(r"(?:^|[ /])sqlservr(?:\.exe)?(?:$|\s)", command):
                 sql_processes.append((container_id, int(fields[1])))
-    if (len(sql_processes) != 1 or sql_processes[0][0] != target_id
-            or sql_processes[0][1] <= 0):
+    if not sql_processes:
+        raise CoordinatorRuntimeError("FAIL_SQLSERVER_PROCESS_MISSING")
+    if len(sql_processes) != 1:
+        raise CoordinatorRuntimeError("FAIL_SQLSERVER_PROCESS_AMBIGUOUS")
+    if sql_processes[0][0] != target_id:
+        raise CoordinatorRuntimeError("FAIL_SQLSERVER_PROCESS_OUTSIDE_TARGET")
+    if sql_processes[0][1] <= 0:
         raise CoordinatorRuntimeError()
     return tuple(sql_processes)
 
