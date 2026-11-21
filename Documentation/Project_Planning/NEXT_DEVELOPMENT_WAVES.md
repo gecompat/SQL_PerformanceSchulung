@@ -3132,7 +3132,8 @@ Parser-State-Übernahme und die nachträgliche `fix_flags`-Normalisierung sind
 ebenfalls an diese Provenienzkette angeschlossen. Erkannte führende
 Inline-Flags fließen in eine symbolische Formel und, für kompatible bekannte
 Flags, in einen bedingten Zahlenwertkandidaten mit Unicode-Default für
-Textmuster ein; Byte-Muster erhalten keinen Text-Default. Alle Befunde bleiben
+Textmuster ein; unbekannte Compile-Flags und inkompatible Text-/Bytekombinationen
+ergeben keinen Zahlenwertkandidaten. Byte-Muster erhalten keinen Text-Default. Alle Befunde bleiben
 `CANDIDATES_ONLY`; daraus folgt keine Interpreter-, P11- oder
 Runtimeattestation. Als Nächstes wird ein weiterer abgegrenzter Quellpfad der
 DGN-007-Belegmatrix ausgewählt und mit einer präzisen Regression gebunden.

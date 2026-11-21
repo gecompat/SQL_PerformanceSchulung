@@ -13866,7 +13866,8 @@ führende Inline-Flags wird zusätzlich eine symbolische Formel samt bedingtem
 Unicode-Default ausgegeben; Byte-Muster erhalten keinen Text-Default. Wenn
 Eingabeflags und führende Inline-Flags bekannt sind, wird außerdem der
 normalisierte Zahlenwert für erfolgreiche Compile-/Parsepfade berechnet;
-inkompatible Text-/Bytekombinationen erzeugen keinen Wertkandidaten. Diese
+unbekannte Compile-Flags bleiben ungelöst und inkompatible Text-/Bytekombinationen
+erzeugen keinen Zahlenwertkandidaten. Diese
 Zahlenwerte bleiben statische bedingte Kandidaten, keine ausgeführten
 Regexobjektwerte. 314 fokussierte Tests bestehen. Endgültige Flags werden
 weiterhin nicht als beobachtete Werte ausgegeben.

@@ -464,6 +464,31 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertTrue(all(
             not row["compile_parse_and_regex_execution_observed"] for row in result
         ))
+        unresolved_source = b"import re\np = re.compile('(?i)unknown', flags=dynamic)\n"
+        unresolved_digest = hashlib.sha256(unresolved_source).hexdigest()
+        unresolved_candidate = {
+            "module": "fixture", "source_path": "fixture.py",
+            "source_sha256": unresolved_digest, "line": 2,
+            "argument_kind": "STRING_LITERAL",
+            "argument_sha256": hashlib.sha256(b"(?i)unknown").hexdigest(),
+            "compile_call_observed": False, "pattern_parse_observed": False,
+        }
+        unresolved_flags = {
+            **unresolved_candidate, "flags_resolution": "UNRESOLVED",
+            "flags_value_if_call_evaluates": None,
+            "verbose_mode_if_parser_entry_reached": None,
+            "standard_re_compile_binding_observed": False,
+            "parser_entry_observed": False,
+        }
+        unresolved_result = SUBJECT._target_re_compile_pattern_flags_candidates(
+            {"fixture.py": unresolved_source}, [unresolved_candidate],
+            [unresolved_flags], native_flags, parser_flags,
+        )
+        self.assertEqual(len(unresolved_result), 1)
+        self.assertIsNone(
+            unresolved_result[0]["normalized_pattern_flags_symbolic_candidate"])
+        self.assertIsNone(
+            unresolved_result[0]["pattern_flags_numeric_candidate_if_compile_and_parse_succeed"])
         changed = [
             (inputs, [flags[0]], native_flags, parser_flags),
             (inputs, [{**flags[0], "argument_sha256": "0" * 64}], native_flags,
