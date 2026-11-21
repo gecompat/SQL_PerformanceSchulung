@@ -24,6 +24,7 @@ SRE_C_FIXTURE = (
     b"{\n"
     b"    self->groups = groups;\n"
     b"    self->flags = flags;\n"
+    b"    self->pattern = Py_NewRef(pattern);\n"
     b"    self->groupindex = NULL;\n"
     b"    if (PyDict_GET_SIZE(groupindex) > 0) {\n"
     b"        self->groupindex = Py_NewRef(groupindex);\n"
@@ -51,6 +52,8 @@ SRE_C_FIXTURE = (
     b'     "The number of capturing groups in the pattern."},\n'
     b'    {"flags",      T_INT,       PAT_OFF(flags),         READONLY,\n'
     b'     "flags used when compiling pattern source."},\n'
+    b'    {"pattern",    T_OBJECT,    PAT_OFF(pattern),       READONLY,\n'
+    b'     "regular expression pattern as a string."},\n'
     b"    {NULL}\n"
     b"};\n"
 )
@@ -59,6 +62,7 @@ SRE_H_FIXTURE = (
     b"    PyObject_VAR_HEAD\n"
     b"    Py_ssize_t groups; /* must be first! */\n"
     b"    int flags; /* flags used when compiling pattern source */\n"
+    b"    PyObject* pattern; /* pattern source (or None) */\n"
     b"    PyObject* groupindex; /* dict */\n"
     b"    PyObject* indexgroup; /* tuple */\n"
     b"} PatternObject;\n"
@@ -109,6 +113,65 @@ class StaticImportCandidateTests(unittest.TestCase):
                               return_value={"compile_flags_expression": "flags"}):
                 self.assertIsNone(
                     SUBJECT._target_re_compiler_flags_to_pattern_flags_candidate(
+                        {}, sre_c, sre_h,
+                    )
+                )
+
+    def test_compiler_pattern_candidate_binds_input_to_pattern_property(self):
+        sre_c, sre_h = SRE_C_FIXTURE, SRE_H_FIXTURE
+        compiler_input = {
+            "string_input_branch": "pattern = p; p = _parser.parse(p, flags)",
+            "preparsed_input_branch": "pattern = None",
+        }
+        compiler_call = {"source_path": "re/_compiler.py"}
+        with (patch.multiple(
+                SUBJECT,
+                SRE_C_SHA256=hashlib.sha256(sre_c).hexdigest(),
+                SRE_H_SHA256=hashlib.sha256(sre_h).hexdigest()),
+              patch.object(SUBJECT,
+                           "_target_re_compiler_parsed_pattern_input_candidate",
+                           return_value=compiler_input),
+              patch.object(SUBJECT,
+                           "_target_re_compiler_group_metadata_candidate",
+                           return_value=compiler_call)):
+            candidate = SUBJECT._target_re_compiler_pattern_to_pattern_pattern_candidate(
+                {}, sre_c, sre_h,
+            )
+            self.assertEqual(candidate["compiler_sre_compile_pattern_argument"],
+                             "pattern (original string or None)")
+            self.assertEqual(candidate["pattern_object_storage"],
+                             "self->pattern = Py_NewRef(pattern)")
+            self.assertEqual(candidate["public_read_only_view"],
+                             "Pattern.pattern -> pattern_members[pattern, READONLY]")
+            self.assertFalse(candidate["execution_observed"])
+            mutations = (
+                (sre_c.replace(b"self->pattern = Py_NewRef(pattern);",
+                               b"self->pattern = Py_NewRef(code);", 1), sre_h),
+                (sre_c.replace(b"PAT_OFF(pattern),       READONLY",
+                               b"PAT_OFF(pattern),       0", 1), sre_h),
+                (sre_c, sre_h.replace(
+                    b"PyObject* pattern; /* pattern source (or None) */",
+                    b"PyObject* source;", 1)),
+            )
+            for changed_c, changed_h in mutations:
+                with self.subTest(c=changed_c != sre_c, h=changed_h != sre_h):
+                    with patch.multiple(
+                            SUBJECT,
+                            SRE_C_SHA256=hashlib.sha256(changed_c).hexdigest(),
+                            SRE_H_SHA256=hashlib.sha256(changed_h).hexdigest()):
+                        self.assertIsNone(
+                            SUBJECT._target_re_compiler_pattern_to_pattern_pattern_candidate(
+                                {}, changed_c, changed_h,
+                            )
+                        )
+            with patch.object(
+                    SUBJECT, "_target_re_compiler_parsed_pattern_input_candidate",
+                    return_value={
+                        "string_input_branch": "pattern = p",
+                        "preparsed_input_branch": "pattern = None",
+                    }):
+                self.assertIsNone(
+                    SUBJECT._target_re_compiler_pattern_to_pattern_pattern_candidate(
                         {}, sre_c, sre_h,
                     )
                 )

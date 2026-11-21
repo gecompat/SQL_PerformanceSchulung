@@ -3123,10 +3123,11 @@ Eine Mutation, die den Erfolg als `PROFILE_VALIDATED` ausgibt, wird verworfen.
 ## Begrenzte Fortsetzung: DGN-007-Quellclosure verkleinern
 
 Die Fortsetzung hat den Compiler-Flagfluss bis zur schreibgeschützten
-`Pattern.flags`-Eigenschaft anhand der gepinnten CPython-3.12.16-Quellen
-geschlossen. Der Kandidat bleibt `CANDIDATES_ONLY`; daraus folgt keine
-Interpreter-, P11- oder Runtimeattestation. Als nächster Schritt wird ein
-weiterer abgegrenzter unbekannter Quellpfad aus der DGN-007-Belegmatrix
+`Pattern.flags`-Eigenschaft sowie den Eingabemusterpfad bis zur
+schreibgeschützten `Pattern.pattern`-Eigenschaft anhand der gepinnten
+CPython-3.12.16-Quellen geschlossen. Beide Kandidaten bleiben
+`CANDIDATES_ONLY`; daraus folgt keine Interpreter-, P11- oder Runtimeattestation.
+Als Nächstes wird ein weiterer abgegrenzter Quellpfad der DGN-007-Belegmatrix
 ausgewählt und mit einer präzisen Regression gebunden.
 
 Der erste Quellschritt bindet alle fünf produktiven `copyreg.pickle`-Aufrufe
