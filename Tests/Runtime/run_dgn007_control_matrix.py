@@ -97,16 +97,16 @@ def observe_sqlserver_processes(target_container: str) -> tuple[tuple[str, int],
     sql_processes: list[tuple[str, int]] = []
     for container_id in container_ids:
         output = _docker(
-            ["docker", "top", container_id, "-eo", "pid,comm"],
+            ["docker", "top", container_id],
             failure_code="FAIL_DOCKER_TOP",
         )
         for line in output.splitlines():
-            fields = line.strip().split(None, 1)
-            if len(fields) != 2 or not fields[0].isdecimal():
+            fields = line.strip().split(None, 7)
+            if len(fields) != 8 or not fields[1].isdecimal():
                 continue
-            command = fields[1].strip().replace("\\", "/").rsplit("/", 1)[-1].casefold()
+            command = fields[7].split(None, 1)[0].replace("\\", "/").rsplit("/", 1)[-1].casefold()
             if command in SQLSERVER_COMM:
-                sql_processes.append((container_id, int(fields[0])))
+                sql_processes.append((container_id, int(fields[1])))
     if (len(sql_processes) != 1 or sql_processes[0][0] != target_id
             or sql_processes[0][1] <= 0):
         raise CoordinatorRuntimeError()

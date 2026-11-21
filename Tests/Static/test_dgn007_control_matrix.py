@@ -33,14 +33,15 @@ class DockerInventoryTests(unittest.TestCase):
     def test_requires_exactly_the_target_sql_server_process(self):
         with patch.object(matrix, "_docker", side_effect=(
                 CONTAINER_ID, CONTAINER_ID + "\n",
-                "PID COMMAND\n4321 sqlservr\n800 bash\n")) as docker:
+                "UID PID PPID C STIME TTY TIME CMD\nmssql 4321 1 0 10:00 ? 00:01:00 /opt/mssql/bin/sqlservr\n"
+                "root 800 1 0 10:00 ? 00:00:00 bash\n")) as docker:
             self.assertEqual(matrix.observe_sqlserver_processes("sql-container"), PROCESS)
         self.assertEqual(docker.call_args_list, [
             call(["docker", "inspect", "--format", "{{.Id}}", "sql-container"],
                  failure_code="FAIL_DOCKER_INSPECT"),
             call(["docker", "ps", "--no-trunc", "--quiet"],
                  failure_code="FAIL_DOCKER_INVENTORY"),
-            call(["docker", "top", CONTAINER_ID, "-eo", "pid,comm"],
+            call(["docker", "top", CONTAINER_ID],
                  failure_code="FAIL_DOCKER_TOP"),
         ])
 
@@ -48,7 +49,8 @@ class DockerInventoryTests(unittest.TestCase):
         second_id = "b" * 64
         with patch.object(matrix, "_docker", side_effect=(
                 CONTAINER_ID, f"{CONTAINER_ID}\n{second_id}\n",
-                "4321 sqlservr\n", "9876 sqlservr\n")):
+                "UID PID PPID C STIME TTY TIME CMD\nmssql 4321 1 0 10:00 ? 00:01:00 sqlservr\n",
+                "UID PID PPID C STIME TTY TIME CMD\nmssql 9876 1 0 10:00 ? 00:01:00 sqlservr\n")):
             with self.assertRaisesRegex(matrix.CoordinatorRuntimeError, "FAIL_CONTRACT"):
                 matrix.observe_sqlserver_processes("sql-container")
 
