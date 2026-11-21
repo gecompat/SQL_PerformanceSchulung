@@ -373,9 +373,12 @@ def _active_sql_session_snapshot(target: ExecutionTarget) -> int:
     )
     match = re.fullmatch(r"\s*([0-9]{1,3})\s*", output)
     if match is None:
+        reason = "EMPTY" if not output.strip() else "MALFORMED"
+        print(f"DGN007_SESSION_PROBE|{reason}")
         raise RunnerFailure("FAIL_CONTRACT")
     count = int(match.group(1))
     if count < 1:
+        print("DGN007_SESSION_PROBE|ZERO")
         raise RunnerFailure("FAIL_CONTRACT")
     return count
 
