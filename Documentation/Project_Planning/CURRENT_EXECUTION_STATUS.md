@@ -13774,7 +13774,10 @@ implementierten, isoliert qualifizierten Vorschlag und grenzt den Status
 Dokumentationsaussage; es ändert keine Zulassungsentscheidung und ergänzt keine
 Runtime- oder Produktfreigabe. Die PR-Prüfungen für statische Ausführungspfade,
 Katalog, Governance, Curriculum und Datenschutz waren erfolgreich. Ein
-Coverage-Runtimejob hatte beim Imageabruf einen Netzwerkabbruch; der gezielte
-Wiederanlauf war beim Merge noch wartend. Die nachgelagerte Main-Matrix
-`44909220078` ist gestartet und muss vollständig erfolgreich enden, bevor ihr
-Runtime-Nachweis als abgeschlossen gilt.
+Coverage-Runtimejob hatte beim Imageabruf einen Netzwerkabbruch; sein
+Wiederanlauf blieb nach dem PR-Merge in der Queue. Die vollständige
+nachgelagerte Main-Matrix
+[#44909220078](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44909220078)
+bestand anschließend alle 29 Jobs, einschließlich der ausgewählten
+2019/2022/2025-Läufe und Cleanup-Prüfungen. Der Runtime-Nachlauf ist damit für
+diesen Coverage-Scope erfolgreich abgeschlossen.
