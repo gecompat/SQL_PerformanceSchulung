@@ -55,6 +55,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python Tests/Static/test_qry023_runtime_caller.py
+      - run: python Tests/Static/test_qry023_resource_usage.py
       - run: python Tests/Static/validate_qry023_proposed_harness.py
       - uses: actions/setup-dotnet@v6
         with:
@@ -1067,6 +1068,10 @@ jobs:
           printf '%s\n' "$output"
           grep -F 'QRY023_NEGATIVE_PERMISSION|CUSTOM_ENDPOINT_REMOVED' <<< "$output"
           echo 'QRY023_CUSTOM_ENDPOINT_CREATED=' >> "$GITHUB_ENV"
+      - name: Capture owned container peak resources
+        if: always()
+        shell: bash
+        run: python3 Tests/Runtime/qry023_resource_usage.py
       - name: Remove only the owned SQL Server container
         if: always()
         shell: bash

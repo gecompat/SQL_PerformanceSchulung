@@ -532,6 +532,10 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
 
     def test_runtime_workflow_requires_negative_permission_rejection_and_cleanup(self) -> None:
         workflow = (ROOT / ".github/workflows/qry023-proposed-runtime.yml").read_text(encoding="utf-8")
+        self.assertIn("Capture owned container peak resources", workflow)
+        self.assertLess(workflow.index("Capture owned container peak resources"),
+                        workflow.index("Remove only the owned SQL Server container"))
+        self.assertIn("python3 Tests/Runtime/qry023_resource_usage.py", workflow)
         self.assertLess(workflow.index("Prove the permission inventory rejects an unexpected READER grant"),
                         workflow.index("Run the full proposed FWK-010 lifecycle"))
         self.assertLess(workflow.index("Prove the permission inventory rejects an explicit READER DENY"),
@@ -717,7 +721,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
             workflow.index("Remove custom endpoint after negative control"):
             workflow.index("Remove only the owned SQL Server container")
         ]
-        self.assertEqual(post_endpoint_steps.count("      - name:"), 1)
+        self.assertEqual(post_endpoint_steps.count("      - name:"), 2)
         timeout_case = workflow[
             workflow.index("Prove a SQL timeout suppresses cleanup and preserves the marked target"):
             workflow.index("Prove the permission inventory rejects an unregistered custom endpoint")
