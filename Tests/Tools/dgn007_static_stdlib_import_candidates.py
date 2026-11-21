@@ -9993,6 +9993,63 @@ def _target_re_compiler_flags_to_pattern_flags_candidate(
     }
 
 
+def _target_re_compiler_pattern_to_pattern_pattern_candidate(
+        files, sre_c_source, sre_h_source):
+    """Join compiler input selection to native Pattern.pattern storage/view."""
+    compiler_input = _target_re_compiler_parsed_pattern_input_candidate(files)
+    compiler_call = _target_re_compiler_group_metadata_candidate(files)
+    if (compiler_input is None or compiler_call is None
+            or compiler_input.get("string_input_branch")
+            != "pattern = p; p = _parser.parse(p, flags)"
+            or compiler_input.get("preparsed_input_branch") != "pattern = None"):
+        return None
+    if (type(sre_c_source) is not bytes or type(sre_h_source) is not bytes
+            or len(sre_c_source) > MAX_SRE_C_BYTES
+            or len(sre_h_source) > MAX_SRE_H_BYTES
+            or hashlib.sha256(sre_c_source).hexdigest() != SRE_C_SHA256
+            or hashlib.sha256(sre_h_source).hexdigest() != SRE_H_SHA256):
+        return None
+    try:
+        c_text = sre_c_source.decode("utf-8")
+        h_text = sre_h_source.decode("utf-8")
+    except UnicodeError:
+        return None
+    compile_start = c_text.find("_sre_compile_impl(")
+    clinic_end = c_text.find("/*[clinic input]\n_sre.template", compile_start)
+    if compile_start < 0 or clinic_end < 0:
+        return None
+    region = c_text[compile_start:clinic_end]
+    structs = re.findall(r"typedef struct \{(.*?)\} PatternObject;", h_text, re.S)
+    members = re.findall(
+        r"static PyMemberDef pattern_members\[\] = \{(.*?)\n\};", c_text, re.S,
+    )
+    pattern_member = '{"pattern",    T_OBJECT,    PAT_OFF(pattern),       READONLY,'
+    if (not re.search(
+            r"_sre_compile_impl\(PyObject \*module, PyObject \*pattern, int flags,"
+            r"\s*PyObject \*code, Py_ssize_t groups, PyObject \*groupindex,"
+            r"\s*PyObject \*indexgroup\)", region)
+            or region.count("self->pattern = Py_NewRef(pattern);") != 1
+            or len(structs) != 1
+            or structs[0].count("PyObject* pattern; /* pattern source (or None) */") != 1
+            or len(members) != 1
+            or members[0].count(pattern_member) != 1):
+        return None
+    return {
+        "compiler_string_input": compiler_input["string_input_branch"],
+        "compiler_preparsed_input": compiler_input["preparsed_input_branch"],
+        "compiler_sre_compile_pattern_argument": "pattern (original string or None)",
+        "native_compile_parameter": "PyObject *pattern",
+        "pattern_object_storage": "self->pattern = Py_NewRef(pattern)",
+        "public_read_only_view": "Pattern.pattern -> pattern_members[pattern, READONLY]",
+        "c_source_sha256": SRE_C_SHA256,
+        "header_source_sha256": SRE_H_SHA256,
+        "source_paths": ["re/_compiler.py", "Modules/_sre/sre.c",
+                         "Modules/_sre/sre.h"],
+        "execution_observed": False,
+        "evidence_scope": "PINNED_RE_INPUT_TO_PATTERN_PATTERN_SOURCE_CANDIDATE",
+    }
+
+
 def _target_re_group_name_to_pattern_groupindex_candidate(
         files, sre_c_source, sre_h_source):
     """Join parser registration, compiler handoff, native storage, and view."""
@@ -15541,6 +15598,13 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
     )
     if target_re_compiler_flags_to_pattern_flags_candidate is None:
         raise ValueError("SRE_PATTERN_FLAGS_CANDIDATE")
+    target_re_compiler_pattern_to_pattern_pattern_candidate = (
+        _target_re_compiler_pattern_to_pattern_pattern_candidate(
+            files, sre_c_source, sre_h_source,
+        )
+    )
+    if target_re_compiler_pattern_to_pattern_pattern_candidate is None:
+        raise ValueError("SRE_PATTERN_SOURCE_CANDIDATE")
     zipimport_hook_registration_candidate = (
         _target_zipimport_hook_registration_candidate(python_import_c_source)
     )
@@ -16788,6 +16852,9 @@ def analyze(archive_path, target_pyconfig_path=None, target_no_site=False,
         ),
         "target_re_compiler_flags_to_pattern_flags_candidate": (
             target_re_compiler_flags_to_pattern_flags_candidate
+        ),
+        "target_re_compiler_pattern_to_pattern_pattern_candidate": (
+            target_re_compiler_pattern_to_pattern_pattern_candidate
         ),
         "target_platform_functools_lru_cache_condition_facts": [
             {"module": module, "source_path": source_path, "line": line,

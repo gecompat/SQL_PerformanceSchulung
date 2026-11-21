@@ -13816,3 +13816,16 @@ Hostexklusivität noch externe Quellenherkunft oder geladene Runtimebytes. Der
 verlustfreie Collector des prospektiven Vertrags, eine vollständige
 DEC-068-Incidentmatrix und Incident-/Ursachennachweis bleiben offen. Die
 menschliche Generalprobe bleibt ausgeschlossen.
+
+### DGN-007 – Eingabemuster bis `Pattern.pattern` quellenbinden (21. November 2026)
+
+Der gepinnte CPython-3.12.16-Compiler wählt bei Stringeingaben den Originaltext
+als `pattern` und parst ihn separat; bei bereits geparsten Eingaben setzt er
+`pattern = None`. Die Argumentfolge des `_sre.compile`-Aufrufs reicht diesen
+Wert als erstes Argument an `_sre_compile_impl(PyObject *pattern)` weiter.
+Der native Code speichert ihn mit `self->pattern = Py_NewRef(pattern)`; das
+`PatternObject`-Feld und der schreibgeschützte `Pattern.pattern`-Member sind
+ebenfalls digestgebunden. Mutationstests decken Übergabe, Speicherung,
+Felddeklaration und Read-only-Deskriptor ab. 310 fokussierte Tests bestehen
+lokal. Das bleibt `CANDIDATES_ONLY`: Es beobachtet weder Parsing noch ein
+kompiliertes Patternobjekt oder Regexlaufzeit.
