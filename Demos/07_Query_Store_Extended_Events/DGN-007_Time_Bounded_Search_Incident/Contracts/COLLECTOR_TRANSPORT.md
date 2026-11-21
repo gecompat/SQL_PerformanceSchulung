@@ -126,9 +126,10 @@ Das bleibt eine deklarative PROJECT_SEMANTIC-Abbildung: Der Mapper authentifizie
 weder die Callerbelege noch integrierten Freeze, tatsächliche Quellenverwendung,
 Zielinstanz, Ressourcen, reale Reihenfolge oder 180-/60-Sekunden-Budgets. Er
 führt weder Prozesse noch SQL aus und bewertet keine sechs-Lifecycle-Version.
-Bis ein vertrauensgebundener Coordinator diese Belege aus tatsächlichen Aktionen
-erzeugt und Cleanup unabhängig bestätigt, ist der vollständige Coordinator
-weiterhin offen; ein synthetischer Mapper-PASS ist keine Runtimeattestation.
+Der [Laufzeit-Coordinator](../../../../Tests/Runtime/run_dgn007_control_matrix.py)
+erzeugt und bindet diese Belege inzwischen aus den privaten Capture-Receipts;
+seine neue isolierte Drei-Engine-Matrix ist noch nicht qualifiziert. Ein
+synthetischer Mapper-PASS bleibt für sich allein keine Runtimeattestation.
 
 ### Deklarative Matrixpräqualifikation
 
@@ -180,6 +181,7 @@ python Tests/Static/test_dgn007_collector_record_assembly.py
 python Tests/Static/test_dgn007_collector_coordinator.py
 python Tests/Static/test_dgn007_collector_receipt_binding.py
 python Tests/Static/test_dgn007_source_freeze.py
+python -m unittest discover -s Tests/Static -p test_dgn007_control_matrix.py
 python Tests/Static/validate_dgn007_prospective_acceptance.py
 python Tests/Static/test_dgn007_prospective_acceptance.py
 ```
@@ -190,20 +192,35 @@ Prospektivtests bestanden lokal, ebenso die Validatoren. Der eigene
 fünfminütige Statikworkflow prüft diese Grenze im temporären GitHub-Checkout.
 Dieser ursprüngliche Decoder-Nachweis enthält keine SQL-Runtime. Der
 getrennte Producer und seine eigene Prüfung stehen in
-[DGN-007 – SQL-Producer der skalaren Capture-Projektion](SQL_CAPTURE_PRODUCER.md); der Coordinator bleibt offen.
+[DGN-007 – SQL-Producer der skalaren Capture-Projektion](SQL_CAPTURE_PRODUCER.md).
+Die Laufzeitintegration und ihre Qualifikationsgrenze stehen im folgenden
+Abschnitt.
 
-## Nächster ausführbarer Schnitt
+## Laufzeit-Coordinator und Qualifikationsgrenze
 
-Der Producer stellt tatsächliche Ergebniszeilen und die vollständige skalare
-Projektion in der Evidenzphase vor Cleanup bereit. Der bestehende
-Framework-Harness hält weiterhin nur Phasenresultate, keine Resultsets;
-die zusätzliche kontrollierte Frameübernahme erfolgt im Producer-Modus.
-Danach muss der Coordinator den integrierten Freeze,
-Quellen, Zielinstanz, Ressourcen, tatsächliche serielle Reihenfolge und
-Zeitbudgets prüfen sowie Cleanup und Datenbankabwesenheit unabhängig
-bestätigen. Erst dann dürfen frische Bestätigungsläufe den prospektiven
-Evaluator erreichen. Incident-, Ursachen-, Mitigations-, Capstone- und
-Szenariofreigabe bleiben offen.
+Der Laufzeit-Coordinator in
+[`run_dgn007_control_matrix.py`](../../../../Tests/Runtime/run_dgn007_control_matrix.py)
+führt die sechs Kontrollcaptures je Engine in der festgelegten DEC-068-Reihenfolge
+aus. Vor dem ersten SQL-Aufruf und an jedem Lifecycle-Rand inventarisiert er die
+laufenden Docker-Container und verlangt genau einen `sqlservr`-Prozess im
+vorgegebenen Zielcontainer; Containerkennung und Prozess-ID (PID) müssen über die
+Randproben stabil bleiben. Die privaten Receipts liefern Quellenfreeze-Snapshots,
+tatsächlich geprüfte Harness-Phasen und -Zeiten, Docker-Ressourcenlimits,
+SQL-Sessions und die unabhängige Datenbankabwesenheitsprüfung. Der Coordinator
+bindet diese Receipts an sechs vollständige Records, prüft Reihenfolge und
+Budgets und ruft anschließend den unveränderten DEC-068-Evaluator auf.
+Capture-Bodies und Records bleiben im Arbeitsspeicher; nach außen erscheinen
+nur kompakte Statuscodes. Die bestehende Workflow-Bereinigung entfernt danach
+den eigenen Wegwerfcontainer.
+
+Das sind Hostinventur-Randproben, keine durchgehende Exklusivitätsattestation.
+Ein fremder Container zwischen zwei Proben, die tatsächlich vom Kindprozess
+geladenen Bytes und eine externe Herkunft des Quellbestands bleiben unbelegt.
+Ein gültiger Evaluator-Skip bleibt `SKIP_EVIDENCE_MISSING`, kein PASS und keine
+misslungene Produkteigenschaft. Die neue Runtime-Integration benötigt ihre
+vollständige isolierte 2019/2022/2025-CI-Matrix, bevor sie als qualifiziert
+gilt. Incident-, Ursachen-, Mitigations-, Capstone- und Szenariofreigabe
+bleiben getrennte Gates.
 
 Technische Primärquellen, geprüft am 2026-10-07:
 [Python Decimal](https://docs.python.org/3/library/decimal.html),

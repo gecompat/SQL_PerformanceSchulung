@@ -769,7 +769,7 @@ class ExtractedSqlTests(unittest.TestCase):
         for mutation in ('DROP DATABASE master;','EXEC sys.sp_executesql N\'SELECT query_sql_text FROM sys.query_store_query_text;\';'):
             self.assertTrue(validator.projection_sql_findings(self.evidence.replace('/* CAPTURE_PROJECTION_BEGIN */','/* CAPTURE_PROJECTION_BEGIN */\n'+mutation)))
         workflow=validator.WORKFLOW.read_text(encoding='utf-8');self.assertEqual(validator.workflow_findings(workflow),[])
-        for before,after in (('--check-capture-projection',''),('cancel-in-progress: false','cancel-in-progress: true'),('python Tests/Static/test_dgn007_capture_projection.py','true')):
+        for before,after in (('python Tests/Runtime/run_dgn007_control_matrix.py','python false'),('cancel-in-progress: false','cancel-in-progress: true'),('python Tests/Static/test_dgn007_capture_projection.py','true')):
             self.assertTrue(validator.workflow_findings(workflow.replace(before,after)),before)
         source=validator.RUNNER.read_text(encoding='utf-8');self.assertEqual(validator.runner_projection_findings(source),[])
         self.assertTrue(validator.runner_projection_findings(source+'\nprint("--show-output")'))
@@ -792,6 +792,8 @@ class ExtractedSqlTests(unittest.TestCase):
         for scope in ('data-model','query-store-windows','profile-comparison'):
             self.assertTrue(validator.workflow_findings(workflow.replace(
                 '--scope '+scope+' --check-phase-diagnostics','--scope '+scope)))
+        self.assertTrue(validator.workflow_findings(workflow.replace(
+            '--confirm-disposable-instance --confirm-isolated-lab','--confirm-disposable-instance')))
 
 
 if __name__=='__main__':unittest.main()
