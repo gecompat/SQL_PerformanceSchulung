@@ -16,7 +16,7 @@ RUNTIME = ROOT / "Tests" / "Runtime"
 if str(RUNTIME) not in sys.path:
     sys.path.insert(0, str(RUNTIME))
 
-from dgn004_capture_runner import collect_bounded_process  # noqa: E402
+from dgn004_capture_runner import CaptureTimeoutError, collect_bounded_process  # noqa: E402
 from execution_target import ExecutionTarget, docker_target  # noqa: E402
 
 
@@ -27,8 +27,11 @@ OWNER_LABEL = "com.sqlperf.owner"
 OWNER_VALUE = "dgn004-runtime-v1"
 SQL_READY_MARKER = "SQL Server is now ready for client connections."
 CPU_NANOCORES = 2_000_000_000
+CPU_SET = "0-1"
 MEMORY_BYTES = 3 * 1024 * 1024 * 1024
 SA_PASSWORD_ENV = "MSSQL_SA_PASSWORD"
+START_RECOVERY_SETTLE_SECONDS = 20.0
+START_RESPONSE_SETTLE_SECONDS = 1.0
 
 
 @dataclass(frozen=True)
@@ -64,6 +67,14 @@ BUILD_PROFILES = (
 
 class ContainerError(RuntimeError):
     """A container boundary could not be established or preserved."""
+
+
+class UncertainContainerStartError(ContainerError):
+    """A start response was lost and cleanup could not be proven complete."""
+
+    def __init__(self, message: str, *, cleanup_ok: bool):
+        super().__init__(message)
+        self.cleanup_ok = cleanup_ok
 
 
 @dataclass(frozen=True)
@@ -117,6 +128,7 @@ def _docker(
     environment: dict[str, str] | None = None,
     timeout: float = 20.0,
     output_limit: int = 64 * 1024,
+    allow_stderr: bool = False,
 ) -> str:
     command = [_docker_executable(), *args]
     env = dict(os.environ if environment is None else environment)
@@ -129,10 +141,12 @@ def _docker(
         stdout_limit_bytes=output_limit,
         stderr_limit_bytes=16 * 1024,
     )
-    if result.returncode != 0 or result.stderr:
+    if result.returncode != 0 or (result.stderr and not allow_stderr):
         raise ContainerError("Docker command failed or wrote diagnostic output")
     try:
-        return result.stdout.decode("ascii", errors="strict").strip()
+        output = result.stdout + (result.stderr if allow_stderr else b"")
+        return output.decode("utf-8" if allow_stderr else "ascii",
+                             errors="replace" if allow_stderr else "strict").strip()
     except UnicodeDecodeError as exc:
         raise ContainerError("Docker control output was not ASCII") from exc
 
@@ -177,24 +191,73 @@ def _inspect_identity(
         f"{{{{index .Config.Labels \"{DEMO_LABEL}\"}}}}|"
         f"{{{{index .Config.Labels \"{RUN_LABEL}\"}}}}|"
         f"{{{{index .Config.Labels \"{OWNER_LABEL}\"}}}}|"
-        "{{.HostConfig.NanoCpus}}|{{.HostConfig.Memory}}|{{.HostConfig.MemorySwap}}|"
+        "{{.HostConfig.NanoCpus}}|{{.HostConfig.CpusetCpus}}|{{.HostConfig.Memory}}|{{.HostConfig.MemorySwap}}|"
         "{{.HostConfig.NetworkMode}}|{{json .NetworkSettings.Ports}}|{{len .Mounts}}|{{.State.Status}}"
     )
     frame = _docker(["container", "inspect", "--format", template, name])
     fields = frame.split("|")
-    if len(fields) != 13:
+    if len(fields) != 14:
         raise ContainerError("container identity frame is incomplete")
-    container_id, image, project, demo, run, owner, cpu, memory, swap, network, ports, mounts, state = fields
+    container_id, image, project, demo, run, owner, cpu, cpuset, memory, swap, network, ports, mounts, state = fields
     if (not re.fullmatch(r"[0-9a-f]{64}", container_id)
             or project != "SQL_PerformanceSchulung" or demo != "DGN-004"
             or run != expected_run_token or owner != OWNER_VALUE
-            or int(cpu) != CPU_NANOCORES or int(memory) != MEMORY_BYTES
+            or int(cpu) != CPU_NANOCORES or cpuset != CPU_SET or int(memory) != MEMORY_BYTES
             or int(swap) != MEMORY_BYTES or network != "none"
             or ports not in {"{}", "null"} or int(mounts) != 0
             or expected_profile not in BUILD_PROFILES
             or image != f"{expected_profile.image}@{expected_profile.digest}"):
         raise ContainerError("container does not match the complete owned DGN-004 boundary")
     return container_id, state
+
+
+def _recover_uncertain_start(
+    *, name: str, profile: BuildProfile, run_token: str, deadline: float,
+    settle_seconds: float = START_RECOVERY_SETTLE_SECONDS,
+    expected_id: str | None = None,
+) -> None:
+    """Reconcile a lost `docker run` response using its unique name and labels."""
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise ContainerError("no recovery time remains after uncertain container start")
+    settle_deadline = min(deadline, time.monotonic() + settle_seconds)
+    while True:
+        remaining = settle_deadline - time.monotonic()
+        found = _docker(
+            ["container", "ls", "--all", "--filter", f"name=^{name}$", "--format", "{{.Names}}"],
+            timeout=min(10.0, max(0.1, remaining if remaining > 0 else deadline-time.monotonic())),
+            output_limit=4096,
+        )
+        names = [line for line in found.splitlines() if line]
+        if names:
+            if names != [name]:
+                raise ContainerError("uncertain start returned an ambiguous container name")
+            # Inspection validates every ownership marker and runtime limit before any removal.
+            identity, _ = _inspect_identity(name, expected_profile=profile, expected_run_token=run_token)
+            if expected_id is not None and identity != expected_id:
+                raise ContainerError("container ID differs from the acknowledged start response")
+            cleanup_owned_container(
+                name=name, expected_id=identity, run_token=run_token, profile=profile,
+                deadline=deadline,
+            )
+        if time.monotonic() >= settle_deadline:
+            # One final lookup at the end of the settle interval proves absence.
+            final = _docker(
+                ["container", "ls", "--all", "--filter", f"name=^{name}$", "--format", "{{.Names}}"],
+                timeout=min(10.0, max(0.1, deadline-time.monotonic())), output_limit=4096,
+            )
+            if not final:
+                return
+            if final.strip() != name:
+                raise ContainerError("uncertain start returned an ambiguous container name")
+            identity, _ = _inspect_identity(name, expected_profile=profile, expected_run_token=run_token)
+            if expected_id is not None and identity != expected_id:
+                raise ContainerError("container ID differs from the acknowledged start response")
+            cleanup_owned_container(
+                name=name, expected_id=identity, run_token=run_token, profile=profile,
+                deadline=deadline,
+            )
+        time.sleep(min(0.5, max(0.0, settle_deadline-time.monotonic())))
 
 
 def start_owned_container(
@@ -215,7 +278,7 @@ def start_owned_container(
         "--label", f"{DEMO_LABEL}=DGN-004",
         "--label", f"{RUN_LABEL}={run_token}",
         "--label", f"{OWNER_LABEL}={OWNER_VALUE}",
-        "--cpus=2", "--memory=3g", "--memory-swap=3g", "--network=none",
+        "--cpus=2", "--cpuset-cpus=0-1", "--memory=3g", "--memory-swap=3g", "--network=none",
         "--pull=never", "--restart=no",
         "--env", "ACCEPT_EULA=Y",
         "--env", f"MSSQL_PID={profile.mssql_pid}",
@@ -224,9 +287,26 @@ def start_owned_container(
     ]
     if time.monotonic() >= deadline:
         raise ContainerError("runtime deadline expired before container start")
-    container_id = _docker(command, environment=environment, timeout=min(20.0, deadline - time.monotonic()))
-    if not re.fullmatch(r"[0-9a-f]{64}", container_id):
-        raise ContainerError("Docker did not return a complete container identity")
+    try:
+        container_id = _docker(command, environment=environment, timeout=min(20.0, deadline - time.monotonic()))
+        if not re.fullmatch(r"[0-9a-f]{64}", container_id):
+            raise ContainerError("Docker did not return a complete container identity")
+    except BaseException as start_error:
+        settle_seconds = (START_RESPONSE_SETTLE_SECONDS
+                          if isinstance(start_error, ContainerError)
+                          and str(start_error) == "Docker did not return a complete container identity"
+                          else START_RECOVERY_SETTLE_SECONDS)
+        try:
+            _recover_uncertain_start(
+                name=name, profile=profile, run_token=run_token,
+                deadline=time.monotonic() + 60.0,
+                settle_seconds=settle_seconds,
+            )
+        except BaseException as recovery_error:
+            raise UncertainContainerStartError(
+                "container start outcome and cleanup are unknown", cleanup_ok=False
+            ) from recovery_error
+        raise start_error
     try:
         inspected_id, state = _inspect_identity(
             name, expected_profile=profile, expected_run_token=run_token
@@ -235,12 +315,19 @@ def start_owned_container(
             raise ContainerError("new container identity or lifecycle state differs")
         sqlcmd_path = _resolve_sqlcmd(name, deadline)
         target = docker_target(container=name, sqlcmd_path=sqlcmd_path)
-    except BaseException:
-        # Recovery may remove only the just-created ID after checking the run label.
-        cleanup_owned_container(
-            name=name, expected_id=container_id, run_token=run_token, profile=profile
-        )
-        raise
+    except BaseException as startup_error:
+        try:
+            _recover_uncertain_start(
+                name=name, expected_id=container_id, profile=profile,
+                run_token=run_token, deadline=time.monotonic() + 60.0,
+                settle_seconds=START_RESPONSE_SETTLE_SECONDS,
+            )
+        except BaseException as recovery_error:
+            raise UncertainContainerStartError(
+                "container startup failed and owned-container cleanup is unknown",
+                cleanup_ok=False,
+            ) from recovery_error
+        raise startup_error
     return OwnedContainer(profile, name, run_token, container_id, password, target)
 
 
@@ -253,7 +340,8 @@ def wait_until_sql_server_ready(*, name: str, deadline: float, startup_limit: fl
     while time.monotonic() < ready_deadline:
         remaining = ready_deadline - time.monotonic()
         logs = _docker(["container", "logs", "--tail", "100", name],
-                       timeout=min(5.0, max(0.1, remaining)), output_limit=128 * 1024)
+                       timeout=min(5.0, max(0.1, remaining)), output_limit=128 * 1024,
+                       allow_stderr=True)
         if SQL_READY_MARKER in logs:
             # The log marker is emitted during engine startup. Give listener
             # and login initialization a brief bounded settle interval before

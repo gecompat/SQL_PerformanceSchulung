@@ -37,6 +37,7 @@ from dgn004_container import (  # noqa: E402
     BUILD_PROFILES,
     BuildProfile,
     ContainerError,
+    UncertainContainerStartError,
     OwnedContainer,
     cleanup_owned_container,
     sqlcmd_password,
@@ -1283,6 +1284,7 @@ def run_build(profile: BuildProfile, *, deadline: float) -> tuple[BuildEvidence,
     database_created = False
     setup_started = False
     cleanup_ok = False
+    container_start_cleanup_ok = True
     cleanup_failure_phase = "not-started"
     cleanup_failures: list[str] = []
     evidence: BuildEvidence | None = None
@@ -1403,7 +1405,9 @@ SELECT 'DGN004_IDS|' + CONVERT(varchar(20),DB_ID()) + '|'
         verdict, reasons = Verdict.NOT_PROVEN, ["SQL or Docker process completion is unknown"]
     except (Dgn004RuntimeError, CaptureRunnerError, ContainerError, PlanCandidateError,
             CurrentPlanError, OSError, ValueError, UnicodeError) as exc:
-        detail = str(exc) if type(exc) in (Dgn004RuntimeError, CaptureSqlcmdError) else type(exc).__name__
+        if isinstance(exc, UncertainContainerStartError):
+            container_start_cleanup_ok = exc.cleanup_ok
+        detail = str(exc) if isinstance(exc, (Dgn004RuntimeError, CaptureSqlcmdError, ContainerError)) else type(exc).__name__
         verdict, reasons = Verdict.NOT_PROVEN, [f"{phase}: {detail}"]
     except KeyboardInterrupt:
         verdict, reasons = Verdict.NOT_PROVEN, ["runtime interrupted"]
@@ -1461,7 +1465,7 @@ SELECT 'DGN004_IDS|' + CONVERT(varchar(20),DB_ID()) + '|'
                 container_cleanup_ok=container_cleanup_ok,
             )
         else:
-            cleanup_ok = True
+            cleanup_ok = container_start_cleanup_ok
         if not cleanup_ok:
             prior_reasons = ",".join(reasons) if reasons else "no prior runtime error recorded"
             cleanup_detail = ",".join(cleanup_failures) if cleanup_failures else cleanup_failure_phase

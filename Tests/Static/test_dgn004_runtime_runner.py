@@ -234,6 +234,34 @@ class Dgn004RuntimeRunnerTests(unittest.TestCase):
         self.assertEqual(sleep.call_count, 2)
         self.assertEqual(sleep.call_args_list[-1].args[0], 1.5)
 
+    def test_docker_logs_accept_server_output_routed_to_stderr(self):
+        process = BoundedProcessResult(0, b"ordinary stdout\n", b"SQL Server is now ready for client connections.\n", 0.01)
+        with patch.object(container, "collect_bounded_process", return_value=process):
+            logs = container._docker(
+                ["container", "logs", "--tail", "100", "sqlperf_dgn004_2022_abcdef012345"],
+                allow_stderr=True,
+            )
+        self.assertIn(container.SQL_READY_MARKER, logs)
+
+    def test_container_identity_requires_the_two_core_cpu_affinity(self):
+        profile = container.BUILD_PROFILES[0]
+        name = "sqlperf_dgn004_2022_abcdef012345"
+        frame = "|".join((
+            "a" * 64, f"{profile.image}@{profile.digest}", "SQL_PerformanceSchulung",
+            "DGN-004", "ABCDEF012345", container.OWNER_VALUE,
+            str(container.CPU_NANOCORES), "0-1", str(container.MEMORY_BYTES),
+            str(container.MEMORY_BYTES), "none", "{}", "0", "running",
+        ))
+        with patch.object(container, "_docker", return_value=frame):
+            self.assertEqual(container._inspect_identity(
+                name, expected_profile=profile, expected_run_token="ABCDEF012345",
+            ), ("a" * 64, "running"))
+        with patch.object(container, "_docker", return_value=frame.replace("|0-1|", "|0-23|")):
+            with self.assertRaisesRegex(container.ContainerError, "complete owned"):
+                container._inspect_identity(
+                    name, expected_profile=profile, expected_run_token="ABCDEF012345",
+                )
+
     def test_startup_wait_is_bounded_and_never_runs_sql(self):
         name = "sqlperf_dgn004_2025_abcdef012345"
         with patch.object(container, "_docker", return_value="still starting"):
@@ -241,6 +269,87 @@ class Dgn004RuntimeRunnerTests(unittest.TestCase):
                 with patch.object(container.time, "sleep"):
                     with self.assertRaises(container.ContainerError):
                         container.wait_until_sql_server_ready(name=name, deadline=4, startup_limit=3)
+
+    def test_uncertain_container_start_proves_absence_or_removes_only_verified_owner(self):
+        profile = container.BUILD_PROFILES[0]
+        name = "sqlperf_dgn004_2022_abcdef012345"
+        deadline = time.monotonic() + 10
+        with patch.object(container, "_docker", return_value="") as docker:
+            container._recover_uncertain_start(
+                name=name, profile=profile, run_token="ABCDEF012345", deadline=deadline,
+                settle_seconds=0,
+            )
+        self.assertEqual(docker.call_count, 2)
+        self.assertIn("container ls", " ".join(docker.call_args.args[0]))
+
+        with patch.object(container, "_docker", side_effect=[name, ""]):
+            with patch.object(container, "_inspect_identity", return_value=("a" * 64, "created")) as inspect:
+                with patch.object(container, "cleanup_owned_container") as cleanup:
+                    container._recover_uncertain_start(
+                        name=name, profile=profile, run_token="ABCDEF012345", deadline=deadline,
+                        settle_seconds=0,
+                    )
+        inspect.assert_called_once_with(
+            name, expected_profile=profile, expected_run_token="ABCDEF012345",
+        )
+        self.assertEqual(cleanup.call_args.kwargs["expected_id"], "a" * 64)
+
+    def test_uncertain_container_start_fails_closed_when_reconciliation_fails(self):
+        profile = container.BUILD_PROFILES[0]
+        with patch.object(container, "verify_pinned_image"):
+            with patch.object(container, "_password", return_value="A" * 32):
+                with patch.object(container, "_docker", side_effect=container.ContainerError("timeout")):
+                    with patch.object(container, "_recover_uncertain_start", side_effect=container.ContainerError("unknown")):
+                        with self.assertRaises(container.UncertainContainerStartError) as raised:
+                            container.start_owned_container(
+                                profile, deadline=time.monotonic() + 10,
+                                run_token="ABCDEF012345",
+                            )
+        self.assertFalse(raised.exception.cleanup_ok)
+
+    def test_malformed_container_id_enters_recovery_before_reporting_failure(self):
+        profile = container.BUILD_PROFILES[0]
+        with patch.object(container, "verify_pinned_image"):
+            with patch.object(container, "_password", return_value="A" * 32):
+                with patch.object(container, "_docker", return_value="truncated-id"):
+                    with patch.object(container, "_recover_uncertain_start") as recover:
+                        with self.assertRaisesRegex(container.ContainerError, "complete container identity"):
+                            container.start_owned_container(
+                                profile, deadline=time.monotonic() + 10,
+                                run_token="ABCDEF012345",
+                            )
+        self.assertEqual(recover.call_args.kwargs["settle_seconds"], container.START_RESPONSE_SETTLE_SECONDS)
+
+    def test_startup_failure_with_acknowledged_container_reports_cleanup_unknown(self):
+        profile = container.BUILD_PROFILES[0]
+        container_id = "a" * 64
+        with patch.object(container, "verify_pinned_image"):
+            with patch.object(container, "_password", return_value="A" * 32):
+                with patch.object(container, "_docker", return_value=container_id):
+                    with patch.object(container, "_inspect_identity", return_value=(container_id, "running")):
+                        with patch.object(container, "_resolve_sqlcmd", side_effect=container.ContainerError("exec failed")):
+                            with patch.object(container, "_recover_uncertain_start", side_effect=container.ContainerError("cleanup unknown")) as recover:
+                                with self.assertRaises(container.UncertainContainerStartError) as raised:
+                                    container.start_owned_container(
+                                        profile, deadline=time.monotonic() + 10,
+                                        run_token="ABCDEF012345",
+                                    )
+        self.assertFalse(raised.exception.cleanup_ok)
+        self.assertEqual(recover.call_args.kwargs["expected_id"], container_id)
+
+    def test_recovery_refuses_to_remove_a_different_container_id(self):
+        profile = container.BUILD_PROFILES[0]
+        name = "sqlperf_dgn004_2022_abcdef012345"
+        with patch.object(container, "_docker", return_value=name):
+            with patch.object(container, "_inspect_identity", return_value=("b" * 64, "created")):
+                with patch.object(container, "cleanup_owned_container") as cleanup:
+                    with self.assertRaisesRegex(container.ContainerError, "ID differs"):
+                        container._recover_uncertain_start(
+                            name=name, profile=profile, run_token="ABCDEF012345",
+                            expected_id="a" * 64, deadline=time.monotonic() + 10,
+                            settle_seconds=0,
+                        )
+        cleanup.assert_not_called()
 
     def test_null_force_failure_count_is_retained_without_false_zero_claim(self):
         row = {

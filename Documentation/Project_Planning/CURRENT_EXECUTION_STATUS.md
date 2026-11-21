@@ -1,6 +1,6 @@
 # Aktueller Ausführungsstand
 
-### DGN-004-Runtime-Implementierung: Qualifikation bestanden, Integration offen
+### DGN-004-Runtime-Implementierung: Cleanup-Review bestanden, AIO-Engpass blockiert Gesamtmatrix
 
 Am 21. November 2026 wurde die begrenzte DGN-004-Runtime-Entwicklung und
 anschließende Qualifikation für `CLASSICAL_FORCING_AND_HINT_CONTROL`
@@ -11,19 +11,28 @@ stellt Force-Zustände, Datenbankoptionen sowie die eigene Umgebung sicher
 wieder her. Fremde Container, Hostlast und Leistungsmessungen sind weder
 Voraussetzung noch Ziel.
 
-Die Laufzeitqualifikation besteht jetzt auf beiden gepinnten Builds. SQL Server
-2022 (`16.0.4265.3`, Developer/Linux, Kompatibilitätsstufe 160,
+Der letzte vollständige Lauf mit der aktuellen Lifecycle-Implementierung und
+registrierten Zwei-Kern-Grenze lieferte für SQL Server 2022
+(`16.0.4265.3`, Developer/Linux, Kompatibilitätsstufe 160,
 Image `sha256:ba4c8329f48fb8f02e1416be6a930ebfd71268caee78aa985f3af4315e457c89`)
-lieferte `PASS` mit neun beobachteten Aufrufen, neun Query-Store-Flushes,
-84 SQL-Batches und bestätigtem Cleanup (83,904 Sekunden). SQL Server 2025
-(`17.0.4075.5`, Enterprise Developer/Linux, Kompatibilitätsstufe 170,
+`NOT_PROVEN`, weil das Bereitschaftssignal ausblieb; Cleanup wurde bestätigt.
+SQL Server 2025 (`17.0.4075.5`, Enterprise Developer/Linux,
+Kompatibilitätsstufe 170,
 Image `sha256:4bab24f36c1ecd48e85f7d37df26e6bf301641d84c3fe652f9a0dcc947d512e1`)
-lieferte ebenfalls `PASS` mit denselben Aufruf-, Flush-, Batch- und
-Cleanupzahlen (71,735 Sekunden). Beide Läufe verwendeten jeweils die
-registrierten Ressourcen-, Zeit-, Output- und Eigentumsgrenzen. Alle eigenen
-Container wurden entfernt. Die gezielte Python-Suite führte 120 Tests aus; 119 bestanden und einer wurde
-plattformbedingt übersprungen. Die Laufzeiten sind nur
-Ablaufdaten und kein Leistungsnachweis.
+bestand im selben Matrixlauf mit neun Aufrufen, neun Query-Store-Flushes,
+84 SQL-Batches und bestätigtem Cleanup (`PASS`, 69,496 Sekunden). Die
+Gesamtqualifikation bleibt offen. Der unabhängige Runtime-/Cleanup-Review fand
+keine offenen P1/P2-Punkte. Die gezielte Python-Suite führte 127 Tests aus;
+126 bestanden und einer wurde plattformbedingt übersprungen.
+
+Der beobachtete Enginefehler verweist auf das hostweite Linux-Limit für
+asynchrone I/O-Kontexte. Die letzte read-only Abfrage ergab `aio-nr=65536` bei
+`aio-max-nr=65536`; SQL Server 2022 hatte zuvor explizit gemeldet, keinen neuen
+I/O-Kontext anlegen zu können. Die Ursache liegt außerhalb des eigenen
+Containers. Es wurden keine fremden Container oder globalen Hostwerte geändert.
+Die erneute 2022-Qualifikation bleibt `NOT_PROVEN`, bis der Host genügend
+I/O-Kontextkapazität bereitstellt. Laufzeiten sind Ablaufdaten und kein
+Leistungsnachweis.
 
 Der [Implementierungsplan](DGN_004_RUNTIME_IMPLEMENTATION_PLAN.md) und die
 [Quell-/Runnerbeschreibung](../../Tests/Fixtures/DGN004_SourcePair/README.md)
@@ -34,10 +43,13 @@ Integrationsfehler und wurden jeweils nach Codeänderung erneut ausgeführt:
 SQLCMD-Transport des registrierten Quelltexts, rechtsbündige Integerausgabe,
 API-Feldnamen des Kandidaten-Binders, tatsächliche Modultextform im Showplan,
 mehrzeiliger Query-Store-Metadatentransport und Phasenbindung von
-`UsePlan`/Planidentität. Diese Fehler sind korrigiert; ein grüner Teillauf wurde
-nicht als Qualifikation gewertet. Die gezielte DGN-004-Statiksuite, Foundation-,
-Registry-, ScriptDom- und Datenschutzprüfung sind bestanden. Die unabhängige
-Runtime-/Cleanup-Sichtung und die anschließende Integration bleiben offen.
+`UsePlan`/Planidentität, unsichere Bereinigung nach verlorenem Containerstart-
+Ergebnis und die Auswertung von SQL-Server-Startlogs über stderr. Diese Fehler
+sind korrigiert; ein grüner Teillauf wurde nicht als Qualifikation gewertet.
+Die gezielte DGN-004-Statiksuite und die unabhängige Runtime-/Cleanup-Sichtung
+sind bestanden. Foundation-, Registry-, ScriptDom- und Datenschutzprüfungen
+werden nach der abschließenden Dokumentationskorrektur erneut ausgeführt. Die
+Integration bleibt bis zur vollständigen 2022/2025-Requalifikation offen.
 
 Der aktive Umfang bleibt eng: `PASS` belegt ausschließlich Standard-Force/
 Unforce und H als `CONTROL_ONLY`-Hintkontrolle auf genau diesen zwei Builds.

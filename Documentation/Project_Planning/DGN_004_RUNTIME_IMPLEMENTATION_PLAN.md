@@ -1,35 +1,46 @@
 # DGN-004: Runtime-Implementierung und Qualifikation
 
-Stand: 2026-11-21. Dieses Dokument hält den Entwicklungsplan und seinen
+Stand: 2026-11-22. Dieses Dokument hält den Entwicklungsplan und seinen
 aktuellen Abschlussstand für den aktiven, begrenzten DGN-004-Aussageumfang
-fest. Die Umsetzung und Runtimequalifikation sind innerhalb der freigegebenen
-Grenzen abgeschlossen; die Integration steht noch aus. Der Umfang
-bleibt `CLASSICAL_FORCING_AND_HINT_CONTROL`: Standard-Force/Unforce und H als
+fest. Die Umsetzung und unabhängige Runtime-/Cleanupprüfung sind abgeschlossen.
+Die Endqualifikation des aktuellen Lifecycle-Stands und die Integration stehen
+noch aus, weil SQL Server 2022 im letzten Matrixlauf kein Bereitschaftssignal
+lieferte. Der Umfang bleibt `CLASSICAL_FORCING_AND_HINT_CONTROL`:
+Standard-Force/Unforce und H als
 feste Hint-Kontrolle `CONTROL_ONLY`. Replay-Nutzung, Performancegewinn,
 Kausalwirkung des Hints, gezielter Force-Fehler und SQL Server 2019 sind nicht
 Teil dieses Vorhabens.
 
 ## Aktueller Stand
 
-Die freigegebene Umsetzung ist vorhanden und die End-to-end-Qualifikation
-wurde auf den beiden gepinnten SQL-Server-Builds bestanden. Jeder Lauf führte
-alle neun R/H-Aufrufe, neun Query-Store-Flushes und 84 SQL-Batches innerhalb
-der festgelegten Einzelbudgets aus; beide eigenen Container wurden nach dem
-Cleanup entfernt. 2022 endete mit `PASS` nach 83,904 Sekunden, 2025 mit `PASS`
-nach 71,735 Sekunden. Die Werte beschreiben ausschließlich die Laufdauer und
-sind kein Leistungsnachweis. Der Abschluss gilt nur für
-`CLASSICAL_FORCING_AND_HINT_CONTROL`.
+Die freigegebene Umsetzung ist vorhanden. Die unabhängige Runtime-/Cleanup-
+Sichtung fand keine offenen P1/P2-Punkte. Der letzte vollständige Matrixlauf
+auf dem aktuellen Lifecycle-Stand lieferte für SQL Server 2022 `NOT_PROVEN`,
+weil das Bereitschaftssignal ausblieb; Cleanup wurde bestätigt. SQL Server 2025
+bestand mit neun R/H-Aufrufen, neun Query-Store-Flushes, 84 SQL-Batches und
+bestätigtem Cleanup (`PASS`, 69,496 Sekunden). Damit ist die
+Gesamtqualifikation noch nicht abgeschlossen.
 
-Zur Erreichung des PASS wurden erkannte Integrationsfehler an SQLCMD-
+Der zuletzt read-only beobachtete Linux-Hostzustand war `aio-nr=65536` bei
+`aio-max-nr=65536`. Ein vorheriger SQL-Server-2022-Start meldete explizit, dass
+kein neuer asynchroner I/O-Kontext angelegt werden konnte. Dieser Zustand liegt
+außerhalb der Containergrenze. Kein fremder Container oder globaler Hostwert
+wurde geändert. Die erneute 2022-Qualifikation bleibt `NOT_PROVEN`, bis
+ausreichend Host-I/O-Kontextkapazität vorhanden ist. Laufzeiten sind
+ausschließlich Ablaufdaten und kein Leistungsnachweis.
+
+Zur Erreichung der bisherigen vollständigen Läufe wurden erkannte Integrationsfehler an SQLCMD-
 Quelltransport und -Ausgabeformat, Kandidaten-Binder-Feldern, Showplan-
-Statementtext, Query-Store-Chunktransport und der getrennten Bewertung von
-Planidentität und `UsePlan` behoben. Die DGN-004-Statiksuite mit 120 Tests
-(ein plattformbedingter Skip), ScriptDom, Registry, Foundation und der
-Datenschutzscan geänderter Dateien sind bestanden. Die vorgeschriebene
-unabhängige Sichtung der Runtime-/Cleanupsemantik und die Integration nach
-`origin/main` stehen noch aus. Ein paketiertes Unterrichtsrelease und die unten
-benannten zurückgestellten Erweiterungen sind nicht Bestandteil dieses
-Runtime-PASS.
+Statementtext, Query-Store-Chunktransport, der getrennten Bewertung von
+Planidentität und `UsePlan`, einer sicheren Recovery nach verlorenem
+Containerstart-Ergebnis und der Erkennung des Bereitschaftssignals in beiden
+Docker-Logkanälen behoben. Die Container-Affinität ist an die freigegebene
+Zwei-Kern-Grenze gebunden. Die DGN-004-Statiksuite mit 127 Tests (ein
+plattformbedingter Skip) und die unabhängige Sichtung der Runtime-/Cleanup-
+Semantik sind bestanden. Foundation-, Registry-, ScriptDom- und
+Datenschutzprüfungen werden nach der finalen Statuskorrektur ausgeführt.
+Ein paketiertes Unterrichtsrelease und die unten benannten zurückgestellten
+Erweiterungen sind nicht Bestandteil dieses Runtime-Umfangs.
 
 Die bisherige Forderung nach Abwesenheit fremder Hostlast ist für diesen
 Aussageumfang kein notwendiges Gate: Es wird keine Zeit- oder
@@ -81,15 +92,15 @@ Kompatibilitätsstufe bleiben harte Vorstartprüfungen.
    geprüft; dies ersetzt keine Laufzeitqualifikation.
 6. **Runtime-Qualifikation durchführen und belegen.** Die gepinnten Profile
    wurden sequenziell mit den registrierten Ressourcen-, SQL-, Prozess-,
-   Ausgabe- und Cleanupbudgets ausgeführt. SQL Server 2022
-   (`16.0.4265.3`, Developer/Linux, Kompatibilitätsstufe 160) und SQL Server
-   2025 (`17.0.4075.5`, Enterprise Developer/Linux, Kompatibilitätsstufe 170)
-   bestanden jeweils alle neun Aufrufe und den aktiven Annahmevertrag mit
-   `PASS`; je Lauf wurden neun Flushes und 84 SQL-Batches beobachtet und der
-   eigene Container vollständig entfernt. Vorangegangene fehlgeschlagene
-   Diagnoseversuche wurden nicht als Evidenz gewertet. Runtime-PASS schließt
-   Replay-, Performance-, Kausalitäts-, 2019- oder Fehler-/Fallbackaussagen
-   nicht ein.
+   Ausgabe- und Cleanupbudgets ausgeführt. Der aktuelle vollständige Lauf
+   endete auf SQL Server 2022 (`16.0.4265.3`, Developer/Linux,
+   Kompatibilitätsstufe 160) beim Start ohne Bereitschaftssignal; Cleanup wurde
+   bestätigt. SQL Server 2025 (`17.0.4075.5`, Enterprise Developer/Linux,
+   Kompatibilitätsstufe 170) bestand alle neun Aufrufe, neun Flushes,
+   84 SQL-Batches und Cleanup. Host-AIO-Auslastung blockiert derzeit die
+   Gesamtqualifikation. Ein Gesamt-`PASS` wird erst wieder gemeldet, wenn beide
+   Builds den aktiven Vertrag erfüllen. Replay-, Performance-, Kausalitäts-,
+   2019- oder Fehler-/Fallbackaussagen sind davon ausgeschlossen.
 7. **Dokumentieren und integrieren.** Bei bestandenem Lauf die tatsächlich
    belegte Aussage, Buildprofile, Voraussetzungen, Ablauf, Resultate,
    Grenzen und Cleanup in den passenden DGN-004-Lesepfad übernehmen. Den
@@ -161,7 +172,10 @@ Kompatibilitätsstufe bleiben harte Vorstartprüfungen.
 Die bestehenden DGN-004-Grenzen werden nicht erweitert: höchstens zwei eigene
 Container insgesamt, sequenziell einer je Zielbuild, höchstens zwei eigene
 SQL-Sessions, 2 CPU-Kerne, 3 GiB Container-RAM und 2048 MiB SQL-Server-
-Speicherlimit. Es gelten unverändert 900 Sekunden reguläre Gesamtlaufzeit,
+Speicherlimit. Docker begrenzt die CPU-Zuteilung und CPU-Affinität zusätzlich
+auf zwei Kerne (`0-1`); der SQL-Server-Fehlerlog kann trotzdem die Hostzahl
+anzeigen. Die hostweite AIO-Grenze wird weder verändert noch als exklusiv
+verfügbar vorausgesetzt. Es gelten unverändert 900 Sekunden reguläre Gesamtlaufzeit,
 separate Cleanup-Budgets, höchstens 15 Sekunden je SQL-Aufruf und 20 Sekunden
 je äußerem Prozess. Bestehende Grenzen für Text, Showplan, Prozessausgaben,
 Datenbankdateien, Query Store und TempDB bleiben bindend. Kein globales Cache-
