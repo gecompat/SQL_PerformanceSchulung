@@ -48,9 +48,9 @@ class CoordinatorRuntimeError(RuntimeError):
         self.code = code if code in (
             "FAIL_CONTRACT", "FAIL_RESULT_CONTRACT", "FAIL_TIMEOUT",
             "FAIL_CLEANUP", "FAIL_EXECUTION", "FAIL_SAFETY",
-            "FAIL_DOCKER_INSPECT", "FAIL_DOCKER_INVENTORY", "FAIL_DOCKER_TOP",
+            "FAIL_DOCKER_INSPECT", "FAIL_DOCKER_INVENTORY",
             "FAIL_SQLCMD_RESOLUTION",
-            "FAIL_SQLSERVER_PROCESS_MISSING", "FAIL_SQLSERVER_PROCESS_AMBIGUOUS",
+            "FAIL_SQLSERVER_PROCESS_MISSING",
             "FAIL_SQLSERVER_PROCESS_OUTSIDE_TARGET",
             "FAIL_SQLSERVER_PROCESS_MULTIPLE_IN_TARGET",
             "FAIL_SQLSERVER_PROCESS_MULTIPLE_CONTAINERS",
@@ -76,12 +76,27 @@ def _docker(command: list[str], *, timeout: int = 10,
     return result.stdout
 
 
-def observe_sqlserver_processes(target_container: str) -> tuple[tuple[str, int], ...]:
-    """Return container-ID/PID pairs for active SQL Server processes.
+def _container_init_process(container_id: str) -> tuple[int, str]:
+    pid_text = _docker(
+        ["docker", "inspect", "--format", "{{.State.Pid}}", container_id],
+        failure_code="FAIL_DOCKER_INVENTORY",
+    ).strip()
+    if not pid_text.isdecimal() or int(pid_text) <= 0:
+        raise CoordinatorRuntimeError("FAIL_DOCKER_PROCESS_ID_CHANGED")
+    pid = int(pid_text)
+    try:
+        name = (Path("/proc") / str(pid) / "comm").read_text(encoding="ascii").strip()
+    except OSError:
+        raise CoordinatorRuntimeError("FAIL_EXECUTION") from None
+    return pid, name.casefold()
 
-    Every running Docker container is inspected. An uninspectable container or
-    an ambiguous SQL process inventory fails closed; no container output is
-    forwarded to the caller.
+
+def observe_sqlserver_processes(target_container: str) -> tuple[tuple[str, int], ...]:
+    """Return container-ID/PID pairs for containers initialized as SQL Server.
+
+    Every running Docker container's host init PID is resolved with inspect,
+    then its Linux /proc command name is checked. An uninspectable or ambiguous
+    inventory fails closed; process output is never forwarded to the caller.
     """
     if (type(target_container) is not str or not re.fullmatch(
             r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", target_container)):
@@ -107,17 +122,9 @@ def observe_sqlserver_processes(target_container: str) -> tuple[tuple[str, int],
         raise CoordinatorRuntimeError("FAIL_DOCKER_TARGET_MISSING")
     sql_processes: list[tuple[str, int]] = []
     for container_id in container_ids:
-        output = _docker(
-            ["docker", "top", container_id],
-            failure_code="FAIL_DOCKER_TOP",
-        )
-        for line in output.splitlines():
-            fields = line.strip().split(None, 7)
-            if len(fields) != 8 or not fields[1].isdecimal():
-                continue
-            executable = fields[7].split(None, 1)[0].replace("\\", "/").rsplit("/", 1)[-1].casefold()
-            if executable in SQLSERVER_COMM:
-                sql_processes.append((container_id, int(fields[1])))
+        pid, process_name = _container_init_process(container_id)
+        if process_name in SQLSERVER_COMM:
+            sql_processes.append((container_id, pid))
     if not sql_processes:
         raise CoordinatorRuntimeError("FAIL_SQLSERVER_PROCESS_MISSING")
     if len(sql_processes) != 1:

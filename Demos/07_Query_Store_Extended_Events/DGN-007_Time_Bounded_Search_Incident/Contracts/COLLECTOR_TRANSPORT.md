@@ -202,9 +202,12 @@ Der Laufzeit-Coordinator in
 [`run_dgn007_control_matrix.py`](../../../../Tests/Runtime/run_dgn007_control_matrix.py)
 führt die sechs Kontrollcaptures je Engine in der festgelegten DEC-068-Reihenfolge
 aus. Vor dem ersten SQL-Aufruf und an jedem Lifecycle-Rand inventarisiert er die
-laufenden Docker-Container und verlangt genau einen `sqlservr`-Prozess im
-vorgegebenen Zielcontainer; Containerkennung und Prozess-ID (PID) müssen über die
-Randproben stabil bleiben. Die privaten Receipts liefern Quellenfreeze-Snapshots,
+tatsächlich laufenden Docker-Container. Für jeden liest er die Host-PID des
+Container-Initprozesses über `docker inspect` und dessen Namen aus Linux
+`/proc/<pid>/comm`; genau ein Container muss `sqlservr` als Initprozess haben
+und dem vorgegebenen Ziel entsprechen. Containerkennung und Hostprozess-ID (PID)
+müssen über die Randproben stabil bleiben. Das inventarisiert Container-
+Initprozesse, keine Kindprozesse innerhalb eines Containers. Die privaten Receipts liefern Quellenfreeze-Snapshots,
 tatsächlich geprüfte Harness-Phasen und -Zeiten, Docker-Ressourcenlimits,
 SQL-Sessions und die unabhängige Datenbankabwesenheitsprüfung. Der Coordinator
 bindet diese Receipts an sechs vollständige Records, prüft Reihenfolge und

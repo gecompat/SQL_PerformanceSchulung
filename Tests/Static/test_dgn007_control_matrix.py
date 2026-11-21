@@ -32,45 +32,43 @@ class DockerInventoryTests(unittest.TestCase):
 
     def test_requires_exactly_the_target_sql_server_process(self):
         with patch.object(matrix, "_docker", side_effect=(
-                CONTAINER_ID, CONTAINER_ID + "\n",
-                "UID PID PPID C STIME TTY TIME CMD\nmssql 4321 1 0 10:00 ? 00:01:00 /opt/mssql/bin/sqlservr\n"
-                "root 800 1 0 10:00 ? 00:00:00 bash -c /opt/mssql/bin/sqlservr\n")) as docker:
+                CONTAINER_ID, CONTAINER_ID + "\n")) as docker, \
+             patch.object(matrix, "_container_init_process", return_value=(4321, "sqlservr")):
             self.assertEqual(matrix.observe_sqlserver_processes("sql-container"), PROCESS)
         self.assertEqual(docker.call_args_list, [
             call(["docker", "inspect", "--format", "{{.Id}}", "sql-container"],
                  failure_code="FAIL_DOCKER_INSPECT"),
             call(["docker", "ps", "--no-trunc", "--quiet"],
                  failure_code="FAIL_DOCKER_INVENTORY"),
-            call(["docker", "top", CONTAINER_ID],
-                 failure_code="FAIL_DOCKER_TOP"),
         ])
 
     def test_rejects_a_second_sql_server_container(self):
         second_id = "b" * 64
         with patch.object(matrix, "_docker", side_effect=(
-                CONTAINER_ID, f"{CONTAINER_ID}\n{second_id}\n",
-                "UID PID PPID C STIME TTY TIME CMD\nmssql 4321 1 0 10:00 ? 00:01:00 sqlservr\n",
-                "UID PID PPID C STIME TTY TIME CMD\nmssql 9876 1 0 10:00 ? 00:01:00 sqlservr\n")):
+                CONTAINER_ID, f"{CONTAINER_ID}\n{second_id}\n")), \
+             patch.object(matrix, "_container_init_process", side_effect=(
+                 (4321, "sqlservr"), (9876, "sqlservr"))):
             with self.assertRaisesRegex(matrix.CoordinatorRuntimeError,
                                          "FAIL_SQLSERVER_PROCESS_MULTIPLE_CONTAINERS"):
                 matrix.observe_sqlserver_processes("sql-container")
 
     def test_requires_sqlservr_in_the_process_inventory(self):
         with patch.object(matrix, "_docker", side_effect=(
-                CONTAINER_ID, f"{CONTAINER_ID}\n", "UID PID PPID C STIME TTY TIME CMD\nroot 8 1 0 10:00 ? 00:00:00 bash\n")):
+                CONTAINER_ID, f"{CONTAINER_ID}\n")), \
+             patch.object(matrix, "_container_init_process", return_value=(8, "bash")):
             with self.assertRaisesRegex(matrix.CoordinatorRuntimeError,
                                          "FAIL_SQLSERVER_PROCESS_MISSING"):
                 matrix.observe_sqlserver_processes("sql-container")
 
     def test_rejects_an_uninspectable_container(self):
         with patch.object(matrix, "_docker", side_effect=(
-                CONTAINER_ID, f"{CONTAINER_ID}\n", matrix.CoordinatorRuntimeError("FAIL_DOCKER_TOP"))):
-            with self.assertRaisesRegex(matrix.CoordinatorRuntimeError, "FAIL_DOCKER_TOP"):
+                CONTAINER_ID, f"{CONTAINER_ID}\n", matrix.CoordinatorRuntimeError("FAIL_DOCKER_INVENTORY"))):
+            with self.assertRaisesRegex(matrix.CoordinatorRuntimeError, "FAIL_DOCKER_INVENTORY"):
                 matrix.observe_sqlserver_processes("sql-container")
 
     def test_docker_command_failures_use_bounded_operation_codes(self):
         failure_codes = (
-            "FAIL_DOCKER_INSPECT", "FAIL_DOCKER_INVENTORY", "FAIL_DOCKER_TOP",
+            "FAIL_DOCKER_INSPECT", "FAIL_DOCKER_INVENTORY",
             "FAIL_SQLCMD_RESOLUTION",
         )
         for code in failure_codes:
@@ -80,6 +78,16 @@ class DockerInventoryTests(unittest.TestCase):
                     matrix._docker(["docker", "synthetic"], failure_code=code)
                 self.assertEqual(raised.exception.code, code)
                 self.assertNotIn("sensitive", str(raised.exception))
+
+    def test_container_init_process_uses_bounded_pid_and_proc_name(self):
+        with patch.object(matrix, "_docker", return_value="4321\n") as docker, \
+             patch.object(matrix.Path, "read_text", autospec=True,
+                          return_value="sqlservr\n") as read_text:
+            self.assertEqual(matrix._container_init_process(CONTAINER_ID), (4321, "sqlservr"))
+        docker.assert_called_once_with(
+            ["docker", "inspect", "--format", "{{.State.Pid}}", CONTAINER_ID],
+            failure_code="FAIL_DOCKER_INVENTORY")
+        self.assertEqual(str(read_text.call_args.args[0]).replace("\\", "/"), "/proc/4321/comm")
 
     def test_rejects_invalid_or_oversized_inventory_before_inspection(self):
         with patch.object(matrix, "_docker", side_effect=("not-an-id",)):
