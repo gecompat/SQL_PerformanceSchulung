@@ -10081,6 +10081,11 @@ def _target_re_parser_global_flags_to_pattern_flags_candidate(files):
         return None
     parse_region = source_text[parse_start:template_start]
     fix_region = source_text[fix_start:parse_start]
+    flags_start = source_text.find(
+        "def _parse_flags(source, state, char):"
+    )
+    flags_end = source_text.find("\ndef ", flags_start + 1)
+    flags_region = source_text[flags_start:flags_end]
     inline_parse_start = source_text.find(
         "def _parse(source, state, verbose, nested, first=False):"
     )
@@ -10092,6 +10097,9 @@ def _target_re_parser_global_flags_to_pattern_flags_candidate(files):
     )
     if (source_text.count("state.flags |= add_flags") != 1
             or global_update not in source_text
+            or flags_start < 0 or flags_end < 0
+            or flags_region.count("add_flags = FLAGS[char]") != 1
+            or flags_region.count(global_update) != 1
             or inline_parse_start < 0 or inline_parse_end < 0
             or source_text[inline_parse_start:inline_parse_end].count(
                 "flags = _parse_flags(source, state, char)") != 1
@@ -10117,6 +10125,7 @@ def _target_re_parser_global_flags_to_pattern_flags_candidate(files):
         "source_sha256": RE_PARSER_SOURCE_SHA256,
         "initial_state_flags": "state.flags = flags",
         "parser_global_flag_call": "_parse_flags(source, state, char)",
+        "global_flag_lookup": "add_flags = FLAGS[char]",
         "global_flag_position_guard": "if not first or subpattern",
         "leading_global_inline_flags": "state.flags |= add_flags",
         "inline_flag_symbol_map_candidate": {
@@ -10273,6 +10282,8 @@ def _target_re_compile_pattern_flags_candidates(
             != RE_PARSER_SOURCE_SHA256
             or parser_flags_candidate.get("leading_global_inline_flags")
             != "state.flags |= add_flags"
+            or parser_flags_candidate.get("global_flag_lookup")
+            != "add_flags = FLAGS[char]"
             or parser_flags_candidate.get("inline_flag_symbol_map_candidate")
             != inline_flag_symbols
             or parser_flags_candidate.get("inline_flag_value_map_candidate")
