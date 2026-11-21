@@ -13860,7 +13860,9 @@ normalisiert nach dem Parsen `p.state.flags` über `fix_flags`. Die gebundene
 Normalisierung ergänzt für Textmuster Unicode, sofern ASCII nicht aktiv ist,
 und weist inkompatible Text-/Byte-Flagkombinationen zurück. Die neue
 Quellclosure verknüpft diesen Parserpfad mit den bereits gebundenen
-Literal-Flags und der nativen `Pattern.flags`-Speicherung; einfache führende
-Inline-Flagnamen werden nur lexikalisch als Kandidaten ausgewiesen. 314
-fokussierte Tests bestehen. Endgültige Flags werden weiterhin nicht als
-beobachtete Regexobjektwerte ausgegeben.
+Literal-Flags und der nativen `Pattern.flags`-Speicherung. Für erkannte
+führende Inline-Flags wird zusätzlich eine symbolische Formel samt bedingtem
+Unicode-Default ausgegeben; Byte-Muster erhalten keinen Text-Default. Formel
+und Inline-Flagnamen bleiben statische Kandidaten und keine ausgeführten
+Regexobjektwerte. 314 fokussierte Tests bestehen. Endgültige Flags werden
+weiterhin nicht als beobachtete Werte ausgegeben.

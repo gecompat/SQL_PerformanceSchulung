@@ -333,9 +333,9 @@ class StaticImportCandidateTests(unittest.TestCase):
              "verbose_mode_if_parser_entry_reached": False,
              "standard_re_compile_binding_observed": False,
              "parser_entry_observed": False},
-            {**inputs[1], "flags_resolution": "UNRESOLVED",
-             "flags_value_if_call_evaluates": None,
-             "verbose_mode_if_parser_entry_reached": None,
+            {**inputs[1], "flags_resolution": "PINNED_DEFAULT_ZERO",
+             "flags_value_if_call_evaluates": 0,
+             "verbose_mode_if_parser_entry_reached": False,
              "standard_re_compile_binding_observed": False,
              "parser_entry_observed": False},
         ]
@@ -350,6 +350,12 @@ class StaticImportCandidateTests(unittest.TestCase):
             "parser_global_flag_call": "_parse_flags(source, state, char)",
             "global_flag_position_guard": "if not first or subpattern",
             "leading_global_inline_flags": "state.flags |= add_flags",
+            "inline_flag_symbol_map_candidate": {
+                "i": "SRE_FLAG_IGNORECASE", "L": "SRE_FLAG_LOCALE",
+                "m": "SRE_FLAG_MULTILINE", "s": "SRE_FLAG_DOTALL",
+                "x": "SRE_FLAG_VERBOSE", "a": "SRE_FLAG_ASCII",
+                "t": "SRE_FLAG_TEMPLATE", "u": "SRE_FLAG_UNICODE",
+            },
             "post_parse_normalization": "p.state.flags = fix_flags(str, p.state.flags)",
         }
         result = SUBJECT._target_re_compile_pattern_flags_candidates(
@@ -359,9 +365,18 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(result[0]["compile_flags_value_if_call_evaluates"], 0)
         self.assertEqual(result[0]["initial_verbose_mode_if_parser_entry_reached"],
                          False)
-        self.assertIsNone(result[1]["compile_flags_value_if_call_evaluates"])
         self.assertEqual(result[0]["leading_global_inline_flag_names_candidate"], "i")
         self.assertEqual(result[1]["leading_global_inline_flag_names_candidate"], "")
+        self.assertEqual(result[0]["leading_global_inline_flag_symbols_candidate"],
+                         ["SRE_FLAG_IGNORECASE"])
+        self.assertEqual(
+            result[0]["normalized_pattern_flags_symbolic_candidate"],
+            "(compile_flags | SRE_FLAG_IGNORECASE) | (SRE_FLAG_UNICODE when input is text and SRE_FLAG_ASCII is absent)",
+        )
+        self.assertEqual(result[1]["normalized_pattern_flags_symbolic_candidate"],
+                         "compile_flags")
+        self.assertTrue(all(not row["final_pattern_flags_value_resolved"]
+                            for row in result))
         self.assertTrue(all(not row["final_flags_value_resolved"] for row in result))
         self.assertTrue(all(
             not row["compile_parse_and_regex_execution_observed"] for row in result
@@ -381,6 +396,8 @@ class StaticImportCandidateTests(unittest.TestCase):
              parser_flags),
             (inputs, flags, native_flags,
              {**parser_flags, "leading_global_inline_flags": "state.flags = add_flags"}),
+            (inputs, flags, native_flags,
+             {**parser_flags, "inline_flag_symbol_map_candidate": {"i": "0"}}),
         ]
         for changed_inputs, changed_flags, changed_native, changed_parser in changed:
             with self.subTest(flags=changed_flags, native=changed_native):
