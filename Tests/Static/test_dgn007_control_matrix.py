@@ -34,7 +34,7 @@ class DockerInventoryTests(unittest.TestCase):
         with patch.object(matrix, "_docker", side_effect=(
                 CONTAINER_ID, CONTAINER_ID + "\n",
                 "UID PID PPID C STIME TTY TIME CMD\nmssql 4321 1 0 10:00 ? 00:01:00 /opt/mssql/bin/sqlservr\n"
-                "root 800 1 0 10:00 ? 00:00:00 bash\n")) as docker:
+                "root 800 1 0 10:00 ? 00:00:00 bash -c /opt/mssql/bin/sqlservr\n")) as docker:
             self.assertEqual(matrix.observe_sqlserver_processes("sql-container"), PROCESS)
         self.assertEqual(docker.call_args_list, [
             call(["docker", "inspect", "--format", "{{.Id}}", "sql-container"],
@@ -52,7 +52,7 @@ class DockerInventoryTests(unittest.TestCase):
                 "UID PID PPID C STIME TTY TIME CMD\nmssql 4321 1 0 10:00 ? 00:01:00 sqlservr\n",
                 "UID PID PPID C STIME TTY TIME CMD\nmssql 9876 1 0 10:00 ? 00:01:00 sqlservr\n")):
             with self.assertRaisesRegex(matrix.CoordinatorRuntimeError,
-                                         "FAIL_SQLSERVER_PROCESS_AMBIGUOUS"):
+                                         "FAIL_SQLSERVER_PROCESS_MULTIPLE_CONTAINERS"):
                 matrix.observe_sqlserver_processes("sql-container")
 
     def test_requires_sqlservr_in_the_process_inventory(self):
@@ -156,7 +156,8 @@ class MatrixExecutionTests(unittest.TestCase):
             [PROCESS, PROCESS, changed])
         with patch.object(matrix, "load_acceptance_contract", return_value=self.contract), \
              patch.object(matrix, "bind_sequence") as bind:
-            with self.assertRaisesRegex(matrix.CoordinatorRuntimeError, "FAIL_CONTRACT"):
+            with self.assertRaisesRegex(matrix.CoordinatorRuntimeError,
+                                         "FAIL_DOCKER_PROCESS_ID_CHANGED"):
                 matrix.run_control_matrix("sql-container", 17)
         self.assertEqual(runner_values["_run_capture_one"].call_count, 1)
         bind.assert_not_called()

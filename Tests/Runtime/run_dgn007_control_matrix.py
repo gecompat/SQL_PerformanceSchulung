@@ -38,6 +38,9 @@ ACCEPTANCE_CONTRACT = (
 )
 MAX_CONTAINERS = 8
 DOCKER_ID = re.compile(r"[0-9a-f]{64}")
+SQLSERVER_COMM = frozenset(("sqlservr", "sqlservr.exe"))
+
+
 class CoordinatorRuntimeError(RuntimeError):
     """A bounded, payload-free failure from the runtime coordinator."""
 
@@ -49,6 +52,11 @@ class CoordinatorRuntimeError(RuntimeError):
             "FAIL_SQLCMD_RESOLUTION",
             "FAIL_SQLSERVER_PROCESS_MISSING", "FAIL_SQLSERVER_PROCESS_AMBIGUOUS",
             "FAIL_SQLSERVER_PROCESS_OUTSIDE_TARGET",
+            "FAIL_SQLSERVER_PROCESS_MULTIPLE_IN_TARGET",
+            "FAIL_SQLSERVER_PROCESS_MULTIPLE_CONTAINERS",
+            "FAIL_DOCKER_ID", "FAIL_DOCKER_TARGET_MISSING",
+            "FAIL_DOCKER_INVENTORY_INVALID", "FAIL_DOCKER_INVENTORY_SIZE",
+            "FAIL_DOCKER_PROCESS_ID_CHANGED",
         ) else "FAIL_CONTRACT"
         super().__init__(self.code)
 
@@ -83,16 +91,20 @@ def observe_sqlserver_processes(target_container: str) -> tuple[tuple[str, int],
         failure_code="FAIL_DOCKER_INSPECT",
     ).strip()
     if DOCKER_ID.fullmatch(target_id) is None:
-        raise CoordinatorRuntimeError()
+        raise CoordinatorRuntimeError("FAIL_DOCKER_ID")
     container_text = _docker(
         ["docker", "ps", "--no-trunc", "--quiet"],
         failure_code="FAIL_DOCKER_INVENTORY",
     )
     container_ids = tuple(line.strip() for line in container_text.splitlines() if line.strip())
-    if (not container_ids or len(container_ids) > MAX_CONTAINERS
-            or any(DOCKER_ID.fullmatch(value) is None for value in container_ids)
-            or target_id not in container_ids):
-        raise CoordinatorRuntimeError()
+    if not container_ids:
+        raise CoordinatorRuntimeError("FAIL_DOCKER_INVENTORY_INVALID")
+    if len(container_ids) > MAX_CONTAINERS:
+        raise CoordinatorRuntimeError("FAIL_DOCKER_INVENTORY_SIZE")
+    if any(DOCKER_ID.fullmatch(value) is None for value in container_ids):
+        raise CoordinatorRuntimeError("FAIL_DOCKER_INVENTORY_INVALID")
+    if target_id not in container_ids:
+        raise CoordinatorRuntimeError("FAIL_DOCKER_TARGET_MISSING")
     sql_processes: list[tuple[str, int]] = []
     for container_id in container_ids:
         output = _docker(
@@ -103,17 +115,19 @@ def observe_sqlserver_processes(target_container: str) -> tuple[tuple[str, int],
             fields = line.strip().split(None, 7)
             if len(fields) != 8 or not fields[1].isdecimal():
                 continue
-            command = fields[7].replace("\\", "/").casefold()
-            if re.search(r"(?:^|[ /])sqlservr(?:\.exe)?(?:$|\s)", command):
+            executable = fields[7].split(None, 1)[0].replace("\\", "/").rsplit("/", 1)[-1].casefold()
+            if executable in SQLSERVER_COMM:
                 sql_processes.append((container_id, int(fields[1])))
     if not sql_processes:
         raise CoordinatorRuntimeError("FAIL_SQLSERVER_PROCESS_MISSING")
     if len(sql_processes) != 1:
-        raise CoordinatorRuntimeError("FAIL_SQLSERVER_PROCESS_AMBIGUOUS")
+        if len({container_id for container_id, _pid in sql_processes}) == 1:
+            raise CoordinatorRuntimeError("FAIL_SQLSERVER_PROCESS_MULTIPLE_IN_TARGET")
+        raise CoordinatorRuntimeError("FAIL_SQLSERVER_PROCESS_MULTIPLE_CONTAINERS")
     if sql_processes[0][0] != target_id:
         raise CoordinatorRuntimeError("FAIL_SQLSERVER_PROCESS_OUTSIDE_TARGET")
     if sql_processes[0][1] <= 0:
-        raise CoordinatorRuntimeError()
+        raise CoordinatorRuntimeError("FAIL_DOCKER_PROCESS_ID_CHANGED")
     return tuple(sql_processes)
 
 
@@ -163,7 +177,7 @@ def run_control_matrix(container: str, expected_major: int):
             runner.validate_manifest(contract=run_contract)
             before = observe_sqlserver_processes(container)
             if before != initial_processes:
-                raise CoordinatorRuntimeError("FAIL_CONTRACT")
+                raise CoordinatorRuntimeError("FAIL_DOCKER_PROCESS_ID_CHANGED")
             runner.assert_empty_instance(target)
             receipt = runner._run_capture_one(
                 target, index, contract=run_contract, expected_major=expected_major,
@@ -171,7 +185,7 @@ def run_control_matrix(container: str, expected_major: int):
             )
             after = observe_sqlserver_processes(container)
             if after != before:
-                raise CoordinatorRuntimeError("FAIL_CONTRACT")
+                raise CoordinatorRuntimeError("FAIL_DOCKER_PROCESS_ID_CHANGED")
             receipts.append(receipt)
             observations.append(ReceiptObservation(
                 lifecycle_id=receipt.lifecycle_started_ns,
