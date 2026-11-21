@@ -23,17 +23,20 @@ als Snapshot [`snapshot-2026-11-18-4`](https://github.com/gecompat/SQL_Performan
 auf Commit `d86a13e4` veröffentlicht. Der Kandidat führt keine Parser-, Regex-
 oder Runtimeausführung aus.
 
-### DGN-007-Folgeschnitt: Capture-Gruppenzahl bis `Pattern.groups` binden
+### Abgeschlossener DGN-007-Folgeschnitt: Capture-Gruppenzahl bis `Pattern.groups` binden
 
-Der nächste Offlinezuschnitt verknüpft `State.groups` und
-`p.state.groups - 1` mit der nativen Speicherung in `self->groups` sowie der
-schreibgeschützten `Pattern.groups`-Mitgliedseigenschaft. Der bereits gepinnte
-CPython-3.12.16-Quellstand liefert dafür `sre.c` und `sre.h`; der kombinierte
-Quellfluss bleibt `CANDIDATES_ONLY`. Der vollständige Archiv-Analyzerlauf
-liefert den gebundenen Kandidaten; 308 fokussierte Regressionen bestehen lokal.
-Keine Parser-/Regexausführung,
-kein CPython-Build und keine Laufzeitqualifikation. DGN-004 bleibt separat am
-YELLOW-Isolationsgate blockiert, solange fremde SQL-Server-Container aktiv sind.
+PR #1087 integrierte den digestgebundenen CPython-3.12.16-Quellfluss von
+`State.groups` über `p.state.groups - 1` und die native Speicherung in
+`self->groups` bis zur schreibgeschützten `Pattern.groups`-Eigenschaft. Der
+kombinierte Befund bleibt `CANDIDATES_ONLY`; 308 fokussierte Regressionen und
+die PR-/Main-Gates bestanden. Es gab weder Parser-/Regexausführung noch einen
+CPython-Build oder Laufzeitnachweis.
+
+Die nachfolgenden DGN-007-Quellkandidaten erweiterten diesen Offlinepfad über
+`Pattern.pattern` und Compile-/Parserflags bis zur gebundenen Behandlung
+unaufgelöster Flagwerte (PRs #1098–#1106). Sie bleiben ebenfalls statische,
+bedingte Kandidaten. Der aktuelle Stand und die verbleibenden DGN-007-Gates
+stehen im [Ausführungsstatus](CURRENT_EXECUTION_STATUS.md#dgn-007-runtime-coordinator-für-neutrale-kontrollcaptures-integriert-21-november-2026).
 
 ## Aktuelle autonome Fortsetzungsplanung vom 8. November 2026
 ### SQL Server 2025 `OPTIMIZED_SP_EXECUTESQL`: Methodenentwurf
