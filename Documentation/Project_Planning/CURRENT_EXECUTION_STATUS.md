@@ -1,6 +1,6 @@
 # Aktueller Ausführungsstand
 
-Aktualisiert am 18. November 2026: Der QRY-023-Stand vom 14. November 2026
+Aktualisiert am 21. November 2026: Der QRY-023-Stand vom 14. November 2026
 bestätigt die vorgeschlagene CI-Route und die
 konkreten ADMIN-/READER-Rechtekontrollen sind auf SQL Server 2019/2022/2025
 enginequalifiziert. PRs #586–#588 ergänzten Live-Nachweise für die exakte
@@ -13762,3 +13762,19 @@ read-only TempDB-Vorstart auf SQL Server 2025 mit `sa`-Loginfehler vor Setup;
 der fehlgeschlagene Versuch blieb dokumentiert und sein eigener Container
 wurde bereinigt. Hostreserven und allgemeine Produkt-/Katalogfreigabe bleiben
 getrennte Gates; QRY-023 bleibt `PROPOSED`/nicht katalogisiert.
+
+### QRY-023 – Katalogbeschreibung mit tatsächlichem Implementierungsstand abgeglichen (21. November 2026)
+
+PR [#1093](https://github.com/gecompat/SQL_PerformanceSchulung/pull/1093)
+wurde mit Merge-Commit `e91d0156a97874ba0eea7590b37871146998cc9b` in
+`origin/main` integriert. Die Demo-Katalogübersicht beschreibt QRY-023 nun als
+implementierten, isoliert qualifizierten Vorschlag und grenzt den Status
+`PROPOSED`, die fehlende allgemeine Produkt-/Katalogzulassung und
+`runtime_authorized: false` korrekt ab. Das behebt eine veraltete
+Dokumentationsaussage; es ändert keine Zulassungsentscheidung und ergänzt keine
+Runtime- oder Produktfreigabe. Die PR-Prüfungen für statische Ausführungspfade,
+Katalog, Governance, Curriculum und Datenschutz waren erfolgreich. Ein
+Coverage-Runtimejob hatte beim Imageabruf einen Netzwerkabbruch; der gezielte
+Wiederanlauf war beim Merge noch wartend. Die nachgelagerte Main-Matrix
+`44909220078` ist gestartet und muss vollständig erfolgreich enden, bevor ihr
+Runtime-Nachweis als abgeschlossen gilt.
