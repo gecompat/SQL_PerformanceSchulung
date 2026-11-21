@@ -10071,6 +10071,12 @@ def _target_re_parser_global_flags_to_pattern_flags_candidate(files):
         "parser_global_flag_call": "_parse_flags(source, state, char)",
         "global_flag_position_guard": "if not first or subpattern",
         "leading_global_inline_flags": "state.flags |= add_flags",
+        "inline_flag_symbol_map_candidate": {
+            "i": "SRE_FLAG_IGNORECASE", "L": "SRE_FLAG_LOCALE",
+            "m": "SRE_FLAG_MULTILINE", "s": "SRE_FLAG_DOTALL",
+            "x": "SRE_FLAG_VERBOSE", "a": "SRE_FLAG_ASCII",
+            "t": "SRE_FLAG_TEMPLATE", "u": "SRE_FLAG_UNICODE",
+        },
         "post_parse_normalization": "p.state.flags = fix_flags(str, p.state.flags)",
         "text_default": "add SRE_FLAG_UNICODE unless SRE_FLAG_ASCII is set",
         "bytes_rejections": ["SRE_FLAG_UNICODE", "SRE_FLAG_LOCALE|SRE_FLAG_ASCII"],
@@ -10191,6 +10197,12 @@ def _target_re_compile_pattern_flags_candidates(
         files, compile_candidates, flag_candidates, flags_pattern_candidate,
         parser_flags_candidate):
     """Join direct literal flag facts to native Pattern.flags provenance."""
+    inline_flag_symbols = {
+        "i": "SRE_FLAG_IGNORECASE", "L": "SRE_FLAG_LOCALE",
+        "m": "SRE_FLAG_MULTILINE", "s": "SRE_FLAG_DOTALL",
+        "x": "SRE_FLAG_VERBOSE", "a": "SRE_FLAG_ASCII",
+        "t": "SRE_FLAG_TEMPLATE", "u": "SRE_FLAG_UNICODE",
+    }
     if (type(files) is not dict or type(compile_candidates) is not list
             or type(flag_candidates) is not list
             or len(compile_candidates) > MAX_RE_COMPILE_INPUT_CANDIDATES
@@ -10208,6 +10220,8 @@ def _target_re_compile_pattern_flags_candidates(
             != RE_PARSER_SOURCE_SHA256
             or parser_flags_candidate.get("leading_global_inline_flags")
             != "state.flags |= add_flags"
+            or parser_flags_candidate.get("inline_flag_symbol_map_candidate")
+            != inline_flag_symbols
             or parser_flags_candidate.get("post_parse_normalization")
             != "p.state.flags = fix_flags(str, p.state.flags)"):
         return []
@@ -10288,6 +10302,23 @@ def _target_re_compile_pattern_flags_candidates(
         if expected_pattern_hash != candidate["argument_sha256"]:
             return []
         global_flag_names = _regex_leading_global_flag_names(pattern_literal)
+        symbolic_inline_flags = (
+            [inline_flag_symbols[name] for name in global_flag_names]
+            if global_flag_names is not None else None
+        )
+        symbolic_flags_candidate = None
+        if flags_value is not None and symbolic_inline_flags is not None:
+            terms = ["compile_flags"] + symbolic_inline_flags
+            expression = (
+                "(" + " | ".join(terms) + ")"
+                if symbolic_inline_flags else "compile_flags"
+            )
+            if candidate["argument_kind"] == "STRING_LITERAL":
+                expression += (
+                    " | (SRE_FLAG_UNICODE when input is text and "
+                    "SRE_FLAG_ASCII is absent)"
+                )
+            symbolic_flags_candidate = expression
         result.append({
             "module": key[0],
             "source_path": path,
@@ -10299,6 +10330,9 @@ def _target_re_compile_pattern_flags_candidates(
             "compile_flags_resolution": facts["flags_resolution"],
             "initial_verbose_mode_if_parser_entry_reached": verbose_mode,
             "leading_global_inline_flag_names_candidate": global_flag_names,
+            "leading_global_inline_flag_symbols_candidate": symbolic_inline_flags,
+            "normalized_pattern_flags_symbolic_candidate": symbolic_flags_candidate,
+            "final_pattern_flags_value_resolved": False,
             "parser_global_flag_state_update": parser_flags_candidate[
                 "leading_global_inline_flags"],
             "parser_post_parse_flag_normalization": parser_flags_candidate[
