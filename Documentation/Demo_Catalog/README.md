@@ -214,10 +214,14 @@ Die vollständigen Phasen-, Ressourcen-, Evidenz-, Quellen- und Cleanup-Verträg
 ## Vorgeschlagene Erweiterung – Graph Tables
 
 `QRY-023` – gerichtete Zwei-Kanten-Pfade mit Graph Tables und relationalen
-Joins – ist als `PROPOSED` registriert und dem bestehenden `LO-M03-06` /
-`CLM-047` zugeordnet. Der statische Vertrag prüft exakte Ergebnisgleichheit
-auf synthetischen Daten; Implementierung und Runtimequalifikation stehen aus.
-Es gibt keine Performanceempfehlung. [Vertrag und offene Gates](../Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md).
+Joins – ist `PROPOSED` und dem bestehenden `LO-M03-06` / `CLM-047` zugeordnet.
+Die ausführbaren Skripte und der vorgeschlagene isolierte FWK-010-Aufrufer sind
+implementiert. Die festgeschriebenen SQL-Server-2019/2022/2025-Builds bestanden
+die vollständigen Lifecycle- und Negativprüfungen; ein zusätzlicher
+cgroup-v2-Schnitt erfasste je Engine eine Ressourcenstichprobe. QRY-023 ist
+weiterhin nicht in den allgemeinen Runtimekatalog aufgenommen. Eine
+allgemeine Produkt-/Runtimeaufnahme und Performanceempfehlung sind damit nicht
+behauptet. [Vertrag und offene Gates](../Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md).
 
 ## Lokale KI-Demos – Implementierung vom 2026-10-11
 
