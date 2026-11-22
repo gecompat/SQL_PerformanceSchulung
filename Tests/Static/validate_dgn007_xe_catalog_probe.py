@@ -54,6 +54,9 @@ def validate() -> list[str]:
     if (re.search(r"event_node\.value\([^)]*(?:data|statement)", payload_sql)
             or "select target_data" in payload_sql):
         errors.append("privacy gate must inspect only field presence/text flags, never emit event values")
+    if ("sum(convert(int, has_statement))" not in payload_sql
+            or "sum(convert(int, has_statement_text))" not in payload_sql):
+        errors.append("privacy gate must convert XML presence bits before SQL aggregation")
     if "select @synthetic_marker = convert(int, 7)" not in payload_sql:
         errors.append("privacy probe must use only its fixed synthetic statement")
     if "sql_statement_starting" not in sql or "sql_statement_completed" not in sql:

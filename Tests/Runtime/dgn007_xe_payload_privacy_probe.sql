@@ -88,8 +88,8 @@ BEGIN TRY
     SELECT
         event_name,
         COUNT(*),
-        SUM(has_statement),
-        SUM(has_statement_text),
+        SUM(CONVERT(int, has_statement)),
+        SUM(CONVERT(int, has_statement_text)),
         SUM(1 - has_event_sequence),
         SUM(1 - has_session_id),
         SUM(1 - has_database_id),
