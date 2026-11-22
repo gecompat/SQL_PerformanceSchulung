@@ -47,6 +47,7 @@ class PageTarget:
     page_level: int
     rightmost_leaf: bool | None
     captured_at: str
+    partition_id: int | None = None
 
 
 @dataclass(frozen=True)
@@ -183,6 +184,9 @@ def evaluate_last_page_contention(
     target: PageTarget | None,
     *,
     expected_actor_requests: tuple[tuple[str, int, int], ...] | None,
+    page_chain: tuple[PageLink, ...] | None = None,
+    terminal_address: tuple[int, int] | None = None,
+    max_pages: int | None = None,
 ) -> Result:
     """Require page waits bound to two expected actor requests and distinct tasks."""
     if waits is None or target is None:
@@ -266,4 +270,18 @@ def evaluate_last_page_contention(
         return Result(Verdict.FAIL, ("target page is explicitly not the rightmost leaf",))
     if target.rightmost_leaf is None:
         return Result(Verdict.NOT_PROVEN, ("rightmost-leaf page-chain evidence is absent",))
+    if not _positive_int(target.partition_id):
+        return Result(Verdict.NOT_PROVEN, ("target page partition binding is absent",))
+    chain_result = evaluate_rightmost_page_chain(
+        page_chain,
+        database_id=target.database_id,
+        object_id=target.object_id,
+        index_id=target.index_id,
+        partition_id=target.partition_id,
+        start_address=(target.file_id, target.page_id),
+        terminal_address=terminal_address,
+        max_pages=max_pages,
+    )
+    if chain_result.verdict is not Verdict.PASS:
+        return chain_result
     return Result(Verdict.PASS, ())
