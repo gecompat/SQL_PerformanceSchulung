@@ -190,7 +190,7 @@ def run_control_matrix(container: str, expected_major: int):
             receipts.append(receipt)
             observations.append(ReceiptObservation(
                 lifecycle_id=receipt.lifecycle_started_ns,
-                active_versions_on_host=1,
+                active_versions_on_host=len({container_id for container_id, _pid in after}),
             ))
         bound = bind_sequence(
             contract, tuple(receipts), expected_major=expected_major,

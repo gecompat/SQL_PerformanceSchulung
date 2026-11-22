@@ -150,7 +150,9 @@ class MatrixExecutionTests(unittest.TestCase):
 
     @patch.dict("os.environ", {"SQLCMDPASSWORD": "synthetic"})
     def test_runs_six_captures_in_frozen_dec068_order_before_evaluation(self):
-        _target_values, observer, runner_values = self._configure()
+        same_container_processes = ((CONTAINER_ID, 4321), (CONTAINER_ID, 4322))
+        _target_values, observer, runner_values = self._configure(
+            [same_container_processes] * 13)
         with patch.object(matrix, "load_acceptance_contract", return_value=self.contract), \
              patch.object(matrix, "bind_sequence", return_value=tuple(
                  SimpleNamespace(record=index) for index in range(6))) as bind, \

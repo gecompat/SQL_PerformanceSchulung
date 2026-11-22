@@ -13993,3 +13993,16 @@ nicht Interpreter-, Regex- oder Runtimeausführung.
 ### DGN-007 – vollständigen Regex-Flagsfluss im Archivscan schließen (22. November 2026)
 
 Die erneute Prüfung fand zwei weitere veraltete Parserannahmen: CPython 3.12.16 hat im `_parse`-Funktionskörper eine `state.checkgroup(gid)`-Stelle und genau zwei `state.checklookbehindgroup`-Stellen (`gid` und `condgroup`). Der Candidate erwartete zwei beziehungsweise drei Stellen und verwarf deshalb die sonst gebundenen Parserfakten. Die Verträge und Fixtures entsprechen nun dem gepinnten Quelltext. 314 statische Regressionen bestehen. Der vollständige Archivscan liefert jetzt jeweils 13 direkte Compile-Eingaben, Parser-/Tokenizertypbindungen und verbundene `Pattern.flags`-Kandidaten. Bedingte Zahlenwerte werden nur für kompatible, statisch bekannte Fälle ausgegeben; nicht auflösbare oder inkompatible Fälle bleiben `null`. Status `CANDIDATES_ONLY`, ohne Interpreter- oder Regexausführung.
+
+### DGN-007 – Hostversionsbeobachtung aus Prozessinventar ableiten (22. November 2026)
+
+Der prospektive Control-Coordinator leitet die Zahl der aktiven SQL-Server-
+Container pro Capture jetzt aus dem tatsächlich erhobenen Docker-Prozessinventar
+ab. Der bisherige konstante Wert `1` war durch die vorgelagerte Inventur zwar
+begrenzt, stellte die Herkunft des Beobachtungswerts im Code aber nicht dar.
+Der Lifecycle akzeptiert mehrere SQL-Server-Prozesse desselben Zielcontainers;
+gezählt werden daher unterschiedliche Container-IDs statt Prozesse. Die
+synthetische Coordinatorregression prüft sechs Captures mit zwei
+SQL-Server-Prozessen in einem Container und bindet weiterhin genau eine aktive
+Serverinstanz. Das verändert weder DEC-068 noch eine Ressourcen-, Incident-
+oder Runtimeaussage. Die Generalprobe bleibt ausgeschlossen.
