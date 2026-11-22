@@ -132,10 +132,10 @@ def evaluate_rightmost_page_chain(
         if page.next_address != next_address or next_page.previous_address != current_address:
             return Result(Verdict.FAIL, ("forward and backward page links are inconsistent",))
     final_next = pages[-1].next_address
-    if final_next == terminal_address:
-        return Result(Verdict.PASS, ())
     if final_next in seen:
         return Result(Verdict.FAIL, ("terminal link loops to a previously visited page",))
+    if final_next == terminal_address:
+        return Result(Verdict.PASS, ())
     return Result(Verdict.NOT_PROVEN, ("supplied chain does not reach the explicit terminal marker",))
 
 
