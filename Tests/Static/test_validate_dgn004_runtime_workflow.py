@@ -33,6 +33,10 @@ class Dgn004RuntimeWorkflowTests(unittest.TestCase):
     def test_direct_unowned_cleanup_is_rejected(self) -> None:
         self.assertTrue(validate(self.workflow + "\nrun: docker rm -f $(docker ps -q)\n", self.container))
 
+    def test_pull_request_synchronization_does_not_repeat_qualification(self) -> None:
+        changed = self.workflow.replace("types: [opened, reopened]", "types: [opened, synchronize, reopened]")
+        self.assertTrue(validate(changed, self.container))
+
 
 if __name__ == "__main__":
     unittest.main()

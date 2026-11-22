@@ -1,6 +1,6 @@
 # Aktueller Ausführungsstand
 
-### DGN-004-Runtime-Implementierung: Cleanup-Review bestanden, AIO-Engpass blockiert Gesamtmatrix
+### DGN-004-Runtime-Implementierung: begrenzte Qualifikation bestanden, lokaler AIO-Engpass verbleibt
 
 Am 21. November 2026 wurde die begrenzte DGN-004-Runtime-Entwicklung und
 anschließende Qualifikation für `CLASSICAL_FORCING_AND_HINT_CONTROL`
@@ -21,8 +21,8 @@ SQL Server 2025 (`17.0.4075.5`, Enterprise Developer/Linux,
 Kompatibilitätsstufe 170,
 Image `sha256:4bab24f36c1ecd48e85f7d37df26e6bf301641d84c3fe652f9a0dcc947d512e1`)
 bestand im selben Matrixlauf mit neun Aufrufen, neun Query-Store-Flushes,
-84 SQL-Batches und bestätigtem Cleanup (`PASS`, 69,496 Sekunden). Die
-Gesamtqualifikation bleibt offen. Der unabhängige Runtime-/Cleanup-Review fand
+84 SQL-Batches und bestätigtem Cleanup (`PASS`, 69,496 Sekunden). Dieser lokale
+Matrixlauf schloss die Qualifikation nicht ab. Der unabhängige Runtime-/Cleanup-Review fand
 keine offenen P1/P2-Punkte. Die gezielte Python-Suite führte 127 Tests aus;
 126 bestanden und einer wurde plattformbedingt übersprungen.
 
@@ -31,8 +31,9 @@ asynchrone I/O-Kontexte. Die letzte read-only Abfrage ergab `aio-nr=65536` bei
 `aio-max-nr=65536`; SQL Server 2022 hatte zuvor explizit gemeldet, keinen neuen
 I/O-Kontext anlegen zu können. Die Ursache liegt außerhalb des eigenen
 Containers. Es wurden keine fremden Container oder globalen Hostwerte geändert.
-Die erneute 2022-Qualifikation bleibt `NOT_PROVEN`, bis der Host genügend
-I/O-Kontextkapazität bereitstellt. Laufzeiten sind Ablaufdaten und kein
+Ein weiterer Versuch auf diesem lokalen Host bleibt `NOT_PROVEN`, bis genügend
+I/O-Kontextkapazität bereitsteht. Das betrifft nicht die unten dokumentierte
+Qualifikation auf frischen CI-Runnern. Laufzeiten sind Ablaufdaten und kein
 Leistungsnachweis.
 
 Für den nächsten freigegebenen Einzelversuch je Build ist am 22. November 2026
@@ -43,8 +44,15 @@ ein eigener GitHub-Runner-Workflow ergänzt worden. Er führt 2022 und danach
 damit die genehmigte Versuchszahl und Grenzen erhalten bleiben; es wird keine
 Exklusivität eines gemeinsam genutzten Hosts vorausgesetzt. Die Runtime-Runner
 bereinigen ausschließlich den jeweils eigenen, vollständig markierten
-Container. Der Workflow wurde lokal statisch geprüft; die CI-Qualifikation ist
-noch nicht ausgeführt und zählt erst nach grünem Build- und Cleanupbeleg.
+Container. Der Workflow wurde am 22. November 2026 im
+[Actions-Lauf 44991028381](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44991028381)
+ausgeführt. 2022 bestand mit neun Aufrufen, neun Query-Store-Flushes, 84
+SQL-Batches und Cleanup (`PASS`, 29,328 Sekunden); 2025 bestand dieselben
+Anzahlen mit Cleanup (`PASS`, 44,816 Sekunden). Damit ist die begrenzte
+2022/2025-Qualifikation für `CLASSICAL_FORCING_AND_HINT_CONTROL` auf den
+registrierten Builds abgeschlossen. Sie qualifiziert weder Replay-Verhalten
+noch kausale Hintwirkung oder Performance. Menschliche Generalprobe und ein
+späteres Unterrichtsrelease bleiben getrennte Schritte.
 
 Der [Implementierungsplan](DGN_004_RUNTIME_IMPLEMENTATION_PLAN.md) und die
 [Quell-/Runnerbeschreibung](../../Tests/Fixtures/DGN004_SourcePair/README.md)

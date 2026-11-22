@@ -2,6 +2,7 @@ name: DGN-004 bounded runtime qualification
 
 on:
   pull_request:
+    types: [opened, reopened]
     paths:
       - 'Tests/Fixtures/DGN004_SourcePair/**'
       - 'Tests/Runtime/dgn004_*.py'

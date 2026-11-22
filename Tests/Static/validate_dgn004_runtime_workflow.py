@@ -12,7 +12,8 @@ CONTAINER = ROOT / "Tests" / "Runtime" / "dgn004_container.py"
 def validate(workflow: str, container_source: str) -> list[str]:
     errors: list[str] = []
     required = (
-        "pull_request:", "workflow_dispatch:", "permissions:\n  contents: read",
+        "pull_request:", "workflow_dispatch:", "types: [opened, reopened]",
+        "permissions:\n  contents: read",
         "cancel-in-progress: false", "fail-fast: false", "max-parallel: 1",
         "timeout-minutes: 30", "python Tests/Runtime/dgn004_runtime_runner.py --build \"$BUILD\"",
         "retention-days: 3", "if: always()", "docker pull \"$SQL_IMAGE\"",
@@ -24,6 +25,8 @@ def validate(workflow: str, container_source: str) -> list[str]:
         errors.append("workflow must not run the SQL Server 2019 unsupported scope")
     if workflow.count("python Tests/Runtime/dgn004_runtime_runner.py --build") != 1:
         errors.append("workflow must execute exactly one bounded trial per matrix job")
+    if re.search(r"(?ms)^  pull_request:\n(?!    types: \[opened, reopened\])", workflow):
+        errors.append("runtime qualification must not repeat on pull-request synchronization")
     for build, digest in (
         ("2022", "ba4c8329f48fb8f02e1416be6a930ebfd71268caee78aa985f3af4315e457c89"),
         ("2025", "4bab24f36c1ecd48e85f7d37df26e6bf301641d84c3fe652f9a0dcc947d512e1"),
