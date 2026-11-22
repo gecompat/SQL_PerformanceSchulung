@@ -163,10 +163,10 @@ große Ringpuffer, unvollständige Paare und abweichende Ereignisressourcen
 ergeben keinen Nachweis.
 
 Der Pilot lädt 451 Seedzeilen und baut den Zielindex vor den Actor-Requests mit
-`FILLFACTOR=10` neu auf. Die korrigierte Seedmenge ergab in den geprüften
-Builds zehn Blattseiten; der vollständige 48-Zeilen-Burst passte in den
-Läufen auf der rechten Seite, ohne die Wait-Seite zur Vorgängerseite zu
-splitten. Er lässt 48 Actors je
+`FILLFACTOR=1` neu auf. Diese Kombination ergab in den geprüften Builds 91
+Blattseiten; beide vollständigen 48-Zeilen-Bursts passten in den Läufen auf
+der rechten Seite, ohne die Wait-Seite zur Vorgängerseite zu splitten. Er
+lässt 48 Actors je
 eine Einfügung in zwei getrennten Bursts ausführen. Nach dem ersten Burst sind
 alle Actor-Inserts beendet; danach prüft der Pilot die per
 `sys.dm_db_page_info` gelesene Zielseite und ihren
@@ -184,11 +184,11 @@ Semantik bleibt ein Review- und Qualifikationsgate.
 
 Auf den isolierten, digest-gepinnten Builds SQL Server 2019
 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5` bestand je ein
-identischer 48×1-Lauf. Ein weiterer SQL-Server-2025-CI-Lauf zeigte, dass die
-500-Zeilen-Seedmenge bei einem Stage-1-Split die Wait-Seite nicht terminal
-ließ; daraufhin wurde die Seedmenge auf 451 reduziert. Der Pilot bestätigte
+identischer 48×1-Lauf. Weitere CI-Läufe zeigten, dass auch 451 Seedzeilen mit
+`FILLFACTOR=10` nicht zuverlässig vor Burst-Splits schützen; deshalb steht
+der Rebuild jetzt auf `FILLFACTOR=1`. Der Pilot bestätigte
 auf jedem Build die konkrete Produktversion und Compatibility Level (150,
-160, 170); jeder Rebuild ergab zehn Blattseiten. Beide Burstcaptures bestanden
+160, 170); jeder Rebuild ergab 91 Blattseiten. Beide Burstcaptures bestanden
 jeweils mit einer nach dem
 Burst bestätigten terminalen Seite und korrektem Vorgänger-Rücklink. Die
 physische Seite kann sich nach einer Aufteilung ändern. Die genauen
