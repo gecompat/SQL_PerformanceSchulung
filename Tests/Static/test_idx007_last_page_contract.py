@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import unittest
 
-from idx007_last_page_contract import PageTarget, PageWait, Verdict, evaluate_last_page_contention
+from idx007_last_page_contract import (
+    PageLink, PageTarget, PageWait, Verdict, evaluate_last_page_contention,
+    evaluate_rightmost_page_chain,
+)
 
 
 STAMP = "2026-11-06T10:00:00Z"
@@ -18,6 +21,50 @@ def fixture(*, rightmost: bool | None = True) -> tuple[tuple[PageWait, ...], Pag
 
 
 class LastPageContractTests(unittest.TestCase):
+    def test_bounded_chain_requires_consistent_links_and_explicit_terminal(self) -> None:
+        pages = (
+            PageLink(7, 1, 900, 42, 3, 1, 0, (1, 899), (1, 901)),
+            PageLink(7, 1, 901, 42, 3, 1, 0, (1, 900), (1, 902)),
+            PageLink(7, 1, 902, 42, 3, 1, 0, (1, 901), (1, 9999)),
+        )
+        result = evaluate_rightmost_page_chain(
+            pages, database_id=7, object_id=42, index_id=3, partition_id=1,
+            start_address=(1, 900), terminal_address=(1, 9999), max_pages=3,
+        )
+        self.assertEqual(result.verdict, Verdict.PASS)
+
+    def test_chain_does_not_assume_missing_terminal_encoding(self) -> None:
+        self.assertEqual(evaluate_rightmost_page_chain(
+            (), database_id=7, object_id=42, index_id=3, partition_id=1,
+            start_address=(1, 900), terminal_address=None, max_pages=3,
+        ).verdict, Verdict.NOT_PROVEN)
+
+    def test_chain_rejects_identity_level_link_cycle_and_cap_mismatches(self) -> None:
+        pages = (
+            PageLink(7, 1, 900, 42, 3, 1, 0, None, (1, 901)),
+            PageLink(7, 1, 901, 42, 3, 1, 0, (1, 900), (1, 9999)),
+        )
+        variants = (
+            (PageLink(7, 1, 900, 42, 4, 1, 0, None, (1, 901)), pages[1]),
+            (PageLink(7, 1, 900, 42, 3, 1, 1, None, (1, 901)), pages[1]),
+            (pages[0], PageLink(7, 1, 901, 42, 3, 1, 0, (1, 899), (1, 9999))),
+            (pages[0], PageLink(7, 1, 901, 42, 3, 1, 0, (1, 900), (1, 900))),
+        )
+        for candidate in variants:
+            with self.subTest(candidate=candidate):
+                self.assertEqual(evaluate_rightmost_page_chain(
+                    candidate, database_id=7, object_id=42, index_id=3, partition_id=1,
+                    start_address=(1, 900), terminal_address=(1, 9999), max_pages=2,
+                ).verdict, Verdict.FAIL)
+        self.assertEqual(evaluate_rightmost_page_chain(
+            pages, database_id=7, object_id=42, index_id=3, partition_id=1,
+            start_address=(1, 900), terminal_address=(1, 9999), max_pages=1,
+        ).verdict, Verdict.NOT_PROVEN)
+        self.assertEqual(evaluate_rightmost_page_chain(
+            pages[:1], database_id=7, object_id=42, index_id=3, partition_id=1,
+            start_address=(1, 900), terminal_address=(1, 9999), max_pages=2,
+        ).verdict, Verdict.NOT_PROVEN)
+
     def test_matching_two_actor_leaf_and_right_edge_passes(self) -> None:
         self.assertEqual(evaluate_last_page_contention(*fixture()).verdict, Verdict.PASS)
 

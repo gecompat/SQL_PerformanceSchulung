@@ -101,12 +101,25 @@ Ursache eines Produktionsengpasses oder einen Vorteil von
   Terminaldarstellung, Nachfolger-/Rücklinksemantik, Seiten-Cap, Änderungen
   während eines Splits sowie die Aussagekraft der beiden Capture-Ränder
   bestätigen.
-- Erst nach diesem Review dürfen eine ausführbare read-only Seitenkettenprobe,
-  synthetische Kettenfixtures und ein konkreter Cleanup-/Runtimevertrag
-  vorbereitet werden. Der faire OFF/ON-Lastvergleich bleibt ein getrenntes
-  Gate und wird nicht durch Seitenkettenbelege freigegeben.
+- Ein davon getrennter Offline-Checker darf caller-gelieferte Kettenrecords nur
+  intern auf Seitenidentität, Blattniveau, Zyklen, Vorwärts-/Rücklinks,
+  Startseite, expliziten Endmarker und Seiten-Cap prüfen. Er darf keine
+  SQL-Abfrage oder Enginesemantik ableiten.
+- Erst nach diesem Review dürfen eine ausführbare read-only Seitenkettenprobe
+  und ein konkreter Cleanup-/Runtimevertrag vorbereitet werden. Der faire
+  OFF/ON-Lastvergleich bleibt ein getrenntes Gate und wird nicht durch
+  Seitenkettenbelege freigegeben.
 
 Die geltenden Herstellerquellen beschreiben Seiteneigenschaften und
 Nachfolgerfelder, aber keinen atomaren Traversalvertrag für eine während
 konkurrierender Inserts veränderliche B-Baum-Blattkette. Dieses Verhalten und
 die vorgeschlagene Klammerung bleiben deshalb ein offenes empirisches Gate.
+
+`evaluate_rightmost_page_chain` prüft caller-gelieferte Blattkettenrecords jetzt
+mit einer explizit übergebenen Endadresse, ohne einen konkreten Terminalwert
+vorzugeben. Vorwärts- und Rücklinks, Startseite, Datenbank/Objekt/Index/Partition,
+Blattniveau, Zyklen und ein fest begrenztes Seitenbudget werden synthetisch
+geprüft. Der Prüfer authentifiziert keine DMV-/Seitenaufnahme und entscheidet
+nicht, welcher Marker in einem SQL-Server-Build tatsächlich das Kettenende
+darstellt. Die unabhängige Methodenprüfung bleibt Voraussetzung für eine
+ausführbare Probe.

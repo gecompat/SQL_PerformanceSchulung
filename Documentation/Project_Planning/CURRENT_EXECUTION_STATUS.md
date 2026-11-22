@@ -14038,3 +14038,16 @@ Regressionen ergänzen elf Range- und zwanzig Konversionsfälle; zusammen besteh
 34 fokussierte Tests. Das prüft nur interne Konsistenz der gelieferten Werte,
 nicht deren Herkunft, eine SQL-Ausführung oder einen tatsächlichen Tabellenzustand.
 Methodenreview und isolierter Enginepilot bleiben offene Gates.
+
+### IDX-007 – gebundene Blattkette offline konsistent prüfen (22. November 2026)
+
+`evaluate_rightmost_page_chain` prüft nun caller-gelieferte Seitendatensätze auf
+Startseite, Datenbank-/Objekt-/Index-/Partitionsbindung, Blattebene, eindeutige
+Adressen, konsistente Vorwärts- und Rücklinks sowie ein festes Seitenlimit. Der
+Endmarker muss explizit caller-geliefert sein; kein Terminalwert wird aus einer
+Annahme über SQL Server fest verdrahtet. Drei neue synthetische Testfälle
+ergänzen die bestehende IDX-007-Suite auf 16 Tests; Framework-Contracts-Validator
+bestanden. Das authentifiziert keine Seitenmetadaten und bestimmt keine reale
+Terminalsemantik. Unabhängiger Methodenreview bleibt Voraussetzung für eine
+ausführbare read-only Probe; Workloadvergleich und Runtimequalifikation bleiben
+getrennte Gates.
