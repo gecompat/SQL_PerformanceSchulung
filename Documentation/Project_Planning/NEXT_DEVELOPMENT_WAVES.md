@@ -14,6 +14,19 @@ Die nachfolgenden Abschnitte führen offene Entwicklungs- und Qualifikations-
 Gates. Die menschliche Generalprobe bleibt ausgeschlossen; SQL-Lab-, Produkt-
 und Runtimegates bleiben offen.
 
+### DGN-004 – begrenzte CI-Qualifikation je Build (22. November 2026)
+
+Der lokale Linux-AIO-Zähler lag bei der read-only Prüfung bei `64512/65536`;
+ein neuer SQL-Server-2022-Start auf diesem Host wäre daher nicht belastbar.
+Für den bereits freigegebenen einen Versuch je Build ist ein eigener
+[DGN-004-Runtimeworkflow](../../.github/workflows/dgn004-runtime-qualification.yml)
+vorgesehen. Er verwendet frische GitHub-Runner, die exakten Image-Digests,
+unveränderte Zwei-CPU-/3-GiB-/Netzwerk-/Zeitgrenzen, je einen Lauf für 2022
+und 2025 und die bestehende ownergebundene Cleanup-Route. Die Jobs laufen
+seriell; das ist eine Ressourcenbegrenzung und keine Anforderung an einen
+exklusiven Host. Die Workflowprüfung und ihre Regressionen sind lokal
+bestanden. Runtimequalifikation und Cleanupbeleg stehen noch aus.
+
 ### Abgeschlossener DGN-007-Folgeschnitt: native `Pattern.groupindex`-Quellbindung
 
 PR #1086 integrierte den digestgebundenen CPython-3.12.16-Offlinecandidate vom

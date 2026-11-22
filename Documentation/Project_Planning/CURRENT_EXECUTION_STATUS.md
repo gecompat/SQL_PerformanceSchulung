@@ -35,6 +35,17 @@ Die erneute 2022-Qualifikation bleibt `NOT_PROVEN`, bis der Host genügend
 I/O-Kontextkapazität bereitstellt. Laufzeiten sind Ablaufdaten und kein
 Leistungsnachweis.
 
+Für den nächsten freigegebenen Einzelversuch je Build ist am 22. November 2026
+ein eigener GitHub-Runner-Workflow ergänzt worden. Er führt 2022 und danach
+2025 jeweils einmal mit dem bereits festgelegten Image-Digest, zwei CPUs,
+3-GiB-Speichergrenze, ohne Netzwerk und innerhalb des vorhandenen
+15-Minuten-Buildbudgets aus. Die Builds laufen seriell (`max-parallel: 1`),
+damit die genehmigte Versuchszahl und Grenzen erhalten bleiben; es wird keine
+Exklusivität eines gemeinsam genutzten Hosts vorausgesetzt. Die Runtime-Runner
+bereinigen ausschließlich den jeweils eigenen, vollständig markierten
+Container. Der Workflow wurde lokal statisch geprüft; die CI-Qualifikation ist
+noch nicht ausgeführt und zählt erst nach grünem Build- und Cleanupbeleg.
+
 Der [Implementierungsplan](DGN_004_RUNTIME_IMPLEMENTATION_PLAN.md) und die
 [Quell-/Runnerbeschreibung](../../Tests/Fixtures/DGN004_SourcePair/README.md)
 dokumentieren Laufstrecke, Nutzung und Grenzen.
