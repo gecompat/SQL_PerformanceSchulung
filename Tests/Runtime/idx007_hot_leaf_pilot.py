@@ -283,6 +283,26 @@ SELECT 'IDX007_CHAIN_CAPTURE_END';
 """
 
 
+def wait_page_probe_sql(addresses: set[tuple[int, int]], stage: int) -> str:
+    if not addresses or len(addresses) > 128:
+        raise PilotError("wait-page diagnostic set is empty or over its fixed cap")
+    values = ",".join(f"({file_id},{page_id})" for file_id, page_id in sorted(addresses))
+    return f"""
+SET NOCOUNT ON; USE [{DB}];
+SELECT CONCAT('WAIT_PAGE_PROBE|{stage}|',a.FileId,'|',a.PageId,'|',
+  COALESCE(CONVERT(varchar(12),i.object_id),'NULL'),'|',
+  COALESCE(CONVERT(varchar(12),i.index_id),'NULL'),'|',
+  COALESCE(CONVERT(varchar(20),i.partition_id),'NULL'),'|',
+  COALESCE(CONVERT(varchar(12),i.page_level),'NULL'),'|',
+  COALESCE(CONVERT(varchar(12),i.prev_page_file_id),'NULL'),'|',
+  COALESCE(CONVERT(varchar(12),i.prev_page_page_id),'NULL'),'|',
+  COALESCE(CONVERT(varchar(12),i.next_page_file_id),'NULL'),'|',
+  COALESCE(CONVERT(varchar(12),i.next_page_page_id),'NULL'))
+FROM (VALUES {values}) AS a(FileId,PageId)
+OUTER APPLY sys.dm_db_page_info(DB_ID(),a.FileId,a.PageId,'DETAILED') AS i;
+"""
+
+
 def wait_until(name: str, env: dict[str, str], sql: str, expected: str,
                *, seconds: float = 20) -> None:
     deadline = time.monotonic() + seconds
@@ -483,6 +503,10 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
                         and tuple(values[14:16]) == address and values[16] > 1):
                     valid.append((address, values))
             if not valid:
+                probe_output = sqlcmd(name, env, wait_page_probe_sql(wait_addresses, stage), check=False)
+                for line in probe_output.splitlines():
+                    if line.startswith(f"WAIT_PAGE_PROBE|{stage}|"):
+                        print(line)
                 for wait_address in sorted(wait_addresses):
                     observed = meta_rows.get(wait_address)
                     if observed is None:

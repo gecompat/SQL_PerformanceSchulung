@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from Tests.Runtime.idx007_hot_leaf_pilot import (PilotError, overlaps_capture_window,
                                                   parse_chain_markers, parse_wait_pairs,
-                                                  run_bounded_trials)
+                                                  run_bounded_trials, wait_page_probe_sql)
 
 
 DATABASE_ID = 7
@@ -36,6 +36,14 @@ class LiveCaptureParserTests(unittest.TestCase):
     def test_bounded_trials_reject_unbounded_attempt_limits(self) -> None:
         with self.assertRaisesRegex(ValueError, "between one and three"):
             run_bounded_trials(15, attempts=4)
+
+    def test_wait_page_probe_targets_only_observed_addresses(self) -> None:
+        query = wait_page_probe_sql({(1, 360), (2, 489)}, 2)
+        self.assertIn("WAIT_PAGE_PROBE|2|", query)
+        self.assertIn("(1,360),(2,489)", query)
+        self.assertIn("sys.dm_db_page_info(DB_ID(),a.FileId,a.PageId,'DETAILED')", query)
+        with self.assertRaisesRegex(PilotError, "over its fixed cap"):
+            wait_page_probe_sql({(1, page) for page in range(1, 130)}, 1)
 
     def test_shared_wait_interval_must_intersect_chain_capture(self) -> None:
         left = {"begin_seq": 2, "end_seq": 9}
