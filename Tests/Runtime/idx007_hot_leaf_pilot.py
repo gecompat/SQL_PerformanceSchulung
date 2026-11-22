@@ -291,6 +291,7 @@ def wait_page_probe_sql(addresses: set[tuple[int, int]], stage: int) -> str:
 SET NOCOUNT ON; USE [{DB}];
 SELECT CONCAT('WAIT_PAGE_PROBE|{stage}|',a.FileId,'|',a.PageId,'|',
   COALESCE(CONVERT(varchar(12),i.object_id),'NULL'),'|',
+  COALESCE(OBJECT_SCHEMA_NAME(i.object_id)+'.'+OBJECT_NAME(i.object_id),'NULL'),'|',
   COALESCE(CONVERT(varchar(12),i.index_id),'NULL'),'|',
   COALESCE(CONVERT(varchar(20),i.partition_id),'NULL'),'|',
   COALESCE(CONVERT(varchar(12),i.page_level),'NULL'),'|',
@@ -372,7 +373,7 @@ CREATE TABLE dbo.Hot(KeyValue bigint IDENTITY(1,1) NOT NULL, CONSTRAINT PK_Hot P
 GO
 CREATE SCHEMA lab;
 GO
-CREATE TABLE lab.ActorSessions(SessionId smallint NOT NULL PRIMARY KEY,RequestId int NOT NULL,Done1 bit NOT NULL DEFAULT(0),Done2 bit NOT NULL DEFAULT(0));
+CREATE TABLE lab.ActorSessions(SessionId smallint NOT NULL PRIMARY KEY,RequestId int NOT NULL);
 CREATE TABLE lab.Go(Stage int NOT NULL PRIMARY KEY);
 CREATE TABLE lab.CaptureReady(Stage int NOT NULL PRIMARY KEY);
 DECLARE @seed int=0; WHILE @seed<501 BEGIN INSERT dbo.Hot DEFAULT VALUES; SET @seed+=1; END;
@@ -440,11 +441,9 @@ SELECT @request_id=request_id FROM sys.dm_exec_requests WHERE session_id=@spid;
 INSERT lab.ActorSessions(SessionId,RequestId) VALUES(@spid,@request_id);
 WHILE NOT EXISTS(SELECT 1 FROM lab.Go WHERE Stage=1) WAITFOR DELAY '00:00:00.002';
 WHILE @i<{ROWS_PER_BURST} BEGIN INSERT dbo.Hot DEFAULT VALUES; WAITFOR DELAY '00:00:00.010'; SET @i+=1; END;
-UPDATE lab.ActorSessions SET Done1=1 WHERE SessionId=@spid;
 WHILE NOT EXISTS(SELECT 1 FROM lab.Go WHERE Stage=2) WAITFOR DELAY '00:00:00.002';
 SET @i=0;
 WHILE @i<{ROWS_PER_BURST} BEGIN INSERT dbo.Hot DEFAULT VALUES; WAITFOR DELAY '00:00:00.010'; SET @i+=1; END;
-UPDATE lab.ActorSessions SET Done2=1 WHERE SessionId=@spid;
 SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
 """
             actors.append(sqlcmd_actor(name, env, actor_sql))
@@ -466,8 +465,8 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
                        f"CAPTURE_READY|1")
             sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; INSERT lab.Go(Stage) VALUES({stage});")
             wait_until(name, env,
-                f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('DONE|',COUNT(*)) FROM lab.ActorSessions WHERE Done{stage}=1;",
-                f"DONE|{actor_count}")
+                f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('DONE|',COUNT_BIG(*)-501) FROM dbo.Hot;",
+                f"DONE|{actor_count * stage}")
             address_meta, capture_stderr = chain_capture.communicate(timeout=30)
             capture_processes.remove(chain_capture)
             if chain_capture.returncode:

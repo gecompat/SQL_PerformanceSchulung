@@ -14495,11 +14495,14 @@ Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) nutzen
 `FILLFACTOR=100` mit 80 Actors; Build 17 (`17.0.5035.5`) nutzt
 `FILLFACTOR=10` mit 56 Actors, da 64 Actors dort im CI eine nichtterminale
 Waitseite ergaben. Blattzahl und freier Platz bleiben ein physisches
-Vorab-Gate. Lokal bestanden beide Bursts auf Build 15/16 mit 661 Zeilen. Das
-aktuelle Build-17-Profil bestand in zwei von drei gleich begrenzten Versuchen
-beide Bursts mit 613 Zeilen; der dritte Lauf blieb fail-closed `NOT_PROVEN`,
-weil die beobachtete Waitseite nicht in der vorab erfassten Blattseitenmenge
-lag. Alle drei Läufe bestätigten Datenbank-/Container-Cleanup. Frühere
+Vorab-Gate. Eine gezielte DMV-Diagnose zeigte, dass wiederkehrende Waits auf
+einer anderen Objekt-ID als der Zielindex lagen. Der Pilot aktualisiert deshalb
+während der Bursts keine Fortschrittszeilen in `lab.ActorSessions` mehr und
+erkennt den Abschluss anhand des Zeilenzuwachses in `dbo.Hot`. Die aktuellen
+lokalen Läufe auf Build 15/16/17 bestanden damit je drei von drei
+Zweiburstversuchen: 661 Zeilen auf Build 15/16 und 613 auf Build 17. Alle
+bestätigten Datenbank-/Container-Cleanup. Die frische CI-Matrix mit derselben
+Änderung steht noch aus. Frühere
 CI-Versuche mit 64 Actors und `FILLFACTOR=100` lieferten auf SQL Server 2019
 keine überlappenden Waits; 80×1 und 96×1/96×2 trafen in
 einzelnen Builds auf Seitensplits. Die aktuelle CI-Matrix erlaubt je Build

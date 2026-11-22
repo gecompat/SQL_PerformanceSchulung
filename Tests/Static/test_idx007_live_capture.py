@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import inspect
 import unittest
 from unittest.mock import patch
 
 from Tests.Runtime.idx007_hot_leaf_pilot import (PilotError, overlaps_capture_window,
-                                                  parse_chain_markers, parse_wait_pairs,
-                                                  run_bounded_trials, wait_page_probe_sql)
+                                                  page_metadata_sql, parse_chain_markers, parse_wait_pairs,
+                                                  run_bounded_trials, run_live_pilot, wait_page_probe_sql)
 
 
 DATABASE_ID = 7
@@ -44,6 +45,16 @@ class LiveCaptureParserTests(unittest.TestCase):
         self.assertIn("sys.dm_db_page_info(DB_ID(),a.FileId,a.PageId,'DETAILED')", query)
         with self.assertRaisesRegex(PilotError, "over its fixed cap"):
             wait_page_probe_sql({(1, page) for page in range(1, 130)}, 1)
+
+    def test_actor_progress_does_not_write_during_measured_bursts(self) -> None:
+        source = inspect.getsource(run_live_pilot)
+        self.assertNotIn("UPDATE lab.ActorSessions", source)
+        self.assertIn("COUNT_BIG(*)-501", source)
+
+    def test_live_chain_capture_markers_bracket_leaf_scan(self) -> None:
+        query = page_metadata_sql({(1, 489)}, 1)
+        self.assertLess(query.index("IDX007_CHAIN_CAPTURE_BEGIN"), query.index("DECLARE @candidate"))
+        self.assertLess(query.index("DECLARE @candidate"), query.index("IDX007_CHAIN_CAPTURE_END"))
 
     def test_shared_wait_interval_must_intersect_chain_capture(self) -> None:
         left = {"begin_seq": 2, "end_seq": 9}

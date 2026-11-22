@@ -594,7 +594,7 @@ unvollständige XE-Alternativzweig blockiert ihn nicht. CON-006 Range ist auf
 qualifiziert (PR #1142, Merge-Commit `116123dfa58e9b1232860a1f372b4b9d59e3f8d0`).
 IDX-007 bleibt wegen der nicht gebundenen Terminal-/Wait-Klammer offen.
 
-### IDX-007 – laufendes XE-/Kettenfenster (22. November 2026)
+### IDX-007 – laufendes XE-/Kettenfenster (23. November 2026)
 
 Der Kettenleser wartet nun bereits verbunden an der Burstbarriere; seine
 markierten Statementgrenzen und die Actor-Waits liegen in derselben
@@ -603,12 +603,20 @@ derselben Seite, die in das Kettenlesefenster fällt, sowie bestätigte
 Terminalseite und Vorgänger-Rücklink für genau diese Seite. Die Lastform ist
 501 Seeds und ein Insert je Actor/Burst. Build 15/16 verwenden lokal
 `FILLFACTOR=100` mit 80 Actors (661 Zeilen); Build 17 verwendet
-`FILLFACTOR=10` mit 56 Actors (613 Zeilen); Cleanup bestand. Frühere
+`FILLFACTOR=10` mit 56 Actors (613 Zeilen). Nach Entfernung der
+Fortschritts-Updates auf `lab.ActorSessions` bestanden alle drei lokalen Profile
+je drei von drei Zweiburstversuchen; Cleanup bestand. Frühere
 `FILLFACTOR=100`-CI-Formen mit 64 Actors verfehlten SQL 2019-Waits; 80×1 und
 96-Actor-Varianten trafen einzelne Seitensplits. Die CI-Matrix führt je Build
 höchstens drei vollständige Versuche aus, verlangt mindestens einen
-Zweiburstnachweis und erhält alle `NOT_PROVEN`-Ausgaben. `METHOD_DRAFT` bleibt
-bestehen, da
+Zweiburstnachweis und erhält alle `NOT_PROVEN`-Ausgaben. Die Diagnose fand
+Waits auf einer anderen Objekt-ID als dem Zielindex. Die
+Fortschritts-Updates der Actors auf der Steuerungstabelle wurden aus den
+Messfenstern entfernt; Burstabschluss wird nun über den Zeilenzuwachs der
+Zieltabelle erkannt. SQL Server 2025 bestand mit dieser Korrektur lokal drei
+von drei Versuchen; die neuen Build-15/16-Läufe und die frische PR-Matrix
+bestätigen noch die Korrektur für alle Profile.
+`METHOD_DRAFT` bleibt bestehen, da
 mehrere DMV-Lesevorgänge keine atomare Snapshotgarantie und keine
 Splitsemantik liefern. Die frische PR-Matrix und Pflichtchecks stehen noch
 aus.

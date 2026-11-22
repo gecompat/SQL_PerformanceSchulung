@@ -115,7 +115,11 @@ Der Pilot verwendet je Build eine konkret erprobte Indexform: SQL Server
 2025 verwendet 501 Seeds, `FILLFACTOR=10` und 56 Actors. Je Actor erfolgt ein
 Insert pro Burst. Die physische Vorabprüfung bindet Seitenzahl und Reserve an
 den tatsächlichen Lauf. Der geforderte Wait- und Terminalnachweis bleibt für
-jeden Build unverändert.
+jeden Build unverändert. Actor-Sessions werden vor dem Burst registriert;
+Fortschritts-Updates auf der gemeinsamen Steuerungstabelle während der
+Messfenster entfallen. Der Harness erkennt Burstabschlüsse am Zeilenzuwachs der
+Zieltabelle, damit die Steuerung nicht selbst konkurrierende Seiten-Waits
+erzeugt.
 
 CI führt pro Build höchstens drei vollständige, voneinander getrennte Versuche
 mit identischen Grenzen aus. Ein Build-Job besteht, sobald mindestens ein

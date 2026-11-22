@@ -226,6 +226,16 @@ Waitseite mit passender Objekt-/Index-/Partitionsidentität, Blattebene,
 terminalem Nachfolger und stimmigem Vorgänger-Rücklink finden. Fehlt eine
 dieser Bindungen, liefert der Lauf `NOT_PROVEN`.
 
+Die Diagnose einer fremden Waitseite führte zu einer Korrektur am Harness:
+Actor-Sitzungen werden vor dem Burst registriert; Fortschritts-Updates auf
+`lab.ActorSessions` während der gemessenen Bursts entfallen. Der Harness
+erkennt Burstabschlüsse jetzt über die erwartete Zeilenzahl in `dbo.Hot`.
+So erzeugt die Fortschrittsverfolgung keine eigenen Seiten-Waits, die mit dem
+Zielindex verwechselt werden könnten. Die aktuellen lokalen Läufe auf
+SQL Server 2019/2022/2025 bestanden mit dieser Änderung je drei von drei
+vollständigen Zweiburstversuchen; die frische CI-Matrix muss sie noch auf allen
+drei Builds bestätigen.
+
 Die angepasste Lastform verwendet 501 Seeds und eine Einfügung pro Actor je
 Burst. Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) verwenden
 `FILLFACTOR=100` mit 80 Actors; Build 17 (`17.0.5035.5`) verwendet
@@ -233,14 +243,14 @@ Burst. Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) verwenden
 Seitenteilung bei 64 Actors; die Zwischenstufe soll mit weniger Inserts die
 Terminalseite halten und durch das geringere Füllziel genug Waits erzeugen.
 Vor jedem Lauf werden Blattseitenzahl und freie Bytes physisch
-gemessen. Lokal bestanden beide Bursts auf Build 15/16 mit je zwei getrennten
-Wait-/Kettenklammern und 661 synthetischen Zeilen. Das aktuelle Build-17-Profil
-bestand in zwei von drei gleich begrenzten Versuchen beide Bursts mit je zwei
-getrennten Wait-/Kettenklammern und 613 Zeilen; der dritte Versuch blieb
-fail-closed `NOT_PROVEN`, weil die beobachtete Waitseite nicht in der vorab
-erfassten Blattseitenmenge lag. Alle drei Versuche bestätigten Datenbank- und
-Container-Cleanup. Die erfolgreichen Waitüberlappungen lagen jeweils innerhalb
-des markierten Kettenlesefensters.
+gemessen. Die aktuellen lokalen Profile bestanden auf Build 15/16 und Build 17
+je drei von drei gleich begrenzten Versuchen mit je zwei getrennten
+Wait-/Kettenklammern; 661 synthetische Zeilen auf Build 15/16 und 613 auf
+Build 17. Ein früherer fehlgeschlagener CI-Lauf zeigte, dass die
+überlappende Waitseite eine andere Objekt-ID als den Zielindex hatte; die
+zusätzliche DMV-Diagnose bleibt deshalb fail-closed. Alle aktuellen lokalen
+Versuche bestätigten Datenbank- und Container-Cleanup. Die erfolgreichen
+Waitüberlappungen lagen jeweils innerhalb des markierten Kettenlesefensters.
 
 Die serielle CI-Matrix wiederholt pro Build bis zu drei vollständige
 Engineeringläufe mit denselben Profilgrenzen. Jeder Versuch protokolliert
