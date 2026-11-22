@@ -2013,22 +2013,25 @@ Die frühere Zurückstellung beruhte auf der Überschneidung mit dem geplanten
 CON-002-Einzelblockierungsfall und fehlendem eigenständigem Lernzuwachs. Nach
 der ausdrücklichen Wiederaufnahme der Deadlockvarianten liegt nun ein
 [CON-006-Range-Methodenentwurf](../Documentation/Project_Planning/CON006_RANGE_DEADLOCK_METHOD.md)
-vor: Er stellt eine einzelne Wait-/Freigabefolge einem möglichen Zyklus aus
-gegenseitigen Einfügungen in eine Indexlücke gegenüber. Die aktuelle
-Benutzeranweisung autorisiert die methodische Weiterentwicklung dieses
-Vorschlags; tatsächliche Graphbestätigung und Laufzeitqualifikation bleiben
-offen. Gemeinsame KEY-Ressource,
-Sperrmodi, serialer Kontrollarm, unabhängiger Methodenreview und isolierter
-Enginepilot bleiben offen. Produktgrundlage: [SRC-004](../Documentation/Research/SOURCE_REGISTER.md#src-004)
-und Deadlock-Graph-/Opferbelege [SRC-066](../Documentation/Research/SOURCE_REGISTER.md#src-066).
+vor: Er stellt gekreuzte Einfügungen aus zwei serialisierbaren, logisch
+getrennten Indexbereichen als Deadlockvariante dar. Ein isolierter Pilot auf
+SQL Server 2025 (`17.0.5035.5`) hat einen passenden Deadlockgraph mit zwei
+verschiedenen KEY-Ressourcen, `requestType=wait`, Opfer 1205, erfolgreichem
+Survivor und bestandener serieller Kontrolle belegt. Der Zustand von Optimized
+Locking blieb vor und nach beiden Armen `0`; keine Einstellung wurde verändert.
+SQL Server 2019/2022, vollständiger Optionen-/Planabgleich, unabhängiger
+Methodenreview und Demoqualifikation bleiben offen. Produktgrundlage:
+[SRC-004](../Documentation/Research/SOURCE_REGISTER.md#src-004) und
+Deadlock-Graph-/Opferbelege [SRC-066](../Documentation/Research/SOURCE_REGISTER.md#src-066).
 
-- [x] Offline-Graphprüfer für die Range-Variante ergänzt: zwei gebundene Actorprozesse, ein Opfer und genau eine gemeinsame KEY-Ressource mit Owner-/Waiter-Einträgen sowie vorhandenen, aber nicht vorab festgelegten Lockmodi. Synthetische Negativfälle für Ressourcen-, Actor-, Opfer- und XMLabweichungen laufen im Framework-Contracts-Workflow. Keine XE-/Run-/Zeit-/Resultatherkunft, kein SQL-Lauf, keine Freigabe oder Runtimequalifikation.
+- [x] Offline-Graphprüfer für die Range-Variante ergänzt: zwei gebundene Actorprozesse, ein Opfer und zwei unterschiedliche KEY-Ressourcen desselben Indexes mit gekreuzten Owner-/Waiter-Einträgen sowie vorhandenen, aber nicht vorab festgelegten Lockmodi. Synthetische Negativfälle für Ressourcen-, Actor-, Opfer- und XMLabweichungen laufen im Framework-Contracts-Workflow.
 - [x] Offline-Capturekorrelation für den Range-Graph ergänzt: `system_health`, `xml_deadlock_report`, Run-Zeitfenster, einmaliges Ereignis, Actor-/SPID-Bindung und Opfer-1205-/Survivorresultat werden gegen den geprüften Graph verbunden. Gegenproben bestehen; Werte bleiben caller-geliefert und unauthentifiziert, ohne SQL-Ausführung oder Runtimequalifikation.
 - [x] Offline-Prüfer des seriellen Kontrollarms ergänzt: beide Actor-Inserts müssen caller-seitig als erfolgreich vorliegen; erwarteter und beobachteter Schlüssel müssen je Actor übereinstimmen; der finale Schlüsselsatz muss exakt dem Anfangsbestand plus beiden Einfügungen entsprechen; passende Deadlockereignisse müssen null sein. Fehlende Nachweise bleiben `NOT_PROVEN`; Widersprüche `FAIL`. Der Prüfer authentifiziert keine Datenherkunft und ersetzt weder Methodenreview noch isolierten Enginepilot.
 
 **Spätere Abnahme:**
 
-- Je ausgewählter Variante belegt der tatsächliche Konfliktgraph die erwarteten Ressourcen, Modi und Teilnehmer; allgemeines Blocking gilt nicht als Deadlock-Nachweis.
+- SQL Server 2019 und 2022: je ein begrenzter Lauf mit passendem Graph, Opfer, Survivor und vollständigem Cleanup.
+- Vollständiger Abgleich der tatsächlich verwendeten Optionen und Abfragepläne; allgemeines Blocking gilt nicht als Deadlock-Nachweis.
 - Vorhandenen CON-006-Grundfall und seinen Abnahmestand erhalten; neue Varianten getrennt kennzeichnen und vollständig aufräumen.
 
 **Reiner Offline-Graphprüfer:** `Tests/Static/con006_conversion_graph_contract.py`

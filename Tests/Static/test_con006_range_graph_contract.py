@@ -34,17 +34,20 @@ def good_graph() -> str:
         <process id="processA" spid="51" currentdb="73" />
         <process id="processB" spid="52" currentdb="73" />
       </process-list>
-      <resource-list><keylock dbid="73"
+      <resource-list><keylock id="rangeA" dbid="73"
         objectname="SQLPERF_LAB_CON006_RUN.lab.DeadlockRows"
         indexname="PK_DeadlockRows" hobtid="72057594000000001">
         <owner-list>
           <owner id="processA" mode="RangeS-S" />
-          <owner id="processB" mode="RangeS-S" />
         </owner-list>
         <waiter-list>
-          <waiter id="processA" mode="RangeI-N" requestType="wait" />
           <waiter id="processB" mode="RangeI-N" requestType="wait" />
         </waiter-list>
+      </keylock><keylock id="rangeB" dbid="73"
+        objectname="SQLPERF_LAB_CON006_RUN.lab.DeadlockRows"
+        indexname="PK_DeadlockRows" hobtid="72057594000000001">
+        <owner-list><owner id="processB" mode="RangeS-S" /></owner-list>
+        <waiter-list><waiter id="processA" mode="RangeI-N" requestType="wait" /></waiter-list>
       </keylock></resource-list>
     </deadlock>"""
 
@@ -139,21 +142,18 @@ class RangeGraphContractTests(unittest.TestCase):
             with self.subTest(evidence=evidence):
                 self.assertEqual(evaluate_range_control(evidence).verdict, Verdict.FAIL)
 
-    def test_complete_same_key_two_actor_graph_passes_without_lock_mode_assumption(self):
+    def test_reciprocal_range_insert_waits_on_two_keys_pass_without_lock_mode_assumption(self):
         result = evaluate_range_graph(good_graph(), IDENTITY)
         self.assertEqual(result.verdict, Verdict.PASS)
         self.assertEqual(result.victim_spid, 51)
 
     def test_checker_preserves_observed_modes_instead_of_fixing_a_range_pair(self):
         def mutate(root):
-            modes = (
-                ("owner-list/owner[@id='processA']", "X"),
-                ("owner-list/owner[@id='processB']", "RangeS-S"),
-                ("waiter-list/waiter[@id='processA']", "RangeI-N"),
-                ("waiter-list/waiter[@id='processB']", "S"),
-            )
-            for path, mode in modes:
-                root.find("resource-list/keylock/" + path).set("mode", mode)
+            first, second = root.findall("resource-list/keylock")
+            first.find("owner-list/owner").set("mode", "RangeS-U")
+            first.find("waiter-list/waiter").set("mode", "X")
+            second.find("owner-list/owner").set("mode", "RangeS-U")
+            second.find("waiter-list/waiter").set("mode", "X")
 
         source = change_graph(mutate)
         self.assertEqual(evaluate_range_graph(source, IDENTITY).verdict, Verdict.PASS)
@@ -162,8 +162,8 @@ class RangeGraphContractTests(unittest.TestCase):
         compatible = change_graph(lambda root: [
             node.set("mode", "S") for node in root.findall("resource-list/keylock/owner-list/owner")
         ] + [node.set("mode", "S") for node in root.findall("resource-list/keylock/waiter-list/waiter")])
-        unknown = change_graph(lambda root: root.find(
-            "resource-list/keylock/waiter-list/waiter[@id='processA']").set("mode", "not-a-lock-mode"))
+        unknown = change_graph(lambda root: root.findall("resource-list/keylock")[1].find(
+            "waiter-list/waiter").set("mode", "not-a-lock-mode"))
         self.assertEqual(evaluate_range_graph(compatible, IDENTITY).verdict, Verdict.FAIL)
         self.assertEqual(evaluate_range_graph(unknown, IDENTITY).verdict, Verdict.FAIL)
 
@@ -223,7 +223,7 @@ class RangeGraphContractTests(unittest.TestCase):
             with self.subTest(source=source):
                 self.assertEqual(evaluate_range_graph(source, IDENTITY).verdict, Verdict.FAIL)
 
-    def test_requires_exactly_the_supplied_key_resource(self):
+    def test_requires_exactly_two_supplied_key_resources(self):
         for name, value in (("dbid", "74"), ("indexname", "other"),
                             ("hobtid", "72057594000000002")):
             source = change_graph(lambda root: root.find("resource-list/keylock").set(name, value))
@@ -233,25 +233,25 @@ class RangeGraphContractTests(unittest.TestCase):
             ET.fromstring(ET.tostring(root.find("resource-list/keylock"), encoding="unicode"))))
         self.assertEqual(evaluate_range_graph(duplicate, IDENTITY).verdict, Verdict.FAIL)
 
-    def test_both_actors_must_own_and_wait_on_the_same_key(self):
+    def test_both_actors_must_form_reciprocal_key_ownership_and_waits(self):
         missing_owner = change_graph(lambda root: root.find(
-            "resource-list/keylock/owner-list").remove(root.find(
-                "resource-list/keylock/owner-list/owner[@id='processB']")))
-        foreign_waiter = change_graph(lambda root: root.find(
-            "resource-list/keylock/waiter-list/waiter[@id='processB']").set("id", "foreign"))
+                "resource-list/keylock/owner-list").remove(root.find(
+                "resource-list/keylock/owner-list/owner[@id='processA']")))
+        foreign_waiter = change_graph(lambda root: root.findall("resource-list/keylock")[1].find(
+            "waiter-list/waiter").set("id", "foreign"))
         for source in (missing_owner, foreign_waiter):
             with self.subTest(source=source):
                 self.assertEqual(evaluate_range_graph(source, IDENTITY).verdict, Verdict.FAIL)
 
     def test_actual_lock_mode_and_request_type_fields_are_required(self):
-        missing_mode = change_graph(lambda root: root.find(
-            "resource-list/keylock/waiter-list/waiter[@id='processA']").attrib.pop("mode"))
-        missing_request = change_graph(lambda root: root.find(
-            "resource-list/keylock/waiter-list/waiter[@id='processA']").attrib.pop("requestType"))
-        unknown_request = change_graph(lambda root: root.find(
-            "resource-list/keylock/waiter-list/waiter[@id='processA']").set("requestType", "arbitrary"))
-        conversion_request = change_graph(lambda root: root.find(
-            "resource-list/keylock/waiter-list/waiter[@id='processA']").set("requestType", "convert"))
+        missing_mode = change_graph(lambda root: root.findall("resource-list/keylock")[1].find(
+            "waiter-list/waiter").attrib.pop("mode"))
+        missing_request = change_graph(lambda root: root.findall("resource-list/keylock")[1].find(
+            "waiter-list/waiter").attrib.pop("requestType"))
+        unknown_request = change_graph(lambda root: root.findall("resource-list/keylock")[1].find(
+            "waiter-list/waiter").set("requestType", "arbitrary"))
+        conversion_request = change_graph(lambda root: root.findall("resource-list/keylock")[1].find(
+            "waiter-list/waiter").set("requestType", "convert"))
         self.assertEqual(evaluate_range_graph(missing_mode, IDENTITY).verdict, Verdict.FAIL)
         self.assertEqual(evaluate_range_graph(missing_request, IDENTITY).verdict, Verdict.FAIL)
         self.assertEqual(evaluate_range_graph(unknown_request, IDENTITY).verdict, Verdict.FAIL)

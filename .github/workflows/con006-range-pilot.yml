@@ -1,0 +1,109 @@
+name: CON-006 isolated key-range pilot
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Runtime/con006_range_pilot.py'
+      - 'Tests/Static/validate_con006_range_pilot.py'
+      - 'Tests/Static/con006_range_graph_contract.py'
+      - 'Tests/Static/test_con006_range_graph_contract.py'
+      - 'Tests/Static/test_execution_target_docker_loopback.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Demos/05_Query_Patterns/QRY-023_Graph_Tables/container-images.proposed.json'
+      - '.github/workflows/con006-range-pilot.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Runtime/con006_range_pilot.py'
+      - 'Tests/Static/validate_con006_range_pilot.py'
+      - 'Tests/Static/con006_range_graph_contract.py'
+      - 'Tests/Static/test_con006_range_graph_contract.py'
+      - 'Tests/Static/test_execution_target_docker_loopback.py'
+      - 'Tests/Runtime/execution_target.py'
+      - 'Demos/05_Query_Patterns/QRY-023_Graph_Tables/container-images.proposed.json'
+      - '.github/workflows/con006-range-pilot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: con006-range-pilot-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with: {python-version: '3.12'}
+      - run: python Tests/Static/validate_con006_range_pilot.py
+      - run: python -m unittest Tests.Static.test_con006_range_graph_contract -v
+      - run: python -m unittest Tests.Static.test_execution_target_docker_loopback -v
+      - run: python Tests/Static/validate_w_cov_001.py
+
+  runtime:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    needs: [static]
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        version:
+          - {major: 15, build: '15.0.4500.2', image: 'mcr.microsoft.com/mssql/server@sha256:07d7dedecdbfcf6776035dc5eefb5bfd9aa1804b2f6b99f7dedb397d8a599069'}
+          - {major: 16, build: '16.0.4305.5', image: 'mcr.microsoft.com/mssql/server@sha256:cf8f0ab2ebe61feec2eed2629061a07d247f791c2a8ddda74a4ac9f06a291718'}
+          - {major: 17, build: '17.0.5035.5', image: 'mcr.microsoft.com/mssql/server@sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f'}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with: {python-version: '3.12'}
+      - name: Start pinned isolated SQL Server
+        shell: bash
+        run: |
+          set -euo pipefail
+          sa_value="$(python -c 'import secrets,string; a=string.ascii_letters+string.digits+"!#%+=?@"; print("Sa7!"+"".join(secrets.choice(a) for _ in range(28)))')"
+          owner="$(openssl rand -hex 16)"
+          container="sqlperf-con006-range-${GITHUB_RUN_ID}"
+          echo "::add-mask::${sa_value}"
+          {
+            echo "SQLCMDPASSWORD=${sa_value}"
+            echo "MSSQL_SA_PASSWORD=${sa_value}"
+            echo "SQLPERF_SQL_CONTAINER=${container}"
+            echo "SQLPERF_CI_OWNER=${owner}"
+          } >> "${GITHUB_ENV}"
+          docker pull '${{ matrix.version.image }}'
+          docker run --pull=never --name "${container}" --label "sqlperf.ci.owner=${owner}" --label 'sqlperf.ci.subject=CON006-RANGE-PILOT' --network none --cpus=2 --memory=4g --memory-swap=4g --restart=no -e ACCEPT_EULA=Y -e MSSQL_PID=Developer --env MSSQL_SA_PASSWORD -d '${{ matrix.version.image }}'
+          ready=0
+          for attempt in $(seq 1 90); do
+            if docker logs "${container}" 2>&1 | grep -q 'SQL Server is now ready for client connections'; then ready=1; break; fi
+            [ "$(docker inspect -f '{{.State.Running}}' "${container}")" = 'true' ] || { docker logs "${container}" 2>&1 | tail -80; exit 1; }
+            sleep 2
+          done
+          [ "${ready}" = '1' ] || { docker logs "${container}" 2>&1 | tail -80; exit 1; }
+          login_ready=0
+          for attempt in $(seq 1 30); do
+            if docker exec --env SQLCMDPASSWORD "${container}" sh -lc 'if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then s=/opt/mssql-tools18/bin/sqlcmd; elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then s=/opt/mssql-tools/bin/sqlcmd; else exit 127; fi; "$s" -S 127.0.0.1 -U sa -C -b -Q "SET NOCOUNT ON; SELECT 1;"' >/dev/null 2>&1; then login_ready=1; break; fi
+            sleep 2
+          done
+          [ "${login_ready}" = '1' ] || { docker logs "${container}" 2>&1 | tail -80; exit 1; }
+      - name: Run range graph and serial-control pilot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python Tests/Runtime/con006_range_pilot.py --product-major-version '${{ matrix.version.major }}' --expected-product-build '${{ matrix.version.build }}' | tee "${RUNNER_TEMP}/con006-range-${{ matrix.version.major }}.json"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: con006-range-${{ matrix.version.major }}-pilot
+          path: ${{ runner.temp }}/con006-range-${{ matrix.version.major }}.json
+          if-no-files-found: warn
+          retention-days: 3
+      - if: always()
+        name: Remove only the owned SQL Server container
+        shell: bash
+        timeout-minutes: 3
+        run: bash Tests/Runtime/cleanup_ci_container.sh
