@@ -7,8 +7,6 @@ on:
       - 'Tests/Static/validate_con006_range_pilot.py'
       - 'Tests/Static/con006_range_graph_contract.py'
       - 'Tests/Static/test_con006_range_graph_contract.py'
-      - 'Tests/Static/test_execution_target_docker_loopback.py'
-      - 'Tests/Runtime/execution_target.py'
       - 'Demos/05_Query_Patterns/QRY-023_Graph_Tables/container-images.proposed.json'
       - '.github/workflows/con006-range-pilot.yml'
   push:
@@ -18,8 +16,6 @@ on:
       - 'Tests/Static/validate_con006_range_pilot.py'
       - 'Tests/Static/con006_range_graph_contract.py'
       - 'Tests/Static/test_con006_range_graph_contract.py'
-      - 'Tests/Static/test_execution_target_docker_loopback.py'
-      - 'Tests/Runtime/execution_target.py'
       - 'Demos/05_Query_Patterns/QRY-023_Graph_Tables/container-images.proposed.json'
       - '.github/workflows/con006-range-pilot.yml'
   workflow_dispatch:
@@ -41,7 +37,7 @@ jobs:
         with: {python-version: '3.12'}
       - run: python Tests/Static/validate_con006_range_pilot.py
       - run: python -m unittest Tests.Static.test_con006_range_graph_contract -v
-      - run: python -m unittest Tests.Static.test_execution_target_docker_loopback -v
+      - run: python -m unittest Tests.Static.test_con006_runner_loopback -v
       - run: python Tests/Static/validate_w_cov_001.py
 
   runtime:

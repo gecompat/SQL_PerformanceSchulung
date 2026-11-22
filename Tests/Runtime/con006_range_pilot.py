@@ -41,12 +41,21 @@ class PilotError(RuntimeError):
 
 
 def _sql(target: Any, database: str, text: str, timeout: int = 20) -> str:
-    result = execution_target.run_sql(
-        target, database=database, sql_text=text, timeout_seconds=timeout,
+    command = [
+        "docker", "exec", "-i", "-e", "SQLCMDPASSWORD", target.container or "",
+        target.sqlcmd_path, "-S", "127.0.0.1", "-d", database, "-U", "sa", "-C",
+        "-b", "-r", "1", "-W", "-s", "|", "-h", "-1", "-w", "65535",
+    ]
+    result = subprocess.run(
+        command, input=text, check=False, capture_output=True, text=True,
+        encoding="utf-8", errors="replace", timeout=timeout,
+        env=target.child_environment(),
     )
-    if len(result.encode("utf-8")) > MAX_SQL_BYTES:
+    if result.returncode:
+        raise PilotError(f"SQL probe failed in {database} ({result.returncode})")
+    if len(result.stdout.encode("utf-8")) > MAX_SQL_BYTES:
         raise PilotError("SQL result exceeded the fixed output limit")
-    return result
+    return result.stdout
 
 
 def _identity(container: str) -> dict[str, Any]:
@@ -292,7 +301,11 @@ def _run_probe(major: int, expected_build: str) -> dict[str, Any]:
             or identity.get("Mounts")):
         raise PilotError("container ownership does not match the pilot")
     target = execution_target.docker_target(container=container)
-    actual = execution_target.verify_engine(target, expected_major=major)
+    engine_output = _sql(target, "master", execution_target.ENGINE_QUERY, timeout=60)
+    engine_match = execution_target.ENGINE_PATTERN.search(engine_output)
+    if engine_match is None or int(engine_match.group(1)) != major:
+        raise PilotError("runtime engine major version differs from the requested profile")
+    actual = int(engine_match.group(1))
     token = os.urandom(4).hex().upper()
     database = f"SQLPERF_LAB_CON006_{token}"
     try:
