@@ -74,13 +74,31 @@ def load_profile(product_major_version: int) -> dict[str, Any]:
         raise ProbeError("exactly one pinned image profile is required")
     profile = matches[0]
     digest = profile.get("manifest_digest")
+    config_digest = profile.get("config_digest")
     if (not isinstance(digest, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", digest)
+            or not isinstance(config_digest, str)
+            or not re.fullmatch(r"sha256:[0-9a-f]{64}", config_digest)
             or profile.get("image") != f"mcr.microsoft.com/mssql/server@{digest}"
             or profile.get("platform") != "linux/amd64"
             or type(profile.get("compatibility_level")) is not int
             or not isinstance(profile.get("product_version_label"), str)):
         raise ProbeError("pinned image profile is incomplete or malformed")
     return profile
+
+
+def validate_image_identity(items: list[dict[str, Any]], image: str,
+                            profile: dict[str, Any]) -> bool:
+    """Accept Docker's config-ID or manifest-ID display, always binding the manifest ref."""
+    if len(items) != 1:
+        return False
+    item = items[0]
+    expected_ids = {profile["config_digest"], profile["manifest_digest"]}
+    return (
+        item.get("Id") in expected_ids
+        and image in (item.get("RepoDigests") or [])
+        and item.get("Os") == "linux"
+        and item.get("Architecture") == "amd64"
+    )
 
 
 def parse_catalog_output(output: str, *, expected_major: int,
@@ -223,9 +241,7 @@ def run_probe(product_major_version: int) -> dict[str, Any]:
         image_items = json.loads(image_result.stdout)
     except json.JSONDecodeError as exc:
         raise ProbeError("Docker returned malformed pinned-image identity") from exc
-    if (len(image_items) != 1
-            or image_items[0].get("Id") != profile.get("config_digest")
-            or image not in (image_items[0].get("RepoDigests") or [])):
+    if not validate_image_identity(image_items, image, profile):
         raise ProbeError("pulled image manifest/config digest differs from the reviewed lock")
 
     owner = uuid.uuid4().hex

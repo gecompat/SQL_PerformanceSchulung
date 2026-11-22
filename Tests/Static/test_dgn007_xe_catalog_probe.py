@@ -96,6 +96,24 @@ class Dgn007XeCatalogProbeTests(unittest.TestCase):
         with self.assertRaises(probe.ProbeError):
             probe.load_profile(18)
 
+    def test_docker_image_identity_accepts_manifest_or_config_id_but_binds_reference(self) -> None:
+        profile = probe.load_profile(15)
+        image = profile["image"]
+        for image_id in (profile["manifest_digest"], profile["config_digest"]):
+            with self.subTest(image_id=image_id):
+                self.assertTrue(probe.validate_image_identity([{
+                    "Id": image_id,
+                    "RepoDigests": [image],
+                    "Os": "linux",
+                    "Architecture": "amd64",
+                }], image, profile))
+        self.assertFalse(probe.validate_image_identity([{
+            "Id": profile["manifest_digest"],
+            "RepoDigests": ["mcr.microsoft.com/mssql/server@sha256:" + "0" * 64],
+            "Os": "linux",
+            "Architecture": "amd64",
+        }], image, profile))
+
 
 if __name__ == "__main__":
     unittest.main()
