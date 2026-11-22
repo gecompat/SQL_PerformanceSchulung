@@ -14141,3 +14141,20 @@ Startseite scheitert. 20 IDX-007-Regressionen sowie Lesson-Query-Validator,
 Repository-Continuity, Framework-Contracts und `git diff --check` bestehen.
 Werte und Endmarker bleiben caller-geliefert; Herkunft, reale Terminalsemantik,
 unabhängiger Methodenreview und read-only Enginepilot bleiben offen.
+
+### DGN-007 – XE-Alternative zur Zeitzuordnung eingegrenzt (22. November 2026)
+
+Der Quellenabgleich fand einen prüfbaren, aber vertragsändernden Alternativzweig:
+ein eigener Extended-Events-Strom könnte `sql_statement_completed` zwischen
+expliziten Fenstermarkern nach Ereignisreihenfolge zählen und die Ausführungen
+über Query-/Planhashes mit Query Store verbinden. Das vermeidet den nicht
+belegten Vergleich zwischen QS- und `SYSUTCDATETIME`-Ticks. Die offiziellen
+Quellen belegen jedoch nicht die konkreten Ereignisfelder/Actions auf allen
+Zielbuilds, Hash-Eindeutigkeit, Verlustfreiheit oder das bestehende
+per-Fenster-QS-Countoracle. Marker-, XE- und Hashkardinalitätsvertrag sowie
+Datenschutz und Cleanup müssten separat entworfen werden. Es wurde keine
+XE-Session gestartet. DGN-007 bleibt `METHOD_BLOCKED`; der neue Entwurfszweig
+ist im [Quellenvergleich](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md#quellenvergleich-für-einen-möglichen-g13-gegenentwurf-22-november-2026)
+festgehalten. Der unabhängige Review bleibt ein tatsächliches externes Gate.
+Der ausführbare Entwurf samt Markerablauf, Hashbindung, Verlustregeln und
+Cleanupgates steht in [DGN-007 XE-Fensterzuordnung](DGN_007_XE_WINDOW_ATTRIBUTION_METHOD.md).

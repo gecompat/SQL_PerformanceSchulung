@@ -1044,13 +1044,24 @@ unbelegte gemeinsame Clockannahme ersetzen lässt.
 | Zuordnung allein über Query-Store-Intervallgrenzen | Query Store gruppiert Runtimewerte nach automatisch erzeugten Intervallen und aggregiert sie je Plan. Die Intervallgrenzen liefern keine Verbindung zu einem einzelnen Request, solange mehrere Requestpopulationen denselben Query-/Plan-/Intervallschlüssel teilen. | Keine eindeutige `WindowId`-Zuordnung für den unveränderten Mehrfensterablauf. Eine Intervalltrennung pro Fenster müsste selbst sicher und ohne dieselbe Uhrenannahme nachgewiesen werden. |
 | Zuordnung über `count_executions`-Differenzen vor/nach jedem Fenster | Query Store hält Runtimewerte im Arbeitsspeicher und schreibt sie gemäß Flushintervall; die [Sammelbeschreibung](https://learn.microsoft.com/en-us/sql/relational-databases/performance/how-query-store-collects-data?view=sql-server-ver17) sagt, dass Runtimewerte nach Ausführungen an Query Store gesendet werden. Sie definiert aber keinen transaktionalen Snapshot-/Commitvertrag, der eine externe Vorher-/Nachherzählung atomar an alle vier Requestabschlüsse bindet. | Ohne einen eigenen nachgewiesenen Sichtbarkeits-/Drainvertrag ist eine Countdifferenz kein vollständiger Requestzuordnungsbeleg. Zusätzlicher Flush oder Poll wäre eine Methoden- und Budgetänderung. |
 | Eindeutiger Query-/Plan-Schlüssel je Requestpopulation | Separate Queryidentitäten könnten eine populationsbezogene Aggregation ermöglichen. Der aktuelle Ablauf führt jedoch dieselbe gebundene Prozedur-/Statementquelle über mehrere Fenster aus; neue Tags oder Wrapper müssten nachweisen, dass Abfrage-, Plan- und Capturesemantik unverändert bleiben und Query Store die Identitäten tatsächlich trennt. | Denkbarer Entwurfszweig, aber noch kein Kandidat: Dafür wären ein geänderter Messvertrag, statische Text-/Planoracle und eine unabhängige Methodenprüfung erforderlich. |
+| XE-Abschlussereignisse mit expliziten Fenstermarkern | Microsoft dokumentiert `sql_statement_completed` als Abschlussereignis; Extended Events können Aktionen wie Session-ID und Ereignisreihenfolge ergänzen. Query Store stellt `query_hash` und `query_plan_hash` für Query-/Planidentifikation bereit. `SRC-163` dokumentiert die read-only Metadateninventur für tatsächlich verfügbare XE-Ereignisse und Actions. | Prüfbarer Methodenentwurf: jedem Messfenster Start-/Endmarker im selben XE-Strom zuordnen, Ausführungen über Markerreihenfolge statt Query-Store-/UTC-Uhrvergleich zählen und XE-Query-/Planhashes nur bei eindeutiger Zuordnung zu genau einem erwarteten Query-/Planrecord annehmen. Hashmehrdeutigkeit, Ereignisverlust, fehlende Marker oder abweichende Fensterpopulation ergeben `NOT_PROVEN`. Dieser Ansatz ersetzt die per-Fenster-QS-Countoracle und ändert Capture-/XE-Budget und Messvertrag; daher ist er keine kompatible Reparatur des aktuellen Vertrags. |
 
-Damit ist noch keine quellenbelegte Alternative gefunden, die gleichzeitig die
+Die XE-Variante ist quellenplausibel, aber noch kein freigegebener Ersatz:
+Microsofts allgemeine Dokumentation belegt weder die konkrete XE-Feld-/Action-
+Verfügbarkeit für die Zielereignisse auf allen Builds noch die Eindeutigkeit der
+Hashverknüpfung zu den vorhandenen Query-Store-Records. Vor einem Methodenreview
+muss ein enger Entwurf die Marker-/Eventverlustregeln, tatsächliche
+Katalogmetadaten je Build, Hashkardinalität, Datenschutz, XE-Eigentum/Cleanup und
+die Änderung der per-Fenster-Countoracles festlegen. Der konkrete
+[XE-Fensterzuordnungsentwurf](DGN_007_XE_WINDOW_ATTRIBUTION_METHOD.md) setzt
+diese Bedingungen als fail-closed Gates auf. Keine XE-Session wurde erstellt
+oder gestartet.
+
+Damit ist keine quellenbelegte Alternative gefunden, die gleichzeitig die
 unveränderte DGN-007-Abfrage, die per-Fenster-Zuordnung, die vollständigen
-Ergebnis-/Plan-/Countoracles und den bisherigen Scope erhält. Das Arbeitspaket
-bleibt `METHOD_BLOCKED`; es kann nur durch einen neuen prüffähigen Messvertrag
-mit unabhängiger Methodenprüfung geöffnet werden. Es gibt keinen SQL- oder
-Runtimeversuch, keine Zeitstempeltoleranz und keine Promotion historischer
-G13-Diagnosen. Als nächster ausführbarer Schnitt geht die Welle daher zu
-CON-006, während IDX-007-Methodenreview und Terminalsemantik parallel
-reviewfertig gemacht werden.
+Ergebnis-/Plan-/Countoracles und den bisherigen Scope erhält. Die XE-Variante
+ist ein expliziter Entwurfszweig mit geändertem Messvertrag, aber noch nicht
+`METHOD_READY`. DGN-007 bleibt `METHOD_BLOCKED`, bis der XE-Entwurf samt
+per-Build-Metadaten- und Cleanupvertrag unabhängig geprüft oder eine andere
+Methode abgenommen ist. Es gibt keinen SQL- oder Runtimeversuch, keine
+Zeitstempeltoleranz und keine Promotion historischer G13-Diagnosen.
