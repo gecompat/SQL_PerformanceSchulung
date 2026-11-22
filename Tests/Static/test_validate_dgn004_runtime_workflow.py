@@ -33,8 +33,12 @@ class Dgn004RuntimeWorkflowTests(unittest.TestCase):
     def test_direct_unowned_cleanup_is_rejected(self) -> None:
         self.assertTrue(validate(self.workflow + "\nrun: docker rm -f $(docker ps -q)\n", self.container))
 
-    def test_pull_request_synchronization_does_not_repeat_qualification(self) -> None:
-        changed = self.workflow.replace("types: [opened, reopened]", "types: [opened, synchronize, reopened]")
+    def test_pull_request_trigger_is_rejected(self) -> None:
+        changed = self.workflow.replace("  workflow_dispatch:", "  pull_request:\n    types: [opened]\n  workflow_dispatch:")
+        self.assertTrue(validate(changed, self.container))
+
+    def test_push_trigger_is_rejected(self) -> None:
+        changed = self.workflow.replace("  workflow_dispatch:", "  push:\n    branches: [main]\n  workflow_dispatch:")
         self.assertTrue(validate(changed, self.container))
 
 

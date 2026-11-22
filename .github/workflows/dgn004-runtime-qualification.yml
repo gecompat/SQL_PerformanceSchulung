@@ -1,28 +1,6 @@
 name: DGN-004 bounded runtime qualification
 
 on:
-  pull_request:
-    types: [opened, reopened]
-    paths:
-      - 'Tests/Fixtures/DGN004_SourcePair/**'
-      - 'Tests/Runtime/dgn004_*.py'
-      - 'Tests/Runtime/execution_target.py'
-      - 'Tests/Static/dgn004_*.py'
-      - 'Tests/Static/test_dgn004_*.py'
-      - 'Tests/Static/validate_dgn004_runtime_workflow.py'
-      - 'Tests/Static/test_validate_dgn004_runtime_workflow.py'
-      - '.github/workflows/dgn004-runtime-qualification.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'Tests/Fixtures/DGN004_SourcePair/**'
-      - 'Tests/Runtime/dgn004_*.py'
-      - 'Tests/Runtime/execution_target.py'
-      - 'Tests/Static/dgn004_*.py'
-      - 'Tests/Static/test_dgn004_*.py'
-      - 'Tests/Static/validate_dgn004_runtime_workflow.py'
-      - 'Tests/Static/test_validate_dgn004_runtime_workflow.py'
-      - '.github/workflows/dgn004-runtime-qualification.yml'
   workflow_dispatch:
 
 permissions:

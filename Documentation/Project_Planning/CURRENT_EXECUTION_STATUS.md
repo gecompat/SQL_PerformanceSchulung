@@ -54,6 +54,19 @@ registrierten Builds abgeschlossen. Sie qualifiziert weder Replay-Verhalten
 noch kausale Hintwirkung oder Performance. Menschliche Generalprobe und ein
 späteres Unterrichtsrelease bleiben getrennte Schritte.
 
+Nach dem Merge löste der Main-Push den Runtimeworkflow erneut aus
+(Actions-Lauf 44991751186), obwohl nur ein zusätzlicher Einzelversuch je Build
+freigegeben war. Das war ein unbeabsichtigter Lauf außerhalb dieser Freigabe.
+Der 2022-Job führte zwei Aufrufe, zwei Query-Store-Flushes und 35 SQL-Batches
+aus und endete mit `NOT_PROVEN` (`demo-call-3-R: CandidateRunnerError`);
+Cleanup wurde bestätigt. Der 2025-Job wurde vor SQL-Ausführung abgebrochen.
+Der genehmigte Lauf 44991028381 bleibt davon getrennte Qualifikationsevidenz;
+der Zusatzlauf ist keine Qualifikation und wird nicht durch einen weiteren
+SQL-Versuch ersetzt. Seine Ursache ist aus dem begrenzten Laufbericht nicht
+abschließend belegt. Der Runtimeworkflow ist daher auf manuellen Start
+beschränkt; Validator und Regressionen laufen weiterhin in den normalen
+Frameworkprüfungen.
+
 Der [Implementierungsplan](DGN_004_RUNTIME_IMPLEMENTATION_PLAN.md) und die
 [Quell-/Runnerbeschreibung](../../Tests/Fixtures/DGN004_SourcePair/README.md)
 dokumentieren Laufstrecke, Nutzung und Grenzen.
@@ -70,8 +83,10 @@ Die gezielte DGN-004-Statiksuite und die unabhängige Runtime-/Cleanup-Sichtung
 sind bestanden. Foundation-, Registry- und Datenschutzprüfungen der betroffenen
 Dateien sind nach der abschließenden Statuskorrektur bestanden. Die
 ScriptDom-Prüfung der unveränderten SQL-Fixtures bleibt im vorherigen grünen
-Nachweis gebunden. Die Integration bleibt bis zur vollständigen
-2022/2025-Requalifikation offen.
+Nachweis gebunden. Der frühere lokale Matrixlauf schloss die Integration
+nicht ab; die genehmigte vollständige CI-Qualifikation aus Lauf 44991028381
+schloss das begrenzte Gate für 2022 und 2025. Der separate, unbeabsichtigte
+Teillauf ist oben dokumentiert und bleibt ohne Ersatzversuch.
 
 Der aktive Umfang bleibt eng: `PASS` belegt ausschließlich Standard-Force/
 Unforce und H als `CONTROL_ONLY`-Hintkontrolle auf genau diesen zwei Builds.
