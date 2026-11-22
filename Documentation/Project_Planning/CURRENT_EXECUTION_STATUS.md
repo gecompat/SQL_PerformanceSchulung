@@ -67,7 +67,7 @@ abschließend belegt. Der Runtimeworkflow ist daher auf manuellen Start
 beschränkt; Validator und Regressionen laufen weiterhin in den normalen
 Frameworkprüfungen. Die Actions-Protokolle und das 361-Byte-Artefakt enthalten
 nur `CandidateRunnerError`, weil der Runtime-Fehleradapter bisher den festen
-Diagnosetext dieser Fehlerklasse ebenfalls verkürzte. Der Adapter gibt künftig
+Diagnosetext dieser Fehlerklasse ebenfalls verkürzte. Der Adapter gibt nun
 diesen begrenzten, codefesten Text weiter und behält die Redaktion beliebiger
 Prozessmeldungen bei. Der Fehlergrund des Zusatzlaufs selbst bleibt damit
 unbestimmt; es wird kein weiterer SQL-Lauf ausgelöst.

@@ -42,7 +42,10 @@ Query-Store-Flushes und 35 SQL-Batches, dann `NOT_PROVEN` wegen
 Versuchszahl. Es wird kein Ersatzversuch gestartet; Ursache und Grenzen sind im
 [aktuellen Ausführungsstand](CURRENT_EXECUTION_STATUS.md) festgehalten. Der
 Runtimeworkflow läuft künftig nur manuell; seine Triggergrenze ist Teil der
-normalen Framework-Regressionen.
+normalen Framework-Regressionen. Die festgelegten `CandidateRunnerError`-
+Diagnosen erscheinen im begrenzten Statusbericht; beliebige Rohmeldungen
+bleiben redigiert. Diese reine Diagnosekorrektur wertet den Zusatzlauf nicht
+als Qualifikation und löst keinen Ersatz-SQL-Lauf aus.
 
 ### Abgeschlossener DGN-007-Folgeschnitt: native `Pattern.groupindex`-Quellbindung
 
