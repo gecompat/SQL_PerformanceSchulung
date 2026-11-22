@@ -34,6 +34,16 @@ Versuche nur auf diesem Host. Leistungsmessung, Replay-Varianten, menschliche
 Generalprobe und ein paketiertes Unterrichtsrelease bleiben außerhalb dieses
 Qualifikationsumfangs.
 
+Der Main-Push nach dem Merge löste irrtümlich einen zusätzlichen Runtimelauf
+aus (Actions-Lauf 44991751186): SQL Server 2022 absolvierte zwei Aufrufe, zwei
+Query-Store-Flushes und 35 SQL-Batches, dann `NOT_PROVEN` wegen
+`demo-call-3-R: CandidateRunnerError`; der Cleanup war bestätigt. SQL Server
+2025 wurde vor SQL-Ausführung abgebrochen. Das lag außerhalb der genehmigten
+Versuchszahl. Es wird kein Ersatzversuch gestartet; Ursache und Grenzen sind im
+[aktuellen Ausführungsstand](CURRENT_EXECUTION_STATUS.md) festgehalten. Der
+Runtimeworkflow läuft künftig nur manuell; seine Triggergrenze ist Teil der
+normalen Framework-Regressionen.
+
 ### Abgeschlossener DGN-007-Folgeschnitt: native `Pattern.groupindex`-Quellbindung
 
 PR #1086 integrierte den digestgebundenen CPython-3.12.16-Offlinecandidate vom
