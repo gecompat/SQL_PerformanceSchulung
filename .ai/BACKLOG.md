@@ -2014,13 +2014,16 @@ CON-002-Einzelblockierungsfall und fehlendem eigenständigem Lernzuwachs. Nach
 der ausdrücklichen Wiederaufnahme der Deadlockvarianten liegt nun ein
 [CON-006-Range-Methodenentwurf](../Documentation/Project_Planning/CON006_RANGE_DEADLOCK_METHOD.md)
 vor: Er stellt gekreuzte Einfügungen aus zwei serialisierbaren, logisch
-getrennten Indexbereichen als Deadlockvariante dar. Ein isolierter Pilot auf
-SQL Server 2025 (`17.0.5035.5`) hat einen passenden Deadlockgraph mit zwei
-verschiedenen KEY-Ressourcen, `requestType=wait`, Opfer 1205, erfolgreichem
-Survivor und bestandener serieller Kontrolle belegt. Der Zustand von Optimized
-Locking blieb vor und nach beiden Armen `0`; keine Einstellung wurde verändert.
-SQL Server 2019/2022, vollständiger Optionen-/Planabgleich, unabhängiger
-Methodenreview und Demoqualifikation bleiben offen. Produktgrundlage:
+getrennten Indexbereichen als Deadlockvariante dar. Je ein isolierter Lauf auf
+SQL Server 2019 (`15.0.4500.2`), 2022 (`16.0.4305.5`) und 2025
+(`17.0.5035.5`) hat einen passenden Deadlockgraph mit zwei verschiedenen
+KEY-Ressourcen, `requestType=wait`, Opfer 1205, erfolgreichem Survivor und
+bestandener serieller Kontrolle belegt. Für 2019/2022 war die
+Optimized-Locking-DMV-Eigenschaft nicht verfügbar; 2025 blieb sie vor und nach
+beiden Armen `0`. Keine Einstellung wurde verändert. Vollständiger
+Optionen-/Planabgleich, unabhängiger Review der überarbeiteten Methode,
+vollständige Zeit-/Cleanupgrenzen und Demoqualifikation bleiben offen.
+Produktgrundlage:
 [SRC-004](../Documentation/Research/SOURCE_REGISTER.md#src-004) und
 Deadlock-Graph-/Opferbelege [SRC-066](../Documentation/Research/SOURCE_REGISTER.md#src-066).
 
@@ -2030,9 +2033,9 @@ Deadlock-Graph-/Opferbelege [SRC-066](../Documentation/Research/SOURCE_REGISTER.
 
 **Spätere Abnahme:**
 
-- SQL Server 2019 und 2022: je ein begrenzter Lauf mit passendem Graph, Opfer, Survivor und vollständigem Cleanup.
+- Überarbeitete Zwei-Ressourcen-Methode unabhängig reviewen, insbesondere Lock-/Planannahmen und den gemeinsamen 45/180/60-Sekunden-Zeit-/Cleanupvertrag.
 - Vollständiger Abgleich der tatsächlich verwendeten Optionen und Abfragepläne; allgemeines Blocking gilt nicht als Deadlock-Nachweis.
-- Vorhandenen CON-006-Grundfall und seinen Abnahmestand erhalten; neue Varianten getrennt kennzeichnen und vollständig aufräumen.
+- Vorhandenen CON-006-Grundfall und seinen Abnahmestand erhalten; die neue Variante getrennt in Demo integrieren, qualifizieren und vollständig aufräumen.
 
 **Reiner Offline-Graphprüfer:** `Tests/Static/con006_conversion_graph_contract.py`
 prüft ein caller-geliefertes `<deadlock>`-XML mit genau zwei gebundenen SPIDs,

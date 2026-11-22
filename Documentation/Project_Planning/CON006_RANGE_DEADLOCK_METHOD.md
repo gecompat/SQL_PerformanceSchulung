@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `METHOD_DRAFT` – SQL-Server-2025-Pilot bestanden; weitere Builds und Demoqualifikation offen |
+| Status | `METHOD_DRAFT` – Runtime-Matrix 2019/2022/2025 bestanden; unabhängiger Review und Demoqualifikation offen |
 | Zweck | Prüfen, ob gegenseitige Einfügungen in zwei logisch getrennte, aber physisch getrennte Indexlücken einen eigenständigen Deadlock-Lernfall ergeben |
 | Bestehender Fall | Der qualifizierte CON-006-Grundfall und die Sperrumwandlungsvariante bleiben unverändert |
 | Quellenbasis | `SRC-004`, `SRC-066`, `SRC-068` |
@@ -156,32 +156,41 @@ enger Graphvertrag, keine Behauptung über ein vollständiges SQL-Server-XML-
 Schema. Eine spätere Erweiterung erfordert eine eigene Quellenprüfung und
 Gegenfälle.
 
-## Ergebnis des isolierten SQL-Server-2025-Piloten
+## Ergebnis der isolierten SQL-Server-Runtime-Matrix
 
-Am 22. November 2026 bestand der begrenzte Pilot auf SQL Server 2025
-(`17.0.5035.5`) im eigenen, digest-gepinnten, netzwerkisolierten Container
-mit 2 CPUs und 4 GiB Speicher. Der Lauf erfasste genau ein passendes
-`system_health`-Deadlockereignis. Der Graph enthielt zwei verschiedene KEY-
-Ressourcen auf derselben markergebundenen Tabelle, demselben Index und derselben
-HoBT; beide Wait-Kanten schlossen den Zyklus mit `requestType=wait`. Actor A
-war vor der Freigabe von B nachweislich blockiert. Ein Actor wurde mit Fehler
-1205 zurückgerollt, der Survivor fügte ein; die serielle Kontrolle fügte beide
-Schlüssel ohne Deadlock ein. Der exakte Endbestand und der markierte Cleanup
-bestanden. Optimized Locking blieb vor und nach beiden Armen unverändert
-ausgeschaltet (`0`); der Pilot hat keine Datenbankoption umgestellt.
+Am 22. November 2026 bestand je ein begrenzter Versuch auf den folgenden
+digest-gepinnten SQL-Server-Builds in eigenen, netzwerkisolierten Containern
+mit 2 CPUs und 4 GiB Speicher:
 
-Der Befund ist auf diesen Build und den isolierten Machbarkeitspilot begrenzt.
-SQL Server 2019 und 2022, Abfrageplan-/Optionenabgleich, unabhängiger
-Methodenreview, Demo-Integration und Releasequalifikation bleiben offen.
+| SQL-Server-Build | Graphzeichen | Deadlockarm | Serieller Kontrollarm | Optimized Locking |
+|---|---:|---|---|---|
+| 2019 `15.0.4500.2` | 5.495 | PASS | PASS | DMV-Eigenschaft nicht verfügbar (`null`) |
+| 2022 `16.0.4305.5` | 14.105 | PASS | PASS | DMV-Eigenschaft nicht verfügbar (`null`) |
+| 2025 `17.0.5035.5` | 8.698 | PASS | PASS | vor/nach beiden Armen unverändert aus (`0`) |
+
+Jeder Build lieferte genau ein passendes `system_health`-Deadlockereignis. Der
+Graph enthielt zwei verschiedene KEY-Ressourcen auf derselben markergebundenen
+Tabelle, demselben Index und derselben HoBT; beide Wait-Kanten schlossen den
+Zyklus mit `requestType=wait`. Actor A war vor der Freigabe von B nachweislich
+blockiert. Ein Actor wurde mit Fehler 1205 zurückgerollt, der Survivor fügte
+ein; die serielle Kontrolle fügte beide Schlüssel ohne Deadlock ein. Der exakte
+Endbestand und die Entfernung der markergebundenen Datenbank und des jeweiligen
+Containers wurden bestätigt. Keine Datenbankoption wurde umgestellt.
+
+Die Matrix belegt die Machbarkeit dieser Methode auf genau diesen drei Builds.
+Vollständiger Abfrageplan-/Optionenabgleich, unabhängiger Review der
+überarbeiteten Zwei-Ressourcen-Methode, vollständige gemeinsame Zeit- und
+Cleanupgrenzen, Demo-Integration und Releasequalifikation bleiben offen.
 
 ## Obergrenzen und Eigentums-Cleanup für weitere Qualifikation
 
-Der bereits gelaufene Machbarkeitspilot verwendete feste Einzelzeitlimits für
+Die drei Machbarkeitspiloten verwendeten feste Einzelzeitlimits für
 SQL-Aufrufe, Actorprozesse und Signalwartezeiten und entfernte seine
 markergebundene Datenbank. Er setzt jedoch noch nicht den vollständigen
 CON-006-Zeitvertrag durch und ist daher kein Ersatz für dessen Runtime- und
 Cleanupqualifikation. Ein weiterer qualifizierender Lauf muss die
-CON-006-Runnerobergrenzen übernehmen: höchstens 45 Sekunden je
+Ein qualifizierender Demo-Lauf muss die CON-006-Runnerobergrenzen übernehmen:
+höchstens 45 Sekunden je
 Mehrsessionarm, 180 Sekunden Gesamtlaufzeit und 60 Sekunden Cleanup
 ([bestehendes Manifest](../../Demos/07_Concurrency/CON-006_Deadlock_Cycle/manifest.json)).
 Alle Signal- und Waitschleifen verwenden eine gemeinsame monotone Armdeadline,
