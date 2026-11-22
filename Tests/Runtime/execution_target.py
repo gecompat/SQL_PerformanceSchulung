@@ -235,7 +235,7 @@ def _docker_command(target: ExecutionTarget, database: str) -> list[str]:
         target.container or "",
         target.sqlcmd_path,
         "-S",
-        "127.0.0.1",
+        "localhost",
         "-d",
         database,
         "-U",
