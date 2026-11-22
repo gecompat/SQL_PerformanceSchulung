@@ -21,7 +21,7 @@ IF EXISTS (SELECT 1 FROM sys.server_event_sessions WHERE name = N'DGN007_Payload
 BEGIN TRY
     CREATE EVENT SESSION [DGN007_PayloadGate] ON SERVER
     ADD EVENT sqlserver.sql_statement_starting (
-        SET collect_statement = (0), collect_parameterized_plan_handle = (0)
+        SET collect_statement = (0)
         ACTION (
             package0.event_sequence,
             sqlserver.database_id,

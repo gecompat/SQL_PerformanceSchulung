@@ -19,8 +19,8 @@ SPEC.loader.exec_module(probe)
 def inventory() -> str:
     return "\n".join((
         "DGN007_XE|ENGINE|17|17.0.5035.5|Developer Edition (64-bit)",
-        "DGN007_XE|EVENT|sql_statement_starting|statement:data,source_database_id:data",
-        "DGN007_XE|EVENT|sql_statement_completed|statement:data,duration:data",
+        "DGN007_XE|EVENT|sql_statement_starting|statement:data,collect_statement:customizable",
+        "DGN007_XE|EVENT|sql_statement_completed|statement:data,collect_statement:customizable,collect_parameterized_plan_handle:customizable,duration:data",
         "DGN007_XE|ACTION|package0|event_sequence",
         "DGN007_XE|ACTION|sqlserver|database_id",
         "DGN007_XE|ACTION|sqlserver|session_id",
@@ -50,7 +50,7 @@ class Dgn007XeCatalogProbeTests(unittest.TestCase):
 
     def test_missing_required_event_is_rejected(self) -> None:
         output = inventory().replace(
-            "DGN007_XE|EVENT|sql_statement_starting|statement:data,source_database_id:data\n", ""
+            "DGN007_XE|EVENT|sql_statement_starting|statement:data,collect_statement:customizable\n", ""
         )
         with self.assertRaisesRegex(probe.ProbeError, "event metadata"):
             probe.parse_catalog_output(output, expected_major=17, expected_version="17.0.5035.5")
@@ -128,6 +128,25 @@ class Dgn007XeCatalogProbeTests(unittest.TestCase):
                 self.assertEqual(probe.load_profile(major)["product_version_label"], version)
         with self.assertRaises(probe.ProbeError):
             probe.load_profile(18)
+
+    def test_event_specific_suppression_controls_are_required(self) -> None:
+        for output in (
+            inventory().replace(
+                "collect_statement:customizable,collect_parameterized_plan_handle:customizable,duration:data",
+                "collect_statement:customizable,duration:data",
+            ),
+            inventory().replace(
+                "sql_statement_starting|statement:data,collect_statement:customizable",
+                "sql_statement_starting|statement:data",
+            ),
+        ):
+            parsed = probe.parse_catalog_output(
+                output, expected_major=17, expected_version="17.0.5035.5"
+            )
+            with self.subTest(output=output), self.assertRaisesRegex(
+                probe.ProbeError, "suppression controls"
+            ):
+                probe.validate_suppression_controls(parsed)
 
     def test_docker_image_identity_accepts_manifest_or_config_id_but_binds_reference(self) -> None:
         profile = probe.load_profile(15)

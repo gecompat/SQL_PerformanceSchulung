@@ -17,7 +17,7 @@ METHOD = ROOT / "Documentation/Project_Planning/DGN_007_XE_WINDOW_ATTRIBUTION_ME
 def validate() -> list[str]:
     errors: list[str] = []
     sql = SQL.read_text(encoding="utf-8").casefold()
-    payload_sql = PAYLOAD_SQL.read_text(encoding="utf-8").casefold()
+    payload_sql = re.sub(r"\s+", " ", PAYLOAD_SQL.read_text(encoding="utf-8").casefold())
     runner = RUNNER.read_text(encoding="utf-8").casefold()
     workflow = WORKFLOW.read_text(encoding="utf-8").casefold()
     method = re.sub(r"\s+", " ", METHOD.read_text(encoding="utf-8").casefold())
@@ -36,9 +36,9 @@ def validate() -> list[str]:
         errors.append("probe SQL must not read event payload, input buffers, plans, or SQL text")
     if "create event session [dgn007_payloadgate]" not in payload_sql:
         errors.append("privacy probe must create only its fixed, disposable XE session")
-    if ("collect_statement = (0)" not in payload_sql
-            or "collect_parameterized_plan_handle = (0)" not in payload_sql):
-        errors.append("privacy probe must disable statement and parameterized-handle collection")
+    if ("add event sqlserver.sql_statement_starting ( set collect_statement = (0)" not in payload_sql
+            or "add event sqlserver.sql_statement_completed ( set collect_statement = (0), collect_parameterized_plan_handle = (0)" not in payload_sql):
+        errors.append("privacy probe must disable each event's supported statement collection controls")
     if "sqlserver.sql_text" in payload_sql or "sqlserver.tsql_stack" in payload_sql:
         errors.append("privacy probe must not configure SQL-text or stack actions")
     if ("package0.ring_buffer" not in payload_sql
