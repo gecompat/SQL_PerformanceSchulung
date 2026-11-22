@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `METHOD_DRAFT` – Runtime-Matrix 2019/2022/2025 bestanden; unabhängiger Review und Demoqualifikation offen |
+| Status | `METHOD_DRAFT` – Runtime-Matrix 2019/2022/2025 und unabhängiger Methodenreview bestanden; vollständige Demoqualifikation offen |
 | Zweck | Prüfen, ob gegenseitige Einfügungen in zwei logisch getrennte, aber physisch getrennte Indexlücken einen eigenständigen Deadlock-Lernfall ergeben |
 | Bestehender Fall | Der qualifizierte CON-006-Grundfall und die Sperrumwandlungsvariante bleiben unverändert |
 | Quellenbasis | `SRC-004`, `SRC-066`, `SRC-068` |
@@ -101,30 +101,31 @@ Versuch.
 
 ## Gates
 
-Der unabhängige Methoden-/Quellenreview vom 22. November 2026 fand nach den
-Vertragskorrekturen keine offenen P1/P2 im begrenzten Draftumfang. Er ersetzt
-weder Quellen- noch Runtimequalifikation. Vor einer ausführbaren Variante sind
+Der unabhängige Review der überarbeiteten Zwei-Ressourcen-Methode vom
+22. November 2026 fand nach Korrektur einer P2-Dokumentationsinkonsistenz keine
+offenen P1/P2 im begrenzten Draftumfang. Er ersetzt weder Quellen- noch
+Runtimequalifikation. Vor einer ausführbaren Demo-Integration sind
 der Abgleich mit der freigegebenen CON-002-Kandidatenbeschreibung in der
 [Szenarioanalyse](LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md) und die Freigabe
 eines isolierten Zielbuilds erforderlich. Derzeit liegt für CON-002 nur diese
 Kandidatenbeschreibung, kein ausführbarer Detailvertrag vor; deshalb darf der
 Abgleich weder eine fertige CON-002-Implementierung noch deren Laufzeitverhalten
 unterstellen. Ein später veröffentlichter Detailvertrag muss vor einer
-ausführbaren CON-006-Variante erneut berücksichtigt werden. Der erste Pilot darf
-keine gemeinsam genutzte Instanz verändern. SQL Server 2019, 2022 und 2025 sind
-mögliche Matrixziele, keine bereits zugesagte Unterstützung; jedes Build benötigt
-einen eigenen Graph- und Cleanupnachweis. Ein bestandener synthetischer
-Offlinevertrag kann diese Gates nicht ersetzen. Die vorgeschlagenen
-Obergrenzen und Recoveryregeln bleiben ein Draft; sie sind nicht auf einer
-laufenden Engine qualifiziert.
+ausführbaren CON-006-Variante erneut berücksichtigt werden. Die drei
+Feasibility-Piloten veränderten keine gemeinsam genutzte Instanz und erbrachten
+je Build einen eigenen Graph- und Datenbank-/Container-Cleanupnachweis. Sie
+stellen keine allgemeine Supportzusage und keine Demoqualifikation dar. Ein
+bestandener synthetischer Offlinevertrag kann diese Gates nicht ersetzen. Die
+vorgeschlagenen Obergrenzen und Recoveryregeln bleiben ein Draft; sie sind nicht
+auf einer laufenden Engine als vollständiger Zeit-/Cleanupvertrag qualifiziert.
 
 ## Quellen und Grenzen
 
-- [`SRC-004`: Transaction locking and row versioning guide](../Research/SOURCE_REGISTER.md#src-004) beschreibt Schlüsselbereichsmodi, ihre Kompatibilität, Voraussetzungen und die Optimized-Locking-Bedingung für `RangeI-N`. Der Pilot nutzt drei geordnete Indexwerte und gekreuzte Einfügungen in die jeweils andere, durch einen mittleren Wert getrennte Indexlücke. Der Lauf auf SQL Server 2025 hat diese Ressourcenfolge im Deadlockgraph belegt.
+- [`SRC-004`: Transaction locking and row versioning guide](../Research/SOURCE_REGISTER.md#src-004) beschreibt Schlüsselbereichsmodi, ihre Kompatibilität, Voraussetzungen und die Optimized-Locking-Bedingung für `RangeI-N`. Die drei Feasibility-Piloten nutzen drei geordnete Indexwerte und gekreuzte Einfügungen in die jeweils andere, durch einen mittleren Wert getrennte Indexlücke. Alle drei Builds haben diese Ressourcenfolge im Deadlockgraph belegt.
 - [`SRC-066`: Deadlocks guide](../Research/SOURCE_REGISTER.md#src-066) beschreibt Deadlockgraphen und Opferauflösung.
 - [`SRC-068`: system_health](../Research/SOURCE_REGISTER.md#src-068) beschreibt die vorhandene, begrenzte Deadlockereignisquelle.
 
-Der isolierte Pilot wertet SQL aus, ändert aber weder CON-002 noch den validierten CON-006-Grundfall. Er qualifiziert nur die begrenzte Range-Methode auf SQL Server 2025 und ersetzt weder die vollständige Runtime-Matrix noch Demo-Integration.
+Die isolierten Feasibility-Piloten werten SQL aus, ändern aber weder CON-002 noch den validierten CON-006-Grundfall. Sie belegen die begrenzte Range-Methode auf den drei dokumentierten Builds, ersetzen aber weder den vollständigen CON-006-Zeit-/Cleanupvertrag noch Demo-Integration oder Releasequalifikation.
 
 ## Begrenzter statischer Graphvertrag
 
@@ -231,7 +232,8 @@ Erhebung noch den tatsächlichen Insert- oder Tabellenzustand.
 Das ist ausschließlich eine Formprüfung caller-gelieferter XML- und
 Identitätswerte. Sie authentifiziert weder `system_health`-Herkunft noch
 Run-Token, Zeitfenster, Actorresultate, Opferfehler 1205 oder Cleanup. Ein
-synthetischer PASS belegt keinen Deadlocklauf. Der unabhängige Methodenreview,
-die Läufe auf SQL Server 2019 und 2022 sowie die vollständigen Zeit- und
-Cleanupgrenzen bleiben vor Demoqualifikation offen. Der statische
-Kontrollarmprüfer schließt diese Voraussetzungen ebenfalls nicht.
+synthetischer PASS belegt keinen Deadlocklauf. Die überarbeitete Methode wurde
+unabhängig geprüft; der vollständige gemeinsame Zeit- und Cleanupvertrag, der
+Abfrageplan-/Optionenabgleich sowie Demo-Integration und Demoqualifikation
+bleiben offen. Der statische Kontrollarmprüfer schließt diese Voraussetzungen
+ebenfalls nicht.
