@@ -14412,3 +14412,26 @@ Erhebungsvertrag unabhängig geprüft wurde; die vollständige Demo- und
 Leistungsqualifikation ist weiterhin getrennt. Der wiederholbare
 Offlinevertrag, der serielle PR-/manuelle Matrixworkflow und die Dokumentation
 werden über den verknüpften PR integriert.
+
+### IDX-007 – Capture-Ränder gegen verschobene Blattseiten prüfen (22. November 2026)
+
+Der PR-Matrixlauf deckte zwei Implementierungsfehler auf: Nach dem ersten
+Insertburst konnte eine Seitenaufteilung die physische rechte Blattseite
+verschieben; die Laufzeitprüfung verlangte fälschlich dieselbe Seite auch im
+zweiten Burst. Außerdem rief der SQL-Server-2019-Lauf `communicate()` auf einem
+Actor-Prozess mit bereits geschlossenem stdin auf. Die Prüfung bewertet jetzt
+jeden Burst unabhängig: überlappende Waits müssen jeweils einer nach dem Burst
+bestätigten terminalen Blattseite mit passendem Vorgänger-Rücklink zugeordnet
+sein; ein Seitenwechsel zwischen den Bursts ist zulässig. Der Prozessstarter
+übergibt den abgeschlossenen stdin-Stream korrekt an `communicate()`. Der
+Workflow nimmt nun auch stderr in das kurzlebige Diagnoseartefakt auf.
+
+Die lokale isolierte Matrix bestand danach erneut auf SQL Server 2019
+`15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5`, einschließlich
+Kompatibilitätsstufen 150/160/170, beider Wait-/Kettenaufnahmen, 788 Zeilen
+sowie Datenbank- und Container-Cleanup. Die Metadaten werden nach Abschluss
+der Actor-Inserts erhoben; damit ist keine atomare Seitenstrukturzuordnung zum
+exakten Waitzeitpunkt bewiesen. Der Befund bleibt ein begrenzter
+Engineering-Pilot; unabhängiger Methodenreview, parallele Splitsemantik und
+vollständige Demo-/Leistungsqualifikation bleiben getrennte Gates. PR #1145
+läuft mit der korrigierten Fassung erneut durch die vorgeschriebenen Checks.

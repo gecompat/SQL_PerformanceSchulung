@@ -79,9 +79,10 @@ python Tests/Runtime/idx007_hot_leaf_pilot.py 17
 
 Der Lauf prüft den konkreten Engine-Build, Compatibility Level und XE-Feld-
 beziehungsweise Actionbestand. Zwei getrennte Insertschübe müssen überlappende
-exklusive `BUF`-Latchintervalle derselben Actor-Requests auf derselben Seite
-zeigen. Eine Seitenkopfaufnahme zwischen den Schüben prüft terminale
-Blattebene, Zielindexpartition und den Rücklink. Ein fehlender oder
+exklusive `BUF`-Latchintervalle derselben Actor-Requests auf einer zu diesem
+Capture-Rand bestätigten rechten Blattseite zeigen. Die Zielseite darf sich
+zwischen den Schüben durch eine Seitenaufteilung ändern; jeder Rand wird
+unabhängig gegen Blattkette und Rücklink geprüft. Ein fehlender oder
 widersprüchlicher Nachweis endet als `NOT_PROVEN`; ein Cleanupfehler lässt den
 Lauf fehlschlagen.
 

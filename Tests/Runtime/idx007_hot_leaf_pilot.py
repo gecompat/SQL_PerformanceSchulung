@@ -52,7 +52,10 @@ def sqlcmd_actor(container: str, env: dict[str, str], query: str) -> subprocess.
                             stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace")
     assert proc.stdin is not None
     proc.stdin.write(query)
+    proc.stdin.flush()
     proc.stdin.close()
+    # communicate() attempts to flush stdin unless the attribute is cleared.
+    proc.stdin = None
     return proc
 
 
@@ -354,7 +357,7 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
         if len(bindings) != ACTORS or any(request < 0 for request in bindings.values()):
             raise PilotError("actor request bindings are incomplete")
 
-        expected_target = None
+        captures = []
         for stage in (1, 2):
             session = f"IDX007_{secrets.token_hex(8)}"
             xe_sessions.append(session)
@@ -402,16 +405,10 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             group = next((pair for pair in overlaps if (pair[0]["file"], pair[0]["page"]) == address), None)
             if group is None:
                 raise PilotError("terminal page lacks the paired wait overlap");
-            if expected_target is None:
-                expected_target = (database_id, address, values[2:10], values[10:17])
-            else:
-                if (database_id, address, values[2:10], values[10:17]) != expected_target:
-                    print("NOT_PROVEN|same-terminal-page-or-header-changed-between-captures")
-                    return 2
+            captures.append((database_id, address, values))
             left, right = group
             print(f"WAIT_OVERLAP|stage={stage}|sessions={left['sid']},{right['sid']}|request_ids={left['rid']},{right['rid']}|class=BUF|mode=EXCLUSIVE|page={database_id}:{address[0]}:{address[1]}|wait_us={left['duration_us']},{right['duration_us']}|PASS")
-            if stage == 1:
-                print(f"CHAIN_BRACKET|index_pages={values[16]}|target_prev={values[6]}:{values[7]}|previous_next={values[14]}:{values[15]}|target_next=0:0|PASS")
+            print(f"CHAIN_BRACKET|stage={stage}|index_pages={values[16]}|target_prev={values[6]}:{values[7]}|previous_next={values[14]}:{values[15]}|target_next=0:0|PASS")
 
         actor_results = []
         for actor in actors:
@@ -426,6 +423,8 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
         expected_rows = 500 + ACTORS * ROWS_PER_BURST * 2
         if final_count != expected_rows:
             raise PilotError("exact successful row count differs from the burst contract")
+        if len(captures) != 2:
+            raise PilotError("both burst captures were not independently verified")
         print(f"RESULT|build={build}|actors={ACTORS}|burst_rows={ROWS_PER_BURST}|final_rows={final_count}|PASS")
         return 0
     finally:

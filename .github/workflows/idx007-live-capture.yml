@@ -67,7 +67,7 @@ jobs:
         run: docker pull '${{ matrix.version.image }}'
       - name: Run isolated two-burst capture
         shell: bash
-        run: python Tests/Runtime/idx007_hot_leaf_pilot.py '${{ matrix.version.major }}' | tee "${RUNNER_TEMP}/idx007-live-${{ matrix.version.major }}.log"
+        run: python Tests/Runtime/idx007_hot_leaf_pilot.py '${{ matrix.version.major }}' 2>&1 | tee "${RUNNER_TEMP}/idx007-live-${{ matrix.version.major }}.log"
       - if: always()
         uses: actions/upload-artifact@v4
         with:

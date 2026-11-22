@@ -164,19 +164,25 @@ Blattseiten und reservierten Platz am rechten Rand auf. Er lässt 24 Actors je
 6 Einfügungen in zwei getrennten Bursts ausführen. Nach dem ersten Burst sind
 alle Actor-Inserts beendet; danach prüft der Pilot die per
 `sys.dm_db_page_info` gelesene Zielseite und ihren
-Vorgänger-Rücklink. Erst danach startet der zweite Burst. Beide Burstcaptures
-müssen denselben terminalen Blattseitenkopf der markierten synthetischen
-Clustered-Indexpartition und überlappende exklusive Waitintervalle auf dieser
-Seite zeigen. Zwischen Kettenprüfung und zweitem Burst ändert kein Actor den
-Zielindex. Die Blattseitenanzahl muss größer als eins sein; Seite, Objekt,
-Index, Partition, Ebene und Rücklink müssen übereinstimmen.
+Vorgänger-Rücklink. Erst danach startet der zweite Burst. Jeder Burst muss
+eigene überlappende exklusive Waitintervalle auf einer Seite zeigen, die nach
+Abschluss dieses Bursts als terminale Blattseite der markierten synthetischen
+Clustered-Indexpartition bestätigt wird. Die physische Seite darf sich durch
+eine Seitenaufteilung zwischen den Bursts ändern. Zwischen der Kettenprüfung
+nach Burst 1 und dem Start von Burst 2 ändert kein Actor den Zielindex. Die
+Blattseitenanzahl muss größer als eins sein; Seite, Objekt, Index, Partition,
+Ebene und Rücklink werden je Capture geprüft. Da die Metadatenaufnahme nach
+Abschluss der Actor-Inserts erfolgt, belegt sie keine atomare Zuordnung der
+Seitenstruktur zum exakten Zeitstempel jedes Waits; parallele Split-/Änderungs-
+Semantik bleibt ein Review- und Qualifikationsgate.
 
 Auf den isolierten, digest-gepinnten Builds SQL Server 2019
 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5` bestand je ein
 identischer 24×6-Lauf. Der Pilot bestätigte auf jedem Build die konkrete
 Produktversion und Compatibility Level (150, 160, 170); jeder Rebuild ergab
-sechs Blattseiten. In jedem Lauf wurde dieselbe terminale Seite in beiden
-Bursts beobachtet; der Vorgänger zeigte jeweils korrekt zurück. Die genauen
+sechs Blattseiten. Beide Burstcaptures bestanden jeweils mit einer nach dem
+Burst bestätigten terminalen Seite und korrektem Vorgänger-Rücklink. Die
+physische Seite kann sich nach einer Aufteilung ändern. Die genauen
 Seitenadressen und Wartezeiten sind lauflokale Diagnosedaten und werden nicht
 als Produkt- oder Performancewerte verallgemeinert. Je Lauf wurden 788
 synthetische Zeilen bestätigt und Testdatenbank, XE-Sitzungen und eigener
