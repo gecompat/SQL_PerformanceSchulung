@@ -132,18 +132,25 @@ class RangeGraphContractTests(unittest.TestCase):
     def test_checker_preserves_observed_modes_instead_of_fixing_a_range_pair(self):
         def mutate(root):
             modes = (
-                ("owner-list/owner[@id='processA']", "U"),
-                ("owner-list/owner[@id='processB']", "S"),
-                ("waiter-list/waiter[@id='processA']", "X"),
-                ("waiter-list/waiter[@id='processB']", "RangeI-N"),
+                ("owner-list/owner[@id='processA']", "X"),
+                ("owner-list/owner[@id='processB']", "RangeS-S"),
+                ("waiter-list/waiter[@id='processA']", "RangeI-N"),
+                ("waiter-list/waiter[@id='processB']", "S"),
             )
             for path, mode in modes:
                 root.find("resource-list/keylock/" + path).set("mode", mode)
-            root.find("resource-list/keylock/waiter-list/waiter[@id='processA']").set(
-                "requestType", "convert")
 
         source = change_graph(mutate)
         self.assertEqual(evaluate_range_graph(source, IDENTITY).verdict, Verdict.PASS)
+
+    def test_compatible_modes_and_unknown_modes_cannot_claim_a_closed_cycle(self):
+        compatible = change_graph(lambda root: [
+            node.set("mode", "S") for node in root.findall("resource-list/keylock/owner-list/owner")
+        ] + [node.set("mode", "S") for node in root.findall("resource-list/keylock/waiter-list/waiter")])
+        unknown = change_graph(lambda root: root.find(
+            "resource-list/keylock/waiter-list/waiter[@id='processA']").set("mode", "not-a-lock-mode"))
+        self.assertEqual(evaluate_range_graph(compatible, IDENTITY).verdict, Verdict.FAIL)
+        self.assertEqual(evaluate_range_graph(unknown, IDENTITY).verdict, Verdict.FAIL)
 
     def test_capture_binds_range_graph_event_window_victim_and_survivor(self):
         result = evaluate_range_capture(good_capture())

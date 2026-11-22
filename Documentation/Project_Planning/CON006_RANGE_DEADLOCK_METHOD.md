@@ -61,6 +61,14 @@ Ressource, gehaltenen/angeforderten Modi, Opfer und Survivor. Konversionsmodi
 werden aus dem beobachteten Graphen gelesen, nicht aus dem Szenariotitel
 abgeleitet.
 
+Der Offlinegraphprüfer wendet die in `SRC-004` dokumentierte Kompatibilität für
+`S`, `U`, `X`, `RangeS-S`, `RangeS-U`, `RangeI-N` und `RangeX-X` an. Er verlangt
+für jeden Actor, dass seine angeforderte Sperre mit einer vom anderen Actor
+gehaltenen Sperre inkompatibel ist. Dadurch genügt die bloße Präsenz beider
+Actors als Owner und Waiter nicht mehr als Zyklusbeleg. Unbekannte Modi bleiben
+`FAIL`, bis ihre Kompatibilität quellenbasiert ergänzt ist. Diese Offlineprüfung
+belegt weiter weder XML-Herkunft noch einen realen Enginezyklus.
+
 ## Pflichtnachweis für einen Varianten-PASS
 
 - Beide Actors müssen im Deadlockgraph an dieselbe markergebundene Datenbank,
