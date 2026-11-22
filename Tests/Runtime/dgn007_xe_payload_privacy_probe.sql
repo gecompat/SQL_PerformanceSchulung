@@ -1,4 +1,5 @@
 SET NOCOUNT ON;
+SET QUOTED_IDENTIFIER ON;
 
 DECLARE @major int = TRY_CONVERT(int, SERVERPROPERTY('ProductMajorVersion'));
 DECLARE @version nvarchar(128) = CONVERT(nvarchar(128), SERVERPROPERTY('ProductVersion'));

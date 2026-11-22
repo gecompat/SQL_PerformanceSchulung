@@ -14259,6 +14259,14 @@ Statementinhalt aus. Die Zusammenfassung konvertiert die Flags jetzt explizit
 zu `int`; der Validator prüft diese Typgrenze statisch. Der manuelle Lauf wird
 nach Integration dieser Korrektur buildweise erneut ausgeführt.
 
+Der manuelle Lauf `45021167415` bestätigte, dass der `SUM(bit)`-Fehler durch
+die Integerkonvertierung beseitigt ist. Alle drei Versionen stoppten danach
+beim XML-`INSERT` mit Fehler 1934: Für XML-Datentypmethoden war in der SQLCMD-
+Session `QUOTED_IDENTIFIER` nicht aktiv. Der Gate setzt die Option vor der
+XML-Auswertung jetzt ausdrücklich auf `ON`; der statische Vertrag prüft die
+Reihenfolge. Auch dieser Lauf liefert noch keinen Datenschutzbefund. Nach
+Merge folgt die manuelle Dreiversionsmatrix erneut.
+
 DGN-007 bleibt `METHOD_BLOCKED`. Der nächste Gate prüft je Build, dass
 `collect_statement=(0)` keine nichtleeren Statementwerte im Ringpuffer ablegt.
 Danach bleiben Ereignisverlust, Markerordnung, Hashkardinalität,
