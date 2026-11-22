@@ -2023,6 +2023,7 @@ Enginepilot bleiben offen. Produktgrundlage: [SRC-004](../Documentation/Research
 und Deadlock-Graph-/Opferbelege [SRC-066](../Documentation/Research/SOURCE_REGISTER.md#src-066).
 
 - [x] Offline-Graphprüfer für die Range-Variante ergänzt: zwei gebundene Actorprozesse, ein Opfer und genau eine gemeinsame KEY-Ressource mit Owner-/Waiter-Einträgen sowie vorhandenen, aber nicht vorab festgelegten Lockmodi. Synthetische Negativfälle für Ressourcen-, Actor-, Opfer- und XMLabweichungen laufen im Framework-Contracts-Workflow. Keine XE-/Run-/Zeit-/Resultatherkunft, kein SQL-Lauf, keine Freigabe oder Runtimequalifikation.
+- [x] Offline-Capturekorrelation für den Range-Graph ergänzt: `system_health`, `xml_deadlock_report`, Run-Zeitfenster, einmaliges Ereignis, Actor-/SPID-Bindung und Opfer-1205-/Survivorresultat werden gegen den geprüften Graph verbunden. Gegenproben bestehen; Werte bleiben caller-geliefert und unauthentifiziert, ohne SQL-Ausführung oder Runtimequalifikation.
 
 **Spätere Abnahme:**
 

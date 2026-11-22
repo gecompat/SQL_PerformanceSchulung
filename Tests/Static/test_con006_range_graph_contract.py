@@ -1,6 +1,7 @@
 """Synthetic counterexamples for the CON-006 range graph checker."""
 from __future__ import annotations
 
+from dataclasses import replace
 import sys
 import unittest
 import xml.etree.ElementTree as ET
@@ -8,8 +9,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from Tests.Static.con006_conversion_graph_contract import GraphIdentity, Verdict  # noqa: E402
-from Tests.Static.con006_range_graph_contract import evaluate_range_graph  # noqa: E402
+from Tests.Static.con006_conversion_graph_contract import (  # noqa: E402
+    ActorOutcome, CaptureEvidence, GraphIdentity, Verdict,
+)
+from Tests.Static.con006_range_graph_contract import (  # noqa: E402
+    evaluate_range_capture, evaluate_range_graph,
+)
 
 
 IDENTITY = GraphIdentity(
@@ -49,6 +54,27 @@ def change_graph(mutator) -> str:
     return ET.tostring(root, encoding="unicode")
 
 
+def good_capture() -> CaptureEvidence:
+    return CaptureEvidence(
+        expected_run_token="RUN20261106A",
+        observed_run_token="RUN20261106A",
+        event_name="xml_deadlock_report",
+        source_session="system_health",
+        database_id=73,
+        actor_spids=IDENTITY.actor_spids,
+        event_timestamp_utc="2026-11-06T12:00:00.250Z",
+        run_started_utc="2026-11-06T11:59:00Z",
+        run_finished_utc="2026-11-06T12:01:00Z",
+        matching_event_count=1,
+        actor_outcomes=(
+            ActorOutcome("ACTOR_A", 51, "VICTIM", 1205),
+            ActorOutcome("ACTOR_B", 52, "SURVIVOR", None),
+        ),
+        graph_identity=IDENTITY,
+        graph_xml=good_graph(),
+    )
+
+
 class RangeGraphContractTests(unittest.TestCase):
     def test_complete_same_key_two_actor_graph_passes_without_lock_mode_assumption(self):
         result = evaluate_range_graph(good_graph(), IDENTITY)
@@ -70,6 +96,30 @@ class RangeGraphContractTests(unittest.TestCase):
 
         source = change_graph(mutate)
         self.assertEqual(evaluate_range_graph(source, IDENTITY).verdict, Verdict.PASS)
+
+    def test_capture_binds_range_graph_event_window_victim_and_survivor(self):
+        result = evaluate_range_capture(good_capture())
+        self.assertEqual(result.verdict, Verdict.PASS)
+        self.assertEqual(result.victim_spid, 51)
+        self.assertEqual(evaluate_range_capture(None).verdict, Verdict.NOT_PROVEN)
+
+    def test_capture_rejects_wrong_event_outside_window_and_wrong_victim(self):
+        for evidence in (
+            replace(good_capture(), source_session="other_session"),
+            replace(good_capture(), event_timestamp_utc="2026-11-06T12:02:00Z"),
+            replace(good_capture(), actor_outcomes=(
+                ActorOutcome("ACTOR_A", 51, "VICTIM", 1204),
+                ActorOutcome("ACTOR_B", 52, "SURVIVOR", None),
+            )),
+        ):
+            with self.subTest(evidence=evidence):
+                self.assertEqual(evaluate_range_capture(evidence).verdict, Verdict.FAIL)
+
+    def test_capture_requires_one_matching_graph_event(self):
+        self.assertEqual(evaluate_range_capture(replace(
+            good_capture(), matching_event_count=0)).verdict, Verdict.NOT_PROVEN)
+        self.assertEqual(evaluate_range_capture(replace(
+            good_capture(), matching_event_count=2)).verdict, Verdict.FAIL)
 
     def test_missing_graph_or_identity_is_not_proven(self):
         self.assertEqual(evaluate_range_graph(None, IDENTITY).verdict, Verdict.NOT_PROVEN)

@@ -121,6 +121,13 @@ Owner und als Waiter erscheinen; die Lockmodi und `requestType` müssen im Graph
 vorhanden sein. Der Vertrag erzwingt absichtlich kein bestimmtes Paar wie
 `RangeS-S`/`RangeI-N`, da der Entwurf den tatsächlichen Graphen nicht vorwegnimmt.
 
+`evaluate_range_capture` bindet diese Formprüfung zusätzlich an die
+caller-gelieferte Ereignisquelle `system_health`, den Eventnamen
+`xml_deadlock_report`, genau ein passendes Ereignis im RFC-3339-Laufzeitfenster,
+die Actor-/SPID-Zuordnung sowie das Graphopfer mit Fehler 1205 und den anderen
+Actor als erfolgreichen Survivor. Das ist dieselbe Offline-Korrelationsgrenze
+wie beim Konversionsvertrag; sie stellt keine Herkunftsattestation dar.
+
 Das ist ausschließlich eine Formprüfung caller-gelieferter XML- und
 Identitätswerte. Sie authentifiziert weder `system_health`-Herkunft noch
 Run-Token, Zeitfenster, Actorresultate, Opferfehler 1205 oder Cleanup. Ein
