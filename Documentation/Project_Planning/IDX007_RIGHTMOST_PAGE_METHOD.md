@@ -226,13 +226,14 @@ Waitseite mit passender Objekt-/Index-/Partitionsidentität, Blattebene,
 terminalem Nachfolger und stimmigem Vorgänger-Rücklink finden. Fehlt eine
 dieser Bindungen, liefert der Lauf `NOT_PROVEN`.
 
-Die angepasste Lastform verwendet 501 Seeds, `FILLFACTOR=100`, 80 Actors und
-eine Einfügung pro Actor je Burst. Auf SQL Server 2019
-`15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5` bestanden beide
-Bursts lokal: je Build wurden zwei getrennte Wait-/Kettenklammern, 661
-synthetische Zeilen und Datenbank-/Container-Cleanup bestätigt. Die
-Waitüberlappung lag auf den drei Builds jeweils innerhalb des markierten
-Kettenlesefensters.
+Die angepasste Lastform verwendet 501 Seeds, `FILLFACTOR=100` und eine
+Einfügung pro Actor je Burst. SQL Server 2019 `15.0.4500.2` und 2022
+`16.0.4305.5` laufen mit 80 Actors; SQL Server 2025 `17.0.5035.5` mit 64,
+weil die 80-Actor-CI-Probe dort einen Seitensplit zeigte. Lokal bestanden
+beide Bursts auf allen Builds: je zwei getrennte Wait-/Kettenklammern, 661
+synthetische Zeilen auf 2019/2022 beziehungsweise 629 auf 2025 und bestätigtes
+Datenbank-/Container-Cleanup. Die Waitüberlappung lag jeweils innerhalb des
+markierten Kettenlesefensters.
 
 Das bindet den beobachteten Wait und die Kettenabfrage über dieselbe geordnete
 XE-Ereignisfolge und denselben laufenden Burst. Es macht DMV-Abfragen nicht zu

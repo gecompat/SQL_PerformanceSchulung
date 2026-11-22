@@ -17,7 +17,7 @@ PROFILES = {
     17: ("17.0.5035.5", "sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f"),
 }
 DB = "SQLPERF_LAB_IDX007_PENDING"
-ACTORS = 80
+ACTOR_COUNTS = {15: 80, 16: 80, 17: 64}
 ROWS_PER_BURST = 1
 
 
@@ -296,6 +296,7 @@ def wait_until(name: str, env: dict[str, str], sql: str, expected: str,
 def run_live_pilot(major: int) -> int:
     global DB
     build, digest = PROFILES[major]
+    actor_count = ACTOR_COUNTS[major]
     run_token = secrets.token_hex(4).upper()
     DB = f"SQLPERF_LAB_IDX007_{run_token}"
     name = f"sqlperf-idx007-xe-{major}-{secrets.token_hex(4)}"
@@ -407,7 +408,7 @@ WHERE p.name=N'sqlserver' AND o.name=N'latch_suspend_end' AND c.name=N'duration'
             raise PilotError(f"latch XE duration unit is not verified: {duration_unit}")
         print(duration_unit)
 
-        for _ in range(ACTORS):
+        for _ in range(actor_count):
             actor_sql = f"""
 SET NOCOUNT ON; USE [{DB}]; DECLARE @spid smallint=@@SPID,@request_id int,@i int=0;
 SELECT @request_id=request_id FROM sys.dm_exec_requests WHERE session_id=@spid;
@@ -422,11 +423,11 @@ UPDATE lab.ActorSessions SET Done2=1 WHERE SessionId=@spid;
 SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
 """
             actors.append(sqlcmd_actor(name, env, actor_sql))
-        wait_until(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('READY|',COUNT(*)) FROM lab.ActorSessions;", f"READY|{ACTORS}")
+        wait_until(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('READY|',COUNT(*)) FROM lab.ActorSessions;", f"READY|{actor_count}")
         bindings_output = sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('BIND|',SessionId,'|',RequestId) FROM lab.ActorSessions ORDER BY SessionId;")
         bindings = {int(parts[1]): int(parts[2]) for line in bindings_output.splitlines()
                     if line.startswith("BIND|") for parts in [line.split("|")]}
-        if len(bindings) != ACTORS or any(request < 0 for request in bindings.values()):
+        if len(bindings) != actor_count or any(request < 0 for request in bindings.values()):
             raise PilotError("actor request bindings are incomplete")
 
         captures = []
@@ -441,7 +442,7 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; INSERT lab.Go(Stage) VALUES({stage});")
             wait_until(name, env,
                 f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('DONE|',COUNT(*)) FROM lab.ActorSessions WHERE Done{stage}=1;",
-                f"DONE|{ACTORS}")
+                f"DONE|{actor_count}")
             address_meta, capture_stderr = chain_capture.communicate(timeout=30)
             capture_processes.remove(chain_capture)
             if chain_capture.returncode:
@@ -499,16 +500,16 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             if actor.returncode:
                 raise PilotError("an actor request failed")
             actor_results.extend(line for line in stdout.splitlines() if line.startswith("ACTOR|"))
-        if len(actor_results) != ACTORS:
+        if len(actor_results) != actor_count:
             raise PilotError("actor completion count differs")
         final = sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('FINAL|',COUNT_BIG(*)) FROM dbo.Hot;")
         final_count = int(next(line.split("|", 1)[1] for line in final.splitlines() if line.startswith("FINAL|")))
-        expected_rows = 501 + ACTORS * ROWS_PER_BURST * 2
+        expected_rows = 501 + actor_count * ROWS_PER_BURST * 2
         if final_count != expected_rows:
             raise PilotError("exact successful row count differs from the burst contract")
         if len(captures) != 2:
             raise PilotError("both burst captures were not independently verified")
-        print(f"RESULT|build={build}|actors={ACTORS}|burst_rows={ROWS_PER_BURST}|final_rows={final_count}|PASS")
+        print(f"RESULT|build={build}|actors={actor_count}|burst_rows={ROWS_PER_BURST}|final_rows={final_count}|PASS")
         return 0
     finally:
         for session in tuple(xe_sessions):

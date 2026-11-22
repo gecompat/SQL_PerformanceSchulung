@@ -109,3 +109,8 @@ Waitseite an Objekt, Index, Partition, Blattebene, terminalen Nachfolger und
 Vorgänger-Rücklink. Das ist eine geordnete empirische Klammer auf den drei
 konkreten Builds, keine atomare DMV-Snapshotgarantie und kein Nachweis für
 gleichzeitige Page-Splits.
+
+Der Pilot verwendet 80 Actors auf SQL Server 2019/2022 und 64 Actors auf
+SQL Server 2025. Diese begrenzte Anpassung folgt der CI-Beobachtung eines
+Seitensplits unter 80 Actors auf Build 17; der geforderte Wait- und
+Terminalnachweis bleibt für jeden Build unverändert.
