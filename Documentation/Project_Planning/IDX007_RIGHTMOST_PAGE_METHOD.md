@@ -162,13 +162,11 @@ Duplikate in der Ereignisfolge, abgeschnittene oder zu
 große Ringpuffer, unvollständige Paare und abweichende Ereignisressourcen
 ergeben keinen Nachweis.
 
-Der Pilot lädt 701 Seedzeilen und baut den Zielindex vor den Actor-Requests mit
+Der Pilot lädt 501 Seedzeilen und baut den Zielindex vor den Actor-Requests mit
 `FILLFACTOR=100` neu auf. Vor Freigabe der Actors prüft er die physische
 terminal markierte Indexseite und verlangt mehr als eine Blattseite sowie
-mindestens 2.048 freie Bytes als Burstreserve. Die drei lokalen Builds ergaben
-je zwei Blattseiten, 225 Slots und 4.271 freie Bytes; beide vollständigen
-48-Zeilen-Bursts blieben auf der rechten Seite, ohne die Wait-Seite zur
-Vorgängerseite zu splitten. Er lässt 48 Actors je
+mindestens 6.000 freie Bytes als Burstreserve. Die drei lokalen Builds ergaben
+je zwei Blattseiten, 25 Slots und 7.671 freie Bytes. Er lässt 96 Actors je
 eine Einfügung in zwei getrennten Bursts ausführen. Nach dem ersten Burst sind
 alle Actor-Inserts beendet; danach prüft der Pilot die per
 `sys.dm_db_page_info` gelesene Zielseite und ihren
@@ -188,15 +186,17 @@ Auf den isolierten, digest-gepinnten Builds SQL Server 2019
 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5` bestand je ein
 identischer 48×1-Lauf. Weitere CI-Läufe zeigten, dass 451 Seedzeilen mit
 `FILLFACTOR=10` oder `1` sowie 801 Seedzeilen mit `FILLFACTOR=100` die
-terminalen Wait-Seiten nicht stabil über beide Bursts hielten. Der Pilot
-verwendet nun 701 Seeds mit `FILLFACTOR=100` und prüft vorab die reale
-Seitenreserve. Er bestätigte auf jedem Build die konkrete Produktversion und
-Compatibility Level (150, 160, 170); jeder Rebuild ergab zwei Blattseiten,
-225 Slots und 4.271 freie Bytes. Beide Burstcaptures bestanden jeweils mit einer nach dem
+terminalen Wait-Seiten nicht stabil über beide Bursts hielten. Auch 701 Seeds
+und 48 Actors ergaben CI-Grenzen: auf 2025 fehlte ein überlappender Wait, und
+auf 2019 wurde die Wait-Seite nach Burst 1 nicht terminal bestätigt. Der Pilot
+verwendet nun 501 Seeds, `FILLFACTOR=100` und 96 Actors; vorab prüft er die
+reale Seitenreserve. Er bestätigte auf jedem Build die konkrete Produktversion
+und Compatibility Level (150, 160, 170); jeder Rebuild ergab zwei Blattseiten,
+25 Slots und 7.671 freie Bytes. Beide Burstcaptures bestanden jeweils mit einer nach dem
 Burst bestätigten terminalen Seite und korrektem Vorgänger-Rücklink. Die
 physische Seite kann sich nach einer Aufteilung ändern. Die genauen
 Seitenadressen und Wartezeiten sind lauflokale Diagnosedaten und werden nicht
-als Produkt- oder Performancewerte verallgemeinert. Je Lauf wurden 797
+als Produkt- oder Performancewerte verallgemeinert. Je Lauf wurden 693
 synthetische Zeilen bestätigt und Testdatenbank, XE-Sitzungen und eigener
 Container entfernt. Die pro Lauf benannte Datenbank trug die vier
 Framework-Ownershipmarker; der Cleanup prüfte sie vor dem Entfernen.

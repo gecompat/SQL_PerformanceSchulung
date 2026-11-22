@@ -17,7 +17,7 @@ PROFILES = {
     17: ("17.0.5035.5", "sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f"),
 }
 DB = "SQLPERF_LAB_IDX007_PENDING"
-ACTORS = 48
+ACTORS = 96
 ROWS_PER_BURST = 1
 
 
@@ -300,7 +300,7 @@ CREATE SCHEMA lab;
 GO
 CREATE TABLE lab.ActorSessions(SessionId smallint NOT NULL PRIMARY KEY,RequestId int NOT NULL,Done1 bit NOT NULL DEFAULT(0),Done2 bit NOT NULL DEFAULT(0));
 CREATE TABLE lab.Go(Stage int NOT NULL PRIMARY KEY);
-DECLARE @seed int=0; WHILE @seed<701 BEGIN INSERT dbo.Hot DEFAULT VALUES; SET @seed+=1; END;
+DECLARE @seed int=0; WHILE @seed<501 BEGIN INSERT dbo.Hot DEFAULT VALUES; SET @seed+=1; END;
 GO
 ALTER INDEX PK_Hot ON dbo.Hot REBUILD WITH (FILLFACTOR=100);
 GO
@@ -320,7 +320,7 @@ WHERE a.is_allocated=1 AND a.page_type_desc=N'DATA_PAGE' AND i.page_level=0
         _, edge_file, edge_page, edge_slots, edge_free_bytes = right_edge.split("|")
         edge_leaf_pages_output = sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT COUNT(*) FROM sys.dm_db_database_page_allocations(DB_ID(),OBJECT_ID(N'dbo.Hot'),1,NULL,'DETAILED') WHERE is_allocated=1 AND page_type_desc=N'DATA_PAGE' AND index_id=1;")
         edge_leaf_pages = next((line for line in reversed(edge_leaf_pages_output.splitlines()) if line.isdecimal()), "0")
-        if int(edge_leaf_pages) <= 1 or int(edge_free_bytes) < 2048:
+        if int(edge_leaf_pages) <= 1 or int(edge_free_bytes) < 6000:
             raise PilotError(f"rebuilt terminal leaf lacks bounded burst capacity: pages={edge_leaf_pages}, free_bytes={edge_free_bytes}")
         print(f"RIGHT_EDGE|file={edge_file}|page={edge_page}|slots={edge_slots}|free_bytes={edge_free_bytes}|leaf_pages={edge_leaf_pages}|PASS")
         compatibility = sqlcmd(name, env, f"SET NOCOUNT ON; SELECT CONCAT('COMPATIBILITY|',compatibility_level) FROM sys.databases WHERE name=N'{DB}';")
@@ -433,7 +433,7 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             raise PilotError("actor completion count differs")
         final = sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('FINAL|',COUNT_BIG(*)) FROM dbo.Hot;")
         final_count = int(next(line.split("|", 1)[1] for line in final.splitlines() if line.startswith("FINAL|")))
-        expected_rows = 701 + ACTORS * ROWS_PER_BURST * 2
+        expected_rows = 501 + ACTORS * ROWS_PER_BURST * 2
         if final_count != expected_rows:
             raise PilotError("exact successful row count differs from the burst contract")
         if len(captures) != 2:
