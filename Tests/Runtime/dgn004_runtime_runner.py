@@ -21,7 +21,10 @@ for location in (RUNTIME, STATIC):
     if str(location) not in sys.path:
         sys.path.insert(0, str(location))
 
-from dgn004_candidate_runner import run_candidate_snapshot  # noqa: E402
+from dgn004_candidate_runner import (  # noqa: E402
+    CandidateRunnerError,
+    run_candidate_snapshot,
+)
 from dgn004_capture_input import CaptureInput  # noqa: E402
 from dgn004_capture_result import DecodedPlanCapture  # noqa: E402
 from dgn004_capture_runner import (  # noqa: E402
@@ -95,6 +98,14 @@ class Dgn004UnknownError(Dgn004RuntimeError):
 
 class Dgn004TimeoutError(Dgn004RuntimeError):
     """A bounded SQL or outer process deadline was exceeded."""
+
+
+def _safe_failure_detail(exc: Exception) -> str:
+    """Return fixed safe diagnostics while withholding arbitrary runner text."""
+    if (isinstance(exc, (Dgn004RuntimeError, CaptureSqlcmdError, ContainerError))
+            or type(exc) is CandidateRunnerError):
+        return str(exc)
+    return type(exc).__name__
 
 
 def _safe_sqlcmd_diagnostic(returncode: int, stderr: bytes) -> str:
@@ -1407,7 +1418,7 @@ SELECT 'DGN004_IDS|' + CONVERT(varchar(20),DB_ID()) + '|'
             CurrentPlanError, OSError, ValueError, UnicodeError) as exc:
         if isinstance(exc, UncertainContainerStartError):
             container_start_cleanup_ok = exc.cleanup_ok
-        detail = str(exc) if isinstance(exc, (Dgn004RuntimeError, CaptureSqlcmdError, ContainerError)) else type(exc).__name__
+        detail = _safe_failure_detail(exc)
         verdict, reasons = Verdict.NOT_PROVEN, [f"{phase}: {detail}"]
     except KeyboardInterrupt:
         verdict, reasons = Verdict.NOT_PROVEN, ["runtime interrupted"]
