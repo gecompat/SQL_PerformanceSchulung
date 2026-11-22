@@ -14267,8 +14267,19 @@ XML-Auswertung jetzt ausdrücklich auf `ON`; der statische Vertrag prüft die
 Reihenfolge. Auch dieser Lauf liefert noch keinen Datenschutzbefund. Nach
 Merge folgt die manuelle Dreiversionsmatrix erneut.
 
-DGN-007 bleibt `METHOD_BLOCKED`. Der nächste Gate prüft je Build, dass
-`collect_statement=(0)` keine nichtleeren Statementwerte im Ringpuffer ablegt.
-Danach bleiben Ereignisverlust, Markerordnung, Hashkardinalität,
-Query-Store-Sichtbarkeit und der vollständige Mess-Cleanup offen. Es gibt in
-diesem Schnitt keine Actor-Messung, Messdemo oder Messbehauptung.
+Der manuelle Lauf `45021633108` bestand anschließend mit den gepinnten Builds
+SQL Server 2019 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5`.
+Die Jobs liefen seriell in 33, 41 und 41 Sekunden. Jedes Build erzeugte für
+beide Ereignisse mindestens einen synthetischen Datensatz; sämtliche
+Statementknoten waren leer, die fünf vorgesehenen Korrelationsactions waren
+bei allen Ereignissen vorhanden, und die temporäre Session wurde entfernt.
+Die drei JSON-Artefakte enthalten nur Inventar, Flags und Zähler. Das ist ein
+buildgebundener Beleg für die konkrete synthetische XE-Konfiguration, keine
+Actor-, Parameter-, Verlust-, Zeitfenster- oder Messfreigabe.
+
+DGN-007 bleibt `METHOD_BLOCKED`. Der synthetische Statementunterdrückungs-Gate
+ist jetzt für alle drei gepinnten Builds bestanden. Offen bleiben eine
+vollständige Datenschutz-Allowlist einschließlich Query-/Planhash und etwaiger
+Planhandles, Actor-/Requestbindung, Ereignisverlust, Markerordnung,
+Hashkardinalität, Query-Store-Sichtbarkeit und der vollständige Mess-Cleanup.
+Es gibt in diesem Schnitt keine Actor-Messung, Messdemo oder Messbehauptung.
