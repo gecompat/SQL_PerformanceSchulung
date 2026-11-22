@@ -1,0 +1,12 @@
+{
+  "contract_version":"1.0",
+  "demo_id":"CON-006",
+  "run_token":"LOCAL",
+  "timeout_seconds":45,
+  "abort_on_first_failure":true,
+  "sessions":[
+    {"id":"ACTOR_A","script":"10_RangeActorA.sql"},
+    {"id":"ACTOR_B","script":"20_RangeActorB.sql"},
+    {"id":"OBSERVER","script":"30_RangeObserver.sql"}
+  ]
+}

@@ -14007,7 +14007,7 @@ SQL-Server-Prozessen in einem Container und bindet weiterhin genau eine aktive
 Serverinstanz. Das verändert weder DEC-068 noch eine Ressourcen-, Incident-
 oder Runtimeaussage. Die Generalprobe bleibt ausgeschlossen.
 
-### CON-006 – Range-Deadlockgraph statisch prüfen (22. November 2026)
+### Zwischenstand: CON-006 – Range-Deadlockgraph statisch prüfen (22. November 2026; später aktualisiert)
 
 Der neue Offlineprüfer verlangt zwei an die erwarteten Sessions und Datenbank
 gebundene Prozesse, genau ein Opfer und genau eine übereinstimmende
@@ -14017,8 +14017,10 @@ Lockmodus und `requestType` vorkommen. Die Prüfung bindet kein fixes
 `RangeS-S`/`RangeI-N`-Paar, weil der Methodenentwurf den möglichen Enginegraphen
 nicht vorwegnimmt. Die synthetischen Regressionen laufen über den
 Framework-Contracts-Workflow. Sie belegen weder authentische Graphherkunft noch
-Opfer-/Survivorresultate oder Engineverhalten. Unabhängiger Methodenreview und
-isolierter Pilot bleiben offen; die CON-006-Rangevariante bleibt `PROPOSED`.
+Opfer-/Survivorresultate oder Engineverhalten. Zu diesem Zwischenstand waren
+unabhängiger Methodenreview und isolierter Pilot offen; der spätere Abschnitt
+„CON-006 – Range-Deadlock in vollständige Demo integriert“ dokumentiert die
+abgeschlossene Enginequalifikation und aktualisiert diesen Status.
 Die Capture-Prüfung bindet außerdem den caller-gelieferten XE-Ereignisnamen und
 Quellnamen, genau ein Event im angegebenen Zeitfenster, die Actor-/SPID-Werte
 sowie Opferfehler 1205 und erfolgreichen Survivor. 11 Range- und 20 bestehende
@@ -14052,7 +14054,7 @@ Terminalsemantik. Unabhängiger Methodenreview bleibt Voraussetzung für eine
 ausführbare read-only Probe; Workloadvergleich und Runtimequalifikation bleiben
 getrennte Gates.
 
-## Fortsetzung: DGN-007, CON-006 und IDX-007 geplant und begonnen (22. November 2026)
+## Zwischenstand: DGN-007, CON-006 und IDX-007 geplant und begonnen (22. November 2026; später aktualisiert)
 
 Der neue [Ausführungsplan](NEXT_DEVELOPMENT_WAVES.md#ausführungsplan-für-dgn-007-con-006-und-idx-007-22-november-2026)
 ordnet die nächsten Arbeitspakete: DGN-007-Quellenvergleich, danach
@@ -14072,7 +14074,7 @@ keine Entscheidung gegen einen später geänderten Messvertrag. Aktueller Stand:
 `METHOD_BLOCKED`; keine SQL-/Runtimeausführung und keine Änderung von DEC-072.
 Details und Quellen stehen im [G13-Quellenvergleich](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md#quellenvergleich-für-einen-möglichen-g13-gegenentwurf-22-november-2026).
 
-Für CON-006 bleibt die gelieferte Rangehypothese eine `PROPOSED`-Variante:
+Zum Zeitpunkt dieses Zwischenstands war die gelieferte CON-006-Rangehypothese noch `PROPOSED`; der spätere Abschnitt „CON-006 – Range-Deadlock in vollständige Demo integriert“ am Ende dieses Dokuments aktualisiert diesen Befund:
 der unabhängige Delta-Methodenreview muss insbesondere denselben KEY-/HoBT-
 Bezug, tatsächliche Lockmodi, Opfer/Survivor, den actorgebundenen seriellen
 Kontrollarm sowie Datenbank-/XE-Eigentum und Cleanup bestätigen. Für IDX-007
@@ -14283,3 +14285,49 @@ vollständige Datenschutz-Allowlist einschließlich Query-/Planhash und etwaiger
 Planhandles, Actor-/Requestbindung, Ereignisverlust, Markerordnung,
 Hashkardinalität, Query-Store-Sichtbarkeit und der vollständige Mess-Cleanup.
 Es gibt in diesem Schnitt keine Actor-Messung, Messdemo oder Messbehauptung.
+
+### CON-006 – Range-Deadlock in vollständige Demo integriert (22. November 2026)
+
+Die Range-Variante ist nach der bestehenden Gegenreihenfolge- und
+Sperrumwandlungssequenz als eigene Manifestphase integriert. Startwerte sind
+10, 50 und 90; A liest `(20, 40)`, B `(60, 80)` unter `SERIALIZABLE` und
+verwendet den geordneten Primärschlüsselindex mit `FORCESEEK`. Der Beobachter
+wartet zunächst auf beide getrennten Actor-Sessions, bestätigt dann über
+`sys.dm_tran_locks` ihre tatsächlichen KEY-Range-Sperren, gibt A frei und
+wartet auf A→B-Blocking, bevor er B freigibt. Dadurch stammt die Reihenfolge
+aus beobachteten Enginezuständen und nicht aus festen Verzögerungen.
+
+Der Deadlockvertrag verlangt genau ein Ereignis aus `system_health` im
+Laufzeitfenster, zwei gebundene Prozess-SPIDs, zwei verschiedene KEY-IDs
+desselben Datenbank-/Objekt-/Index-/HoBT-Tupels, gegenseitige inkompatible
+`requestType="wait"`-Kanten, ein Opfer mit 1205, den Survivor und den exakten
+Endbestand von drei Startschlüsseln plus Survivorschlüssel. Das
+Deadlock-Kontrollende erwartet vier Zeilen. Die getrennte serielle Kontrolle
+verwendet zwei schon vor dem ersten Insert verbundene Sessions; B hält seine
+SPID bereit und fügt erst nach A ein. Beide müssen erfolgreich enden, der
+Kontrollendbestand enthält exakt fünf Schlüssel und im Kontrollzeitfenster
+darf kein passender Deadlockgraph auftreten.
+
+Die vollständige Demo samt markergebundenem Datenbankcleanup bestand je einmal
+auf SQL Server 2019 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025
+`17.0.5035.5`. Alle 19 erforderlichen Phasen und die 60-Sekunden-Cleanupphase
+bestanden. Die Qualifikationsläufe verwendeten jeweils eigene
+digest-gepinnte Container ohne Netzwerk, mit 2 CPUs und 4 GiB; der Runner
+prüfte Build, Eigentumslabel, Ressourcenprofil, Datenbankabwesenheit nach
+Cleanup und eigene Containerentfernung. Befehl: `python
+Tests/Runtime/con006_full_demo_qualification.py --product-major-version 15`
+beziehungsweise `16` oder `17`.
+
+Die integrierte Rangevariante ist runtimequalifiziert auf diesen Builds. Die
+historischen Pilot- und Reviewabschnitte oben bleiben als frühere Evidenz
+erhalten; sie werden durch diesen vollständigen Demo- und Cleanupnachweis
+ergänzt, nicht rückwirkend umgedeutet.
+
+Der unabhängige Methodenreview fand zwei fail-open-Lücken im Graphprüfer:
+unbekannte Lockmodi konnten als inkompatibel zählen und der Graph-Victim war
+nicht an den Actor mit Fehler 1205 gebunden. Beide Bedingungen sind jetzt
+geschlossen: nur explizit unterstützte Modi werden ausgewertet, und genau ein
+Graphopfer muss SPID-gebunden zum `VICTIM`-Datensatz mit Fehler 1205 passen;
+der andere Actor muss der erfolgreiche Survivor sein. Danach wurde der
+vollständige 19-Phasen-Lauf samt Cleanup je einmal auf denselben drei Builds
+wiederholt und erneut bestanden.

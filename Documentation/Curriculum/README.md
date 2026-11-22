@@ -41,7 +41,7 @@ ihren didaktischen Wert.
 - [Konkurrierende Abfragespeicherzuteilungen](COMPETING_MEMORY_GRANTS_LESSON.md): aktuelle Grant-Zustände und der Nachweis eines wartenden eigenen Requests.
 - [Worker-Warteschlange und CPU-Druck](WORKER_QUEUE_PRESSURE_LESSON.md): Workerbedarf, THREADPOOL-Waits und Runnable-Tasks getrennt einordnen.
 - [Query-Store-Plansteuerung](QUERY_STORE_PLAN_CONTROL_LESSON.md): angeforderte Planerzwingung, beobachtete Planverwendung und Rücknahme sauber unterscheiden.
-- [Deadlockvarianten](DEADLOCK_VARIANTS_LESSON.md): Gegenreihenfolge und Sperrumwandlung unterscheiden und den nötigen Graphnachweis einordnen.
+- [Deadlockvarianten](DEADLOCK_VARIANTS_LESSON.md): Gegenreihenfolge, Sperrumwandlung und Schlüsselbereichs-Deadlocks unterscheiden und den nötigen Graphnachweis einordnen.
 - [Einfügungen an einer heißen Indexseite](LAST_PAGE_INSERT_CONTENTION_LESSON.md): `PAGELATCH_EX` von I/O- und Sperrwartezeiten trennen; Insertzähler nicht als Engpassnachweis lesen.
 - [External Tables und Remote Pushdown](EXTERNAL_TABLES_LESSON.md): Datenweg, Connectorgrenzen und tatsächliche Pushdown-Evidenz unterscheiden; erklärender Inhalt ohne Runtimequalifikation.
 - [Graph Tables und gerichtete Pfade](GRAPH_TABLES_LESSON.md): Graph- und relationale Abfrageformen sowie Korrektheit und Performanceevidenz trennen.
