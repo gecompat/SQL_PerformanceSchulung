@@ -41,6 +41,10 @@ def validate() -> list[str]:
 
     if "runtime_authorized" not in runner or '"proposed"' not in runner:
         errors.append("runner must preserve the shared image lock's PROPOSED status")
+    if ("validate_image_identity" not in runner
+            or 'item.get("architecture") == "amd64"' not in runner
+            or 'item.get("os") == "linux"' not in runner):
+        errors.append("runner must bind the pinned image reference and Linux/AMD64 platform")
     for marker in ("--internal", "--cpus=2", "--memory=4g", "--restart=no", "--pull=never"):
         if marker not in runner:
             errors.append(f"runner must preserve the bounded owned-container boundary ({marker})")

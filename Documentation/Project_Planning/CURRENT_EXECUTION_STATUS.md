@@ -14209,10 +14209,15 @@ Eventpayload. Die Ergebnisse werden als Metadatenartefakte drei Tage
 aufbewahrt.
 
 Lokale Läufe auf den drei festgebundenen Images endeten vor SQL-Readiness;
-keiner erreichte eine Katalogabfrage. Das ist kein Produktbefund. Der nächste
-Schritt ist der PR mit statischem Vertragscheck; nach erfolgreicher Integration
-wird der manuelle Drei-Build-Lauf einmal auf frischen Runnern gestartet. Auf
-Pull Requests und `main` laufen nur der statische Validator und seine sieben
+keiner erreichte eine Katalogabfrage. Auch der erste manuelle GitHub-Lauf
+`45016650824` stoppte alle drei Builds vor dem Containerstart: Die Prüfung
+verglich die Docker-Image-ID ausschließlich mit der Config-ID, während Docker
+Desktop den korrekt gepinnten Manifestdigest als Image-ID meldet. Das ist ein
+Probe-Implementierungsfehler, kein Produktbefund; keine DGN-007-Katalogabfrage
+lief. Ein Korrektur-PR akzeptiert beide Docker-ID-Darstellungen, bindet
+weiterhin Manifestdigest und Plattform und ergänzt Regressionstests. Nach
+dessen Integration folgt je Build ein korrigierter Probeversuch. Auf Pull
+Requests und `main` laufen nur der statische Validator und seine acht
 Parserregressionen; der teure Containerlauf ist ausschließlich manuell und
 seriell. Workflowzeit und Artefaktumfang sind damit begrenzt; eine belastbare
 Zeitmessung liegt noch nicht vor.

@@ -120,6 +120,15 @@ eigentumsgeprüft entfernt. Es wurde nur der Ready-Check SELECT 1 versucht;
 die Katalogabfrage und eine XE-Session liefen nicht. Die lokale Engineprobe ist
 damit NOT_PROVEN.
 
+Der erste manuelle GitHub-Lauf (`45016650824`) stoppte je Build vor dem
+Containerstart, weil die Implementierung nur die Config-ID als Docker-Image-ID
+akzeptierte. Docker Desktop kann für dasselbe manifestgebundene Image auch den
+Manifestdigest als Image-ID ausgeben. Das ist ein Fehler der Probeidentitäts-
+prüfung und kein SQL-Server-Befund; die Katalogabfrage lief nicht. Die
+Korrektur akzeptiert beide ID-Darstellungen, prüft weiterhin den exakten
+Manifestdigest und Linux/AMD64 und ergänzt Regressionstests. Erst ein
+korrigierter erfolgreicher Lauf kann Katalogempirie liefern.
+
 ## Gates vor Messvertragsimplementierung
 
 Der unabhängige Methodenreview vom 22. November 2026 prüfte den geänderten
