@@ -601,10 +601,11 @@ markierten Statementgrenzen und die Actor-Waits liegen in derselben
 `event_sequence`. Ein PASS verlangt eine gemeinsame Waitüberlappung auf
 derselben Seite, die in das Kettenlesefenster fällt, sowie bestätigte
 Terminalseite und Vorgänger-Rücklink für genau diese Seite. Die Lastform ist
-501 Seeds, `FILLFACTOR=100`, 64 Actors und ein Insert je Actor/Burst. Zwei
+501 Seeds, `FILLFACTOR=100`, 80 Actors und ein Insert je Actor/Burst. Zwei
 lokale Burstläufe je Build bestanden auf SQL Server 2019/2022/2025; je Lauf
-629 Zeilen sowie Cleanup. Die zuvor getesteten 96- und 128-Actor-Lastformen
-führten in einzelnen CI-Builds zu Seitensplits. `METHOD_DRAFT` bleibt bestehen, da
+661 Zeilen sowie Cleanup. Die 64-Actor-Form lieferte keine CI-Waits; 96- und
+128-Actor-Formen trafen in einzelnen CI-Builds auf Seitensplits. Die aktuelle
+80-Actor-Form steht noch vor ihrer CI-Matrix. `METHOD_DRAFT` bleibt bestehen, da
 mehrere DMV-Lesevorgänge keine atomare Snapshotgarantie und keine
 Splitsemantik liefern. Die frische PR-Matrix und Pflichtchecks stehen noch
 aus.
