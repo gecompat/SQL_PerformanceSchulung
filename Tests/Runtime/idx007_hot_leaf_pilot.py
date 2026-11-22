@@ -17,7 +17,7 @@ PROFILES = {
     17: ("17.0.5035.5", "sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f"),
 }
 DB = "SQLPERF_LAB_IDX007_PENDING"
-ACTOR_COUNTS = {15: 80, 16: 80, 17: 64}
+ACTOR_COUNTS = {15: 80, 16: 80, 17: 80}
 ROWS_PER_BURST = 1
 
 
@@ -355,7 +355,7 @@ CREATE TABLE lab.Go(Stage int NOT NULL PRIMARY KEY);
 CREATE TABLE lab.CaptureReady(Stage int NOT NULL PRIMARY KEY);
 DECLARE @seed int=0; WHILE @seed<501 BEGIN INSERT dbo.Hot DEFAULT VALUES; SET @seed+=1; END;
 GO
-ALTER INDEX PK_Hot ON dbo.Hot REBUILD WITH (FILLFACTOR=100);
+ALTER INDEX PK_Hot ON dbo.Hot REBUILD WITH (FILLFACTOR=10);
 GO
 SELECT CONCAT('DBID|',DB_ID());
 SELECT CONCAT('RIGHT_EDGE|',a.allocated_page_file_id,'|',a.allocated_page_page_id,'|',i.slot_count,'|',i.free_bytes)

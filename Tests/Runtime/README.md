@@ -110,7 +110,8 @@ Vorgänger-Rücklink. Das ist eine geordnete empirische Klammer auf den drei
 konkreten Builds, keine atomare DMV-Snapshotgarantie und kein Nachweis für
 gleichzeitige Page-Splits.
 
-Der Pilot verwendet 80 Actors auf SQL Server 2019/2022 und 64 Actors auf
-SQL Server 2025. Diese begrenzte Anpassung folgt der CI-Beobachtung eines
-Seitensplits unter 80 Actors auf Build 17; der geforderte Wait- und
-Terminalnachweis bleibt für jeden Build unverändert.
+Der Pilot verwendet nach einem getesteten CI-Splitproblem mit 501 Seeds und
+`FILLFACTOR=100` jetzt `FILLFACTOR=10` auf allen drei Builds; 80 Actors und
+ein Insert pro Actor bleiben gleich. Die engere Packung lässt mehr reale
+Blattreserve für beide Bursts. Das Gate misst diese Reserve zur Laufzeit; der
+geforderte Wait- und Terminalnachweis bleibt für jeden Build unverändert.
