@@ -300,9 +300,9 @@ CREATE SCHEMA lab;
 GO
 CREATE TABLE lab.ActorSessions(SessionId smallint NOT NULL PRIMARY KEY,RequestId int NOT NULL,Done1 bit NOT NULL DEFAULT(0),Done2 bit NOT NULL DEFAULT(0));
 CREATE TABLE lab.Go(Stage int NOT NULL PRIMARY KEY);
-DECLARE @seed int=0; WHILE @seed<451 BEGIN INSERT dbo.Hot DEFAULT VALUES; SET @seed+=1; END;
+DECLARE @seed int=0; WHILE @seed<801 BEGIN INSERT dbo.Hot DEFAULT VALUES; SET @seed+=1; END;
 GO
-ALTER INDEX PK_Hot ON dbo.Hot REBUILD WITH (FILLFACTOR=1);
+ALTER INDEX PK_Hot ON dbo.Hot REBUILD WITH (FILLFACTOR=100);
 GO
 SELECT CONCAT('DBID|',DB_ID());
 """
@@ -419,7 +419,7 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             raise PilotError("actor completion count differs")
         final = sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('FINAL|',COUNT_BIG(*)) FROM dbo.Hot;")
         final_count = int(next(line.split("|", 1)[1] for line in final.splitlines() if line.startswith("FINAL|")))
-        expected_rows = 451 + ACTORS * ROWS_PER_BURST * 2
+        expected_rows = 801 + ACTORS * ROWS_PER_BURST * 2
         if final_count != expected_rows:
             raise PilotError("exact successful row count differs from the burst contract")
         if len(captures) != 2:

@@ -162,8 +162,8 @@ Duplikate in der Ereignisfolge, abgeschnittene oder zu
 große Ringpuffer, unvollständige Paare und abweichende Ereignisressourcen
 ergeben keinen Nachweis.
 
-Der Pilot lädt 451 Seedzeilen und baut den Zielindex vor den Actor-Requests mit
-`FILLFACTOR=1` neu auf. Diese Kombination ergab in den geprüften Builds 91
+Der Pilot lädt 801 Seedzeilen und baut den Zielindex vor den Actor-Requests mit
+`FILLFACTOR=100` neu auf. Diese Kombination ergab in den geprüften Builds zwei
 Blattseiten; beide vollständigen 48-Zeilen-Bursts passten in den Läufen auf
 der rechten Seite, ohne die Wait-Seite zur Vorgängerseite zu splitten. Er
 lässt 48 Actors je
@@ -184,16 +184,16 @@ Semantik bleibt ein Review- und Qualifikationsgate.
 
 Auf den isolierten, digest-gepinnten Builds SQL Server 2019
 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5` bestand je ein
-identischer 48×1-Lauf. Weitere CI-Läufe zeigten, dass auch 451 Seedzeilen mit
-`FILLFACTOR=10` nicht zuverlässig vor Burst-Splits schützen; deshalb steht
-der Rebuild jetzt auf `FILLFACTOR=1`. Der Pilot bestätigte
-auf jedem Build die konkrete Produktversion und Compatibility Level (150,
-160, 170); jeder Rebuild ergab 91 Blattseiten. Beide Burstcaptures bestanden
-jeweils mit einer nach dem
+identischer 48×1-Lauf. Weitere CI-Läufe zeigten, dass die Kombination aus
+451 Seedzeilen und `FILLFACTOR=10` oder `1` die terminale Seite nicht über
+beide Bursts hielt. Der Rebuild verwendet jetzt 801 Seedzeilen mit
+`FILLFACTOR=100`. Der Pilot bestätigte auf jedem Build die konkrete
+Produktversion und Compatibility Level (150, 160, 170); jeder Rebuild ergab
+zwei Blattseiten. Beide Burstcaptures bestanden jeweils mit einer nach dem
 Burst bestätigten terminalen Seite und korrektem Vorgänger-Rücklink. Die
 physische Seite kann sich nach einer Aufteilung ändern. Die genauen
 Seitenadressen und Wartezeiten sind lauflokale Diagnosedaten und werden nicht
-als Produkt- oder Performancewerte verallgemeinert. Je Lauf wurden 547
+als Produkt- oder Performancewerte verallgemeinert. Je Lauf wurden 897
 synthetische Zeilen bestätigt und Testdatenbank, XE-Sitzungen und eigener
 Container entfernt. Die pro Lauf benannte Datenbank trug die vier
 Framework-Ownershipmarker; der Cleanup prüfte sie vor dem Entfernen.
