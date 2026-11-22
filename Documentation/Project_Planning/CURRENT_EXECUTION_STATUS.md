@@ -14006,3 +14006,16 @@ synthetische Coordinatorregression prüft sechs Captures mit zwei
 SQL-Server-Prozessen in einem Container und bindet weiterhin genau eine aktive
 Serverinstanz. Das verändert weder DEC-068 noch eine Ressourcen-, Incident-
 oder Runtimeaussage. Die Generalprobe bleibt ausgeschlossen.
+
+### CON-006 – Range-Deadlockgraph statisch prüfen (22. November 2026)
+
+Der neue Offlineprüfer verlangt zwei an die erwarteten Sessions und Datenbank
+gebundene Prozesse, genau ein Opfer und genau eine übereinstimmende
+KEY-Ressource anhand von Datenbank, Objekt, Index und HoBT. Beide Actors müssen
+auf derselben Ressource als Owner und Waiter mit tatsächlich eingetragenem
+Lockmodus und `requestType` vorkommen. Die Prüfung bindet kein fixes
+`RangeS-S`/`RangeI-N`-Paar, weil der Methodenentwurf den möglichen Enginegraphen
+nicht vorwegnimmt. Die synthetischen Regressionen laufen über den
+Framework-Contracts-Workflow. Sie belegen weder authentische Graphherkunft noch
+Opfer-/Survivorresultate oder Engineverhalten. Unabhängiger Methodenreview und
+isolierter Pilot bleiben offen; die CON-006-Rangevariante bleibt `PROPOSED`.
