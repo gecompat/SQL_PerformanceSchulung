@@ -2154,6 +2154,8 @@ der Korrektur keine offenen P1/P2 im geprüften Parser-/Quellenumfang; Wait-
 Herkunft, aktuelle Rechtsaußen-Seitenkette, fairer Workloadvergleich und
 Runtimequalifikation bleiben offen.
 
+- [x] Begrenzte Offlineprüfung caller-gelieferter Seitenketten ergänzt: expliziter, caller-gelieferter Terminalmarker, Startseite, Blattniveau, Objekt-/Index-/Partitionsidentität, eindeutige Seiten und konsistente Vorwärts-/Rücklinks innerhalb eines Seiten-Caps. Kein Terminalwert ist fest verdrahtet; synthetische Regressionen bestehen. Datenherkunft und Buildsemantik bleiben offen, ebenso unabhängiger Methodenreview und jede SQL-/Runtimeprobe.
+
 ##### 7. RES-001 – Lückenprüfung für Worker-Druck und echte Erschöpfung
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand L – vorläufig.**

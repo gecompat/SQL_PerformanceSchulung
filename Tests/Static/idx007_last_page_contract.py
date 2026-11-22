@@ -48,9 +48,104 @@ class PageTarget:
 
 
 @dataclass(frozen=True)
+class PageLink:
+    """Caller-supplied page header and neighbor pointers for one leaf page."""
+
+    database_id: int
+    file_id: int
+    page_id: int
+    object_id: int
+    index_id: int
+    partition_id: int
+    page_level: int
+    previous_address: tuple[int, int] | None
+    next_address: tuple[int, int] | None
+
+
+@dataclass(frozen=True)
 class Result:
     verdict: Verdict
     reasons: tuple[str, ...]
+
+
+MAX_PAGE_CHAIN_RECORDS = 4096
+
+
+def evaluate_rightmost_page_chain(
+    pages: tuple[PageLink, ...] | None,
+    *,
+    database_id: int,
+    object_id: int,
+    index_id: int,
+    partition_id: int,
+    start_address: tuple[int, int],
+    terminal_address: tuple[int, int] | None,
+    max_pages: int,
+) -> Result:
+    """Check a supplied bounded forward chain without assuming terminal encoding.
+
+    The caller must provide an explicit terminal address. This function checks
+    only consistency of those values; it neither authenticates nor reads pages.
+    """
+    if pages is None or terminal_address is None:
+        return Result(Verdict.NOT_PROVEN, ("page-chain records or explicit terminal marker are missing",))
+    expected = (database_id, object_id, index_id, partition_id)
+    if any(not _positive_int(value) for value in expected):
+        return Result(Verdict.FAIL, ("expected page-chain identity is invalid",))
+    if not _valid_page_address(start_address) or not _valid_page_address(terminal_address):
+        return Result(Verdict.FAIL, ("start or terminal page address is invalid",))
+    if type(max_pages) is not int or not 1 <= max_pages <= MAX_PAGE_CHAIN_RECORDS:
+        return Result(Verdict.FAIL, ("page-chain cap is outside the fixed bound",))
+    if type(pages) is not tuple or any(type(page) is not PageLink for page in pages):
+        return Result(Verdict.FAIL, ("page-chain input must be a tuple of exact PageLink records",))
+    if not pages:
+        return Result(Verdict.NOT_PROVEN, ("page-chain records are empty",))
+    if len(pages) > max_pages:
+        return Result(Verdict.NOT_PROVEN, ("page-chain record cap was exceeded",))
+
+    seen: set[tuple[int, int]] = set()
+    addresses: list[tuple[int, int]] = []
+    for page in pages:
+        if (not _positive_int(page.database_id) or not _positive_int(page.object_id)
+                or not _positive_int(page.index_id) or not _positive_int(page.partition_id)
+                or not _positive_int(page.file_id) or not _positive_int(page.page_id)
+                or type(page.page_level) is not int or page.page_level < 0
+                or not _valid_optional_page_address(page.previous_address)
+                or not _valid_optional_page_address(page.next_address)):
+            return Result(Verdict.FAIL, ("page-chain record contains invalid identity, level, or link fields",))
+        if (page.database_id, page.object_id, page.index_id, page.partition_id) != expected:
+            return Result(Verdict.FAIL, ("page-chain record differs from the expected database/object/index/partition",))
+        if page.page_level != 0:
+            return Result(Verdict.FAIL, ("page-chain record is not a leaf page",))
+        address = (page.file_id, page.page_id)
+        if address in seen:
+            return Result(Verdict.FAIL, ("page-chain contains a cycle or duplicate page",))
+        seen.add(address)
+        addresses.append(address)
+
+    if addresses[0] != start_address:
+        return Result(Verdict.FAIL, ("page-chain does not begin at the supplied wait page",))
+    for index, page in enumerate(pages[:-1]):
+        next_page = pages[index + 1]
+        current_address = addresses[index]
+        next_address = addresses[index + 1]
+        if page.next_address != next_address or next_page.previous_address != current_address:
+            return Result(Verdict.FAIL, ("forward and backward page links are inconsistent",))
+    final_next = pages[-1].next_address
+    if final_next == terminal_address:
+        return Result(Verdict.PASS, ())
+    if final_next in seen:
+        return Result(Verdict.FAIL, ("terminal link loops to a previously visited page",))
+    return Result(Verdict.NOT_PROVEN, ("supplied chain does not reach the explicit terminal marker",))
+
+
+def _valid_page_address(value: object) -> bool:
+    return (type(value) is tuple and len(value) == 2
+            and all(_positive_int(part) for part in value))
+
+
+def _valid_optional_page_address(value: object) -> bool:
+    return value is None or _valid_page_address(value)
 
 
 def _positive_int(value: object) -> bool:
