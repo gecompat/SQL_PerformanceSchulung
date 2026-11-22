@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import unittest
 
-from Tests.Runtime.idx007_hot_leaf_pilot import PilotError, parse_wait_pairs
+from Tests.Runtime.idx007_hot_leaf_pilot import (PilotError, overlaps_capture_window,
+                                                  parse_chain_markers, parse_wait_pairs)
 
 
 DATABASE_ID = 7
@@ -20,6 +21,28 @@ def output(*rows: str, stats: str = "XE_STATS|1|0|0|4|0") -> str:
 
 
 class LiveCaptureParserTests(unittest.TestCase):
+    def test_shared_wait_interval_must_intersect_chain_capture(self) -> None:
+        left = {"begin_seq": 2, "end_seq": 9}
+        right = {"begin_seq": 4, "end_seq": 8}
+        self.assertTrue(overlaps_capture_window(left, right, 5, 7))
+        self.assertFalse(overlaps_capture_window(left, right, 9, 12))
+        self.assertFalse(overlaps_capture_window(left, right, 3, 4))
+
+    def test_chain_markers_define_ordered_capture_window(self) -> None:
+        capture = "\n".join((
+            "XE_MARK|1|sql_statement_starting|10|51|0|BEGIN",
+            "XE_MARK|1|sql_statement_completed|20|51|0|END",
+        ))
+        self.assertEqual(parse_chain_markers(capture, 1), (10, 20))
+
+    def test_missing_or_reversed_chain_markers_are_rejected(self) -> None:
+        with self.assertRaisesRegex(PilotError, "missing, duplicated, or unordered"):
+            parse_chain_markers("XE_MARK|1|sql_statement_starting|20|51|0|BEGIN\n"
+                                "XE_MARK|1|sql_statement_completed|10|51|0|END", 1)
+        with self.assertRaisesRegex(PilotError, "missing, duplicated, or unordered"):
+            parse_chain_markers("XE_MARK|1|sql_statement_starting|10|51|0|BEGIN\n"
+                                "XE_MARK|1|sql_statement_completed|20|52|0|END", 1)
+
     def test_overlapping_exclusive_wait_intervals_on_same_page_are_found(self) -> None:
         capture = output(
             event("latch_suspend_begin", "2026-11-22T10:00:00.000Z", 1, 51),

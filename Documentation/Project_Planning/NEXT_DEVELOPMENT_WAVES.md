@@ -594,6 +594,21 @@ unvollständige XE-Alternativzweig blockiert ihn nicht. CON-006 Range ist auf
 qualifiziert (PR #1142, Merge-Commit `116123dfa58e9b1232860a1f372b4b9d59e3f8d0`).
 IDX-007 bleibt wegen der nicht gebundenen Terminal-/Wait-Klammer offen.
 
+### IDX-007 – laufendes XE-/Kettenfenster (22. November 2026)
+
+Der Kettenleser wartet nun bereits verbunden an der Burstbarriere; seine
+markierten Statementgrenzen und die Actor-Waits liegen in derselben
+`event_sequence`. Ein PASS verlangt eine gemeinsame Waitüberlappung auf
+derselben Seite, die in das Kettenlesefenster fällt, sowie bestätigte
+Terminalseite und Vorgänger-Rücklink für genau diese Seite. Die Lastform ist
+501 Seeds, `FILLFACTOR=100`, 96 Actors und zwei Inserts je Actor/Burst. Zwei
+lokale Burstläufe je Build bestanden auf SQL Server 2019/2022/2025; je Lauf
+885 Zeilen sowie Cleanup. Diese Ergänzung ersetzt für den aktuellen Stand die
+historische 96×1-/693-Zeilenangabe oben. `METHOD_DRAFT` bleibt bestehen, da
+mehrere DMV-Lesevorgänge keine atomare Snapshotgarantie und keine
+Splitsemantik liefern. Die frische PR-Matrix und Pflichtchecks stehen noch
+aus.
+
 PR #424 bindet beim QRY-023-Proposed-Harness Phasenscript, Zieldatenbank,
 Zeitlimits, Cleanup und Gesamtbudgets. PR #426 ergänzt `Reads` und `Writes` als
 Pflichtfelder und gepaarte Statistikmetriken neben CPU, Logical Reads und

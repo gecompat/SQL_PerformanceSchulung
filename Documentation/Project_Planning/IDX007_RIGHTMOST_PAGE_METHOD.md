@@ -209,3 +209,36 @@ Pilot ist keine vollständige Demoqualifikation. Vor einer Änderung des
 Methodenstatus oder einem Leistungsclaim bleibt ein unabhängiger Review dieses
 Erhebungsvertrags erforderlich. Die serielle PR-/manuelle Runtime-Matrix steht
 in [IDX-007 Live-Capture](../../.github/workflows/idx007-live-capture.yml).
+
+### Zeitliche Klammer im laufenden Burst (22. November 2026)
+
+Die vorherige Pilotfassung las die Seitenmetadaten erst nach dem Actor-Ende
+und konnte die Terminalseite daher nicht in dasselbe Waitfenster einordnen.
+Der Erheber startet jetzt vor der Burstfreigabe eine eigene SQL-Session, die an
+der Barriere wartet. Die Actorfreigabe startet sowohl die Einfügungen als auch
+den bereits verbundenen Kettenleser. Markierte
+`sql_statement_starting`-/`sql_statement_completed`-XE-Ereignisse grenzen den
+Kettenlesebatch über `package0.event_sequence` ein. Ein PASS erfordert zwei
+erfolgreiche exklusive `BUF`-Waits verschiedener Actor-Requests auf derselben
+Seite, deren gemeinsame Überlappung in dieses Kettenlesefenster fällt. Die
+Kettenaufnahme liest die dann allozierten Blattkandidaten und muss dieselbe
+Waitseite mit passender Objekt-/Index-/Partitionsidentität, Blattebene,
+terminalem Nachfolger und stimmigem Vorgänger-Rücklink finden. Fehlt eine
+dieser Bindungen, liefert der Lauf `NOT_PROVEN`.
+
+Die angepasste Lastform verwendet 501 Seeds, `FILLFACTOR=100`, 96 Actors und
+zwei Einfügungen pro Actor je Burst. Auf SQL Server 2019
+`15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5` bestanden beide
+Bursts lokal: je Build wurden zwei getrennte Wait-/Kettenklammern, 885
+synthetische Zeilen und Datenbank-/Container-Cleanup bestätigt. Die
+Waitüberlappung lag auf den drei Builds jeweils innerhalb des markierten
+Kettenlesefensters.
+
+Das bindet den beobachteten Wait und die Kettenabfrage über dieselbe geordnete
+XE-Ereignisfolge und denselben laufenden Burst. Es macht DMV-Abfragen nicht zu
+einem atomaren Snapshot: insbesondere beweist es nicht, dass jede einzelne
+Seitenkopfzeile exakt im Moment eines Latch-Waits gelesen wurde, und es
+qualifiziert keine gleichzeitigen Page-Splits. Der Methodenstatus bleibt
+`METHOD_DRAFT`; der Pilot ist weder vollständige Demo- noch
+Leistungsqualifikation. Der reproduzierbare Buildnachweis muss noch die frische
+serielle PR-Matrix bestehen.

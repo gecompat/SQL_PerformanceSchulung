@@ -14474,3 +14474,30 @@ Slots, 7.671 freie Bytes, zwei per Eventsequenz bestätigte Wait-/Ketten-
 aufnahmen, 693 Zeilen sowie bestätigtes Datenbank- und Container-Cleanup. Die
 frische PR-Matrix für diesen Stand steht noch aus. Die Metadatenaufnahme bleibt
 nicht atomar zum exakten Waitzeitpunkt.
+
+### IDX-007 – Wait-/Kettenfenster im laufenden Burst gebunden (22. November 2026)
+
+Die vorige Pilotfassung erhob `sys.dm_db_page_info` erst nach dem Ende der
+Actor-Inserts; der Seitenkettenstand war damit zeitlich nicht an die Waits
+gebunden. Der Kettenleser startet jetzt vor der Freigabe in einer verbundenen
+SQL-Session und wartet an derselben Burstbarriere. XE zeichnet zusätzlich die
+markierten SQL-Statement-Start-/Endereignisse auf. Der Erheber verlangt, dass
+zwei erfolgreiche exklusive `BUF`-Waits verschiedener Actor-Requests auf
+derselben Seite überlappen und diese gemeinsame Waitzeit in das markierte
+Kettenlesefenster fällt. Die Seitenmetadaten umfassen die im Capturelauf
+allozierten Blattkandidaten; die tatsächliche Waitseite muss mit Zielobjekt,
+Index, Partition, Blattebene, terminalem Nachfolger und Vorgänger-Rücklink
+übereinstimmen. Fehlende zeitliche oder physische Bindung bleibt
+`NOT_PROVEN`.
+
+Die angepasste Form verwendet 501 Seeds, `FILLFACTOR=100`, 96 Actors und je
+zwei Inserts pro Actor und Burst. Die lokale Matrix bestand auf SQL Server
+2019 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5`; beide Bursts
+pro Build zeigten die Waitüberlappung innerhalb des Kettenlesefensters und
+bestätigten 885 Zeilen sowie Datenbank-/Container-Cleanup. Die vorherigen
+Ein-Insert-pro-Actor-/693-Zeilenwerte in den historischen Abschnitten sind
+überholt. Der Status bleibt `METHOD_DRAFT`: XE ordnet Wait und Abfragefenster
+empirisch, macht mehrere DMV-Lesevorgänge aber nicht zu einem atomaren
+Snapshot. Gleichzeitige Page-Splits, Produktlast und Leistungswirkung sind
+nicht qualifiziert. Die frische serielle PR-Matrix und die Pflichtchecks
+stehen noch aus.

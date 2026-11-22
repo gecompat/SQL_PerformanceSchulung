@@ -95,5 +95,17 @@ Der Workflow
 führt die statischen Verträge auf Pull Requests aus und lässt die drei
 digest-gepinnten Runtime-Builds dort seriell laufen. `workflow_dispatch` kann
 dieselbe Matrix manuell erneut ausführen. Ein erfolgreicher Engineering-Pilot
-ändert den `METHOD_DRAFT`-Status nicht; unabhängiger Methodenreview,
-Demofreigabe und Leistungsqualifikation bleiben getrennte Gates.
+ändert den `METHOD_DRAFT`-Status nicht; Demofreigabe und
+Leistungsqualifikation bleiben getrennte Gates.
+
+Der Kettenleser wird vor der Actorfreigabe gestartet und wartet in derselben
+SQL-Session auf die Burstbarriere. XE erfasst zusätzlich markierte
+`sql_statement_starting`-/`sql_statement_completed`-Ereignisse für diesen
+synthetischen Batch. Ein Burst zählt nur, wenn zwei erfolgreiche exklusive
+`BUF`-Waits verschiedener Requests auf derselben Seite überlappen und ihre
+gemeinsame Waitzeit in das markierte Kettenlesefenster fällt. Die Kettenprüfung
+liest die zu diesem Zeitpunkt allozierten Blattkandidaten und bindet die
+Waitseite an Objekt, Index, Partition, Blattebene, terminalen Nachfolger und
+Vorgänger-Rücklink. Das ist eine geordnete empirische Klammer auf den drei
+konkreten Builds, keine atomare DMV-Snapshotgarantie und kein Nachweis für
+gleichzeitige Page-Splits.
