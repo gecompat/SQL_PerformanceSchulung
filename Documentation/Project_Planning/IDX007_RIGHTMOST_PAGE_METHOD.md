@@ -229,13 +229,18 @@ dieser Bindungen, liefert der Lauf `NOT_PROVEN`.
 Die angepasste Lastform verwendet 501 Seeds und eine Einfügung pro Actor je
 Burst. Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) verwenden
 `FILLFACTOR=100` mit 80 Actors; Build 17 (`17.0.5035.5`) verwendet
-`FILLFACTOR=10` mit 64 Actors. Das Build-17-Profil folgt der beobachteten
-Seitenteilung unter den 80 Actors, während eine kleinere Actorzahl lokal
-terminal blieb. Vor jedem Lauf werden Blattseitenzahl und freie Bytes physisch
-gemessen. Lokal bestanden beide Bursts auf allen drei Profilen: je zwei
-getrennte Wait-/Kettenklammern, 661 synthetische Zeilen auf Build 15/16 und
-629 auf Build 17 sowie bestätigtes Datenbank-/Container-Cleanup. Die
-Waitüberlappung lag jeweils innerhalb des markierten Kettenlesefensters.
+`FILLFACTOR=10` mit 56 Actors. Das Build-17-Profil folgt der beobachteten
+Seitenteilung bei 64 Actors; die Zwischenstufe soll mit weniger Inserts die
+Terminalseite halten und durch das geringere Füllziel genug Waits erzeugen.
+Vor jedem Lauf werden Blattseitenzahl und freie Bytes physisch
+gemessen. Lokal bestanden beide Bursts auf Build 15/16 mit je zwei getrennten
+Wait-/Kettenklammern und 661 synthetischen Zeilen. Das aktuelle Build-17-Profil
+bestand in zwei von drei gleich begrenzten Versuchen beide Bursts mit je zwei
+getrennten Wait-/Kettenklammern und 613 Zeilen; der dritte Versuch blieb
+fail-closed `NOT_PROVEN`, weil die beobachtete Waitseite nicht in der vorab
+erfassten Blattseitenmenge lag. Alle drei Versuche bestätigten Datenbank- und
+Container-Cleanup. Die erfolgreichen Waitüberlappungen lagen jeweils innerhalb
+des markierten Kettenlesefensters.
 
 Die serielle CI-Matrix wiederholt pro Build bis zu drei vollständige
 Engineeringläufe mit denselben Profilgrenzen. Jeder Versuch protokolliert

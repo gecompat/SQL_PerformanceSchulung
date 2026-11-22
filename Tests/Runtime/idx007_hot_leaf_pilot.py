@@ -17,7 +17,7 @@ PROFILES = {
     17: ("17.0.5035.5", "sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f"),
 }
 DB = "SQLPERF_LAB_IDX007_PENDING"
-ACTOR_COUNTS = {15: 80, 16: 80, 17: 64}
+ACTOR_COUNTS = {15: 80, 16: 80, 17: 56}
 FILLFACTORS = {15: 100, 16: 100, 17: 10}
 ROWS_PER_BURST = 1
 
@@ -483,6 +483,12 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
                         and tuple(values[14:16]) == address and values[16] > 1):
                     valid.append((address, values))
             if not valid:
+                for wait_address in sorted(wait_addresses):
+                    observed = meta_rows.get(wait_address)
+                    if observed is None:
+                        print(f"WAIT_PAGE_META|stage={stage}|page={wait_address[0]}:{wait_address[1]}|captured=0")
+                    else:
+                        print(f"WAIT_PAGE_META|stage={stage}|page={wait_address[0]}:{wait_address[1]}|captured=1|object={observed[2]}|index={observed[3]}|partition={observed[4]}|level={observed[5]}|next={observed[8]}:{observed[9]}|prev={observed[6]}:{observed[7]}")
                 print(f"NOT_PROVEN|stage={stage}|wait-overlap-page-not-terminal-for-target-index")
                 return 2
             valid.sort(key=lambda item: (-sum(1 for left, right in overlaps

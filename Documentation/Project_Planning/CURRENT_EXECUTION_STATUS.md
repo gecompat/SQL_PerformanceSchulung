@@ -14493,12 +14493,15 @@ Index, Partition, Blattebene, terminalem Nachfolger und Vorgänger-Rücklink
 Die aktuelle Form verwendet 501 Seeds und ein Insert pro Actor und Burst.
 Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) nutzen
 `FILLFACTOR=100` mit 80 Actors; Build 17 (`17.0.5035.5`) nutzt
-`FILLFACTOR=10` mit 64 Actors, da 80 Actors dort im CI eine nichtterminale
+`FILLFACTOR=10` mit 56 Actors, da 64 Actors dort im CI eine nichtterminale
 Waitseite ergaben. Blattzahl und freier Platz bleiben ein physisches
-Vorab-Gate. Lokal bestanden beide Bursts auf allen Profilen mit 661 Zeilen
-auf Build 15/16 und 629 auf Build 17 sowie bestätigtem Datenbank-/Container-
-Cleanup. Frühere CI-Versuche mit 64 Actors und `FILLFACTOR=100` lieferten auf
-SQL Server 2019 keine überlappenden Waits; 80×1 und 96×1/96×2 trafen in
+Vorab-Gate. Lokal bestanden beide Bursts auf Build 15/16 mit 661 Zeilen. Das
+aktuelle Build-17-Profil bestand in zwei von drei gleich begrenzten Versuchen
+beide Bursts mit 613 Zeilen; der dritte Lauf blieb fail-closed `NOT_PROVEN`,
+weil die beobachtete Waitseite nicht in der vorab erfassten Blattseitenmenge
+lag. Alle drei Läufe bestätigten Datenbank-/Container-Cleanup. Frühere
+CI-Versuche mit 64 Actors und `FILLFACTOR=100` lieferten auf SQL Server 2019
+keine überlappenden Waits; 80×1 und 96×1/96×2 trafen in
 einzelnen Builds auf Seitensplits. Die aktuelle CI-Matrix erlaubt je Build
 höchstens drei vollständige, gleich begrenzte Versuche und verlangt mindestens
 einen erfolgreichen Zweiburstnachweis; alle `NOT_PROVEN`-Versuche bleiben im

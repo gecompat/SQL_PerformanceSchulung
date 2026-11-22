@@ -603,7 +603,7 @@ derselben Seite, die in das Kettenlesefenster fällt, sowie bestätigte
 Terminalseite und Vorgänger-Rücklink für genau diese Seite. Die Lastform ist
 501 Seeds und ein Insert je Actor/Burst. Build 15/16 verwenden lokal
 `FILLFACTOR=100` mit 80 Actors (661 Zeilen); Build 17 verwendet
-`FILLFACTOR=10` mit 64 Actors (629 Zeilen); Cleanup bestand. Frühere
+`FILLFACTOR=10` mit 56 Actors (613 Zeilen); Cleanup bestand. Frühere
 `FILLFACTOR=100`-CI-Formen mit 64 Actors verfehlten SQL 2019-Waits; 80×1 und
 96-Actor-Varianten trafen einzelne Seitensplits. Die CI-Matrix führt je Build
 höchstens drei vollständige Versuche aus, verlangt mindestens einen

@@ -112,7 +112,7 @@ gleichzeitige Page-Splits.
 
 Der Pilot verwendet je Build eine konkret erprobte Indexform: SQL Server
 2019/2022 verwenden 501 Seeds, `FILLFACTOR=100` und 80 Actors; SQL Server
-2025 verwendet 501 Seeds, `FILLFACTOR=10` und 64 Actors. Je Actor erfolgt ein
+2025 verwendet 501 Seeds, `FILLFACTOR=10` und 56 Actors. Je Actor erfolgt ein
 Insert pro Burst. Die physische Vorabprüfung bindet Seitenzahl und Reserve an
 den tatsächlichen Lauf. Der geforderte Wait- und Terminalnachweis bleibt für
 jeden Build unverändert.
