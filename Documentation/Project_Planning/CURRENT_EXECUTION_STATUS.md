@@ -14457,3 +14457,14 @@ decken verschachtelte Eventfolgen trotz abweichender gerundeter Zeitwerte sowie
 doppelte Sequenzwerte ab. Diese Korrektur und die frische Drei-Build-Matrix
 laufen in [PR #1146](https://github.com/gecompat/SQL_PerformanceSchulung/pull/1146);
 bis zu deren grüner Runtime-Prüfung bleibt die Matrixkorrektur offen.
+
+Die neue PR-Matrix deckte danach eine zweite Lastformgrenze auf: Auf SQL Server
+2019 waren die Stage-2-Waits nach 48×3 Inserts nicht mehr auf einer terminalen
+Seite, weil der Burst die Blattseite aufgeteilt hatte. Der Erheber lieferte
+korrekt `NOT_PROVEN`. Die Last verwendet nun 48 Actors mit je einem Insert pro
+Burst (48 Inserts je Burst). Die lokale isolierte Matrix bestand erneut auf
+SQL Server 2019, 2022 und 2025: je sechs Blattseiten, zwei per Eventsequenz
+bestätigte Wait-/Kettenaufnahmen, 596 Zeilen sowie bestätigtes Datenbank- und
+Container-Cleanup. Die frische PR-Matrix für diese einzelne-Insert-Lastform
+steht noch aus; die Metadatenaufnahme bleibt nicht atomar zum exakten
+Waitzeitpunkt.

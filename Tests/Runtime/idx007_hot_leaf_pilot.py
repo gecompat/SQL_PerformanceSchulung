@@ -18,7 +18,7 @@ PROFILES = {
 }
 DB = "SQLPERF_LAB_IDX007_PENDING"
 ACTORS = 48
-ROWS_PER_BURST = 3
+ROWS_PER_BURST = 1
 
 
 class PilotError(RuntimeError):

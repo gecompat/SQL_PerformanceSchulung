@@ -165,7 +165,7 @@ ergeben keinen Nachweis.
 Der Pilot lädt 500 Seedzeilen und baut den Zielindex vor den Actor-Requests mit
 `FILLFACTOR=20` neu auf; damit weist die Zielpartition vor der Last mehrere
 Blattseiten und reservierten Platz am rechten Rand auf. Er lässt 48 Actors je
-3 Einfügungen in zwei getrennten Bursts ausführen. Nach dem ersten Burst sind
+eine Einfügung in zwei getrennten Bursts ausführen. Nach dem ersten Burst sind
 alle Actor-Inserts beendet; danach prüft der Pilot die per
 `sys.dm_db_page_info` gelesene Zielseite und ihren
 Vorgänger-Rücklink. Erst danach startet der zweite Burst. Jeder Burst muss
@@ -182,13 +182,13 @@ Semantik bleibt ein Review- und Qualifikationsgate.
 
 Auf den isolierten, digest-gepinnten Builds SQL Server 2019
 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5` bestand je ein
-identischer 48×3-Lauf. Der Pilot bestätigte auf jedem Build die konkrete
+identischer 48×1-Lauf. Der Pilot bestätigte auf jedem Build die konkrete
 Produktversion und Compatibility Level (150, 160, 170); jeder Rebuild ergab
 sechs Blattseiten. Beide Burstcaptures bestanden jeweils mit einer nach dem
 Burst bestätigten terminalen Seite und korrektem Vorgänger-Rücklink. Die
 physische Seite kann sich nach einer Aufteilung ändern. Die genauen
 Seitenadressen und Wartezeiten sind lauflokale Diagnosedaten und werden nicht
-als Produkt- oder Performancewerte verallgemeinert. Je Lauf wurden 788
+als Produkt- oder Performancewerte verallgemeinert. Je Lauf wurden 596
 synthetische Zeilen bestätigt und Testdatenbank, XE-Sitzungen und eigener
 Container entfernt. Die pro Lauf benannte Datenbank trug die vier
 Framework-Ownershipmarker; der Cleanup prüfte sie vor dem Entfernen.
