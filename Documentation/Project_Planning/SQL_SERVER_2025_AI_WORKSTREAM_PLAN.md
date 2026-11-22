@@ -350,10 +350,12 @@ SQL2025-Matrixeintrag auf den tatsächlich erfolgreichen RegistryDigest.
 keine SKIP- oder FAIL-Umdeutung und kein unveränderter CI-Rerun. Source4-Freeze,
 Rootreview, 20 Methodeninvokationen/acht gehaltene Testprozesse sowie die beiden
 Original-CI-Logs bleiben erhalten. Keine lokale Purewiederholung oder neue
-Domainaufrufe. Jetzt sechs von sechs Quellenständen/Hard6, kein Reset oder
-Source7. Die neue geänderte CI-Eingabe erhält aktuelle Head-/Main-Gates vor
-Integration; PR244 bleibt bis dahin ungemergt. Öffentliche Rollenruntime und
-vollständige Demo-/Server-/TDS-/TP-PERF-Abnahme bleiben NOT_ESTABLISHED.
+Domainaufrufe. Sechs von sechs Quellenständen/Hard6 sind erreicht; es gibt
+keinen Reset und keinen Source7. PR244 integrierte diese CI-Eingabekorrektur
+mit Merge-Commit `3a558cf045f3a78d818dd28c4031eecfc0b592eb`; alle zwölf dort
+gemeldeten PR-Checks bestanden. Das schließt den Source-only-Schnitt, aber
+öffentliche Rollenruntime und vollständige Demo-/Server-/TDS-/TP-PERF-Abnahme
+bleiben `NOT_ESTABLISHED`.
 
 ## TSK-009: reiner Poolchild-Capture nach vollständigem PR242-Abschluss
 
