@@ -14192,7 +14192,32 @@ Arbeitsfassung adressiert und unabhängig nachgeprüft sind:
   Felder erzwingt, ist der Kandidat unter der geltenden Datenschutzgrenze
   unbrauchbar. Verlust-, Cleanup- und Markerbuilds bleiben ungeprüft.
 
-Die unabhängigen Draftreviews sind abgeschlossen; alle drei Statuswerte bleiben
-`METHOD_DRAFT`/`PROPOSED`, sämtliche Engine-/Build-/Runtimegates bleiben offen
-und es wurde keine XE-Session oder SQL-Probe gestartet. Die Reviews ersetzen
-weder die spätere buildgebundene Methodenfreigabe noch Empirie.
+Zum Zeitpunkt des unabhängigen Draftreviews waren alle drei Statuswerte
+`METHOD_DRAFT`/`PROPOSED`; es war weder eine XE-Session noch eine SQL-Probe
+freigegeben. Die Reviews ersetzen weder die spätere buildgebundene
+Methodenfreigabe noch Empirie.
+
+## DGN-007 Kataloginventur – 22. November 2026
+
+Der unabhängige Methodenreview ist in PR #1130 auf `origin/main` integriert.
+Darauf aufbauend ist ein getrennter, read-only Kataloginventurpfad für die
+Extended-Events-Metadaten (XE) vorbereitet. Der manuelle GitHub-Actions-Workflow
+verwendet je einen gepinnten SQL-Server-2019-, 2022- und 2025-Build, führt die
+Buildjobs seriell aus und liest nur Engineidentität sowie Eventfeld- und
+Actionnamen. Er erzeugt keine Datenbank, keine XE-Session und keinen
+Eventpayload. Die Ergebnisse werden als Metadatenartefakte drei Tage
+aufbewahrt.
+
+Lokale Läufe auf den drei festgebundenen Images endeten vor SQL-Readiness;
+keiner erreichte eine Katalogabfrage. Das ist kein Produktbefund. Der nächste
+Schritt ist der PR mit statischem Vertragscheck; nach erfolgreicher Integration
+wird der manuelle Drei-Build-Lauf einmal auf frischen Runnern gestartet. Auf
+Pull Requests und `main` laufen nur der statische Validator und seine sieben
+Parserregressionen; der teure Containerlauf ist ausschließlich manuell und
+seriell. Workflowzeit und Artefaktumfang sind damit begrenzt; eine belastbare
+Zeitmessung liegt noch nicht vor.
+
+DGN-007 bleibt `METHOD_BLOCKED`. Erst nach erfolgreichen Inventaren werden
+Payload-Allowlist, Ereignisverlust, Markerordnung, Hashkardinalität und Cleanup
+buildweise geprüft. Keine XE-Session, Messdemo oder Messbehauptung ist Teil
+dieses Schnitts.

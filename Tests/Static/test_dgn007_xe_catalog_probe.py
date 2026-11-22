@@ -1,0 +1,101 @@
+"""Regression tests for the DGN-007 XE catalog probe contract."""
+from __future__ import annotations
+
+import importlib.util
+from pathlib import Path
+import sys
+import unittest
+
+
+ROOT = Path(__file__).resolve().parents[2]
+MODULE_PATH = ROOT / "Tests/Runtime/dgn007_xe_catalog_probe.py"
+SPEC = importlib.util.spec_from_file_location("dgn007_xe_catalog_probe", MODULE_PATH)
+assert SPEC is not None and SPEC.loader is not None
+probe = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = probe
+SPEC.loader.exec_module(probe)
+
+
+def inventory() -> str:
+    return "\n".join((
+        "DGN007_XE|ENGINE|17|17.0.5035.5|Developer Edition (64-bit)",
+        "DGN007_XE|EVENT|sql_statement_starting|statement:data,source_database_id:data",
+        "DGN007_XE|EVENT|sql_statement_completed|statement:data,duration:data",
+        "DGN007_XE|ACTION|package0|event_sequence",
+        "DGN007_XE|ACTION|sqlserver|database_id",
+        "DGN007_XE|ACTION|sqlserver|session_id",
+        "DGN007_XE|END|1",
+    ))
+
+
+class Dgn007XeCatalogProbeTests(unittest.TestCase):
+    def test_catalog_inventory_binds_exact_engine_and_retains_payload_field_names(self) -> None:
+        result = probe.parse_catalog_output(
+            inventory(), expected_major=17, expected_version="17.0.5035.5"
+        )
+        self.assertEqual(result["product_major_version"], 17)
+        self.assertIn("statement:data", result["events"]["sql_statement_starting"])
+        self.assertEqual(result["available_actions"][0], {
+            "package": "package0", "name": "event_sequence",
+        })
+        self.assertIn("no XE session", result["scope"])
+
+    def test_wrong_or_missing_engine_identity_is_rejected(self) -> None:
+        for output in (
+            inventory().replace("17|17.0.5035.5", "16|16.0.4305.5"),
+            inventory().replace("DGN007_XE|ENGINE|17|17.0.5035.5|Developer Edition (64-bit)\n", ""),
+        ):
+            with self.subTest(output=output[:60]), self.assertRaises(probe.ProbeError):
+                probe.parse_catalog_output(output, expected_major=17, expected_version="17.0.5035.5")
+
+    def test_missing_required_event_is_rejected(self) -> None:
+        output = inventory().replace(
+            "DGN007_XE|EVENT|sql_statement_starting|statement:data,source_database_id:data\n", ""
+        )
+        with self.assertRaisesRegex(probe.ProbeError, "event metadata"):
+            probe.parse_catalog_output(output, expected_major=17, expected_version="17.0.5035.5")
+
+    def test_unexpected_action_or_malformed_field_is_rejected(self) -> None:
+        for output in (
+            inventory() + "\nDGN007_XE|ACTION|sqlserver|input_buffer",
+            inventory().replace("statement:data", "statement:payload"),
+        ):
+            with self.subTest(output=output[-70:]), self.assertRaises(probe.ProbeError):
+                probe.parse_catalog_output(output, expected_major=17, expected_version="17.0.5035.5")
+
+    def test_output_is_bounded(self) -> None:
+        with self.assertRaisesRegex(probe.ProbeError, "bounded"):
+            probe.parse_catalog_output(
+                inventory() + ("x" * probe.MAX_SQL_OUTPUT_BYTES),
+                expected_major=17,
+                expected_version="17.0.5035.5",
+            )
+
+    def test_truncated_or_unknown_output_is_rejected(self) -> None:
+        for output in (
+            inventory().replace("DGN007_XE|END|1", ""),
+            inventory().replace("DGN007_XE|END|1", "DGN007_XE|OTHER|unexpected"),
+        ):
+            with self.subTest(output=output[-70:]), self.assertRaises(probe.ProbeError):
+                probe.parse_catalog_output(output, expected_major=17, expected_version="17.0.5035.5")
+
+    def test_password_contains_required_character_classes(self) -> None:
+        for _ in range(100):
+            password = probe._password()
+            self.assertEqual(len(password), 32)
+            self.assertRegex(password, r"[A-Z]")
+            self.assertRegex(password, r"[a-z]")
+            self.assertRegex(password, r"[0-9]")
+            self.assertIn("!", password)
+
+    def test_profile_is_exactly_bound_to_the_shared_digest_lock(self) -> None:
+        expected_versions = {15: "15.0.4500.2", 16: "16.0.4305.5", 17: "17.0.5035.5"}
+        for major, version in expected_versions.items():
+            with self.subTest(major=major):
+                self.assertEqual(probe.load_profile(major)["product_version_label"], version)
+        with self.assertRaises(probe.ProbeError):
+            probe.load_profile(18)
+
+
+if __name__ == "__main__":
+    unittest.main()

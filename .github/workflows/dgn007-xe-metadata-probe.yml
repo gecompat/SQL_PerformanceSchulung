@@ -1,0 +1,75 @@
+name: DGN-007 XE metadata inventory
+
+on:
+  pull_request:
+    paths:
+      - 'Documentation/Project_Planning/DGN_007_XE_WINDOW_ATTRIBUTION_METHOD.md'
+      - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
+      - 'Documentation/Research/SOURCE_REGISTER.md'
+      - 'Tests/Runtime/dgn007_xe_catalog_probe.*'
+      - 'Tests/Static/validate_dgn007_xe_catalog_probe.py'
+      - 'Tests/Static/test_dgn007_xe_catalog_probe.py'
+      - '.github/workflows/dgn007-xe-metadata-probe.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Documentation/Project_Planning/DGN_007_XE_WINDOW_ATTRIBUTION_METHOD.md'
+      - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
+      - 'Documentation/Research/SOURCE_REGISTER.md'
+      - 'Tests/Runtime/dgn007_xe_catalog_probe.*'
+      - 'Tests/Static/validate_dgn007_xe_catalog_probe.py'
+      - 'Tests/Static/test_dgn007_xe_catalog_probe.py'
+      - '.github/workflows/dgn007-xe-metadata-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dgn007-xe-metadata-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  static-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate metadata-only probe boundary
+        run: python Tests/Static/validate_dgn007_xe_catalog_probe.py
+      - name: Run catalog parser regressions
+        run: python Tests/Static/test_dgn007_xe_catalog_probe.py
+
+  runtime-inventory:
+    needs: static-contract
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        major: ['15', '16', '17']
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Run digest-pinned metadata inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          python Tests/Runtime/dgn007_xe_catalog_probe.py \
+            --product-major-version '${{ matrix.major }}' \
+            | tee "${RUNNER_TEMP}/dgn007-xe-catalog-${{ matrix.major }}.json"
+      - name: Upload bounded metadata inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dgn007-xe-catalog-sqlserver-${{ matrix.major }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/dgn007-xe-catalog-${{ matrix.major }}.json
+          if-no-files-found: warn
+          retention-days: 3

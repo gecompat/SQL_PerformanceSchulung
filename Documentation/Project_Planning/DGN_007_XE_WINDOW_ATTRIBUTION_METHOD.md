@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `METHOD_DRAFT` – keine Änderung an SQL, Demo oder Runtime freigegeben |
+| Status | `METHOD_DRAFT` – kein Mess-/Demo-Lifecycle und keine XE-Session freigegeben; getrennte read-only Kataloginventur ist begrenzt autorisiert |
 | Zweck | Prüfen, ob per-Request-Zeitgrenzen durch eine eigene, sequenzierte XE-Evidenzspur ersetzt werden können |
 | Bestehender Vertrag | Unverändert; kein G13-Ursachen- oder Mitigationsclaim |
 | Quellen | `SRC-027`, `SRC-031`, `SRC-163`; Microsoft Query Store-, XE- und DMV-Dokumentation |
@@ -96,17 +96,43 @@ als Qualifikationsbedingungen, nicht als zugesicherte Produkteigenschaften.
 - Jede Unvollständigkeit, Mehrdeutigkeit, nicht unterstützte Feldstruktur,
   Hashkollision oder Actorabweichung ist `NOT_PROVEN`, nicht `PASS`.
 
-## Gates vor Implementierung
+## Begrenzte Kataloginventur
+
+Die erste technische Stufe liest ausschließlich sys.dm_xe_objects,
+sys.dm_xe_object_columns, sys.dm_xe_packages und die Engine-Identität. Sie
+erfasst Feld- und Actionnamen für sql_statement_starting sowie
+sql_statement_completed. Sie erzeugt weder Datenbank noch XE-Session,
+erfasst keine Eventpayload, verändert kein Query Store und führt kein
+Actor-Workload aus. Der SQL-Text und seine Prüfgrenzen liegen in
+[dgn007_xe_catalog_probe.sql](../../Tests/Runtime/dgn007_xe_catalog_probe.sql)
+und [dgn007_xe_catalog_probe.py](../../Tests/Runtime/dgn007_xe_catalog_probe.py).
+Der Workflow validiert diese Grenze auf Pull Requests und main; die tatsächlichen
+Buildinventare laufen ausschließlich manuell und seriell auf gepinnten Images.
+
+Lokale Vorversuche auf Docker Desktop für alle drei Image-Digests endeten vor
+dem SQL-Ready-Signal (Produktbuilds 15.0.4500.2, 16.0.4305.5 und 17.0.5035.5;
+korrigierte Versuche mit Exitstatus 1 und OOMKilled=false). Die Images liefen
+in eigenen, begrenzten Containern auf einer internen Bridge ohne Ports oder
+Mounts. Die Startlogs enthielten Hinweise zu verweigertem /proc- und dmesg-
+Zugriff sowie fehlendem journalctl, belegen diese Hinweise aber nicht als
+Ursache. Jeder gestartete Container und das zugehörige Netzwerk wurden
+eigentumsgeprüft entfernt. Es wurde nur der Ready-Check SELECT 1 versucht;
+die Katalogabfrage und eine XE-Session liefen nicht. Die lokale Engineprobe ist
+damit NOT_PROVEN.
+
+## Gates vor Messvertragsimplementierung
 
 Der unabhängige Methodenreview vom 22. November 2026 prüfte den geänderten
 Countvertrag, Fenster-/Requestbindung, Payloadschutz und Cleanupentwurf; nach
 den Korrekturen fand die Nachprüfung keine offenen P1/P2 im Draft. Das ist keine
-Freigabe des Messvertrags oder eines Builds. Jeder Zielbuild benötigt weiterhin
-eine separat freizugebende read-only Katalog-/Einzelereignisprobe in einer
-eigenen Instanz. Erst wenn alle Builds dieselben Pflichtfelder bereitstellen
-und die Loss-/Cleanupgrenzen eingehalten werden, darf ein neuer eng begrenzter
-Lifecycle-Entwurf geprüft werden. Es gibt hier keine SQL-Abfrage, keine
-XE-Session, keine neue Demo-ID und keine Runtimeausführung.
+Freigabe des Messvertrags oder eines Builds. Der manuelle frische-Runner-Job
+führt die begrenzte read-only Kataloginventur einmal je Build aus und liefert
+nur Engineidentität sowie Metadatenfeldnamen als kurzlebiges CI-Artefakt. Erst
+nach bestätigter Feld-/Action-Allowlist auf allen Builds darf ein separater
+Einzelereignis-/Datenschutzcheck folgen. Ereignisordnung, Verlust,
+Hashkardinalität, Query-Store-Sichtbarkeit und Cleanup bleiben weitere Gates.
+Eine Kataloginventur allein startet weder eine XE-Session noch einen
+Mess-Lifecycle, vergibt keine Demo-ID und qualifiziert keine Runtime.
 
 ## Quellen
 
