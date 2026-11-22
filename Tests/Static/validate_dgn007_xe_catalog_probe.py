@@ -57,6 +57,8 @@ def validate() -> list[str]:
     if ("sum(convert(int, has_statement))" not in payload_sql
             or "sum(convert(int, has_statement_text))" not in payload_sql):
         errors.append("privacy gate must convert XML presence bits before SQL aggregation")
+    if not re.search(r"set quoted_identifier on;.*?\.nodes\(", payload_sql):
+        errors.append("privacy probe must enable QUOTED_IDENTIFIER before XML methods")
     if "select @synthetic_marker = convert(int, 7)" not in payload_sql:
         errors.append("privacy probe must use only its fixed synthetic statement")
     if "sql_statement_starting" not in sql or "sql_statement_completed" not in sql:
