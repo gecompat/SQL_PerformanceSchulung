@@ -570,6 +570,25 @@ keine Toleranzänderung, kein Bypass und keine Wiederholung derselben Probe.
 Aktueller Beleg und Grenzen stehen im [DGN-007-Capture-Nachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md#verbleibende-abnahmegrenzen)
 und im [Ausführungsstatus](CURRENT_EXECUTION_STATUS.md).
 
+### Ausführungsplan für DGN-007, CON-006 und IDX-007 (22. November 2026)
+
+Die drei Arbeitspakete laufen in dieser Reihenfolge. Jeder abgeschlossene
+Offline-/Dokumentationsschnitt wird geprüft und über PR nach `origin/main`
+integriert; an einem offenen Methoden- oder Quellenblocker wird die betreffende
+Variante angehalten und mit dem nächsten Paket fortgefahren.
+
+| Reihenfolge | Konkreter Arbeitsschnitt | Abschlusskriterium vor Runtime | Nächster Schritt / Grenze |
+|---|---|---|---|
+| 1. DGN-007 Zeitzuordnung | Quellengebundener Vergleich der vorhandenen G13-Kriterien mit Alternativen: gemeinsamer Zeitgeber, Query-Store-Intervallzuordnung und populationsbasierte Query-/Plan-/Ausführungszählung. Für jede Alternative werden die belegten Felder, erforderliche SQL-/Abfrageänderungen und Gegenfälle festgehalten. | Eine Methode ordnet alle erforderlichen Query-Store-Ausführungen einer Requestpopulation ohne unbelegte tickgenaue Uhrenannahme zu und erhält Ergebnis-, Plan- und Countoracles; andernfalls ist der Befund ein expliziter Methodenblocker mit dem zusätzlich nötigen Entscheidungsumfang. | Keine Toleranzlockerung, kein unveränderter Wiederholungslauf und keine Runtimeänderung vor einem prüffähigen Methodenentwurf und unabhängiger Prüfung. Bei Blocker weiter zu CON-006. |
+| 2. CON-006 Range | Gemeinsame Delta-Prüfung von Range-Graph, Capturekorrelation und seriellem Kontrollarm gegen den Methodenentwurf und die bisherigen Konversions- und Rangeverträge. Festgehalten werden Prozess-/Opfer-/Survivorbindung, dieselbe KEY-Ressource, gemeldete Sperrmodi, Fehler 1205, Endbestände, Datenbank-/XE-Eigentum und Cleanup. | Der unabhängige Review bestätigt die Hypothese, alle Pflichtbelege und den begrenzten Pilot-/Cleanupvertrag ohne offene kritische Befunde; ein abweichender Enginegraph führt kontrolliert zu `NOT_PROVEN` oder `FAIL`. | Danach höchstens der getrennt freigegebene eigene Buildpilot mit vollständiger eigener Datenbank-/XE-/Prozessabwesenheit. Keine Änderung am qualifizierten Grund- oder Konversionsfall. |
+| 3. IDX-007 rechte Blattseite | Methodenentwurf gegen aktuelle Herstellerquellen und den implementierten Kettenchecker abgleichen: `page_resource`, Zielseite, Partition, Vor-/Rücklinks, Terminalsemantik, Split-/Änderungsrisiko, Wait-Klammer, Rechte, Seitenkappe und Abbruchstatus. | Der Review identifiziert einen versionsgebundenen Terminalnachweis und akzeptiert die begrenzte nichtatomare Beobachtung samt konkurrierender Änderungen; ein nicht belegter Terminalmarker bleibt `NOT_PROVEN`. | Erst danach eine read-only Probe in einer eigenen wegwerfbaren Datenbank/Instanz, mit frischer Eigentumsbindung und unabhängigem Cleanupbeleg. Kein Last- oder Leistungsclaim aus einer Seitenkette allein. |
+
+Der Plan erteilt keine neue Laufzeitfreigabe. Gegenwärtig beginne ich mit dem
+Quellenvergleich in Paket 1 und der Vorbereitung der Delta-Reviewlisten für
+Pakete 2 und 3. Für den benötigten unabhängigen Methodenreview bleibt ein
+separater Prüfer erforderlich; der Implementierungsautor zählt dafür nicht als
+unabhängige Abnahme.
+
 PR #424 bindet beim QRY-023-Proposed-Harness Phasenscript, Zieldatenbank,
 Zeitlimits, Cleanup und Gesamtbudgets. PR #426 ergänzt `Reads` und `Writes` als
 Pflichtfelder und gepaarte Statistikmetriken neben CPU, Logical Reads und

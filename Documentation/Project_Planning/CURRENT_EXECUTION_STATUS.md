@@ -14051,3 +14051,40 @@ bestanden. Das authentifiziert keine Seitenmetadaten und bestimmt keine reale
 Terminalsemantik. Unabhängiger Methodenreview bleibt Voraussetzung für eine
 ausführbare read-only Probe; Workloadvergleich und Runtimequalifikation bleiben
 getrennte Gates.
+
+## Fortsetzung: DGN-007, CON-006 und IDX-007 geplant und begonnen (22. November 2026)
+
+Der neue [Ausführungsplan](NEXT_DEVELOPMENT_WAVES.md#ausführungsplan-für-dgn-007-con-006-und-idx-007-22-november-2026)
+ordnet die nächsten Arbeitspakete: DGN-007-Quellenvergleich, danach
+CON-006-Range-Reviewpaket und IDX-007-Methoden-/Terminalsemantikprüfung.
+Bei einem echten Methodenblocker wird die betroffene Variante zurückgestellt
+und mit dem nächsten Paket fortgefahren.
+
+Der DGN-007-Quellenvergleich fand in den geprüften Microsoft-Primärquellen
+keinen gemeinsamen tickgenauen Clockvertrag zwischen Query-Store-Endzeiten und
+`SYSUTCDATETIME()`. Alleinige Intervallzuordnung verliert bei gemeinsam
+aggregierten Query-/Plan-/Intervallschlüsseln die `WindowId`; Countdifferenzen
+verfügen ohne eigenen Sichtbarkeits-/Drainvertrag über keinen belegten
+atomaren Requestabschluss; eindeutige Queryidentitäten pro Population würden
+den bestehenden Query-/Planvertrag verändern müssen. Das ist ein
+methodischer Zwischenbefund, keine historische G13-Ursachenfeststellung und
+keine Entscheidung gegen einen später geänderten Messvertrag. Aktueller Stand:
+`METHOD_BLOCKED`; keine SQL-/Runtimeausführung und keine Änderung von DEC-072.
+Details und Quellen stehen im [G13-Quellenvergleich](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md#quellenvergleich-für-einen-möglichen-g13-gegenentwurf-22-november-2026).
+
+Für CON-006 bleibt die gelieferte Rangehypothese eine `PROPOSED`-Variante:
+der unabhängige Delta-Methodenreview muss insbesondere denselben KEY-/HoBT-
+Bezug, tatsächliche Lockmodi, Opfer/Survivor, den actorgebundenen seriellen
+Kontrollarm sowie Datenbank-/XE-Eigentum und Cleanup bestätigen. Für IDX-007
+bestätigen die aktuellen Quellen die verfügbaren Seitenheader- und
+Nachbarseitenfelder, liefern aber keinen atomaren Traversal- oder expliziten
+Terminalvertrag; der unabhängige Review muss deshalb Split-/Änderungsrisiko,
+Endmarker, Seitenlimit, Rechte und die begrenzte Aussage des Wait-Rands
+freigeben. Die Enginepiloten beider Varianten bleiben bis zum jeweiligen
+Review und vollständigen eigenen Cleanupvertrag gesperrt.
+
+Betroffene Prüfungen dieses Plans: DGN-007 Capture-Validator, IDX-007
+Ketten-/Lehrabfragevalidatoren, Repository-Continuity und statische
+CON-006-/IDX-007-/DGN-007-Regressionen bestanden. Die breite
+DGN-007-Projektionstestsuite enthält einen bestehenden Skip; dadurch wird
+keine zusätzliche Engine- oder Runtimeabnahme behauptet.
