@@ -14116,3 +14116,15 @@ Duplikate und mehrere gültige Tasks ab. Die IDX-007-Suite besteht mit 19 Tests;
 Lesson-query validator und Repository-Continuity bestehen. Die Werte bleiben
 caller-geliefert und unauthentifiziert. Der unabhängige Methodenreview,
 Terminalsemantik und read-only Enginepilot bleiben offen.
+
+### CON-006 – Rangegraph auf gegenseitige Sperrinkompatibilität prüfen (22. November 2026)
+
+Der Abgleich mit der in `SRC-004` dokumentierten SQL-Server-Kompatibilitätsmatrix
+zeigte eine False-PASS-Lücke: Der Rangegraphprüfer akzeptierte beliebige nichtleere
+Modusnamen, obwohl der Methodenentwurf einen geschlossenen Wait-Zyklus verlangt.
+Der Prüfer prüft nun für beide Actors die Inkompatibilität des angeforderten
+Modus mit einer vom jeweils anderen Actor gehaltenen Sperre. Der begrenzte
+Modusumfang folgt der dokumentierten Matrix; unbekannte Modi scheitern geschlossen.
+Regressionen decken gegenseitig inkompatible, kompatible und unbekannte
+Moduswerte ab. Das stärkt nur die Prüfung caller-gelieferter XML-Form; Herkunft,
+reale Waits, unabhängiger Methodenreview und isolierter Enginepilot bleiben offen.

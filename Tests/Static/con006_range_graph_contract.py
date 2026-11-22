@@ -17,6 +17,19 @@ from Tests.Static.con006_conversion_graph_contract import (
 )
 
 
+# SQL Server's documented compatibility matrix for common and key-range modes.
+# Unknown modes fail closed: their presence in XML does not prove a wait edge.
+_COMPATIBLE: dict[str, frozenset[str]] = {
+    "S": frozenset({"S", "U", "RangeS-S", "RangeS-U", "RangeI-N"}),
+    "U": frozenset({"S", "RangeS-S", "RangeI-N"}),
+    "X": frozenset({"RangeI-N"}),
+    "RangeS-S": frozenset({"S", "U", "RangeS-S", "RangeS-U"}),
+    "RangeS-U": frozenset({"S", "RangeS-S"}),
+    "RangeI-N": frozenset({"S", "U", "X", "RangeI-N"}),
+    "RangeX-X": frozenset(),
+}
+
+
 @dataclass(frozen=True)
 class RangeControlEvidence:
     """Caller-supplied serial-control observations; not source-authenticated."""
@@ -246,6 +259,23 @@ def evaluate_range_graph(graph_xml: str | bytes | None,
                     or not (waiter.get("mode") or "").strip()
                     or not (waiter.get("requestType") or "").strip()):
                 failures.append("each KEY waiter must identify an actor, observed mode, and request type")
+        if (len(owners) == 2 and len(waiters) == 2
+                and set(node.get("id") for node in owners) == set(process_by_id)
+                and set(node.get("id") for node in waiters) == set(process_by_id)):
+            owner_modes = {node.get("id"): node.get("mode") for node in owners}
+            waiter_modes = {node.get("id"): node.get("mode") for node in waiters}
+            modes = (*owner_modes.values(), *waiter_modes.values())
+            if any(mode not in _COMPATIBLE for mode in modes):
+                failures.append("graph contains a lock mode outside the documented compatibility profile")
+            else:
+                # Each actor must request a mode incompatible with a mode held
+                # by the other actor; arbitrary nonempty labels cannot imply a cycle.
+                for actor_id, other_id in ((actor_id, other_id)
+                                           for actor_id in process_by_id
+                                           for other_id in process_by_id
+                                           if actor_id != other_id):
+                    if waiter_modes[actor_id] in _COMPATIBLE[owner_modes[other_id]]:
+                        failures.append("observed lock modes do not prove reciprocal blocking")
     if failures:
         return GraphResult(Verdict.FAIL, tuple(failures))
     return GraphResult(Verdict.PASS, (), process_by_id[victim_id])
