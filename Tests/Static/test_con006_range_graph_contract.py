@@ -84,6 +84,7 @@ class RangeGraphContractTests(unittest.TestCase):
                             ActorOutcome("ACTOR_B", 52, "SUCCESS", None)),
             expected_initial_keys=(10, 90), expected_insertions=(("ACTOR_A", 30), ("ACTOR_B", 70)),
             observed_final_keys=(10, 30, 70, 90), matching_deadlock_event_count=0,
+            observed_insertions=(("ACTOR_A", 30), ("ACTOR_B", 70)),
         )
         self.assertEqual(evaluate_range_control(evidence).verdict, Verdict.PASS)
 
@@ -93,9 +94,11 @@ class RangeGraphContractTests(unittest.TestCase):
             (ActorOutcome("ACTOR_A", 51, "SUCCESS", None),
              ActorOutcome("ACTOR_B", 52, "SUCCESS", None)),
             (10, 90), (("ACTOR_A", 30), ("ACTOR_B", 70)), (10, 30, 70, 90), 0,
+            (("ACTOR_A", 30), ("ACTOR_B", 70)),
         )
         self.assertEqual(evaluate_range_control(None).verdict, Verdict.NOT_PROVEN)
         for missing in ("observed_run_token", "expected_initial_keys", "observed_final_keys",
+                        "observed_insertions",
                         "actor_outcomes", "matching_deadlock_event_count"):
             with self.subTest(missing=missing):
                 self.assertEqual(evaluate_range_control(replace(base, **{missing: None})).verdict,
@@ -107,6 +110,7 @@ class RangeGraphContractTests(unittest.TestCase):
             (ActorOutcome("ACTOR_A", 51, "SUCCESS", None),
              ActorOutcome("ACTOR_B", 52, "SUCCESS", None)),
             (10, 90), (("ACTOR_A", 30), ("ACTOR_B", 70)), (10, 30, 70, 90), 0,
+            (("ACTOR_A", 30), ("ACTOR_B", 70)),
         )
         variants = (
             replace(base, observed_final_keys=(10, 30, 90)),
@@ -114,6 +118,7 @@ class RangeGraphContractTests(unittest.TestCase):
             replace(base, matching_deadlock_event_count=1),
             replace(base, observed_run_token="OTHER"),
             replace(base, observed_final_keys=(10, 30, 30, 70, 90)),
+            replace(base, observed_insertions=(("ACTOR_A", 70), ("ACTOR_B", 30))),
         )
         for evidence in variants:
             with self.subTest(evidence=evidence):

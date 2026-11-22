@@ -130,7 +130,10 @@ wie beim Konversionsvertrag; sie stellt keine Herkunftsattestation dar.
 
 `evaluate_range_control` prüft nun den seriellen Kontrollarm auf zwei
 caller-gelieferte erfolgreiche Actorresultate, getrennte Actor- und
-Schlüsselzuordnungen, vollständige Übereinstimmung des beobachteten finalen
+erwartete Schlüsselzuordnungen sowie die tatsächlich gemeldete
+Actor-zu-Schlüssel-Zuordnung jeder Einfügung. Erwartete und beobachtete
+Zuordnungen müssen übereinstimmen. Zusätzlich verlangt er vollständige
+Übereinstimmung des beobachteten finalen
 Schlüsselsatzes mit dem erwarteten Anfangssatz plus genau zwei Einfügungen und
 null passende Deadlockereignisse. Fehlende Pflichtfelder ergeben
 `NOT_PROVEN`; widersprüchliche Werte ergeben `FAIL`. Schlüsselwerte bleiben
