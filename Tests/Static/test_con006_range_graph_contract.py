@@ -13,7 +13,8 @@ from Tests.Static.con006_conversion_graph_contract import (  # noqa: E402
     ActorOutcome, CaptureEvidence, GraphIdentity, Verdict,
 )
 from Tests.Static.con006_range_graph_contract import (  # noqa: E402
-    RangeControlEvidence, evaluate_range_capture, evaluate_range_control, evaluate_range_graph,
+    RangeCaptureEvidence, RangeControlEvidence, RangeInsertOutcome,
+    evaluate_range_capture, evaluate_range_control, evaluate_range_graph,
 )
 
 
@@ -72,6 +73,20 @@ def good_capture() -> CaptureEvidence:
         ),
         graph_identity=IDENTITY,
         graph_xml=good_graph(),
+    )
+
+
+def good_range_capture() -> RangeCaptureEvidence:
+    capture = good_capture()
+    return RangeCaptureEvidence(
+        capture=capture,
+        expected_initial_keys=(10, 90),
+        expected_insertions=(("ACTOR_A", 30), ("ACTOR_B", 70)),
+        insert_outcomes=(
+            RangeInsertOutcome("ACTOR_A", 51, 30, "ROLLED_BACK", 1205),
+            RangeInsertOutcome("ACTOR_B", 52, 70, "INSERTED", None),
+        ),
+        observed_final_keys=(10, 70, 90),
     )
 
 
@@ -153,28 +168,45 @@ class RangeGraphContractTests(unittest.TestCase):
         self.assertEqual(evaluate_range_graph(unknown, IDENTITY).verdict, Verdict.FAIL)
 
     def test_capture_binds_range_graph_event_window_victim_and_survivor(self):
-        result = evaluate_range_capture(good_capture())
+        result = evaluate_range_capture(good_range_capture())
         self.assertEqual(result.verdict, Verdict.PASS)
         self.assertEqual(result.victim_spid, 51)
         self.assertEqual(evaluate_range_capture(None).verdict, Verdict.NOT_PROVEN)
 
+    def test_deadlock_capture_requires_insert_rollback_and_exact_survivor_final_state(self):
+        good = good_range_capture()
+        self.assertEqual(evaluate_range_capture(replace(
+            good, observed_final_keys=(10, 30, 70, 90)
+        )).verdict, Verdict.FAIL)
+        self.assertEqual(evaluate_range_capture(replace(
+            good, insert_outcomes=(
+                RangeInsertOutcome("ACTOR_A", 51, 30, "INSERTED", None),
+                RangeInsertOutcome("ACTOR_B", 52, 70, "ROLLED_BACK", 1205),
+            )
+        )).verdict, Verdict.FAIL)
+        self.assertEqual(evaluate_range_capture(replace(
+            good, insert_outcomes=None
+        )).verdict, Verdict.NOT_PROVEN)
+
     def test_capture_rejects_wrong_event_outside_window_and_wrong_victim(self):
-        for evidence in (
-            replace(good_capture(), source_session="other_session"),
-            replace(good_capture(), event_timestamp_utc="2026-11-06T12:02:00Z"),
-            replace(good_capture(), actor_outcomes=(
+        good = good_range_capture()
+        for capture in (
+            replace(good.capture, source_session="other_session"),
+            replace(good.capture, event_timestamp_utc="2026-11-06T12:02:00Z"),
+            replace(good.capture, actor_outcomes=(
                 ActorOutcome("ACTOR_A", 51, "VICTIM", 1204),
                 ActorOutcome("ACTOR_B", 52, "SURVIVOR", None),
             )),
         ):
-            with self.subTest(evidence=evidence):
-                self.assertEqual(evaluate_range_capture(evidence).verdict, Verdict.FAIL)
+            with self.subTest(capture=capture):
+                self.assertEqual(evaluate_range_capture(replace(good, capture=capture)).verdict, Verdict.FAIL)
 
     def test_capture_requires_one_matching_graph_event(self):
+        good = good_range_capture()
         self.assertEqual(evaluate_range_capture(replace(
-            good_capture(), matching_event_count=0)).verdict, Verdict.NOT_PROVEN)
+            good, capture=replace(good.capture, matching_event_count=0))).verdict, Verdict.NOT_PROVEN)
         self.assertEqual(evaluate_range_capture(replace(
-            good_capture(), matching_event_count=2)).verdict, Verdict.FAIL)
+            good, capture=replace(good.capture, matching_event_count=2))).verdict, Verdict.FAIL)
 
     def test_missing_graph_or_identity_is_not_proven(self):
         self.assertEqual(evaluate_range_graph(None, IDENTITY).verdict, Verdict.NOT_PROVEN)
@@ -216,8 +248,14 @@ class RangeGraphContractTests(unittest.TestCase):
             "resource-list/keylock/waiter-list/waiter[@id='processA']").attrib.pop("mode"))
         missing_request = change_graph(lambda root: root.find(
             "resource-list/keylock/waiter-list/waiter[@id='processA']").attrib.pop("requestType"))
+        unknown_request = change_graph(lambda root: root.find(
+            "resource-list/keylock/waiter-list/waiter[@id='processA']").set("requestType", "arbitrary"))
+        conversion_request = change_graph(lambda root: root.find(
+            "resource-list/keylock/waiter-list/waiter[@id='processA']").set("requestType", "convert"))
         self.assertEqual(evaluate_range_graph(missing_mode, IDENTITY).verdict, Verdict.FAIL)
         self.assertEqual(evaluate_range_graph(missing_request, IDENTITY).verdict, Verdict.FAIL)
+        self.assertEqual(evaluate_range_graph(unknown_request, IDENTITY).verdict, Verdict.FAIL)
+        self.assertEqual(evaluate_range_graph(conversion_request, IDENTITY).verdict, Verdict.FAIL)
 
     def test_unsafe_or_malformed_xml_fails(self):
         for source in ("<!DOCTYPE deadlock><deadlock />", "<deadlock", b"\xff",

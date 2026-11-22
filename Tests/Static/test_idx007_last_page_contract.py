@@ -4,8 +4,8 @@ import unittest
 
 from idx007_last_page_contract import (
     PageLink, PageTarget, PageWait, Verdict,
-    evaluate_last_page_contention as _evaluate_last_page_contention,
-    evaluate_rightmost_page_chain,
+    evaluate_last_page_wait_snapshot_consistency as _evaluate_last_page_wait_snapshot_consistency,
+    evaluate_supplied_page_chain_consistency,
 )
 
 
@@ -29,13 +29,13 @@ def fixture_chain(*, start: tuple[int, int] = (1, 900)) -> tuple[PageLink, ...]:
     )
 
 
-def evaluate_last_page_contention(waits, target, expected_actor_requests=EXPECTED_ACTOR_REQUESTS,
-                                  *, page_chain=None, terminal_address=(1, 9999), max_pages=2):
+def evaluate_last_page_wait_snapshot_consistency(waits, target, expected_actor_requests=EXPECTED_ACTOR_REQUESTS,
+                                  *, page_chain=None, expected_terminal_sentinel=(1, 9999), max_pages=2):
     if page_chain is None:
         page_chain = fixture_chain(start=(target.file_id, target.page_id))
-    return _evaluate_last_page_contention(
+    return _evaluate_last_page_wait_snapshot_consistency(
         waits, target, expected_actor_requests=expected_actor_requests,
-        page_chain=page_chain, terminal_address=terminal_address, max_pages=max_pages,
+        page_chain=page_chain, expected_terminal_sentinel=expected_terminal_sentinel, max_pages=max_pages,
     )
 
 
@@ -46,16 +46,17 @@ class LastPageContractTests(unittest.TestCase):
             PageLink(7, 1, 901, 42, 3, 1, 0, (1, 900), (1, 902)),
             PageLink(7, 1, 902, 42, 3, 1, 0, (1, 901), (1, 9999)),
         )
-        result = evaluate_rightmost_page_chain(
+        result = evaluate_supplied_page_chain_consistency(
             pages, database_id=7, object_id=42, index_id=3, partition_id=1,
-            start_address=(1, 900), terminal_address=(1, 9999), max_pages=3,
+            start_address=(1, 900), expected_terminal_sentinel=(1, 9999), max_pages=3,
         )
         self.assertEqual(result.verdict, Verdict.PASS)
+        self.assertIn("SQL Server terminal meaning is not attested", result.reasons[0])
 
     def test_chain_does_not_assume_missing_terminal_encoding(self) -> None:
-        self.assertEqual(evaluate_rightmost_page_chain(
+        self.assertEqual(evaluate_supplied_page_chain_consistency(
             (), database_id=7, object_id=42, index_id=3, partition_id=1,
-            start_address=(1, 900), terminal_address=None, max_pages=3,
+            start_address=(1, 900), expected_terminal_sentinel=None, max_pages=3,
         ).verdict, Verdict.NOT_PROVEN)
 
     def test_chain_rejects_identity_level_link_cycle_and_cap_mismatches(self) -> None:
@@ -71,17 +72,17 @@ class LastPageContractTests(unittest.TestCase):
         )
         for candidate in variants:
             with self.subTest(candidate=candidate):
-                self.assertEqual(evaluate_rightmost_page_chain(
+                self.assertEqual(evaluate_supplied_page_chain_consistency(
                     candidate, database_id=7, object_id=42, index_id=3, partition_id=1,
-                    start_address=(1, 900), terminal_address=(1, 9999), max_pages=2,
+                    start_address=(1, 900), expected_terminal_sentinel=(1, 9999), max_pages=2,
                 ).verdict, Verdict.FAIL)
-        self.assertEqual(evaluate_rightmost_page_chain(
+        self.assertEqual(evaluate_supplied_page_chain_consistency(
             pages, database_id=7, object_id=42, index_id=3, partition_id=1,
-            start_address=(1, 900), terminal_address=(1, 9999), max_pages=1,
+            start_address=(1, 900), expected_terminal_sentinel=(1, 9999), max_pages=1,
         ).verdict, Verdict.NOT_PROVEN)
-        self.assertEqual(evaluate_rightmost_page_chain(
+        self.assertEqual(evaluate_supplied_page_chain_consistency(
             pages[:1], database_id=7, object_id=42, index_id=3, partition_id=1,
-            start_address=(1, 900), terminal_address=(1, 9999), max_pages=2,
+            start_address=(1, 900), expected_terminal_sentinel=(1, 9999), max_pages=2,
         ).verdict, Verdict.NOT_PROVEN)
 
     def test_terminal_marker_cannot_alias_a_visited_page(self) -> None:
@@ -89,27 +90,29 @@ class LastPageContractTests(unittest.TestCase):
             PageLink(7, 1, 900, 42, 3, 1, 0, None, (1, 901)),
             PageLink(7, 1, 901, 42, 3, 1, 0, (1, 900), (1, 900)),
         )
-        result = evaluate_rightmost_page_chain(
+        result = evaluate_supplied_page_chain_consistency(
             pages, database_id=7, object_id=42, index_id=3, partition_id=1,
-            start_address=(1, 900), terminal_address=(1, 900), max_pages=2,
+            start_address=(1, 900), expected_terminal_sentinel=(1, 900), max_pages=2,
         )
         self.assertEqual(result.verdict, Verdict.FAIL)
         self.assertIn("loops", result.reasons[0])
 
     def test_matching_two_actor_leaf_and_right_edge_passes(self) -> None:
-        self.assertEqual(evaluate_last_page_contention(*fixture()).verdict, Verdict.PASS)
+        result = evaluate_last_page_wait_snapshot_consistency(*fixture())
+        self.assertEqual(result.verdict, Verdict.PASS)
+        self.assertIn("multi-sample overlap", result.reasons[0])
 
     def test_wait_pass_requires_a_matching_bounded_page_chain(self) -> None:
         waits, target = fixture()
-        self.assertEqual(_evaluate_last_page_contention(
+        self.assertEqual(_evaluate_last_page_wait_snapshot_consistency(
             waits, target, expected_actor_requests=EXPECTED_ACTOR_REQUESTS
         ).verdict, Verdict.NOT_PROVEN)
         wrong_start = fixture_chain(start=(1, 899))
-        self.assertEqual(evaluate_last_page_contention(
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(
             waits, target, page_chain=wrong_start
         ).verdict, Verdict.FAIL)
-        missing_terminal = evaluate_last_page_contention(
-            waits, target, page_chain=fixture_chain(), terminal_address=None
+        missing_terminal = evaluate_last_page_wait_snapshot_consistency(
+            waits, target, page_chain=fixture_chain(), expected_terminal_sentinel=None
         )
         self.assertEqual(missing_terminal.verdict, Verdict.NOT_PROVEN)
 
@@ -122,13 +125,13 @@ class LastPageContractTests(unittest.TestCase):
             "PAGELATCH_EX", 51, 7, 1, 900, 12, STAMP, 1, None
         ), waits[1])
         duplicate_task = (waits[0], waits[0], waits[1])
-        self.assertEqual(evaluate_last_page_contention(wrong_request, target).verdict,
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(wrong_request, target).verdict,
                          Verdict.FAIL)
-        self.assertEqual(evaluate_last_page_contention(missing_task, target).verdict,
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(missing_task, target).verdict,
                          Verdict.FAIL)
-        self.assertEqual(evaluate_last_page_contention(duplicate_task, target).verdict,
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(duplicate_task, target).verdict,
                          Verdict.FAIL)
-        self.assertEqual(_evaluate_last_page_contention(
+        self.assertEqual(_evaluate_last_page_wait_snapshot_consistency(
             waits, target, expected_actor_requests=None
         ).verdict, Verdict.NOT_PROVEN)
 
@@ -137,30 +140,30 @@ class LastPageContractTests(unittest.TestCase):
         waits = (waits[0], PageWait(
             "PAGELATCH_EX", 51, 7, 1, 900, 11, STAMP, 1, 1
         ), waits[1])
-        self.assertEqual(evaluate_last_page_contention(waits, target).verdict, Verdict.PASS)
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(waits, target).verdict, Verdict.PASS)
 
     def test_missing_snapshot_is_not_proven(self) -> None:
-        self.assertEqual(evaluate_last_page_contention(None, fixture()[1]).verdict, Verdict.NOT_PROVEN)
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(None, fixture()[1]).verdict, Verdict.NOT_PROVEN)
 
     def test_no_wait_is_not_proven(self) -> None:
-        self.assertEqual(evaluate_last_page_contention((), fixture()[1]).verdict, Verdict.NOT_PROVEN)
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency((), fixture()[1]).verdict, Verdict.NOT_PROVEN)
 
     def test_page_io_wait_is_not_latch_contention(self) -> None:
         waits, target = fixture()
         waits = tuple(PageWait("PAGEIOLATCH_EX", w.session_id, w.database_id, w.file_id,
                                w.page_id, w.wait_ms, w.captured_at, w.request_id,
                                w.exec_context_id) for w in waits)
-        self.assertEqual(evaluate_last_page_contention(waits, target).verdict, Verdict.NOT_PROVEN)
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(waits, target).verdict, Verdict.NOT_PROVEN)
 
     def test_different_page_fails(self) -> None:
         waits, target = fixture()
         waits = (waits[0], PageWait("PAGELATCH_EX", 52, 7, 1, 901, 8, STAMP, 1, 0))
-        self.assertEqual(evaluate_last_page_contention(waits, target).verdict, Verdict.FAIL)
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(waits, target).verdict, Verdict.FAIL)
 
     def test_timestamp_mismatch_fails(self) -> None:
         waits, target = fixture()
         target = PageTarget(7, 1, 900, 42, 3, 0, True, "2026-11-06T10:00:01Z")
-        self.assertEqual(evaluate_last_page_contention(waits, target).verdict, Verdict.FAIL)
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(waits, target).verdict, Verdict.FAIL)
 
     def test_capture_timestamps_require_rfc3339_and_compare_as_instants(self) -> None:
         waits, target = fixture()
@@ -171,7 +174,7 @@ class LastPageContractTests(unittest.TestCase):
             for w in waits
         )
         self.assertEqual(
-            evaluate_last_page_contention(equivalent_waits, target).verdict,
+            evaluate_last_page_wait_snapshot_consistency(equivalent_waits, target).verdict,
             Verdict.PASS,
         )
         for invalid in (
@@ -185,13 +188,13 @@ class LastPageContractTests(unittest.TestCase):
             with self.subTest(invalid=invalid):
                 invalid_target = PageTarget(7, 1, 900, 42, 3, 0, True, invalid)
                 self.assertEqual(
-                    evaluate_last_page_contention(waits, invalid_target).verdict,
+                    evaluate_last_page_wait_snapshot_consistency(waits, invalid_target).verdict,
                     Verdict.FAIL,
                 )
                 invalid_waits = (PageWait("PAGELATCH_EX", 51, 7, 1, 900, 12, invalid,
                                           1, 0), waits[1])
                 self.assertEqual(
-                    evaluate_last_page_contention(invalid_waits, target).verdict,
+                    evaluate_last_page_wait_snapshot_consistency(invalid_waits, target).verdict,
                     Verdict.FAIL,
                 )
 
@@ -205,43 +208,43 @@ class LastPageContractTests(unittest.TestCase):
             7, 1, 900, 42, 3, 0, True, "2026-11-06T10:00:00.12345670+00:00", 1
         )
         self.assertEqual(
-            evaluate_last_page_contention(high_precision_waits, high_precision_target).verdict,
+            evaluate_last_page_wait_snapshot_consistency(high_precision_waits, high_precision_target).verdict,
             Verdict.PASS,
         )
         changed_fraction = (PageWait("PAGELATCH_EX", 51, 7, 1, 900, 12,
                                      "2026-11-06T10:00:00.1234568Z", 1, 0),
                             high_precision_waits[1])
         self.assertEqual(
-            evaluate_last_page_contention(changed_fraction, high_precision_target).verdict,
+            evaluate_last_page_wait_snapshot_consistency(changed_fraction, high_precision_target).verdict,
             Verdict.FAIL,
         )
 
     def test_one_distinct_session_is_not_concurrency(self) -> None:
         waits, target = fixture()
         waits = (waits[0], PageWait("PAGELATCH_EX", 51, 7, 1, 900, 8, STAMP, 1, 1))
-        self.assertEqual(evaluate_last_page_contention(waits, target).verdict, Verdict.NOT_PROVEN)
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(waits, target).verdict, Verdict.NOT_PROVEN)
 
     def test_non_leaf_target_fails(self) -> None:
         waits, _ = fixture()
         target = PageTarget(7, 1, 900, 42, 3, 1, True, STAMP)
-        self.assertEqual(evaluate_last_page_contention(waits, target).verdict, Verdict.FAIL)
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(waits, target).verdict, Verdict.FAIL)
 
     def test_missing_rightmost_claim_is_not_proven(self) -> None:
         waits, target = fixture(rightmost=None)
-        self.assertEqual(evaluate_last_page_contention(waits, target).verdict, Verdict.NOT_PROVEN)
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(waits, target).verdict, Verdict.NOT_PROVEN)
 
     def test_negative_rightmost_claim_fails(self) -> None:
         waits, target = fixture(rightmost=False)
-        self.assertEqual(evaluate_last_page_contention(waits, target).verdict, Verdict.FAIL)
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(waits, target).verdict, Verdict.FAIL)
 
     def test_boolean_is_not_accepted_as_integer_wait_duration(self) -> None:
         waits, target = fixture()
         waits = (PageWait("PAGELATCH_EX", 51, 7, 1, 900, True, STAMP, 1, 0), waits[1])
-        self.assertEqual(evaluate_last_page_contention(waits, target).verdict, Verdict.FAIL)
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(waits, target).verdict, Verdict.FAIL)
 
     def test_wrong_container_type_fails(self) -> None:
         waits, target = fixture()
-        self.assertEqual(evaluate_last_page_contention(list(waits), target).verdict, Verdict.FAIL)
+        self.assertEqual(evaluate_last_page_wait_snapshot_consistency(list(waits), target).verdict, Verdict.FAIL)
 
 
 if __name__ == "__main__":

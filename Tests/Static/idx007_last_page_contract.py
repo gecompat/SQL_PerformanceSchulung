@@ -45,7 +45,7 @@ class PageTarget:
     object_id: int
     index_id: int
     page_level: int
-    rightmost_leaf: bool | None
+    rightmost_leaf_claim: bool | None
     captured_at: str
     partition_id: int | None = None
 
@@ -74,7 +74,7 @@ class Result:
 MAX_PAGE_CHAIN_RECORDS = 4096
 
 
-def evaluate_rightmost_page_chain(
+def evaluate_supplied_page_chain_consistency(
     pages: tuple[PageLink, ...] | None,
     *,
     database_id: int,
@@ -82,7 +82,7 @@ def evaluate_rightmost_page_chain(
     index_id: int,
     partition_id: int,
     start_address: tuple[int, int],
-    terminal_address: tuple[int, int] | None,
+    expected_terminal_sentinel: tuple[int, int] | None,
     max_pages: int,
 ) -> Result:
     """Check a supplied bounded forward chain without assuming terminal encoding.
@@ -90,13 +90,13 @@ def evaluate_rightmost_page_chain(
     The caller must provide an explicit terminal address. This function checks
     only consistency of those values; it neither authenticates nor reads pages.
     """
-    if pages is None or terminal_address is None:
-        return Result(Verdict.NOT_PROVEN, ("page-chain records or explicit terminal marker are missing",))
+    if pages is None or expected_terminal_sentinel is None:
+        return Result(Verdict.NOT_PROVEN, ("page-chain records or caller-supplied terminal sentinel are missing",))
     expected = (database_id, object_id, index_id, partition_id)
     if any(not _positive_int(value) for value in expected):
         return Result(Verdict.FAIL, ("expected page-chain identity is invalid",))
-    if not _valid_page_address(start_address) or not _valid_page_address(terminal_address):
-        return Result(Verdict.FAIL, ("start or terminal page address is invalid",))
+    if not _valid_page_address(start_address) or not _valid_page_address(expected_terminal_sentinel):
+        return Result(Verdict.FAIL, ("start or expected terminal sentinel is invalid",))
     if type(max_pages) is not int or not 1 <= max_pages <= MAX_PAGE_CHAIN_RECORDS:
         return Result(Verdict.FAIL, ("page-chain cap is outside the fixed bound",))
     if type(pages) is not tuple or any(type(page) is not PageLink for page in pages):
@@ -137,9 +137,11 @@ def evaluate_rightmost_page_chain(
     final_next = pages[-1].next_address
     if final_next in seen:
         return Result(Verdict.FAIL, ("terminal link loops to a previously visited page",))
-    if final_next == terminal_address:
-        return Result(Verdict.PASS, ())
-    return Result(Verdict.NOT_PROVEN, ("supplied chain does not reach the explicit terminal marker",))
+    if final_next == expected_terminal_sentinel:
+        return Result(Verdict.PASS, (
+            "caller-supplied links are structurally consistent through the supplied sentinel; SQL Server terminal meaning is not attested",
+        ))
+    return Result(Verdict.NOT_PROVEN, ("supplied chain does not reach the caller-supplied sentinel",))
 
 
 def _valid_page_address(value: object) -> bool:
@@ -179,16 +181,20 @@ def _capture_instant(value: object) -> tuple[datetime, Decimal] | None:
     return normalized, fractional_second
 
 
-def evaluate_last_page_contention(
+def evaluate_last_page_wait_snapshot_consistency(
     waits: tuple[PageWait, ...] | None,
     target: PageTarget | None,
     *,
     expected_actor_requests: tuple[tuple[str, int, int], ...] | None,
     page_chain: tuple[PageLink, ...] | None = None,
-    terminal_address: tuple[int, int] | None = None,
+    expected_terminal_sentinel: tuple[int, int] | None = None,
     max_pages: int | None = None,
 ) -> Result:
-    """Require page waits bound to two expected actor requests and distinct tasks."""
+    """Check one caller-supplied wait snapshot against a supplied page chain.
+
+    PASS is internal consistency only. It does not attest to a real terminal
+    page, capture provenance, wait overlap across time, or engine behavior.
+    """
     if waits is None or target is None:
         return Result(Verdict.NOT_PROVEN, ("wait snapshot or target page evidence is missing",))
     if expected_actor_requests is None:
@@ -219,7 +225,7 @@ def evaluate_last_page_contention(
     target_instant = _capture_instant(target.captured_at)
     if target_instant is None:
         return Result(Verdict.FAIL, ("target capture timestamp is invalid",))
-    if target.rightmost_leaf is not None and type(target.rightmost_leaf) is not bool:
+    if target.rightmost_leaf_claim is not None and type(target.rightmost_leaf_claim) is not bool:
         return Result(Verdict.FAIL, ("rightmost-leaf assertion must be boolean or missing",))
 
     if not waits:
@@ -266,22 +272,24 @@ def evaluate_last_page_contention(
         return Result(Verdict.NOT_PROVEN, ("fewer than two distinct waiting sessions were supplied",))
     if target.page_level != 0:
         return Result(Verdict.FAIL, ("target page is not declared as a leaf page",))
-    if target.rightmost_leaf is False:
+    if target.rightmost_leaf_claim is False:
         return Result(Verdict.FAIL, ("target page is explicitly not the rightmost leaf",))
-    if target.rightmost_leaf is None:
+    if target.rightmost_leaf_claim is None:
         return Result(Verdict.NOT_PROVEN, ("rightmost-leaf page-chain evidence is absent",))
     if not _positive_int(target.partition_id):
         return Result(Verdict.NOT_PROVEN, ("target page partition binding is absent",))
-    chain_result = evaluate_rightmost_page_chain(
+    chain_result = evaluate_supplied_page_chain_consistency(
         page_chain,
         database_id=target.database_id,
         object_id=target.object_id,
         index_id=target.index_id,
         partition_id=target.partition_id,
         start_address=(target.file_id, target.page_id),
-        terminal_address=terminal_address,
+        expected_terminal_sentinel=expected_terminal_sentinel,
         max_pages=max_pages,
     )
     if chain_result.verdict is not Verdict.PASS:
         return chain_result
-    return Result(Verdict.PASS, ())
+    return Result(Verdict.PASS, (
+        "caller-supplied single wait snapshot and page links are internally consistent; source, multi-sample overlap, and terminal semantics are not attested",
+    ))

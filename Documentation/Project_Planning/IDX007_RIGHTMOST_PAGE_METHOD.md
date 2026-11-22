@@ -6,7 +6,7 @@
 | Lernziel | Eine wartende `PAGELATCH_EX`-Seite nur dann als letzte Blattseite eines bestimmten Indexes einordnen, wenn die Seitenmetadaten diese Zuordnung tragen |
 | Lehrpfad | Vorhandene [IDX-007-Lehrnotiz](../Curriculum/LAST_PAGE_INSERT_CONTENTION_LESSON.md); kein neues Lernziel |
 | Vertrag | [Offline-Prüfer](../../Tests/Static/idx007_last_page_contract.py) bleibt ein Konsistenzfilter für caller-gelieferte Werte |
-| Quellen | `SRC-168`–`SRC-172` |
+| Quellen | `SRC-168`–`SRC-172`, `SRC-174` |
 
 ## Aussage, die geprüft werden soll
 
@@ -33,7 +33,12 @@ beweist keinen stabilen Zustand außerhalb ihres kurzen Erfassungsfensters.
    Capturebereich und die per `page_resource` entschlüsselte
    Datenbank-/Datei-/Seitenadresse erfassen. `PAGEIOLATCH_EX`, fehlende
    `page_resource` oder eine nicht zur eigenen Session gebundene Adresse sind
-   kein Treffer.
+   kein Treffer. Weil `sys.dm_os_waiting_tasks` selbst keine `request_id`
+   ausgibt, wird `waiting_task_address` eindeutig an
+   `sys.dm_os_tasks.task_address` gebunden; daraus stammen Session-, Request-
+   und Execution-Context-ID. Null oder mehrere Taskmatches, geänderte IDs oder
+   fremde Sessions ergeben `NOT_PROVEN`. Die Verbindung nur über `session_id`
+   reicht insbesondere bei mehreren gleichzeitigen Requests nicht.
 2. **Zielseite prüfen:** `sys.dm_db_page_info` im vorgesehenen Zielkontext auf
    genau diese Adresse anwenden. Datenbank, Objekt, Index, Partition und
    `page_level = 0` müssen zum markergebundenen synthetischen Ziel passen.
@@ -41,7 +46,7 @@ beweist keinen stabilen Zustand außerhalb ihres kurzen Erfassungsfensters.
    Last-Page-Claim.
 3. **Vorwärtskette verfolgen:** Ab der Wait-Seite die `next_page_file_id`-/
    `next_page_page_id`-Adresse schrittweise lesen, bis ein vom Review
-   bestätigter Terminalzustand erreicht wird. Jede Seite muss zum selben
+   bestätigter Terminalzustand erreicht wird. Ein caller-gelieferter Endmarker allein ist kein bestätigter Terminalzustand. Jede Seite muss zum selben
    Datenbank-/Objekt-/Index-/Partitions- und Blattseitenkontext gehören. Der
    vorwärts gelesene Link und der Rücklink des Nachfolgers müssen zueinander
    passen. Eine Seitenadresse darf nicht zyklisch wiederkehren.
@@ -97,16 +102,18 @@ Ursache eines Produktionsengpasses oder einen Vorteil von
 - Der Capturepfad benötigt feste Obergrenzen für Wait-Rows, Seitenschritte,
   Laufzeit und Gesamtausgabe. Fehlende oder widersprüchliche Evidenz endet
   ohne Ausweitung der Abfrage oder Last.
-- Ein unabhängiger Methoden-/Quellenreview muss insbesondere
-  Terminaldarstellung, Nachfolger-/Rücklinksemantik, Seiten-Cap, Änderungen
-  während eines Splits sowie die Aussagekraft der beiden Capture-Ränder
-  bestätigen.
+- Der unabhängige Methoden-/Quellenreview vom 22. November 2026 fand nach
+  Vertrags- und Dokukorrekturen keine offenen P1/P2 im Offline-/Draftumfang.
+  Er bestätigte weder Terminalkodierung noch Traversalstabilität oder
+  Captureüberlappung. Diese Punkte müssen auf dem Zielbuild separat belegt
+  werden; ein Caller-Sentinel allein ist kein Terminalnachweis.
 - Ein davon getrennter Offline-Checker darf caller-gelieferte Kettenrecords nur
   intern auf Seitenidentität, Blattniveau, Zyklen, Vorwärts-/Rücklinks,
   Startseite, expliziten Endmarker und Seiten-Cap prüfen. Er darf keine
   SQL-Abfrage oder Enginesemantik ableiten.
-- Erst nach diesem Review dürfen eine ausführbare read-only Seitenkettenprobe
-  und ein konkreter Cleanup-/Runtimevertrag vorbereitet werden. Der faire
+- Eine ausführbare read-only Seitenkettenprobe benötigt weiterhin einen
+  konkreten Cleanup-/Runtimevertrag und einen buildgebundenen Plan für
+  Terminalzustand, Waitränder, Rechte und Split-/Änderungsrisiko. Der faire
   OFF/ON-Lastvergleich bleibt ein getrenntes Gate und wird nicht durch
   Seitenkettenbelege freigegeben.
 
@@ -115,25 +122,20 @@ Nachfolgerfelder, aber keinen atomaren Traversalvertrag für eine während
 konkurrierender Inserts veränderliche B-Baum-Blattkette. Dieses Verhalten und
 die vorgeschlagene Klammerung bleiben deshalb ein offenes empirisches Gate.
 
-`evaluate_last_page_contention` verlangt nun neben den beiden Waits auch die
-caller-gelieferten `PageLink`-Records, einen expliziten Endmarker und ein
-begrenztes Seitenbudget. Es ruft den Kettenprüfer mit der Wait-Zielseite als
-Startadresse und der Ziel-Datenbank, dem Objekt, Index und der Partition auf.
-Ein Wait-PASS ohne passende Kette ist `NOT_PROVEN`; eine Kette mit abweichender
-Startseite oder Identität kann keinen Wait-PASS erzeugen. Die getrennte
-Kettenprüfung bleibt verfügbar, authentifiziert aber ebenfalls keine
-DMV-/Seitenaufnahme und entscheidet nicht, welcher Marker in einem
-SQL-Server-Build tatsächlich das Kettenende darstellt. Die unabhängige
-Methodenprüfung bleibt Voraussetzung für eine ausführbare Probe.
+`evaluate_last_page_wait_snapshot_consistency` verlangt neben dem Waitsnapshot auch caller-gelieferte `PageLink`-Records, einen expliziten Endmarker und ein begrenztes Seitenbudget. Es ruft den Kettenprüfer mit der Wait-Zielseite als Startadresse und der Ziel-Datenbank, dem Objekt, Index und der Partition auf. Ein PASS ohne passende Kette ist `NOT_PROVEN`; eine Kette mit abweichender Startseite oder Identität kann keinen PASS erzeugen. Der Checker prüft jedoch nur einen caller-gelieferten Waitsnapshot und die Linkkonsistenz. Sein PASS besagt weder, dass zwei unabhängige Waitränder vor und nach dem Kettenlauf bestanden, noch dass ein caller-gelieferter Sentinel im Zielbuild wirklich das Kettenende markiert. Die Kettenhilfe heißt daher `evaluate_supplied_page_chain_consistency`; ihr PASS meldet ausdrücklich nur strukturelle Konsistenz bis zum Caller-Sentinel. Beide Waitränder, ihre zeitliche Klammerung und bestätigte Terminalsemantik bleiben getrennte Implementierungs-/Buildgates. Keine der Offlinefunktionen authentifiziert DMV-/Seitenaufnahmen. Die unabhängige Methodenprüfung bleibt Voraussetzung für eine ausführbare Probe.
 
 ### Ergänzung des Offline-Waitvertrags
 
 Der Offline-Waitchecker bindet jeden caller-gelieferten `PAGELATCH_EX`-Datensatz
 jetzt zusätzlich an eine erwartete Actor-/Session-/Request-ID und eine
 Taskausführung (`exec_context_id`). Beide erwarteten Actors müssen mit ihrer
-gebundenen Request-ID auf derselben Zielseite warten. Mehrere eindeutige Tasks
-derselben erwarteten Request-ID bleiben zulässig; wiederholte Taskrecords,
-fehlende Identitäten und fremde Requests werden abgewiesen. Dies erfüllt die
-statische Request-/Taskform des Methodenentwurfs, authentifiziert aber weder
-DMV-Herkunft noch Actorzuordnung oder Waitüberlappung. Der Offlinevertrag bleibt
-ein Konsistenzfilter und erteilt keine Enginefreigabe.
+caller-geliefert gebundenen Request-ID auf derselben Zielseite warten. Mehrere
+unterschiedliche Tasks einer erwarteten Request-ID bleiben zulässig;
+wiederholte Taskrecords, fehlende Identitäten und fremde Requests werden
+abgewiesen. Der Checker prüft diese caller-Felder nur intern; er enthält keine
+`task_address`-Records und verifiziert deshalb nicht den beschriebenen
+`waiting_task_address`-zu-`task_address`-Join. Diese Zuordnung gehört zur
+künftigen Erhebung und bleibt bis dahin `NOT_PROVEN`. Ebenso bleibt
+`rightmost_leaf_claim` lediglich eine zusätzliche Callerbehauptung; nur die
+noch nicht buildqualifizierte Kettenmetadatenaufnahme könnte den
+Rechtsaußenstatus stützen. Der Offlinevertrag erteilt keine Enginefreigabe.
