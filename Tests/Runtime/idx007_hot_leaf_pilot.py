@@ -8,7 +8,7 @@ import string
 import subprocess
 import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 PROFILES = {
@@ -17,8 +17,8 @@ PROFILES = {
     17: ("17.0.5035.5", "sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f"),
 }
 DB = "SQLPERF_LAB_IDX007_PENDING"
-ACTORS = 48
-ROWS_PER_BURST = 3
+ACTORS = 96
+ROWS_PER_BURST = 1
 
 
 class PilotError(RuntimeError):
@@ -154,6 +154,9 @@ def parse_wait_pairs(output: str, stage: int, bindings: dict[int, int], database
             "class": latch_class.upper(), "success": success.lower(),
             "duration": int(duration or 0),
         })
+    sequences = [row["seq"] for row in rows]
+    if len(sequences) != len(set(sequences)):
+        raise PilotError("XE event sequence contains duplicate values")
     grouped: dict[tuple[int, int], dict[str, list[dict]]] = {}
     for row in rows:
         grouped.setdefault((row["sid"], row["rid"]), {"latch_suspend_begin": [], "latch_suspend_end": []})[row["event"]].append(row)
@@ -164,8 +167,8 @@ def parse_wait_pairs(output: str, stage: int, bindings: dict[int, int], database
         if len(begins) != len(ends):
             raise PilotError("XE latch begin/end event counts do not balance per actor request")
         for begin, end in zip(begins, ends):
-            if begin["seq"] >= end["seq"] or end["stamp"] < begin["stamp"]:
-                raise PilotError("XE latch interval is not chronological")
+            if begin["seq"] >= end["seq"]:
+                raise PilotError("XE latch interval is not chronological by event sequence")
             if ((begin["db"], begin["file"], begin["page"], begin["mode"], begin["class"])
                     != (end["db"], end["file"], end["page"], end["mode"], end["class"])):
                 raise PilotError("XE latch begin/end resource binding changed")
@@ -173,13 +176,8 @@ def parse_wait_pairs(output: str, stage: int, bindings: dict[int, int], database
                     begin["class"] == "BUF" and begin["mode"] in {"EX", "EXCLUSIVE"} and
                     end["success"] in {"1", "true"} and
                     0 < end["duration"] <= 60_000_000):
-                # The XE timestamp is millisecond-granular; duration is in microseconds.
-                interval_start = end["stamp"] - timedelta(microseconds=end["duration"])
-                if abs((begin["stamp"] - interval_start).total_seconds()) > 0.001:
-                    raise PilotError("XE latch duration does not align with its begin timestamp")
                 pairs.append({"sid": begin["sid"], "rid": begin["rid"], "db": begin["db"],
                               "file": begin["file"], "page": begin["page"],
-                              "start": interval_start, "end": end["stamp"],
                               "begin_seq": begin["seq"], "end_seq": end["seq"],
                               "duration_us": end["duration"]})
     overlaps = []
@@ -187,7 +185,8 @@ def parse_wait_pairs(output: str, stage: int, bindings: dict[int, int], database
         for right in pairs[index + 1:]:
             if (left["sid"] != right["sid"] and (left["db"], left["file"], left["page"])
                     == (right["db"], right["file"], right["page"])
-                    and left["start"] < right["end"] and right["start"] < left["end"]):
+                    and max(left["begin_seq"], right["begin_seq"])
+                    < min(left["end_seq"], right["end_seq"])):
                 overlaps.append((left, right))
     return rows, pairs, overlaps
 
@@ -301,15 +300,29 @@ CREATE SCHEMA lab;
 GO
 CREATE TABLE lab.ActorSessions(SessionId smallint NOT NULL PRIMARY KEY,RequestId int NOT NULL,Done1 bit NOT NULL DEFAULT(0),Done2 bit NOT NULL DEFAULT(0));
 CREATE TABLE lab.Go(Stage int NOT NULL PRIMARY KEY);
-DECLARE @seed int=0; WHILE @seed<500 BEGIN INSERT dbo.Hot DEFAULT VALUES; SET @seed+=1; END;
+DECLARE @seed int=0; WHILE @seed<501 BEGIN INSERT dbo.Hot DEFAULT VALUES; SET @seed+=1; END;
 GO
-ALTER INDEX PK_Hot ON dbo.Hot REBUILD WITH (FILLFACTOR=20);
+ALTER INDEX PK_Hot ON dbo.Hot REBUILD WITH (FILLFACTOR=100);
 GO
 SELECT CONCAT('DBID|',DB_ID());
+SELECT CONCAT('RIGHT_EDGE|',a.allocated_page_file_id,'|',a.allocated_page_page_id,'|',i.slot_count,'|',i.free_bytes)
+FROM sys.dm_db_database_page_allocations(DB_ID(),OBJECT_ID(N'dbo.Hot'),1,NULL,'DETAILED') AS a
+CROSS APPLY sys.dm_db_page_info(DB_ID(),a.allocated_page_file_id,a.allocated_page_page_id,'DETAILED') AS i
+WHERE a.is_allocated=1 AND a.page_type_desc=N'DATA_PAGE' AND i.page_level=0
+  AND i.next_page_page_id=0 AND i.next_page_file_id=0;
 """
         setup_output = sqlcmd(name, env, setup)
         database_created = True
         database_id = int(next(line.split("|", 1)[1] for line in setup_output.splitlines() if line.startswith("DBID|")))
+        right_edge = next((line for line in setup_output.splitlines() if line.startswith("RIGHT_EDGE|")), None)
+        if right_edge is None:
+            raise PilotError("rebuilt index right edge could not be resolved")
+        _, edge_file, edge_page, edge_slots, edge_free_bytes = right_edge.split("|")
+        edge_leaf_pages_output = sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT COUNT(*) FROM sys.dm_db_database_page_allocations(DB_ID(),OBJECT_ID(N'dbo.Hot'),1,NULL,'DETAILED') WHERE is_allocated=1 AND page_type_desc=N'DATA_PAGE' AND index_id=1;")
+        edge_leaf_pages = next((line for line in reversed(edge_leaf_pages_output.splitlines()) if line.isdecimal()), "0")
+        if int(edge_leaf_pages) <= 1 or int(edge_free_bytes) < 6000:
+            raise PilotError(f"rebuilt terminal leaf lacks bounded burst capacity: pages={edge_leaf_pages}, free_bytes={edge_free_bytes}")
+        print(f"RIGHT_EDGE|file={edge_file}|page={edge_page}|slots={edge_slots}|free_bytes={edge_free_bytes}|leaf_pages={edge_leaf_pages}|PASS")
         compatibility = sqlcmd(name, env, f"SET NOCOUNT ON; SELECT CONCAT('COMPATIBILITY|',compatibility_level) FROM sys.databases WHERE name=N'{DB}';")
         if f"COMPATIBILITY|{major * 10}" not in compatibility.splitlines():
             raise PilotError("synthetic database compatibility level differs from the selected engine major")
@@ -420,7 +433,7 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             raise PilotError("actor completion count differs")
         final = sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('FINAL|',COUNT_BIG(*)) FROM dbo.Hot;")
         final_count = int(next(line.split("|", 1)[1] for line in final.splitlines() if line.startswith("FINAL|")))
-        expected_rows = 500 + ACTORS * ROWS_PER_BURST * 2
+        expected_rows = 501 + ACTORS * ROWS_PER_BURST * 2
         if final_count != expected_rows:
             raise PilotError("exact successful row count differs from the burst contract")
         if len(captures) != 2:

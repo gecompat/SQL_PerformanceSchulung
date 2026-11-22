@@ -149,19 +149,25 @@ umgeht das Pollingproblem kurzer Waits. Er erfasst `latch_suspend_begin` und
 `latch_suspend_end` in einer eigenen Extended-Events-Sitzung, bindet die
 Ereignisse über Sequenz, Session und Request an bekannte Actor-Requests und
 wertet nur ausgeglichene erfolgreiche Latch-Waitpaare mit XEvent-Klasse
-`BUF` und Modus `EX` aus. Der Endzeitstempel ist millisekundengenau; die
-Intervalllänge wird aus dem im Enginekatalog als Mikrosekunden beschriebenen
-`duration`-Feld abgeleitet und gegen einen 60-Sekunden-Cap begrenzt. Der
-berechnete Beginn muss höchstens eine Millisekunde vom XE-Beginn abweichen.
-Zwei unterschiedliche Actor-Intervalle müssen sich zeitlich überlappen und dieselbe
-Datenbank-/Datei-/Seitenadresse betreffen. Verluste, abgeschnittene oder zu
+`BUF` und Modus `EX` aus. Die monotone `package0.event_sequence`-Action ordnet
+Beginn und Ende innerhalb der XE-Sitzung; eine Überlappung liegt vor, wenn die
+Beginn-/Endereignisse zweier unterschiedlicher Actor-Waits ineinander
+verschachtelt sind und dieselbe Datenbank-/Datei-/Seitenadresse betreffen.
+Das im Enginekatalog als Mikrosekunden beschriebene `duration`-Feld wird
+weiterhin auf einen 60-Sekunden-Cap geprüft und diagnostisch ausgegeben. Die
+millisekundengenauen UTC-Zeitstempel entscheiden nicht über die Überlappung;
+ein CI-Lauf auf SQL Server 2022 zeigte eine Abweichung zwischen Zeitstempel und
+Waitdauer, die die frühere 1-ms-Konsistenzannahme nicht erfüllte. Verluste,
+Duplikate in der Ereignisfolge, abgeschnittene oder zu
 große Ringpuffer, unvollständige Paare und abweichende Ereignisressourcen
 ergeben keinen Nachweis.
 
-Der Pilot lädt 500 Seedzeilen und baut den Zielindex vor den Actor-Requests mit
-`FILLFACTOR=20` neu auf; damit weist die Zielpartition vor der Last mehrere
-Blattseiten und reservierten Platz am rechten Rand auf. Er lässt 24 Actors je
-6 Einfügungen in zwei getrennten Bursts ausführen. Nach dem ersten Burst sind
+Der Pilot lädt 501 Seedzeilen und baut den Zielindex vor den Actor-Requests mit
+`FILLFACTOR=100` neu auf. Vor Freigabe der Actors prüft er die physische
+terminal markierte Indexseite und verlangt mehr als eine Blattseite sowie
+mindestens 6.000 freie Bytes als Burstreserve. Die drei lokalen Builds ergaben
+je zwei Blattseiten, 25 Slots und 7.671 freie Bytes. Er lässt 96 Actors je
+eine Einfügung in zwei getrennten Bursts ausführen. Nach dem ersten Burst sind
 alle Actor-Inserts beendet; danach prüft der Pilot die per
 `sys.dm_db_page_info` gelesene Zielseite und ihren
 Vorgänger-Rücklink. Erst danach startet der zweite Burst. Jeder Burst muss
@@ -178,13 +184,19 @@ Semantik bleibt ein Review- und Qualifikationsgate.
 
 Auf den isolierten, digest-gepinnten Builds SQL Server 2019
 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5` bestand je ein
-identischer 48×3-Lauf. Der Pilot bestätigte auf jedem Build die konkrete
-Produktversion und Compatibility Level (150, 160, 170); jeder Rebuild ergab
-sechs Blattseiten. Beide Burstcaptures bestanden jeweils mit einer nach dem
+identischer 48×1-Lauf. Weitere CI-Läufe zeigten, dass 451 Seedzeilen mit
+`FILLFACTOR=10` oder `1` sowie 801 Seedzeilen mit `FILLFACTOR=100` die
+terminalen Wait-Seiten nicht stabil über beide Bursts hielten. Auch 701 Seeds
+und 48 Actors ergaben CI-Grenzen: auf 2025 fehlte ein überlappender Wait, und
+auf 2019 wurde die Wait-Seite nach Burst 1 nicht terminal bestätigt. Der Pilot
+verwendet nun 501 Seeds, `FILLFACTOR=100` und 96 Actors; vorab prüft er die
+reale Seitenreserve. Er bestätigte auf jedem Build die konkrete Produktversion
+und Compatibility Level (150, 160, 170); jeder Rebuild ergab zwei Blattseiten,
+25 Slots und 7.671 freie Bytes. Beide Burstcaptures bestanden jeweils mit einer nach dem
 Burst bestätigten terminalen Seite und korrektem Vorgänger-Rücklink. Die
 physische Seite kann sich nach einer Aufteilung ändern. Die genauen
 Seitenadressen und Wartezeiten sind lauflokale Diagnosedaten und werden nicht
-als Produkt- oder Performancewerte verallgemeinert. Je Lauf wurden 788
+als Produkt- oder Performancewerte verallgemeinert. Je Lauf wurden 693
 synthetische Zeilen bestätigt und Testdatenbank, XE-Sitzungen und eigener
 Container entfernt. Die pro Lauf benannte Datenbank trug die vier
 Framework-Ownershipmarker; der Cleanup prüfte sie vor dem Entfernen.

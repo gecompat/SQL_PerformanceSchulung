@@ -41,7 +41,7 @@ class LiveCaptureParserTests(unittest.TestCase):
         _, _, overlaps = parse_wait_pairs(capture, 1, BINDINGS, DATABASE_ID)
         self.assertEqual(overlaps, [])
 
-    def test_equal_millisecond_stamps_use_measured_microsecond_durations(self) -> None:
+    def test_event_sequence_finds_overlap_when_timestamps_are_equal(self) -> None:
         stamp = "2026-11-22T10:00:00.100Z"
         capture = output(
             event("latch_suspend_begin", stamp, 1, 51),
@@ -72,21 +72,31 @@ class LiveCaptureParserTests(unittest.TestCase):
         with self.assertRaisesRegex(PilotError, "binding differs"):
             parse_wait_pairs(wrong_request, 1, BINDINGS, DATABASE_ID)
 
-    def test_non_chronological_pair_is_rejected(self) -> None:
+    def test_non_chronological_event_sequence_is_rejected(self) -> None:
         reversed_interval = output(
-            event("latch_suspend_begin", "2026-11-22T10:00:00.100Z", 1, 51),
-            event("latch_suspend_end", "2026-11-22T10:00:00.000Z", 2, 51, success="1", duration=100000),
+            event("latch_suspend_begin", "2026-11-22T10:00:00.000Z", 2, 51),
+            event("latch_suspend_end", "2026-11-22T10:00:00.100Z", 1, 51, success="1", duration=100000),
         )
-        with self.assertRaisesRegex(PilotError, "not chronological"):
+        with self.assertRaisesRegex(PilotError, "not chronological by event sequence"):
             parse_wait_pairs(reversed_interval, 1, BINDINGS, DATABASE_ID)
 
-    def test_duration_must_align_with_begin_timestamp(self) -> None:
-        inconsistent = output(
+    def test_duplicate_event_sequence_is_rejected(self) -> None:
+        duplicated = output(
             event("latch_suspend_begin", "2026-11-22T10:00:00.000Z", 1, 51),
-            event("latch_suspend_end", "2026-11-22T10:00:00.100Z", 2, 51, success="1", duration=1000),
+            event("latch_suspend_end", "2026-11-22T10:00:00.100Z", 1, 51, success="1", duration=100000),
         )
-        with self.assertRaisesRegex(PilotError, "does not align"):
-            parse_wait_pairs(inconsistent, 1, BINDINGS, DATABASE_ID)
+        with self.assertRaisesRegex(PilotError, "duplicate values"):
+            parse_wait_pairs(duplicated, 1, BINDINGS, DATABASE_ID)
+
+    def test_event_order_proves_overlap_when_rounded_timestamps_do_not(self) -> None:
+        rounded = output(
+            event("latch_suspend_begin", "2026-11-22T10:00:00.000Z", 1, 51),
+            event("latch_suspend_begin", "2026-11-22T10:00:00.002Z", 2, 52),
+            event("latch_suspend_end", "2026-11-22T10:00:00.003Z", 3, 51, success="1", duration=1000),
+            event("latch_suspend_end", "2026-11-22T10:00:00.004Z", 4, 52, success="1", duration=1000),
+        )
+        _, _, overlaps = parse_wait_pairs(rounded, 1, BINDINGS, DATABASE_ID)
+        self.assertEqual(len(overlaps), 1)
 
     def test_capture_loss_and_changed_resource_are_rejected(self) -> None:
         rows = (

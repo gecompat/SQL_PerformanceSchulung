@@ -78,9 +78,13 @@ python Tests/Runtime/idx007_hot_leaf_pilot.py 17
 ```
 
 Der Lauf prüft den konkreten Engine-Build, Compatibility Level und XE-Feld-
-beziehungsweise Actionbestand. Zwei getrennte Insertschübe müssen überlappende
-exklusive `BUF`-Latchintervalle derselben Actor-Requests auf einer zu diesem
-Capture-Rand bestätigten rechten Blattseite zeigen. Die Zielseite darf sich
+beziehungsweise Actionbestand. `package0.event_sequence` ordnet die
+Latch-Beginn- und -Endereignisse; zwei getrennte Insertschübe müssen
+verschachtelte exklusive `BUF`-Latch-Waits verschiedener Actor-Requests auf
+einer zu diesem Capture-Rand bestätigten rechten Blattseite zeigen. Das
+buildgebunden beschriebene `duration`-Feld bleibt begrenzt und wird diagnostisch
+ausgegeben; gerundete UTC-Zeitstempel bestimmen die Überlappung nicht. Die
+Zielseite darf sich
 zwischen den Schüben durch eine Seitenaufteilung ändern; jeder Rand wird
 unabhängig gegen Blattkette und Rücklink geprüft. Ein fehlender oder
 widersprüchlicher Nachweis endet als `NOT_PROVEN`; ein Cleanupfehler lässt den

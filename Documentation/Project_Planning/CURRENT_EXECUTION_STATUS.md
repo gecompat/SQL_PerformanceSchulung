@@ -14437,6 +14437,40 @@ Matrix bestand danach erneut auf SQL Server 2019 `15.0.4500.2`, 2022
 Container-Cleanup. Die Metadaten werden nach Abschluss der Actor-Inserts
 erhoben; damit ist keine atomare Seitenstrukturzuordnung zum exakten
 Waitzeitpunkt bewiesen. Der Befund bleibt ein begrenzter Engineering-Pilot;
-unabhängiger Methodenreview, parallele Splitsemantik und vollständige Demo-/
-Leistungsqualifikation bleiben getrennte Gates. PR #1145 muss mit dieser
-Lastform die frischen Pflichtchecks noch bestehen.
+unabhängiger Methodenreview, parallele Splitsemantik und vollständige Demo- und
+Leistungsqualifikation bleiben getrennte Gates. Die 48×3-PR-Matrix bestand im
+[Workflow-Lauf 45055503746](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45055503746)
+für alle drei Builds; die übrigen Pflichtchecks für
+[PR #1145](https://github.com/gecompat/SQL_PerformanceSchulung/pull/1145)
+bestanden ebenfalls. PR #1145 wurde am 22. November 2026 per Squash gemergt;
+`origin/main` enthält den Abschluss unter
+`cc9004ae8b5caef2e50ab6d039e25c2ae92a0e12`.
+
+Ein weiterer PR-Lauf fand auf SQL Server 2022 einen Wait, dessen XE-
+Endzeitstempel und `duration`-Feld die vorherige 1-ms-Konsistenzannahme nicht
+erfüllten. Weil die Zeitstempel gerundet sind, entscheidet die Erhebung jetzt
+anhand der `event_sequence`-Reihenfolge: Beginnen beide Actor-Waits vor dem
+Ende des jeweils anderen und betreffen sie dieselbe Seite, sind sie geordnet
+überlappend. Doppelte Sequenzwerte scheitern geschlossen; `duration` bleibt
+buildgebunden geprüft, begrenzt und diagnostisch sichtbar. Neue Regressionen
+decken verschachtelte Eventfolgen trotz abweichender gerundeter Zeitwerte sowie
+doppelte Sequenzwerte ab. Diese Korrektur und die frische Drei-Build-Matrix
+stehen in [PR #1146](https://github.com/gecompat/SQL_PerformanceSchulung/pull/1146).
+Der Matrixlauf [45058128570](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45058128570)
+bestand auf SQL Server 2019, 2022 und 2025; die erforderlichen PR-Checks sind
+grün.
+
+Die neue PR-Matrix deckte danach eine weitere Lastformgrenze auf: SQL Server
+2025 lieferte nach dem ersten 48×1-Burst zwar überlappende Waits, aber die
+500-Zeilen-Seedmenge ließ deren Seite nach einem Split nicht mehr als terminale
+Blattseite bestätigen. Der Erheber lieferte korrekt `NOT_PROVEN`. Die
+Auch 451 Seedzeilen mit `FILLFACTOR=10` oder `1` sowie 801 Seeds mit
+`FILLFACTOR=100` ließen in CI einzelne Wait-Seiten nach einem Split nicht mehr
+terminal bestätigen. Der Erheber lieferte korrekt `NOT_PROVEN`. Die Lastform
+nutzt nun 501 Seeds, `FILLFACTOR=100`, 96 Actors und ein physisches Vorab-Gate
+für die rechte Seite (mindestens zwei Blattseiten und 6.000 freie Bytes). Die
+lokale isolierte Drei-Build-Matrix bestand danach: je zwei Blattseiten, 25
+Slots, 7.671 freie Bytes, zwei per Eventsequenz bestätigte Wait-/Ketten-
+aufnahmen, 693 Zeilen sowie bestätigtes Datenbank- und Container-Cleanup. Die
+frische PR-Matrix für diesen Stand steht noch aus. Die Metadatenaufnahme bleibt
+nicht atomar zum exakten Waitzeitpunkt.
