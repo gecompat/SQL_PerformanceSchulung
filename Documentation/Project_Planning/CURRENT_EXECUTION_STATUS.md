@@ -14029,10 +14029,12 @@ keine Aufnahmen und belegt kein Engineverhalten.
 
 `evaluate_range_control` prüft den caller-gelieferten serialen Kontrollbefund:
 zwei erfolgreiche Inserts mit Actor-/SPID-Bindung, eindeutige erwartete
-Anfangs- und Insert-Schlüssel, vollständiger beobachteter Endbestand ohne
-Abweichungen sowie null passende Deadlockereignisse. Fehlende Pflichtangaben
-ergeben `NOT_PROVEN`, Widersprüche `FAIL`. Drei neue synthetische Regressionen
-ergänzen elf Range- und zwanzig Konversionsfälle; zusammen bestehen 34
-fokussierte Tests. Das prüft nur interne Konsistenz der gelieferten Werte,
+Anfangsschlüssel und je Actor erwartete sowie tatsächlich gemeldete
+Insert-Schlüssel, vollständiger beobachteter Endbestand ohne Abweichungen
+sowie null passende Deadlockereignisse. Fehlende Pflichtangaben ergeben
+`NOT_PROVEN`, Widersprüche `FAIL`. Die Korrektur bindet beide Schlüssel je
+Actor, statt nur den finalen Gesamtsatz zu prüfen. Drei neue synthetische
+Regressionen ergänzen elf Range- und zwanzig Konversionsfälle; zusammen bestehen
+34 fokussierte Tests. Das prüft nur interne Konsistenz der gelieferten Werte,
 nicht deren Herkunft, eine SQL-Ausführung oder einen tatsächlichen Tabellenzustand.
 Methodenreview und isolierter Enginepilot bleiben offene Gates.

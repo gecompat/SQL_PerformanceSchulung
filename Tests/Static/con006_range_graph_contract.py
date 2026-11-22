@@ -24,11 +24,12 @@ class RangeControlEvidence:
     expected_run_token: str | None
     observed_run_token: str | None
     actor_spids: tuple[tuple[str, int], ...] | None
-    actor_outcomes: tuple[object, ...] | None
+    actor_outcomes: tuple[ActorOutcome, ...] | None
     expected_initial_keys: tuple[int, ...] | None
     expected_insertions: tuple[tuple[str, int], ...] | None
     observed_final_keys: tuple[int, ...] | None
     matching_deadlock_event_count: int | None
+    observed_insertions: tuple[tuple[str, int], ...] | None = None
 
 
 def evaluate_range_control(evidence: RangeControlEvidence | None) -> GraphResult:
@@ -81,32 +82,21 @@ def evaluate_range_control(evidence: RangeControlEvidence | None) -> GraphResult
 
     initial = _valid_key_tuple(evidence.expected_initial_keys, "expected initial keys", missing, failures)
     final = _valid_key_tuple(evidence.observed_final_keys, "observed final keys", missing, failures)
-    if evidence.expected_insertions is None:
-        missing.append("expected actor insertions")
-    elif (type(evidence.expected_insertions) is not tuple or len(evidence.expected_insertions) != 2
-          or any(type(item) is not tuple or len(item) != 2 for item in evidence.expected_insertions)):
-        failures.append("exactly two expected actor insertions are required")
-    else:
-        insertion_roles = [item[0] for item in evidence.expected_insertions]
-        insertion_keys = [item[1] for item in evidence.expected_insertions]
-        if (any(type(role) is not str for role in insertion_roles)
-                or set(insertion_roles) != {"ACTOR_A", "ACTOR_B"}
-                or len(set(insertion_roles)) != 2):
-            failures.append("expected insertions must bind ACTOR_A and ACTOR_B exactly once")
-        if any(type(key) is not int for key in insertion_keys):
-            failures.append("inserted keys must be two distinct integers")
-        elif len(set(insertion_keys)) != 2:
-            failures.append("inserted keys must be two distinct integers")
-        if initial is not None and any(key in initial for key in insertion_keys if type(key) is int):
+    expected_insertions = _valid_actor_insertions(
+        evidence.expected_insertions, "expected actor insertions", missing, failures)
+    observed_insertions = _valid_actor_insertions(
+        evidence.observed_insertions, "observed actor insertions", missing, failures)
+    if (expected_insertions is not None and observed_insertions is not None
+            and expected_insertions != observed_insertions):
+        failures.append("observed actor insertions differ from the expected actor/key bindings")
+    if initial is not None and expected_insertions is not None:
+        if any(key in initial for key in expected_insertions.values()):
             failures.append("inserted keys overlap the expected initial state")
 
-    if initial is not None and final is not None and evidence.expected_insertions is not None:
-        if (type(evidence.expected_insertions) is tuple
-                and all(type(item) is tuple and len(item) == 2 for item in evidence.expected_insertions)
-                and all(type(item[1]) is int for item in evidence.expected_insertions)):
-            expected_final = set(initial) | {item[1] for item in evidence.expected_insertions}
-            if set(final) != expected_final or len(final) != len(expected_final):
-                failures.append("observed final keys do not equal the complete expected post-insert state")
+    if initial is not None and final is not None and expected_insertions is not None:
+        expected_final = set(initial) | set(expected_insertions.values())
+        if set(final) != expected_final or len(final) != len(expected_final):
+            failures.append("observed final keys do not equal the complete expected post-insert state")
 
     count = evidence.matching_deadlock_event_count
     if count is None:
@@ -121,6 +111,28 @@ def evaluate_range_control(evidence: RangeControlEvidence | None) -> GraphResult
     if missing:
         return GraphResult(Verdict.NOT_PROVEN, tuple(missing))
     return GraphResult(Verdict.PASS, ())
+
+
+def _valid_actor_insertions(value: object, label: str, missing: list[str],
+                            failures: list[str]) -> dict[str, int] | None:
+    if value is None:
+        missing.append(label)
+        return None
+    if (type(value) is not tuple or len(value) != 2
+            or any(type(item) is not tuple or len(item) != 2 for item in value)):
+        failures.append(f"{label} must contain exactly two actor/key pairs")
+        return None
+    roles = [item[0] for item in value]
+    keys = [item[1] for item in value]
+    if (any(type(role) is not str for role in roles)
+            or set(roles) != {"ACTOR_A", "ACTOR_B"}
+            or len(set(roles)) != 2):
+        failures.append(f"{label} must bind ACTOR_A and ACTOR_B exactly once")
+        return None
+    if any(type(key) is not int for key in keys) or len(set(keys)) != 2:
+        failures.append(f"{label} must bind two distinct integer keys")
+        return None
+    return dict(value)
 
 
 def _valid_key_tuple(value: object, label: str, missing: list[str],
