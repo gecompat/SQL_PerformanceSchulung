@@ -1,13 +1,95 @@
 # Aktueller Ausführungsstand
 
-Aktualisiert am 21. November 2026: Der QRY-023-Stand vom 14. November 2026
-bestätigt die vorgeschlagene CI-Route und die
+### DGN-004-Runtime-Implementierung: begrenzte Qualifikation bestanden, lokaler AIO-Engpass verbleibt
+
+Am 21. November 2026 wurde die begrenzte DGN-004-Runtime-Entwicklung und
+anschließende Qualifikation für `CLASSICAL_FORCING_AND_HINT_CONTROL`
+freigegeben. Die Implementierung baut die eigene markierte synthetische
+Datenbank auf, führt die feste Folge aus neun R/H-Aufrufen aus, bindet
+Kandidaten, Query Store, aktuellen Showplan und vollständige Ergebnistupel und
+stellt Force-Zustände, Datenbankoptionen sowie die eigene Umgebung sicher
+wieder her. Weder eine exklusive Hostumgebung noch Leistungsmessungen sind
+Voraussetzung oder Ziel. Ausreichender Kernelspielraum für asynchrone I/O-
+Kontexte bleibt eine technische Startvoraussetzung.
+
+Der letzte vollständige Lauf mit der aktuellen Lifecycle-Implementierung und
+registrierten Zwei-Kern-Grenze lieferte für SQL Server 2022
+(`16.0.4265.3`, Developer/Linux, Kompatibilitätsstufe 160,
+Image `sha256:ba4c8329f48fb8f02e1416be6a930ebfd71268caee78aa985f3af4315e457c89`)
+`NOT_PROVEN`, weil das Bereitschaftssignal ausblieb; Cleanup wurde bestätigt.
+SQL Server 2025 (`17.0.4075.5`, Enterprise Developer/Linux,
+Kompatibilitätsstufe 170,
+Image `sha256:4bab24f36c1ecd48e85f7d37df26e6bf301641d84c3fe652f9a0dcc947d512e1`)
+bestand im selben Matrixlauf mit neun Aufrufen, neun Query-Store-Flushes,
+84 SQL-Batches und bestätigtem Cleanup (`PASS`, 69,496 Sekunden). Dieser lokale
+Matrixlauf schloss die Qualifikation nicht ab. Der unabhängige Runtime-/Cleanup-Review fand
+keine offenen P1/P2-Punkte. Die gezielte Python-Suite führte 127 Tests aus;
+126 bestanden und einer wurde plattformbedingt übersprungen.
+
+Der beobachtete Enginefehler verweist auf das hostweite Linux-Limit für
+asynchrone I/O-Kontexte. Die letzte read-only Abfrage ergab `aio-nr=65536` bei
+`aio-max-nr=65536`; SQL Server 2022 hatte zuvor explizit gemeldet, keinen neuen
+I/O-Kontext anlegen zu können. Die Ursache liegt außerhalb des eigenen
+Containers. Es wurden keine fremden Container oder globalen Hostwerte geändert.
+Ein weiterer Versuch auf diesem lokalen Host bleibt `NOT_PROVEN`, bis genügend
+I/O-Kontextkapazität bereitsteht. Das betrifft nicht die unten dokumentierte
+Qualifikation auf frischen CI-Runnern. Laufzeiten sind Ablaufdaten und kein
+Leistungsnachweis.
+
+Für den nächsten freigegebenen Einzelversuch je Build ist am 22. November 2026
+ein eigener GitHub-Runner-Workflow ergänzt worden. Er führt 2022 und danach
+2025 jeweils einmal mit dem bereits festgelegten Image-Digest, zwei CPUs,
+3-GiB-Speichergrenze, ohne Netzwerk und innerhalb des vorhandenen
+15-Minuten-Buildbudgets aus. Die Builds laufen seriell (`max-parallel: 1`),
+damit die genehmigte Versuchszahl und Grenzen erhalten bleiben; es wird keine
+Exklusivität eines gemeinsam genutzten Hosts vorausgesetzt. Die Runtime-Runner
+bereinigen ausschließlich den jeweils eigenen, vollständig markierten
+Container. Der Workflow wurde am 22. November 2026 im
+[Actions-Lauf 44991028381](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44991028381)
+ausgeführt. 2022 bestand mit neun Aufrufen, neun Query-Store-Flushes, 84
+SQL-Batches und Cleanup (`PASS`, 29,328 Sekunden); 2025 bestand dieselben
+Anzahlen mit Cleanup (`PASS`, 44,816 Sekunden). Damit ist die begrenzte
+2022/2025-Qualifikation für `CLASSICAL_FORCING_AND_HINT_CONTROL` auf den
+registrierten Builds abgeschlossen. Sie qualifiziert weder Replay-Verhalten
+noch kausale Hintwirkung oder Performance. Menschliche Generalprobe und ein
+späteres Unterrichtsrelease bleiben getrennte Schritte.
+
+Der [Implementierungsplan](DGN_004_RUNTIME_IMPLEMENTATION_PLAN.md) und die
+[Quell-/Runnerbeschreibung](../../Tests/Fixtures/DGN004_SourcePair/README.md)
+dokumentieren Laufstrecke, Nutzung und Grenzen.
+
+Die Diagnoseschritte um die bisherigen vollständigen und aktuellen Matrixläufe fanden mehrere
+Integrationsfehler und wurden jeweils nach Codeänderung erneut ausgeführt:
+SQLCMD-Transport des registrierten Quelltexts, rechtsbündige Integerausgabe,
+API-Feldnamen des Kandidaten-Binders, tatsächliche Modultextform im Showplan,
+mehrzeiliger Query-Store-Metadatentransport und Phasenbindung von
+`UsePlan`/Planidentität, unsichere Bereinigung nach verlorenem Containerstart-
+Ergebnis und die Auswertung von SQL-Server-Startlogs über stderr. Diese Fehler
+sind korrigiert; ein grüner Teillauf wurde nicht als Qualifikation gewertet.
+Die gezielte DGN-004-Statiksuite und die unabhängige Runtime-/Cleanup-Sichtung
+sind bestanden. Foundation-, Registry- und Datenschutzprüfungen der betroffenen
+Dateien sind nach der abschließenden Statuskorrektur bestanden. Die
+ScriptDom-Prüfung der unveränderten SQL-Fixtures bleibt im vorherigen grünen
+Nachweis gebunden. Die Integration bleibt bis zur vollständigen
+2022/2025-Requalifikation offen.
+
+Der aktive Umfang bleibt eng: `PASS` belegt ausschließlich Standard-Force/
+Unforce und H als `CONTROL_ONLY`-Hintkontrolle auf genau diesen zwei Builds.
+Replay-Nutzung oder -Nichtnutzung, kausale Hintwirkung, Performancegewinn,
+SQL Server 2019, gezielte Force-Fehler- und Fallbackvarianten sowie ein
+paketiertes Unterrichtsrelease sind damit nicht abgenommen. Der Plan und die
+kanonische Registry halten die offenen Gates und den Ablauf fest. Die
+menschliche Generalprobe bleibt ausgeschlossen.
+
+### QRY-023 – Vorschlag und Enginequalifikation bleiben getrennte Gates
+
+Der Stand vom 14. November 2026 bestätigt die vorgeschlagene CI-Route. Die
 konkreten ADMIN-/READER-Rechtekontrollen sind auf SQL Server 2019/2022/2025
-enginequalifiziert. PRs #586–#588 ergänzten Live-Nachweise für die exakte
-RunToken-, Zielnamen- und Demo-ID-Prüfung, jeweils vor Setup und ohne Erzeugung
-einer Nutzerdatenbank. QRY-023 bleibt bis zu gesonderter Produkt-/Katalog-
-freigabe `PROPOSED` und `runtime_authorized: false`. Die menschliche
-Generalprobe bleibt ausgeschlossen.
+enginequalifiziert. PRs #586–#588 ergänzten Live-Nachweise für exakte
+RunToken-, Zielnamen- und Demo-ID-Prüfungen, jeweils vor Setup und ohne
+Erzeugung einer Nutzerdatenbank. QRY-023 bleibt bis zu gesonderter
+Produkt-/Katalogfreigabe `PROPOSED` und `runtime_authorized: false`. Die
+menschliche Generalprobe bleibt ausgeschlossen.
 
 ### Releasecheckpoint und Wiederaufnahme der Entwicklungswelle
 
@@ -13705,11 +13787,13 @@ synthetischer Mutationen an nativer Zuweisung, Feld und Read-only-Deskriptor.
 Es gab weder Parser-/Regexausführung noch einen CPython-Build; der Befund ist
 keine Runtimequalifikation.
 
-DGN-004 bleibt durch fünf aktive, fremde SQL-Server-Container am
-YELLOW-/Isolationsvorstart blockiert. Sie wurden read-only identifiziert und
-nicht verändert. Die autorisierten DGN-004-Serverläufe starten erst nach
-nachgewiesener Isolation, kontrollierter Last, Ressourcen-, Rechte-,
-Image-/Build- und Ausgangszustandsprüfung.
+Der folgende DGN-004-Hostlastvermerk dokumentiert den früheren
+Vorstartblocker. Die Nutzerklärung vom 21. November 2026 stellt klar, dass
+fremde Container und hostweite Leerlaufbedingungen keine Voraussetzung sind,
+wenn der Lauf in eigenen, ressourcenbegrenzten Containern stattfindet und keine
+Leistungsmessung behauptet. Maßgeblich ist nun der oben verlinkte
+Runtime-Implementierungsplan; eigene Image-/Build-, Rechte-, Ausgangszustands-
+und Cleanupprüfungen bleiben erforderlich.
 
 ### QRY-006 – Runtime-Gate auf drei Engineversionen bestanden (21. November 2026)
 

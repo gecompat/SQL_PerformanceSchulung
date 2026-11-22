@@ -7,7 +7,7 @@
   around exactly one invocation and must fail closed on ambiguity or change.
 
   The expected module UTF-16LE bytes are inserted by the bounded Python caller
-  through the single hexadecimal template token below; other values are
+  through the single Unicode source template token below; other values are
   validated sqlcmd variables. No SQL or runtime evidence is produced by static
   use of this fixture.
 */
@@ -19,8 +19,7 @@ DECLARE @Call tinyint = TRY_CONVERT(tinyint, '$(DGN004_CALL)');
 DECLARE @DatabaseId int = TRY_CONVERT(int, '$(DGN004_DATABASE_ID)');
 DECLARE @ObjectId int = TRY_CONVERT(int, '$(DGN004_OBJECT_ID)');
 DECLARE @StatementStartOffset int = TRY_CONVERT(int, '$(DGN004_STATEMENT_START_OFFSET)');
-DECLARE @ExpectedModule varbinary(max) = TRY_CONVERT(
-    varbinary(max), '__DGN004_EXPECTED_MODULE_UTF16_HEX__', 2);
+DECLARE @ExpectedModule varbinary(max) = CONVERT(varbinary(max), N'DGN004_MODULE_SOURCE_TOKEN');
 
 IF @Run IS NULL
     OR @Role IS NULL
@@ -36,11 +35,15 @@ IF @Run IS NULL
     OR @ObjectId <= 0
     OR @StatementStartOffset < 0
     OR @StatementStartOffset % 2 <> 0
-    OR @ExpectedModule IS NULL
+    THROW 51010, 'Invalid DGN-004 plan candidate snapshot input.', 1;
+
+IF DB_ID() <> @DatabaseId
+    THROW 51015, 'DGN-004 plan candidate database identity differs.', 1;
+
+IF @ExpectedModule IS NULL
     OR DATALENGTH(@ExpectedModule) NOT BETWEEN 2 AND 16384
     OR DATALENGTH(@ExpectedModule) % 2 <> 0
-    OR DB_ID() <> @DatabaseId
-    THROW 51010, 'Invalid DGN-004 plan candidate snapshot input.', 1;
+    THROW 51016, 'DGN-004 registered module bytes are invalid.', 1;
 
 DECLARE @ExpectedSchema sysname = N'dgn004';
 DECLARE @ExpectedModuleName sysname =

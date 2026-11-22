@@ -14,6 +14,26 @@ Die nachfolgenden Abschnitte führen offene Entwicklungs- und Qualifikations-
 Gates. Die menschliche Generalprobe bleibt ausgeschlossen; SQL-Lab-, Produkt-
 und Runtimegates bleiben offen.
 
+### DGN-004 – begrenzte CI-Qualifikation je Build (22. November 2026)
+
+Der lokale Linux-AIO-Zähler lag bei der read-only Prüfung bei `64512/65536`;
+ein neuer SQL-Server-2022-Start auf diesem Host wäre daher nicht belastbar.
+Für den bereits freigegebenen einen Versuch je Build ist ein eigener
+[DGN-004-Runtimeworkflow](../../.github/workflows/dgn004-runtime-qualification.yml)
+vorgesehen. Er verwendet frische GitHub-Runner, die exakten Image-Digests,
+unveränderte Zwei-CPU-/3-GiB-/Netzwerk-/Zeitgrenzen, je einen Lauf für 2022
+und 2025 und die bestehende ownergebundene Cleanup-Route. Die Jobs laufen
+seriell; das ist eine Ressourcenbegrenzung und keine Anforderung an einen
+exklusiven Host. Im [Actions-Lauf 44991028381](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44991028381)
+bestanden beide Einzelversuche mit neun Aufrufen, neun Query-Store-Flushes, 84
+SQL-Batches und verifiziertem Cleanup: 2022 in 29,328 Sekunden und 2025 in
+44,816 Sekunden. Die Workflowprüfung, ihre Regressionen und sämtliche PR-Gates
+bestanden. Damit ist das begrenzte DGN-004-Qualifikationsgate für die beiden
+registrierten Builds geschlossen. Der lokale AIO-Engpass betrifft weitere
+Versuche nur auf diesem Host. Leistungsmessung, Replay-Varianten, menschliche
+Generalprobe und ein paketiertes Unterrichtsrelease bleiben außerhalb dieses
+Qualifikationsumfangs.
+
 ### Abgeschlossener DGN-007-Folgeschnitt: native `Pattern.groupindex`-Quellbindung
 
 PR #1086 integrierte den digestgebundenen CPython-3.12.16-Offlinecandidate vom
@@ -516,7 +536,7 @@ die betroffenen Verträge und den verbleibenden Gesamtbudgetstand abgeglichen.
 
 | Schritt | Arbeit und Abschlusskriterium | Grenze / Folgeentscheidung |
 |---|---|---|
-| 1. DGN-004 statische Annahmeprüfung | Der reine Neun-Aufruf-/Statusprüfer und seine synthetischen Gegenfälle sind integriert. Der unabhängige Methoden-/Quellen-/Zuordnungs-/Transport-/Messreview vom 2026-11-12 fand nach PR #518 keine offenen P1/P2. Eine Read-only-Inventur vom 14.11.2026 fand fünf aktive, nicht DGN-004 zugeordnete SQL-Server-Container; Momentaufnahme: 2022 mit 5,76 % CPU und 2025 mit 15,06 %, beide Zielinstanzen aktiv. | Das YELLOW-Isolations-/Lastgate ist weiterhin nicht erfüllt. Keine SQL-/Lab-Ausführung, bis eine kontrollierte Wegwerfumgebung und Last belegbar sind. Die Momentaufnahme qualifiziert keine Reserve. Danach gelten unverändert Zielbuilds 2022/16.0.4265.3 und 2025/17.0.4075.5, neun Aufrufe je Build, zwei eigene sequenzielle Container, 900 Sekunden gemeinsames Laufbudget plus je 60 Sekunden Cleanup. |
+| 1. DGN-004 Qualifikation Standard-Force/Hintkontrolle | Der reine Neun-Aufruf-/Statusprüfer und seine synthetischen Gegenfälle sind integriert. Der unabhängige Methoden-/Quellen-/Zuordnungs-/Transport-/Messreview vom 2026-11-12 fand nach PR #518 keine offenen P1/P2. Im Actions-Lauf 44991028381 bestanden die registrierten SQL-Server-2022- und 2025-Builds jeweils neun Aufrufe, neun Query-Store-Flushes, 84 SQL-Batches und Cleanup (`PASS`). | Das begrenzte Qualifikationsgate ist für genau diese Builds und `CLASSICAL_FORCING_AND_HINT_CONTROL` abgeschlossen. Die lokale Linux-AIO-Grenze verhindert weitere Versuche auf diesem Host, ist aber kein offenes Gate für die abgeschlossene CI-Qualifikation. Keine Performanceaussage, Replay-Qualifikation, menschliche Generalprobe oder allgemeine Produktfreigabe. |
 | 2. QRY-002 Lehrnotiz | PR #383 integrierte die quellengebundene Erklärung beider Konvertierungsrichtungen und trennt Typauflösung von konkreter Zugriffswirkung. | Menschliche Generalprobe bleibt ausgeschlossen. Kein Scan-/Seek- oder Leistungsclaim ohne konkrete Plan- und Messbelege. |
 | 3. Lesepfade und Kerninhalte | QRY-003/RES-004-Pfade sowie QRY-007 und IDX-003/004/001/002 sind quellengebunden integriert. PR #394 integrierte STL-001, PR #395 STL-002, PR #396 QRY-005, PR #397/#398 OPT-004, PR #399 STL-003, PR #400 QRY-011, PR #401 IDX-005, PR #402 OPT-012, PR #403 STL-010, PR #405 QRY-003, PR #406 QRY-007, PR #408 IDX-003, PR #410 IDX-004, PR #412 IDX-001, PR #414 IDX-002, PR #416 STL-001 und PR #418 STL-002. STL-002 bindet vollständige Nutzdaten- und Padding-Formeln sowie Mengentupeloracles für alle drei Speicherprofile. | Keine SQL-/Runtimefreigabe. STL-001/002 enthalten synthetische Entwurfsoracles; reale Record-/Seiten- und Allocation-Unit-Evidenz sowie Lese-I/O bleiben offen. |
 | 4. Diagnose- und vorhandene KI-Qualifikation | Jeweils nur den im aktiven Status ausgewählten, unabhängig prüfbaren Schnitt vorbereiten; Verträge, synthetische Prüfungen und erforderliche Reviews vor jeder Runtimephase abschließen. | Kein SQL-/Provider-/Netzwerk-/Lab-Effekt aus statischer Evidenz ableiten. Lauf-, Provider- und Datenfreigaben gelten pro konkretem Schnitt. |

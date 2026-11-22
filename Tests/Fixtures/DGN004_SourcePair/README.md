@@ -1,18 +1,18 @@
 # DGN-004 – R/H-Quellpaar
 
 Dieses Verzeichnis enthält die zwei vollständigen textuellen
-`CREATE PROCEDURE`-Quellwerte für den begrenzten DGN-004-Schnitt sowie einen
-separaten SQL-Transportausschnitt für bereits extern gebundene Planhandles. `R`
-(`ReplayReference`) ist die Referenz ohne Hint. `H` (`ReplayHintControl`) ist
-die getrennte Kontrolle mit genau einem terminalen
-`DISABLE_OPTIMIZED_PLAN_FORCING`-Hint. Die Texte übernehmen die Form A und die
-M/S/T-Bytebindungen des registrierten `rh_source_text_plan`.
+`CREATE PROCEDURE`-Quellwerte, das synthetische Datenbanksetup, die
+Query-Store-Kandidatenabfrage und einen SQL-Transportausschnitt für bereits
+extern gebundene Planhandles. `R` (`ReplayReference`) ist die Referenz ohne
+Hint. `H` (`ReplayHintControl`) ist die getrennte Kontrolle mit genau einem
+terminalen `DISABLE_OPTIMIZED_PLAN_FORCING`-Hint. Die Texte übernehmen Form A
+und die M/S/T-Bytebindungen des registrierten `rh_source_text_plan`.
 
-Die Dateien enthalten weder Schema-/Tabellenaufbau noch Daten, Cleanup,
-Query-Store-Steuerung oder Frameworkphasen. Sie sind keine freigegebene Demo und
-wurden nicht auf SQL Server ausgeführt. Führe sie nicht gegen eine Instanz aus,
-bevor Datenbank, Schema, Tabellen, Eigentumsmarker und der spätere Lifecycle
-separat freigegeben und bereitgestellt sind.
+Die Runnerqualifikation hat die Einrichtung, neun Aufrufe, vollständige
+Plan-/Ergebnisbindung und sichere Bereinigung auf SQL Server 2022 und 2025
+bestanden. Das Verzeichnis ist dennoch keine selbstständig ausführbare oder
+paketierte Unterrichtsdemo: direkte Ausführung umgeht die Container-,
+Eigentums-, Budget- und Cleanupkontrollen und ist zu unterlassen.
 
 Der aktive Aussageumfang bleibt klassische Standard-Planerzwingung mit
 `sys.sp_query_store_force_plan`/`sys.sp_query_store_unforce_plan` und H als
@@ -20,11 +20,11 @@ Der aktive Aussageumfang bleibt klassische Standard-Planerzwingung mit
 Planbindung, Hintwirkung, Replay-Nutzung oder -Nichtnutzung, Leistung oder
 Kausalität.
 
-Die statische Prüfung der Originalbytes, Projektionen, Paarung, terminalen
-Hintposition und endlichen M/S/T-Offsets sowie negative Source-/Textmutationen
-sind vorhanden. Vollständige Erfassung, unabhängiger Quellen-/Ergebnisreview
-und die bestehenden Matrixgates bleiben für spätere technische Qualifikation
-erforderlich.
+Die statischen Prüfungen der Originalbytes, Projektionen, Paarung, terminalen
+Hintposition, endlichen M/S/T-Offsets sowie negative Source-/Textmutationen
+bleiben ergänzend erforderlich. Die End-to-end-Runtimequalifikation ist für die
+beiden registrierten Builds bestanden; eine unabhängige Sichtung dieser neuen
+Runtime-/Cleanupsemantik und die Integration in `origin/main` sind noch offen.
 
 `Tests/Static/dgn004_plan_transport.py` dekodiert bereits geparste Stücke;
 `Tests/Static/dgn004_plan_frame.py` enthält einen reinen Serializer für
@@ -92,12 +92,13 @@ Quellen-/Query-/Ausführungsbindung bereits belegt haben. Das SQL kann weder
 beweisen, dass das Handle zum beabsichtigten aktuellen Aufruf gehört, noch
 Plan- oder Engineidentität herstellen. Es prüft die 512-KiB-Grenze erst nach
 der XML-Serialisierung. Die Prozessgrenzen sind mit synthetischen lokalen
-Prozessen geprüft, aber nicht gegen SQL Server ausgeführt; Enginekompilierung
-und Buildqualifikation bleiben offen. Auf POSIX beendet der Runner seine eigene
-Prozessgruppe. Unter Windows ist die Baumbeendigung nach Ende des Launchers
-nicht nachgewiesen; bleibt ein Pipe-Reader offen, endet der Aufruf mit
-`CaptureProcessEndUnknown` und darf nicht wiederholt werden. Das Fixture ist
-keine freigegebene Demo und nicht selbstständig auszuführen.
+Prozessen und im vollständigen DGN-004-Lauf auf den registrierten SQL-Server-
+Builds geprüft. Die End-to-end-Ausführung hat Transport, Planbindung und
+Cleanup auf 2022 und 2025 bestanden. Unter Windows ist eine Prozessbaum-
+Beendigung nach Ende des Launchers weiterhin nicht nachgewiesen; bleibt ein
+Pipe-Reader offen, endet der Aufruf mit `CaptureProcessEndUnknown` und darf
+nicht wiederholt werden. Das Fixture ist keine paketierte Unterrichtsdemo und
+nicht selbstständig auszuführen.
 
 `Tests/Static/dgn004_identity_snapshot.py` vergleicht separat vom Aufrufer
 gelieferte R/H-Rohdatensätze mit den endlichen registrierten M/S/T-Texten,
@@ -105,29 +106,27 @@ UTF-16LE-Offsets, Modulnamen und getrennten Objekt-/Query-IDs. Die Herkunftslabe
 und die Gruppierung als R/H-Rolle sind Eingabebehauptungen; der Prüfer ermittelt
 keine Serverzeilen und prüft nicht, ob ihre Aufzählung vollständig war. Sein
 Offline-Konsistenzresultat enthält keinen `plan_handle` und kann den Capture-
-Runner nicht freigeben. Damit bleiben die Zuordnung eines Handles zu genau der
-aktuellen Nutzstatementausführung, vollständige Serverkandidatenaufzählung,
-Kontextprofil-/Plan-StatementText-Bindung sowie Ausführung auf SQL Server offene
-Gates.
+Runner nicht freigeben. Der Runtime-Runner hat diese Kandidatenaufzählung und die Handlebindung im
+registrierten Neun-Aufruf-Verfahren verwendet; beide Builds bestanden. Die
+Ein-Writer-Kausalzuordnung des Deltas bleibt eine begrenzte methodische
+Inferenz und wird nicht als authentifizierte Invocation-ID dargestellt.
 
-`SnapshotPlanCandidates.sql` erfasst als begrenzte Source-only-Vorstufe alle
+`SnapshotPlanCandidates.sql` erfasst im begrenzten Runtime-Kandidatenlauf alle
 gecachten Statementzeilen, deren Datenbank-/Objektbindung, vollständige
 Modulbytes und registrierter Statementstart exakt passen. Es verwendet keine
 `TOP`-Auswahl, prüft die aktuelle Modulquelle im Katalog und gibt einen
-nummerierten, an Run/Rolle/Call gebundenen Rahmen mit jedem Kandidaten aus. Der
-Runner liefert die unveränderten Moduleinbytes als Hex über stdin, begrenzt
-Prozesskanäle und SQL-Timeout wie der bestehende Plan-Capture-Runner und
-verlangt vollständige Frames. `dgn004_plan_candidates.py` vergleicht die
+nummerierten, an Run/Rolle/Call gebundenen Rahmen mit jedem Kandidaten aus.
+Der Runner bindet die exakten registrierten Modulbytes als begrenztes, korrekt
+escaped Unicode-SQL-Literal ein, vergleicht sie in SQL Server und begrenzt
+Prozesskanäle sowie SQL-Timeout. `dgn004_plan_candidates.py` vergleicht die
 zusammengesetzten Zeilenschlüssel aus Planhandle, SQLhandle, Start-/Endoffset,
 Generation und Erstellungszeit. Der Binder lässt nur genau eine neue Zeile mit
 Ausführungszähler 1 oder genau eine bestehende Zeile mit Zählerdelta 1 durch;
 Löschung, Mehrdeutigkeit, mehrere Änderungen, unvollständige Frames und
-zusätzliche Ausführungen werden abgewiesen. Die Tests verwenden ausschließlich
-synthetische Frames und Prozesse. Der Cache-Locator ist nicht SQL-kompiliert
-oder live ausgeführt; seine Ein-Writer-Kausalzuordnung bleibt Inferenz und ist
-keine authentifizierte Invocation-ID. Die drei vorhandenen
-Metadatenbeobachtungen pro Flush und alle DGN-Budgets bleiben bindend. Alle vier
-SQL-Dateien des Quellpaars werden zusätzlich mit Microsoft ScriptDom gegen die
-Grammatiken SQL Server 2019, 2022 und 2025 geparst. Das belegt nur statische
-Syntaxannahme; SQL-Server-Kompilierung und Build-/Runtimequalifikation bleiben
-offen.
+zusätzliche Ausführungen werden abgewiesen. Die Gegenproben verwenden synthetische Frames und Prozesse; die Runtime-
+Qualifikation ergänzt echte Ausführung auf den beiden festgelegten Builds.
+Die Ein-Writer-Kausalzuordnung bleibt Inferenz und ist keine authentifizierte
+Invocation-ID. Drei begrenzte Metadatenbeobachtungen pro Flush und alle
+DGN-Budgets bleiben bindend. ScriptDom parst die SQL-Fixtures gegen die
+Grammatiken SQL Server 2019, 2022 und 2025; der Runtime-PASS gilt ausschließlich
+für 2022 und 2025 und erweitert keine Kompatibilitätsaussage auf 2019.

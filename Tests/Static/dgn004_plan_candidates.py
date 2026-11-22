@@ -157,7 +157,8 @@ def parse_candidate_snapshot(
         raise PlanCandidateError("snapshot frame contains an empty record")
 
     views = registered_text_views()[expected.role]
-    module_bytes = views.module_text.encode("utf-16le", errors="strict")
+    # SQL Server stores the submitted module batch with one terminal LF.
+    module_bytes = (views.module_text + "\n").encode("utf-16le", errors="strict")
     if len(module_bytes) > MAX_MODULE_BYTES:
         raise PlanCandidateError("registered module exceeds its byte limit")
     module_digest = hashlib.sha256(module_bytes).digest()
