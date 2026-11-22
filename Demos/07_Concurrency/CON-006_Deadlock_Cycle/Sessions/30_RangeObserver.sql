@@ -4,6 +4,7 @@ DECLARE @A smallint,@B smallint,@DbId int=DB_ID(),@Start datetime2(7),@Deadline 
         @Object nvarchar(776)=CONCAT(DB_NAME(),N'.lab.RangeRows'),@Index sysname=N'PK_RangeRows',@HoBT bigint,
         @CandidateCount int=0,@Graph xml,@ProcessA varchar(128),@ProcessB varchar(128),@Victim varchar(128),
         @ResourceCount int=0,@DistinctResourceIds int=0,@AOwnsBWaits int=0,@BOwnsAWaits int=0,
+        @VictimCount int=0,@VictimSpid smallint,
         @ActorVictims int,@ActorSurvivors int,@FinalCount int;
 SELECT @Start=StartedAtUtc FROM lab.RangeRun WHERE Attempt='RANGE' AND RunToken='$(RunToken)' AND DatabaseId=@DbId;
 IF @Start IS NULL
@@ -74,7 +75,12 @@ SELECT TOP(1) @Graph=Graph FROM @Events AS E WHERE E.EventAt>=@Start AND E.Event
   AND E.Graph.exist('/event/data[@name="xml_report"]/value/deadlock/process-list/process[@spid=sql:variable("@B") and @currentdb=sql:variable("@DbId")]')=1;
 SELECT @ProcessA=@Graph.value('(/event/data[@name="xml_report"]/value/deadlock/process-list/process[@spid=sql:variable("@A")]/@id)[1]','varchar(128)'),
        @ProcessB=@Graph.value('(/event/data[@name="xml_report"]/value/deadlock/process-list/process[@spid=sql:variable("@B")]/@id)[1]','varchar(128)'),
-       @Victim=@Graph.value('(/event/data[@name="xml_report"]/value/deadlock/victim-list/victimProcess/@id)[1]','varchar(128)');
+       @Victim=@Graph.value('(/event/data[@name="xml_report"]/value/deadlock/victim-list/victimProcess/@id)[1]','varchar(128)'),
+       @VictimCount=@Graph.value('count(/event/data[@name="xml_report"]/value/deadlock/victim-list/victimProcess)','int');
+IF @VictimCount<>1 OR @Victim IS NULL OR @Victim NOT IN(@ProcessA,@ProcessB)
+    THROW 51006,'FAIL_RESULT_CONTRACT: Graph muss genau einen Actor als Opfer ausweisen.',1;
+SELECT @VictimSpid=TRY_CONVERT(smallint,P.value('string((@spid)[1])','varchar(16)'))
+FROM @Graph.nodes('/event/data[@name="xml_report"]/value/deadlock/process-list/process[@id=sql:variable("@Victim")]') AS V(P);
 DECLARE @Edges TABLE(ResourceId nvarchar(128),OwnerId varchar(128),OwnerMode varchar(32),WaiterId varchar(128),WaiterMode varchar(32),RequestType varchar(16),OwnerCount int,WaiterCount int);
 INSERT @Edges(ResourceId,OwnerId,OwnerMode,WaiterId,WaiterMode,RequestType,OwnerCount,WaiterCount)
 SELECT N.value('string((@id)[1])','nvarchar(128)'),
@@ -99,13 +105,19 @@ INSERT @Compatible(HeldMode,RequestedMode)VALUES
 SELECT @AOwnsBWaits=COUNT(*) FROM @Edges AS E
 WHERE E.OwnerId=@ProcessA AND E.WaiterId=@ProcessB AND E.RequestType='wait'
   AND E.OwnerCount=1 AND E.WaiterCount=1
+  AND E.OwnerMode IN('S','U','X','RangeS-S','RangeS-U','RangeI-N')
+  AND E.WaiterMode IN('S','U','X','RangeS-S','RangeS-U','RangeI-N')
   AND NOT EXISTS(SELECT 1 FROM @Compatible AS C WHERE C.HeldMode=E.OwnerMode AND C.RequestedMode=E.WaiterMode);
 SELECT @BOwnsAWaits=COUNT(*) FROM @Edges AS E
 WHERE E.OwnerId=@ProcessB AND E.WaiterId=@ProcessA AND E.RequestType='wait'
   AND E.OwnerCount=1 AND E.WaiterCount=1
+  AND E.OwnerMode IN('S','U','X','RangeS-S','RangeS-U','RangeI-N')
+  AND E.WaiterMode IN('S','U','X','RangeS-S','RangeS-U','RangeI-N')
   AND NOT EXISTS(SELECT 1 FROM @Compatible AS C WHERE C.HeldMode=E.OwnerMode AND C.RequestedMode=E.WaiterMode);
 IF @ResourceCount<>2 OR @DistinctResourceIds<>2 OR @AOwnsBWaits<>1 OR @BOwnsAWaits<>1
-   OR @Victim IS NULL OR @Victim NOT IN(@ProcessA,@ProcessB)
+   OR @VictimCount<>1 OR @VictimSpid IS NULL
+   OR NOT EXISTS(SELECT 1 FROM lab.RangeActors WHERE SessionId=@VictimSpid AND Outcome='VICTIM' AND ErrorNumber=1205)
+   OR NOT EXISTS(SELECT 1 FROM lab.RangeActors WHERE SessionId IN(@A,@B) AND SessionId<>@VictimSpid AND Outcome='SURVIVOR' AND ErrorNumber IS NULL)
     THROW 51006,'FAIL_RESULT_CONTRACT: Range-Graph bildet keinen reziproken Zyklus aus zwei inkompatiblen KEY-Waits.',1;
 UPDATE lab.RangeRun SET WaitObserved=1,GraphCount=1 WHERE Attempt='RANGE' AND RunToken='$(RunToken)' AND DatabaseId=@DbId;
 IF @@ROWCOUNT<>1 THROW 51006,'FAIL_RESULT_CONTRACT: Range-Graph konnte nicht an den Lauf gebunden werden.',1;

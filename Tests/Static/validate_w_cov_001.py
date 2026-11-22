@@ -107,7 +107,7 @@ def main() -> int:
     for filename, required in (
         ("Sessions/10_RangeActorA.sql", ("SERIALIZABLE", "KeyValue>20 AND KeyValue<40", "A_INSERT_GRANTED", "VALUES(70)", "1205")),
         ("Sessions/20_RangeActorB.sql", ("SERIALIZABLE", "KeyValue>60 AND KeyValue<80", "B_INSERT_GRANTED", "VALUES(30)", "1205")),
-        ("Sessions/30_RangeObserver.sql", ("sys.dm_tran_locks", "RangeS-S", "blocking_session_id=@B", "A_INSERT_GRANTED", "B_INSERT_GRANTED", "system_health", "@FinalCount<>4", "@DistinctResourceIds<>2")),
+        ("Sessions/30_RangeObserver.sql", ("sys.dm_tran_locks", "RangeS-S", "blocking_session_id=@B", "A_INSERT_GRANTED", "B_INSERT_GRANTED", "system_health", "@FinalCount<>4", "@DistinctResourceIds<>2", "@VictimCount<>1", "@VictimSpid", "Outcome='VICTIM' AND ErrorNumber=1205", "Outcome='SURVIVOR' AND ErrorNumber IS NULL", "E.OwnerMode IN('S','U','X','RangeS-S','RangeS-U','RangeI-N')", "E.WaiterMode IN('S','U','X','RangeS-S','RangeS-U','RangeI-N')")),
         ("Sessions/40_RangeControlA.sql", ("RANGE_CONTROL_A_DONE", "VALUES(70)")),
         ("Sessions/50_RangeControlB.sql", ("RANGE_CONTROL_A_DONE", "VALUES(30)")),
         ("59_RangeControlVerify.sql", ("@A=@B", "ControlDeadlockCount=@Events", "COUNT(*) FROM lab.RangeRows")),

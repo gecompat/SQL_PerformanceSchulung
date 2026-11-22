@@ -14322,3 +14322,12 @@ Die integrierte Rangevariante ist runtimequalifiziert auf diesen Builds. Die
 historischen Pilot- und Reviewabschnitte oben bleiben als frühere Evidenz
 erhalten; sie werden durch diesen vollständigen Demo- und Cleanupnachweis
 ergänzt, nicht rückwirkend umgedeutet.
+
+Der unabhängige Methodenreview fand zwei fail-open-Lücken im Graphprüfer:
+unbekannte Lockmodi konnten als inkompatibel zählen und der Graph-Victim war
+nicht an den Actor mit Fehler 1205 gebunden. Beide Bedingungen sind jetzt
+geschlossen: nur explizit unterstützte Modi werden ausgewertet, und genau ein
+Graphopfer muss SPID-gebunden zum `VICTIM`-Datensatz mit Fehler 1205 passen;
+der andere Actor muss der erfolgreiche Survivor sein. Danach wurde der
+vollständige 19-Phasen-Lauf samt Cleanup je einmal auf denselben drei Builds
+wiederholt und erneut bestanden.
