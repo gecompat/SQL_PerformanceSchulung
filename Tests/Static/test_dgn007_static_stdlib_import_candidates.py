@@ -105,10 +105,14 @@ class StaticImportCandidateTests(unittest.TestCase):
             b"def _parse_sub(source, state, verbose, nested):\n"
             b"    return None\n"
             b"def _parse_flags(source, state, char):\n"
-            b"    add_flags = FLAGS[char]\n"
+            b"    flag = FLAGS[char]\n"
+            b"    add_flags |= flag\n"
             b'    if char == ")":\n'
             b"        state.flags |= add_flags\n"
             b"        return None\n"
+            b"    if char == '-':\n"
+            b"        flag = FLAGS[char]\n"
+            b"        del_flags |= flag\n"
             b"def fix_flags(src, flags):\n"
             b"    if isinstance(src, str):\n"
             b"        if flags & SRE_FLAG_LOCALE:\n"
@@ -145,7 +149,7 @@ class StaticImportCandidateTests(unittest.TestCase):
         self.assertEqual(candidate["leading_global_inline_flags"],
                          "state.flags |= add_flags")
         self.assertEqual(candidate["global_flag_lookup"],
-                         "add_flags = FLAGS[char]")
+                         "flag = FLAGS[char]; add_flags |= flag; del_flags |= flag")
         self.assertEqual(candidate["text_default"],
                          "add SRE_FLAG_UNICODE unless SRE_FLAG_ASCII is set")
         self.assertEqual(candidate["inline_flag_value_map_candidate"]["i"], 2)
@@ -157,8 +161,8 @@ class StaticImportCandidateTests(unittest.TestCase):
                 b"flags = _parse_flags(source, other, char)", 1),
             parser_source.replace(b"state.flags |= add_flags",
                                   b"state.flags = add_flags", 1),
-            parser_source.replace(b"add_flags = FLAGS[char]",
-                                  b"add_flags = OTHER[char]", 1),
+            parser_source.replace(b"flag = FLAGS[char]",
+                                  b"flag = OTHER[char]", 1),
             parser_source.replace(b"flags |= SRE_FLAG_UNICODE",
                                   b"flags = SRE_FLAG_UNICODE", 1),
             parser_source.replace(
@@ -384,7 +388,7 @@ class StaticImportCandidateTests(unittest.TestCase):
             "parser_global_flag_call": "_parse_flags(source, state, char)",
             "global_flag_position_guard": "if not first or subpattern",
             "leading_global_inline_flags": "state.flags |= add_flags",
-            "global_flag_lookup": "add_flags = FLAGS[char]",
+            "global_flag_lookup": "flag = FLAGS[char]; add_flags |= flag; del_flags |= flag",
             "inline_flag_symbol_map_candidate": {
                 "i": "SRE_FLAG_IGNORECASE", "L": "SRE_FLAG_LOCALE",
                 "m": "SRE_FLAG_MULTILINE", "s": "SRE_FLAG_DOTALL",

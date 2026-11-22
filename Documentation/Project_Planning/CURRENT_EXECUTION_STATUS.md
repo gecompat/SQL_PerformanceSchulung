@@ -13958,8 +13958,9 @@ bleiben erhalten. 312 fokussierte Tests bestehen lokal; keine Regexausführung.
 
 ### DGN-007 – Parser-Flags bis zur finalen Pattern-Flagsnormalisierung binden (21. November 2026)
 
-Der gepinnte Parser löst globale Inline-Flagzeichen über `add_flags = FLAGS[char]`
-in der geprüften Flag-Tabelle auf, setzt den Eingabewert zunächst in
+Der gepinnte Parser löst Inline-Flagzeichen über `flag = FLAGS[char]` in der
+geprüften Flag-Tabelle auf und sammelt hinzugefügte (`add_flags |= flag`) sowie
+entfernte (`del_flags |= flag`) Flags getrennt. Er setzt den Eingabewert zunächst in
 `state.flags`, übernimmt eine führende Gruppe mit `state.flags |= add_flags` und
 normalisiert nach dem Parsen `p.state.flags` über `fix_flags`. Die gebundene
 Normalisierung ergänzt für Textmuster Unicode, sofern ASCII nicht aktiv ist,
@@ -13975,3 +13976,16 @@ erzeugen keinen Zahlenwertkandidaten. Diese
 Zahlenwerte bleiben statische bedingte Kandidaten, keine ausgeführten
 Regexobjektwerte. 314 fokussierte Tests bestehen. Endgültige Flags werden
 weiterhin nicht als beobachtete Werte ausgegeben.
+
+### DGN-007 – Parser-Flagvertrag am vollständigen CPython-Archiv korrigieren (22. November 2026)
+
+Die erste vollständige Analyse des gepinnten offiziellen CPython-3.12.16-Archivs
+scheiterte an einer falschen Quellannahme im Offlinecandidate: Der echte Parser
+verwendet `flag = FLAGS[char]` und aggregiert Hinzufügen und Entfernen getrennt,
+statt `add_flags = FLAGS[char]` zu schreiben. Die Sourceclosure und synthetischen
+Fixtures binden nun beide Lookup-/Aggregationspfade; Mutationen der Lookupquelle
+bleiben fail-closed. Alle 314 statischen Regressionen bestehen. Die erneute
+Analyse des Archivs mit SHA-256
+`b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c` endet mit
+`CANDIDATES_ONLY`; dies bestätigt die vollständige statische Eingabeverarbeitung,
+nicht Interpreter-, Regex- oder Runtimeausführung.
