@@ -8973,7 +8973,7 @@ def _target_re_parser_group_call_candidate(files):
             or len(parse_sub_calls) != 1
             or len(conditional_parse_calls) != 2
             or len(closing_match_calls) < 1
-            or len(parser_group_checks) != 2
+            or len(parser_group_checks) != 1
             or any([ast.unparse(arg) for arg in call.args] != ["gid"]
                    for call in parser_group_checks)
             or len(escape_group_checks) != 1
@@ -9017,7 +9017,7 @@ def _target_re_parser_group_call_candidate(files):
             "store parsed group width",
         ],
         "parser_group_check_call": "state.checkgroup(gid)",
-        "parser_group_check_call_sites": 2,
+        "parser_group_check_call_sites": 1,
         "escape_group_check_call": "state.checkgroup(group)",
         "parser_execution_observed": False,
         "evidence_scope": "PINNED_RE_PARSER_GROUP_CALL_CANDIDATE",
@@ -9241,11 +9241,10 @@ def _target_re_lookbehind_group_candidate(files):
     if (len(initial_boundary) != 1
             or len(boundary_guards) != 1
             or len(reset_guards) != 1
-            or len(parser_calls) != 3
+            or len(parser_calls) != 2
             or sorted(tuple(ast.unparse(arg) for arg in call.args)
                       for call in parser_calls)
-            != [("condgroup", "source"), ("gid", "source"),
-                ("gid", "source")]
+            != [("condgroup", "source"), ("gid", "source")]
             or len(escape_calls) != 1
             or [ast.unparse(arg) for arg in escape_calls[0].args]
             != ["group", "source"]):
@@ -9260,7 +9259,6 @@ def _target_re_lookbehind_group_candidate(files):
         "open_group_guard": "not self.checkgroup(gid)",
         "same_lookbehind_group_guard": "gid >= self.lookbehindgroups",
         "parser_reference_calls": [
-            "state.checklookbehindgroup(gid, source)",
             "state.checklookbehindgroup(gid, source)",
             "state.checklookbehindgroup(condgroup, source)",
         ],

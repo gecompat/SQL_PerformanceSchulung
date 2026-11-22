@@ -3990,3 +3990,7 @@ Parser-, Regex-, Compiler- oder Runtime-Nachweis.
 ### DGN-007 – Parser-Flagvertrag am vollständigen CPython-Archiv korrigieren (22. November 2026)
 
 Die erste vollständige Analyse des gepinnten CPython-3.12.16-Archivs scheiterte an einer falschen Annahme im Offlinecandidate. Der echte Parser verwendet `flag = FLAGS[char]` und aggregiert hinzugefügte sowie entfernte Flags getrennt (`add_flags |= flag`, `del_flags |= flag`). Candidate, Regressionstest und Übergabevertrag binden jetzt genau diese Quellstruktur; synthetische Lookupmutationen bleiben fail-closed. Alle 314 fokussierten statischen Regressionen bestehen. Die erneute Analyse des vollständigen Archivs mit SHA-256 `b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c` endet mit `CANDIDATES_ONLY`. Damit ist die statische Archivverarbeitung geprüft; Interpreter-, Regex- und Runtimeausführung wurden nicht durchgeführt.
+
+### DGN-007 – vollständigen Regex-Flagsfluss im Archivscan schließen (22. November 2026)
+
+Nach Korrektur der Parserannahmen über Gruppenprüfungen verbindet der vollständige Scan alle 13 direkten Modulstart-Regex-Compilekandidaten mit Parser-/Tokenizertyp und `Pattern.flags`. Der Scan bleibt `CANDIDATES_ONLY`; bedingte Zahlenwerte erscheinen nur für statisch bekannte, kompatible Fälle. Die 314 fokussierten Regressionen und der vollständige CPython-3.12.16-Archivscan bestehen. Interpreter-, Regex- und Runtimeausführung fanden nicht statt.

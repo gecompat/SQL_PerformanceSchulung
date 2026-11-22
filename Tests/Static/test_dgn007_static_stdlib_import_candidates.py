@@ -6222,9 +6222,6 @@ def deferred():
                 b"        raise source.error('missing close')\n"
                 b"    if group is not None:\n"
                 b"        state.closegroup(group, p)\n"
-                b"    if not state.checkgroup(gid):\n"
-                b"        raise source.error('open group')\n"
-                b"    state.checklookbehindgroup(gid, source)\n"
                 b"    lookbehindgroups = state.lookbehindgroups\n"
                 b"    if lookbehindgroups is None:\n"
                 b"        state.lookbehindgroups = state.groups\n"
@@ -6813,7 +6810,7 @@ def deferred():
                 and row["parser_group_call_candidate"]["parser_group_check_call"]
                 == "state.checkgroup(gid)"
                 and row["parser_group_call_candidate"][
-                    "parser_group_check_call_sites"] == 2
+                    "parser_group_check_call_sites"] == 1
                 and row["parser_group_call_candidate"]["escape_group_check_call"]
                 == "state.checkgroup(group)"
                 and not row["parser_group_call_candidate"][
@@ -6861,7 +6858,6 @@ def deferred():
                 and row["parser_lookbehind_candidate"][
                     "parser_reference_calls"]
                 == ["state.checklookbehindgroup(gid, source)",
-                    "state.checklookbehindgroup(gid, source)",
                     "state.checklookbehindgroup(condgroup, source)"]
                 and row["parser_lookbehind_candidate"]["escape_reference_call"]
                 == "state.checklookbehindgroup(group, source)"
@@ -7536,6 +7532,26 @@ def deferred():
                          "re._parser"),
                     ),
                     [],
+                )
+
+            altered_group_check_count = dict(files)
+            altered_group_check_count["re/_parser.py"] = (
+                altered_group_check_count["re/_parser.py"].replace(
+                    b"        if not state.checkgroup(gid):\n",
+                    b"        state.checkgroup(gid)\n"
+                    b"        if not state.checkgroup(gid):\n",
+                    1,
+                )
+            )
+            altered_group_check_digest = hashlib.sha256(
+                altered_group_check_count["re/_parser.py"]
+            ).hexdigest()
+            with patch.object(SUBJECT, "RE_PARSER_SOURCE_SHA256",
+                              altered_group_check_digest):
+                self.assertIsNone(
+                    SUBJECT._target_re_parser_group_call_candidate(
+                        altered_group_check_count,
+                    )
                 )
 
             altered_group_width = dict(files)
