@@ -14439,7 +14439,9 @@ erhoben; damit ist keine atomare Seitenstrukturzuordnung zum exakten
 Waitzeitpunkt bewiesen. Der Befund bleibt ein begrenzter Engineering-Pilot;
 unabhängiger Methodenreview, parallele Splitsemantik und vollständige Demo- und
 Leistungsqualifikation bleiben getrennte Gates. Die 48×3-PR-Matrix bestand im
-Workflow-Lauf 45055503746 für alle drei Builds; die übrigen Pflichtchecks für
-PR #1145 bestanden ebenfalls. PR #1145 wurde am 22. November 2026 per Squash
-gemergt; `origin/main` enthält den Abschluss unter
+[Workflow-Lauf 45055503746](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45055503746)
+für alle drei Builds; die übrigen Pflichtchecks für
+[PR #1145](https://github.com/gecompat/SQL_PerformanceSchulung/pull/1145)
+bestanden ebenfalls. PR #1145 wurde am 22. November 2026 per Squash gemergt;
+`origin/main` enthält den Abschluss unter
 `cc9004ae8b5caef2e50ab6d039e25c2ae92a0e12`.
