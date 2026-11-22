@@ -14498,11 +14498,14 @@ Waitseite ergaben. Blattzahl und freier Platz bleiben ein physisches
 Vorab-Gate. Eine gezielte DMV-Diagnose zeigte, dass wiederkehrende Waits auf
 einer anderen Objekt-ID als der Zielindex lagen. Der Pilot aktualisiert deshalb
 während der Bursts keine Fortschrittszeilen in `lab.ActorSessions` mehr und
-erkennt den Abschluss anhand des Zeilenzuwachses in `dbo.Hot`. Die aktuellen
-lokalen Läufe auf Build 15/16/17 bestanden damit je drei von drei
-Zweiburstversuchen: 661 Zeilen auf Build 15/16 und 613 auf Build 17. Alle
-bestätigten Datenbank-/Container-Cleanup. Die frische CI-Matrix mit derselben
-Änderung steht noch aus. Frühere
+erkennt den Abschluss anhand des Zeilenzuwachses in `dbo.Hot`. Der erste neue
+CI-Lauf hatte danach auf SQL Server 2019 drei Versuche ohne überlappende
+Actor-Waits im kurzen Capturefenster. Der Reader hält dieses Fenster nun mit
+zehn Millisekunden Pause je Blattseitenprobe offen; die Nachweisbedingungen
+bleiben gleich. Die aktuellen lokalen Läufe auf Build 15/16/17 bestanden mit
+beiden Korrekturen je drei von drei Zweiburstversuchen: 661 Zeilen auf Build
+15/16 und 613 auf Build 17. Alle bestätigten Datenbank-/Container-Cleanup. Die
+frische CI-Matrix mit derselben Änderung steht noch aus. Frühere
 CI-Versuche mit 64 Actors und `FILLFACTOR=100` lieferten auf SQL Server 2019
 keine überlappenden Waits; 80×1 und 96×1/96×2 trafen in
 einzelnen Builds auf Seitensplits. Die aktuelle CI-Matrix erlaubt je Build

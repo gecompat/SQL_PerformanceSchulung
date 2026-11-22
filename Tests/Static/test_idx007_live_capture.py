@@ -55,6 +55,7 @@ class LiveCaptureParserTests(unittest.TestCase):
         query = page_metadata_sql({(1, 489)}, 1)
         self.assertLess(query.index("IDX007_CHAIN_CAPTURE_BEGIN"), query.index("DECLARE @candidate"))
         self.assertLess(query.index("DECLARE @candidate"), query.index("IDX007_CHAIN_CAPTURE_END"))
+        self.assertIn("WAITFOR DELAY '00:00:00.010'", query)
 
     def test_shared_wait_interval_must_intersect_chain_capture(self) -> None:
         left = {"begin_seq": 2, "end_seq": 9}

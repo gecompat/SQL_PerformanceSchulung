@@ -231,10 +231,13 @@ Actor-Sitzungen werden vor dem Burst registriert; Fortschritts-Updates auf
 `lab.ActorSessions` während der gemessenen Bursts entfallen. Der Harness
 erkennt Burstabschlüsse jetzt über die erwartete Zeilenzahl in `dbo.Hot`.
 So erzeugt die Fortschrittsverfolgung keine eigenen Seiten-Waits, die mit dem
-Zielindex verwechselt werden könnten. Die aktuellen lokalen Läufe auf
-SQL Server 2019/2022/2025 bestanden mit dieser Änderung je drei von drei
-vollständigen Zweiburstversuchen; die frische CI-Matrix muss sie noch auf allen
-drei Builds bestätigen.
+Zielindex verwechselt werden könnten. Die Runtime-Matrix zeigte danach ein zu
+kurzes Lesefenster auf SQL Server 2019. Der Kettenleser pausiert daher nach
+jeder Blattseitenprobe zehn Millisekunden, während dieselbe verbundene Session
+im markierten Fenster bleibt. Es kommen keine weiteren Schreiblasten hinzu.
+Die aktuellen lokalen Läufe auf SQL Server 2019/2022/2025 bestanden mit beiden
+Korrekturen je drei von drei vollständigen Zweiburstversuchen; die frische
+CI-Matrix muss sie noch auf allen drei Builds bestätigen.
 
 Die angepasste Lastform verwendet 501 Seeds und eine Einfügung pro Actor je
 Burst. Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) verwenden

@@ -613,9 +613,13 @@ Zweiburstnachweis und erhält alle `NOT_PROVEN`-Ausgaben. Die Diagnose fand
 Waits auf einer anderen Objekt-ID als dem Zielindex. Die
 Fortschritts-Updates der Actors auf der Steuerungstabelle wurden aus den
 Messfenstern entfernt; Burstabschluss wird nun über den Zeilenzuwachs der
-Zieltabelle erkannt. SQL Server 2025 bestand mit dieser Korrektur lokal drei
-von drei Versuchen; die neuen Build-15/16-Läufe und die frische PR-Matrix
-bestätigen noch die Korrektur für alle Profile.
+Zieltabelle erkannt. Alle drei SQL-Server-Builds bestanden mit dieser Korrektur
+lokal drei von drei Versuchen. Der erste neue CI-Lauf zeigte, dass das
+Leserfenster auf SQL Server 2019 noch zu kurz war. Der
+Reader hält es nun mit zehn Millisekunden Pause je Blattseitenprobe offen; die
+Bedingung für einen gültigen Waitnachweis bleibt unverändert. Alle drei Builds
+bestanden mit diesem endgültigen Verhalten lokal erneut je drei von drei
+Versuchen; die frische PR-Matrix bleibt offen.
 `METHOD_DRAFT` bleibt bestehen, da
 mehrere DMV-Lesevorgänge keine atomare Snapshotgarantie und keine
 Splitsemantik liefern. Die frische PR-Matrix und Pflichtchecks stehen noch

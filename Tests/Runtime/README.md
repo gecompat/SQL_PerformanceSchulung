@@ -119,7 +119,9 @@ jeden Build unverändert. Actor-Sessions werden vor dem Burst registriert;
 Fortschritts-Updates auf der gemeinsamen Steuerungstabelle während der
 Messfenster entfallen. Der Harness erkennt Burstabschlüsse am Zeilenzuwachs der
 Zieltabelle, damit die Steuerung nicht selbst konkurrierende Seiten-Waits
-erzeugt.
+erzeugt. Der Kettenleser hält das markierte Fenster mit zehn Millisekunden
+Pause nach jeder Blattseitenprobe offen, ohne zusätzliche Schreiblast zu
+erzeugen.
 
 CI führt pro Build höchstens drei vollständige, voneinander getrennte Versuche
 mit identischen Grenzen aus. Ein Build-Job besteht, sobald mindestens ein

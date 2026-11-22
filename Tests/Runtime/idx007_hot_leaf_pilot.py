@@ -20,6 +20,7 @@ DB = "SQLPERF_LAB_IDX007_PENDING"
 ACTOR_COUNTS = {15: 80, 16: 80, 17: 56}
 FILLFACTORS = {15: 100, 16: 100, 17: 10}
 ROWS_PER_BURST = 1
+PAGE_SCAN_DELAY = "00:00:00.010"
 
 
 class PilotError(RuntimeError):
@@ -273,6 +274,7 @@ BEGIN
   BEGIN CATCH
     -- Invalid or deallocated event resources are not candidates for this proof.
   END CATCH;
+  WAITFOR DELAY '{PAGE_SCAN_DELAY}';
   FETCH NEXT FROM page_cursor INTO @file,@page;
 END;
 CLOSE page_cursor; DEALLOCATE page_cursor;
