@@ -119,7 +119,7 @@ jeden Build unverändert. Actor-Sessions werden vor dem Burst registriert;
 Fortschritts-Updates auf der gemeinsamen Steuerungstabelle während der
 Messfenster entfallen. Der Harness erkennt Burstabschlüsse am Zeilenzuwachs der
 Zieltabelle, damit die Steuerung nicht selbst konkurrierende Seiten-Waits
-erzeugt. Der Kettenleser hält das markierte Fenster mit zehn Millisekunden
+erzeugt. Der Kettenleser hält das markierte Fenster mit fünfzig Millisekunden
 Pause nach jeder Blattseitenprobe offen, ohne zusätzliche Schreiblast zu
 erzeugen.
 

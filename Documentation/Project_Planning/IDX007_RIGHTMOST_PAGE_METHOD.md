@@ -231,17 +231,20 @@ Actor-Sitzungen werden vor dem Burst registriert; Fortschritts-Updates auf
 `lab.ActorSessions` während der gemessenen Bursts entfallen. Der Harness
 erkennt Burstabschlüsse jetzt über die erwartete Zeilenzahl in `dbo.Hot`.
 So erzeugt die Fortschrittsverfolgung keine eigenen Seiten-Waits, die mit dem
-Zielindex verwechselt werden könnten. Die Runtime-Matrix zeigte danach ein zu
-kurzes Lesefenster auf SQL Server 2019. Der Kettenleser pausiert daher nach
-jeder Blattseitenprobe zehn Millisekunden, während dieselbe verbundene Session
-im markierten Fenster bleibt. Es kommen keine weiteren Schreiblasten hinzu.
-Die aktuellen lokalen Läufe auf SQL Server 2019/2022/2025 bestanden mit beiden
-Korrekturen je drei von drei vollständigen Zweiburstversuchen. Die serielle
+Zielindex verwechselt werden könnten. Die Runtime-Matrix zeigte danach zu
+kurze Lesefenster auf SQL Server 2019 und 2022. Der Kettenleser pausiert daher
+nach jeder Blattseitenprobe fünfzig Millisekunden, während dieselbe verbundene
+Session im markierten Fenster bleibt. Es kommen keine weiteren Schreiblasten
+hinzu. Ein späterer CI-Lauf auf dem vorherigen 10-ms-Stand verfehlte SQL Server
+2022 in drei Versuchen; die aktuelle lokale 50-ms-Matrix bestand auf SQL
+Server 2019/2022/2025 je drei von drei vollständigen Zweiburstversuchen. Die
+serielle
 CI-Matrix ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
 bestand ebenfalls auf allen drei Builds: Build 15 mit drei, Build 16 mit zwei
 und Build 17 mit einem vollständigen Zweiburstnachweis aus je drei begrenzten
 Versuchen. Alle Versuche bestätigten das Cleanup; erfolglose Varianten blieben
-`NOT_PROVEN`.
+`NOT_PROVEN`. Die 50-ms-Variante muss in einer neuen PR-Matrix noch bestätigt
+werden.
 
 Die angepasste Lastform verwendet 501 Seeds und eine Einfügung pro Actor je
 Burst. Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) verwenden

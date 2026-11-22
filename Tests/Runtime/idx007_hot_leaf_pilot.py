@@ -20,7 +20,7 @@ DB = "SQLPERF_LAB_IDX007_PENDING"
 ACTOR_COUNTS = {15: 80, 16: 80, 17: 56}
 FILLFACTORS = {15: 100, 16: 100, 17: 10}
 ROWS_PER_BURST = 1
-PAGE_SCAN_DELAY = "00:00:00.010"
+PAGE_SCAN_DELAY = "00:00:00.050"
 
 
 class PilotError(RuntimeError):
@@ -486,6 +486,11 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             xe_sessions.remove(session)
             rows, wait_pairs, overlaps = parse_wait_pairs(capture_output, stage, bindings, database_id)
             chain_start, chain_end = parse_chain_markers(capture_output, stage)
+            window_rows = [row for row in rows if chain_start <= row["seq"] <= chain_end]
+            for row in window_rows[:64]:
+                print(f"LATCH_EVENT|stage={stage}|seq={row['seq']}|session={row['sid']}|request={row['rid']}|page={row['db']}:{row['file']}:{row['page']}|mode={row['mode']}|class={row['class']}|event={row['event']}|duration_us={row['duration']}|success={row['success']}")
+            if len(window_rows) > 64:
+                print(f"LATCH_EVENT_TRUNCATED|stage={stage}|window_rows={len(window_rows)}|reported=64")
             overlaps = [(left, right) for left, right in overlaps
                         if overlaps_capture_window(left, right, chain_start, chain_end)]
             if not overlaps:

@@ -615,15 +615,20 @@ Fortschritts-Updates der Actors auf der Steuerungstabelle wurden aus den
 Messfenstern entfernt; Burstabschluss wird nun über den Zeilenzuwachs der
 Zieltabelle erkannt. Alle drei SQL-Server-Builds bestanden mit dieser Korrektur
 lokal drei von drei Versuchen. Der erste neue CI-Lauf zeigte, dass das
-Leserfenster auf SQL Server 2019 noch zu kurz war. Der
-Reader hält es nun mit zehn Millisekunden Pause je Blattseitenprobe offen; die
-Bedingung für einen gültigen Waitnachweis bleibt unverändert. Alle drei Builds
-bestanden mit diesem endgültigen Verhalten lokal erneut je drei von drei
-Versuchen. Die serielle PR-Matrix ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
+Leserfenster auf SQL Server 2019 und 2022 noch zu kurz war. Der Reader hält es
+nun mit fünfzig Millisekunden Pause je Blattseitenprobe offen; die Bedingung
+für einen gültigen Waitnachweis bleibt unverändert. Ein späterer
+Dokumentationslauf auf dem 10-ms-Stand verfehlte SQL Server 2022 in allen drei
+Versuchen. Die aktuelle 50-ms-Variante bestand lokal erneut auf allen drei
+Builds je drei von drei vollständigen Zweiburstversuchen; beide Bursts
+bestätigten die exklusive Waitüberlappung auf der rechten Blattseite, und alle
+Versuche bestätigten das Cleanup. Die serielle PR-Matrix
+([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
 bestand ebenfalls: Build 15 dreimal, Build 16 zweimal und Build 17 einmal je
 drei begrenzten Zweiburstversuchen. Alle anderen Läufe blieben sichtbar
-`NOT_PROVEN`; der nächste offene Gate ist die getrennte Methodenfreigabe vor
-einer Statusänderung oder Leistungsbehauptung.
+`NOT_PROVEN`. Die frische PR-Matrix für die 50-ms-Variante steht noch aus. Die
+getrennte Methodenfreigabe bleibt vor einer
+Statusänderung oder Leistungsbehauptung erforderlich.
 `METHOD_DRAFT` bleibt bestehen, da
 mehrere DMV-Lesevorgänge keine atomare Snapshotgarantie und keine
 Splitsemantik liefern. Die frische PR-Matrix und Pflichtchecks stehen noch
