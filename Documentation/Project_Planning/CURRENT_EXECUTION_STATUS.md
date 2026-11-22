@@ -14464,11 +14464,13 @@ Die neue PR-Matrix deckte danach eine weitere Lastformgrenze auf: SQL Server
 2025 lieferte nach dem ersten 48×1-Burst zwar überlappende Waits, aber die
 500-Zeilen-Seedmenge ließ deren Seite nach einem Split nicht mehr als terminale
 Blattseite bestätigen. Der Erheber lieferte korrekt `NOT_PROVEN`. Die
-Auch 451 Seedzeilen mit `FILLFACTOR=10` oder `1` ließen SQL 2019, 2022 und 2025
-bei je einem Burst eine Wait-Seite nach einem Split nicht mehr terminal
-bestätigen. Der Erheber lieferte korrekt `NOT_PROVEN`. Die Lastform nutzt nun
-801 Seeds mit `FILLFACTOR=100`; die lokale isolierte Drei-Build-Matrix bestand
-danach: je zwei Blattseiten, zwei per Eventsequenz bestätigte Wait-/Ketten-
-aufnahmen, 897 Zeilen sowie bestätigtes Datenbank- und Container-Cleanup. Die
-frische PR-Matrix für diesen Stand steht noch aus. Die Metadatenaufnahme bleibt
-nicht atomar zum exakten Waitzeitpunkt.
+Auch 451 Seedzeilen mit `FILLFACTOR=10` oder `1` sowie 801 Seeds mit
+`FILLFACTOR=100` ließen in CI einzelne Wait-Seiten nach einem Split nicht mehr
+terminal bestätigen. Der Erheber lieferte korrekt `NOT_PROVEN`. Die Lastform
+nutzt nun 701 Seeds mit `FILLFACTOR=100` und ein physisches Vorab-Gate für die
+rechte Seite (mindestens zwei Blattseiten und 2.048 freie Bytes). Die lokale
+isolierte Drei-Build-Matrix bestand danach: je zwei Blattseiten, 225 Slots,
+4.271 freie Bytes, zwei per Eventsequenz bestätigte Wait-/Kettenaufnahmen,
+797 Zeilen sowie bestätigtes Datenbank- und Container-Cleanup. Die frische
+PR-Matrix für diesen Stand steht noch aus. Die Metadatenaufnahme bleibt nicht
+atomar zum exakten Waitzeitpunkt.
