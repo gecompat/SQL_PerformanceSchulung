@@ -1031,3 +1031,26 @@ Lokale Ergebnisse und spätere Actions-Ergebnisse werden getrennt
 bewertet. Coordinator-, Ressourcen-, Reihenfolge- und vollständige
 Lifecycleattestation sowie Incident-, Ursachen-, Mitigations-, Capstone-
 und Szenariofreigabe bleiben offen.
+
+## Quellenvergleich für einen möglichen G13-Gegenentwurf (22. November 2026)
+
+Der Quellenvergleich nimmt keine Änderung an DEC-072, den SQL-Guards oder dem
+Captureproducer vor. Er prüft nur, ob sich die bestehende Zeitzuordnung ohne
+unbelegte gemeinsame Clockannahme ersetzen lässt.
+
+| Kandidat | Quellenbefund | Ergebnis für den bestehenden Vertrag |
+|---|---|---|
+| Tickgenauer Vergleich von `SYSUTCDATETIME()` mit `first_execution_time`/`last_execution_time` | [Microsoft dokumentiert](https://learn.microsoft.com/en-us/sql/t-sql/functions/sysutcdatetime-transact-sql?view=sql-server-ver17), dass `SYSUTCDATETIME()` Systemzeit als `datetime2` zurückgibt und die Genauigkeit hardware-/Windowsabhängig ist; die genannte API-Präzision von 100 ns ist keine Zusicherung der tatsächlichen Genauigkeit. Die [Query-Store-DMV](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-runtime-stats-transact-sql?view=sql-server-ver17) definiert First/Last als Ende einer Ausführung innerhalb eines Aggregationsintervalls, aber keine gemeinsame Tickuhr mit den Requestmarkern. | Nicht tragfähig als versionsübergreifender exakter Einschließungsbeleg. Das ist eine Quellenfolgerung, keine Aussage über die historische G13-Ursache. |
+| Zuordnung allein über Query-Store-Intervallgrenzen | Query Store gruppiert Runtimewerte nach automatisch erzeugten Intervallen und aggregiert sie je Plan. Die Intervallgrenzen liefern keine Verbindung zu einem einzelnen Request, solange mehrere Requestpopulationen denselben Query-/Plan-/Intervallschlüssel teilen. | Keine eindeutige `WindowId`-Zuordnung für den unveränderten Mehrfensterablauf. Eine Intervalltrennung pro Fenster müsste selbst sicher und ohne dieselbe Uhrenannahme nachgewiesen werden. |
+| Zuordnung über `count_executions`-Differenzen vor/nach jedem Fenster | Query Store hält Runtimewerte im Arbeitsspeicher und schreibt sie gemäß Flushintervall; die [Sammelbeschreibung](https://learn.microsoft.com/en-us/sql/relational-databases/performance/how-query-store-collects-data?view=sql-server-ver17) sagt, dass Runtimewerte nach Ausführungen an Query Store gesendet werden. Sie definiert aber keinen transaktionalen Snapshot-/Commitvertrag, der eine externe Vorher-/Nachherzählung atomar an alle vier Requestabschlüsse bindet. | Ohne einen eigenen nachgewiesenen Sichtbarkeits-/Drainvertrag ist eine Countdifferenz kein vollständiger Requestzuordnungsbeleg. Zusätzlicher Flush oder Poll wäre eine Methoden- und Budgetänderung. |
+| Eindeutiger Query-/Plan-Schlüssel je Requestpopulation | Separate Queryidentitäten könnten eine populationsbezogene Aggregation ermöglichen. Der aktuelle Ablauf führt jedoch dieselbe gebundene Prozedur-/Statementquelle über mehrere Fenster aus; neue Tags oder Wrapper müssten nachweisen, dass Abfrage-, Plan- und Capturesemantik unverändert bleiben und Query Store die Identitäten tatsächlich trennt. | Denkbarer Entwurfszweig, aber noch kein Kandidat: Dafür wären ein geänderter Messvertrag, statische Text-/Planoracle und eine unabhängige Methodenprüfung erforderlich. |
+
+Damit ist noch keine quellenbelegte Alternative gefunden, die gleichzeitig die
+unveränderte DGN-007-Abfrage, die per-Fenster-Zuordnung, die vollständigen
+Ergebnis-/Plan-/Countoracles und den bisherigen Scope erhält. Das Arbeitspaket
+bleibt `METHOD_BLOCKED`; es kann nur durch einen neuen prüffähigen Messvertrag
+mit unabhängiger Methodenprüfung geöffnet werden. Es gibt keinen SQL- oder
+Runtimeversuch, keine Zeitstempeltoleranz und keine Promotion historischer
+G13-Diagnosen. Als nächster ausführbarer Schnitt geht die Welle daher zu
+CON-006, während IDX-007-Methodenreview und Terminalsemantik parallel
+reviewfertig gemacht werden.
