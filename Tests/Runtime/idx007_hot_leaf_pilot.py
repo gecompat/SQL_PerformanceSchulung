@@ -380,6 +380,7 @@ GO
 ALTER INDEX PK_Hot ON dbo.Hot REBUILD WITH (FILLFACTOR={fillfactor});
 GO
 SELECT CONCAT('DBID|',DB_ID());
+SELECT CONCAT('TARGET_OBJECT|',OBJECT_ID(N'dbo.Hot'));
 SELECT CONCAT('RIGHT_EDGE|',a.allocated_page_file_id,'|',a.allocated_page_page_id,'|',i.slot_count,'|',i.free_bytes)
 FROM sys.dm_db_database_page_allocations(DB_ID(),OBJECT_ID(N'dbo.Hot'),1,NULL,'DETAILED') AS a
 CROSS APPLY sys.dm_db_page_info(DB_ID(),a.allocated_page_file_id,a.allocated_page_page_id,'DETAILED') AS i
@@ -392,6 +393,7 @@ WHERE is_allocated=1 AND page_type_desc=N'DATA_PAGE' AND index_id=1;
         setup_output = sqlcmd(name, env, setup)
         database_created = True
         database_id = int(next(line.split("|", 1)[1] for line in setup_output.splitlines() if line.startswith("DBID|")))
+        target_object_id = int(next(line.split("|", 1)[1] for line in setup_output.splitlines() if line.startswith("TARGET_OBJECT|")))
         right_edge = next((line for line in setup_output.splitlines() if line.startswith("RIGHT_EDGE|")), None)
         if right_edge is None:
             raise PilotError("rebuilt index right edge could not be resolved")
@@ -401,6 +403,7 @@ WHERE is_allocated=1 AND page_type_desc=N'DATA_PAGE' AND index_id=1;
         if int(edge_leaf_pages) <= 1 or int(edge_free_bytes) < 6000:
             raise PilotError(f"rebuilt terminal leaf lacks bounded burst capacity: pages={edge_leaf_pages}, free_bytes={edge_free_bytes}")
         print(f"RIGHT_EDGE|file={edge_file}|page={edge_page}|slots={edge_slots}|free_bytes={edge_free_bytes}|leaf_pages={edge_leaf_pages}|PASS")
+        print(f"TARGET_OBJECT|{target_object_id}")
         leaf_addresses = {(int(parts[1]), int(parts[2])) for line in setup_output.splitlines()
                           if line.startswith("LEAF|") for parts in [line.split("|")]}
         if not leaf_addresses or len(leaf_addresses) > 128:
