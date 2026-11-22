@@ -565,7 +565,11 @@ weist als nächste offene DGN-007-Abnahme die Vergleichbarkeit der Query-Store-
 Ausführungsendzeiten mit den `SYSUTCDATETIME()`-Requestklammern an exakten
 100-ns-Grenzen aus. Ein quellenbasierter, prüffähiger Gegenentwurf muss einen
 vergleichbaren Einschließungsbeleg oder eine unabhängig validierte
-Kollektivzuordnung definieren. Bis dahin bleibt dieser Punkt methodisch offen:
+Kollektivzuordnung definieren. Ein Extended-Events-Ansatz mit expliziten
+Fenstermarkern ist als quellenplausibler, vertragsändernder Kandidat geprüft;
+Markerreihenfolge, Action-/Eventfelder, Eventverlust, Hashmehrdeutigkeit und
+die Änderung des Countoracles sind noch zu spezifizieren. Bis dahin bleibt
+dieser Punkt methodisch offen:
 keine Toleranzänderung, kein Bypass und keine Wiederholung derselben Probe.
 Aktueller Beleg und Grenzen stehen im [DGN-007-Capture-Nachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md#verbleibende-abnahmegrenzen)
 und im [Ausführungsstatus](CURRENT_EXECUTION_STATUS.md).
@@ -579,13 +583,15 @@ Variante angehalten und mit dem nächsten Paket fortgefahren.
 
 | Reihenfolge | Konkreter Arbeitsschnitt | Abschlusskriterium vor Runtime | Nächster Schritt / Grenze |
 |---|---|---|---|
-| 1. DGN-007 Zeitzuordnung | Quellengebundener Vergleich der vorhandenen G13-Kriterien mit Alternativen: gemeinsamer Zeitgeber, Query-Store-Intervallzuordnung und populationsbasierte Query-/Plan-/Ausführungszählung. Für jede Alternative werden die belegten Felder, erforderliche SQL-/Abfrageänderungen und Gegenfälle festgehalten. | Eine Methode ordnet alle erforderlichen Query-Store-Ausführungen einer Requestpopulation ohne unbelegte tickgenaue Uhrenannahme zu und erhält Ergebnis-, Plan- und Countoracles; andernfalls ist der Befund ein expliziter Methodenblocker mit dem zusätzlich nötigen Entscheidungsumfang. | Keine Toleranzlockerung, kein unveränderter Wiederholungslauf und keine Runtimeänderung vor einem prüffähigen Methodenentwurf und unabhängiger Prüfung. Bei Blocker weiter zu CON-006. |
+| 1. DGN-007 Zeitzuordnung | Bereits geprüft: gemeinsamer Zeitgeber, Query-Store-Intervallzuordnung, Countdifferenzen und Query-/Planidentität. Der [XE-Methodenentwurf](DGN_007_XE_WINDOW_ATTRIBUTION_METHOD.md) beschreibt begrenzte Abschlussereignisse zwischen expliziten Fenstermarkern, eindeutige Query-/Planhash-Zuordnung und fail-closed Verlust-/Mehrdeutigkeitsregeln. | Entweder bleibt der bestehende Messvertrag erhalten und alle Query-Store-Ausführungen erhalten einen belegten per-Fensterbezug, oder ein separat abgegrenzter Messvertrag ersetzt das per-Fenster-QS-Countoracle, erhält Ergebnis-/Planoracles und wird unabhängig geprüft. | Reviewfähiger Draft ist erstellt. Nächster Schritt ist unabhängiger Review; bis dahin keine Session, SQL-Probe, Toleranzlockerung oder Runtimeänderung. |
 | 2. CON-006 Range | Gemeinsame Delta-Prüfung von Range-Graph, Capturekorrelation und seriellem Kontrollarm gegen den Methodenentwurf und die bisherigen Konversions- und Rangeverträge. Festgehalten werden Prozess-/Opfer-/Survivorbindung, dieselbe KEY-Ressource, gemeldete Sperrmodi, Fehler 1205, Endbestände, Datenbank-/XE-Eigentum und Cleanup. | Der unabhängige Review bestätigt die Hypothese, alle Pflichtbelege und den begrenzten Pilot-/Cleanupvertrag ohne offene kritische Befunde; ein abweichender Enginegraph führt kontrolliert zu `NOT_PROVEN` oder `FAIL`. | Danach höchstens der getrennt freigegebene eigene Buildpilot mit vollständiger eigener Datenbank-/XE-/Prozessabwesenheit. Keine Änderung am qualifizierten Grund- oder Konversionsfall. |
 | 3. IDX-007 rechte Blattseite | Methodenentwurf gegen aktuelle Herstellerquellen und den implementierten Kettenchecker abgleichen: `page_resource`, Zielseite, Partition, Vor-/Rücklinks, Terminalsemantik, Split-/Änderungsrisiko, Wait-Klammer, Rechte, Seitenkappe und Abbruchstatus. | Der Review identifiziert einen versionsgebundenen Terminalnachweis und akzeptiert die begrenzte nichtatomare Beobachtung samt konkurrierender Änderungen; ein nicht belegter Terminalmarker bleibt `NOT_PROVEN`. | Erst danach eine read-only Probe in einer eigenen wegwerfbaren Datenbank/Instanz, mit frischer Eigentumsbindung und unabhängigem Cleanupbeleg. Kein Last- oder Leistungsclaim aus einer Seitenkette allein. |
 
-Der Plan erteilt keine neue Laufzeitfreigabe. Gegenwärtig beginne ich mit dem
-Quellenvergleich in Paket 1 und der Vorbereitung der Delta-Reviewlisten für
-Pakete 2 und 3. Für den benötigten unabhängigen Methodenreview bleibt ein
+Der Plan erteilt keine neue Laufzeitfreigabe. Der DGN-007-Quellvergleich und die
+CON-006-/IDX-007-Offlineverträge sind als PRs integriert; bei CON-006 Range und
+IDX-007 bleiben unabhängige Methodenreviews, Cleanupverträge und Enginepiloten
+offen. DGN-007 hat zusätzlich den XE-Methodenzweig, aber noch keinen fertigen
+Reviewvertrag. Für den geforderten unabhängigen Methodenreview bleibt ein
 separater Prüfer erforderlich; der Implementierungsautor zählt dafür nicht als
 unabhängige Abnahme.
 
