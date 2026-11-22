@@ -110,3 +110,20 @@ Offlinevertrag kann diese Gates nicht ersetzen.
 
 Dieser Entwurf wertet keine SQL-Abfrage aus, beweist keine Deadlockvariante und
 ändert weder CON-002 noch den validierten CON-006-Grundfall.
+
+## Begrenzter statischer Graphvertrag
+
+`Tests/Static/con006_range_graph_contract.py` prüft jetzt synthetisch oder
+später bereitgestelltes Deadlock-XML auf genau zwei an die erwarteten SPIDs und
+Datenbank gebundene Prozesse, ein Opfer sowie genau eine gemeinsame
+Datenbank-/Objekt-/Index-/HoBT-`KEY`-Ressource. Beide Actors müssen dort als
+Owner und als Waiter erscheinen; die Lockmodi und `requestType` müssen im Graph
+vorhanden sein. Der Vertrag erzwingt absichtlich kein bestimmtes Paar wie
+`RangeS-S`/`RangeI-N`, da der Entwurf den tatsächlichen Graphen nicht vorwegnimmt.
+
+Das ist ausschließlich eine Formprüfung caller-gelieferter XML- und
+Identitätswerte. Sie authentifiziert weder `system_health`-Herkunft noch
+Run-Token, Zeitfenster, Actorresultate, Opferfehler 1205 oder Cleanup. Ein
+synthetischer PASS belegt keinen Deadlocklauf. Der unabhängige Methodenreview,
+der reale Graph mit tatsächlichen Modi, der serielle Kontrollarm und der
+isolierte Enginepilot bleiben Voraussetzungen für jede Ausführungsfreigabe.

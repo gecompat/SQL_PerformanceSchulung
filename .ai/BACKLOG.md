@@ -2022,6 +2022,8 @@ Sperrmodi, serialer Kontrollarm, unabhängiger Methodenreview und isolierter
 Enginepilot bleiben offen. Produktgrundlage: [SRC-004](../Documentation/Research/SOURCE_REGISTER.md#src-004)
 und Deadlock-Graph-/Opferbelege [SRC-066](../Documentation/Research/SOURCE_REGISTER.md#src-066).
 
+- [x] Offline-Graphprüfer für die Range-Variante ergänzt: zwei gebundene Actorprozesse, ein Opfer und genau eine gemeinsame KEY-Ressource mit Owner-/Waiter-Einträgen sowie vorhandenen, aber nicht vorab festgelegten Lockmodi. Synthetische Negativfälle für Ressourcen-, Actor-, Opfer- und XMLabweichungen laufen im Framework-Contracts-Workflow. Keine XE-/Run-/Zeit-/Resultatherkunft, kein SQL-Lauf, keine Freigabe oder Runtimequalifikation.
+
 **Spätere Abnahme:**
 
 - Je ausgewählter Variante belegt der tatsächliche Konfliktgraph die erwarteten Ressourcen, Modi und Teilnehmer; allgemeines Blocking gilt nicht als Deadlock-Nachweis.
