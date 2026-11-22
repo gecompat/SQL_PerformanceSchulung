@@ -619,7 +619,11 @@ Leserfenster auf SQL Server 2019 noch zu kurz war. Der
 Reader hält es nun mit zehn Millisekunden Pause je Blattseitenprobe offen; die
 Bedingung für einen gültigen Waitnachweis bleibt unverändert. Alle drei Builds
 bestanden mit diesem endgültigen Verhalten lokal erneut je drei von drei
-Versuchen; die frische PR-Matrix bleibt offen.
+Versuchen. Die serielle PR-Matrix ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
+bestand ebenfalls: Build 15 dreimal, Build 16 zweimal und Build 17 einmal je
+drei begrenzten Zweiburstversuchen. Alle anderen Läufe blieben sichtbar
+`NOT_PROVEN`; der nächste offene Gate ist die getrennte Methodenfreigabe vor
+einer Statusänderung oder Leistungsbehauptung.
 `METHOD_DRAFT` bleibt bestehen, da
 mehrere DMV-Lesevorgänge keine atomare Snapshotgarantie und keine
 Splitsemantik liefern. Die frische PR-Matrix und Pflichtchecks stehen noch

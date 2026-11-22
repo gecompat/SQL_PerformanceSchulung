@@ -14505,7 +14505,10 @@ zehn Millisekunden Pause je Blattseitenprobe offen; die Nachweisbedingungen
 bleiben gleich. Die aktuellen lokalen Läufe auf Build 15/16/17 bestanden mit
 beiden Korrekturen je drei von drei Zweiburstversuchen: 661 Zeilen auf Build
 15/16 und 613 auf Build 17. Alle bestätigten Datenbank-/Container-Cleanup. Die
-frische CI-Matrix mit derselben Änderung steht noch aus. Frühere
+serielle PR-Matrix ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
+bestand ebenfalls auf allen Builds: Build 15 mit drei, Build 16 mit zwei und
+Build 17 mit einem erfolgreichen Zweiburstnachweis aus je drei Versuchen; alle
+erfolglosen Varianten blieben `NOT_PROVEN` und bestätigten ihr Cleanup. Frühere
 CI-Versuche mit 64 Actors und `FILLFACTOR=100` lieferten auf SQL Server 2019
 keine überlappenden Waits; 80×1 und 96×1/96×2 trafen in
 einzelnen Builds auf Seitensplits. Die aktuelle CI-Matrix erlaubt je Build
