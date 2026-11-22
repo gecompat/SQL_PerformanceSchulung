@@ -2020,9 +2020,11 @@ SQL Server 2019 (`15.0.4500.2`), 2022 (`16.0.4305.5`) und 2025
 KEY-Ressourcen, `requestType=wait`, Opfer 1205, erfolgreichem Survivor und
 bestandener serieller Kontrolle belegt. Für 2019/2022 war die
 Optimized-Locking-DMV-Eigenschaft nicht verfügbar; 2025 blieb sie vor und nach
-beiden Armen `0`. Keine Einstellung wurde verändert. Vollständiger
-Optionen-/Planabgleich, unabhängiger Review der überarbeiteten Methode,
-vollständige Zeit-/Cleanupgrenzen und Demoqualifikation bleiben offen.
+beiden Armen `0`. Keine Einstellung wurde verändert. Der unabhängige Review
+der überarbeiteten Zwei-Ressourcen-Methode fand eine P2-Dokumentationsinkonsistenz,
+die in der Korrekturrunde behoben wurde; im begrenzten Reviewumfang blieben
+keine technischen P1/P2 offen. Vollständiger Optionen-/Planabgleich,
+Zeit-/Cleanupvertrag und Demoqualifikation bleiben offen.
 Produktgrundlage:
 [SRC-004](../Documentation/Research/SOURCE_REGISTER.md#src-004) und
 Deadlock-Graph-/Opferbelege [SRC-066](../Documentation/Research/SOURCE_REGISTER.md#src-066).
@@ -2030,10 +2032,10 @@ Deadlock-Graph-/Opferbelege [SRC-066](../Documentation/Research/SOURCE_REGISTER.
 - [x] Offline-Graphprüfer für die Range-Variante ergänzt: zwei gebundene Actorprozesse, ein Opfer und zwei unterschiedliche KEY-Ressourcen desselben Indexes mit gekreuzten Owner-/Waiter-Einträgen sowie vorhandenen, aber nicht vorab festgelegten Lockmodi. Synthetische Negativfälle für Ressourcen-, Actor-, Opfer- und XMLabweichungen laufen im Framework-Contracts-Workflow.
 - [x] Offline-Capturekorrelation für den Range-Graph ergänzt: `system_health`, `xml_deadlock_report`, Run-Zeitfenster, einmaliges Ereignis, Actor-/SPID-Bindung und Opfer-1205-/Survivorresultat werden gegen den geprüften Graph verbunden. Gegenproben bestehen; Werte bleiben caller-geliefert und unauthentifiziert, ohne SQL-Ausführung oder Runtimequalifikation.
 - [x] Offline-Prüfer des seriellen Kontrollarms ergänzt: beide Actor-Inserts müssen caller-seitig als erfolgreich vorliegen; erwarteter und beobachteter Schlüssel müssen je Actor übereinstimmen; der finale Schlüsselsatz muss exakt dem Anfangsbestand plus beiden Einfügungen entsprechen; passende Deadlockereignisse müssen null sein. Fehlende Nachweise bleiben `NOT_PROVEN`; Widersprüche `FAIL`. Der Prüfer authentifiziert keine Datenherkunft und ersetzt weder Methodenreview noch isolierten Enginepilot.
+- [x] Überarbeitete Zwei-Ressourcen-Methode unabhängig reviewen: P2-Dokumentationsinkonsistenz zur abgeschlossenen Drei-Build-Matrix behoben; keine technischen P1/P2 im begrenzten Methodenreview offen. Vollständige Zeit-/Cleanup-, Plan-/Optionen- und Demoqualifikation bleiben eigenständige Gates.
 
 **Spätere Abnahme:**
 
-- Überarbeitete Zwei-Ressourcen-Methode unabhängig reviewen, insbesondere Lock-/Planannahmen und den gemeinsamen 45/180/60-Sekunden-Zeit-/Cleanupvertrag.
 - Vollständiger Abgleich der tatsächlich verwendeten Optionen und Abfragepläne; allgemeines Blocking gilt nicht als Deadlock-Nachweis.
 - Vorhandenen CON-006-Grundfall und seinen Abnahmestand erhalten; die neue Variante getrennt in Demo integrieren, qualifizieren und vollständig aufräumen.
 
