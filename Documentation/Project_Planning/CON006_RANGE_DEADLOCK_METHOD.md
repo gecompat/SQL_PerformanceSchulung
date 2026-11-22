@@ -97,7 +97,9 @@ Versuch.
 
 ## Gates
 
-Vor einer ausführbaren Variante sind ein unabhängiger Methoden-/Quellenreview,
+Der unabhängige Methoden-/Quellenreview vom 22. November 2026 fand nach den
+Vertragskorrekturen keine offenen P1/P2 im begrenzten Draftumfang. Er ersetzt
+weder Quellen- noch Runtimequalifikation. Vor einer ausführbaren Variante sind
 der Abgleich mit der freigegebenen CON-002-Kandidatenbeschreibung in der
 [Szenarioanalyse](LABSCN_005_SCENARIO_CANDIDATE_ANALYSIS.md) und die Freigabe
 eines isolierten Zielbuilds erforderlich. Derzeit liegt für CON-002 nur diese
@@ -108,7 +110,9 @@ ausführbaren CON-006-Variante erneut berücksichtigt werden. Der erste Pilot da
 keine gemeinsam genutzte Instanz verändern. SQL Server 2019, 2022 und 2025 sind
 mögliche Matrixziele, keine bereits zugesagte Unterstützung; jedes Build benötigt
 einen eigenen Graph- und Cleanupnachweis. Ein bestandener synthetischer
-Offlinevertrag kann diese Gates nicht ersetzen.
+Offlinevertrag kann diese Gates nicht ersetzen. Die vorgeschlagenen
+Obergrenzen und Recoveryregeln bleiben ein Draft; sie sind nicht auf einer
+laufenden Engine qualifiziert.
 
 ## Quellen und Grenzen
 
@@ -133,8 +137,49 @@ vorhanden sein. Der Vertrag erzwingt absichtlich kein bestimmtes Paar wie
 caller-gelieferte Ereignisquelle `system_health`, den Eventnamen
 `xml_deadlock_report`, genau ein passendes Ereignis im RFC-3339-Laufzeitfenster,
 die Actor-/SPID-Zuordnung sowie das Graphopfer mit Fehler 1205 und den anderen
-Actor als erfolgreichen Survivor. Das ist dieselbe Offline-Korrelationsgrenze
-wie beim Konversionsvertrag; sie stellt keine Herkunftsattestation dar.
+Actor als erfolgreichen Survivor. Für den Range-Deadlockarm verlangt der
+Range-Capturevertrag außerdem je Actor dessen erwarteten Insert-Schlüssel,
+`ROLLED_BACK`/1205 für das Opfer, bestätigtes `INSERTED` ohne Fehler für den
+Survivor und den exakten Endbestand aus Anfangsbestand plus Survivor-Einfügung.
+Das ist dieselbe Offline-Korrelationsgrenze wie beim Konversionsvertrag; sie
+stellt keine Herkunftsattestation dar.
+
+Der Graphprüfer akzeptiert im begrenzten Range-Offlineprofil ausschließlich
+`requestType="wait"`. Der Kandidat ist eine Einfügebereichs-Wartevariante;
+Konversions- oder andere Requesttypen gehören nicht in diesen Vertrag und
+ergeben `FAIL`, selbst wenn ihre Moduswerte sonst kompatibel wären. Das ist ein
+enger Graphvertrag, keine Behauptung über ein vollständiges SQL-Server-XML-
+Schema. Eine spätere Erweiterung erfordert eine eigene Quellenprüfung und
+Gegenfälle.
+
+## Vorgeschlagene Obergrenzen und Eigentums-Cleanup
+
+Der spätere, noch nicht freigegebene Range-Pilot soll die bereits qualifizierten
+CON-006-Runnerobergrenzen übernehmen: höchstens 45 Sekunden je
+Mehrsessionarm, 180 Sekunden Gesamtlaufzeit und 60 Sekunden Cleanup
+([bestehendes Manifest](../../Demos/07_Concurrency/CON-006_Deadlock_Cycle/manifest.json)).
+Alle Signal- und Waitschleifen verwenden eine gemeinsame monotone Armdeadline,
+höchstens 50-ms-Pollintervalle und keine festen Delay-Reihenfolgen. Bei Deadline,
+Abbruch oder unerwartetem SQL-Fehler werden beide Actorclients beendet, alle
+eigenen Sessions auf Transaktionsende geprüft und keine nächste Phase gestartet.
+Cleanup darf nur die beim Setup erzeugte Datenbank und die eigene markierte
+XE-Session entfernen; es prüft vor Entfernung Run-Token, Datenbank-ID,
+Sessionname, Ownermarker und Zielinstanz. Nach erfolgreichem Cleanup muss eine
+unabhängige Abfrage die Datenbank- und XE-Sessionabwesenheit bestätigen. Läuft
+dieser Eigentumsnachweis oder Cleanup in die 60-Sekunden-Grenze, lautet der
+Lauf `FAIL_CLEANUP` und der Pilot stoppt. Im Abbruchpfad werden Actorclients
+zuerst mit einem begrenzten Cancel beendet; ein `KILL` ist nur auf der eigenen
+Wegwerfinstanz nach frischer Prüfung von SPID, Login, eindeutiger
+`program_name`-Runmarke und Datenbank-ID zulässig, nie allein aufgrund einer
+gespeicherten SPID. Der Rollback wird höchstens 30 Sekunden innerhalb des
+60-Sekunden-Cleanupbudgets beobachtet. Bleibt eine eigene Session oder
+Transaktion danach aktiv, wird nur der zuvor durch CID, exakten Namen, Image-ID
+und Ownerlabel bestätigte Wegwerfcontainer gestoppt/entfernt; anschließend
+müssen CID- und Namensabwesenheit unabhängig bestehen. Für Ziele ohne solch
+einen frischen, verifizierbaren Containerbesitz gibt es keinen automatischen
+Force-Recovery-Pfad; dort endet der Versuch `FAIL_CLEANUP`. Diese vorgeschlagene
+Obergrenze muss der unabhängige Review noch bestätigen; sie autorisiert keine
+Ausführung.
 
 `evaluate_range_control` prüft nun den seriellen Kontrollarm auf zwei
 caller-gelieferte erfolgreiche Actorresultate, getrennte Actor- und

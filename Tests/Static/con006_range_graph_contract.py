@@ -45,6 +45,26 @@ class RangeControlEvidence:
     observed_insertions: tuple[tuple[str, int], ...] | None = None
 
 
+@dataclass(frozen=True)
+class RangeInsertOutcome:
+    role: str
+    spid: int
+    key: int
+    outcome: str
+    error_number: int | None
+
+
+@dataclass(frozen=True)
+class RangeCaptureEvidence:
+    """Caller-supplied deadlock-arm insert outcomes and exact final keys."""
+
+    capture: CaptureEvidence | None
+    expected_initial_keys: tuple[int, ...] | None
+    expected_insertions: tuple[tuple[str, int], ...] | None
+    insert_outcomes: tuple[RangeInsertOutcome, ...] | None
+    observed_final_keys: tuple[int, ...] | None
+
+
 def evaluate_range_control(evidence: RangeControlEvidence | None) -> GraphResult:
     """Check both serial inserts, exact final keys, and no supplied deadlock event.
 
@@ -257,8 +277,8 @@ def evaluate_range_graph(graph_xml: str | bytes | None,
         for waiter in waiters:
             if (waiter.get("id") not in process_by_id
                     or not (waiter.get("mode") or "").strip()
-                    or not (waiter.get("requestType") or "").strip()):
-                failures.append("each KEY waiter must identify an actor, observed mode, and request type")
+                    or waiter.get("requestType") != "wait"):
+                failures.append("each range KEY waiter must identify an actor, observed mode, and requestType=wait")
         if (len(owners) == 2 and len(waiters) == 2
                 and set(node.get("id") for node in owners) == set(process_by_id)
                 and set(node.get("id") for node in waiters) == set(process_by_id)):
@@ -281,6 +301,68 @@ def evaluate_range_graph(graph_xml: str | bytes | None,
     return GraphResult(Verdict.PASS, (), process_by_id[victim_id])
 
 
-def evaluate_range_capture(evidence: CaptureEvidence | None) -> GraphResult:
-    """Check the range graph and supplied event/window/outcome bindings."""
-    return _evaluate_capture(evidence, evaluate_range_graph, "range")
+def evaluate_range_capture(evidence: RangeCaptureEvidence | None) -> GraphResult:
+    """Check graph capture plus victim rollback, survivor insert, and exact final keys."""
+    if evidence is None:
+        return GraphResult(Verdict.NOT_PROVEN, ("range deadlock capture evidence is missing",))
+    if type(evidence) is not RangeCaptureEvidence:
+        return GraphResult(Verdict.FAIL, ("range deadlock capture must use the exact contract record",))
+    graph = _evaluate_capture(evidence.capture, evaluate_range_graph, "range")
+    if graph.verdict is not Verdict.PASS:
+        return graph
+
+    missing: list[str] = []
+    failures: list[str] = []
+    initial = _valid_key_tuple(evidence.expected_initial_keys, "expected initial keys", missing, failures)
+    final = _valid_key_tuple(evidence.observed_final_keys, "observed final keys", missing, failures)
+    insertions = _valid_actor_insertions(
+        evidence.expected_insertions, "expected actor insertions", missing, failures)
+    if initial is not None and insertions is not None:
+        if any(key in initial for key in insertions.values()):
+            failures.append("inserted keys overlap the expected initial state")
+
+    capture = evidence.capture
+    if (evidence.insert_outcomes is None):
+        missing.append("deadlock-arm actor insert outcomes")
+        actual: dict[str, RangeInsertOutcome] | None = None
+    elif (type(evidence.insert_outcomes) is not tuple or len(evidence.insert_outcomes) != 2
+          or any(type(item) is not RangeInsertOutcome for item in evidence.insert_outcomes)):
+        failures.append("exactly two deadlock-arm actor insert outcomes are required")
+        actual = None
+    else:
+        roles = [item.role for item in evidence.insert_outcomes]
+        if (any(type(role) is not str for role in roles)
+                or set(roles) != {"ACTOR_A", "ACTOR_B"} or len(set(roles)) != 2):
+            failures.append("insert outcomes must bind ACTOR_A and ACTOR_B exactly once")
+            actual = None
+        else:
+            actual = {item.role: item for item in evidence.insert_outcomes}
+
+    if actual is not None and insertions is not None and type(capture) is CaptureEvidence:
+        expected_spids = dict(capture.actor_spids or ())
+        role_by_spid = {spid: role for role, spid in expected_spids.items()}
+        victim_role = role_by_spid.get(graph.victim_spid)
+        if victim_role not in {"ACTOR_A", "ACTOR_B"}:
+            failures.append("graph victim does not bind to a supplied actor role")
+        else:
+            survivor_role = "ACTOR_B" if victim_role == "ACTOR_A" else "ACTOR_A"
+            victim = actual[victim_role]
+            survivor = actual[survivor_role]
+            for role, outcome in actual.items():
+                if (type(outcome.spid) is not int or outcome.spid != expected_spids.get(role)
+                        or type(outcome.key) is not int or outcome.key != insertions[role]):
+                    failures.append("insert outcome differs from its expected actor/SPID/key binding")
+            if victim.outcome != "ROLLED_BACK" or victim.error_number != 1205:
+                failures.append("deadlock victim insert must roll back with error 1205")
+            if survivor.outcome != "INSERTED" or survivor.error_number is not None:
+                failures.append("deadlock survivor insert must be confirmed without an error")
+            if initial is not None and final is not None:
+                expected_final = set(initial) | {insertions[survivor_role]}
+                if set(final) != expected_final or len(final) != len(expected_final):
+                    failures.append("deadlock-arm final keys must contain only the initial rows and survivor insert")
+
+    if failures:
+        return GraphResult(Verdict.FAIL, tuple(failures), graph.victim_spid)
+    if missing:
+        return GraphResult(Verdict.NOT_PROVEN, tuple(missing), graph.victim_spid)
+    return GraphResult(Verdict.PASS, (), graph.victim_spid)

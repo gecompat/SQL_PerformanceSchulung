@@ -27,11 +27,17 @@ Oracles müssen vor jeder Umsetzung neu festgelegt und unabhängig geprüft sein
    begrenzte XE-Session angelegt. Der Scope erfasst ausschließlich die
    festgelegten Actor-Sessions und das Statement-Abschlussereignis. Bestehende
    XE-Sessions werden weder geändert noch gestoppt.
-2. Pro Fenster schreibt der Coordinator einen eindeutigen Beginmarker, führt
-   die festgelegte Menge an Actorrequests aus und schreibt danach den
-   Endmarker. Marker und Actorereignisse müssen dieselbe monoton geordnete
-   `event_sequence`-Spur belegen; Wandzeit wird nur diagnostisch ausgegeben und
-   nicht zum Einschlussvergleich benutzt.
+2. Vor dem Beginmarker müssen beide Actorverbindungen nachweislich idle sein;
+   kein Request aus dem vorherigen Fenster darf noch laufen. Pro Fenster schreibt
+   der Coordinator einen eindeutigen Beginmarker, führt die festgelegte Menge
+   an Actorrequests aus und schreibt danach den Endmarker. Jeder erwartete
+   Request benötigt ein Start- und Abschlussereignis innerhalb desselben
+   Markerpaares und dieselbe Actor-/Session-/Requestbindung. Fehlende Starts,
+   Abschlüsse, Cross-window-Paare, mehrfache gleichzeitige Actorrequests oder
+   ein Actor, der vor dem Beginmarker nicht idle ist, ergeben `NOT_PROVEN` und
+   sperren Folgefenster bis nach bestätigtem Drain/Reset. Marker und Actorereignisse
+   müssen dieselbe monoton geordnete `event_sequence`-Spur belegen; Wandzeit
+   wird nur diagnostisch ausgegeben und nicht zum Einschlussvergleich benutzt.
 3. Nach dem Endmarker wird die XE-Session regulär gestoppt und ihr vollständiger
    bounded Targetinhalt gelesen. Das Fenster ist nur vollständig, wenn genau
    beide erwarteten Marker, die erwartete Zahl von Actorabschlüssen und keine
@@ -41,9 +47,9 @@ Oracles müssen vor jeder Umsetzung neu festgelegt und unabhängig geprüft sein
 4. Jedes Actorereignis wird über die caller-/producerseitig festgelegte
    Session-/Request-/Tokenbindung und die geprüfte Statementidentität der
    Fensterpopulation zugeordnet. Der konkrete XE-Katalog muss je Zielbuild
-   bestätigen, dass alle erforderlichen Eventfelder und Actions vorhanden
-   sind. Ein abweichender oder unvollständiger Katalog beendet den Kandidaten
-   vor der Messung als `NOT_PROVEN`.
+   bestätigen, dass alle erforderlichen Start-/Endeventfelder und Actions
+   vorhanden sind. Ein abweichender oder unvollständiger Katalog beendet den
+   Kandidaten vor der Messung als `NOT_PROVEN`.
 5. Für die Query-Store-Verknüpfung werden Queryhash und Planhash nur verwendet,
    wenn die aktuelle markergebundene Datenbank genau einen erwarteten
    Query-/Planrecord für den Hashverbund enthält. Null oder mehrere Kandidaten,
@@ -61,11 +67,19 @@ Oracles müssen vor jeder Umsetzung neu festgelegt und unabhängig geprüft sein
 
 Microsoft dokumentiert Query-Store-Runtimewerte als aggregierte Plan-/Intervall-
 Statistik und `query_hash`/`query_plan_hash` als Hashes; Extended Events stellen
-Ereignisse, Actions und Ziele bereit. Diese Quellen belegen für sich allein
-weder eine vollständige Markerordnung für diesen Coordinator noch die
-Hash-Eindeutigkeit, verlustfreie Eventzustellung oder einen Query-Store-
-Sichtbarkeitsbarrier. Der Entwurf behandelt diese Punkte deshalb als
-Qualifikationsbedingungen, nicht als zugesicherte Produkteigenschaften.
+Ereignisse, Actions und Ziele bereit. Die dokumentierte `sql_statement_completed`-
+Beispielpayload enthält das Statement selbst. Der Kandidat darf deshalb nur
+eine pro Build geprüfte Event-/Action-Allowlist verwenden, die Statementtext,
+Parameter, Eingabepuffer, Showplan und andere vertrauliche Payload ausschließt.
+Wenn ein ausgewähltes Ereignis solche Daten zwingend im Target ablegt und sie
+nicht mit der gewählten Eventsemantik ausgeschlossen werden können, ist diese
+Methode unter der aktuellen Datenschutzgrenze nicht verwendbar; kein
+„nicht ausgegeben“ ersetzt „nicht aufgezeichnet“.
+
+Die Quellen belegen für sich allein weder eine vollständige Markerordnung für
+diesen Coordinator noch Hash-Eindeutigkeit, verlustfreie Eventzustellung oder
+einen Query-Store-Sichtbarkeitsbarrier. Der Entwurf behandelt diese Punkte daher
+als Qualifikationsbedingungen, nicht als zugesicherte Produkteigenschaften.
 
 - Keine Vergleiche zwischen XE-, Query-Store- und `SYSUTCDATETIME()`-Ticks für
   die Fensteraufnahme.
@@ -74,23 +88,25 @@ Qualifikationsbedingungen, nicht als zugesicherte Produkteigenschaften.
 - Kein Query-Store-Flush, Pollingloop, Intervallwechsel, Hashforcierung oder
   Querytextmarker im gemessenen Statement ohne neue Oracle-/Planprüfung.
 - Keine Ausgabe von Rohquerytext, Eventpayload, Actorparametern oder Secrets.
-  Das Target bleibt markergebunden, begrenzt und wird vor Cleanup nur durch
-  den eigenen Collector konsumiert.
+  Ein lokales Target wird vor dem Start auf exakt erlaubte Eventfelder geprüft,
+  markergebunden und größenbegrenzt; ausschließlich der eigene Collector darf
+  es konsumieren. Auf allen Erfolgs-, Fehler-, Timeout- und Abbruchpfaden werden
+  die eigene Session und Zielartefakte innerhalb derselben begrenzten
+  Cleanupdeadline entfernt und ihre Abwesenheit unabhängig bestätigt.
 - Jede Unvollständigkeit, Mehrdeutigkeit, nicht unterstützte Feldstruktur,
   Hashkollision oder Actorabweichung ist `NOT_PROVEN`, nicht `PASS`.
 
 ## Gates vor Implementierung
 
-Ein unabhängiger Methoden-/Quellenreview muss zuerst den geänderten
-Countvertrag, Eventmarkerfolge, XE-Lossindikatoren, tatsächliche Katalogfelder
-und -Actions, Actor-/Requestbindung, Hashkardinalität, Targetobergrenzen,
-Datenschutz und Eigentums-/Cleanupverfahren bestätigen. Der Reviewautor ist
-nicht unabhängig. Danach braucht jeder Zielbuild eine separat freigegebene
-read-only Katalog-/Einzelereignisprobe in einer eigenen Instanz. Erst wenn alle
-Builds dieselben Pflichtfelder bereitstellen und die Loss-/Cleanupgrenzen
-eingehalten werden, darf ein neuer eng begrenzter Lifecycle-Entwurf geprüft
-werden. Es gibt hier keine SQL-Abfrage, keine XE-Session, keine neue Demo-ID
-und keine Runtimeausführung.
+Der unabhängige Methodenreview vom 22. November 2026 prüfte den geänderten
+Countvertrag, Fenster-/Requestbindung, Payloadschutz und Cleanupentwurf; nach
+den Korrekturen fand die Nachprüfung keine offenen P1/P2 im Draft. Das ist keine
+Freigabe des Messvertrags oder eines Builds. Jeder Zielbuild benötigt weiterhin
+eine separat freizugebende read-only Katalog-/Einzelereignisprobe in einer
+eigenen Instanz. Erst wenn alle Builds dieselben Pflichtfelder bereitstellen
+und die Loss-/Cleanupgrenzen eingehalten werden, darf ein neuer eng begrenzter
+Lifecycle-Entwurf geprüft werden. Es gibt hier keine SQL-Abfrage, keine
+XE-Session, keine neue Demo-ID und keine Runtimeausführung.
 
 ## Quellen
 

@@ -14155,6 +14155,44 @@ per-Fenster-QS-Countoracle. Marker-, XE- und Hashkardinalitätsvertrag sowie
 Datenschutz und Cleanup müssten separat entworfen werden. Es wurde keine
 XE-Session gestartet. DGN-007 bleibt `METHOD_BLOCKED`; der neue Entwurfszweig
 ist im [Quellenvergleich](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md#quellenvergleich-für-einen-möglichen-g13-gegenentwurf-22-november-2026)
-festgehalten. Der unabhängige Review bleibt ein tatsächliches externes Gate.
+festgehalten. Die unabhängige Draftprüfung ist abgeschlossen; per-Build-
+Metadatenprobe und Laufzeitqualifikation bleiben offen.
 Der ausführbare Entwurf samt Markerablauf, Hashbindung, Verlustregeln und
 Cleanupgates steht in [DGN-007 XE-Fensterzuordnung](DGN_007_XE_WINDOW_ATTRIBUTION_METHOD.md).
+
+### Methodenreview – unabhängige Gegenprüfung und Befundbehandlung (22. November 2026)
+
+Der vollständige [Reviewbericht](METHODS_INDEPENDENT_REVIEW_2026-11-22.md)
+führt getrennte Befunde, Korrekturen, Nachprüfungen und offene empirische Gates
+pro Methode auf.
+
+Die drei Methoden wurden getrennt und read-only gegen die versionierten Verträge
+und Herstellerquellen geprüft; kein Review führte SQL oder Runtime aus. Es gab
+keinen P1-Befund. Die Reviewer meldeten P2-Lücken, die in der aktuellen
+Arbeitsfassung adressiert und unabhängig nachgeprüft sind:
+
+- **CON-006:** Das Rangeprofil akzeptiert ausschließlich `requestType="wait"`;
+  Konversionsanforderungen bleiben außerhalb dieses Kandidaten. Der Range-Capture-
+  vertrag bindet jetzt Actor, SPID, Insert-Schlüssel, Opferrollback 1205,
+  Survivor-Insert und den exakten finalen Schlüsselbestand. Die Pilotmethode
+  nennt Obergrenzen aus dem qualifizierten CON-006-Lifecycle (45 s pro
+  Mehrsessionarm, 180 s gesamt, 60 s Cleanup) samt eigentumsgebundener
+  Cancel-/Rollback- und Container-Recovery.
+- **IDX-007:** Die Checker heißen jetzt explizit Snapshot-/Callerketten-
+  Konsistenzprüfer; ihr PASS behauptet weder echte Terminalsemantik noch zwei
+  Waitränder oder authentische Überlappung. Das Methodendokument verlangt für
+  `request_id` die eindeutige Taskadressbindung von
+  `sys.dm_os_waiting_tasks.waiting_task_address` an `sys.dm_os_tasks.task_address`;
+  `SRC-174` registriert die Herstellerquelle. Die strukturelle Klammer aus zwei
+  Waitcapturen ist noch nicht implementiert und bleibt ein Methoden-/Runtimegate.
+- **DGN-007:** Der XE-Draft verlangt jetzt Start- und Abschlussereignisse pro
+  Actorrequest innerhalb desselben Fensters und eine Idle-/Drainbedingung vor
+  jedem Fenstermarker. Eine pro Build geprüfte Payload-Allowlist muss Statement-
+  und Parameterdaten ausschließen; wenn das gewählte Ereignis vertrauliche
+  Felder erzwingt, ist der Kandidat unter der geltenden Datenschutzgrenze
+  unbrauchbar. Verlust-, Cleanup- und Markerbuilds bleiben ungeprüft.
+
+Die unabhängigen Draftreviews sind abgeschlossen; alle drei Statuswerte bleiben
+`METHOD_DRAFT`/`PROPOSED`, sämtliche Engine-/Build-/Runtimegates bleiben offen
+und es wurde keine XE-Session oder SQL-Probe gestartet. Die Reviews ersetzen
+weder die spätere buildgebundene Methodenfreigabe noch Empirie.
