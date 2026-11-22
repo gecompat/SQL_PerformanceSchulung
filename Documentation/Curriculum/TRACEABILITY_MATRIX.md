@@ -148,7 +148,8 @@ Eine Demo-Zuordnung bedeutet `PLANNED`, nicht `IMPLEMENTED` oder `VALIDATED`. Vo
 
 Die [Lehrnotiz zu Deadlockvarianten](DEADLOCK_VARIANTS_LESSON.md) ergänzt
 `LO-M05-03` erklärend. Sie fügt keinen Claim oder Demo-Nachweis hinzu; die
-vorgeschlagene CON-006-Variante bleibt außerhalb des validierten Grundfalls.
+Range-Variante ist in CON-006 integriert und für SQL Server 2019, 2022 und 2025
+buildqualifiziert. Die Lehrnotiz fügt keinen eigenen Claim hinzu.
 
 Die [Lehrnotiz zur Query-Store-Plansteuerung](QUERY_STORE_PLAN_CONTROL_LESSON.md)
 ergänzt `LO-M06-04` und `LO-M06-08` um die Aussagegrenzen zwischen

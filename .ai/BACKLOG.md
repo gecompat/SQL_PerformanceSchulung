@@ -582,7 +582,7 @@ Aufwand weiterhin **M (mittel), vorläufig**. Konzept und Quelleninferenz belege
 
 ##### 3. DGN-004 – Klassische Planerzwingung und Hint-Kontrollzustand
 
-**P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
+**Historischer Planungsstand · abgeschlossen durch die nachfolgende autonome Wiederaufnahme und Qualifikation vom 22. November 2026.**
 
 **Planungsentscheidung:** Ausdrückliche Umfangsentscheidung: nur klassische Planerzwingung über Standard-Force/Unforce und fester Inline-Hint-Kontrollzustand aktiv. Aktiver Vertrag classical_forcing_hint_control_plan; P2 und vorläufiger Aufwand unverändert. Replay-Nutzungs-/Nichtnutzungsvergleich, gezielter Forcing-Fehler und gespeicherte Query-Store-Hints zurückgestellt. Offene Replay-Marker-Gates bleiben erhalten, blockieren aber nicht die unabhängige Freigabe dieses engeren Aussageumfangs.
 
@@ -1948,7 +1948,7 @@ Produktdokumentation, gelesen am 2026-10-23: [Microsoft: Grant-Lebensdauer und t
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand M – vorläufig.**
 
-**Planungsentscheidung:** Zusätzliche Deadlock-Varianten zurückstellen; Conversion vor Range prüfen.
+**Historische Planungsentscheidung:** Zusätzliche Deadlock-Varianten zurückstellen; Conversion vor Range prüfen. Die spätere Wiederaufnahme hat diese Entscheidung für die optionale Range-Variante ersetzt.
 
 **Begründung:** Ein reproduzierbarer Grundfall mit Konfliktgraph ist vorhanden. Der zusätzliche Lernzuwachs ist kleiner; die Quellenprüfung unterscheidet die konkrete Variante nicht. Conversion betrifft Sperrumwandlung, Range den geschützten Schlüsselbereich.
 
@@ -2086,6 +2086,20 @@ Zeitzonenrechnung; 19 synthetische Tests decken diese Fälle einschließlich
 gleichwertiger Offsets ab. Der unabhängige Korrekturreview fand keine offenen
 P1/P2 im Offlineumfang. `requestType="convert"` bleibt ohne Enginebeleg,
 Capture-Provenienz caller-geliefert und die Variante `PROPOSED`.
+
+**Abschluss der CON-006-Rangevariante am 22. November 2026:** Die Variante
+ist als eigene Deadlock- und serielle Kontrollphase in das CON-006-Manifest
+integriert. Der vollständige Ablauf bestand auf den gepinnten Builds SQL Server
+2019 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5`. Jeder Lauf
+belegte zwei verschiedene KEY-Ressourcen, gekreuzte inkompatible Wait-Kanten,
+Opfer 1205, Survivor, den exakten Deadlock-Endbestand, zwei getrennte
+Kontrollsessions mit beiden erfolgreichen Einfügungen, den exakten
+Kontrollendbestand sowie Datenbank- und Containercleanup. Der manifeste Lauf
+blieb bei 180 Sekunden Gesamtlaufzeit, 45 Sekunden je Mehrsessionarm und
+60 Sekunden Cleanup; die Container waren netzwerkisoliert mit 2 CPUs und 4 GiB
+Speicher. Die frühere Quellensichtung und das Offlineverfahren bleiben als
+historische Vorarbeiten erhalten; sie behaupten keine Engineherkunft. Weitere
+allgemeine Leistungs- oder Buildaussagen sind nicht Teil dieses Abschlusses.
 
 ##### 6. IDX-007 – Last-Page-Inserts und Sequential-Key-Vergleiche
 

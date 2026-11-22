@@ -1,0 +1,11 @@
+{
+  "contract_version":"1.0",
+  "demo_id":"CON-006",
+  "run_token":"LOCAL",
+  "timeout_seconds":45,
+  "abort_on_first_failure":true,
+  "sessions":[
+    {"id":"RANGE_CONTROL_A","script":"40_RangeControlA.sql"},
+    {"id":"RANGE_CONTROL_B","script":"50_RangeControlB.sql"}
+  ]
+}

@@ -456,7 +456,7 @@ anderer Demos übertragen sich nicht auf diesen Schnitt.
 
 **Kernfrage:** Wie entsteht ein Deadlock-Zyklus deterministisch, wer wird Opfer, und wie liest man den Deadlock-Graph?
 
-**Konstruktion.** `lab.DeadlockRows` (Zeilen 1 und 2), `lab.Evidence` (Rolle, Ausgang, Fehlernummer), `fwk.SessionSignal` mit `fwk.USP_Signal`/`fwk.USP_WaitForSignal`.
+**Konstruktion.** `lab.DeadlockRows` (Zeilen 1 und 2) für den Grund- und Konversionsfall; `lab.RangeRows` mit Schlüsseln 10, 50 und 90 für die Rangevariante; je ein Lauf- und Evidence-Datensatz sowie `fwk.SessionSignal` mit `fwk.USP_Signal`/`fwk.USP_WaitForSignal`.
 
 **Phasen:**
 
@@ -469,10 +469,13 @@ anderer Demos übertragen sich nicht auf diesen Schnitt.
 - **MITIGATION:** Signale und Daten zurücksetzen.
 - **COMPARISON (`Sessions/ordered.json`):** Beide Actors aktualisieren in gleicher Reihenfolge (erst Zeile 1, dann 2) – kein Zyklus, beide COMMITS erfolgreich.
 - **VERIFICATION:** Hartes Vertragsfeld: genau zwei `COMPLETED`-Einträge in der geordneten Gegenprobe und kein `VICTIM`, sonst `FAIL_RESULT_CONTRACT`.
+- **CONVERSION_DEMONSTRATION / CONVERSION_MITIGATION:** Zwei Actors lesen dieselbe Zeile unter `REPEATABLE READ` und fordern danach `X` an; genau ein Graph muss beide `S`-zu-`X`-Konversionskanten auf derselben Schlüsselressource binden. Der `UPDLOCK`-Kontrollfall endet mit zwei erfolgreichen Sessions.
+- **RANGE_DEMONSTRATION:** A liest `(20, 40)`, B `(60, 80)` unter `SERIALIZABLE`. Der Observer bestätigt die tatsächlichen KEY-Range-Sperren, gibt A für Insert 70 frei, wartet auf A→B-Blocking und gibt dann B für Insert 30 frei. Ein Opfer mit 1205, ein erfolgreicher Survivor, zwei verschiedene Graphressourcen und der passende Endbestand sind erforderlich.
+- **RANGE_CONTROL_DEMONSTRATION:** Zwei getrennte Sessions halten ihre SPIDs bereit. B fügt erst nach A ein; beide Inserts müssen erfolgreich sein, der Endbestand enthält exakt fünf Schlüssel und es gibt kein passendes Deadlockereignis.
 
 **Abfrage/Evidenz:** `lab.Evidence`, `sys.dm_xe_session_targets` (system_health, `xml_deadlock_report`), Fehler 1205.
 
-**Kernaussage:** Ein Deadlock ist ein Zyklus gegenseitiger Sperren; SQL Server löst ihn durch Opfer-Abbruch, und `DEADLOCK_PRIORITY` bestimmt das Opfer vorhersagbar.
+**Kernaussage:** Ein Deadlock ist ein Zyklus gegenseitiger Sperren; SQL Server löst ihn durch Opfer-Abbruch. Zugriffreihenfolge, Sperrumwandlung und Einfügungen in geschützte Schlüsselbereiche sind unterscheidbare Ursachen, die am tatsächlichen Konfliktgraphen geprüft werden.
 
 **Nicht gesagt wird:** Keine Pauschalregel „Deadlocks immer vermeiden"; die Demo zeigt Opferwahl und Graph, nicht allgemeine Auflösungsstrategien.
 
@@ -685,4 +688,4 @@ Die Demos teilen einen gemeinsamen Rahmen; diese Bausteine gelten projektweit un
 | STL-009 | PASS | PASS | PASS | 2 | YELLOW |
 | RES-007 | PASS | PASS | PASS | 2 | YELLOW |
 
-Je Demo besitzt der Matrixnachweis zwei vollständige Läufe je Version; die Evidenzläufe sind in `Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md` verlinkt.
+Der bisherige Katalognachweis umfasst zwei vollständige Läufe je Version. Die am 22. November 2026 integrierte Range-Erweiterung bestand zusätzlich einen vollständigen Manifestlauf je Build: SQL Server 2019 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5`. Die aktuellen Evidence-/Cleanupbefunde stehen in `Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md`.

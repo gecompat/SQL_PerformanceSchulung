@@ -5,6 +5,10 @@ GO
 USE [$(TargetDatabase)];IF SCHEMA_ID(N'lab') IS NULL EXEC(N'CREATE SCHEMA lab AUTHORIZATION dbo;');IF SCHEMA_ID(N'fwk') IS NULL EXEC(N'CREATE SCHEMA fwk AUTHORIZATION dbo;');
 CREATE TABLE lab.DeadlockRows(RowId int NOT NULL CONSTRAINT PK_DeadlockRows PRIMARY KEY,Value int NOT NULL);INSERT lab.DeadlockRows VALUES(1,0),(2,0);
 CREATE TABLE lab.Evidence(RoleName varchar(16) NOT NULL,Outcome varchar(16) NOT NULL,ErrorNumber int NULL,CapturedAtUtc datetime2(3) NOT NULL DEFAULT SYSUTCDATETIME());
+CREATE TABLE lab.RangeRows(KeyValue int NOT NULL CONSTRAINT PK_RangeRows PRIMARY KEY);
+CREATE TABLE lab.RangeRun(Attempt varchar(16) NOT NULL PRIMARY KEY,RunToken varchar(20) NOT NULL,DatabaseId int NOT NULL,StartedAtUtc datetime2(7) NOT NULL,WaitObserved bit NULL,GraphCount int NULL,ControlStartedAtUtc datetime2(7) NULL,ControlFinishedAtUtc datetime2(7) NULL,ControlDeadlockCount int NULL);
+CREATE TABLE lab.RangeActors(RoleName varchar(16) NOT NULL PRIMARY KEY,SessionId smallint NULL,ExpectedKey int NOT NULL,Outcome varchar(16) NULL,ErrorNumber int NULL,StartedAtUtc datetime2(7) NULL,FinishedAtUtc datetime2(7) NULL);
+CREATE TABLE lab.RangeControlEvidence(RoleName varchar(16) NOT NULL PRIMARY KEY,SessionId smallint NOT NULL,KeyValue int NOT NULL,Outcome varchar(16) NOT NULL,ErrorNumber int NULL,CapturedAtUtc datetime2(3) NOT NULL DEFAULT SYSUTCDATETIME());
 CREATE TABLE lab.ConversionRun(Attempt varchar(16) NOT NULL PRIMARY KEY,RunToken varchar(20) NOT NULL,DatabaseId int NOT NULL,StartedAtUtc datetime2(7) NOT NULL,GraphCount int NULL);
 CREATE TABLE lab.ConversionEvidence(Attempt varchar(16) NOT NULL,RoleName varchar(16) NOT NULL,Outcome varchar(16) NOT NULL,ErrorNumber int NULL,SessionId smallint NOT NULL,CapturedAtUtc datetime2(3) NOT NULL DEFAULT SYSUTCDATETIME(),PRIMARY KEY(Attempt,RoleName));
 CREATE TABLE fwk.SessionSignal(DemoId varchar(7),RunToken varchar(20),SignalName varchar(64),SignaledAtUtc datetime2(3) NOT NULL DEFAULT SYSUTCDATETIME(),PRIMARY KEY(DemoId,RunToken,SignalName));

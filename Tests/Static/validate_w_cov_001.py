@@ -71,6 +71,14 @@ def main() -> int:
     }
     if not expected_conversion_phases.issubset(con_phases):
         findings.append("CON-006: conversion/deadlock-mitigation phases are incomplete")
+    expected_range_phases = {
+        "RANGE_START", "RANGE_DEMONSTRATION", "RANGE_CONTROL_START",
+        "RANGE_CONTROL_DEMONSTRATION", "RANGE_CONTROL_VERIFY",
+    }
+    if (not expected_range_phases.issubset(con_phases)
+            or con_manifest.get("timeout_seconds") != 180
+            or con_manifest.get("cleanup_timeout_seconds") != 60):
+        findings.append("CON-006: range phases or bounded demo/cleanup contract are incomplete")
     conversion = load(con_root / "Sessions/conversion.json")
     if [session.get("id") for session in conversion.get("sessions", [])] != [
         "CONVERSION_A", "CONVERSION_B", "CONVERSION_OBSERVER"
@@ -86,6 +94,32 @@ def main() -> int:
         text = (con_root / filename).read_text(encoding="utf-8")
         if any(marker not in text for marker in required):
             findings.append(f"CON-006: conversion contract markers missing in {filename}")
+    range_sessions = load(con_root / "Sessions/range-deadlock.json")
+    if [session.get("id") for session in range_sessions.get("sessions", [])] != [
+        "ACTOR_A", "ACTOR_B", "OBSERVER"
+    ]:
+        findings.append("CON-006: range actor/observer order mismatch")
+    control_sessions = load(con_root / "Sessions/range-control.json")
+    if [session.get("id") for session in control_sessions.get("sessions", [])] != [
+        "RANGE_CONTROL_A", "RANGE_CONTROL_B"
+    ]:
+        findings.append("CON-006: range control actors are not separate sessions")
+    for filename, required in (
+        ("Sessions/10_RangeActorA.sql", ("SERIALIZABLE", "KeyValue>20 AND KeyValue<40", "A_INSERT_GRANTED", "VALUES(70)", "1205")),
+        ("Sessions/20_RangeActorB.sql", ("SERIALIZABLE", "KeyValue>60 AND KeyValue<80", "B_INSERT_GRANTED", "VALUES(30)", "1205")),
+        ("Sessions/30_RangeObserver.sql", ("sys.dm_tran_locks", "RangeS-S", "blocking_session_id=@B", "A_INSERT_GRANTED", "B_INSERT_GRANTED", "system_health", "@FinalCount<>4", "@DistinctResourceIds<>2")),
+        ("Sessions/40_RangeControlA.sql", ("RANGE_CONTROL_A_DONE", "VALUES(70)")),
+        ("Sessions/50_RangeControlB.sql", ("RANGE_CONTROL_A_DONE", "VALUES(30)")),
+        ("59_RangeControlVerify.sql", ("@A=@B", "ControlDeadlockCount=@Events", "COUNT(*) FROM lab.RangeRows")),
+        ("70_Verification.sql", ("ControlDeadlockCount=0", "COUNT(*) FROM lab.RangeRows")),
+    ):
+        text = (con_root / filename).read_text(encoding="utf-8")
+        if any(marker not in text for marker in required):
+            findings.append(f"CON-006: range demo contract markers missing in {filename}")
+    qualification = (ROOT / "Tests/Runtime/con006_full_demo_qualification.py").read_text(encoding="utf-8")
+    for marker in ("15.0.4500.2", "16.0.4305.5", "17.0.5035.5", "--network", "2_000_000_000", "4 * 1024**3"):
+        if marker not in qualification:
+            findings.append(f"CON-006: full demo qualification boundary missing: {marker}")
     idx = (ROOT / PATHS["IDX-010"] / "README.md").read_text(encoding="utf-8").lower()
     con = (ROOT / PATHS["CON-009"] / "README.md").read_text(encoding="utf-8").lower()
     if "defer" not in idx or "ordered nonclustered" not in idx:

@@ -1,13 +1,14 @@
 # Deadlockvarianten am Konfliktgraph unterscheiden
 
 Diese Lehrnotiz ergänzt `LO-M05-03` in der
-[Curriculumarchitektur](CURRICULUM_ARCHITECTURE.md). Sie erklärt einen
-Sperrumwandlungs-Deadlock und grenzt ihn vom vorhandenen Gegenreihenfolgefall
-ab. Das [CON-006-Demo](../../Demos/07_Concurrency/CON-006_Deadlock_Cycle/README.md)
-enthält getrennte Abläufe für beide Varianten und eine `UPDLOCK`-Gegenprobe.
-Die Runtime-Qualifikation der neuen Variante ist für SQL Server 2019, 2022 und
-2025 bestanden. Der tatsächliche Konversionsgraph wird für den jeweiligen Build
-geprüft; synthetische Graphprüfungen ersetzen diese Laufzeitevidenz nicht.
+[Curriculumarchitektur](CURRICULUM_ARCHITECTURE.md). Sie unterscheidet den
+Deadlock aus Gegenreihenfolge, Sperrumwandlung und gekreuzten Einfügungen in
+getrennte Schlüsselbereiche. Das
+[CON-006-Demo](../../Demos/07_Concurrency/CON-006_Deadlock_Cycle/README.md)
+enthält für alle drei Varianten eigene Phasen und Gegenproben. Die vollständige
+Runtime-Qualifikation der aktuellen Demo ist für SQL Server 2019, 2022 und 2025
+bestanden. Die tatsächlichen Graphen werden pro Lauf gebunden geprüft;
+synthetische Graphprüfungen ersetzen diese Laufzeitevidenz nicht.
 
 ## Gegenreihenfolge und Sperrumwandlung
 
@@ -64,33 +65,30 @@ seine 20 synthetischen Regressionen stehen in
 Beide prüfen die Struktur und innere Konsistenz caller-gelieferter Werte; sie
 lesen keine `system_health`-Ereignisse und qualifizieren kein Enginebuild.
 
-## Schlüsselbereichsblockierung und möglicher Deadlock
+## Schlüsselbereichs-Deadlock
 
 Der geplante `CON-002`-Fall soll zeigen, wie ein `SERIALIZABLE`-Bereichsschutz
-einen einzelnen Einfügeversuch blockiert, bis die Lesetransaktion endet. Ein
-möglicher zusätzlicher `CON-006`-Fall stellt eine andere Frage: Wenn zwei
-Transaktionen getrennte leere Suchbereiche lesen, die innerhalb derselben
-physischen Indexlücke liegen, kann eine Einfügung in den jeweils anderen
-logischen Bereich einen Deadlockzyklus bilden? Der Lernunterschied wäre der
-nachgewiesene Zyklus mit Opfer und Survivor gegenüber einer einzelnen
-Wait-und-Freigabefolge.
+einen einzelnen Einfügeversuch blockiert, bis die Lesetransaktion endet. Die
+CON-006-Rangevariante zeigt einen anderen Ablauf: Zwei Transaktionen lesen
+getrennte leere Bereiche, deren Einfügungen auf unterschiedlichen
+Indexressourcen blockieren. Der Beobachter bestätigt beide KEY-Range-Sperren,
+gibt A frei, sieht A auf B warten und gibt erst danach B frei. Der Zyklus,
+das Opfer und der Survivor werden aus dem tatsächlichen Deadlockgraphen und
+den Actorresultaten bestätigt.
 
-Das ist eine Hypothese, kein beschriebenes Standardverhalten. Unterschiedliche
-Prädikate beweisen weder getrennte noch gemeinsame Sperrressourcen. Erst ein
-laufgebundener Deadlockgraph darf zeigen, welche Indexressource und Sperrmodi
-tatsächlich beteiligt waren. Der
-[Range-Methodenentwurf](../Project_Planning/CON006_RANGE_DEADLOCK_METHOD.md)
-legt dafür einen signalgesteuerten Kandidaten und einen seriellen Kontrollarm
-fest. Beide Varianten bleiben ohne unabhängigen Methodenreview und isolierten
-Enginepilot unqualifiziert.
+Unterschiedliche Prädikate beweisen weder getrennte noch gemeinsame
+Sperrressourcen. Maßgeblich sind die im jeweiligen Lauf gebundenen KEY-Ressourcen
+und Sperrmodi im Deadlockgraphen. Der
+[Range-Methoden- und Qualifikationsnachweis](../Project_Planning/CON006_RANGE_DEADLOCK_METHOD.md)
+beschreibt den Ablauf und die Grenzen der drei Buildläufe.
 
 Die Herstellerdokumentation bezeichnet `RangeS-S` als Sperre einer
 `SERIALIZABLE`-Bereichslesung und `RangeI-N` als Einfügebereichsprüfung; für
 überlappende Bereiche sind diese Modi inkompatibel (`SRC-004`). Das erklärt,
-warum der Kandidat plausibel ist, belegt aber weder denselben physischen
-`KEY`-Eintrag noch einen Zyklus dieses konkreten Index- und Planaufbaus. Auf
-SQL Server 2025 wird zusätzlich der tatsächliche Optimized-Locking-Zustand
-festgehalten; die konkrete Graphausgabe bleibt Pflicht.
+warum der Konflikt plausibel ist, ersetzt aber nicht den laufgebundenen Nachweis
+der tatsächlichen KEY-Ressourcen und Wait-Kanten. Für SQL Server 2025 wird der
+Optimized-Locking-Zustand in der isolierten Machbarkeitsmatrix zusätzlich
+festgehalten; die konkrete Graphausgabe bleibt bei jedem Demo-Lauf Pflicht.
 
 ## Quellen
 
@@ -98,6 +96,6 @@ festgehalten; die konkrete Graphausgabe bleibt Pflicht.
 - Microsoft Learn, [Deadlocks guide](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-deadlocks-guide?view=sql-server-ver17): Deadlockgraph, `xml_deadlock_report` und Opferfehler 1205.
 - Das [Quellenregister](../Research/SOURCE_REGISTER.md) führt die Deadlock-, Sperr- und `system_health`-Quellen unter `SRC-004`, `SRC-066` und `SRC-068`; die konkreten Aussage- und Provenienzgrenzen fasst der [CON-006-Offline-Review](../Project_Planning/CON006_OFFLINE_EVIDENCE_REVIEW.md) zusammen.
 
-Die Erklärung ergänzt den Lernpfad und beschreibt die buildqualifizierte
-Konversionsvariante. Die Range-Variante ist nur als Methodenentwurf vorhanden;
-sie erweitert weder CON-002 noch den validierten CON-006-Demovertrag.
+Die Erklärung ergänzt den Lernpfad und beschreibt die drei buildqualifizierten
+CON-006-Varianten. Der Range-Deadlock erweitert nicht den geplanten
+CON-002-Einzelwait.

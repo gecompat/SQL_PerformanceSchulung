@@ -177,8 +177,9 @@ Lerninhalt, keine freigegebene QRY-003-Demo oder Laufzeitqualifikation.
 
 Die [Lehrnotiz zu Deadlockvarianten](DEADLOCK_VARIANTS_LESSON.md) ergänzt
 `LO-M05-03` mit dem Unterschied zwischen Gegenreihenfolge und
-Sperrumwandlung sowie den Anforderungen an Graph- und Opfernachweis. Sie ist
-erklärender Inhalt; die vorgeschlagene CON-006-Variante bleibt unqualifiziert.
+Sperrumwandlung sowie dem Range-Deadlock aus gekreuzten Einfügungen. Die
+integrierte CON-006-Demo ist für SQL Server 2019, 2022 und 2025 vollständig
+buildqualifiziert.
 
 ### M06 – Ressourcen und Diagnosewerkzeuge
 
