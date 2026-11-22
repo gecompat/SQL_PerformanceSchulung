@@ -556,23 +556,18 @@ die betroffenen Verträge und den verbleibenden Gesamtbudgetstand abgeglichen.
 | 5. CON-006- und IDX-007-Varianten | Die CON-006-Konversions- und Range-Deadlockvarianten sind in der vollständigen Demo enthalten. Der Rangepfad und sein serieller Kontrollarm bestanden je einen vollständigen Manifestlauf samt Cleanup auf SQL Server 2019, 2022 und 2025; Einzelheiten und verbleibender unabhängiger Methodenreview stehen im [aktuellen Ausführungsstatus](CURRENT_EXECUTION_STATUS.md#con-006--range-deadlock-in-vollständige-demo-integriert-22-november-2026). PR #1119 und #1120 integrieren den generischen CON-006-Kontrollarm. PR #1121 ergänzt für IDX-007 die begrenzte, caller-supplied Blattkettenkonsistenzprüfung. | CON-006-Range ist auf den drei konkret qualifizierten Builds runtimevalidiert; das ist kein allgemeiner Engpass- oder Produktclaim. IDX-007-Probe, unabhängiger Methodenreview, Terminalsemantik und authentische Seiten-/Waitdaten bleiben offen. |
 | 6. Nachgelagerte Erweiterungen | Der statische RES-001-Offlineschnitt und RES-003-Offlinevertrag samt quellengebundener Lehrnotiz sind integriert. Die Detailprüfung zu SQL Server 2025 `OPTIMIZED_SP_EXECUTESQL` ist abgeschlossen; Aktivierung, Demo und Performanceclaim bleiben `DEFER`, weil die bestehende QRY-004-Abnahme keine zeitgleiche Kompilierung prüft. Für Graph Tables sind die quellengebundene Lernnotiz, Methodikfreigabe (`DEC-079`), ScriptDom-Akzeptanz (`DEC-080`), Produktbuild-/Digestbindung (`DEC-081`/`DEC-082`) und der unabhängige Harnessreview abgeschlossen. Der isolierte QRY-023-Harness bestand auf SQL Server 2019/2022/2025; PR #716 bindet die Runtime-Matrix direkt an den Proposed Image-Lock. QRY-023 bleibt dennoch `PROPOSED`, nicht katalogisiert und `runtime_authorized: false`; allgemeine Runtime-/Produkt-/Katalogfreigabe, empirische Ressourcencharakterisierung und menschliche Generalprobe bleiben getrennte Gates, wobei die Generalprobe ausgeschlossen ist. Details stehen in [Demoentwurf und Vertrag](GRAPH_TABLES_DEMO_CONCEPT.md), [Messworkload](GRAPH_TABLES_MEASUREMENT_WORKLOAD_DESIGN.md), [Harnessreview](QRY023_PROPOSED_HARNESS_REVIEW.md) und im [aktuellen Ausführungsstand](CURRENT_EXECUTION_STATUS.md). Für External Tables sind die quellengebundene Lernnotiz, der [statische Lehr- und Demoentwurf](EXTERNAL_TABLES_DEMO_CONCEPT.md) und die formale Curriculumentscheidung `DEC-078` integriert: ergänzende Erklärung zu `LO-M03-05`/`CLM-045`, keine ausführbare Erweiterung von `QRY-012`. Eine spätere eigenständige External-Tables-Demo benötigt weiterhin Infrastruktur-, Methoden-, Rechte-, Cleanup- und Runtimevertrag. | RES-003 bleibt ein roter, nicht ausführbarer Druckversuch; `OPTIMIZED_SP_EXECUTESQL` erhält keine Runtimefreigabe. Graph Tables bleiben `PROPOSED`; die isolierte Enginequalifikation ist keine allgemeine Laufzeit- oder Produktfreigabe und behauptet keine Leistungsrangfolge. External Tables besitzen keine eigene Demo-ID und keine Runtimequalifikation; sie behaupten weder eine allgemeine Rangfolge noch tatsächliches Pushdown ohne korrelierte Evidenz. Statische und quellengebundene Erklärung ersetzt weder authentische Runtime-Evidenz noch Kausalitätsnachweis. Weitere Ressourcen und Infrastruktur nur mit eigenem Methoden-, Versions-, Sicherheits- und Cleanupvertrag. |
 
-### Aktueller nächster DGN-007-Abnahmepunkt (22. November 2026)
+### DGN-007-Zeitzuordnung nach DEC-072 (22. November 2026)
 
-Der neueste begrenzte Offline-Entwicklungsschnitt ist der vollständige
-`SESSION_END`-Matcher samt reinen Footer-/Kanalhashkomponenten; er ist bereits
-integriert und damit kein offener Startpunkt. Der aktuelle Ausführungsstatus
-weist als nächste offene DGN-007-Abnahme die Vergleichbarkeit der Query-Store-
-Ausführungsendzeiten mit den `SYSUTCDATETIME()`-Requestklammern an exakten
-100-ns-Grenzen aus. Ein quellenbasierter, prüffähiger Gegenentwurf muss einen
-vergleichbaren Einschließungsbeleg oder eine unabhängig validierte
-Kollektivzuordnung definieren. Ein Extended-Events-Ansatz mit expliziten
-Fenstermarkern ist als quellenplausibler, vertragsändernder Kandidat geprüft;
-Markerreihenfolge, Action-/Eventfelder, Eventverlust, Hashmehrdeutigkeit und
-die Änderung des Countoracles sind noch zu spezifizieren. Bis dahin bleibt
-dieser Punkt methodisch offen:
-keine Toleranzänderung, kein Bypass und keine Wiederholung derselben Probe.
-Aktueller Beleg und Grenzen stehen im [DGN-007-Capture-Nachweis](DGN_007_SQL_CAPTURE_PRODUCER_RUNTIME_EVIDENCE.md#verbleibende-abnahmegrenzen)
-und im [Ausführungsstatus](CURRENT_EXECUTION_STATUS.md).
+Der begrenzte, freigegebene DGN-007-Abschluss verwendet gemäß DEC-072 die
+beobachteten Query-Store-Intervall-IDs, regulären Ausführungszahlen, markierten
+Statement-/Planfamilien und tatsächlich geprüften Requests und Ergebnisse.
+Der direkte Vergleich von Query-Store-Zeitwerten mit
+`SYSUTCDATETIME()`-Requestklammern ist diagnostisch; eine gemeinsame exakte Uhr
+wird nicht vorausgesetzt. Der entsprechende Capturevertrag v2 und seine
+Kontrollabfragen sind implementiert. Die XE-Fensterzuordnung würde dagegen das
+Countoracle ändern und bleibt als spätere Alternative zurückgestellt. Sie ist
+kein offener Gate des DEC-072-Abschlusses. Größere Provenienz-/Collectorarbeit
+bleibt ausdrücklich außerhalb dieses begrenzten Scopes.
 
 ### Ausführungsplan für DGN-007, CON-006 und IDX-007 (22. November 2026)
 
@@ -583,23 +578,21 @@ Variante angehalten und mit dem nächsten Paket fortgefahren.
 
 | Reihenfolge | Konkreter Arbeitsschnitt | Abschlusskriterium vor Runtime | Nächster Schritt / Grenze |
 |---|---|---|---|
-| 1. DGN-007 Zeitzuordnung | Der [XE-Methodenentwurf](DGN_007_XE_WINDOW_ATTRIBUTION_METHOD.md) beschreibt fensterinterne Requestpaare, eindeutige Query-/Planhash-Zuordnung und fail-closed Verlust-/Mehrdeutigkeitsregeln. Der unabhängige Draftreview fand keine offenen P1/P2; er verlangte Idle-/Drainzustand, gepaarte Starts/Abschlüsse und eine Datenschutz-Allowlist. | Das Kataloginventar bestand für alle drei Builds. PR #1135 korrigierte ereignisspezifische Suppressionsfelder, PR #1136 konvertierte XML-Flags zu `int`, PR #1137 aktivierte `QUOTED_IDENTIFIER` für die XML-Auswertung. Der manuelle Gate-Lauf 45021633108 bestand auf 2019/2022/2025: beide synthetischen Ereignisse vorhanden, keine nichtleeren Statementwerte, fünf vorgesehene Actions vollständig und XE-Session entfernt. | Der belegte Schritt betrifft nur ein festes synthetisches Statement. DGN-007 bleibt `METHOD_BLOCKED`, bis Datenschutz-Allowlist einschließlich Query-/Planhash und Planhandles, Actor-/Requestbindung, Verlust, Markerordnung, Hashkardinalität, Query-Store-Sichtbarkeit und vollständiger Cleanup buildweise nachgewiesen sind. Kein Mess-Lifecycle oder Messclaim. |
+| 1. DGN-007 Zeitzuordnung | [DEC-072](../../.ai/DECISIONS.md#dec-072) ist der aktive, ausdrücklich freigegebene Abschlussvertrag v2: kontrollierte Runs werden über beobachtete Query-Store-Intervall-IDs, reguläre Ausführungszahlen, markierte Statement-/Planfamilien sowie geprüfte Requests und Resultate ausgewertet. Der direkte Query-Store-gegen-`SYSUTCDATETIME()`-Zeitvergleich bleibt diagnostisch und ist kein Ausschlusskriterium. | Die isolierte SQL-2022-Probe erfasste alle 32 Statements je einmal; 31 Query-Store-Zeitwerte lagen trotzdem außerhalb der SYSUTCDATETIME-Klammer (maximal 7,5996 ms davor). Das widerlegt die geforderte gemeinsame Uhr. Intervall-, Ergebnis-, Count-, Duration-/Reads-/Planhash-, Budget-, Eigentums- und Cleanupprüfungen bleiben erhalten. | Der [XE-Entwurf](DGN_007_XE_WINDOW_ATTRIBUTION_METHOD.md) ist eine vertragsändernde Alternative und ausdrücklich zurückgestellt; Katalog-/Datenschutzproben sind keine Voraussetzung für DEC-072 v2. Die auf diesen Entwurf bezogenen `METHOD_BLOCKED`-Aussagen bezeichnen nur diese Alternative. Größere Provenienz-/Collectorentwürfe, exakte Einzelrequest→Plan-Zuordnung und fremde Hosteingriffe bleiben außerhalb des begrenzten Abschlusses. |
 | 2. CON-006 Range | Abgeschlossen: Range-Graph, Capturekorrelation, Actor-/SPID-/Schlüsselresultate, Opfer 1205, Survivor, exakter Deadlock-Endbestand und eigener serieller Kontrollarm sind als getrennte Phasen in das CON-006-Manifest integriert. Vor der B-Freigabe bestätigt der Beobachter beide tatsächlichen KEY-Range-Sperren und danach den Wait von A auf B. | Vollständige Demo und Cleanup bestanden auf SQL Server 2019 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5`; jeweils isolierter, digest-gepinnter Container mit Netzwerk `none`, 2 CPUs/4 GiB, 180 Sekunden Gesamtlaufzeit, 45 Sekunden je Mehrsessionarm und 60 Sekunden Cleanup. PR #1142 integrierte die Änderungen nach `origin/main` mit Merge-Commit `116123dfa58e9b1232860a1f372b4b9d59e3f8d0`. | Die Runtime- und Methodenumsetzung ist abgeschlossen. Der Status betrifft nur diese drei Builds und behauptet keine Leistungsrangfolge oder allgemeine Buildfreigabe. |
-| 3. IDX-007 rechte Blattseite | Methodenentwurf gegen aktuelle Herstellerquellen und den implementierten Kettenchecker abgeglichen: `page_resource`, Zielseite, Partition, Vor-/Rücklinks, Terminalsemantik, Split-/Änderungsrisiko, Wait-Klammer, Rechte, Seitenkappe und Abbruchstatus. | Der unabhängige Draftreview fand keine offenen P1/P2 nach expliziter Trennung zwischen caller-gelieferter Konsistenzprüfung und tatsächlicher Terminalsemantik. Er verlangt eindeutige Taskadressbindung und zwei geordnete Wait-Captures als noch nicht belegte Methoden-/Runtimeanteile. | Methodenreview abgeschlossen. Vor read-only Enginepilot bleiben Task-/Request-Zuordnung, versionsgebundener Terminalnachweis, zwei Waitränder, Split-/Änderungsrisiko, Seitenkappe und Cleanup empirisch offen. Kein Last- oder Leistungsclaim aus einer Seitenkette allein. |
+| 3. IDX-007 rechte Blattseite | Methodenentwurf gegen aktuelle Herstellerquellen und den implementierten Kettenchecker abgeglichen: `page_resource`, Zielseite, Partition, Vor-/Rücklinks, Terminalsemantik, Split-/Änderungsrisiko, Wait-Klammer, Rechte, Seitenkappe und Abbruchstatus. | Der unabhängige Draftreview fand keine offenen P1/P2 im Draftumfang. Die lokalen Read-only-Piloten bestätigten eine konkrete `(0,0)`-Endseite auf 2019/2022/2025 und auf 2022/2025 mehrere eigene `PAGELATCH_EX`-Waits mit Taskadressbindung. Die beobachteten Wait-Seiten waren nicht terminal; die zweite Waitaufnahme nach der Kettenlesung fand keinen Wait auf derselben Seite. | Der kombinierte Last-Page-Claim bleibt `METHOD_DRAFT`/`NOT_PROVEN`: Hotspotwanderung verhinderte eine geschlossene Wait-/Terminal-/Klammerbindung. Nächster Schnitt: kostengünstigen Erhebungsvertrag unabhängig prüfen und so begrenzen, dass Traversaländerungen zuverlässig `NOT_PROVEN` ergeben. Kein Last- oder Leistungsclaim aus einer Seitenkette allein. |
 
-Der Plan erteilt keine neue Laufzeitfreigabe. Der unabhängige Review der drei
-Methodenentwürfe ist am 22. November 2026 abgeschlossen und dokumentiert in
+Der unabhängige Review der drei Methodenentwürfe ist am 22. November 2026
+abgeschlossen und dokumentiert in
 [METHODS_INDEPENDENT_REVIEW_2026-11-22.md](METHODS_INDEPENDENT_REVIEW_2026-11-22.md).
 Es gab keinen P1; die gefundenen P2 wurden korrigiert und unabhängig
-nachgeprüft. DGN-007 hat einen nur manuell gestarteten, read-only
-Kataloginventurpfad; lokale Versuche stoppten vor SQL-Readiness und lieferten
-keine XE-Metadaten. Der nächste Schritt ist ein einziger serieller Lauf pro
-gepinntem Build auf frischen CI-Runnern. Danach bleiben Datenschutz- und
-Ereignis-/Cleanupgates zu schließen. CON-006 Range ist auf `origin/main`
-vollständig implementiert und auf den drei angegebenen Builds qualifiziert
-(PR #1142, Merge-Commit `116123dfa58e9b1232860a1f372b4b9d59e3f8d0`). IDX-007 behält offene Taskkorrelations-, Terminal-
-und Zwei-Rand-Proben. Keine Laufzeitfreigabe oder Messbehauptung folgt allein
-aus dem Methodenreview.
+nachgeprüft. Der neue Read-only-Pilotstand ist im
+[Ausführungsstatus](CURRENT_EXECUTION_STATUS.md#dgn-007-idx-007-abgleich-der-offenen-zeit--und-seitenfragen-22-november-2026)
+festgehalten. DGN-007 v2 ist nach DEC-072 der aktive begrenzte Pfad; der
+unvollständige XE-Alternativzweig blockiert ihn nicht. CON-006 Range ist auf
+`origin/main` vollständig implementiert und auf den drei angegebenen Builds
+qualifiziert (PR #1142, Merge-Commit `116123dfa58e9b1232860a1f372b4b9d59e3f8d0`).
+IDX-007 bleibt wegen der nicht gebundenen Terminal-/Wait-Klammer offen.
 
 PR #424 bindet beim QRY-023-Proposed-Harness Phasenscript, Zieldatenbank,
 Zeitlimits, Cleanup und Gesamtbudgets. PR #426 ergänzt `Reads` und `Writes` als

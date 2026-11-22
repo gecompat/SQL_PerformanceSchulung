@@ -2,12 +2,20 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `METHOD_DRAFT` – kein Mess-/Actor-Lifecycle freigegeben; eine isolierte synthetische Datenschutzprobe je gepinntem Build ist begrenzt autorisiert |
+| Status | `DEFERRED_ALTERNATIVE` – vertragsändernde Alternative, nicht Voraussetzung für den freigegebenen begrenzten Abschluss nach DEC-072 v2; kein Mess-/Actor-Lifecycle |
 | Zweck | Prüfen, ob per-Request-Zeitgrenzen durch eine eigene, sequenzierte XE-Evidenzspur ersetzt werden können |
 | Bestehender Vertrag | Unverändert; kein G13-Ursachen- oder Mitigationsclaim |
 | Quellen | `SRC-027`, `SRC-031`, `SRC-163`; Microsoft Query Store-, XE- und DMV-Dokumentation |
 
 ## Fragestellung
+
+DEC-072 wählt für den begrenzten DGN-007-Abschluss v2 ausdrücklich die
+beobachteten Query-Store-Intervall-IDs, regulären Ausführungszahlen sowie
+markierten Statement-/Planfamilien und geprüften Requests/Ergebnisse. Der
+direkte Query-Store-gegen-`SYSUTCDATETIME()`-Vergleich bleibt diagnostisch.
+Dieser XE-Entwurf verändert dagegen das per-Fenster-Countoracle und ist daher
+zurückgestellt; die folgenden Schritte dokumentieren nur eine mögliche
+spätere Alternative.
 
 Der bestehende G13-Guard vergleicht Requestgrenzen aus `SYSUTCDATETIME()` mit
 Query-Store-Ausführungsendzeiten. Microsoft dokumentiert dafür keine gemeinsame

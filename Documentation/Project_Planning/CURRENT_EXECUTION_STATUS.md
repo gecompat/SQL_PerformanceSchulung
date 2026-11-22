@@ -14279,12 +14279,14 @@ Die drei JSON-Artefakte enthalten nur Inventar, Flags und Zähler. Das ist ein
 buildgebundener Beleg für die konkrete synthetische XE-Konfiguration, keine
 Actor-, Parameter-, Verlust-, Zeitfenster- oder Messfreigabe.
 
-DGN-007 bleibt `METHOD_BLOCKED`. Der synthetische Statementunterdrückungs-Gate
-ist jetzt für alle drei gepinnten Builds bestanden. Offen bleiben eine
-vollständige Datenschutz-Allowlist einschließlich Query-/Planhash und etwaiger
-Planhandles, Actor-/Requestbindung, Ereignisverlust, Markerordnung,
-Hashkardinalität, Query-Store-Sichtbarkeit und der vollständige Mess-Cleanup.
-Es gibt in diesem Schnitt keine Actor-Messung, Messdemo oder Messbehauptung.
+DGN-007 bleibt im begrenzten, ausdrücklich freigegebenen v2-Abschluss nach
+DEC-072 nicht durch diese XE-Arbeit blockiert. Der synthetische
+Statementunterdrückungs-Gate ist für alle drei gepinnten Builds bestanden.
+Offen bleiben Datenschutz-Allowlist, Actor-/Requestbindung, Ereignisverlust,
+Markerordnung, Hashkardinalität, Query-Store-Sichtbarkeit und vollständiger
+Mess-Cleanup ausschließlich für die vertragsändernde XE-Alternative. Sie ist
+zurückgestellt und keine Voraussetzung für DEC-072 v2. Es gibt in diesem
+XE-Schnitt keine Actor-Messung oder Messdemo.
 
 ### CON-006 – Range-Deadlock in vollständige Demo integriert (22. November 2026)
 
@@ -14331,3 +14333,44 @@ Graphopfer muss SPID-gebunden zum `VICTIM`-Datensatz mit Fehler 1205 passen;
 der andere Actor muss der erfolgreiche Survivor sein. Danach wurde der
 vollständige 19-Phasen-Lauf samt Cleanup je einmal auf denselben drei Builds
 wiederholt und erneut bestanden.
+
+### DGN-007-/IDX-007-Abgleich der offenen Zeit- und Seitenfragen (22. November 2026)
+
+**DGN-007:** Der frühere Plantext behandelte die exakte
+Query-Store-/`SYSUTCDATETIME()`-Zeitklammer weiterhin als offenen Gate und
+stellte deshalb die neue XE-Alternative fälschlich als Voraussetzung dar. Das
+widersprach DEC-072 und dem bereits implementierten Capturevertrag v2. Der
+Plan ist korrigiert: der begrenzte DGN-007-Abschluss nutzt beobachtete
+Intervall-IDs, reguläre Counts und markierte Statement-/Planfamilien; der
+Zeitvergleich bleibt diagnostisch. Die XE-Arbeit ist eine ausdrücklich
+zurückgestellte, vertragsändernde Alternative. Ihre noch offenen
+Datenschutz-/Marker-/Actor-/Verlustgates blockieren DEC-072 v2 nicht.
+
+**IDX-007:** Auf eigenen, digest-gepinnten SQL-Server-Developercontainern
+(Netzwerk `none`, 2 CPUs, 4 GiB) wurde eine kurzlebige synthetische
+Insertprobe read-only beobachtet; alle erstellten Container und Testdatenbanken
+wurden entfernt. Die getrennte Kettenprobe bestätigte auf SQL Server 2019,
+2022 und 2025 je einen eindeutigen Blattkettenstart und -endpunkt; alle drei
+Endseiten meldeten `next_page_file_id/page_id = (0,0)`. Das ist lokale
+Beobachtung der konkreten Builds, keine dokumentierte allgemeine
+Terminalgarantie.
+
+Im konkurrierenden Capture wurden auf 2022 fünf und auf 2025 sieben eigene
+Sessions mit `PAGELATCH_EX` auf derselben Blattseite beobachtet. Die
+Taskadressbindung ergab in beiden Fällen `request_id=0` und
+`exec_context_id=0`; die Zielseite hatte `page_level=0`, war aber zum
+Capturezeitpunkt nicht terminal (Nachfolger `(1,499)` bzw. `(1,678)`). Die
+nachfolgende Captureklammer enthielt null Sessions auf derselben Seite, da die
+Einfügungen den Hotspot weiterbewegt hatten. Ein 2019-Lauf fing keinen
+Mehrfach-Wait; ein früherer Lauf fing vier, lieferte aber keine vollständige
+Wait-/Metadaten-/Klammerbindung. Damit ist die entscheidende
+Wait-Seite-zu-rechter-Kante-Aussage auf keinem Build qualifiziert. Die
+Probe belegt zugleich, dass eine nachträgliche Kettenaufnahme unter aktiven
+Einfügungen die fehlende Gleichzeitigkeit nicht ersetzt.
+
+IDX-007 bleibt deshalb bei `METHOD_DRAFT`. Der nächste sinnvolle Schnitt ist
+ein unabhängig reviewter Erhebungsvertrag, der eine kostengünstige
+Wait-/Terminalaufnahme mit begrenzter Kettenprüfung atomar genug koppelt oder
+`NOT_PROVEN` als erwarteten Ausgang für weiterwandernde Hotspots festlegt.
+Es wurde kein Leistungsvergleich ausgeführt und kein temporärer Diagnoseläufer
+in das Produkt übernommen.
