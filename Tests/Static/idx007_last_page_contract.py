@@ -33,6 +33,8 @@ class PageWait:
     page_id: int
     wait_ms: int
     captured_at: str
+    request_id: int | None = None
+    exec_context_id: int | None = None
 
 
 @dataclass(frozen=True)
@@ -179,10 +181,29 @@ def _capture_instant(value: object) -> tuple[datetime, Decimal] | None:
 def evaluate_last_page_contention(
     waits: tuple[PageWait, ...] | None,
     target: PageTarget | None,
+    *,
+    expected_actor_requests: tuple[tuple[str, int, int], ...] | None,
 ) -> Result:
-    """Require matching PAGELATCH_EX waits by distinct sessions on a supplied leaf page."""
+    """Require page waits bound to two expected actor requests and distinct tasks."""
     if waits is None or target is None:
         return Result(Verdict.NOT_PROVEN, ("wait snapshot or target page evidence is missing",))
+    if expected_actor_requests is None:
+        return Result(Verdict.NOT_PROVEN, ("expected actor request bindings are missing",))
+    if (type(expected_actor_requests) is not tuple or len(expected_actor_requests) != 2
+            or any(type(item) is not tuple or len(item) != 3 for item in expected_actor_requests)):
+        return Result(Verdict.FAIL, ("exactly two actor/request bindings are required",))
+    expected_roles = [item[0] for item in expected_actor_requests]
+    expected_sessions = [item[1] for item in expected_actor_requests]
+    expected_requests = [item[2] for item in expected_actor_requests]
+    if (any(type(role) is not str for role in expected_roles)
+            or set(expected_roles) != {"ACTOR_A", "ACTOR_B"}
+            or len(set(expected_roles)) != 2
+            or any(type(session_id) is not int or session_id <= 0 for session_id in expected_sessions)
+            or len(set(expected_sessions)) != 2
+            or any(type(request_id) is not int or request_id < 0 for request_id in expected_requests)):
+        return Result(Verdict.FAIL, ("actor/request bindings are invalid",))
+    expected_by_session = dict((session_id, request_id)
+                               for _, session_id, request_id in expected_actor_requests)
     if type(waits) is not tuple or any(type(wait) is not PageWait for wait in waits):
         return Result(Verdict.FAIL, ("waits must be a tuple of exact PageWait records",))
     if type(target) is not PageTarget:
@@ -203,6 +224,10 @@ def evaluate_last_page_contention(
         type(wait.wait_type) is not str
         or _capture_instant(wait.captured_at) is None
         or not _positive_int(wait.session_id)
+        or type(wait.request_id) is not int
+        or wait.request_id < 0
+        or type(wait.exec_context_id) is not int
+        or wait.exec_context_id < 0
         or not _positive_int(wait.database_id)
         or not _positive_int(wait.file_id)
         or not _positive_int(wait.page_id)
@@ -215,6 +240,15 @@ def evaluate_last_page_contention(
     latches = tuple(wait for wait in waits if wait.wait_type == "PAGELATCH_EX")
     if not latches:
         return Result(Verdict.NOT_PROVEN, ("no PAGELATCH_EX waits were supplied",))
+    if any(expected_by_session.get(wait.session_id) != wait.request_id for wait in latches):
+        return Result(Verdict.FAIL, ("PAGELATCH_EX waits differ from the expected actor requests",))
+    observed_requests = {(wait.session_id, wait.request_id) for wait in latches}
+    expected_pairs = set(expected_by_session.items())
+    if observed_requests != expected_pairs:
+        return Result(Verdict.NOT_PROVEN, ("both expected actor requests must be observed waiting",))
+    observed_tasks = [(wait.session_id, wait.request_id, wait.exec_context_id) for wait in latches]
+    if len(set(observed_tasks)) != len(observed_tasks):
+        return Result(Verdict.FAIL, ("PAGELATCH_EX task records must be unique",))
     if any(_capture_instant(wait.captured_at) != target_instant for wait in latches):
         return Result(Verdict.FAIL, ("waits and target page do not share one capture timestamp",))
     if any(
