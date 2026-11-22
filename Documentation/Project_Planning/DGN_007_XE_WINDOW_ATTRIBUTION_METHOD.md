@@ -101,9 +101,10 @@ als Qualifikationsbedingungen, nicht als zugesicherte Produkteigenschaften.
 Die erste technische Stufe liest ausschließlich sys.dm_xe_objects,
 sys.dm_xe_object_columns, sys.dm_xe_packages und die Engine-Identität. Sie
 erfasst Feld- und Actionnamen für sql_statement_starting sowie
-sql_statement_completed. Sie erzeugt weder Datenbank noch XE-Session,
-erfasst keine Eventpayload, verändert kein Query Store und führt kein
-Actor-Workload aus. Der SQL-Text und seine Prüfgrenzen liegen in
+sql_statement_completed. Die Probe erzeugt keine Nutzer-/Labordatenbank und
+keine XE-Session, erfasst keine Eventpayload, verändert kein Query Store und
+führt kein Actor-Workload aus. Die SQL-Server-Engine startet ihre üblichen
+Systemdatenbanken einschließlich tempdb. Der SQL-Text und seine Prüfgrenzen liegen in
 [dgn007_xe_catalog_probe.sql](../../Tests/Runtime/dgn007_xe_catalog_probe.sql)
 und [dgn007_xe_catalog_probe.py](../../Tests/Runtime/dgn007_xe_catalog_probe.py).
 Der Workflow validiert diese Grenze auf Pull Requests und main; die tatsächlichen
@@ -120,14 +121,17 @@ eigentumsgeprüft entfernt. Es wurde nur der Ready-Check SELECT 1 versucht;
 die Katalogabfrage und eine XE-Session liefen nicht. Die lokale Engineprobe ist
 damit NOT_PROVEN.
 
-Der erste manuelle GitHub-Lauf (`45016650824`) stoppte je Build vor dem
-Containerstart, weil die Implementierung nur die Config-ID als Docker-Image-ID
-akzeptierte. Docker Desktop kann für dasselbe manifestgebundene Image auch den
-Manifestdigest als Image-ID ausgeben. Das ist ein Fehler der Probeidentitäts-
-prüfung und kein SQL-Server-Befund; die Katalogabfrage lief nicht. Die
-Korrektur akzeptiert beide ID-Darstellungen, prüft weiterhin den exakten
-Manifestdigest und Linux/AMD64 und ergänzt Regressionstests. Erst ein
-korrigierter erfolgreicher Lauf kann Katalogempirie liefern.
+Der erste manuelle GitHub-Lauf (`45016650824`) stoppte alle Builds bei der
+Imageidentitätsprüfung vor dem Containerstart. Die Korrektur akzeptiert beide
+Docker-ID-Darstellungen, prüft weiterhin den exakten Manifestdigest und
+Linux/AMD64 und ergänzt Regressionstests. Beim zweiten Lauf
+(`45017169620`) starteten die Engines; SQL Server 2022 meldete im Log
+„ready for client connections“ und SQLCMD lieferte Exitcode 0 sowie `1` mit
+zusätzlichem `(1 rows affected)`. Der Runner verwarf diese erfolgreiche
+Antwort, weil der Ready-Check Zeilenzahltext nicht unterdrückte. Die fehlende
+`SET NOCOUNT ON`-Anweisung ist korrigiert; die Katalogabfrage lief in keinem
+der beiden Läufe. Die Ergebnisse bleiben NOT_PROVEN und sind kein Produkt-
+oder XE-Metadatenbefund.
 
 ## Gates vor Messvertragsimplementierung
 

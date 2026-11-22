@@ -88,6 +88,9 @@ class Dgn007XeCatalogProbeTests(unittest.TestCase):
             self.assertRegex(password, r"[0-9]")
             self.assertIn("!", password)
 
+    def test_readiness_sql_suppresses_row_count_output(self) -> None:
+        self.assertEqual(probe.READY_SQL, "SET NOCOUNT ON; SELECT 1;")
+
     def test_profile_is_exactly_bound_to_the_shared_digest_lock(self) -> None:
         expected_versions = {15: "15.0.4500.2", 16: "16.0.4305.5", 17: "17.0.5035.5"}
         for major, version in expected_versions.items():

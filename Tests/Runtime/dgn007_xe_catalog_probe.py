@@ -27,6 +27,7 @@ MAX_SQL_OUTPUT_BYTES = 256 * 1024
 STARTUP_SECONDS = 180
 QUERY_SECONDS = 30
 CLEANUP_SECONDS = 60
+READY_SQL = "SET NOCOUNT ON; SELECT 1;"
 REQUIRED_EVENTS = {"sql_statement_starting", "sql_statement_completed"}
 ACTION_NAMES = {
     "database_id",
@@ -305,7 +306,7 @@ def run_probe(product_major_version: int) -> dict[str, Any]:
             'sqlcmd=/opt/mssql-tools18/bin/sqlcmd; '
             'elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then '
             'sqlcmd=/opt/mssql-tools/bin/sqlcmd; else exit 127; fi; '
-            '"$sqlcmd" -S localhost -U sa -C -b -l 5 -h -1 -W -w 8000 -Q "SELECT 1;"'
+            f'"$sqlcmd" -S localhost -U sa -C -b -l 5 -h -1 -W -w 8000 -Q "{READY_SQL}"'
         )
         ready = False
         last_readiness = {"returncode": None, "stdout": "", "stderr": ""}
