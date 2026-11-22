@@ -14,6 +14,19 @@ from Tests.Runtime.dgn004_capture_runner import BoundedProcessResult
 
 
 class Dgn004RuntimeRunnerTests(unittest.TestCase):
+    def test_candidate_runner_allowlisted_detail_is_preserved_without_raw_process_text(self):
+        error = runner.CandidateRunnerError(
+            "candidate snapshot frame is incomplete or misbound"
+        )
+        self.assertEqual(
+            runner._safe_failure_detail(error),
+            "candidate snapshot frame is incomplete or misbound",
+        )
+
+    def test_unclassified_capture_runner_text_is_redacted(self):
+        error = runner.CaptureRunnerError("sensitive-raw-diagnostic")
+        self.assertEqual(runner._safe_failure_detail(error), "CaptureRunnerError")
+
     def test_budget_fails_closed_at_batch_ceiling_and_deadline(self):
         budget = runner.BuildBudget(time.monotonic() + 10)
         budget.batches = runner.MAX_BATCHES_PER_BUILD - 1

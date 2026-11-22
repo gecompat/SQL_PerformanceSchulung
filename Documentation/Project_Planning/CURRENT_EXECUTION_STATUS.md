@@ -65,7 +65,12 @@ der Zusatzlauf ist keine Qualifikation und wird nicht durch einen weiteren
 SQL-Versuch ersetzt. Seine Ursache ist aus dem begrenzten Laufbericht nicht
 abschließend belegt. Der Runtimeworkflow ist daher auf manuellen Start
 beschränkt; Validator und Regressionen laufen weiterhin in den normalen
-Frameworkprüfungen.
+Frameworkprüfungen. Die Actions-Protokolle und das 361-Byte-Artefakt enthalten
+nur `CandidateRunnerError`, weil der Runtime-Fehleradapter bisher den festen
+Diagnosetext dieser Fehlerklasse ebenfalls verkürzte. Der Adapter gibt künftig
+diesen begrenzten, codefesten Text weiter und behält die Redaktion beliebiger
+Prozessmeldungen bei. Der Fehlergrund des Zusatzlaufs selbst bleibt damit
+unbestimmt; es wird kein weiterer SQL-Lauf ausgelöst.
 
 Der [Implementierungsplan](DGN_004_RUNTIME_IMPLEMENTATION_PLAN.md) und die
 [Quell-/Runnerbeschreibung](../../Tests/Fixtures/DGN004_SourcePair/README.md)
