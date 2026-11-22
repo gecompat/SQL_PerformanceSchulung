@@ -2,11 +2,11 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `METHOD_DRAFT` – begrenzte lokale Read-only-Diagnose auf eigenen Wegwerfcontainern ausgeführt; keine Demo- oder Qualifikationsfreigabe |
+| Status | `METHOD_DRAFT` – der kombinierte XE-/Seitenkettennachweis wurde auf drei gepinnten Builds lokal demonstriert; unabhängige Methodenprüfung und Demo-/Qualifikationsfreigabe bleiben offen |
 | Lernziel | Eine wartende `PAGELATCH_EX`-Seite nur dann als letzte Blattseite eines bestimmten Indexes einordnen, wenn die Seitenmetadaten diese Zuordnung tragen |
 | Lehrpfad | Vorhandene [IDX-007-Lehrnotiz](../Curriculum/LAST_PAGE_INSERT_CONTENTION_LESSON.md); kein neues Lernziel |
 | Vertrag | [Offline-Prüfer](../../Tests/Static/idx007_last_page_contract.py) bleibt ein Konsistenzfilter für caller-gelieferte Werte |
-| Quellen | `SRC-168`–`SRC-172`, `SRC-174` |
+| Quellen | `SRC-163`, `SRC-168`–`SRC-172`, `SRC-174` |
 
 ## Aussage, die geprüft werden soll
 
@@ -71,12 +71,11 @@ beweist keinen stabilen Zustand außerhalb ihres kurzen Erfassungsfensters.
    Wait-Rändern erneut gelesen. Ein historischer, späterer oder allgemeiner
    Dauerzustand folgt daraus nicht.
 
-Der konkrete Terminalwert für nicht vorhandene Nachfolger, die Verfügbarkeit
-der Seitenanzahlquelle und eine sichere Reaktion auf einen parallelen Split
-sind noch nicht enginequalifiziert. Der spätere Prüfer muss diese Fälle
-`NOT_PROVEN` zuordnen, bis der unabhängige Methodenreview ihre genaue
-Darstellung bestätigt. Er darf weder `NULL` noch eine Nulladresse als
-Terminalwert voraussetzen, bevor diese Semantik belegt ist.
+Der konkrete Terminalwert für nicht vorhandene Nachfolger ist für die drei
+später beschriebenen Builds empirisch als `(0,0)` beobachtet. Das ist keine
+Herstellergarantie und gilt nicht automatisch für andere Builds. Eine sichere
+Reaktion auf einen parallelen Split bleibt offen; bei geänderter oder
+widersprüchlicher Struktur muss der Erheber `NOT_PROVEN` liefern.
 
 ## Ergebniszustände
 
@@ -119,10 +118,12 @@ Ursache eines Produktionsengpasses oder einen Vorteil von
 
 Die geltenden Herstellerquellen beschreiben Seiteneigenschaften und
 Nachfolgerfelder, aber keinen atomaren Traversalvertrag für eine während
-konkurrierender Inserts veränderliche B-Baum-Blattkette. Dieses Verhalten und
-die vorgeschlagene Klammerung bleiben deshalb ein offenes empirisches Gate.
+konkurrierender Inserts veränderliche B-Baum-Blattkette. Der begrenzte Versuch
+belegt deshalb nur die beobachtete Stabilität zwischen zwei getrennten
+Insertbursts auf den konkreten Builds, keinen allgemeinen Traversalschutz bei
+gleichzeitigen Strukturänderungen.
 
-`evaluate_last_page_wait_snapshot_consistency` verlangt neben dem Waitsnapshot auch caller-gelieferte `PageLink`-Records, einen expliziten Endmarker und ein begrenztes Seitenbudget. Es ruft den Kettenprüfer mit der Wait-Zielseite als Startadresse und der Ziel-Datenbank, dem Objekt, Index und der Partition auf. Ein PASS ohne passende Kette ist `NOT_PROVEN`; eine Kette mit abweichender Startseite oder Identität kann keinen PASS erzeugen. Der Checker prüft jedoch nur einen caller-gelieferten Waitsnapshot und die Linkkonsistenz. Sein PASS besagt weder, dass zwei unabhängige Waitränder vor und nach dem Kettenlauf bestanden, noch dass ein caller-gelieferter Sentinel im Zielbuild wirklich das Kettenende markiert. Die Kettenhilfe heißt daher `evaluate_supplied_page_chain_consistency`; ihr PASS meldet ausdrücklich nur strukturelle Konsistenz bis zum Caller-Sentinel. Beide Waitränder, ihre zeitliche Klammerung und bestätigte Terminalsemantik bleiben getrennte Implementierungs-/Buildgates. Keine der Offlinefunktionen authentifiziert DMV-/Seitenaufnahmen. Die unabhängige Methodenprüfung bleibt Voraussetzung für eine ausführbare Probe.
+`evaluate_last_page_wait_snapshot_consistency` verlangt neben dem Waitsnapshot auch caller-gelieferte `PageLink`-Records, einen expliziten Endmarker und ein begrenztes Seitenbudget. Es ruft den Kettenprüfer mit der Wait-Zielseite als Startadresse und der Ziel-Datenbank, dem Objekt, Index und der Partition auf. Ein PASS ohne passende Kette ist `NOT_PROVEN`; eine Kette mit abweichender Startseite oder Identität kann keinen PASS erzeugen. Der Checker prüft jedoch nur einen caller-gelieferten Waitsnapshot und die Linkkonsistenz. Sein PASS besagt weder, dass zwei unabhängige Waitränder vor und nach dem Kettenlauf bestanden, noch dass ein caller-gelieferter Sentinel im Zielbuild wirklich das Kettenende markiert. Die Kettenhilfe heißt daher `evaluate_supplied_page_chain_consistency`; ihr PASS meldet ausdrücklich nur strukturelle Konsistenz bis zum Caller-Sentinel. Beide Waitränder, ihre zeitliche Klammerung und bestätigte Terminalsemantik bleiben getrennte Implementierungs-/Buildgates. Keine der Offlinefunktionen authentifiziert DMV-/Seitenaufnahmen. Der hier beschriebene Pilot bleibt begrenzte Engineering-Evidenz. Ein unabhängiger Methodenreview ist Voraussetzung, bevor daraus eine wiederverwendbare Produktprobe, Demo- oder Qualifikationsfreigabe abgeleitet wird.
 
 ### Ergänzung des Offline-Waitvertrags
 
@@ -139,3 +140,54 @@ künftigen Erhebung und bleibt bis dahin `NOT_PROVEN`. Ebenso bleibt
 `rightmost_leaf_claim` lediglich eine zusätzliche Callerbehauptung; nur die
 noch nicht buildqualifizierte Kettenmetadatenaufnahme könnte den
 Rechtsaußenstatus stützen. Der Offlinevertrag erteilt keine Enginefreigabe.
+
+### Empirischer XE-/Kettenpilot (22. November 2026)
+
+Ein begrenzter Pilot in
+[`Tests/Runtime/idx007_hot_leaf_pilot.py`](../../Tests/Runtime/idx007_hot_leaf_pilot.py)
+umgeht das Pollingproblem kurzer Waits. Er erfasst `latch_suspend_begin` und
+`latch_suspend_end` in einer eigenen Extended-Events-Sitzung, bindet die
+Ereignisse über Sequenz, Session und Request an bekannte Actor-Requests und
+wertet nur ausgeglichene erfolgreiche Latch-Waitpaare mit XEvent-Klasse
+`BUF` und Modus `EX` aus. Der Endzeitstempel ist millisekundengenau; die
+Intervalllänge wird aus dem im Enginekatalog als Mikrosekunden beschriebenen
+`duration`-Feld abgeleitet und gegen einen 60-Sekunden-Cap begrenzt. Der
+berechnete Beginn muss höchstens eine Millisekunde vom XE-Beginn abweichen.
+Zwei unterschiedliche Actor-Intervalle müssen sich zeitlich überlappen und dieselbe
+Datenbank-/Datei-/Seitenadresse betreffen. Verluste, abgeschnittene oder zu
+große Ringpuffer, unvollständige Paare und abweichende Ereignisressourcen
+ergeben keinen Nachweis.
+
+Der Pilot lädt 500 Seedzeilen und baut den Zielindex vor den Actor-Requests mit
+`FILLFACTOR=20` neu auf; damit weist die Zielpartition vor der Last mehrere
+Blattseiten und reservierten Platz am rechten Rand auf. Er lässt 24 Actors je
+6 Einfügungen in zwei getrennten Bursts ausführen. Nach dem ersten Burst sind
+alle Actor-Inserts beendet; danach prüft der Pilot die per
+`sys.dm_db_page_info` gelesene Zielseite und ihren
+Vorgänger-Rücklink. Erst danach startet der zweite Burst. Beide Burstcaptures
+müssen denselben terminalen Blattseitenkopf der markierten synthetischen
+Clustered-Indexpartition und überlappende exklusive Waitintervalle auf dieser
+Seite zeigen. Zwischen Kettenprüfung und zweitem Burst ändert kein Actor den
+Zielindex. Die Blattseitenanzahl muss größer als eins sein; Seite, Objekt,
+Index, Partition, Ebene und Rücklink müssen übereinstimmen.
+
+Auf den isolierten, digest-gepinnten Builds SQL Server 2019
+`15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5` bestand je ein
+identischer 24×6-Lauf. Der Pilot bestätigte auf jedem Build die konkrete
+Produktversion und Compatibility Level (150, 160, 170); jeder Rebuild ergab
+sechs Blattseiten. In jedem Lauf wurde dieselbe terminale Seite in beiden
+Bursts beobachtet; der Vorgänger zeigte jeweils korrekt zurück. Die genauen
+Seitenadressen und Wartezeiten sind lauflokale Diagnosedaten und werden nicht
+als Produkt- oder Performancewerte verallgemeinert. Je Lauf wurden 788
+synthetische Zeilen bestätigt und Testdatenbank, XE-Sitzungen und eigener
+Container entfernt. Die pro Lauf benannte Datenbank trug die vier
+Framework-Ownershipmarker; der Cleanup prüfte sie vor dem Entfernen.
+
+Das ist ein empirischer Methodenbeleg für genau diese drei Builds und diese
+kontrollierte Lastform. Er bestätigt weder einen allgemeinen atomaren
+Seitenkettenvertrag noch das Verhalten bei gleichzeitigen Page-Splits,
+Produktionslast oder einen Vorteil von `OPTIMIZE_FOR_SEQUENTIAL_KEY`. Der
+Pilot ist keine vollständige Demoqualifikation. Vor einer Änderung des
+Methodenstatus oder einem Leistungsclaim bleibt ein unabhängiger Review dieses
+Erhebungsvertrags erforderlich. Die serielle PR-/manuelle Runtime-Matrix steht
+in [IDX-007 Live-Capture](../../.github/workflows/idx007-live-capture.yml).

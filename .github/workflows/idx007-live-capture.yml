@@ -1,0 +1,77 @@
+name: IDX-007 live last-page capture
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Runtime/idx007_hot_leaf_pilot.py'
+      - 'Tests/Runtime/README.md'
+      - 'Tests/Static/test_idx007_live_capture.py'
+      - 'Documentation/Project_Planning/IDX007_RIGHTMOST_PAGE_METHOD.md'
+      - 'Documentation/Curriculum/LAST_PAGE_INSERT_CONTENTION_LESSON.md'
+      - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
+      - 'Documentation/Project_Planning/NEXT_DEVELOPMENT_WAVES.md'
+      - 'Documentation/Research/SOURCE_REGISTER.md'
+      - '.github/workflows/idx007-live-capture.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Runtime/idx007_hot_leaf_pilot.py'
+      - 'Tests/Runtime/README.md'
+      - 'Tests/Static/test_idx007_live_capture.py'
+      - 'Documentation/Project_Planning/IDX007_RIGHTMOST_PAGE_METHOD.md'
+      - 'Documentation/Curriculum/LAST_PAGE_INSERT_CONTENTION_LESSON.md'
+      - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
+      - 'Documentation/Project_Planning/NEXT_DEVELOPMENT_WAVES.md'
+      - 'Documentation/Research/SOURCE_REGISTER.md'
+      - '.github/workflows/idx007-live-capture.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: idx007-live-capture-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with: {python-version: '3.12'}
+      - run: python -m unittest Tests.Static.test_idx007_live_capture -v
+      - run: python Tests/Static/test_idx007_last_page_contract.py
+      - run: python Tests/Static/validate_idx007_lesson_query.py
+      - run: python Tests/Static/test_validate_idx007_lesson_query.py
+
+  runtime:
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
+    needs: [static]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        version:
+          - {major: 15, image: 'mcr.microsoft.com/mssql/server@sha256:07d7dedecdbfcf6776035dc5eefb5bfd9aa1804b2f6b99f7dedb397d8a599069'}
+          - {major: 16, image: 'mcr.microsoft.com/mssql/server@sha256:cf8f0ab2ebe61feec2eed2629061a07d247f791c2a8ddda74a4ac9f06a291718'}
+          - {major: 17, image: 'mcr.microsoft.com/mssql/server@sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f'}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with: {python-version: '3.12'}
+      - name: Pull pinned SQL Server image
+        run: docker pull '${{ matrix.version.image }}'
+      - name: Run isolated two-burst capture
+        shell: bash
+        run: python Tests/Runtime/idx007_hot_leaf_pilot.py '${{ matrix.version.major }}' | tee "${RUNNER_TEMP}/idx007-live-${{ matrix.version.major }}.log"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: idx007-live-${{ matrix.version.major }}
+          path: ${{ runner.temp }}/idx007-live-${{ matrix.version.major }}.log
+          if-no-files-found: warn
+          retention-days: 3

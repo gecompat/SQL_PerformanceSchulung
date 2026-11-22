@@ -14374,3 +14374,41 @@ Wait-/Terminalaufnahme mit begrenzter Kettenprüfung atomar genug koppelt oder
 `NOT_PROVEN` als erwarteten Ausgang für weiterwandernde Hotspots festlegt.
 Es wurde kein Leistungsvergleich ausgeführt und kein temporärer Diagnoseläufer
 in das Produkt übernommen.
+
+### IDX-007 – überlappende Waits an derselben terminalen Seite nachgewiesen (22. November 2026)
+
+Der Pollingansatz verfehlte kurze Latch-Waits und zuvor wanderte der Hotspot
+zwischen parallelen Insert- und Kettenaufnahmen. Der neue begrenzte
+XE-Erhebungslauf erfasst `latch_suspend_begin`/`latch_suspend_end`, bindet die
+Ereignisse über Sequenz, Session und Request an die eigenen Actor-Requests und
+verlangt überlappende erfolgreiche Waitintervalle der XEvent-Klasse `BUF` im
+Modus `EX` auf derselben Seite. Eventverlust, Trunkierung, unvollständige Ereignispaare und abweichende
+Ressourcen werden abgewiesen.
+
+Fünfhundert Seedzeilen werden vor den Actors mit `FILLFACTOR=20` neu aufgebaut;
+die Zielpartition weist sechs Blattseiten und freien Platz am rechten Rand auf.
+Vierundzwanzig Actors führen jeweils sechs Inserts in zwei getrennten Bursts
+aus. Nach Burst 1 sind alle Zielindexänderungen beendet. Die Seitenkopfaufnahme
+prüft Blattebene, Zielobjekt/-index/-partition, terminalen Nachfolgerwert und
+wechselseitige Verknüpfung mit dem Vorgänger. Erst danach beginnt Burst 2.
+Auf SQL Server 2019 `15.0.4500.2` / Compatibility Level 150, 2022
+`16.0.4305.5` / 160 und 2025 `17.0.5035.5` / 170 bestand jeweils ein
+identischer 24×6-Lauf mit sechs
+Blattseiten: Beide Bursts zeigten
+überlappende exclusive Latch-Waits auf derselben terminalen Seite; der
+Vorgänger-Rücklink stimmte. Jeder Lauf bestätigte 788 synthetische Zeilen,
+entfernte die mit Ownershipmarkern gebundene Datenbank, die XE-Sitzung und den
+eigenen Container. Ein weiterer einzelner 2025-Lauf mit der früheren
+8×10-Lastform hatte zuvor keinen überlappenden Wait geliefert; das ist jetzt
+als kontrolliertes `NOT_PROVEN`
+statt als falsche Positivmeldung abgebildet.
+
+Damit ist die bisher fehlende kombinierte Wait-/Terminal-/Capturebindung auf
+diesen drei konkreten Builds demonstriert. Die `(0,0)`-Terminalkodierung ist
+empirisch, keine allgemeine Herstellergarantie. Der Versuch belegt nicht das
+Verhalten bei gleichzeitigen Page-Splits, keine Produktivlast und keinen
+Performancevorteil. Die Änderung bleibt `METHOD_DRAFT`, bis der
+Erhebungsvertrag unabhängig geprüft wurde; die vollständige Demo- und
+Leistungsqualifikation ist weiterhin getrennt. Der wiederholbare
+Offlinevertrag, der serielle PR-/manuelle Matrixworkflow und die Dokumentation
+werden über den verknüpften PR integriert.

@@ -57,3 +57,38 @@ Die kurzlebigen Matrixdiagnosen enthalten nur Teststufen, Summarycodes und gekü
 ## Grenzen
 
 Die Matrix validiert SQL Server auf Linux in offiziellen Microsoft-Containern. Sie ersetzt keine separate Prüfung Windows-spezifischer Funktionen, Editionen oder OS-Metriken. Die `latest`-Tags eignen sich zur laufenden Kompatibilitätsprüfung; ein späterer Release benötigt zusätzlich dokumentierte konkrete Image-Digests oder CU-Stände.
+
+## IDX-007-Erhebungspilot
+
+[`idx007_hot_leaf_pilot.py`](idx007_hot_leaf_pilot.py) ist ein getrennter,
+begrenzter Engineering-Pilot für die Wait-/Seitenbindung der IDX-007-Lehrnotiz.
+Er ist keine Frameworkkomponente, Demo oder Leistungsqualifikation. Er startet
+für einen Aufruf einen eigenen SQL-Server-Developercontainer ohne Netzwerk,
+Ports oder persistente Volumes und begrenzt ihn auf 2 CPUs und 4 GiB RAM. Die
+synthetische Datenbank hat einen pro Lauf erzeugten Namen und die vier
+Framework-Ownershipmarker; Cleanup prüft sie vor `DROP` und entfernt danach
+den eigenen Container.
+
+Ein Aufruf verwendet einen dieser Majorwerte:
+
+```text
+python Tests/Runtime/idx007_hot_leaf_pilot.py 15
+python Tests/Runtime/idx007_hot_leaf_pilot.py 16
+python Tests/Runtime/idx007_hot_leaf_pilot.py 17
+```
+
+Der Lauf prüft den konkreten Engine-Build, Compatibility Level und XE-Feld-
+beziehungsweise Actionbestand. Zwei getrennte Insertschübe müssen überlappende
+exklusive `BUF`-Latchintervalle derselben Actor-Requests auf derselben Seite
+zeigen. Eine Seitenkopfaufnahme zwischen den Schüben prüft terminale
+Blattebene, Zielindexpartition und den Rücklink. Ein fehlender oder
+widersprüchlicher Nachweis endet als `NOT_PROVEN`; ein Cleanupfehler lässt den
+Lauf fehlschlagen.
+
+Der Workflow
+[`idx007-live-capture.yml`](../../.github/workflows/idx007-live-capture.yml)
+führt die statischen Verträge auf Pull Requests aus und lässt die drei
+digest-gepinnten Runtime-Builds dort seriell laufen. `workflow_dispatch` kann
+dieselbe Matrix manuell erneut ausführen. Ein erfolgreicher Engineering-Pilot
+ändert den `METHOD_DRAFT`-Status nicht; unabhängiger Methodenreview,
+Demofreigabe und Leistungsqualifikation bleiben getrennte Gates.
