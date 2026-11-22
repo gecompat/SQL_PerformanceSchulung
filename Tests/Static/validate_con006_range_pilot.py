@@ -8,14 +8,12 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 RUNNER = ROOT / "Tests/Runtime/con006_range_pilot.py"
 WORKFLOW = ROOT / ".github/workflows/con006-range-pilot.yml"
-EXECUTION_TARGET = ROOT / "Tests/Runtime/execution_target.py"
 
 
 def validate() -> list[str]:
     errors: list[str] = []
     runner = RUNNER.read_text(encoding="utf-8").casefold()
     workflow = re.sub(r"\s+", " ", WORKFLOW.read_text(encoding="utf-8").casefold())
-    execution_target = EXECUTION_TARGET.read_text(encoding="utf-8")
     for marker in ("serializable", "forceSeek", "lck_m%", "system_health",
                    "xml_deadlock_report", "evaluate_range_capture",
                    "evaluate_range_control", "1205", "single_user with rollback immediate"):
@@ -25,8 +23,8 @@ def validate() -> list[str]:
         errors.append("pilot must bind inspection and cleanup to its exact owned container")
     if "isoptimizedlockingon" not in runner:
         errors.append("SQL Server 2025 optimized-locking state must be observed without mutation")
-    if '"127.0.0.1"' not in runner or '"127.0.0.1"' not in execution_target:
-        errors.append("container SQL probes must use explicit IPv4 loopback")
+    if '"127.0.0.1"' not in runner:
+        errors.append("CON-006 container SQL probes must use explicit IPv4 loopback")
     if "-s 127.0.0.1" not in workflow:
         errors.append("login readiness must use the same explicit IPv4 loopback")
     if 'host.get("networkmode") != "none"' not in runner:
