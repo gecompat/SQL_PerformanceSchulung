@@ -583,7 +583,7 @@ Variante angehalten und mit dem nächsten Paket fortgefahren.
 
 | Reihenfolge | Konkreter Arbeitsschnitt | Abschlusskriterium vor Runtime | Nächster Schritt / Grenze |
 |---|---|---|---|
-| 1. DGN-007 Zeitzuordnung | Bereits geprüft: gemeinsamer Zeitgeber, Query-Store-Intervallzuordnung, Countdifferenzen und Query-/Planidentität. Der [XE-Methodenentwurf](DGN_007_XE_WINDOW_ATTRIBUTION_METHOD.md) beschreibt begrenzte Abschlussereignisse zwischen expliziten Fenstermarkern, eindeutige Query-/Planhash-Zuordnung und fail-closed Verlust-/Mehrdeutigkeitsregeln. | Der unabhängige Draftreview fand keine offenen P1/P2; er erforderte Idle-/Drainzustand, Fenster-intern gepaarte Start-/Abschlussereignisse und eine per Build geprüfte datenschutzsichere Payload-Allowlist. | Methodenreview abgeschlossen. Weiterhin METHOD_BLOCKED bis Feld-/Action-Allowlist, Ereignisverlust, Markerreihenfolge, Hashkardinalität und Cleanup pro Build empirisch belegt sind. Keine Session, SQL-Probe, Toleranzlockerung oder Runtimeänderung. |
+| 1. DGN-007 Zeitzuordnung | Der [XE-Methodenentwurf](DGN_007_XE_WINDOW_ATTRIBUTION_METHOD.md) beschreibt fensterinterne Requestpaare, eindeutige Query-/Planhash-Zuordnung und fail-closed Verlust-/Mehrdeutigkeitsregeln. Der unabhängige Draftreview fand keine offenen P1/P2; er verlangte Idle-/Drainzustand, gepaarte Starts/Abschlüsse und eine Datenschutz-Allowlist. | Ein read-only Kataloginventar und ein manueller, serieller Drei-Build-Workflow sind implementiert. Lokale Containerstarts endeten vor SQL-Readiness; keine Katalogabfrage oder XE-Session lief. Die Kataloginventur enthält keinen Eventpayload. | PR-integrieren und den manuellen Workflow einmal auf frischen Runnern je gepinntem Build ausführen. DGN-007 bleibt `METHOD_BLOCKED`, bis Inventare, Payload-Allowlist, Ereignisverlust, Markerordnung, Hashkardinalität und Cleanup buildweise belegt sind. Kein Mess-Lifecycle oder Messclaim. |
 | 2. CON-006 Range | Gemeinsame Delta-Prüfung von Range-Graph, Capturekorrelation und seriellem Kontrollarm gegen den Methodenentwurf und die bisherigen Konversions- und Rangeverträge. Festgehalten werden Prozess-/Opfer-/Survivorbindung, dieselbe KEY-Ressource, gemeldete Sperrmodi, Fehler 1205, Endbestände, Datenbank-/XE-Eigentum und Cleanup. | Der unabhängige Draftreview fand keine offenen P1/P2 nach Beschränkung auf `requestType="wait"`, Actor-/SPID-/Schlüsselgebundene Insert-Outcomes und exakten Endbestand sowie begrenztem Recoveryvertrag. | Range bleibt `PROPOSED`. Nächster Schritt bleibt die getrennte Build-/Enginequalifikation des Graph- und Cleanupvertrags; bisherige Grund- und Konversionsfälle bleiben unberührt. |
 | 3. IDX-007 rechte Blattseite | Methodenentwurf gegen aktuelle Herstellerquellen und den implementierten Kettenchecker abgeglichen: `page_resource`, Zielseite, Partition, Vor-/Rücklinks, Terminalsemantik, Split-/Änderungsrisiko, Wait-Klammer, Rechte, Seitenkappe und Abbruchstatus. | Der unabhängige Draftreview fand keine offenen P1/P2 nach expliziter Trennung zwischen caller-gelieferter Konsistenzprüfung und tatsächlicher Terminalsemantik. Er verlangt eindeutige Taskadressbindung und zwei geordnete Wait-Captures als noch nicht belegte Methoden-/Runtimeanteile. | Methodenreview abgeschlossen. Vor read-only Enginepilot bleiben Task-/Request-Zuordnung, versionsgebundener Terminalnachweis, zwei Waitränder, Split-/Änderungsrisiko, Seitenkappe und Cleanup empirisch offen. Kein Last- oder Leistungsclaim aus einer Seitenkette allein. |
 
@@ -591,10 +591,13 @@ Der Plan erteilt keine neue Laufzeitfreigabe. Der unabhängige Review der drei
 Methodenentwürfe ist am 22. November 2026 abgeschlossen und dokumentiert in
 [METHODS_INDEPENDENT_REVIEW_2026-11-22.md](METHODS_INDEPENDENT_REVIEW_2026-11-22.md).
 Es gab keinen P1; die gefundenen P2 wurden korrigiert und unabhängig
-nachgeprüft. Die Build-/Engine-, Datenschutz-, Taskkorrelations- und
-Cleanupbelege bleiben je Methode offen. DGN-007 bleibt `METHOD_BLOCKED`,
-CON-006 Range `PROPOSED`; keine Laufzeitfreigabe oder Messclaim folgt aus dem
-Methodenreview.
+nachgeprüft. DGN-007 hat einen nur manuell gestarteten, read-only
+Kataloginventurpfad; lokale Versuche stoppten vor SQL-Readiness und lieferten
+keine XE-Metadaten. Der nächste Schritt ist ein einziger serieller Lauf pro
+gepinntem Build auf frischen CI-Runnern. Danach bleiben Datenschutz- und
+Ereignis-/Cleanupgates zu schließen. CON-006 Range bleibt `PROPOSED`; IDX-007
+behält offene Taskkorrelations-, Terminal- und Zwei-Rand-Proben. Keine
+Laufzeitfreigabe oder Messbehauptung folgt aus dem Methodenreview.
 
 PR #424 bindet beim QRY-023-Proposed-Harness Phasenscript, Zieldatenbank,
 Zeitlimits, Cleanup und Gesamtbudgets. PR #426 ergänzt `Reads` und `Writes` als
