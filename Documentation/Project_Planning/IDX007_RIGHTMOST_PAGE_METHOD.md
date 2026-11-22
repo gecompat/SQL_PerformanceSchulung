@@ -149,19 +149,23 @@ umgeht das Pollingproblem kurzer Waits. Er erfasst `latch_suspend_begin` und
 `latch_suspend_end` in einer eigenen Extended-Events-Sitzung, bindet die
 Ereignisse über Sequenz, Session und Request an bekannte Actor-Requests und
 wertet nur ausgeglichene erfolgreiche Latch-Waitpaare mit XEvent-Klasse
-`BUF` und Modus `EX` aus. Der Endzeitstempel ist millisekundengenau; die
-Intervalllänge wird aus dem im Enginekatalog als Mikrosekunden beschriebenen
-`duration`-Feld abgeleitet und gegen einen 60-Sekunden-Cap begrenzt. Der
-berechnete Beginn muss höchstens eine Millisekunde vom XE-Beginn abweichen.
-Zwei unterschiedliche Actor-Intervalle müssen sich zeitlich überlappen und dieselbe
-Datenbank-/Datei-/Seitenadresse betreffen. Verluste, abgeschnittene oder zu
+`BUF` und Modus `EX` aus. Die monotone `package0.event_sequence`-Action ordnet
+Beginn und Ende innerhalb der XE-Sitzung; eine Überlappung liegt vor, wenn die
+Beginn-/Endereignisse zweier unterschiedlicher Actor-Waits ineinander
+verschachtelt sind und dieselbe Datenbank-/Datei-/Seitenadresse betreffen.
+Das im Enginekatalog als Mikrosekunden beschriebene `duration`-Feld wird
+weiterhin auf einen 60-Sekunden-Cap geprüft und diagnostisch ausgegeben. Die
+millisekundengenauen UTC-Zeitstempel entscheiden nicht über die Überlappung;
+ein CI-Lauf auf SQL Server 2022 zeigte eine Abweichung zwischen Zeitstempel und
+Waitdauer, die die frühere 1-ms-Konsistenzannahme nicht erfüllte. Verluste,
+Duplikate in der Ereignisfolge, abgeschnittene oder zu
 große Ringpuffer, unvollständige Paare und abweichende Ereignisressourcen
 ergeben keinen Nachweis.
 
 Der Pilot lädt 500 Seedzeilen und baut den Zielindex vor den Actor-Requests mit
 `FILLFACTOR=20` neu auf; damit weist die Zielpartition vor der Last mehrere
-Blattseiten und reservierten Platz am rechten Rand auf. Er lässt 24 Actors je
-6 Einfügungen in zwei getrennten Bursts ausführen. Nach dem ersten Burst sind
+Blattseiten und reservierten Platz am rechten Rand auf. Er lässt 48 Actors je
+3 Einfügungen in zwei getrennten Bursts ausführen. Nach dem ersten Burst sind
 alle Actor-Inserts beendet; danach prüft der Pilot die per
 `sys.dm_db_page_info` gelesene Zielseite und ihren
 Vorgänger-Rücklink. Erst danach startet der zweite Burst. Jeder Burst muss

@@ -14445,3 +14445,15 @@ für alle drei Builds; die übrigen Pflichtchecks für
 bestanden ebenfalls. PR #1145 wurde am 22. November 2026 per Squash gemergt;
 `origin/main` enthält den Abschluss unter
 `cc9004ae8b5caef2e50ab6d039e25c2ae92a0e12`.
+
+Ein weiterer PR-Lauf fand auf SQL Server 2022 einen Wait, dessen XE-
+Endzeitstempel und `duration`-Feld die vorherige 1-ms-Konsistenzannahme nicht
+erfüllten. Weil die Zeitstempel gerundet sind, entscheidet die Erhebung jetzt
+anhand der `event_sequence`-Reihenfolge: Beginnen beide Actor-Waits vor dem
+Ende des jeweils anderen und betreffen sie dieselbe Seite, sind sie geordnet
+überlappend. Doppelte Sequenzwerte scheitern geschlossen; `duration` bleibt
+buildgebunden geprüft, begrenzt und diagnostisch sichtbar. Neue Regressionen
+decken verschachtelte Eventfolgen trotz abweichender gerundeter Zeitwerte sowie
+doppelte Sequenzwerte ab. Diese Korrektur und die frische Drei-Build-Matrix
+laufen in [PR #1146](https://github.com/gecompat/SQL_PerformanceSchulung/pull/1146);
+bis zu deren grüner Runtime-Prüfung bleibt die Matrixkorrektur offen.

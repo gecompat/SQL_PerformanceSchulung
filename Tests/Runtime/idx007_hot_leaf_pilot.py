@@ -8,7 +8,7 @@ import string
 import subprocess
 import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 PROFILES = {
@@ -154,6 +154,9 @@ def parse_wait_pairs(output: str, stage: int, bindings: dict[int, int], database
             "class": latch_class.upper(), "success": success.lower(),
             "duration": int(duration or 0),
         })
+    sequences = [row["seq"] for row in rows]
+    if len(sequences) != len(set(sequences)):
+        raise PilotError("XE event sequence contains duplicate values")
     grouped: dict[tuple[int, int], dict[str, list[dict]]] = {}
     for row in rows:
         grouped.setdefault((row["sid"], row["rid"]), {"latch_suspend_begin": [], "latch_suspend_end": []})[row["event"]].append(row)
@@ -164,8 +167,8 @@ def parse_wait_pairs(output: str, stage: int, bindings: dict[int, int], database
         if len(begins) != len(ends):
             raise PilotError("XE latch begin/end event counts do not balance per actor request")
         for begin, end in zip(begins, ends):
-            if begin["seq"] >= end["seq"] or end["stamp"] < begin["stamp"]:
-                raise PilotError("XE latch interval is not chronological")
+            if begin["seq"] >= end["seq"]:
+                raise PilotError("XE latch interval is not chronological by event sequence")
             if ((begin["db"], begin["file"], begin["page"], begin["mode"], begin["class"])
                     != (end["db"], end["file"], end["page"], end["mode"], end["class"])):
                 raise PilotError("XE latch begin/end resource binding changed")
@@ -173,13 +176,8 @@ def parse_wait_pairs(output: str, stage: int, bindings: dict[int, int], database
                     begin["class"] == "BUF" and begin["mode"] in {"EX", "EXCLUSIVE"} and
                     end["success"] in {"1", "true"} and
                     0 < end["duration"] <= 60_000_000):
-                # The XE timestamp is millisecond-granular; duration is in microseconds.
-                interval_start = end["stamp"] - timedelta(microseconds=end["duration"])
-                if abs((begin["stamp"] - interval_start).total_seconds()) > 0.001:
-                    raise PilotError("XE latch duration does not align with its begin timestamp")
                 pairs.append({"sid": begin["sid"], "rid": begin["rid"], "db": begin["db"],
                               "file": begin["file"], "page": begin["page"],
-                              "start": interval_start, "end": end["stamp"],
                               "begin_seq": begin["seq"], "end_seq": end["seq"],
                               "duration_us": end["duration"]})
     overlaps = []
@@ -187,7 +185,8 @@ def parse_wait_pairs(output: str, stage: int, bindings: dict[int, int], database
         for right in pairs[index + 1:]:
             if (left["sid"] != right["sid"] and (left["db"], left["file"], left["page"])
                     == (right["db"], right["file"], right["page"])
-                    and left["start"] < right["end"] and right["start"] < left["end"]):
+                    and max(left["begin_seq"], right["begin_seq"])
+                    < min(left["end_seq"], right["end_seq"])):
                 overlaps.append((left, right))
     return rows, pairs, overlaps
 
