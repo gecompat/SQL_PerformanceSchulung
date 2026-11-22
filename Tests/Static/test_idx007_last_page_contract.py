@@ -65,6 +65,18 @@ class LastPageContractTests(unittest.TestCase):
             start_address=(1, 900), terminal_address=(1, 9999), max_pages=2,
         ).verdict, Verdict.NOT_PROVEN)
 
+    def test_terminal_marker_cannot_alias_a_visited_page(self) -> None:
+        pages = (
+            PageLink(7, 1, 900, 42, 3, 1, 0, None, (1, 901)),
+            PageLink(7, 1, 901, 42, 3, 1, 0, (1, 900), (1, 900)),
+        )
+        result = evaluate_rightmost_page_chain(
+            pages, database_id=7, object_id=42, index_id=3, partition_id=1,
+            start_address=(1, 900), terminal_address=(1, 900), max_pages=2,
+        )
+        self.assertEqual(result.verdict, Verdict.FAIL)
+        self.assertIn("loops", result.reasons[0])
+
     def test_matching_two_actor_leaf_and_right_edge_passes(self) -> None:
         self.assertEqual(evaluate_last_page_contention(*fixture()).verdict, Verdict.PASS)
 

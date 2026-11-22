@@ -14088,3 +14088,16 @@ Ketten-/Lehrabfragevalidatoren, Repository-Continuity und statische
 CON-006-/IDX-007-/DGN-007-Regressionen bestanden. Die breite
 DGN-007-Projektionstestsuite enthält einen bestehenden Skip; dadurch wird
 keine zusätzliche Engine- oder Runtimeabnahme behauptet.
+
+### IDX-007 – Terminalmarker gegen besuchte Seiten absichern (22. November 2026)
+
+Die gezielte Vertragsprüfung fand einen Offlineprüferfehler: Wenn der caller-
+gelieferte Terminalmarker auf eine zuvor gelesene Seite zeigte, wurde der
+Schleifenabschluss als Terminaltreffer akzeptiert, bevor die Zyklenprüfung lief.
+`evaluate_rightmost_page_chain` weist jetzt jeden Rücksprung auf eine bereits
+besuchte Seite zuerst als `FAIL` ab und akzeptiert erst danach den getrennten
+Terminalmarker. Eine synthetische Regression deckt den terminal-als-Zyklus-
+Gegenfall ab. Die IDX-007-Suite besteht mit 17 Tests; Seitenmetadaten bleiben
+caller-geliefert. Das behebt keine Terminalsemantik und authentifiziert weder
+Seiten- noch Waitaufnahmen. Unabhängiger Methodenreview und read-only Enginepilot
+bleiben offen.
