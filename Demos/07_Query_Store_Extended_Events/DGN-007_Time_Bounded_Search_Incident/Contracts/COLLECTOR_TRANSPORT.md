@@ -128,8 +128,10 @@ Zielinstanz, Ressourcen, reale Reihenfolge oder 180-/60-Sekunden-Budgets. Er
 führt weder Prozesse noch SQL aus und bewertet keine sechs-Lifecycle-Version.
 Der [Laufzeit-Coordinator](../../../../Tests/Runtime/run_dgn007_control_matrix.py)
 erzeugt und bindet diese Belege inzwischen aus den privaten Capture-Receipts;
-seine neue isolierte Drei-Engine-Matrix ist noch nicht qualifiziert. Ein
-synthetischer Mapper-PASS bleibt für sich allein keine Runtimeattestation.
+seine isolierte Drei-Engine-Matrix für SQL Server 2019, 2022 und 2025 bestand
+im integrierten Lauf (PR #1096, Actions-Lauf #44921319212). Ein synthetischer
+Mapper-PASS bleibt für sich allein keine Runtimeattestation; der Matrixnachweis
+qualifiziert nur den dort geprüften Coordinatorstand und Umfang.
 
 ### Deklarative Matrixpräqualifikation
 
@@ -148,9 +150,10 @@ Ressourcen, bindet keine Hostidentität und erzeugt selbst weder Records noch
 SQL-Ausführung. Der DGN-007-Capture-Runner prüft den unten beschriebenen
 Quellenfreeze jetzt vor und nach jedem kontrollierten Capture und trägt beide
 Snapshots im internen Receipt. Die Receipt-Bindung leitet daraus das Freeze-Flag
-ab; ein Caller kann es nicht mehr setzen. Der vertrauensgebundene Coordinator,
-Hostbelegung, unabhängiger Review, frische Matrix und Incidentnachweis bleiben
-offen.
+ab; ein Caller kann es nicht mehr setzen. Die integrierte Matrix ist für den
+damaligen Coordinatorstand bestanden (PR #1096, Actions-Lauf #44921319212).
+Durchgehende Hostbelegung, externe Quellherkunft und Incidentnachweis bleiben
+offen; der Matrixlauf ersetzt diese Nachweise nicht.
 
 Der zusätzliche [Quellenfreeze-Prüfer](../../../../Tests/Runtime/dgn007_source_freeze.py)
 liest die 14 vertraglich gebundenen SQL-/Manifestdateien und vergleicht deren
@@ -221,10 +224,10 @@ Das sind Hostinventur-Randproben, keine durchgehende Exklusivitätsattestation.
 Ein fremder Container zwischen zwei Proben, die tatsächlich vom Kindprozess
 geladenen Bytes und eine externe Herkunft des Quellbestands bleiben unbelegt.
 Ein gültiger Evaluator-Skip bleibt `SKIP_EVIDENCE_MISSING`, kein PASS und keine
-misslungene Produkteigenschaft. Die neue Runtime-Integration benötigt ihre
-vollständige isolierte 2019/2022/2025-CI-Matrix, bevor sie als qualifiziert
-gilt. Incident-, Ursachen-, Mitigations-, Capstone- und Szenariofreigabe
-bleiben getrennte Gates.
+misslungene Produkteigenschaft. Die isolierte 2019/2022/2025-CI-Matrix der
+integrierten Runtime-Integration bestand im PR #1096 (Actions-Lauf
+#44921319212). Incident-, Ursachen-, Mitigations-, Capstone- und
+Szenariofreigabe bleiben getrennte Gates.
 
 Technische Primärquellen, geprüft am 2026-10-07:
 [Python Decimal](https://docs.python.org/3/library/decimal.html),
