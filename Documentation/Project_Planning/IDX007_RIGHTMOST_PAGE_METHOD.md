@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `METHOD_DRAFT` – keine SQL-, Demo- oder Laufzeitfreigabe |
+| Status | `METHOD_DRAFT` – begrenzte lokale Read-only-Diagnose auf eigenen Wegwerfcontainern ausgeführt; keine Demo- oder Qualifikationsfreigabe |
 | Lernziel | Eine wartende `PAGELATCH_EX`-Seite nur dann als letzte Blattseite eines bestimmten Indexes einordnen, wenn die Seitenmetadaten diese Zuordnung tragen |
 | Lehrpfad | Vorhandene [IDX-007-Lehrnotiz](../Curriculum/LAST_PAGE_INSERT_CONTENTION_LESSON.md); kein neues Lernziel |
 | Vertrag | [Offline-Prüfer](../../Tests/Static/idx007_last_page_contract.py) bleibt ein Konsistenzfilter für caller-gelieferte Werte |
