@@ -123,3 +123,15 @@ geprüft. Der Prüfer authentifiziert keine DMV-/Seitenaufnahme und entscheidet
 nicht, welcher Marker in einem SQL-Server-Build tatsächlich das Kettenende
 darstellt. Die unabhängige Methodenprüfung bleibt Voraussetzung für eine
 ausführbare Probe.
+
+### Ergänzung des Offline-Waitvertrags
+
+Der Offline-Waitchecker bindet jeden caller-gelieferten `PAGELATCH_EX`-Datensatz
+jetzt zusätzlich an eine erwartete Actor-/Session-/Request-ID und eine
+Taskausführung (`exec_context_id`). Beide erwarteten Actors müssen mit ihrer
+gebundenen Request-ID auf derselben Zielseite warten. Mehrere eindeutige Tasks
+derselben erwarteten Request-ID bleiben zulässig; wiederholte Taskrecords,
+fehlende Identitäten und fremde Requests werden abgewiesen. Dies erfüllt die
+statische Request-/Taskform des Methodenentwurfs, authentifiziert aber weder
+DMV-Herkunft noch Actorzuordnung oder Waitüberlappung. Der Offlinevertrag bleibt
+ein Konsistenzfilter und erteilt keine Enginefreigabe.

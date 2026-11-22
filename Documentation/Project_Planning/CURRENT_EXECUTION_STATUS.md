@@ -14101,3 +14101,18 @@ Gegenfall ab. Die IDX-007-Suite besteht mit 17 Tests; Seitenmetadaten bleiben
 caller-geliefert. Das behebt keine Terminalsemantik und authentifiziert weder
 Seiten- noch Waitaufnahmen. Unabhängiger Methodenreview und read-only Enginepilot
 bleiben offen.
+
+### IDX-007 – Request-/Taskbindung der Waitrecords ergänzen (22. November 2026)
+
+Der Abgleich des [Methodenentwurfs](IDX007_RIGHTMOST_PAGE_METHOD.md) mit dem
+Offlinevertrag zeigte, dass die vorgesehene Request-/Taskidentität in `PageWait`
+fehlte. Der Checker verlangt jetzt eine caller-gelieferte, eindeutige
+ACTOR_A-/ACTOR_B-zu-Session-/Requestbindung; jede `PAGELATCH_EX`-Zeile muss
+dieser Request-ID entsprechen und eine nichtnegative Task-`exec_context_id`
+tragen. Mehrere unterschiedliche Tasks je erwarteter Request-ID bleiben
+zulässig; wiederholte Taskzeilen und unbekannte/fremde Requests scheitern.
+Fokussierte Regressionen decken falsche Request-ID, fehlende Task-ID,
+Duplikate und mehrere gültige Tasks ab. Die IDX-007-Suite besteht mit 19 Tests;
+Lesson-query validator und Repository-Continuity bestehen. Die Werte bleiben
+caller-geliefert und unauthentifiziert. Der unabhängige Methodenreview,
+Terminalsemantik und read-only Enginepilot bleiben offen.
