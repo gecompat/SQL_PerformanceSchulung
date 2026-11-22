@@ -38,7 +38,7 @@ class Dgn007XeCatalogProbeTests(unittest.TestCase):
         self.assertEqual(result["available_actions"][0], {
             "package": "package0", "name": "event_sequence",
         })
-        self.assertIn("no XE session", result["scope"])
+        self.assertIn("catalog metadata", result["scope"])
 
     def test_wrong_or_missing_engine_identity_is_rejected(self) -> None:
         for output in (
@@ -90,6 +90,36 @@ class Dgn007XeCatalogProbeTests(unittest.TestCase):
 
     def test_readiness_sql_suppresses_row_count_output(self) -> None:
         self.assertEqual(probe.READY_SQL, "SET NOCOUNT ON; SELECT 1;")
+
+    def test_payload_gate_accepts_suppressed_synthetic_event_metadata(self) -> None:
+        output = "\n".join((
+            "DGN007_PAYLOAD|ENGINE|17|17.0.5035.5",
+            "DGN007_PAYLOAD|EVENT|sql_statement_starting|2|2|0|0|0|0|0|0",
+            "DGN007_PAYLOAD|EVENT|sql_statement_completed|2|2|0|0|0|0|0|0",
+            "DGN007_PAYLOAD|SESSION|ABSENT",
+            "DGN007_PAYLOAD|END|1",
+        ))
+        result = probe.parse_payload_output(output, expected_major=17, expected_version="17.0.5035.5")
+        self.assertTrue(result["xe_session_removed"])
+        self.assertFalse(result["raw_payload_emitted"])
+        self.assertEqual(result["events"]["sql_statement_completed"]["nonempty_statement_values"], 0)
+
+    def test_payload_gate_rejects_statement_text_and_missing_correlation(self) -> None:
+        base = "\n".join((
+            "DGN007_PAYLOAD|ENGINE|17|17.0.5035.5",
+            "DGN007_PAYLOAD|EVENT|sql_statement_starting|2|2|0|0|0|0|0|0",
+            "DGN007_PAYLOAD|EVENT|sql_statement_completed|2|2|0|0|0|0|0|0",
+            "DGN007_PAYLOAD|SESSION|ABSENT",
+            "DGN007_PAYLOAD|END|1",
+        ))
+        for output in (
+            base.replace("completed|2|2|0", "completed|2|2|1"),
+            base.replace("completed|2|2|0|0|0|0|0|0", "completed|2|2|0|1|0|0|0|0"),
+            base.replace("DGN007_PAYLOAD|SESSION|ABSENT", "DGN007_PAYLOAD|SESSION|PRESENT"),
+            base + "\nunclassified output row",
+        ):
+            with self.subTest(output=output), self.assertRaises(probe.ProbeError):
+                probe.parse_payload_output(output, expected_major=17, expected_version="17.0.5035.5")
 
     def test_profile_is_exactly_bound_to_the_shared_digest_lock(self) -> None:
         expected_versions = {15: "15.0.4500.2", 16: "16.0.4305.5", 17: "17.0.5035.5"}

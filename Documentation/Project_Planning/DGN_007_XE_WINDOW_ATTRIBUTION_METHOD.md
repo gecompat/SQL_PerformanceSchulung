@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `METHOD_DRAFT` – kein Mess-/Demo-Lifecycle und keine XE-Session freigegeben; getrennte read-only Kataloginventur ist begrenzt autorisiert |
+| Status | `METHOD_DRAFT` – kein Mess-/Actor-Lifecycle freigegeben; eine isolierte synthetische Datenschutzprobe je gepinntem Build ist begrenzt autorisiert |
 | Zweck | Prüfen, ob per-Request-Zeitgrenzen durch eine eigene, sequenzierte XE-Evidenzspur ersetzt werden können |
 | Bestehender Vertrag | Unverändert; kein G13-Ursachen- oder Mitigationsclaim |
 | Quellen | `SRC-027`, `SRC-031`, `SRC-163`; Microsoft Query Store-, XE- und DMV-Dokumentation |
@@ -101,10 +101,11 @@ als Qualifikationsbedingungen, nicht als zugesicherte Produkteigenschaften.
 Die erste technische Stufe liest ausschließlich sys.dm_xe_objects,
 sys.dm_xe_object_columns, sys.dm_xe_packages und die Engine-Identität. Sie
 erfasst Feld- und Actionnamen für sql_statement_starting sowie
-sql_statement_completed. Die Probe erzeugt keine Nutzer-/Labordatenbank und
-keine XE-Session, erfasst keine Eventpayload, verändert kein Query Store und
-führt kein Actor-Workload aus. Die SQL-Server-Engine startet ihre üblichen
-Systemdatenbanken einschließlich tempdb. Der SQL-Text und seine Prüfgrenzen liegen in
+sql_statement_completed. Die Katalogabfrage selbst erzeugt keine
+Nutzer-/Labordatenbank oder XE-Session, liest keine Eventpayload, verändert
+kein Query Store und führt kein Actor-Workload aus. Die SQL-Server-Engine
+startet ihre üblichen Systemdatenbanken einschließlich tempdb. Der SQL-Text
+und seine Prüfgrenzen liegen in
 [dgn007_xe_catalog_probe.sql](../../Tests/Runtime/dgn007_xe_catalog_probe.sql)
 und [dgn007_xe_catalog_probe.py](../../Tests/Runtime/dgn007_xe_catalog_probe.py).
 Der Workflow validiert diese Grenze auf Pull Requests und main; die tatsächlichen
@@ -133,22 +134,58 @@ Antwort, weil der Ready-Check Zeilenzahltext nicht unterdrückte. Die fehlende
 der beiden Läufe. Die Ergebnisse bleiben NOT_PROVEN und sind kein Produkt-
 oder XE-Metadatenbefund.
 
+## Synthetische Statement-Payload-Datenschutzprobe
+
+Der manuelle Kataloglauf `45018450462` bestand für die gepinnten Builds
+15.0.4500.2, 16.0.4305.5 und 17.0.5035.5. Die beiden ausgewählten
+Statementereignisse liefern in allen Builds das Feld `statement:data` sowie
+die konfigurierbaren Felder `collect_statement` und
+`collect_parameterized_plan_handle`. Das Kataloginventar bestätigt außerdem
+`event_sequence`, `database_id`, `query_hash`, `query_plan_hash` und
+`session_id`; verfügbare Aktionen `sql_text` und `tsql_stack` werden nicht
+aktiviert. Die Inventare waren über alle drei Builds identisch.
+
+Der nächste enge Gate startet je Build in der eigenen digestgebundenen
+Wegwerfinstanz genau eine temporäre XE-Session und führt ein festes synthetisches
+Statement aus. Für Start- und Abschlussereignis werden
+`collect_statement=(0)` und `collect_parameterized_plan_handle=(0)` gesetzt;
+`sql_text` und `tsql_stack` bleiben ausgeschlossen. Ein begrenzter
+`ring_buffer` mit `ALLOW_SINGLE_EVENT_LOSS` dient nur zur Prüfung, ob der
+Ereignistext tatsächlich leer bleibt. Der SQL-Collector gibt weder XML noch
+Querytext aus, sondern nur Ereigniszahlen, Vorhandensein der Korrelationsfelder
+und die Anzahl nichtleerer Statementwerte. Die Session wird gestoppt, gelöscht
+und ihre Abwesenheit bestätigt; anschließend wird der gesamte temporäre
+SQL-Server-Container eigentumsgeprüft entfernt.
+SQL und Runner stehen in
+[dgn007_xe_payload_privacy_probe.sql](../../Tests/Runtime/dgn007_xe_payload_privacy_probe.sql)
+und [dgn007_xe_catalog_probe.py](../../Tests/Runtime/dgn007_xe_catalog_probe.py).
+
+Dieser synthetische Gate prüft ausschließlich die Wirkung der
+Statementunterdrückung und die erforderlichen Korrelationsactions. Ein
+nichtleerer Statementwert, fehlendes Ereignis/Feld, unvollständige Ausgabe oder
+fehlendes Cleanup ist `NOT_PROVEN`; der Kandidat wird nicht zu einem
+Actor-/Messlauf erweitert. Ein erfolgreicher Test bestätigt noch keine
+Markerordnung, Verlustfreiheit, Hashkardinalität, Query-Store-Sichtbarkeit oder
+Messgenauigkeit.
+
 ## Gates vor Messvertragsimplementierung
 
 Der unabhängige Methodenreview vom 22. November 2026 prüfte den geänderten
 Countvertrag, Fenster-/Requestbindung, Payloadschutz und Cleanupentwurf; nach
 den Korrekturen fand die Nachprüfung keine offenen P1/P2 im Draft. Das ist keine
 Freigabe des Messvertrags oder eines Builds. Der manuelle frische-Runner-Job
-führt die begrenzte read-only Kataloginventur einmal je Build aus und liefert
-nur Engineidentität sowie Metadatenfeldnamen als kurzlebiges CI-Artefakt. Erst
-nach bestätigter Feld-/Action-Allowlist auf allen Builds darf ein separater
-Einzelereignis-/Datenschutzcheck folgen. Ereignisordnung, Verlust,
-Hashkardinalität, Query-Store-Sichtbarkeit und Cleanup bleiben weitere Gates.
-Eine Kataloginventur allein startet weder eine XE-Session noch einen
-Mess-Lifecycle, vergibt keine Demo-ID und qualifiziert keine Runtime.
+führt je Build erst die begrenzte read-only Kataloginventur und anschließend
+den synthetischen Statementunterdrückungs-Gate aus. Das kurzlebige
+CI-Artefakt enthält Engineidentität, Metadatenfeldnamen und nur Ereigniszähler
+sowie Privacy-Flags, keine Ereignis-XML oder Statementtexte. Eine
+Kataloginventur allein startet weder eine XE-Session noch einen Mess-Lifecycle;
+die separate Probe startet nur die temporäre synthetische Datenschutzsession.
+Ereignisordnung, Verlust, Hashkardinalität, Query-Store-Sichtbarkeit und
+Cleanup bleiben weitere Gates. Es gibt keine Actor-Messung, Demo-ID oder
+Runtimequalifikation.
 
 ## Quellen
 
 - [`SRC-027`: Query Store](../Research/SOURCE_REGISTER.md#src-027) und Microsoft [Query Store collects data](https://learn.microsoft.com/en-us/sql/relational-databases/performance/how-query-store-collects-data?view=sql-server-ver17), [`sys.query_store_query`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-query-transact-sql?view=sql-server-ver17) sowie [`sys.query_store_plan`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-plan-transact-sql?view=sql-server-ver17).
-- [`SRC-163`: XE-Metadateninventur](../Research/SOURCE_REGISTER.md#src-163), Microsoft [Quickstart: Extended Events](https://learn.microsoft.com/en-us/sql/relational-databases/extended-events/quick-start-extended-events-in-sql-server?view=sql-server-ver17) und [XE catalog views](https://learn.microsoft.com/en-us/sql/relational-databases/extended-events/selects-and-joins-from-system-views-for-extended-events-in-sql-server?view=sql-server-ver17).
+- [`SRC-163`: XE-Metadateninventur](../Research/SOURCE_REGISTER.md#src-163), Microsoft [Quickstart: Extended Events](https://learn.microsoft.com/en-us/sql/relational-databases/extended-events/quick-start-extended-events-in-sql-server?view=sql-server-ver17), [`CREATE EVENT SESSION`](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-event-session-transact-sql?view=sql-server-ver17), [`sys.dm_xe_session_targets`](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-xe-session-targets-transact-sql?view=sql-server-ver17) und [Extended Events Targets](https://learn.microsoft.com/en-us/sql/relational-databases/extended-events/targets-for-extended-events-in-sql-server?view=sql-server-ver17).
 - [`SRC-031`: tatsächliche Planerfassung](../Research/SOURCE_REGISTER.md#src-031).

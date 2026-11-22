@@ -1,4 +1,4 @@
-name: DGN-007 XE metadata inventory
+name: DGN-007 XE metadata and payload privacy gate
 
 on:
   pull_request:
@@ -7,6 +7,7 @@ on:
       - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
       - 'Documentation/Research/SOURCE_REGISTER.md'
       - 'Tests/Runtime/dgn007_xe_catalog_probe.*'
+      - 'Tests/Runtime/dgn007_xe_payload_privacy_probe.sql'
       - 'Tests/Static/validate_dgn007_xe_catalog_probe.py'
       - 'Tests/Static/test_dgn007_xe_catalog_probe.py'
       - '.github/workflows/dgn007-xe-metadata-probe.yml'
@@ -17,6 +18,7 @@ on:
       - 'Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md'
       - 'Documentation/Research/SOURCE_REGISTER.md'
       - 'Tests/Runtime/dgn007_xe_catalog_probe.*'
+      - 'Tests/Runtime/dgn007_xe_payload_privacy_probe.sql'
       - 'Tests/Static/validate_dgn007_xe_catalog_probe.py'
       - 'Tests/Static/test_dgn007_xe_catalog_probe.py'
       - '.github/workflows/dgn007-xe-metadata-probe.yml'
@@ -58,7 +60,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - name: Run digest-pinned metadata inventory
+      - name: Run metadata inventory and synthetic privacy gate
         shell: bash
         run: |
           set -euo pipefail
