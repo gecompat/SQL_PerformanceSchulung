@@ -1,7 +1,8 @@
 # IDX-007: Einfügungen an einer heißen Indexseite einordnen
 
-**Status:** kurze fachliche Erläuterung; keine neue Demo, kein Benchmark und
-keine Runtimequalifikation.
+**Status:** kurze fachliche Erläuterung; ein begrenzter Erhebungspilot ist auf
+SQL Server 2019, 2022 und 2025 nachgewiesen. Das ist keine neue Demo, kein
+Benchmark und keine vollständige Runtimequalifikation.
 
 Der [Offline-Prüfer](../../Tests/Static/idx007_last_page_contract.py) prüft
 ergänzend caller-supplied Wait- und Seitenfelder: mindestens zwei verschiedene
@@ -13,11 +14,14 @@ authentifiziert keine DMV-Werte und bestätigt nicht selbst die Seitenkette.
 Insbesondere ist sein `PASS` kein SQL-Server-Lauf, kein unabhängiger
 Rechtsaußen-Nachweis und keine Engpass- oder Leistungsqualifikation.
 
-Der offene Methodenstand für die unabhängige Seitenkettenbindung steht im
+Der Methodenstand für die unabhängige Seitenkettenbindung steht im
 [IDX-007-Rechtsaußen-Methodenentwurf](../Project_Planning/IDX007_RIGHTMOST_PAGE_METHOD.md).
-Er präzisiert, wie Wait-Seite, Indexpartition und Nachfolgerkette begrenzt
-geprüft werden könnten; Terminaldarstellung, Captureklammer und Splitverhalten
-sind noch nicht enginequalifiziert.
+Ein begrenzter XE-Pilot bindet dort tatsächliche Waitintervalle an Actor-
+Requests und prüft dieselbe terminale Zielseite vor und nach einem dazwischen
+liegenden Kettencheck auf den drei konkret genannten Builds. Die beobachtete
+Nulladresse des Nachfolgers ist ein Befund dieser Builds, keine allgemeine
+Herstellergarantie. Splitverhalten bei gleichzeitigen Strukturänderungen,
+unabhängiger Review und Demo-/Performancequalifikation bleiben offen.
 
 ## Was „Last-Page-Contention“ beschreibt
 
