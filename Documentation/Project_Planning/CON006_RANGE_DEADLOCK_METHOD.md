@@ -2,8 +2,8 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `METHOD_DRAFT` – keine SQL-, Demo- oder Laufzeitfreigabe |
-| Zweck | Prüfen, ob gegenseitige Einfügungen in zwei logisch getrennte, aber physisch überlappende Indexlücken einen eigenständigen Deadlock-Lernfall ergeben |
+| Status | `METHOD_DRAFT` – SQL-Server-2025-Pilot bestanden; weitere Builds und Demoqualifikation offen |
+| Zweck | Prüfen, ob gegenseitige Einfügungen in zwei logisch getrennte, aber physisch getrennte Indexlücken einen eigenständigen Deadlock-Lernfall ergeben |
 | Bestehender Fall | Der qualifizierte CON-006-Grundfall und die Sperrumwandlungsvariante bleiben unverändert |
 | Quellenbasis | `SRC-004`, `SRC-066`, `SRC-068` |
 
@@ -25,24 +25,26 @@ Lernzuwachs, aber noch kein nachgewiesenes Engineverhalten.
 ## Kandidatenaufbau für einen späteren isolierten Pilot
 
 1. Eine eigene, markergebundene Wegwerfdatenbank enthält eine Tabelle mit einem
-   eindeutigen, geordneten Indexschlüssel und genau zwei festen Randwerten,
-   beispielsweise `10` und `90`.
+   eindeutigen, geordneten Indexschlüssel und drei festen Werten, beispielsweise
+   `10`, `50` und `90`. Der mittlere Wert trennt die beiden physischen
+   Indexlücken.
 2. Actor A und Actor B beginnen jeweils eine `SERIALIZABLE`-Transaktion und
-   lesen unterschiedliche leere logische Bereiche zwischen diesen Randwerten,
-   beispielsweise `(20, 40)` und `(60, 80)`. Jeder meldet nach der Lesung ein
-   eigenes Signal; feste Zeitverzögerungen steuern keine Reihenfolge.
-3. Nach beiden Lesesignalen fordert A eine Einfügung in Bs gelesenen Bereich
-   an. Erst wenn der Beobachter diese Anforderung als wartend erkennt, fordert
-   B eine Einfügung in As gelesenen Bereich an. Sämtliche Waits, Signale und
-   Abbrüche haben feste Zeit- und Iterationsgrenzen.
+   lesen unterschiedliche leere Bereiche, beispielsweise A `(20, 40)` und B
+   `(60, 80)`. Nach beiden Lesungen fügt A den Wert `70` in Bs geschützten
+   Bereich ein; B fügt danach `30` in As geschützten Bereich ein. Jeder Actor
+   hält damit eine KEY-Bereichssperre und wartet beim Einfügen auf die andere
+   KEY-Ressource. Feste Zeitverzögerungen steuern keine Reihenfolge.
+3. Der Beobachter gibt B erst frei, nachdem A beim Einfügen als wartend auf B
+   nachgewiesen wurde. Sämtliche Waits, Signale und Abbrüche haben feste
+   Zeit- und Iterationsgrenzen.
 4. Eine getrennte serielle Gegenprobe führt denselben Datenaufbau und dieselben
    Einfügungen ohne gleichzeitig gehaltene Bereichslesungen aus. Sie muss beide
    Einfügungen und den vollständigen Endzustand bestätigen.
 
 Die konkreten Prädikate und Reihenfolgen sind ein kontrollierbarer
 Versuchsvorschlag, keine Garantie dafür, dass der Optimierer beide Abfragen auf
-dem gewünschten Index ausführt oder dass sie dieselbe physische KEY-Ressource
-schützen. Ein Lauf ohne diesen Nachweis ist `NOT_PROVEN`, auch wenn ein Actor
+den gewünschten Index ausführt oder dass beide KEY-Ressourcen gegeneinander
+warten. Ein Lauf ohne diesen Nachweis ist `NOT_PROVEN`, auch wenn ein Actor
 blockiert.
 
 ## Quellenbasierte Lockhypothese – kein vorweggenommener Graph
@@ -55,11 +57,11 @@ inkompatibel aus. Sie beschreibt außerdem, dass unter Optimized Locking eine
 Instanz `SERIALIZABLE` verwendet. Beide Kandidaten-Actors erfüllen diese
 Isolationsbedingung. Diese Produktregeln machen den erwarteten Wait-Zyklus
 plausibel; sie beweisen nicht, dass die konkreten Prädikate mit dem tatsächlichen
-Plan auf denselben `KEY`-Hash abgebildet werden oder dass der Deadlockgraph genau
-diese einfachen Modi ausgibt. Der Pflichtnachweis bleibt der reale Graph samt
-Ressource, gehaltenen/angeforderten Modi, Opfer und Survivor. Konversionsmodi
-werden aus dem beobachteten Graphen gelesen, nicht aus dem Szenariotitel
-abgeleitet.
+Plan auf die zwei vorgesehenen KEY-Ressourcen abgebildet werden oder dass der
+Deadlockgraph genau diese einfachen Modi ausgibt. Der Pflichtnachweis bleibt der
+reale Graph samt Ressourcen, gehaltenen/angeforderten Modi, Opfer und Survivor.
+Konversionsmodi werden aus dem beobachteten Graphen gelesen, nicht aus dem
+Szenariotitel abgeleitet.
 
 Der Offlinegraphprüfer wendet die in `SRC-004` dokumentierte Kompatibilität für
 `S`, `U`, `X`, `RangeS-S`, `RangeS-U`, `RangeI-N` und `RangeX-X` an. Er verlangt
@@ -72,10 +74,12 @@ belegt weiter weder XML-Herkunft noch einen realen Enginezyklus.
 ## Pflichtnachweis für einen Varianten-PASS
 
 - Beide Actors müssen im Deadlockgraph an dieselbe markergebundene Datenbank,
-  dasselbe Objekt, denselben Index und dieselbe physische Schlüsselressource
-  gebunden sein. Der Graph muss die gehaltenen und angeforderten Modi und den
-  geschlossenen Zyklus tatsächlich zeigen. Der genaue Konversionsmodus wird
-  nicht vorab aus dem Szenariotitel abgeleitet.
+  Tabelle, Index und HoBT gebunden sein. Der Graph muss genau zwei verschiedene
+  KEY-Ressourcen auf diesem Index zeigen. Auf jeder Ressource hält ein Actor
+  und wartet der andere; über beide Ressourcen müssen die Wait-Kanten den Zyklus
+  schließen. Die beobachteten Modi und `requestType=wait` belegen die gekreuzten
+  Kanten. Ein einzelner KEY mit beidseitiger Konversion ist eine andere Variante
+  und qualifiziert diesen Versuch nicht.
 - Genau ein Actor muss dem Graphopfer mit Fehler 1205 entsprechen. Im
   Deadlockarm muss genau eine der beiden Einfügungen zurückgerollt und genau
   eine vom Survivor bestätigt sein. Im serialen Kontrollarm müssen beide
@@ -116,22 +120,22 @@ laufenden Engine qualifiziert.
 
 ## Quellen und Grenzen
 
-- [`SRC-004`: Transaction locking and row versioning guide](../Research/SOURCE_REGISTER.md#src-004) beschreibt Schlüsselbereichsmodi, ihre Kompatibilität, Voraussetzungen und die Optimized-Locking-Bedingung für `RangeI-N`. Die Folgerung, dass zwei logisch verschiedene Suchprädikate in derselben Indexlücke konkurrieren könnten, ist eine Hypothese aus dem vorgeschlagenen Indexaufbau.
+- [`SRC-004`: Transaction locking and row versioning guide](../Research/SOURCE_REGISTER.md#src-004) beschreibt Schlüsselbereichsmodi, ihre Kompatibilität, Voraussetzungen und die Optimized-Locking-Bedingung für `RangeI-N`. Der Pilot nutzt drei geordnete Indexwerte und gekreuzte Einfügungen in die jeweils andere, durch einen mittleren Wert getrennte Indexlücke. Der Lauf auf SQL Server 2025 hat diese Ressourcenfolge im Deadlockgraph belegt.
 - [`SRC-066`: Deadlocks guide](../Research/SOURCE_REGISTER.md#src-066) beschreibt Deadlockgraphen und Opferauflösung.
 - [`SRC-068`: system_health](../Research/SOURCE_REGISTER.md#src-068) beschreibt die vorhandene, begrenzte Deadlockereignisquelle.
 
-Dieser Entwurf wertet keine SQL-Abfrage aus, beweist keine Deadlockvariante und
-ändert weder CON-002 noch den validierten CON-006-Grundfall.
+Der isolierte Pilot wertet SQL aus, ändert aber weder CON-002 noch den validierten CON-006-Grundfall. Er qualifiziert nur die begrenzte Range-Methode auf SQL Server 2025 und ersetzt weder die vollständige Runtime-Matrix noch Demo-Integration.
 
 ## Begrenzter statischer Graphvertrag
 
-`Tests/Static/con006_range_graph_contract.py` prüft jetzt synthetisch oder
-später bereitgestelltes Deadlock-XML auf genau zwei an die erwarteten SPIDs und
-Datenbank gebundene Prozesse, ein Opfer sowie genau eine gemeinsame
-Datenbank-/Objekt-/Index-/HoBT-`KEY`-Ressource. Beide Actors müssen dort als
-Owner und als Waiter erscheinen; die Lockmodi und `requestType` müssen im Graph
-vorhanden sein. Der Vertrag erzwingt absichtlich kein bestimmtes Paar wie
-`RangeS-S`/`RangeI-N`, da der Entwurf den tatsächlichen Graphen nicht vorwegnimmt.
+`Tests/Static/con006_range_graph_contract.py` prüft synthetisch oder später
+bereitgestelltes Deadlock-XML auf genau zwei an die erwarteten SPIDs und eine
+markergebundene Datenbank gebundene Prozesse, ein Opfer sowie genau zwei
+verschiedene KEY-Ressourcen derselben Tabelle, desselben Indexes und derselben
+HoBT. Auf jeder Ressource muss ein Actor halten und der andere mit
+`requestType=wait` warten. Über beide Ressourcen müssen die Wait-Kanten den
+Zyklus schließen. Der Vertrag erzwingt kein bestimmtes Lockmoduspaar wie
+`RangeS-S`/`RangeI-N`, da der Entwurf die tatsächlichen Modi nicht vorwegnimmt.
 
 `evaluate_range_capture` bindet diese Formprüfung zusätzlich an die
 caller-gelieferte Ereignisquelle `system_health`, den Eventnamen
@@ -152,9 +156,31 @@ enger Graphvertrag, keine Behauptung über ein vollständiges SQL-Server-XML-
 Schema. Eine spätere Erweiterung erfordert eine eigene Quellenprüfung und
 Gegenfälle.
 
-## Vorgeschlagene Obergrenzen und Eigentums-Cleanup
+## Ergebnis des isolierten SQL-Server-2025-Piloten
 
-Der spätere, noch nicht freigegebene Range-Pilot soll die bereits qualifizierten
+Am 22. November 2026 bestand der begrenzte Pilot auf SQL Server 2025
+(`17.0.5035.5`) im eigenen, digest-gepinnten, netzwerkisolierten Container
+mit 2 CPUs und 4 GiB Speicher. Der Lauf erfasste genau ein passendes
+`system_health`-Deadlockereignis. Der Graph enthielt zwei verschiedene KEY-
+Ressourcen auf derselben markergebundenen Tabelle, demselben Index und derselben
+HoBT; beide Wait-Kanten schlossen den Zyklus mit `requestType=wait`. Actor A
+war vor der Freigabe von B nachweislich blockiert. Ein Actor wurde mit Fehler
+1205 zurückgerollt, der Survivor fügte ein; die serielle Kontrolle fügte beide
+Schlüssel ohne Deadlock ein. Der exakte Endbestand und der markierte Cleanup
+bestanden. Optimized Locking blieb vor und nach beiden Armen unverändert
+ausgeschaltet (`0`); der Pilot hat keine Datenbankoption umgestellt.
+
+Der Befund ist auf diesen Build und den isolierten Machbarkeitspilot begrenzt.
+SQL Server 2019 und 2022, Abfrageplan-/Optionenabgleich, unabhängiger
+Methodenreview, Demo-Integration und Releasequalifikation bleiben offen.
+
+## Obergrenzen und Eigentums-Cleanup für weitere Qualifikation
+
+Der bereits gelaufene Machbarkeitspilot verwendete feste Einzelzeitlimits für
+SQL-Aufrufe, Actorprozesse und Signalwartezeiten und entfernte seine
+markergebundene Datenbank. Er setzt jedoch noch nicht den vollständigen
+CON-006-Zeitvertrag durch und ist daher kein Ersatz für dessen Runtime- und
+Cleanupqualifikation. Ein weiterer qualifizierender Lauf muss die
 CON-006-Runnerobergrenzen übernehmen: höchstens 45 Sekunden je
 Mehrsessionarm, 180 Sekunden Gesamtlaufzeit und 60 Sekunden Cleanup
 ([bestehendes Manifest](../../Demos/07_Concurrency/CON-006_Deadlock_Cycle/manifest.json)).
@@ -177,9 +203,9 @@ Transaktion danach aktiv, wird nur der zuvor durch CID, exakten Namen, Image-ID
 und Ownerlabel bestätigte Wegwerfcontainer gestoppt/entfernt; anschließend
 müssen CID- und Namensabwesenheit unabhängig bestehen. Für Ziele ohne solch
 einen frischen, verifizierbaren Containerbesitz gibt es keinen automatischen
-Force-Recovery-Pfad; dort endet der Versuch `FAIL_CLEANUP`. Diese vorgeschlagene
-Obergrenze muss der unabhängige Review noch bestätigen; sie autorisiert keine
-Ausführung.
+Force-Recovery-Pfad; dort endet der Versuch `FAIL_CLEANUP`. Diese Grenzen sind
+im aktuellen Pilotrunner noch nicht vollständig implementiert und müssen vor
+Demoqualifikation unabhängig geprüft werden.
 
 `evaluate_range_control` prüft nun den seriellen Kontrollarm auf zwei
 caller-gelieferte erfolgreiche Actorresultate, getrennte Actor- und
@@ -197,6 +223,6 @@ Das ist ausschließlich eine Formprüfung caller-gelieferter XML- und
 Identitätswerte. Sie authentifiziert weder `system_health`-Herkunft noch
 Run-Token, Zeitfenster, Actorresultate, Opferfehler 1205 oder Cleanup. Ein
 synthetischer PASS belegt keinen Deadlocklauf. Der unabhängige Methodenreview,
-der reale Graph mit tatsächlichen Modi, der serielle Kontrollarm und der
-isolierte Enginepilot bleiben Voraussetzungen für jede Ausführungsfreigabe.
-Der statische Kontrollarmprüfer schließt diese Voraussetzungen ebenfalls nicht.
+die Läufe auf SQL Server 2019 und 2022 sowie die vollständigen Zeit- und
+Cleanupgrenzen bleiben vor Demoqualifikation offen. Der statische
+Kontrollarmprüfer schließt diese Voraussetzungen ebenfalls nicht.

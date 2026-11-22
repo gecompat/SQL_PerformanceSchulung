@@ -184,7 +184,7 @@ def _valid_key_tuple(value: object, label: str, missing: list[str],
 
 def evaluate_range_graph(graph_xml: str | bytes | None,
                          identity: GraphIdentity | None) -> GraphResult:
-    """Require one mutual two-actor wait cycle on the supplied same KEY."""
+    """Require reciprocal insert waits across two owned KEY resources."""
     if graph_xml is None:
         return GraphResult(Verdict.NOT_PROVEN, ("deadlock graph evidence is missing",))
     if identity is None:
@@ -257,45 +257,39 @@ def evaluate_range_graph(graph_xml: str | bytes | None,
                and node.get("indexname") == identity.index_name
                and node.get("dbid") == str(identity.database_id)
                and node.get("hobtid") == identity.hobt_id]
-    if len(matches) != 1:
-        failures.append("graph must contain exactly one KEY for the supplied database, object, index, and HoBT")
+    if len(matches) != 2:
+        failures.append("graph must contain exactly two KEY resources for the supplied database, object, index, and HoBT")
     elif len(process_by_id) == 2:
-        resource = matches[0]
-        owners = resource.findall("owner-list/owner")
-        waiters = resource.findall("waiter-list/waiter")
-        if len(owners) != 2 or len(waiters) != 2:
-            failures.append("the same KEY must contain exactly two owners and two waiters")
-        owner_ids = [node.get("id") for node in owners]
-        waiter_ids = [node.get("id") for node in waiters]
-        if set(owner_ids) != set(process_by_id) or len(set(owner_ids)) != 2:
-            failures.append("both actors must hold a lock on the same KEY")
-        if set(waiter_ids) != set(process_by_id) or len(set(waiter_ids)) != 2:
-            failures.append("both actors must wait on the same KEY")
-        for owner in owners:
-            if owner.get("id") not in process_by_id or not (owner.get("mode") or "").strip():
-                failures.append("each KEY owner must identify an actor and its observed lock mode")
-        for waiter in waiters:
-            if (waiter.get("id") not in process_by_id
-                    or not (waiter.get("mode") or "").strip()
-                    or waiter.get("requestType") != "wait"):
-                failures.append("each range KEY waiter must identify an actor, observed mode, and requestType=wait")
-        if (len(owners) == 2 and len(waiters) == 2
-                and set(node.get("id") for node in owners) == set(process_by_id)
-                and set(node.get("id") for node in waiters) == set(process_by_id)):
-            owner_modes = {node.get("id"): node.get("mode") for node in owners}
-            waiter_modes = {node.get("id"): node.get("mode") for node in waiters}
-            modes = (*owner_modes.values(), *waiter_modes.values())
-            if any(mode not in _COMPATIBLE for mode in modes):
+        resource_ids = [_nonempty_attr(node, "id", "keylock", failures) for node in matches]
+        if len(set(resource_ids)) != 2:
+            failures.append("the two reciprocal KEY resources must have distinct graph resource IDs")
+        owners_seen: list[str | None] = []
+        waiters_seen: list[str | None] = []
+        for resource in matches:
+            owners = resource.findall("owner-list/owner")
+            waiters = resource.findall("waiter-list/waiter")
+            if len(owners) != 1 or len(waiters) != 1:
+                failures.append("each range KEY must contain exactly one owner and one waiter")
+            owner_id = _nonempty_attr(owners[0], "id", "keylock owner", failures) if len(owners) == 1 else None
+            waiter_id = _nonempty_attr(waiters[0], "id", "keylock waiter", failures) if len(waiters) == 1 else None
+            owner_mode = _nonempty_attr(owners[0], "mode", "keylock owner", failures) if len(owners) == 1 else None
+            waiter_mode = _nonempty_attr(waiters[0], "mode", "keylock waiter", failures) if len(waiters) == 1 else None
+            request_type = waiters[0].get("requestType") if len(waiters) == 1 else None
+            if owner_id not in process_by_id or waiter_id not in process_by_id:
+                failures.append("each range KEY must bind its owner and waiter to one of the two actors")
+            if request_type != "wait":
+                failures.append("each range KEY waiter must report requestType=wait")
+            owners_seen.append(owner_id)
+            waiters_seen.append(waiter_id)
+            if owner_mode not in _COMPATIBLE or waiter_mode not in _COMPATIBLE:
                 failures.append("graph contains a lock mode outside the documented compatibility profile")
-            else:
-                # Each actor must request a mode incompatible with a mode held
-                # by the other actor; arbitrary nonempty labels cannot imply a cycle.
-                for actor_id, other_id in ((actor_id, other_id)
-                                           for actor_id in process_by_id
-                                           for other_id in process_by_id
-                                           if actor_id != other_id):
-                    if waiter_modes[actor_id] in _COMPATIBLE[owner_modes[other_id]]:
-                        failures.append("observed lock modes do not prove reciprocal blocking")
+            elif (owner_id in process_by_id and waiter_id in process_by_id
+                  and owner_id != waiter_id
+                  and waiter_mode in _COMPATIBLE[owner_mode]):
+                failures.append("observed KEY modes do not prove the cross-actor wait edge")
+        if (set(owners_seen) != set(process_by_id) or len(set(owners_seen)) != 2
+                or set(waiters_seen) != set(process_by_id) or len(set(waiters_seen)) != 2):
+            failures.append("the two KEY resources must form reciprocal waits between the supplied actors")
     if failures:
         return GraphResult(Verdict.FAIL, tuple(failures))
     return GraphResult(Verdict.PASS, (), process_by_id[victim_id])
