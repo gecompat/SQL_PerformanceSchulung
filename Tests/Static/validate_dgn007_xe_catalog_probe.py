@@ -52,6 +52,8 @@ def validate() -> list[str]:
         errors.append("container must be attached only to an owned internal network")
     if "--interactive" not in runner or "sqlcmdpassword" not in runner:
         errors.append("runner must send the fixed SQL through the owned container's SQLCMD")
+    if "set nocount on; select 1;" not in runner:
+        errors.append("SQL readiness probe must suppress row-count output for exact readiness parsing")
     if "event session" in runner and any(word in runner for word in ("create event session", "alter event session")):
         errors.append("runner must not start an XE session")
     if "katalogabfrage und eine xe-session liefen nicht" not in method:

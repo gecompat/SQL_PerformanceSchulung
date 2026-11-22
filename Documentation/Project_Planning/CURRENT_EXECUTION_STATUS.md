@@ -14204,9 +14204,10 @@ Darauf aufbauend ist ein getrennter, read-only Kataloginventurpfad für die
 Extended-Events-Metadaten (XE) vorbereitet. Der manuelle GitHub-Actions-Workflow
 verwendet je einen gepinnten SQL-Server-2019-, 2022- und 2025-Build, führt die
 Buildjobs seriell aus und liest nur Engineidentität sowie Eventfeld- und
-Actionnamen. Er erzeugt keine Datenbank, keine XE-Session und keinen
-Eventpayload. Die Ergebnisse werden als Metadatenartefakte drei Tage
-aufbewahrt.
+Actionnamen. Die Probe erzeugt keine Nutzer-/Labordatenbank und keine
+XE-Session; SQL Server startet seine üblichen Systemdatenbanken einschließlich
+tempdb. Erfasst wird kein Eventpayload. Die Ergebnisse werden als
+Metadatenartefakte drei Tage aufbewahrt.
 
 Lokale Läufe auf den drei festgebundenen Images endeten vor SQL-Readiness;
 keiner erreichte eine Katalogabfrage. Auch der erste manuelle GitHub-Lauf
@@ -14216,8 +14217,13 @@ Desktop den korrekt gepinnten Manifestdigest als Image-ID meldet. Das ist ein
 Probe-Implementierungsfehler, kein Produktbefund; keine DGN-007-Katalogabfrage
 lief. Ein Korrektur-PR akzeptiert beide Docker-ID-Darstellungen, bindet
 weiterhin Manifestdigest und Plattform und ergänzt Regressionstests. Nach
-dessen Integration folgt je Build ein korrigierter Probeversuch. Auf Pull
-Requests und `main` laufen nur der statische Validator und seine acht
+deren Integration folgte der zweite Lauf `45017169620`. SQL Server startete,
+aber der Runner verwarf den erfolgreichen Ready-Check wegen des zusätzlichen
+SQLCMD-Textes `(1 rows affected)`: Die Probe unterdrückte den Zeilenzähler
+nicht. Deshalb ist auch dieser Lauf für alle drei Builds `NOT_PROVEN`; keine
+XE-Katalogabfrage lief. `SET NOCOUNT ON` ist ergänzt. Nach dessen Integration
+folgt je Build ein weiterer begrenzter Versuch. Auf Pull
+Requests und `main` laufen nur der statische Validator und seine zehn
 Parserregressionen; der teure Containerlauf ist ausschließlich manuell und
 seriell. Workflowzeit und Artefaktumfang sind damit begrenzt; eine belastbare
 Zeitmessung liegt noch nicht vor.
