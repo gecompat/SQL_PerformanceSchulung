@@ -294,10 +294,10 @@ def evaluate_conversion_graph(graph_xml: str | bytes | None, identity: GraphIden
     return GraphResult(Verdict.PASS, (), victim_spid)
 
 
-def evaluate_conversion_capture(evidence: CaptureEvidence | None) -> GraphResult:
-    """Check graph plus caller-supplied event, run-window, and actor outcome bindings."""
+def _evaluate_capture(evidence: CaptureEvidence | None, graph_evaluator, variant: str) -> GraphResult:
+    """Check caller-supplied event, run-window, graph, and actor outcome bindings."""
     if evidence is None:
-        return GraphResult(Verdict.NOT_PROVEN, ("conversion capture evidence is missing",))
+        return GraphResult(Verdict.NOT_PROVEN, (f"{variant} capture evidence is missing",))
     if type(evidence) is not CaptureEvidence:
         return GraphResult(Verdict.FAIL, ("capture evidence must use the exact contract record",))
 
@@ -342,18 +342,18 @@ def evaluate_conversion_capture(evidence: CaptureEvidence | None) -> GraphResult
         failures.append("run window ends before it starts")
     if event_time is not None and started is not None and finished is not None:
         if not started <= event_time <= finished:
-            failures.append("deadlock event timestamp falls outside the supplied run window")
+            failures.append(f"{variant} event timestamp falls outside the supplied run window")
 
     if evidence.matching_event_count is None:
         missing.append("matching event count")
     elif type(evidence.matching_event_count) is not int or evidence.matching_event_count < 0:
         failures.append("matching event count is invalid")
     elif evidence.matching_event_count == 0:
-        missing.append("matching deadlock event")
+        missing.append(f"matching {variant} event")
     elif evidence.matching_event_count != 1:
         failures.append("exactly one matching deadlock event is required")
 
-    graph_result = evaluate_conversion_graph(evidence.graph_xml, evidence.graph_identity)
+    graph_result = graph_evaluator(evidence.graph_xml, evidence.graph_identity)
     if graph_result.verdict is Verdict.NOT_PROVEN:
         missing.extend(graph_result.reasons)
     elif graph_result.verdict is Verdict.FAIL:
@@ -394,7 +394,7 @@ def evaluate_conversion_capture(evidence: CaptureEvidence | None) -> GraphResult
                 and item.error_number is None
             ]
             if graph_result.verdict is Verdict.PASS and (len(victims) != 1 or len(survivors) != 1):
-                failures.append("graph victim must match one error 1205 outcome and the other actor must be the survivor")
+                failures.append(f"{variant} graph victim must match one error 1205 outcome and the other actor must be the survivor")
             elif graph_result.verdict is not Verdict.PASS:
                 observed_victims = [item for item in evidence.actor_outcomes if item.outcome == "VICTIM"]
                 observed_survivors = [item for item in evidence.actor_outcomes if item.outcome == "SURVIVOR"]
@@ -412,3 +412,8 @@ def evaluate_conversion_capture(evidence: CaptureEvidence | None) -> GraphResult
     if missing:
         return GraphResult(Verdict.NOT_PROVEN, tuple(missing))
     return GraphResult(Verdict.PASS, (), graph_result.victim_spid)
+
+
+def evaluate_conversion_capture(evidence: CaptureEvidence | None) -> GraphResult:
+    """Check the conversion graph and supplied event/window/outcome bindings."""
+    return _evaluate_capture(evidence, evaluate_conversion_graph, "conversion")

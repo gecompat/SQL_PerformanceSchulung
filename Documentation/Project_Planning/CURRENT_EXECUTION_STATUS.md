@@ -14019,3 +14019,8 @@ nicht vorwegnimmt. Die synthetischen Regressionen laufen über den
 Framework-Contracts-Workflow. Sie belegen weder authentische Graphherkunft noch
 Opfer-/Survivorresultate oder Engineverhalten. Unabhängiger Methodenreview und
 isolierter Pilot bleiben offen; die CON-006-Rangevariante bleibt `PROPOSED`.
+Die Capture-Prüfung bindet außerdem den caller-gelieferten XE-Ereignisnamen und
+Quellnamen, genau ein Event im angegebenen Zeitfenster, die Actor-/SPID-Werte
+sowie Opferfehler 1205 und erfolgreichen Survivor. 11 Range- und 20 bestehende
+Konversionsregressionen bestehen lokal. Auch diese Korrelation authentifiziert
+keine Aufnahmen und belegt kein Engineverhalten.

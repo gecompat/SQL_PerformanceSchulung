@@ -10,7 +10,8 @@ from __future__ import annotations
 import xml.etree.ElementTree as ET
 
 from Tests.Static.con006_conversion_graph_contract import (
-    MAX_GRAPH_BYTES, GraphIdentity, GraphResult, Verdict,
+    MAX_GRAPH_BYTES, CaptureEvidence, GraphIdentity, GraphResult, Verdict,
+    _evaluate_capture,
     _nonempty_attr, _single, _unsigned_attr, _valid_identity,
 )
 
@@ -115,3 +116,8 @@ def evaluate_range_graph(graph_xml: str | bytes | None,
     if failures:
         return GraphResult(Verdict.FAIL, tuple(failures))
     return GraphResult(Verdict.PASS, (), process_by_id[victim_id])
+
+
+def evaluate_range_capture(evidence: CaptureEvidence | None) -> GraphResult:
+    """Check the range graph and supplied event/window/outcome bindings."""
+    return _evaluate_capture(evidence, evaluate_range_graph, "range")
