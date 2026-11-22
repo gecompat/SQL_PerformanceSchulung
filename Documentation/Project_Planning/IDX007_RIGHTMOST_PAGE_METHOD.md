@@ -226,17 +226,16 @@ Waitseite mit passender Objekt-/Index-/Partitionsidentität, Blattebene,
 terminalem Nachfolger und stimmigem Vorgänger-Rücklink finden. Fehlt eine
 dieser Bindungen, liefert der Lauf `NOT_PROVEN`.
 
-Die angepasste Lastform verwendet 501 Seeds, `FILLFACTOR=10` und eine
-Einfügung pro Actor je Burst. Das niedrigere Füllziel hält auf der rechten
-Blattseite Reserve für beide Bursts; die Vorabprüfung misst die reale
-Blattseitenzahl und den freien Platz weiterhin am konkreten Build. SQL Server
-2019 `15.0.4500.2` und 2022 `16.0.4305.5` verwenden 80 Actors; SQL Server 2025
-`17.0.5035.5` verwendet 64, weil dessen 80-Actor-CI-Probe weiterhin eine
-nichtterminale Waitseite lieferte. Lokal bestanden beide Bursts auf allen
-Builds: je zwei getrennte Wait-/Kettenklammern, 661 synthetische Zeilen auf
-2019/2022 beziehungsweise 629 auf 2025 und bestätigtes Datenbank-/Container-
-Cleanup. Die Waitüberlappung lag jeweils innerhalb des markierten
-Kettenlesefensters.
+Die angepasste Lastform verwendet 501 Seeds und eine Einfügung pro Actor je
+Burst. Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) verwenden
+`FILLFACTOR=100` mit 80 Actors; Build 17 (`17.0.5035.5`) verwendet
+`FILLFACTOR=10` mit 64 Actors. Das Build-17-Profil folgt der beobachteten
+Seitenteilung unter den 80 Actors, während eine kleinere Actorzahl lokal
+terminal blieb. Vor jedem Lauf werden Blattseitenzahl und freie Bytes physisch
+gemessen. Lokal bestanden beide Bursts auf allen drei Profilen: je zwei
+getrennte Wait-/Kettenklammern, 661 synthetische Zeilen auf Build 15/16 und
+629 auf Build 17 sowie bestätigtes Datenbank-/Container-Cleanup. Die
+Waitüberlappung lag jeweils innerhalb des markierten Kettenlesefensters.
 
 Das bindet den beobachteten Wait und die Kettenabfrage über dieselbe geordnete
 XE-Ereignisfolge und denselben laufenden Burst. Es macht DMV-Abfragen nicht zu

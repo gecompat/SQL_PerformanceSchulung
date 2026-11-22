@@ -14490,18 +14490,17 @@ Index, Partition, Blattebene, terminalem Nachfolger und Vorgänger-Rücklink
 übereinstimmen. Fehlende zeitliche oder physische Bindung bleibt
 `NOT_PROVEN`.
 
-Die aktuelle Form verwendet 501 Seeds, `FILLFACTOR=10` und ein Insert pro
-Actor und Burst. SQL Server 2019 `15.0.4500.2` und 2022 `16.0.4305.5` nutzen
-80 Actors; SQL Server 2025 `17.0.5035.5` nutzt 64, da 80 Actors im CI weiter
-eine nichtterminale Waitseite ergaben. Das niedrigere Füllziel soll
-Blattreserve über beide Bursts schaffen; Blattzahl und freier Platz bleiben
-ein physisches Vorab-Gate. Lokal bestanden beide Bursts auf allen Builds,
-mit 661 Zeilen auf 2019/2022 und 629 auf 2025 sowie bestätigtem
-Datenbank-/Container-Cleanup. Frühere
-`FILLFACTOR=100`-CI-Versuche mit 64 Actors lieferten auf SQL Server 2019 keine
-überlappenden Waits; 80×1 sowie 96×1/96×2 trafen in einzelnen Builds auf
-Seitensplits. Die neue 501×80×1-/`FILLFACTOR=10`-Form (2025: 64×1) steht vor
-ihrer seriellen CI-Matrix. Der Status
+Die aktuelle Form verwendet 501 Seeds und ein Insert pro Actor und Burst.
+Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) nutzen
+`FILLFACTOR=100` mit 80 Actors; Build 17 (`17.0.5035.5`) nutzt
+`FILLFACTOR=10` mit 64 Actors, da 80 Actors dort im CI eine nichtterminale
+Waitseite ergaben. Blattzahl und freier Platz bleiben ein physisches
+Vorab-Gate. Lokal bestanden beide Bursts auf allen Profilen mit 661 Zeilen
+auf Build 15/16 und 629 auf Build 17 sowie bestätigtem Datenbank-/Container-
+Cleanup. Frühere CI-Versuche mit 64 Actors und `FILLFACTOR=100` lieferten auf
+SQL Server 2019 keine überlappenden Waits; 80×1 und 96×1/96×2 trafen in
+einzelnen Builds auf Seitensplits. Die buildgebundene Profilmatrix steht vor
+dem erneuten seriellen CI-Lauf. Der Status
 bleibt `METHOD_DRAFT`: XE ordnet Wait und Abfragefenster
 empirisch, macht mehrere DMV-Lesevorgänge aber nicht zu einem atomaren
 Snapshot. Gleichzeitige Page-Splits, Produktlast und Leistungswirkung sind

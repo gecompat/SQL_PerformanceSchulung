@@ -18,6 +18,7 @@ PROFILES = {
 }
 DB = "SQLPERF_LAB_IDX007_PENDING"
 ACTOR_COUNTS = {15: 80, 16: 80, 17: 64}
+FILLFACTORS = {15: 100, 16: 100, 17: 10}
 ROWS_PER_BURST = 1
 
 
@@ -297,6 +298,7 @@ def run_live_pilot(major: int) -> int:
     global DB
     build, digest = PROFILES[major]
     actor_count = ACTOR_COUNTS[major]
+    fillfactor = FILLFACTORS[major]
     run_token = secrets.token_hex(4).upper()
     DB = f"SQLPERF_LAB_IDX007_{run_token}"
     name = f"sqlperf-idx007-xe-{major}-{secrets.token_hex(4)}"
@@ -355,7 +357,7 @@ CREATE TABLE lab.Go(Stage int NOT NULL PRIMARY KEY);
 CREATE TABLE lab.CaptureReady(Stage int NOT NULL PRIMARY KEY);
 DECLARE @seed int=0; WHILE @seed<501 BEGIN INSERT dbo.Hot DEFAULT VALUES; SET @seed+=1; END;
 GO
-ALTER INDEX PK_Hot ON dbo.Hot REBUILD WITH (FILLFACTOR=10);
+ALTER INDEX PK_Hot ON dbo.Hot REBUILD WITH (FILLFACTOR={fillfactor});
 GO
 SELECT CONCAT('DBID|',DB_ID());
 SELECT CONCAT('RIGHT_EDGE|',a.allocated_page_file_id,'|',a.allocated_page_page_id,'|',i.slot_count,'|',i.free_bytes)

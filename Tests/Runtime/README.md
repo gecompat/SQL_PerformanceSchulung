@@ -110,9 +110,9 @@ Vorgänger-Rücklink. Das ist eine geordnete empirische Klammer auf den drei
 konkreten Builds, keine atomare DMV-Snapshotgarantie und kein Nachweis für
 gleichzeitige Page-Splits.
 
-Der Pilot verwendet nach getesteten CI-Splitproblemen mit 501 Seeds und
-`FILLFACTOR=100` jetzt `FILLFACTOR=10`. SQL Server 2019/2022 verwenden 80
-Actors, SQL Server 2025 verwendet 64; je Actor erfolgt ein Insert pro Burst.
-Die engere Packung lässt mehr reale Blattreserve für beide Bursts. Das Gate
-misst diese Reserve zur Laufzeit; der geforderte Wait- und Terminalnachweis
-bleibt für jeden Build unverändert.
+Der Pilot verwendet je Build eine konkret erprobte Indexform: SQL Server
+2019/2022 verwenden 501 Seeds, `FILLFACTOR=100` und 80 Actors; SQL Server
+2025 verwendet 501 Seeds, `FILLFACTOR=10` und 64 Actors. Je Actor erfolgt ein
+Insert pro Burst. Die physische Vorabprüfung bindet Seitenzahl und Reserve an
+den tatsächlichen Lauf. Der geforderte Wait- und Terminalnachweis bleibt für
+jeden Build unverändert.
