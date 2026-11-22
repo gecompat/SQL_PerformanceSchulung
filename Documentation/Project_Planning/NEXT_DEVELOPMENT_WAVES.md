@@ -605,8 +605,10 @@ Terminalseite und Vorgänger-Rücklink für genau diese Seite. Die Lastform ist
 `FILLFACTOR=100` mit 80 Actors (661 Zeilen); Build 17 verwendet
 `FILLFACTOR=10` mit 64 Actors (629 Zeilen); Cleanup bestand. Frühere
 `FILLFACTOR=100`-CI-Formen mit 64 Actors verfehlten SQL 2019-Waits; 80×1 und
-96-Actor-Varianten trafen einzelne Seitensplits. Die neue buildgebundene
-Profilmatrix steht noch aus. `METHOD_DRAFT` bleibt bestehen, da
+96-Actor-Varianten trafen einzelne Seitensplits. Die CI-Matrix führt je Build
+höchstens drei vollständige Versuche aus, verlangt mindestens einen
+Zweiburstnachweis und erhält alle `NOT_PROVEN`-Ausgaben. `METHOD_DRAFT` bleibt
+bestehen, da
 mehrere DMV-Lesevorgänge keine atomare Snapshotgarantie und keine
 Splitsemantik liefern. Die frische PR-Matrix und Pflichtchecks stehen noch
 aus.

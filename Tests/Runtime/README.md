@@ -116,3 +116,10 @@ Der Pilot verwendet je Build eine konkret erprobte Indexform: SQL Server
 Insert pro Burst. Die physische Vorabprüfung bindet Seitenzahl und Reserve an
 den tatsächlichen Lauf. Der geforderte Wait- und Terminalnachweis bleibt für
 jeden Build unverändert.
+
+CI führt pro Build höchstens drei vollständige, voneinander getrennte Versuche
+mit identischen Grenzen aus. Ein Build-Job besteht, sobald mindestens ein
+Versuch beide Bursts vollständig nachweist; `NOT_PROVEN`-Versuche und ihre
+Cleanup-Ausgaben bleiben im Kurzzeit-Artefakt sichtbar. Besteht keiner der
+drei Versuche, schlägt der Job fehl. Das prüft, dass der Beleg auf dem Build
+erreichbar ist, und behauptet keine deterministische Erfolgsquote.

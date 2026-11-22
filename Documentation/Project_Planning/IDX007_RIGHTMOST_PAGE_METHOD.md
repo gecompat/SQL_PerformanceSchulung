@@ -237,6 +237,14 @@ getrennte Wait-/Kettenklammern, 661 synthetische Zeilen auf Build 15/16 und
 629 auf Build 17 sowie bestätigtes Datenbank-/Container-Cleanup. Die
 Waitüberlappung lag jeweils innerhalb des markierten Kettenlesefensters.
 
+Die serielle CI-Matrix wiederholt pro Build bis zu drei vollständige
+Engineeringläufe mit denselben Profilgrenzen. Jeder Versuch protokolliert
+separat `PASS` oder `NOT_PROVEN` und bestätigt sein Cleanup. Der Buildjob ist
+nur erfolgreich, wenn mindestens ein vollständiger Zweiburstversuch den
+Nachweis erbringt; drei erfolglose Versuche schlagen ihn fehl. Das lässt
+variierende Konkurrenzsichtbarkeit sichtbar, ohne sie als deterministische
+Buildgarantie umzudeuten. Die Methodenfreigabe bleibt getrennt.
+
 Das bindet den beobachteten Wait und die Kettenabfrage über dieselbe geordnete
 XE-Ereignisfolge und denselben laufenden Burst. Es macht DMV-Abfragen nicht zu
 einem atomaren Snapshot: insbesondere beweist es nicht, dass jede einzelne

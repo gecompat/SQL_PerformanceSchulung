@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import unittest
+from unittest.mock import patch
 
 from Tests.Runtime.idx007_hot_leaf_pilot import (PilotError, overlaps_capture_window,
-                                                  parse_chain_markers, parse_wait_pairs)
+                                                  parse_chain_markers, parse_wait_pairs,
+                                                  run_bounded_trials)
 
 
 DATABASE_ID = 7
@@ -21,6 +23,20 @@ def output(*rows: str, stats: str = "XE_STATS|1|0|0|4|0") -> str:
 
 
 class LiveCaptureParserTests(unittest.TestCase):
+    @patch("Tests.Runtime.idx007_hot_leaf_pilot.run_live_pilot", side_effect=[2, 0, 2])
+    def test_bounded_trials_accept_one_complete_pass_and_keep_attempt_count(self, pilot) -> None:
+        self.assertEqual(run_bounded_trials(15), 0)
+        self.assertEqual(pilot.call_count, 3)
+
+    @patch("Tests.Runtime.idx007_hot_leaf_pilot.run_live_pilot", side_effect=[2, 2, 2])
+    def test_bounded_trials_fail_when_every_attempt_is_not_proven(self, pilot) -> None:
+        self.assertEqual(run_bounded_trials(17), 2)
+        self.assertEqual(pilot.call_count, 3)
+
+    def test_bounded_trials_reject_unbounded_attempt_limits(self) -> None:
+        with self.assertRaisesRegex(ValueError, "between one and three"):
+            run_bounded_trials(15, attempts=4)
+
     def test_shared_wait_interval_must_intersect_chain_capture(self) -> None:
         left = {"begin_seq": 2, "end_seq": 9}
         right = {"begin_seq": 4, "end_seq": 8}

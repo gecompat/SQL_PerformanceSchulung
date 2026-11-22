@@ -14499,8 +14499,10 @@ Vorab-Gate. Lokal bestanden beide Bursts auf allen Profilen mit 661 Zeilen
 auf Build 15/16 und 629 auf Build 17 sowie bestätigtem Datenbank-/Container-
 Cleanup. Frühere CI-Versuche mit 64 Actors und `FILLFACTOR=100` lieferten auf
 SQL Server 2019 keine überlappenden Waits; 80×1 und 96×1/96×2 trafen in
-einzelnen Builds auf Seitensplits. Die buildgebundene Profilmatrix steht vor
-dem erneuten seriellen CI-Lauf. Der Status
+einzelnen Builds auf Seitensplits. Die aktuelle CI-Matrix erlaubt je Build
+höchstens drei vollständige, gleich begrenzte Versuche und verlangt mindestens
+einen erfolgreichen Zweiburstnachweis; alle `NOT_PROVEN`-Versuche bleiben im
+Artefakt sichtbar. Der Status
 bleibt `METHOD_DRAFT`: XE ordnet Wait und Abfragefenster
 empirisch, macht mehrere DMV-Lesevorgänge aber nicht zu einem atomaren
 Snapshot. Gleichzeitige Page-Splits, Produktlast und Leistungswirkung sind

@@ -572,9 +572,27 @@ SELECT CONCAT('DB_ABSENT|',CASE WHEN DB_ID(@db) IS NULL THEN 1 ELSE 0 END);
                 raise PilotError(f"owned container cleanup failed: {type(exc).__name__}: {exc}") from exc
 
 
+def run_bounded_trials(major: int, attempts: int = 3) -> int:
+    if attempts < 1 or attempts > 3:
+        raise ValueError("bounded trial count must be between one and three")
+    successes = 0
+    not_proven = 0
+    for attempt in range(1, attempts + 1):
+        print(f"TRIAL_START|build={PROFILES[major][0]}|attempt={attempt}/{attempts}")
+        result = run_live_pilot(major)
+        if result == 0:
+            successes += 1
+        elif result == 2:
+            not_proven += 1
+        else:
+            return result
+    print(f"TRIAL_SUMMARY|build={PROFILES[major][0]}|passed={successes}|not_proven={not_proven}|attempts={attempts}")
+    return 0 if successes else 2
+
+
 if __name__ == "__main__":
     try:
-        code = run_live_pilot(int(sys.argv[1]))
+        code = run_bounded_trials(int(sys.argv[1]))
     except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError, PilotError, StopIteration, ValueError) as exc:
         print(f"idx007-live-pilot: FAIL ({type(exc).__name__}: {exc})", file=sys.stderr)
         code = 1
