@@ -14128,3 +14128,16 @@ Modusumfang folgt der dokumentierten Matrix; unbekannte Modi scheitern geschloss
 Regressionen decken gegenseitig inkompatible, kompatible und unbekannte
 Moduswerte ab. Das stärkt nur die Prüfung caller-gelieferter XML-Form; Herkunft,
 reale Waits, unabhängiger Methodenreview und isolierter Enginepilot bleiben offen.
+
+### IDX-007 – Wait-PASS an dieselbe Blattkette binden (22. November 2026)
+
+Der erneute Methoden-/Vertragsabgleich zeigte, dass der Waitchecker bislang eine
+einzelne caller-gelieferte `rightmost_leaf=True`-Angabe akzeptierte, obwohl der
+Methodenentwurf eine passende Blattkettenaufnahme fordert. Der Checker verlangt
+jetzt zusätzlich Kettenrecords, expliziten Endmarker und Seitenlimit und prüft
+die Kette startend an derselben Wait-Seite gegen Datenbank, Objekt, Index und
+Partition. Fehlende Kette oder Endmarker ergibt `NOT_PROVEN`; abweichende
+Startseite scheitert. 20 IDX-007-Regressionen sowie Lesson-Query-Validator,
+Repository-Continuity, Framework-Contracts und `git diff --check` bestehen.
+Werte und Endmarker bleiben caller-geliefert; Herkunft, reale Terminalsemantik,
+unabhängiger Methodenreview und read-only Enginepilot bleiben offen.

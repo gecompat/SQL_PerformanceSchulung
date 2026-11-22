@@ -115,14 +115,16 @@ Nachfolgerfelder, aber keinen atomaren Traversalvertrag für eine während
 konkurrierender Inserts veränderliche B-Baum-Blattkette. Dieses Verhalten und
 die vorgeschlagene Klammerung bleiben deshalb ein offenes empirisches Gate.
 
-`evaluate_rightmost_page_chain` prüft caller-gelieferte Blattkettenrecords jetzt
-mit einer explizit übergebenen Endadresse, ohne einen konkreten Terminalwert
-vorzugeben. Vorwärts- und Rücklinks, Startseite, Datenbank/Objekt/Index/Partition,
-Blattniveau, Zyklen und ein fest begrenztes Seitenbudget werden synthetisch
-geprüft. Der Prüfer authentifiziert keine DMV-/Seitenaufnahme und entscheidet
-nicht, welcher Marker in einem SQL-Server-Build tatsächlich das Kettenende
-darstellt. Die unabhängige Methodenprüfung bleibt Voraussetzung für eine
-ausführbare Probe.
+`evaluate_last_page_contention` verlangt nun neben den beiden Waits auch die
+caller-gelieferten `PageLink`-Records, einen expliziten Endmarker und ein
+begrenztes Seitenbudget. Es ruft den Kettenprüfer mit der Wait-Zielseite als
+Startadresse und der Ziel-Datenbank, dem Objekt, Index und der Partition auf.
+Ein Wait-PASS ohne passende Kette ist `NOT_PROVEN`; eine Kette mit abweichender
+Startseite oder Identität kann keinen Wait-PASS erzeugen. Die getrennte
+Kettenprüfung bleibt verfügbar, authentifiziert aber ebenfalls keine
+DMV-/Seitenaufnahme und entscheidet nicht, welcher Marker in einem
+SQL-Server-Build tatsächlich das Kettenende darstellt. Die unabhängige
+Methodenprüfung bleibt Voraussetzung für eine ausführbare Probe.
 
 ### Ergänzung des Offline-Waitvertrags
 

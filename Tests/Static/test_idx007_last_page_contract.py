@@ -18,13 +18,24 @@ def fixture(*, rightmost: bool | None = True) -> tuple[tuple[PageWait, ...], Pag
         PageWait("PAGELATCH_EX", 51, 7, 1, 900, 12, STAMP, 1, 0),
         PageWait("PAGELATCH_EX", 52, 7, 1, 900, 8, STAMP, 1, 0),
     )
-    target = PageTarget(7, 1, 900, 42, 3, 0, rightmost, STAMP)
+    target = PageTarget(7, 1, 900, 42, 3, 0, rightmost, STAMP, 1)
     return waits, target
 
 
-def evaluate_last_page_contention(waits, target, expected_actor_requests=EXPECTED_ACTOR_REQUESTS):
+def fixture_chain(*, start: tuple[int, int] = (1, 900)) -> tuple[PageLink, ...]:
+    return (
+        PageLink(7, start[0], start[1], 42, 3, 1, 0, None, (1, 901)),
+        PageLink(7, 1, 901, 42, 3, 1, 0, (1, 900), (1, 9999)),
+    )
+
+
+def evaluate_last_page_contention(waits, target, expected_actor_requests=EXPECTED_ACTOR_REQUESTS,
+                                  *, page_chain=None, terminal_address=(1, 9999), max_pages=2):
+    if page_chain is None:
+        page_chain = fixture_chain(start=(target.file_id, target.page_id))
     return _evaluate_last_page_contention(
-        waits, target, expected_actor_requests=expected_actor_requests
+        waits, target, expected_actor_requests=expected_actor_requests,
+        page_chain=page_chain, terminal_address=terminal_address, max_pages=max_pages,
     )
 
 
@@ -87,6 +98,20 @@ class LastPageContractTests(unittest.TestCase):
 
     def test_matching_two_actor_leaf_and_right_edge_passes(self) -> None:
         self.assertEqual(evaluate_last_page_contention(*fixture()).verdict, Verdict.PASS)
+
+    def test_wait_pass_requires_a_matching_bounded_page_chain(self) -> None:
+        waits, target = fixture()
+        self.assertEqual(_evaluate_last_page_contention(
+            waits, target, expected_actor_requests=EXPECTED_ACTOR_REQUESTS
+        ).verdict, Verdict.NOT_PROVEN)
+        wrong_start = fixture_chain(start=(1, 899))
+        self.assertEqual(evaluate_last_page_contention(
+            waits, target, page_chain=wrong_start
+        ).verdict, Verdict.FAIL)
+        missing_terminal = evaluate_last_page_contention(
+            waits, target, page_chain=fixture_chain(), terminal_address=None
+        )
+        self.assertEqual(missing_terminal.verdict, Verdict.NOT_PROVEN)
 
     def test_wait_rows_bind_expected_actor_request_and_task(self) -> None:
         waits, target = fixture()
@@ -177,7 +202,7 @@ class LastPageContractTests(unittest.TestCase):
             for w in waits
         )
         high_precision_target = PageTarget(
-            7, 1, 900, 42, 3, 0, True, "2026-11-06T10:00:00.12345670+00:00"
+            7, 1, 900, 42, 3, 0, True, "2026-11-06T10:00:00.12345670+00:00", 1
         )
         self.assertEqual(
             evaluate_last_page_contention(high_precision_waits, high_precision_target).verdict,
