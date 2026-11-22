@@ -8,12 +8,133 @@ authenticate the source, run, actor outcomes, or SQL Server execution.
 from __future__ import annotations
 
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass
 
 from Tests.Static.con006_conversion_graph_contract import (
-    MAX_GRAPH_BYTES, CaptureEvidence, GraphIdentity, GraphResult, Verdict,
-    _evaluate_capture,
+    MAX_GRAPH_BYTES, ActorOutcome, CaptureEvidence, GraphIdentity, GraphResult, Verdict,
+    _evaluate_capture, _valid_actor_spids,
     _nonempty_attr, _single, _unsigned_attr, _valid_identity,
 )
+
+
+@dataclass(frozen=True)
+class RangeControlEvidence:
+    """Caller-supplied serial-control observations; not source-authenticated."""
+
+    expected_run_token: str | None
+    observed_run_token: str | None
+    actor_spids: tuple[tuple[str, int], ...] | None
+    actor_outcomes: tuple[object, ...] | None
+    expected_initial_keys: tuple[int, ...] | None
+    expected_insertions: tuple[tuple[str, int], ...] | None
+    observed_final_keys: tuple[int, ...] | None
+    matching_deadlock_event_count: int | None
+
+
+def evaluate_range_control(evidence: RangeControlEvidence | None) -> GraphResult:
+    """Check both serial inserts, exact final keys, and no supplied deadlock event.
+
+    A PASS means only that the caller-supplied values are internally consistent.
+    It is not an authenticated capture or an SQL Server execution attestation.
+    """
+    if evidence is None:
+        return GraphResult(Verdict.NOT_PROVEN, ("serial control evidence is missing",))
+    if type(evidence) is not RangeControlEvidence:
+        return GraphResult(Verdict.FAIL, ("serial control evidence must use the exact contract record",))
+
+    missing: list[str] = []
+    failures: list[str] = []
+    for value, label in ((evidence.expected_run_token, "expected run token"),
+                         (evidence.observed_run_token, "observed run token")):
+        if value is None:
+            missing.append(label)
+        elif type(value) is not str or not value.strip():
+            failures.append(f"{label} is invalid")
+    if (type(evidence.expected_run_token) is str
+            and type(evidence.observed_run_token) is str
+            and evidence.expected_run_token != evidence.observed_run_token):
+        failures.append("observed run token differs from the expected token")
+
+    if evidence.actor_spids is None:
+        missing.append("actor-to-SPID bindings")
+    elif not _valid_actor_spids(evidence.actor_spids):
+        failures.append("actor-to-SPID bindings are invalid")
+
+    if evidence.actor_outcomes is None:
+        missing.append("actor outcomes")
+    elif (type(evidence.actor_outcomes) is not tuple or len(evidence.actor_outcomes) != 2
+          or any(type(item) is not ActorOutcome for item in evidence.actor_outcomes)):
+        failures.append("exactly two actor outcome records are required")
+    elif any(type(item.role) is not str for item in evidence.actor_outcomes):
+        failures.append("actor outcome roles must be text")
+    else:
+        by_role = {item.role: item for item in evidence.actor_outcomes}
+        if len(by_role) != 2 or set(by_role) != {"ACTOR_A", "ACTOR_B"}:
+            failures.append("actor outcome roles must be ACTOR_A and ACTOR_B exactly once")
+        elif _valid_actor_spids(evidence.actor_spids):
+            expected_spids = dict(evidence.actor_spids)
+            for role, outcome in by_role.items():
+                if type(outcome.spid) is not int or outcome.spid != expected_spids[role]:
+                    failures.append("actor outcome SPIDs differ from supplied actor bindings")
+                if outcome.outcome != "SUCCESS" or outcome.error_number is not None:
+                    failures.append("both serial insert actors must succeed without an error")
+
+    initial = _valid_key_tuple(evidence.expected_initial_keys, "expected initial keys", missing, failures)
+    final = _valid_key_tuple(evidence.observed_final_keys, "observed final keys", missing, failures)
+    if evidence.expected_insertions is None:
+        missing.append("expected actor insertions")
+    elif (type(evidence.expected_insertions) is not tuple or len(evidence.expected_insertions) != 2
+          or any(type(item) is not tuple or len(item) != 2 for item in evidence.expected_insertions)):
+        failures.append("exactly two expected actor insertions are required")
+    else:
+        insertion_roles = [item[0] for item in evidence.expected_insertions]
+        insertion_keys = [item[1] for item in evidence.expected_insertions]
+        if (any(type(role) is not str for role in insertion_roles)
+                or set(insertion_roles) != {"ACTOR_A", "ACTOR_B"}
+                or len(set(insertion_roles)) != 2):
+            failures.append("expected insertions must bind ACTOR_A and ACTOR_B exactly once")
+        if any(type(key) is not int for key in insertion_keys):
+            failures.append("inserted keys must be two distinct integers")
+        elif len(set(insertion_keys)) != 2:
+            failures.append("inserted keys must be two distinct integers")
+        if initial is not None and any(key in initial for key in insertion_keys if type(key) is int):
+            failures.append("inserted keys overlap the expected initial state")
+
+    if initial is not None and final is not None and evidence.expected_insertions is not None:
+        if (type(evidence.expected_insertions) is tuple
+                and all(type(item) is tuple and len(item) == 2 for item in evidence.expected_insertions)
+                and all(type(item[1]) is int for item in evidence.expected_insertions)):
+            expected_final = set(initial) | {item[1] for item in evidence.expected_insertions}
+            if set(final) != expected_final or len(final) != len(expected_final):
+                failures.append("observed final keys do not equal the complete expected post-insert state")
+
+    count = evidence.matching_deadlock_event_count
+    if count is None:
+        missing.append("matching deadlock event count")
+    elif type(count) is not int or count < 0:
+        failures.append("matching deadlock event count is invalid")
+    elif count != 0:
+        failures.append("serial control arm must contain no matching deadlock event")
+
+    if failures:
+        return GraphResult(Verdict.FAIL, tuple(failures))
+    if missing:
+        return GraphResult(Verdict.NOT_PROVEN, tuple(missing))
+    return GraphResult(Verdict.PASS, ())
+
+
+def _valid_key_tuple(value: object, label: str, missing: list[str],
+                     failures: list[str]) -> tuple[int, ...] | None:
+    if value is None:
+        missing.append(label)
+        return None
+    if type(value) is not tuple or any(type(key) is not int for key in value):
+        failures.append(f"{label} must be a tuple of integers")
+        return None
+    if len(set(value)) != len(value):
+        failures.append(f"{label} must not contain duplicates")
+        return None
+    return value
 
 
 def evaluate_range_graph(graph_xml: str | bytes | None,

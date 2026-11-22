@@ -13,7 +13,7 @@ from Tests.Static.con006_conversion_graph_contract import (  # noqa: E402
     ActorOutcome, CaptureEvidence, GraphIdentity, Verdict,
 )
 from Tests.Static.con006_range_graph_contract import (  # noqa: E402
-    evaluate_range_capture, evaluate_range_graph,
+    RangeControlEvidence, evaluate_range_capture, evaluate_range_control, evaluate_range_graph,
 )
 
 
@@ -76,6 +76,49 @@ def good_capture() -> CaptureEvidence:
 
 
 class RangeGraphContractTests(unittest.TestCase):
+    def test_serial_control_requires_both_inserts_and_complete_final_state(self):
+        evidence = RangeControlEvidence(
+            expected_run_token="RUN-CONTROL-1", observed_run_token="RUN-CONTROL-1",
+            actor_spids=IDENTITY.actor_spids,
+            actor_outcomes=(ActorOutcome("ACTOR_A", 51, "SUCCESS", None),
+                            ActorOutcome("ACTOR_B", 52, "SUCCESS", None)),
+            expected_initial_keys=(10, 90), expected_insertions=(("ACTOR_A", 30), ("ACTOR_B", 70)),
+            observed_final_keys=(10, 30, 70, 90), matching_deadlock_event_count=0,
+        )
+        self.assertEqual(evaluate_range_control(evidence).verdict, Verdict.PASS)
+
+    def test_serial_control_missing_fields_are_not_proven(self):
+        base = RangeControlEvidence(
+            "RUN-CONTROL-1", "RUN-CONTROL-1", IDENTITY.actor_spids,
+            (ActorOutcome("ACTOR_A", 51, "SUCCESS", None),
+             ActorOutcome("ACTOR_B", 52, "SUCCESS", None)),
+            (10, 90), (("ACTOR_A", 30), ("ACTOR_B", 70)), (10, 30, 70, 90), 0,
+        )
+        self.assertEqual(evaluate_range_control(None).verdict, Verdict.NOT_PROVEN)
+        for missing in ("observed_run_token", "expected_initial_keys", "observed_final_keys",
+                        "actor_outcomes", "matching_deadlock_event_count"):
+            with self.subTest(missing=missing):
+                self.assertEqual(evaluate_range_control(replace(base, **{missing: None})).verdict,
+                                 Verdict.NOT_PROVEN)
+
+    def test_serial_control_rejects_incomplete_state_failed_actor_or_event(self):
+        base = RangeControlEvidence(
+            "RUN-CONTROL-1", "RUN-CONTROL-1", IDENTITY.actor_spids,
+            (ActorOutcome("ACTOR_A", 51, "SUCCESS", None),
+             ActorOutcome("ACTOR_B", 52, "SUCCESS", None)),
+            (10, 90), (("ACTOR_A", 30), ("ACTOR_B", 70)), (10, 30, 70, 90), 0,
+        )
+        variants = (
+            replace(base, observed_final_keys=(10, 30, 90)),
+            replace(base, actor_outcomes=(base.actor_outcomes[0], ActorOutcome("ACTOR_B", 52, "ERROR", 2627))),
+            replace(base, matching_deadlock_event_count=1),
+            replace(base, observed_run_token="OTHER"),
+            replace(base, observed_final_keys=(10, 30, 30, 70, 90)),
+        )
+        for evidence in variants:
+            with self.subTest(evidence=evidence):
+                self.assertEqual(evaluate_range_control(evidence).verdict, Verdict.FAIL)
+
     def test_complete_same_key_two_actor_graph_passes_without_lock_mode_assumption(self):
         result = evaluate_range_graph(good_graph(), IDENTITY)
         self.assertEqual(result.verdict, Verdict.PASS)
