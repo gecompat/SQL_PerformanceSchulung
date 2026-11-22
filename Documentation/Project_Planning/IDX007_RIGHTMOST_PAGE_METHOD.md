@@ -178,7 +178,7 @@ Semantik bleibt ein Review- und Qualifikationsgate.
 
 Auf den isolierten, digest-gepinnten Builds SQL Server 2019
 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5` bestand je ein
-identischer 24×6-Lauf. Der Pilot bestätigte auf jedem Build die konkrete
+identischer 48×3-Lauf. Der Pilot bestätigte auf jedem Build die konkrete
 Produktversion und Compatibility Level (150, 160, 170); jeder Rebuild ergab
 sechs Blattseiten. Beide Burstcaptures bestanden jeweils mit einer nach dem
 Burst bestätigten terminalen Seite und korrektem Vorgänger-Rücklink. Die

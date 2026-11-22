@@ -14426,12 +14426,17 @@ sein; ein Seitenwechsel zwischen den Bursts ist zulässig. Der Prozessstarter
 übergibt den abgeschlossenen stdin-Stream korrekt an `communicate()`. Der
 Workflow nimmt nun auch stderr in das kurzlebige Diagnoseartefakt auf.
 
-Die lokale isolierte Matrix bestand danach erneut auf SQL Server 2019
-`15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5`, einschließlich
-Kompatibilitätsstufen 150/160/170, beider Wait-/Kettenaufnahmen, 788 Zeilen
-sowie Datenbank- und Container-Cleanup. Die Metadaten werden nach Abschluss
-der Actor-Inserts erhoben; damit ist keine atomare Seitenstrukturzuordnung zum
-exakten Waitzeitpunkt bewiesen. Der Befund bleibt ein begrenzter
-Engineering-Pilot; unabhängiger Methodenreview, parallele Splitsemantik und
-vollständige Demo-/Leistungsqualifikation bleiben getrennte Gates. PR #1145
-läuft mit der korrigierten Fassung erneut durch die vorgeschriebenen Checks.
+Ein frischer PR-Lauf lieferte auf SQL Server 2019 und 2022 in Burst 1 keinen
+überlappenden Wait und endete korrekt mit `NOT_PROVEN`; die vorige lokale
+24×6-Matrix hatte diese geringere Konkurrenz nicht offengelegt. Die Actorzahl
+wurde daher auf 48 erhöht und die Zahl der Inserts je Actor auf 3 verringert;
+die Gesamtzahl von 144 Inserts je Burst bleibt gleich. Die lokale isolierte
+Matrix bestand danach erneut auf SQL Server 2019 `15.0.4500.2`, 2022
+`16.0.4305.5` und 2025 `17.0.5035.5`, einschließlich Kompatibilitätsstufen
+150/160/170, beider Wait-/Kettenaufnahmen, 788 Zeilen sowie Datenbank- und
+Container-Cleanup. Die Metadaten werden nach Abschluss der Actor-Inserts
+erhoben; damit ist keine atomare Seitenstrukturzuordnung zum exakten
+Waitzeitpunkt bewiesen. Der Befund bleibt ein begrenzter Engineering-Pilot;
+unabhängiger Methodenreview, parallele Splitsemantik und vollständige Demo-/
+Leistungsqualifikation bleiben getrennte Gates. PR #1145 muss mit dieser
+Lastform die frischen Pflichtchecks noch bestehen.
