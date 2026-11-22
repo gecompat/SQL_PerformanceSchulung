@@ -14490,13 +14490,13 @@ Index, Partition, Blattebene, terminalem Nachfolger und Vorgänger-Rücklink
 übereinstimmen. Fehlende zeitliche oder physische Bindung bleibt
 `NOT_PROVEN`.
 
-Die angepasste Form verwendet 501 Seeds, `FILLFACTOR=100`, 96 Actors und je
-zwei Inserts pro Actor und Burst. Die lokale Matrix bestand auf SQL Server
+Die angepasste Form verwendet 501 Seeds, `FILLFACTOR=100`, 128 Actors und je
+ein Insert pro Actor und Burst. Die lokale Matrix bestand auf SQL Server
 2019 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5`; beide Bursts
 pro Build zeigten die Waitüberlappung innerhalb des Kettenlesefensters und
-bestätigten 885 Zeilen sowie Datenbank-/Container-Cleanup. Die vorherigen
-Ein-Insert-pro-Actor-/693-Zeilenwerte in den historischen Abschnitten sind
-überholt. Der Status bleibt `METHOD_DRAFT`: XE ordnet Wait und Abfragefenster
+bestätigten 757 Zeilen sowie Datenbank-/Container-Cleanup. Die vorherigen
+96×1-/693-Zeilenwerte und der Zwischenversuch mit 96×2 in den historischen
+Abschnitten sind überholt. Der Status bleibt `METHOD_DRAFT`: XE ordnet Wait und Abfragefenster
 empirisch, macht mehrere DMV-Lesevorgänge aber nicht zu einem atomaren
 Snapshot. Gleichzeitige Page-Splits, Produktlast und Leistungswirkung sind
 nicht qualifiziert. Die frische serielle PR-Matrix und die Pflichtchecks

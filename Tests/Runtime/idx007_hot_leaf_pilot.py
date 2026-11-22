@@ -17,8 +17,8 @@ PROFILES = {
     17: ("17.0.5035.5", "sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f"),
 }
 DB = "SQLPERF_LAB_IDX007_PENDING"
-ACTORS = 96
-ROWS_PER_BURST = 2
+ACTORS = 128
+ROWS_PER_BURST = 1
 
 
 class PilotError(RuntimeError):
@@ -252,7 +252,10 @@ DECLARE @meta table(FileId int,PageId int,ObjectId int,IndexId int,PartitionId b
  PrevFile int,PrevPage int,NextFile int,NextPage int,PrevObjectId int,PrevIndexId int,
  PrevPartitionId bigint,PrevPageLevel int,PrevNextFile int,PrevNextPage int,LeafPages bigint);
 DECLARE @file int,@page int;
-DECLARE page_cursor CURSOR LOCAL FAST_FORWARD FOR SELECT FileId,PageId FROM @candidate;
+DECLARE @leaf_pages bigint;
+SELECT @leaf_pages=SUM(page_count) FROM sys.dm_db_index_physical_stats(DB_ID(),OBJECT_ID(N'dbo.Hot'),1,NULL,'DETAILED')
+WHERE index_level=0 AND alloc_unit_type_desc='IN_ROW_DATA';
+DECLARE page_cursor CURSOR LOCAL FAST_FORWARD FOR SELECT FileId,PageId FROM @candidate ORDER BY FileId DESC,PageId DESC;
 OPEN page_cursor; FETCH NEXT FROM page_cursor INTO @file,@page;
 WHILE @@FETCH_STATUS=0
 BEGIN
@@ -262,12 +265,9 @@ BEGIN
       COALESCE(i.prev_page_file_id,0),COALESCE(i.prev_page_page_id,0),
       COALESCE(i.next_page_file_id,0),COALESCE(i.next_page_page_id,0),
       COALESCE(p.object_id,0),COALESCE(p.index_id,0),COALESCE(p.partition_id,0),COALESCE(p.page_level,-1),
-      COALESCE(p.next_page_file_id,0),COALESCE(p.next_page_page_id,0),ps.leaf_pages
+      COALESCE(p.next_page_file_id,0),COALESCE(p.next_page_page_id,0),@leaf_pages
     FROM sys.dm_db_page_info(DB_ID(),@file,@page,'DETAILED') AS i
-    OUTER APPLY sys.dm_db_page_info(DB_ID(),NULLIF(i.prev_page_file_id,0),NULLIF(i.prev_page_page_id,0),'DETAILED') AS p
-    CROSS APPLY (SELECT SUM(page_count) AS leaf_pages
-      FROM sys.dm_db_index_physical_stats(DB_ID(),OBJECT_ID(N'dbo.Hot'),1,NULL,'DETAILED')
-      WHERE index_level=0 AND alloc_unit_type_desc='IN_ROW_DATA') AS ps;
+    OUTER APPLY sys.dm_db_page_info(DB_ID(),NULLIF(i.prev_page_file_id,0),NULLIF(i.prev_page_page_id,0),'DETAILED') AS p;
   END TRY
   BEGIN CATCH
     -- Invalid or deallocated event resources are not candidates for this proof.

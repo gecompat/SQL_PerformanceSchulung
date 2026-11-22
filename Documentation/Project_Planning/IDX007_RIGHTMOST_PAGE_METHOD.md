@@ -226,10 +226,10 @@ Waitseite mit passender Objekt-/Index-/Partitionsidentität, Blattebene,
 terminalem Nachfolger und stimmigem Vorgänger-Rücklink finden. Fehlt eine
 dieser Bindungen, liefert der Lauf `NOT_PROVEN`.
 
-Die angepasste Lastform verwendet 501 Seeds, `FILLFACTOR=100`, 96 Actors und
-zwei Einfügungen pro Actor je Burst. Auf SQL Server 2019
+Die angepasste Lastform verwendet 501 Seeds, `FILLFACTOR=100`, 128 Actors und
+eine Einfügung pro Actor je Burst. Auf SQL Server 2019
 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5` bestanden beide
-Bursts lokal: je Build wurden zwei getrennte Wait-/Kettenklammern, 885
+Bursts lokal: je Build wurden zwei getrennte Wait-/Kettenklammern, 757
 synthetische Zeilen und Datenbank-/Container-Cleanup bestätigt. Die
 Waitüberlappung lag auf den drei Builds jeweils innerhalb des markierten
 Kettenlesefensters.
