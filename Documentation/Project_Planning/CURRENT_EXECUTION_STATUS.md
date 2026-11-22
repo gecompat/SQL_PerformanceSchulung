@@ -14460,14 +14460,14 @@ Der Matrixlauf [45058128570](https://github.com/gecompat/SQL_PerformanceSchulung
 bestand auf SQL Server 2019, 2022 und 2025; die erforderlichen PR-Checks sind
 grün.
 
-Die neue PR-Matrix deckte danach zwei Lastformgrenzen auf: Auf SQL Server 2019
-waren die Stage-2-Waits nach 48×3 Inserts, und in einem weiteren 48×1-Lauf
-Stage 1, nach dem jeweiligen Burst nicht mehr terminal. Beide Male lieferte
-der Erheber korrekt `NOT_PROVEN`. Um die terminale Seite vor Splits zu schützen,
-steht der kontrollierte Rebuild jetzt auf `FILLFACTOR=10`; die lokale isolierte
-Matrix bestand damit erneut auf SQL Server 2019, 2022 und 2025: je elf
-Blattseiten, zwei per Eventsequenz bestätigte Wait-/Kettenaufnahmen, 596 Zeilen
-sowie bestätigtes Datenbank- und Container-Cleanup. Der PR-Matrixlauf
-[45058128570](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45058128570)
-bestand für diesen Füllfaktor auf allen drei Builds. Die Metadatenaufnahme
-bleibt nicht atomar zum exakten Waitzeitpunkt.
+Die neue PR-Matrix deckte danach eine weitere Lastformgrenze auf: SQL Server
+2025 lieferte nach dem ersten 48×1-Burst zwar überlappende Waits, aber die
+500-Zeilen-Seedmenge ließ deren Seite nach einem Split nicht mehr als terminale
+Blattseite bestätigen. Der Erheber lieferte korrekt `NOT_PROVEN`. Die
+Seedmenge wurde auf 451 Zeilen gesetzt; die rechte Blattseite blieb in den
+drei lokalen Läufen während des Bursts terminal.
+Die lokale isolierte Drei-Build-Matrix bestand danach erneut: je zehn
+Blattseiten, zwei per Eventsequenz bestätigte Wait-/Kettenaufnahmen, 547 Zeilen
+sowie bestätigtes Datenbank- und Container-Cleanup. Die neue PR-Matrix muss
+diese Änderung noch bestätigen. Die Metadatenaufnahme bleibt nicht atomar zum
+exakten Waitzeitpunkt.
