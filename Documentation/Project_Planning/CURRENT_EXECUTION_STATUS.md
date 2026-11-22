@@ -14024,3 +14024,15 @@ Quellnamen, genau ein Event im angegebenen Zeitfenster, die Actor-/SPID-Werte
 sowie Opferfehler 1205 und erfolgreichen Survivor. 11 Range- und 20 bestehende
 Konversionsregressionen bestehen lokal. Auch diese Korrelation authentifiziert
 keine Aufnahmen und belegt kein Engineverhalten.
+
+### CON-006 – seriellen Range-Kontrollarm statisch prüfen (22. November 2026)
+
+`evaluate_range_control` prüft den caller-gelieferten serialen Kontrollbefund:
+zwei erfolgreiche Inserts mit Actor-/SPID-Bindung, eindeutige erwartete
+Anfangs- und Insert-Schlüssel, vollständiger beobachteter Endbestand ohne
+Abweichungen sowie null passende Deadlockereignisse. Fehlende Pflichtangaben
+ergeben `NOT_PROVEN`, Widersprüche `FAIL`. Drei neue synthetische Regressionen
+ergänzen elf Range- und zwanzig Konversionsfälle; zusammen bestehen 34
+fokussierte Tests. Das prüft nur interne Konsistenz der gelieferten Werte,
+nicht deren Herkunft, eine SQL-Ausführung oder einen tatsächlichen Tabellenzustand.
+Methodenreview und isolierter Enginepilot bleiben offene Gates.

@@ -128,9 +128,19 @@ die Actor-/SPID-Zuordnung sowie das Graphopfer mit Fehler 1205 und den anderen
 Actor als erfolgreichen Survivor. Das ist dieselbe Offline-Korrelationsgrenze
 wie beim Konversionsvertrag; sie stellt keine Herkunftsattestation dar.
 
+`evaluate_range_control` prüft nun den seriellen Kontrollarm auf zwei
+caller-gelieferte erfolgreiche Actorresultate, getrennte Actor- und
+Schlüsselzuordnungen, vollständige Übereinstimmung des beobachteten finalen
+Schlüsselsatzes mit dem erwarteten Anfangssatz plus genau zwei Einfügungen und
+null passende Deadlockereignisse. Fehlende Pflichtfelder ergeben
+`NOT_PROVEN`; widersprüchliche Werte ergeben `FAIL`. Schlüsselwerte bleiben
+Eingaben des Aufrufers. Ein synthetischer `PASS` authentifiziert weder die
+Erhebung noch den tatsächlichen Insert- oder Tabellenzustand.
+
 Das ist ausschließlich eine Formprüfung caller-gelieferter XML- und
 Identitätswerte. Sie authentifiziert weder `system_health`-Herkunft noch
 Run-Token, Zeitfenster, Actorresultate, Opferfehler 1205 oder Cleanup. Ein
 synthetischer PASS belegt keinen Deadlocklauf. Der unabhängige Methodenreview,
 der reale Graph mit tatsächlichen Modi, der serielle Kontrollarm und der
 isolierte Enginepilot bleiben Voraussetzungen für jede Ausführungsfreigabe.
+Der statische Kontrollarmprüfer schließt diese Voraussetzungen ebenfalls nicht.
