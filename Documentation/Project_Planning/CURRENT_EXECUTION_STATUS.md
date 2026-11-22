@@ -14251,6 +14251,14 @@ Schalter und konfiguriert nur `collect_statement=(0)` am Starting-Ereignis.
 Nach Merge muss der manuelle Gate für alle drei Builds erneut bestehen, bevor
 ein Datenschutzbefund festgehalten werden kann.
 
+Der nach dieser Korrektur gestartete Lauf `45020689042` bestand die statische
+Prüfung und erstellte auf allen Builds die temporäre XE-Session. Die Auswertung
+brach anschließend mit SQL-Fehler 8117 ab, weil `SUM` die XML-Existenzflags als
+`bit` erhielt. Dieses Ergebnis sagt noch nichts über den aufgezeichneten
+Statementinhalt aus. Die Zusammenfassung konvertiert die Flags jetzt explizit
+zu `int`; der Validator prüft diese Typgrenze statisch. Der manuelle Lauf wird
+nach Integration dieser Korrektur buildweise erneut ausgeführt.
+
 DGN-007 bleibt `METHOD_BLOCKED`. Der nächste Gate prüft je Build, dass
 `collect_statement=(0)` keine nichtleeren Statementwerte im Ringpuffer ablegt.
 Danach bleiben Ereignisverlust, Markerordnung, Hashkardinalität,
