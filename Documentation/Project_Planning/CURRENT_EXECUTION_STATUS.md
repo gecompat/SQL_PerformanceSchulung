@@ -14223,21 +14223,33 @@ Der manuelle Lauf `45018450462` bestand anschließend für SQL Server 2019
 `15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5`; die seriellen
 Buildjobs dauerten 33, 39 und 43 Sekunden. Die Feld- und Actioninventare waren
 auf allen Builds identisch. Beide Statementereignisse enthalten
-`statement:data`, `collect_statement:customizable` und
+`statement:data` und `collect_statement:customizable`; nur
+`sql_statement_completed` enthält zusätzlich
 `collect_parameterized_plan_handle:customizable`. Verfügbar sind außerdem die
 Korrelationsactions `event_sequence`, `database_id`, `query_hash`,
 `query_plan_hash` und `session_id`; `sql_text` und `tsql_stack` werden nicht
 aktiviert. Das bestätigt die Metadaten, nicht die Datensicherheit eines
 Ereignistargets.
 
-Der nächste PR ergänzt deshalb einen isolierten synthetischen Gate je Build:
+PR #1134 integrierte den isolierten synthetischen Gate je Build:
 `collect_statement=(0)`, keine SQL-Text-/Stack-Action, ein begrenzter
 Speicher-Ringpuffer und genau ein festes synthetisches Statement. Intern
 werden nur Zähler/Flags ausgegeben; Rohpayload bleibt im Container. Das ist
 kein Actor- oder Messlauf. Auf Pull Requests und `main` laufen nur der
-statische Validator und seine zwölf Regressionstests; Containerproben bleiben
+statische Validator und seine 13 Regressionstests; Containerproben bleiben
 manuell und seriell. Die bisherigen Runtimejobs belegen tatsächliche Zeiten
 von 33–43 Sekunden pro Build; Artefakte laufen nach drei Tagen ab.
+
+Der manuelle Gate-Lauf `45020072078` deckte einen Fehler in der neuen
+Prüfstrecke auf: Der Runner verlangte
+`collect_parameterized_plan_handle:customizable` fälschlich auch für
+`sql_statement_starting`; SQL Server führt dieses konfigurierbare Feld dort
+nicht. Alle drei Versionen stoppten deshalb vor dem Erstellen der synthetischen
+Session. Das ist ein Runnerfehler und kein Befund über Payload-Unterdrückung.
+Der Korrekturschnitt prüft jetzt die je Ereignis tatsächlich verfügbaren
+Schalter und konfiguriert nur `collect_statement=(0)` am Starting-Ereignis.
+Nach Merge muss der manuelle Gate für alle drei Builds erneut bestehen, bevor
+ein Datenschutzbefund festgehalten werden kann.
 
 DGN-007 bleibt `METHOD_BLOCKED`. Der nächste Gate prüft je Build, dass
 `collect_statement=(0)` keine nichtleeren Statementwerte im Ringpuffer ablegt.

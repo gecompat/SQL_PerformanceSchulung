@@ -226,6 +226,23 @@ def parse_payload_output(output: str, *, expected_major: int,
     }
 
 
+def validate_suppression_controls(inventory: dict[str, Any]) -> None:
+    """Require only the per-event XE suppression fields exposed by that engine."""
+    required_fields = {
+        "sql_statement_starting": {"collect_statement:customizable"},
+        "sql_statement_completed": {
+            "collect_statement:customizable",
+            "collect_parameterized_plan_handle:customizable",
+        },
+    }
+    for event_name, required in required_fields.items():
+        fields = set(inventory["events"].get(event_name, []))
+        if not required.issubset(fields):
+            raise ProbeError(
+                f"{event_name} does not expose its reviewed statement-suppression controls"
+            )
+
+
 def _password() -> str:
     groups = (
         "ABCDEFGHJKLMNPQRSTUVWXYZ",
@@ -437,11 +454,7 @@ def run_probe(product_major_version: int) -> dict[str, Any]:
             (item["package"], item["name"])
             for item in inventory["available_actions"]
         }
-        for event_name in REQUIRED_EVENTS:
-            fields = set(inventory["events"][event_name])
-            if ("collect_statement:customizable" not in fields
-                    or "collect_parameterized_plan_handle:customizable" not in fields):
-                raise ProbeError("event does not expose the reviewed statement-suppression controls")
+        validate_suppression_controls(inventory)
         if not required_actions.issubset(available_actions):
             raise ProbeError("safe payload-gate correlation actions are unavailable")
 
