@@ -13989,3 +13989,7 @@ Analyse des Archivs mit SHA-256
 `b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c` endet mit
 `CANDIDATES_ONLY`; dies bestätigt die vollständige statische Eingabeverarbeitung,
 nicht Interpreter-, Regex- oder Runtimeausführung.
+
+### DGN-007 – vollständigen Regex-Flagsfluss im Archivscan schließen (22. November 2026)
+
+Die erneute Prüfung fand zwei weitere veraltete Parserannahmen: CPython 3.12.16 hat im `_parse`-Funktionskörper eine `state.checkgroup(gid)`-Stelle und genau zwei `state.checklookbehindgroup`-Stellen (`gid` und `condgroup`). Der Candidate erwartete zwei beziehungsweise drei Stellen und verwarf deshalb die sonst gebundenen Parserfakten. Die Verträge und Fixtures entsprechen nun dem gepinnten Quelltext. 314 statische Regressionen bestehen. Der vollständige Archivscan liefert jetzt jeweils 13 direkte Compile-Eingaben, Parser-/Tokenizertypbindungen und verbundene `Pattern.flags`-Kandidaten. Bedingte Zahlenwerte werden nur für kompatible, statisch bekannte Fälle ausgegeben; nicht auflösbare oder inkompatible Fälle bleiben `null`. Status `CANDIDATES_ONLY`, ohne Interpreter- oder Regexausführung.
