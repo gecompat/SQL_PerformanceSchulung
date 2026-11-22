@@ -14203,32 +14203,44 @@ Der unabhängige Methodenreview ist in PR #1130 auf `origin/main` integriert.
 Darauf aufbauend ist ein getrennter, read-only Kataloginventurpfad für die
 Extended-Events-Metadaten (XE) vorbereitet. Der manuelle GitHub-Actions-Workflow
 verwendet je einen gepinnten SQL-Server-2019-, 2022- und 2025-Build, führt die
-Buildjobs seriell aus und liest nur Engineidentität sowie Eventfeld- und
-Actionnamen. Die Probe erzeugt keine Nutzer-/Labordatenbank und keine
-XE-Session; SQL Server startet seine üblichen Systemdatenbanken einschließlich
-tempdb. Erfasst wird kein Eventpayload. Die Ergebnisse werden als
-Metadatenartefakte drei Tage aufbewahrt.
+Buildjobs seriell aus. Er liest Engineidentität sowie Eventfeld- und Actionnamen
+und startet danach nur für die synthetische Datenschutzprobe eine temporäre
+XE-Session. Die Probe erzeugt keine Nutzer-/Labordatenbank; SQL Server startet
+seine üblichen Systemdatenbanken einschließlich tempdb. Rohereignisdaten
+bleiben im kurzlebigen Container und werden nicht ausgegeben. Die aggregierten
+Metadaten und Privacy-Flags werden als Artefakte drei Tage aufbewahrt.
 
-Lokale Läufe auf den drei festgebundenen Images endeten vor SQL-Readiness;
-keiner erreichte eine Katalogabfrage. Auch der erste manuelle GitHub-Lauf
-`45016650824` stoppte alle drei Builds vor dem Containerstart: Die Prüfung
-verglich die Docker-Image-ID ausschließlich mit der Config-ID, während Docker
-Desktop den korrekt gepinnten Manifestdigest als Image-ID meldet. Das ist ein
-Probe-Implementierungsfehler, kein Produktbefund; keine DGN-007-Katalogabfrage
-lief. Ein Korrektur-PR akzeptiert beide Docker-ID-Darstellungen, bindet
-weiterhin Manifestdigest und Plattform und ergänzt Regressionstests. Nach
-deren Integration folgte der zweite Lauf `45017169620`. SQL Server startete,
-aber der Runner verwarf den erfolgreichen Ready-Check wegen des zusätzlichen
-SQLCMD-Textes `(1 rows affected)`: Die Probe unterdrückte den Zeilenzähler
-nicht. Deshalb ist auch dieser Lauf für alle drei Builds `NOT_PROVEN`; keine
-XE-Katalogabfrage lief. `SET NOCOUNT ON` ist ergänzt. Nach dessen Integration
-folgt je Build ein weiterer begrenzter Versuch. Auf Pull
-Requests und `main` laufen nur der statische Validator und seine zehn
-Parserregressionen; der teure Containerlauf ist ausschließlich manuell und
-seriell. Workflowzeit und Artefaktumfang sind damit begrenzt; eine belastbare
-Zeitmessung liegt noch nicht vor.
+Der erste manuelle GitHub-Lauf `45016650824` stoppte alle Builds bei der
+Imageidentitätsprüfung vor einem Containerstart. PR #1132 ließ beide Docker-
+Image-ID-Darstellungen zu und hielt den Manifestdigest sowie Linux/AMD64 fest.
+Der zweite Lauf `45017169620` startete alle Images, doch der Runner verwarf den
+SQLCMD-Erfolg `1` plus `(1 rows affected)`, weil `SET NOCOUNT ON` fehlte. Kein
+Kataloginventar lief. PR #1133 korrigierte den Ready-Check und präzisierte, dass
+keine Nutzer-/Labordatenbank angelegt wird, während SQL Server seine
+Systemdatenbanken einschließlich tempdb startet.
 
-DGN-007 bleibt `METHOD_BLOCKED`. Erst nach erfolgreichen Inventaren werden
-Payload-Allowlist, Ereignisverlust, Markerordnung, Hashkardinalität und Cleanup
-buildweise geprüft. Keine XE-Session, Messdemo oder Messbehauptung ist Teil
-dieses Schnitts.
+Der manuelle Lauf `45018450462` bestand anschließend für SQL Server 2019
+`15.0.4500.2`, 2022 `16.0.4305.5` und 2025 `17.0.5035.5`; die seriellen
+Buildjobs dauerten 33, 39 und 43 Sekunden. Die Feld- und Actioninventare waren
+auf allen Builds identisch. Beide Statementereignisse enthalten
+`statement:data`, `collect_statement:customizable` und
+`collect_parameterized_plan_handle:customizable`. Verfügbar sind außerdem die
+Korrelationsactions `event_sequence`, `database_id`, `query_hash`,
+`query_plan_hash` und `session_id`; `sql_text` und `tsql_stack` werden nicht
+aktiviert. Das bestätigt die Metadaten, nicht die Datensicherheit eines
+Ereignistargets.
+
+Der nächste PR ergänzt deshalb einen isolierten synthetischen Gate je Build:
+`collect_statement=(0)`, keine SQL-Text-/Stack-Action, ein begrenzter
+Speicher-Ringpuffer und genau ein festes synthetisches Statement. Intern
+werden nur Zähler/Flags ausgegeben; Rohpayload bleibt im Container. Das ist
+kein Actor- oder Messlauf. Auf Pull Requests und `main` laufen nur der
+statische Validator und seine zwölf Regressionstests; Containerproben bleiben
+manuell und seriell. Die bisherigen Runtimejobs belegen tatsächliche Zeiten
+von 33–43 Sekunden pro Build; Artefakte laufen nach drei Tagen ab.
+
+DGN-007 bleibt `METHOD_BLOCKED`. Der nächste Gate prüft je Build, dass
+`collect_statement=(0)` keine nichtleeren Statementwerte im Ringpuffer ablegt.
+Danach bleiben Ereignisverlust, Markerordnung, Hashkardinalität,
+Query-Store-Sichtbarkeit und der vollständige Mess-Cleanup offen. Es gibt in
+diesem Schnitt keine Actor-Messung, Messdemo oder Messbehauptung.

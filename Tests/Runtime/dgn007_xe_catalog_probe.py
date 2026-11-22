@@ -19,6 +19,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[2]
 IMAGE_LOCK = ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/container-images.proposed.json"
 SQL_PATH = Path(__file__).with_suffix(".sql")
+PAYLOAD_SQL_PATH = Path(__file__).with_name("dgn007_xe_payload_privacy_probe.sql")
 OWNER_LABEL = "com.sqlperf.owner"
 PROJECT_LABEL = "com.sqlperf.project"
 SUBJECT_LABEL = "com.sqlperf.subject"
@@ -106,6 +107,9 @@ def parse_catalog_output(output: str, *, expected_major: int,
                          expected_version: str) -> dict[str, Any]:
     if type(output) is not str or len(output.encode("utf-8")) > MAX_SQL_OUTPUT_BYTES:
         raise ProbeError("catalog output is not a bounded text value")
+    nonblank = [line.strip() for line in output.splitlines() if line.strip()]
+    if any(not line.startswith("DGN007_XE|") for line in nonblank):
+        raise ProbeError("catalog output contains an unclassified row")
     records = [line.strip() for line in output.splitlines()
                if line.strip().startswith("DGN007_XE|")]
     if records.count("DGN007_XE|END|1") != 1 or not records or records[-1] != "DGN007_XE|END|1":
@@ -144,7 +148,7 @@ def parse_catalog_output(output: str, *, expected_major: int,
     if missing:
         raise ProbeError("required XE event metadata is absent")
     return {
-        "scope": "metadata-only; no XE session or workload executed",
+        "scope": "catalog metadata only; no event payload read",
         "product_major_version": expected_major,
         "product_version": version,
         "edition": edition,
@@ -153,6 +157,72 @@ def parse_catalog_output(output: str, *, expected_major: int,
             {"package": package, "name": action}
             for package, action in sorted(actions)
         ],
+    }
+
+
+def parse_payload_output(output: str, *, expected_major: int,
+                         expected_version: str) -> dict[str, Any]:
+    if type(output) is not str or len(output.encode("utf-8")) > MAX_SQL_OUTPUT_BYTES:
+        raise ProbeError("payload-gate output is not a bounded text value")
+    nonblank = [line.strip() for line in output.splitlines() if line.strip()]
+    if any(not line.startswith("DGN007_PAYLOAD|") for line in nonblank):
+        raise ProbeError("payload-gate output contains an unclassified row")
+    records = [line.strip() for line in output.splitlines()
+               if line.strip().startswith("DGN007_PAYLOAD|")]
+    if records.count("DGN007_PAYLOAD|END|1") != 1 or not records or records[-1] != "DGN007_PAYLOAD|END|1":
+        raise ProbeError("payload-gate output is incomplete or has an invalid completion marker")
+    engine_rows = [row.split("|") for row in records if row.startswith("DGN007_PAYLOAD|ENGINE|")]
+    if (len(engine_rows) != 1 or len(engine_rows[0]) != 4
+            or not engine_rows[0][2].isdecimal()
+            or int(engine_rows[0][2]) != expected_major
+            or engine_rows[0][3] != expected_version):
+        raise ProbeError("payload-gate engine identity differs from the pinned build")
+    if records.count("DGN007_PAYLOAD|SESSION|ABSENT") != 1:
+        raise ProbeError("payload-gate XE session cleanup was not confirmed")
+
+    events: dict[str, dict[str, int]] = {}
+    for record in records:
+        parts = record.split("|")
+        if len(parts) == 11 and parts[1] == "EVENT":
+            name = parts[2]
+            if (name not in REQUIRED_EVENTS or name in events
+                    or any(not value.isdecimal() for value in parts[3:])):
+                raise ProbeError("payload-gate event summary is malformed or duplicated")
+            values = [int(value) for value in parts[3:]]
+            (event_count, statement_nodes, nonempty_statements,
+             missing_sequence, missing_session, missing_database,
+             missing_query_hash, missing_plan_hash) = values
+            if (event_count < 1 or nonempty_statements != 0
+                    or statement_nodes < 0 or statement_nodes > event_count
+                    or any(value != 0 for value in (
+                        missing_sequence, missing_session, missing_database,
+                        missing_query_hash, missing_plan_hash
+                    ))):
+                raise ProbeError("synthetic payload gate exposed text or missed required correlation actions")
+            events[name] = {
+                "event_count": event_count,
+                "statement_nodes": statement_nodes,
+                "nonempty_statement_values": nonempty_statements,
+                "missing_event_sequence": missing_sequence,
+                "missing_session_id": missing_session,
+                "missing_database_id": missing_database,
+                "missing_query_hash": missing_query_hash,
+                "missing_query_plan_hash": missing_plan_hash,
+            }
+        elif record in {"DGN007_PAYLOAD|END|1", "DGN007_PAYLOAD|SESSION|ABSENT"}:
+            continue
+        elif not record.startswith("DGN007_PAYLOAD|ENGINE|"):
+            raise ProbeError("payload-gate output contains an unknown record")
+    if events.keys() != REQUIRED_EVENTS:
+        raise ProbeError("payload gate did not observe both required statement events")
+    return {
+        "outcome": "PASS",
+        "scope": "single synthetic statement; statement collection disabled; no user workload",
+        "product_major_version": expected_major,
+        "product_version": expected_version,
+        "events": events,
+        "xe_session_removed": True,
+        "raw_payload_emitted": False,
     }
 
 
@@ -356,11 +426,47 @@ def run_probe(product_major_version: int) -> dict[str, Any]:
             result.stdout, expected_major=product_major_version,
             expected_version=profile["product_version_label"],
         )
+        required_actions = {
+            ("package0", "event_sequence"),
+            ("sqlserver", "database_id"),
+            ("sqlserver", "query_hash"),
+            ("sqlserver", "query_plan_hash"),
+            ("sqlserver", "session_id"),
+        }
+        available_actions = {
+            (item["package"], item["name"])
+            for item in inventory["available_actions"]
+        }
+        for event_name in REQUIRED_EVENTS:
+            fields = set(inventory["events"][event_name])
+            if ("collect_statement:customizable" not in fields
+                    or "collect_parameterized_plan_handle:customizable" not in fields):
+                raise ProbeError("event does not expose the reviewed statement-suppression controls")
+        if not required_actions.issubset(available_actions):
+            raise ProbeError("safe payload-gate correlation actions are unavailable")
+
+        payload_sql = PAYLOAD_SQL_PATH.read_text(encoding="utf-8")
+        payload_result = subprocess.run([
+            executable, "exec", "--interactive", "--env", "SQLCMDPASSWORD", container_id,
+            "sh", "-lc",
+            'if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools18/bin/sqlcmd; '
+            'elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then sqlcmd=/opt/mssql-tools/bin/sqlcmd; '
+            'else exit 127; fi; "$sqlcmd" -S localhost -U sa -C -b -l 20 -h -1 -W -w 8000',
+        ], input=payload_sql, text=True, capture_output=True, env=environment, timeout=QUERY_SECONDS)
+        if payload_result.returncode:
+            output = (payload_result.stdout + payload_result.stderr).replace(password, "[REDACTED]")[:4_000]
+            raise ProbeError(f"synthetic statement-payload gate failed ({payload_result.returncode}): {output}")
+        payload_gate = parse_payload_output(
+            payload_result.stdout, expected_major=product_major_version,
+            expected_version=profile["product_version_label"],
+        )
         inventory.update({
+            "scope": "pinned catalog metadata plus a bounded synthetic payload-suppression check; no user workload",
             "image": image,
             "manifest_digest": profile["manifest_digest"],
             "image_config_digest": profile["config_digest"],
             "compatibility_level": profile["compatibility_level"],
+            "payload_privacy_gate": payload_gate,
         })
         return inventory
     finally:
