@@ -35,7 +35,8 @@ class GuestPilotTransport(Protocol):
         identity exchange before executing any SQL. Load the pinned pyodbc
         extension on the query guest before opening its first ODBC connection.
         Check private switch membership on the host and both guest networks
-        against the two provisioned IPv4 endpoints.
+        against the two provisioned IPv4 endpoints. Install the source ingress
+        policy before attachment and verify the live rules before source access.
         """
 
     def execute(self, role: Role, database: str, sql: str, deadline: float) -> None:

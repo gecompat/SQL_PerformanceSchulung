@@ -82,7 +82,7 @@ def install_verified_guest_packages(staging: Path, package_lock: dict, role: Rol
     _remaining(deadline)
     if sys.platform != "linux" or os.geteuid() != 0:
         raise ValueError("offline package installation requires the prepared Linux guest")
-    _require_detached()
+    require_guest_detached()
     stage = staging.resolve(strict=True)
     if not os.statvfs(stage).f_flag & os.ST_RDONLY:
         raise ValueError("the guest package staging volume must be read-only")
@@ -103,11 +103,11 @@ def install_verified_guest_packages(staging: Path, package_lock: dict, role: Rol
         plan = _run_apt(apt_install_command(package_paths, apt_state, simulate=True), deadline)
         check_plan(plan.decode("utf-8"), role_lock)
 
-        _require_detached()
+        require_guest_detached()
         if read_dpkg_status(_DPKG_STATUS) != base_status:
             raise ValueError("guest package state changed after the APT simulation")
         _run_apt(apt_install_command(package_paths, apt_state, simulate=False), deadline)
-    _require_detached()
+    require_guest_detached()
     installed = verify_guest_state(base_status, read_dpkg_status(_DPKG_STATUS), base_digest, role_lock)
     _remaining(deadline)
     return installed
@@ -128,7 +128,8 @@ def apt_install_command(package_paths: tuple[Path, ...], apt_state: Path, *, sim
     ]
 
 
-def _require_detached() -> None:
+def require_guest_detached() -> None:
+    """Require a guest with no IP interfaces besides loopback."""
     if {entry.name for entry in _NET_INTERFACES.iterdir()} != {"lo"}:
         raise ValueError("the pilot guest must have only its loopback interface during installation")
 
