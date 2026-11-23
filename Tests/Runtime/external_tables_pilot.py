@@ -30,7 +30,9 @@ class GuestPilotTransport(Protocol):
     def start_verified_guests(self, token: str, deadline: float) -> None:
         """Record ownership before effects and verify isolation, caps and build.
 
-        Keep the guest adapters detached during locked package installation.
+        Use Test-ExternalTablesHyperVResources.ps1 against both recorded VM
+        and disk identities before SQL. Keep the guest adapters detached during
+        locked package installation.
         Verify each exact VM and its live package digest through the current
         identity exchange before executing any SQL. Load the pinned pyodbc
         extension on the query guest before opening its first ODBC connection.

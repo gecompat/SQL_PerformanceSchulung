@@ -77,6 +77,19 @@ den vorbereiteten Vorlagen. Eine vorhandene Hyper-V-Installation belegt
 allein weder die Vorlagen noch Kapazität oder den Dienstzustand. Die
 Voraussetzungen gelten für die eigenen VMs und den eigenen Lauf.
 
+### Ressourcen auf dem Hyper-V-Host bestätigen
+
+Vor dem ersten SQL-Aufruf liest der
+[Hyper-V-Ressourcenprüfer](../../Tests/Runtime/Test-ExternalTablesHyperVResources.ps1)
+die beiden VM-IDs und VHDX-Pfade aus der Erzeugungsliste. Beide VMs müssen
+laufen und je zwei vCPUs sowie genau 4 GiB fest zugewiesenen Speicher
+haben. Pro VM ist genau die aufgezeichnete eigenständige VHDX mit einer
+virtuellen Kapazität von höchstens 24 GiB zulässig. Eine andere
+Plattenkopie, eine zusätzliche Platte oder eine Differenzplatte führt zum
+Abbruch des Preflights. Der Prüfer liest das lokale Inventar und meldet
+das bestätigte Profil ohne Hostpfade oder IDs.
+[Microsoft-Referenz zu Get-VHD](https://learn.microsoft.com/powershell/module/hyper-v/get-vhd?view=windowsserver2025-ps).
+
 ### Geprüfte Ubuntu-Basis für beide VM-Rollen
 
 Als Basiskandidat dient das Canonical-Cloud-Image für Ubuntu Server 24.04,
