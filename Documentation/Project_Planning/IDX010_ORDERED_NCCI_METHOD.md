@@ -389,6 +389,27 @@ Ergebnisabfragen ausgeführt. Für die Qualifikation muss der vollständige
 Pilot die Lese- und Skipzähler für beide tatsächlichen NCCI-Pläne
 und die unveränderte Ergebnisgleichheit bestätigen.
 
+### Bestandener Vergleich mit der überprüften Spaltenliste
+
+Der unabhängige Review akzeptierte den einmaligen vollständigen Lauf
+der revidierten Methode. Die getestete Revision `25b77dd2` verwendete
+das festgeschriebene Image mit Build `17.0.5065.9` und in beiden
+Varianten die Spaltenliste `(EventId, EventDayKey)`. Datenidentität,
+Datei- und Prozessgrenzen, Indexprofile und beide tatsächlichen Pläne
+wurden geprüft.
+
+| Variante | Überlappende Segmentpaare | Gelesene Segmente | Übersprungene Segmente |
+|---|---:|---:|---:|
+| Kontrolle | 6 | 4 | 0 |
+| `ORDER (EventDayKey)` | 0 | 1 | 3 |
+
+Beide Abfragen lieferten dieselbe Trefferzahl von 4.096 und dieselbe Schlüsselsumme
+4.303.353.856. Der Lauf meldete `PASS` und benötigte einschließlich
+bestätigtem SQL- und Containerabbau 105 Sekunden. Der Befund gilt für
+das festgelegte Build-, Daten- und Abfrageprofil. Eine Freigabe als
+regelmäßige Vorführung und eine Performanceaussage benötigen ihren
+jeweiligen eigenen Nachweis.
+
 ## Voraussetzungen, Stop und Cleanup für einen späteren Pilot
 
 Vor jeder SQL-Freigabe muss ein unabhängiger Methodenreview den vollständigen
