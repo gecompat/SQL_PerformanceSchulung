@@ -41,9 +41,6 @@ CORE_SQLCMD_VARIABLES = frozenset({
 })
 CORE_SQLCMD_VARIABLE_NAMES = frozenset(name.casefold() for name in CORE_SQLCMD_VARIABLES)
 CONTAINER_PHASE_KINDS = frozenset({"idx007_container", "opt018_container"})
-OPT018_MANIFEST = Path(__file__).resolve().parents[2] / (
-    "04_Optimizer_Statistics_Plans/OPT-018_Optimized_Sp_Executesql/manifest.json"
-)
 OUTCOME_PRIORITY = {"PASS": 0, "WARN": 1, "SKIP": 2, "FAIL": 3}
 QRY023_ENDPOINT_INVENTORY_HANDOFF = {
     "format": "ENDPOINT_ID_G_NAME_HEX_H_RECORDS_UTF16LE_HEX",
@@ -186,7 +183,7 @@ def _parse_phase(raw: Any, base: Path, *, cleanup: bool = False) -> PhaseSpec:
         raise ValueError("cleanup must be a SQL phase")
 
     if kind in CONTAINER_PHASE_KINDS and (database_selector != "master" or credential_profile is not None):
-        raise ValueError("IDX-007 container phase cannot use a server database or credentials")
+        raise ValueError(f"{kind} cannot use a server database or credentials")
 
     suffixes = {".sql"} if kind == "sql" else ({".py"} if kind in CONTAINER_PHASE_KINDS else {".json"})
     return PhaseSpec(
@@ -299,16 +296,21 @@ def load_manifest(path: Path) -> DemoManifest:
     ):
         raise ValueError("container runtime is restricted to the self-cleaning IDX-007 demo contract")
     opt018_phases = tuple(phase for phase in phases if phase.kind == "opt018_container")
-    if opt018_phases and (
-        demo_id != "OPT-018" or safety_level != "YELLOW" or run_token != "LOCAL"
-        or path.resolve() != OPT018_MANIFEST or len(phases) != 1
-        or opt018_phases[0].phase_id != "PREFLIGHT" or not opt018_phases[0].required
-        or not opt018_phases[0].require_summary or opt018_phases[0].timeout_seconds != 325
-        or opt018_phases[0].path != OPT018_MANIFEST.with_name("run_opt018_demo.py")
-        or cleanup is not None or timeout_seconds != 330 or cleanup_timeout_seconds != 60
-        or payload.get("resource_lifecycle") != "self_cleaning_opt018_container"
-    ):
-        raise ValueError("container runtime is restricted to the self-cleaning OPT-018 demo contract")
+    if opt018_phases:
+        canonical_manifest = Path(__file__).resolve().parents[2] / (
+            "04_Optimizer_Statistics_Plans/OPT-018_Optimized_Sp_Executesql/manifest.json"
+        )
+        phase = opt018_phases[0]
+        if (
+            demo_id != "OPT-018" or safety_level != "YELLOW" or run_token != "LOCAL"
+            or path.resolve() != canonical_manifest or len(phases) != 1
+            or phase.phase_id != "PREFLIGHT" or not phase.required
+            or not phase.require_summary or phase.timeout_seconds != 325
+            or phase.path != canonical_manifest.with_name("run_opt018_demo.py")
+            or cleanup is not None or timeout_seconds != 330 or cleanup_timeout_seconds != 60
+            or payload.get("resource_lifecycle") != "self_cleaning_opt018_container"
+        ):
+            raise ValueError("container runtime is restricted to the self-cleaning OPT-018 demo contract")
     if "ADMIN_PERMISSION_INVENTORY" in ids:
         expected_handoff = json.dumps(QRY023_ENDPOINT_INVENTORY_HANDOFF, sort_keys=True, separators=(",", ":"))
         contract = payload.get("admin_permission_inventory_contract")
