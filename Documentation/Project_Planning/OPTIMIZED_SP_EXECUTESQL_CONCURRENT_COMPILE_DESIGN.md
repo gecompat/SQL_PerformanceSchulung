@@ -62,6 +62,43 @@ Kombinierbarkeit der Events, deren tatsächliche Payload und der direkte
 Ressourcennachweis bleiben separate Pilotfragen.
 [Microsoft-Referenz zu Sperrressourcen](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-tran-locks-transact-sql?view=sql-server-ver17).
 
+## Eingabepuffer als Diagnose für den Aufrufweg
+
+Der [Komponententest](../../Tests/Runtime/Invoke-OptspInputBufferComponent.ps1)
+führt denselben synthetischen Parameteraufruf einmal mit
+`SqlCommand.CommandType = StoredProcedure` und einmal als T-SQL-Batch
+mit `EXEC sys.sp_executesql` aus. Eine zweite Verbindung liest jeweils
+den Eingabepuffer der noch offenen Actor-Session. Das Skript erwartet den
+Ergebniswert 37 und gibt nur die beiden beobachteten Ereignistypen und
+klassifizierten Textformen aus.
+[Microsoft-Referenz zu SqlCommand.CommandType](https://learn.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.commandtype?view=netframework-4.8)
+· [Microsoft-Referenz zu sys.dm_exec_input_buffer](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-input-buffer-transact-sql?view=sql-server-ver17).
+
+Auf Build `17.0.5065.9` meldete `sys.dm_exec_input_buffer` für beide
+Aufrufe `Language Event`. Beim Aufruf als Stored Procedure stand im
+Puffer die innere Anweisung mit ihrer Parameterdefinition. Beim
+Textaufruf enthielt er den äußeren `EXEC`-Batch. Damit ist der
+Ereignistyp des Eingabepuffers für den Nachweis eines direkten RPC
+ungeeignet. Der Pilot braucht weiterhin eine Beobachtung der
+RPC-Grenzen, die beide Aufrufwege unterscheiden kann.
+
+Der Test lief mit PowerShell 7.6.9 unter Windows und
+`System.Data.SqlClient` in Assemblyversion `4.6.1.6` gegen den
+festgeschriebenen Wegwerfcontainer. Für eine Wiederholung wird die
+ausschließlich lokal erreichbare Instanzadresse übergeben.
+`SQLCMDPASSWORD` enthält das Laufpasswort der Testinstanz.
+
+```powershell
+pwsh -NoProfile -File Tests/Runtime/Invoke-OptspInputBufferComponent.ps1 -Server $LoopbackInstanz -ConfirmDisposableInstance
+```
+
+Der Wert von `$LoopbackInstanz` folgt dem SQL-Server-Format
+`127.0.0.1,<Port>`. Der Test prüft Build, Developer-Edition, leere
+Instanz und `OFF` im aktuellen Datenbankkontext. Im Komponentenlauf
+wurden beide Verbindungen geschlossen und der eigene Container entfernt.
+Die Katalog-CI prüft die Syntax des PowerShell-Skripts.
+
+
 ## Statische Auswertung normalisierter Befunde
 
 Für den Methodenreview steht eine [SQL-freie Auswertung je Versuchsarm](../../Tests/Runtime/optsp_compile_evidence.py) bereit. Sie vergleicht tatsächliche Compile-Intervalle und verlangt im ON-Arm einen dem Compile-Actor zugeordneten Wait, der während der Kompilierung beginnt und bis zu deren Ende reicht. Alle erfolgreichen Folgeaufrufe müssen denselben Statement-Planhandle verwenden. Die [synthetischen Gegenproben](../../Tests/Static/test_optsp_compile_evidence.py) decken unter anderem nacheinander liegende Kompilierungen bei überlappenden RPCs, fremde Sessions, gewöhnliche X-Waits und abweichenden Batchtext ab.
