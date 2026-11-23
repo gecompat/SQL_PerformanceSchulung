@@ -86,7 +86,7 @@ def select_role(lock: dict, role: str) -> dict:
     ):
         raise ValueError("APT role refers to duplicate or unknown packages")
     selected = {"packages": packages}
-    if role == "query" and "python_wheel" in lock:
+    if "python_wheel" in lock:
         selected["python_wheel"] = lock["python_wheel"]
     return selected
 

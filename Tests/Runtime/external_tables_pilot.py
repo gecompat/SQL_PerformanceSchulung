@@ -35,7 +35,7 @@ class GuestPilotTransport(Protocol):
         locked package installation.
         Verify each exact VM and its live package digest through the current
         identity exchange before executing any SQL. Load the pinned pyodbc
-        extension on the query guest before opening its first ODBC connection.
+        extension on each guest before opening its first ODBC connection.
         Check private switch membership on the host and both guest networks
         against the two provisioned IPv4 endpoints. Install the source ingress
         policy before attachment and verify the live rules before source access.

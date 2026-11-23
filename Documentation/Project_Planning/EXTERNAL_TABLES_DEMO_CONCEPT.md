@@ -140,8 +140,9 @@ für Ubuntu 24.04. `libgssapi-krb5-2` war im geprüften Grundabbild vorhanden.
 Der Lösungslauf ergab weder Upgrades noch Entfernungen. Die sieben neuen
 Paketdateien wurden heruntergeladen und mit den Größen und SHA-256-Werten
 der signierten Indizes abgeglichen. Die
-[APT-Paketliste](external_tables_apt_lock.json) bindet für die Abfrage-VM
-zusätzlich das Linux-x86-64-Wheel für CPython 3.12 und `pyodbc 5.5.0`.
+[APT-Paketliste](external_tables_apt_lock.json) bindet die ODBC-Pakete und
+das Linux-x86-64-Wheel für CPython 3.12 und `pyodbc 5.5.0` für beide
+Gastrollen.
 [Microsoft-Anleitung für ODBC Driver 18](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-ver17#ubuntu).
 
 Der [APT-Prüfer](../../Tests/Static/verify_external_tables_apt_plan.py)
@@ -154,11 +155,13 @@ und Hash des Wheels.
 python Tests/Static/verify_external_tables_apt_plan.py APT-PLAN --role query --payload-directory PAKETVERZEICHNIS --python-wheel WHEEL-DATEI
 ```
 
-Für die Quell-VM ergab der Lauf vom selben Paketstatus unverändert 13
-Installationsschritte, zwölf Ubuntu-Pakete und `mssql-server`. Verwende
-`--role source` für diesen Plan. Die beiden Simulationen lösen Versionen
-und Abhängigkeiten auf. Installation, Dienstzustand und Connectorlauf
-werden in den bereitgestellten Gästen geprüft.
+Für die Quell-VM bestätigt der Offline-Lösungslauf vom selben
+Paketstatus 20 Installationsschritte einschließlich des lokalen
+ODBC-Clients. PolyBase gehört zum 21 Pakete umfassenden Abfrageprofil.
+Verwende `--role source` für den Quellplan. Die beiden Simulationen
+prüfen alle lokalen Paketdateien und benötigen keine Paketquellen.
+Installation, Dienstzustand und Connectorlauf werden in den
+bereitgestellten Gästen geprüft.
 
 
 ### Pakete im netzgetrennten Gast installieren
@@ -178,12 +181,16 @@ Archiven. Vor dem Installieren muss die Simulation genau die gesperrten
 Versionsübergänge liefern. Ein geänderter Paketstatus oder ein
 zusätzlicher Netzadapter verhindert die Installation. Danach muss der
 tatsächliche Debian-Bestand vollständig zum Rollen-Lock passen.
+Der Baustein prüft das Wheel vor APT und legt die verifizierte native
+Erweiterung erst nach bestätigtem Paketbestand im privaten
+Installationsverzeichnis ab. Eine abweichende vorhandene Datei führt
+zum Abbruch.
 Ein Teilfehler wird im selben Gast nicht durch einen neuen Versuch
 überdeckt, weil inzwischen ein anderer Basiszustand vorliegen kann.
 [Ubuntu-Manpage zu apt-get](https://manpages.ubuntu.com/manpages/noble/man8/apt-get.8.html).
 
 Die Simulation auf Ubuntu 24.04 mit der Paketstatusdatei des
-gebundenen Basisabbilds ergab aus den lokalen Dateien 13 Übergänge
+gebundenen Basisabbilds ergab aus den lokalen Dateien 20 Übergänge
 für den Quellgast und 21 für den Abfragegast. Ein einzelnes gepinntes
 `unixodbc-common`-Paket wurde über denselben Baustein in einem
 netzgetrennten Linux-Wegwerfcontainer installiert und im resultierenden
@@ -474,7 +481,7 @@ Vergleichswert für die erwartete Rolle aus dem SHA-256-geprüften
 Basisbestand und der gesperrten Paketliste. Ein abweichender Bestand
 verhindert die Freigabe für SQL. Über den Kanal gehen weder die
 Paketliste selbst noch Zugangsdaten. Das separat verifizierte
-Python-Wheel des Abfragegasts ist außerhalb des Debian-Bestands.
+Python-Wheel für beide Gäste ist außerhalb des Debian-Bestands.
 [Microsoft-Referenz zu Hyper-V-Sockets](https://learn.microsoft.com/virtualization/hyper-v-on-windows/user-guide/make-integration-service).
 
 Auf dem Windows-Testhost ließ sich der native Socket mit Python 3.13
@@ -580,13 +587,14 @@ wurde abgewiesen.
 
 ### TLS-Kontrollpaar am Quellendpunkt
 
-Vor der ersten ODBC-Verbindung lädt der Abfragegast `pyodbc` aus
+Vor der ersten ODBC-Verbindung lädt jeder Gast `pyodbc` aus
 seinem eigenen Installationsverzeichnis. Der
 [Ladebaustein](../../Tests/Runtime/external_tables_odbc.py) prüft
 Dateityp, Größe und SHA-256 der nativen Erweiterung anhand des
 Wheel-Locks und lädt genau diese Datei unter CPython 3.12 auf Linux
 x86-64. Er prüft die geladene Version und schaltet Pooling aus.
-Derselbe Treiber wird an die TLS-Probe und den Messadapter übergeben.
+Auf dem Abfragegast wird derselbe Treiber an die TLS-Probe und den
+Messadapter übergeben.
 Die Offlineprüfung leitet die erwarteten Erweiterungsbytes aus dem
 hashgeprüften Wheel ab.
 [Python-Referenz zum Wheel-Format](https://packaging.python.org/en/latest/specifications/binary-distribution-format/).
@@ -653,9 +661,10 @@ und stellt eine frische lokale Adminverbindung bereit. Vor jedem Batch
 prüft der Adapter IPv4-Loopback, Datenbankkontext, Engine-Build,
 Adminberechtigung und Autocommit. Unerwartete Resultsets oder Fehler
 beim Schließen der Verbindung verhindern eine Bestätigung. Der aktuelle
-Paketlock liefert den gepinnten Python-ODBC-Client für den Abfragegast.
-Der lokale Adminclient für die Quellvorlage und die Verbindung zur
-Hoststeuerung bleiben Teil der konkreten Gastanbindung.
+Paketlock liefert den gepinnten Python-ODBC-Client lokal für beide
+Gastrollen. Unter Linux ließ sich die verifizierte Erweiterung mit dem
+festgeschriebenen ODBC Driver 18 laden. Die Verbindung zur
+Hoststeuerung bleibt Teil der konkreten Gastanbindung.
 
 Ein Komponententest auf Build `17.0.5065.9` prüfte in einem lokalen
 Wegwerfcontainer Einrichtung, je 4.096 Fixture-Zeilen, falsche

@@ -16,6 +16,7 @@ from verify_external_tables_apt_plan import (
     select_role, verify_guest_state, verify_python_wheel,
 )
 from external_tables_guest_apt import apt_install_command, install_verified_guest_packages, parse_install_plan
+from external_tables_odbc import read_pinned_pyodbc_wheel, stage_pinned_pyodbc
 from external_tables_pilot_sql import Role
 from external_tables_package_state import installed_package_digest, parse_dpkg_status
 
@@ -54,26 +55,23 @@ class AptPlanTests(TestCase):
         source = select_role(lock, "source")
         query_names = {entry["package"] for entry in query["packages"]}
         source_names = {entry["package"] for entry in source["packages"]}
-        self.assertEqual(query_names - source_names, {
-            "libltdl7", "libodbc2", "libodbcinst2", "msodbcsql18", "mssql-server-polybase",
-            "odbcinst", "unixodbc", "unixodbc-common",
-        })
-        self.assertIn("python_wheel", query)
-        self.assertNotIn("python_wheel", source)
+        self.assertEqual(query_names - source_names, {"mssql-server-polybase"})
+        self.assertEqual(query["python_wheel"], source["python_wheel"])
         self.assertFalse(source_names - query_names)
         self.assertIn("mssql-server", source_names)
         solver = "\n".join(f"Inst {row['package']} ({row['version']} [amd64])" for row in source["packages"])
-        self.assertEqual(check_plan(solver, source), 13)
+        self.assertEqual(check_plan(solver, source), 20)
         with self.assertRaises(ValueError):
             check_plan(solver, query)
 
-    def test_wheel_checks_name_size_and_digest_and_requires_query_role(self):
+    def test_wheel_checks_name_size_and_digest_and_requires_a_role_lock(self):
         binary = b"synthetic extension bytes"
+        filename = "pyodbc.cpython-312-x86_64-linux-gnu.so"
         buffer = BytesIO()
         with ZipFile(buffer, "w") as archive:
-            archive.writestr("pyodbc.so", binary)
+            archive.writestr(filename, binary)
         data = buffer.getvalue()
-        extension = {"filename": "pyodbc.so", "size": len(binary), "sha256": sha256(binary).hexdigest()}
+        extension = {"filename": filename, "size": len(binary), "sha256": sha256(binary).hexdigest()}
         entry = {
             "filename": "fixture.whl", "size": len(data), "sha256": sha256(data).hexdigest(),
             "installed_extension": extension,
@@ -83,10 +81,20 @@ class AptPlanTests(TestCase):
             path = Path(directory) / "fixture.whl"
             path.write_bytes(data)
             verify_python_wheel(path, lock)
+            payload = read_pinned_pyodbc_wheel(path, entry)
+            destination = path.with_name(filename)
+            stage_pinned_pyodbc(path.parent, entry, payload)
+            stage_pinned_pyodbc(path.parent, entry, payload)
+            self.assertEqual(destination.read_bytes(), binary)
+            destination.write_bytes(b"x" * len(binary))
+            with self.assertRaisesRegex(ValueError, "installed pyodbc extension differs"):
+                stage_pinned_pyodbc(path.parent, entry, payload)
+            self.assertEqual(destination.read_bytes(), b"x" * len(binary))
+            self.assertFalse(tuple(path.parent.glob(".pyodbc-*")))
             wrong = dict(entry, installed_extension=dict(extension, sha256="f" * 64))
             with self.assertRaisesRegex(ValueError, "extension differs"):
                 verify_python_wheel(path, {"python_wheel": wrong})
-            with self.assertRaisesRegex(ValueError, "only part of the query role"):
+            with self.assertRaisesRegex(ValueError, "no Python wheel lock"):
                 verify_python_wheel(path, {"packages": []})
             with self.assertRaisesRegex(ValueError, "differs"):
                 verify_python_wheel(path.with_name("wrong.whl"), lock)
@@ -119,6 +127,27 @@ class DetachedAptTests(TestCase):
         self.assertEqual(applied[-2:], ["install", str(package_path)])
         with self.assertRaisesRegex(ValueError, "absolute package paths"):
             apt_install_command((Path("example.deb"),), apt_state, simulate=True)
+
+    def test_real_role_requires_the_wheel_before_apt(self):
+        lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
+        base = package("base", "1.0")
+        lock["dpkg_status_sha256"] = sha256(base).hexdigest()
+        guest_os = SimpleNamespace(geteuid=lambda: 0, statvfs=lambda _: SimpleNamespace(f_flag=1), ST_RDONLY=1)
+        with (
+            TemporaryDirectory() as directory,
+            patch("external_tables_guest_apt.sys", SimpleNamespace(platform="linux")),
+            patch("external_tables_guest_apt.os", guest_os),
+            patch("external_tables_guest_apt.require_guest_detached"),
+            patch("external_tables_guest_apt.read_dpkg_status", return_value=base),
+            patch("external_tables_guest_apt.verify_packages"),
+            patch("external_tables_guest_apt._run_apt") as apt,
+        ):
+            root = Path(directory)
+            with self.assertRaisesRegex(ValueError, "requires its role lock and private directory"):
+                install_verified_guest_packages(root, lock, Role.SOURCE, monotonic() + 3)
+            with self.assertRaises(FileNotFoundError):
+                install_verified_guest_packages(root, lock, Role.SOURCE, monotonic() + 3, wheel_install_dir=root)
+            apt.assert_not_called()
 
     def test_requires_detachment_again_after_the_exact_simulation(self):
         base = package("base", "1.0")

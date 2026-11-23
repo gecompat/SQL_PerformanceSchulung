@@ -7,18 +7,21 @@ from concurrent.futures import Future
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import date
-from hashlib import file_digest
+from hashlib import file_digest, sha256
 from importlib.machinery import EXTENSION_SUFFIXES
 from importlib.util import module_from_spec, spec_from_file_location
+from io import BytesIO
 from math import floor, isfinite
 import os
 from pathlib import Path
 import re
 from stat import S_ISREG
 import sys
+from tempfile import NamedTemporaryFile
 from threading import Thread
 from time import monotonic
 from typing import TYPE_CHECKING, Protocol
+from zipfile import BadZipFile, ZipFile
 
 from external_tables_measurement import AggregateRows, PendingAggregate, UnconfirmedRequestCleanup
 from external_tables_pilot_sql import (
@@ -59,20 +62,80 @@ class OdbcDriver(Protocol):
     def connect(self, connection_string: str, *, timeout: int, autocommit: bool) -> Connection: ...
 
 
-def load_pinned_pyodbc(install_dir: Path, wheel_entry: dict) -> OdbcDriver:
-    """Load the verified native file from the query guest's private install directory."""
+def _extension_spec(wheel_entry: dict) -> tuple[str, int, str]:
     try:
         extension = wheel_entry["installed_extension"]
         filename, size, digest = extension["filename"], extension["size"], extension["sha256"]
-        version = wheel_entry["version"]
     except (KeyError, TypeError):
-        raise ValueError("invalid pyodbc wheel lock") from None
+        raise ValueError("invalid pyodbc extension lock") from None
     if (
         filename != "pyodbc.cpython-312-x86_64-linux-gnu.so"
         or type(size) is not int or not 0 < size <= 4 * 1024 * 1024
         or not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None
-        or not isinstance(version, str) or re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version) is None
     ):
+        raise ValueError("invalid pyodbc extension lock")
+    return filename, size, digest
+
+
+def read_pinned_pyodbc_wheel(wheel: Path, wheel_entry: dict) -> bytes:
+    """Read only the verified extension from one hash-bound wheel snapshot."""
+    filename, size, digest = _extension_spec(wheel_entry)
+    wheel_size = wheel_entry.get("size")
+    if wheel.name != wheel_entry.get("filename") or type(wheel_size) is not int or not 0 < wheel_size <= 4 * 1024 * 1024:
+        raise ValueError("Python wheel differs from the guest role lock")
+    with wheel.open("rb") as stream:
+        archive = stream.read(wheel_size + 1)
+    if len(archive) != wheel_size or sha256(archive).hexdigest() != wheel_entry.get("sha256"):
+        raise ValueError("Python wheel differs from the guest role lock")
+    try:
+        with ZipFile(BytesIO(archive)) as package:
+            entries = [member for member in package.infolist() if member.filename.endswith(".so")]
+            if len(entries) != 1 or entries[0].filename != filename or entries[0].file_size != size:
+                raise ValueError("Python wheel extension differs from the guest role lock")
+            with package.open(entries[0]) as binary:
+                payload = binary.read(size + 1)
+    except BadZipFile:
+        raise ValueError("Python wheel is not a valid archive") from None
+    if len(payload) != size or sha256(payload).hexdigest() != digest:
+        raise ValueError("Python wheel extension differs from the guest role lock")
+    return payload
+
+
+def stage_pinned_pyodbc(install_dir: Path, wheel_entry: dict, payload: bytes) -> None:
+    """Install into the owned private directory without replacing existing files."""
+    filename, size, digest = _extension_spec(wheel_entry)
+    if len(payload) != size or sha256(payload).hexdigest() != digest:
+        raise ValueError("Python wheel extension differs from the guest role lock")
+    directory = install_dir.resolve(strict=True)
+    destination = directory / filename
+    with NamedTemporaryFile(dir=directory, prefix=".pyodbc-", delete=False) as staging:
+        temporary = Path(staging.name)
+        try:
+            staging.write(payload)
+            staging.close()
+            try:
+                os.link(temporary, destination)
+            except FileExistsError:
+                _verify_native_extension(destination, size, digest)
+        finally:
+            staging.close()
+            temporary.unlink()
+
+
+def _verify_native_extension(path: Path, size: int, digest: str) -> None:
+    metadata = path.lstat()
+    if not S_ISREG(metadata.st_mode) or metadata.st_size != size:
+        raise ValueError("installed pyodbc extension differs from the wheel lock")
+    with path.open("rb") as binary:
+        if file_digest(binary, "sha256").hexdigest() != digest:
+            raise ValueError("installed pyodbc extension differs from the wheel lock")
+
+
+def load_pinned_pyodbc(install_dir: Path, wheel_entry: dict) -> OdbcDriver:
+    """Load the verified native file from a guest's private install directory."""
+    filename, size, digest = _extension_spec(wheel_entry)
+    version = wheel_entry.get("version")
+    if not isinstance(version, str) or re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version) is None:
         raise ValueError("invalid pyodbc extension lock")
     if (
         sys.implementation.name != "cpython" or sys.version_info[:2] != (3, 12)
@@ -84,12 +147,7 @@ def load_pinned_pyodbc(install_dir: Path, wheel_entry: dict) -> OdbcDriver:
         raise ValueError("the query process must verify pyodbc before loading any driver")
 
     path = install_dir.resolve(strict=True) / filename
-    metadata = path.lstat()
-    if not S_ISREG(metadata.st_mode) or metadata.st_size != size:
-        raise ValueError("installed pyodbc extension differs from the wheel lock")
-    with path.open("rb") as binary:
-        if file_digest(binary, "sha256").hexdigest() != digest:
-            raise ValueError("installed pyodbc extension differs from the wheel lock")
+    _verify_native_extension(path, size, digest)
 
     spec = spec_from_file_location("pyodbc", path)
     if spec is None or spec.loader is None:
