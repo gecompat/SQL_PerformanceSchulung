@@ -373,6 +373,18 @@ SARGability beschreibt, ob ein Prädikat als Suchargument (Search Argument) für
 
 **Versionen:** SQL Server 2019–2025; keine Versionsskips.
 
+## IDX-007 – Last-Page-Contention
+
+**Sicherheit/Stufe:** YELLOW, Stufe 3 CONTAINER; ein netzwerkloser, mit 2 CPUs und 4 GiB begrenzter Wegwerfcontainer.
+
+**Kernfrage:** Wie unterscheiden wir gleichzeitige exklusive Buffer-Seiten-Latch-Waits auf der rechten Blattseite von Ein-/Ausgabewarten und Transaktionssperren?
+
+**Ablauf:** Einen SQL-Server-Major 15, 16 oder 17 auswählen, das zugehörige gepinnte Image laden und den manifestbasierten IDX-007-Aufruf mit `--confirm-isolated-lab` ausführen. Der Lauf prüft zwei synchronisierte Insertschübe, Extended-Events-Waitintervalle und eine begrenzte Blattkettenklammer.
+
+**Erwartete Ausgabe:** Je Burst `WAIT_OVERLAP` und `CHAIN_BRACKET`; Abschluss `SQLPERF_SUMMARY|PASS|OK`. `WARN_NOT_PROVEN` bedeutet, dass die konkrete Ausführung den Mechanismus nicht gezeigt hat.
+
+**Kernaussage und Grenze:** `PAGELATCH_EX` ist ein In-Memory-Seiten-Latch, nicht `PAGEIOLATCH_EX` und keine Transaktionssperre. Der kontrollierte Lauf ist kein allgemeiner Benchmark oder universeller Leistungsnachweis. Schrittfolge und Fehlerbehandlung: [IDX-007-Demoanleitung](../../Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/README.md).
+
 ## IDX-010 – Columnstore Segments
 
 **Sicherheit/Stufe:** YELLOW, **Stufe 3 CONTAINER** – die 1,2-Millionen-Zeilen-Columnstore-Last und die Rowgroup-Komprimierung verlangen einen begrenzten Speicher-/Storage-Envelope, den eine geteilte Testinstanz nicht garantiert.

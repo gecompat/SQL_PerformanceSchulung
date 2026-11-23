@@ -15,6 +15,7 @@ import json
 import os
 from pathlib import Path
 import re
+import subprocess
 import sys
 import time
 from typing import Any, Mapping
@@ -151,7 +152,7 @@ def _parse_phase(raw: Any, base: Path, *, cleanup: bool = False) -> PhaseSpec:
 
     phase_id = raw.get("id")
     kind = raw.get("kind", "sql")
-    path_value = raw.get("script" if kind == "sql" else "manifest")
+    path_value = raw.get("script" if kind in {"sql", "idx007_container"} else "manifest")
     database_selector = raw.get("database", "target")
     required = raw.get("required", True)
     require_summary = raw.get("require_summary", phase_id == "PREFLIGHT")
@@ -160,7 +161,7 @@ def _parse_phase(raw: Any, base: Path, *, cleanup: bool = False) -> PhaseSpec:
 
     if not isinstance(phase_id, str) or not PHASE_ID_PATTERN.fullmatch(phase_id):
         raise ValueError(f"invalid phase id: {phase_id!r}")
-    if kind not in {"sql", "multi_session"}:
+    if kind not in {"sql", "multi_session", "idx007_container"}:
         raise ValueError(f"invalid phase kind for {phase_id}")
     if not isinstance(path_value, str):
         raise ValueError(f"phase {phase_id} requires a file path")
@@ -180,7 +181,10 @@ def _parse_phase(raw: Any, base: Path, *, cleanup: bool = False) -> PhaseSpec:
     if cleanup and kind != "sql":
         raise ValueError("cleanup must be a SQL phase")
 
-    suffixes = {".sql"} if kind == "sql" else {".json"}
+    if kind == "idx007_container" and (database_selector != "master" or credential_profile is not None):
+        raise ValueError("IDX-007 container phase cannot use a server database or credentials")
+
+    suffixes = {".sql"} if kind == "sql" else ({".py"} if kind == "idx007_container" else {".json"})
     return PhaseSpec(
         phase_id=phase_id,
         kind=kind,
@@ -280,6 +284,16 @@ def load_manifest(path: Path) -> DemoManifest:
         raise ValueError("phase ids must be unique")
     if "PREFLIGHT" not in ids:
         raise ValueError("a PREFLIGHT phase is required")
+    cleanup_raw = payload.get("cleanup")
+    cleanup = _parse_phase(cleanup_raw, path.parent, cleanup=True) if cleanup_raw is not None else None
+    container_phases = tuple(phase for phase in phases if phase.kind == "idx007_container")
+    if container_phases and (
+        demo_id != "IDX-007" or safety_level != "YELLOW" or len(phases) != 1
+        or len(container_phases) != 1 or container_phases[0].phase_id != "PREFLIGHT"
+        or container_phases[0].path.name != "run_idx007_demo.py" or cleanup is not None
+        or payload.get("resource_lifecycle") != "self_cleaning_idx007_container"
+    ):
+        raise ValueError("container runtime is restricted to the self-cleaning IDX-007 demo contract")
     if "ADMIN_PERMISSION_INVENTORY" in ids:
         expected_handoff = json.dumps(QRY023_ENDPOINT_INVENTORY_HANDOFF, sort_keys=True, separators=(",", ":"))
         contract = payload.get("admin_permission_inventory_contract")
@@ -291,8 +305,6 @@ def load_manifest(path: Path) -> DemoManifest:
         if demo_id != "QRY-023" or actual_handoff != expected_handoff or actual_objects != expected_objects:
             raise ValueError("invalid QRY-023 endpoint inventory handoff contract")
 
-    cleanup_raw = payload.get("cleanup")
-    cleanup = _parse_phase(cleanup_raw, path.parent, cleanup=True) if cleanup_raw is not None else None
     all_phases = (*phases, *((cleanup,) if cleanup is not None else ()))
     used_profiles = {phase.credential_profile for phase in all_phases
                      if phase.credential_profile is not None}
@@ -470,7 +482,6 @@ def _execute_sql_phase(
     result = run_sqlcmd(command, timeout_seconds=timeout_seconds, environment=environment)
     if show_output:
         _emit_raw_output(phase.phase_id, result.stdout, result.stderr)
-
     if result.timed_out:
         return PhaseResult(phase.phase_id, "FAIL", "FAIL_TIMEOUT", "Die SQL-Phase überschritt ihr Zeitbudget.", time.monotonic() - started)
     if result.returncode != 0:
@@ -501,10 +512,91 @@ def _execute_sql_phase(
     return PhaseResult(phase.phase_id, outcome, code, "Strukturierte Phase-Summary wurde ausgewertet.", time.monotonic() - started)
 
 
+def _execute_idx007_container_phase(phase: PhaseSpec, *, major: int, timeout_seconds: float,
+                                    show_output: bool) -> PhaseResult:
+    started = time.monotonic()
+    owner_token = os.urandom(16).hex()
+    command = [sys.executable, str(phase.path), "--major", str(major)]
+    environment = os.environ.copy()
+    for name in tuple(environment):
+        if name.upper().startswith(("SQLPERF_SQL_", "SQLCMDPASSWORD")):
+            environment.pop(name, None)
+    environment["SQLPERF_IDX007_OWNER_TOKEN"] = owner_token
+    try:
+        result = subprocess.run(
+            command, capture_output=True, text=True, encoding="utf-8", errors="replace",
+            timeout=timeout_seconds, check=False, env=environment,
+        )
+    except subprocess.TimeoutExpired:
+        cleanup_ok = _cleanup_idx007_owned_container(owner_token)
+        code = "FAIL_TIMEOUT" if cleanup_ok else "FAIL_CLEANUP"
+        message = "IDX-007 Laufzeitbudget überschritten; markierte Wegwerfcontainer wurden entfernt." if cleanup_ok else "IDX-007 Zeitlimit und anschließende Containerbereinigung fehlgeschlagen."
+        return PhaseResult(phase.phase_id, "FAIL", code, message, time.monotonic() - started)
+    if show_output:
+        _emit_raw_output(phase.phase_id, result.stdout, result.stderr)
+    else:
+        visible_prefixes = (
+            "LESSON|", "ENGINE_BUILD|", "RIGHT_EDGE|", "COMPATIBILITY|", "XE_PROFILE|",
+            "WAIT_OVERLAP|", "CHAIN_BRACKET|", "RESULT|", "DB_ABSENT=", "CONTAINER_REMOVED=",
+            "NOT_PROVEN|", "SQLPERF_SUMMARY|", "TRIAL_START|", "TRIAL_SUMMARY|",
+        )
+        for line in result.stdout.splitlines():
+            if line.startswith(visible_prefixes):
+                print(f"[{phase.phase_id}] {line}")
+        if result.stderr.strip():
+            print(f"[{phase.phase_id}:stderr] {result.stderr.strip()}", file=sys.stderr)
+    summaries = [line.strip() for line in result.stdout.splitlines()
+                 if line.startswith("SQLPERF_SUMMARY|")]
+    if len(summaries) != 1:
+        return PhaseResult(phase.phase_id, "FAIL", "FAIL_CONTRACT", "IDX-007 muss genau eine strukturierte SQLPERF_SUMMARY liefern.", time.monotonic() - started)
+    if result.returncode == 0 and summaries[0] == "SQLPERF_SUMMARY|PASS|OK":
+        return PhaseResult(phase.phase_id, "PASS", "OK", "IDX-007 Messlauf und Ressourcenbereinigung wurden bestätigt.", time.monotonic() - started)
+    if result.returncode == 0 and summaries[0] == "SQLPERF_SUMMARY|WARN|WARN_NOT_PROVEN":
+        return PhaseResult(phase.phase_id, "WARN", "WARN_NOT_PROVEN", "Der kontrollierte Lauf konnte die erwartete Wait/Page-Überlappung nicht belegen; der Container wurde bereinigt.", time.monotonic() - started)
+    return PhaseResult(phase.phase_id, "FAIL", "FAIL_EXECUTION", "IDX-007 Lauf oder markergebundene Bereinigung fehlgeschlagen.", time.monotonic() - started)
+
+
+def _cleanup_idx007_owned_container(owner_token: str) -> bool:
+    if not re.fullmatch(r"[0-9a-f]{32}", owner_token):
+        return False
+    try:
+        listed = subprocess.run(
+            ["docker", "ps", "-aq", "--filter", f"label=sqlperf.demo.owner={owner_token}"],
+            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30, check=False,
+        )
+        if listed.returncode != 0:
+            return False
+        for container_id in listed.stdout.splitlines():
+            container_id = container_id.strip()
+            if not re.fullmatch(r"[0-9a-fA-F]{12,64}", container_id):
+                return False
+            inspected = subprocess.run(
+                ["docker", "inspect", container_id], capture_output=True,
+                text=True, encoding="utf-8", errors="replace", timeout=30, check=False,
+            )
+            if inspected.returncode != 0:
+                return False
+            item = json.loads(inspected.stdout)[0]
+            labels = item["Config"]["Labels"]
+            isolated = item["HostConfig"]["NetworkMode"] == "none"
+            if (labels.get("sqlperf.demo.id") != "IDX-007"
+                    or labels.get("sqlperf.demo.owner") != owner_token or not isolated):
+                return False
+            removed = subprocess.run(
+                ["docker", "rm", "--force", container_id], capture_output=True,
+                text=True, encoding="utf-8", errors="replace", timeout=30, check=False,
+            )
+            if removed.returncode != 0:
+                return False
+    except (OSError, subprocess.TimeoutExpired, IndexError, KeyError, json.JSONDecodeError):
+        return False
+    return True
+
+
 def run_demo(
     *,
     manifest_path: Path,
-    server: str,
+    server: str | None,
     auth: str,
     username: str | None,
     sqlcmd_path: str | None,
@@ -512,6 +604,7 @@ def run_demo(
     allow_red: bool,
     show_output: bool,
     emit_phase_timing_protocol: bool = False,
+    idx007_major: int | None = None,
 ) -> HarnessResult:
     manifest = load_manifest(manifest_path.resolve())
 
@@ -524,6 +617,12 @@ def run_demo(
     if manifest.safety_level == "RED" and not allow_red:
         return HarnessResult("FAIL", "FAIL_SAFETY", "Rote Demo benötigt --allow-red.", ())
 
+    has_container_phase = any(phase.kind == "idx007_container" for phase in manifest.phases)
+    if has_container_phase and idx007_major not in {15, 16, 17}:
+        raise ValueError("IDX-007 requires --idx007-major 15, 16, or 17")
+    if not has_container_phase and not server:
+        raise ValueError("server is required by argument or SQLPERF_SQL_SERVER")
+
     if manifest.credential_profiles and auth.strip().lower() != "sql":
         raise ValueError("credential_profiles require SQL authentication")
     credentials = _resolve_credential_profiles(manifest.credential_profiles)
@@ -531,7 +630,7 @@ def run_demo(
         if not SQLCMD_IDENTITY_PATTERN.fullmatch(credentials[profile][0]):
             raise ValueError(f"credential profile {profile} username is not a safe SQLCMD identity")
 
-    executable = resolve_sqlcmd(sqlcmd_path)
+    executable = None if has_container_phase else resolve_sqlcmd(sqlcmd_path)
     target_database = target_database_name(manifest.demo_id, manifest.run_token)
     variables = {
         "DemoId": manifest.demo_id,
@@ -581,7 +680,7 @@ def run_demo(
                     variables=variables,
                     show_output=show_output,
                 )
-            else:
+            elif phase.kind == "multi_session":
                 orchestration = run_session_manifest(
                     manifest_path=phase.path,
                     server=server,
@@ -593,6 +692,10 @@ def run_demo(
                     timeout_override_seconds=max(1, int(phase_timeout)),
                 )
                 result = PhaseResult(phase.phase_id, orchestration.outcome, orchestration.code, orchestration.message, 0.0)
+            else:
+                result = _execute_idx007_container_phase(
+                    phase, major=idx007_major or 17, timeout_seconds=phase_timeout, show_output=show_output
+                )
 
         if emit_phase_timing_protocol:
             result = PhaseResult(result.phase_id, result.outcome, result.code, result.message,
@@ -660,15 +763,12 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--allow-red", action="store_true")
     parser.add_argument("--show-output", action="store_true")
     parser.add_argument("--emit-phase-timing-protocol", action="store_true")
+    parser.add_argument("--idx007-major", type=int, choices=(15, 16, 17), help="SQL Server major version for the isolated IDX-007 container demo")
     return parser
 
 
 def main() -> int:
     args = _build_parser().parse_args()
-    if not args.server:
-        print("SQLPERF_SUMMARY|FAIL|FAIL_CONTRACT\nserver is required by argument or SQLPERF_SQL_SERVER", file=sys.stderr)
-        return 1
-
     try:
         result = run_demo(
             manifest_path=args.manifest,
@@ -680,6 +780,7 @@ def main() -> int:
             allow_red=args.allow_red,
             show_output=args.show_output,
             emit_phase_timing_protocol=args.emit_phase_timing_protocol,
+            idx007_major=args.idx007_major,
         )
     except FileNotFoundError as exc:
         print(f"SQLPERF_SUMMARY|SKIP|SKIP_TOOL_MISSING\n{exc}")

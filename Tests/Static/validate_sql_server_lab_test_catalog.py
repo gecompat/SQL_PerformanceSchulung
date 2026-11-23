@@ -123,7 +123,14 @@ def validate_demo(entry: Any, manifests: dict[str, Path]) -> None:
     if not isinstance(manifest.get("phases"), list) or not manifest["phases"]:
         raise ContractError(f"{demo_id}: phases missing")
     if not isinstance(manifest.get("cleanup"), dict):
-        raise ContractError(f"{demo_id}: cleanup missing")
+        self_cleaning_idx007 = (
+            demo_id == "IDX-007"
+            and manifest.get("resource_lifecycle") == "self_cleaning_idx007_container"
+            and len(manifest.get("phases", [])) == 1
+            and manifest["phases"][0].get("kind") == "idx007_container"
+        )
+        if not self_cleaning_idx007:
+            raise ContractError(f"{demo_id}: cleanup missing")
 
     safety = entry.get("safetyLevel")
     if safety not in SAFETY_LEVELS or safety != manifest.get("safety_level"):
@@ -321,15 +328,15 @@ def main() -> int:
         full_lane = lanes["FULL_CONTAINER_MATRIX"]
         eligible = [entry for entry in entries if entry["safetyLevel"] in full_lane["safetyLevels"]]
         # Nur die je Demo deklarierten Provider und Versionen planen.
-        # CON-005 und OPT-007 ergänzen je sechs Dockerfälle; Podman bleibt dort offen.
+        # CON-005, OPT-007 und der eng begrenzte IDX-007-Liveadapter ergänzen je sechs Dockerfälle; Podman bleibt dort offen.
         runs = sum(
             len(set(entry["providers"]) & PROVIDERS)
             * len(set(entry["versions"]) & set(full_lane["versions"]))
             * full_lane["repetitions"]
             for entry in eligible
         )
-        if runs != 384:
-            raise ContractError(f"current full matrix must contain 384 runs, got {runs}")
+        if runs != 390:
+            raise ContractError(f"current full matrix must contain 390 runs, got {runs}")
 
         print(
             "sql-server-lab-scenario-contract: PASS "

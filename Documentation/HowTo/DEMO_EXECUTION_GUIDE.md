@@ -60,7 +60,9 @@ Die Sicherheitsstufen bedeuten `GREEN` (grün: eigene Testdatenbank), `YELLOW` (
 | [`DGN-008`](../../Demos/09_AI_SQL_Server_2025/DGN-008_Offline_Model_Rights/README.md) – Modellmetadaten und Zugriffsrechte | Modellbeschreibung und getrennte Berechtigungen ohne externen Modellaufruf untersuchen. | `GREEN` | 2025/170 | 2019/2022: SKIP_VERSION; Modellmetadaten und getrennte Offline-Rechte |
 | [`DGN-009`](../../Demos/09_AI_SQL_Server_2025/DGN-009_Offline_Injection/README.md) – Manipulierte Quellen und erlaubte Werkzeugaufrufe | Angriffstexte in Quellen von der festgelegten Erlaubnis für Werkzeuge trennen. | `GREEN` | 2025/170 | 2019/2022: SKIP_VERSION; manipulierte Quellen und feste Toolpolicy |
 | [`CON-010`](../../Demos/09_AI_SQL_Server_2025/CON-010_Tenant_Isolation/README.md) – Daten verschiedener Mandanten trennen | Row-Level Security (RLS), also zeilenbezogene Zugriffskontrolle, vor der Auswahl des Vektorkontexts prüfen. | `GREEN` | 2025/170 | 2019/2022: SKIP_VERSION; RLS, exakte Quellen und drei native Rechteverweigerungen |
+| [`IDX-007`](../../Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/README.md) – Einfügungen an einer heißen letzten Indexseite | Synchronisierte Inserts, exklusive Seiten-Latch-Waits und rechte Blattseite im begrenzten Container beobachten. | `YELLOW` | 2019/150, 2022/160, 2025/170 | eigener netzwerkloser Container; jeweils ein digest-gepinnter Build und ein Lauf |
 | [`IDX-006`](../../Demos/04_Rowstore_Columnstore/IDX-006_Page_Splits_Density/README.md) – Seitenaufteilungen und Seitenbelegung | Page Splits, Belegungsgrad und logische Fragmentierung getrennt untersuchen. | `YELLOW` | 2019/150, 2022/160, 2025/170 | isolierte Instanz; historischer Nachweis mit `WARN_EMPIRICAL_VARIANCE`, keine allgemeine Fill-Factor-Richtung |
+| [`IDX-007`](../../Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/README.md) – Einfügungen an einer heißen letzten Indexseite | Synchronisierte Inserts, exklusive Seiten-Latch-Waits und rechte Blattseite im begrenzten Container beobachten. | `YELLOW` | 2019/150, 2022/160, 2025/170 | eigener netzwerkloser Container; ein ausgewählter digest-gepinnter Build und ein Versuch |
 | [`IDX-010`](../../Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments/README.md) – Columnstore-Segmente gezielt überspringen | Zeilengruppenqualität und das Auslassen unpassender Spaltensegmente bei einer Abfrage untersuchen. | `YELLOW` | 2019/150, 2022/160, 2025/170 | Container oder Wegwerfinstanz mit Ressourcenprofil |
 | [`CON-004`](../../Demos/07_Concurrency/CON-004_Blocking_Chain/README.md) – Blockierungsketten verfolgen | Blockierende Sitzungen und den Anfang einer Sperrwarte-Kette ermitteln. | `YELLOW` | 2019/150, 2022/160, 2025/170 | Mehrsitzungsorchestrierung; alternativ interaktiv gemäß [Interaktive Schulungsszenarien bedienen](INTERACTIVE_SCENARIO_LIFECYCLE.md) |
 | [`CON-005`](../../Demos/07_Concurrency/CON-005_Schema_Locks/README.md) – Schemasperren trotz NOLOCK | Sch-M (Schemaänderungssperre) gegen wartendes Sch-S (Schemastabilitätssperre) am selben Objekt nachweisen. | `YELLOW` | 2019/150, 2022/160, 2025/170 | Drei signalisierte Sitzungen; ausschließlich eigene Wegwerfinstanz |
@@ -76,7 +78,7 @@ Die Sicherheitsstufen bedeuten `GREEN` (grün: eigene Testdatenbank), `YELLOW` (
 
 1. Klonen Sie das Repository und öffnen Sie PowerShell im Repository-Stamm.
 2. Installieren Sie Python 3.12 oder höher und Microsoft `sqlcmd`; beide Befehle müssen im Suchpfad liegen.
-3. Stellen Sie eine SQL-Server-2019-, -2022- oder -2025-Instanz bereit. Verwenden Sie für gelbe und rote Demos eine Wegwerfinstanz. Für `OPT-017`, `IDX-010` und `STL-008` ist der Containerpfad erforderlich oder empfohlen; die Bereitstellung ist in [Docker-/Podman-Quickstart ohne vorhandenen SQL Server](CONTAINER_QUICKSTART.md) beschrieben.
+3. Stellen Sie eine SQL-Server-2019-, -2022- oder -2025-Instanz bereit. Verwenden Sie für gelbe und rote Demos eine Wegwerfinstanz. Für `IDX-007`, `OPT-017`, `IDX-010` und `STL-008` ist der Containerpfad erforderlich oder empfohlen; die Bereitstellung ist in [Docker-/Podman-Quickstart ohne vorhandenen SQL Server](CONTAINER_QUICKSTART.md) beschrieben.
 4. Verwenden Sie ein Login mit `CREATE DATABASE`, `ALTER DATABASE`, `SHOWPLAN` sowie `VIEW SERVER STATE` (SQL Server 2019) oder `VIEW SERVER PERFORMANCE STATE` (SQL Server 2022/2025).
 5. Prüfen Sie die Tools und die Verbindung. Ersetzen Sie `<instanz>` durch den Server- und gegebenenfalls Instanznamen.
 
@@ -85,6 +87,8 @@ python --version
 sqlcmd -?
 sqlcmd -S '<instanz>' -E -Q 'SELECT SERVERPROPERTY(''ProductMajorVersion'') AS MajorVersion;'
 ```
+
+**Sonderpfad IDX-007:** Diese Demo benötigt keinen vorhandenen SQL Server und kein Host-`sqlcmd`. Das Manifest `Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/manifest.json` startet selbst einen Linux-Docker-Container mit 2 CPUs, 4 GiB RAM, ohne Netzwerk, Host-Port oder persistentes Volume. Installieren Sie Python 3.12+ und Docker Engine und folgen Sie ausschließlich der versionsgebundenen Image-, Bestätigungs- und Aufrufanleitung in der [IDX-007-Demo-README](../../Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/README.md). Sie wird nicht über `Invoke-SqlPerfDemo` ausgeführt.
 
 Für SQL-Authentifizierung ersetzt `-U '<anmeldename>'` das `-E`. Wenn `sqlcmd` wegen eines selbstsignierten Zertifikats ablehnt, ergänzen Sie ausschließlich für die Wegwerfinstanz `-C`; der Harness erhält die entsprechende explizite Einstellung in Schritt 4.
 

@@ -347,7 +347,9 @@ def run_live_pilot(major: int) -> int:
     run_token = secrets.token_hex(4).upper()
     DB = f"SQLPERF_LAB_IDX007_{run_token}"
     name = f"sqlperf-idx007-xe-{major}-{secrets.token_hex(4)}"
-    owner = secrets.token_hex(16)
+    owner = os.environ.get("SQLPERF_IDX007_OWNER_TOKEN", secrets.token_hex(16))
+    if len(owner) != 32 or any(char not in "0123456789abcdef" for char in owner):
+        raise PilotError("invalid IDX-007 resource owner token")
     password = "Aa7!" + "".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(28))
     env = os.environ.copy()
     env.update(MSSQL_SA_PASSWORD=password, SQLCMDPASSWORD=password)
@@ -359,7 +361,8 @@ def run_live_pilot(major: int) -> int:
     try:
         image = "mcr.microsoft.com/mssql/server@" + digest
         run(["docker", "run", "--pull=never", "--name", name,
-             "--label", f"sqlperf.ci.owner={owner}", "--label", "sqlperf.ci.subject=IDX007-XE-LIVE-PILOT",
+             "--label", f"sqlperf.demo.owner={owner}", "--label", "sqlperf.demo.subject=IDX007-XE-LIVE-PILOT",
+             "--label", "sqlperf.demo.id=IDX-007",
              "--network", "none", "--cpus=2", "--memory=4g", "--memory-swap=4g", "--restart=no",
              "-e", "ACCEPT_EULA=Y", "-e", "MSSQL_PID=Developer", "--env", "MSSQL_SA_PASSWORD", "-d", image], env, timeout=60)
         created = True
@@ -610,7 +613,9 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             try:
                 inspected = json.loads(run(["docker", "inspect", name], env).stdout)[0]
                 labels = inspected.get("Config", {}).get("Labels", {})
-                if labels.get("sqlperf.ci.owner") != owner or inspected.get("HostConfig", {}).get("NetworkMode") != "none":
+                if (labels.get("sqlperf.demo.owner") != owner
+                        or labels.get("sqlperf.demo.subject") != "IDX007-XE-LIVE-PILOT"
+                        or inspected.get("HostConfig", {}).get("NetworkMode") != "none"):
                     raise PilotError("owned container identity changed; refusing cleanup")
                 cleanup_failure: Exception | None = None
                 if database_created:

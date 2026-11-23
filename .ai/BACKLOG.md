@@ -2178,6 +2178,14 @@ Runtimequalifikation bleiben offen.
 
 - [x] Begrenzte Offlineprüfung caller-gelieferter Seitenketten ergänzt: expliziter, caller-gelieferter Terminalmarker, Startseite, Blattniveau, Objekt-/Index-/Partitionsidentität, eindeutige Seiten und konsistente Vorwärts-/Rücklinks innerhalb eines Seiten-Caps. Kein Terminalwert ist fest verdrahtet; synthetische Regressionen bestehen. Datenherkunft und Buildsemantik bleiben offen, ebenso unabhängiger Methodenreview und jede SQL-/Runtimeprobe.
 
+**Update 23. November 2026:** Der zuvor offene verwendbare Vorführschnitt wurde
+im bestehenden IDX-007-Scope als gelbe, manifestbasierte Containerdemo
+implementiert. Das getrennte Methoden- und Performancegate bleibt offen; die
+lokalen Drei-Build-Läufe sowie der ausstehende Paket-PR-Lauf sind in
+[CURRENT_EXECUTION_STATUS.md](../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
+und [IDX007_DEMO_PACKAGE_REVIEW.md](../Documentation/Project_Planning/IDX007_DEMO_PACKAGE_REVIEW.md)
+nachvollziehbar. Es wird keine zweite Demo-ID angelegt.
+
 ##### 7. RES-001 – Lückenprüfung für Worker-Druck und echte Erschöpfung
 
 **P2 · Quellensichtung mit Lücken abgeschlossen; Adaption offen · Aufwand L – vorläufig.**

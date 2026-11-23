@@ -292,6 +292,15 @@
       "rationale": "A bounded insert and rebuild workload runs in one synthetic database, while the disposable instance contains its I/O and log impact.", "escalation": null
     },
     {
+      "demoId": "IDX-007", "title": "Einfügungen an einer heißen letzten Indexseite",
+      "path": "Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention",
+      "manifest": "Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/manifest.json",
+      "implementationStatus": "IMPLEMENTED", "safetyLevel": "YELLOW", "sessions": 82,
+      "stage": 3, "executionPath": "CONTAINER", "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "Synchronisierte Inserts und buildgebundene Extended-Events-/DMV-Evidenz benötigen eine netzwerklose, ressourcenbegrenzte Wegwerfinstanz.",
+      "escalation": {"rejectedStage": 2, "reason": "Eine geteilte Testinstanz kann weder CPU-/Speichergrenze noch isolierte XE- und Seitenkettenmessung sicherstellen."}
+    },
+    {
       "demoId": "IDX-010", "title": "Columnstore Segment Elimination and Rowgroup Quality",
       "path": "Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments",
       "manifest": "Demos/04_Rowstore_Columnstore/IDX-010_Columnstore_Segments/manifest.json",

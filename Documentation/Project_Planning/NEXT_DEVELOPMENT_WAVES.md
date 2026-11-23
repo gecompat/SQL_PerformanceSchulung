@@ -4085,3 +4085,17 @@ Die erste vollständige Analyse des gepinnten CPython-3.12.16-Archivs scheiterte
 ### DGN-007 – vollständigen Regex-Flagsfluss im Archivscan schließen (22. November 2026)
 
 Nach Korrektur der Parserannahmen über Gruppenprüfungen verbindet der vollständige Scan alle 13 direkten Modulstart-Regex-Compilekandidaten mit Parser-/Tokenizertyp und `Pattern.flags`. Der Scan bleibt `CANDIDATES_ONLY`; bedingte Zahlenwerte erscheinen nur für statisch bekannte, kompatible Fälle. Die 314 fokussierten Regressionen und der vollständige CPython-3.12.16-Archivscan bestehen. Interpreter-, Regex- und Runtimeausführung fanden nicht statt.
+
+
+### IDX-007 – paketierte Demo und lokale Drei-Build-Prüfung (23. November 2026)
+
+Der Engineering-Pilot ist in eine eigenständig bedienbare manifestbasierte
+Demo überführt. Die gelbe Bestätigung, Docker-/Ressourcengrenzen,
+Buildauswahl, erwartete Marker und Recovery sind dokumentiert. Lokal bestanden
+die paketierten Aufrufe für SQL Server 2019, 2022 und 2025 einschließlich
+Cleanup. Der Pull Request führt dieselbe Verpackung erneut als serielle
+Drei-Build-Matrix und mit Katalog-/Frameworkprüfungen aus. Bis diese CI-Gates
+frisch bestehen, bleibt der Status `IMPLEMENTED`; der Methodenentwurf und jede
+allgemeine Performanceaussage sind davon unabhängig. Der konkrete Prozess- und
+Prüfaufwand ist in [IDX007_DEMO_PACKAGE_REVIEW.md](IDX007_DEMO_PACKAGE_REVIEW.md)
+festgehalten.
