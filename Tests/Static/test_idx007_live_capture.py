@@ -59,6 +59,7 @@ class LiveCaptureParserTests(unittest.TestCase):
         self.assertLess(query.index("IDX007_CHAIN_CAPTURE_BEGIN"), query.index("DECLARE @candidate"))
         self.assertLess(query.index("IDX007_CHAIN_CAPTURE_BEGIN"), query.index("sp_releaseapplock"))
         self.assertLess(query.index("sp_releaseapplock"), query.index("DECLARE @candidate"))
+        self.assertLess(query.index("lab.BurstDone"), query.index("DECLARE @candidate"))
         self.assertLess(query.index("DECLARE @candidate"), query.index("IDX007_CHAIN_CAPTURE_END"))
         self.assertIn("WAITFOR DELAY '00:00:00.050'", query)
         self.assertIn("WAITFOR DELAY '00:00:00.001'", query)
@@ -66,6 +67,8 @@ class LiveCaptureParserTests(unittest.TestCase):
         self.assertIn("INSERT lab.Start(Stage) VALUES({stage})", source)
         self.assertLess(source.index("INSERT lab.ActorReady(Stage,SessionId) VALUES(1,@spid)"),
                         source.index("EXEC @gate_result=sys.sp_getapplock @Resource=N'IDX007_{DB}_1'"))
+        self.assertLess(source.index("f\"DONE|{actor_count * stage}\""),
+                        source.index("INSERT lab.BurstDone(Stage) VALUES({stage})"))
         self.assertIn("@LockMode='Shared'", source)
         self.assertNotIn("lab.Go", source)
         self.assertEqual(inspect.getmodule(run_live_pilot).GATE_POLL_DELAY, "00:00:00.001")

@@ -622,13 +622,17 @@ Zielseiten-Waits im Capturefenster melden. Die neue Kandidatenvariante hält
 vor `lab.Start` einen exklusiven, sitzungsgebundenen `sp_getapplock`; alle
 Actors melden ihre Bereitschaft und warten danach mit Shared-Lock-Requests auf
 dieser Ressource. Nach Erreichen der erwarteten Actorzahl setzt der Reader den
-XE-Startmarker und gibt den Lock frei. Zusätzlich filtert XE nun direkt nach
-dem Ereignisfeld `statement`; das vorherige `sqlserver.sql_text` erfasste den
-gesamten Batch einschließlich Poll-Statements. Actorzahl, Einfügungen,
-Versuchszahl, 2-CPU-/4-GiB-Limit und Nachweiskriterien bleiben unverändert.
-Die lokale Kandidatenmatrix bestand alle drei Builds je 3/3 vollständige
-Zweiburstversuche mit Cleanup. Die neue PR-Matrix muss dies noch bestätigen.
-Die serielle PR-Matrix
+XE-Startmarker und gibt den Lock frei. Die Steuerung wartet auf den erwarteten
+Zeilenzuwachs und setzt `lab.BurstDone`; der Reader wartet innerhalb des
+markierten Fensters auf dieses Signal und liest die Seitenkette erst danach.
+Zusätzlich filtert XE direkt nach dem Ereignisfeld `statement`; das vorherige
+`sqlserver.sql_text` erfasste den gesamten Batch einschließlich Poll-Statements.
+Actorzahl, Einfügungen, Versuchszahl, 2-CPU-/4-GiB-Limit und Nachweiskriterien
+bleiben unverändert. Die vorherige Kandidatenvariante bestand lokal alle drei
+Builds je 3/3 Zweiburstversuche. Der finale `BurstDone`-Kandidat bestand lokal
+Build 15 und 16 je einmal sowie Build 17 dreimal; alle Läufe bestätigten den
+Zweiburstnachweis und Cleanup. Die neue PR-Matrix steht noch aus. Die serielle
+PR-Matrix
 ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
 bestand ebenfalls: Build 15 dreimal, Build 16 zweimal und Build 17 einmal je
 drei begrenzten Zweiburstversuchen. Alle anderen Läufe blieben sichtbar

@@ -245,7 +245,7 @@ def page_metadata_sql(addresses: set[tuple[int, int]], stage: int, actor_count: 
     gate_resource = f"IDX007_{DB}_{stage}"
     return f"""
 SET NOCOUNT ON; USE [{DB}];
-DECLARE @gate_result int;
+DECLARE @gate_result int,@capture_deadline datetime2=DATEADD(SECOND,20,SYSUTCDATETIME());
 EXEC @gate_result=sys.sp_getapplock @Resource=N'{gate_resource}',@LockMode='Exclusive',
  @LockOwner='Session',@LockTimeout=15000,@DbPrincipal='public';
 IF @gate_result<0 THROW 51024,'IDX-007 capture gate could not be acquired',1;
@@ -256,6 +256,10 @@ SELECT 'IDX007_CHAIN_CAPTURE_BEGIN';
 EXEC @gate_result=sys.sp_releaseapplock @Resource=N'{gate_resource}',
  @LockOwner='Session',@DbPrincipal='public';
 IF @gate_result<0 THROW 51025,'IDX-007 capture gate could not be released',1;
+WHILE NOT EXISTS(SELECT 1 FROM lab.BurstDone WHERE Stage={stage})
+  AND SYSUTCDATETIME()<@capture_deadline WAITFOR DELAY '{GATE_POLL_DELAY}';
+IF NOT EXISTS(SELECT 1 FROM lab.BurstDone WHERE Stage={stage})
+  THROW 51029,'IDX-007 burst completion signal timed out',1;
 DECLARE @candidate table(FileId int NOT NULL,PageId int NOT NULL);
 INSERT @candidate(FileId,PageId)
 SELECT allocated_page_file_id,allocated_page_page_id
@@ -397,6 +401,7 @@ CREATE TABLE lab.ActorSessions(SessionId smallint NOT NULL PRIMARY KEY,RequestId
 CREATE TABLE lab.Start(Stage int NOT NULL PRIMARY KEY);
 CREATE TABLE lab.CaptureReady(Stage int NOT NULL PRIMARY KEY);
 CREATE TABLE lab.ActorReady(Stage int NOT NULL,SessionId smallint NOT NULL,PRIMARY KEY(Stage,SessionId));
+CREATE TABLE lab.BurstDone(Stage int NOT NULL PRIMARY KEY);
 DECLARE @seed int=0; WHILE @seed<501 BEGIN INSERT dbo.Hot DEFAULT VALUES; SET @seed+=1; END;
 GO
 ALTER INDEX PK_Hot ON dbo.Hot REBUILD WITH (FILLFACTOR={fillfactor});
@@ -497,6 +502,7 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             wait_until(name, env,
                 f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('DONE|',COUNT_BIG(*)-501) FROM dbo.Hot;",
                 f"DONE|{actor_count * stage}", process=chain_capture)
+            sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; INSERT lab.BurstDone(Stage) VALUES({stage});")
             address_meta, capture_stderr = chain_capture.communicate(timeout=30)
             capture_processes.remove(chain_capture)
             if chain_capture.returncode:

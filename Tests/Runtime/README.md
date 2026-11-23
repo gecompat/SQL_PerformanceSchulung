@@ -82,8 +82,10 @@ beziehungsweise Actionbestand. Vor jedem Insertschub hält der Reader einen
 exklusiven, sitzungsgebundenen `sp_getapplock`; die Actors fordern nach ihrer
 Bereitschaft jeweils einen Shared-Lock auf derselben Ressource an. Der Reader
 wartet auf alle Bereitschaftsrecords, setzt dann den XE-Startmarker und löst
-den Lock. Eine zusätzliche DMV-Abfrage der wartenden Lock-Anfragen wird nicht
-als Freigabebedingung verwendet.
+den Lock. Die Steuerung signalisiert nach bestätigtem Zeilenzuwachs
+`lab.BurstDone`; der Reader wartet im markierten Fenster auf dieses Signal und
+liest danach die Seitenkette. Eine zusätzliche DMV-Abfrage der wartenden
+Lock-Anfragen wird nicht als Freigabebedingung verwendet.
 Die Markerereignisse filtern direkt auf das XE-Feld `statement`, nicht auf den
 gesamten Batch-Text. `package0.event_sequence` ordnet die
 Latch-Beginn- und -Endereignisse; zwei getrennte Insertschübe müssen

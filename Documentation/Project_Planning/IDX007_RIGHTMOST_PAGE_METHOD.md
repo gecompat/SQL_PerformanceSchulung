@@ -240,25 +240,31 @@ jetzt auf ein Startsignal. Die Actors melden sich danach vor dem Burst in
 sitzungsgebundenen `sp_getapplock`; alle Actors fordern anschließend einen
 Shared-Lock auf derselben lauf- und burstgebundenen Ressource an. Nachdem die
 erwartete Actorzahl ihre Bereitschaft registriert hat, setzt der Reader den
-XE-Startmarker und gibt den exklusiven Lock frei. Eine zusätzliche Abfrage
-der wartenden Lock-Anfragen erwies sich als ungeeignete Freigabebedingung und
-ist nicht Teil des Kandidaten. Actorzahl und Einfügungen werden nicht erhöht.
-Die verbundene Session liest danach die Kette und pausiert nach jeder
+XE-Startmarker und gibt den exklusiven Lock frei. Die Steuerung wartet auf den
+erwarteten Zeilenzuwachs, meldet danach `lab.BurstDone`, und der Reader wartet
+innerhalb des markierten Fensters auf dieses Abschlusssignal, bevor er die
+Seitenkette liest. Dadurch umfasst das Fenster die beiden vollständigen
+Writerbursts samt serverseitiger Erfassung ihrer Warteintervalle, ohne
+Actorzahl oder Einfügungen zu erhöhen. Die verbundene Session pausiert nach jeder
 Blattseitenprobe fünfzig Millisekunden; zusätzliche Schreiblasten kommen nicht
 hinzu. Das XE-Markerfilter nutzt nun das Ereignisfeld `statement` statt der
 Action `sql_text`, die den ganzen Batch einschloss und auch Poll-Statements
 erfasste. Die vorherige 1-ms-Pollingvariante und die anschließende
 `ActorReady`-Pollingbarriere ließen SQL Server 2025 in der CI ohne vollständige
-Waitüberlappungen. Die Kandidatenvariante mit Anwendungs-Lock und gezieltem
-Ereignisfeldfilter bestand lokal auf SQL Server 2019/2022/2025 je drei von drei
-vollständigen Zweiburstversuchen; die neue PR-Matrix steht noch aus. Die
-serielle
+Waitüberlappungen. Die Variante mit Anwendungs-Lock und Ereignisfeldfilter
+bestand lokal zuvor auf allen drei Builds je drei von drei Zweiburstversuchen.
+Der finale `BurstDone`-Kandidat bestand lokal Build 15 und 16 je einmal sowie
+Build 17 drei von drei Zweiburstversuchen, jeweils mit bestätigtem Cleanup. Die
+neue PR-Matrix steht noch aus. Die serielle
 CI-Matrix ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
 bestand ebenfalls auf allen drei Builds: Build 15 mit drei, Build 16 mit zwei
 und Build 17 mit einem vollständigen Zweiburstnachweis aus je drei begrenzten
 Versuchen. Alle Versuche bestätigten das Cleanup; erfolglose Varianten blieben
-`NOT_PROVEN`. Die aktuelle Anwendungs-Lock-Barriere und der
-Ereignisfeldfilter müssen in einer neuen PR-Matrix bestätigt werden.
+`NOT_PROVEN`. Der finale lokale `BurstDone`-Kandidat bestand Build 15 und 16
+je einen vollständigen Zweiburstversuch sowie Build 17 drei von drei Versuchen;
+alle bestätigten Kettenbindungen und das Cleanup. Die unmittelbar vorherige
+Kandidatenmatrix ohne `BurstDone` bestand auf allen drei Builds je drei von drei
+Versuchen. Für den finalen Kandidaten steht die neue PR-Matrix noch aus.
 
 Die angepasste Lastform verwendet 501 Seeds und eine Einfügung pro Actor je
 Burst. Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) verwenden
