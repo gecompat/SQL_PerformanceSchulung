@@ -1,8 +1,8 @@
-# External Tables: statischer Lehr- und Demoentwurf
+# External Tables: Lehr- und Demoentwurf
 
 Stand: 23. November 2026
-Status: `PROPOSED`; Konzept auf Basis des Quellenreviews, keine registrierte Demo,
-kein ausgeführter Connector und keine Laufzeitfreigabe
+Status: `PROPOSED`. Isolierte Komponentenprüfungen sind dokumentiert.
+Die Entscheidung über den vollständigen PolyBase-Pilot steht aus.
 
 ## Lernfrage und Curriculumanschluss
 
@@ -11,9 +11,9 @@ Der mögliche Lehrschnitt konkretisiert den bereits vorhandenen Anker
 und muss im konkreten Fall belegt werden. `QRY-012` behandelt bereits Linked
 Server. External Tables wären eine zweite Zugriffsform zur selben fachlichen
 Frage, keine Behauptung, dass PolyBase generell schneller oder einfacher ist.
-Ob das Thema in `QRY-012` integriert oder später als eigenes Arbeitspaket
-geführt wird, bleibt bis zur vollständigen Konzept- und Methodenabnahme offen.
-Es wird keine neue stabile Demo-ID vergeben.
+DEC-078 führt External Tables im aktuellen Curriculum als erklärende
+Ergänzung. Ein ausführbarer Pfad braucht ein separates Arbeitspaket mit
+eigenem Vertrag und eigener Freigabe.
 
 Die Lernenden sollen eine externe Tabellenabfrage als Datenweg erklären,
 Ergebnisgleichheit gegenüber einer lokalen Kopie prüfen und tatsächliches
@@ -768,12 +768,17 @@ Vor einem Demo-Vertrag bleiben offen:
   festgelegten Connectorprofil;
 - Statistikzustand, Setup-/Messphasentrennung, vollständiger Cleanup und
   unabhängiger Methodenreview;
-- formale Curriculum-Scopeentscheidung. `DEC-078` nimmt im aktuellen Stand
-  keine ausführbare External-Tables-Phase in `QRY-012` auf; ein späterer
-  separater Demo-Vertrag und seine Freigaben bleiben offen.
+- Zulassung des separaten Arbeitspakets für einen vollständigen Pilot
+  gemäß [DEC-078](../../.ai/DECISIONS.md).
 
-Bis diese Gates geschlossen sind, bleibt dies ein statischer Lehrentwurf.
-Es wurde kein SQL, Connector, Netzwerk, Dienst oder Credential verwendet.
+Die integrierten Komponentenprüfungen belegen einzelne Voraussetzungen.
+Dazu zählen die gebundene Paketinstallation bei getrenntem Netzwerk,
+die durchgesetzte Eingangsregel und SQL-TLS mit geprüfter Zertifikatsidentität.
+Die vollständige Zwei-VM-Strecke mit einer PolyBase-Abfrage gegen die
+synthetische Quelle und deren Pushdown-Nachweis steht noch aus.
+[Pakete](https://github.com/gecompat/SQL_PerformanceSchulung/pull/1203) ·
+[Eingangsregel](https://github.com/gecompat/SQL_PerformanceSchulung/pull/1206) ·
+[SQL-TLS](https://github.com/gecompat/SQL_PerformanceSchulung/pull/1207)
 
 ## Quellen und Geltungsgrenze
 
