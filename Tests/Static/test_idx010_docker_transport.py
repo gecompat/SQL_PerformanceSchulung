@@ -112,6 +112,30 @@ class DockerPilotTransportTests(TestCase):
         self.assertNotIn(["start", CID], commands)
 
     @patch("idx010_docker_transport._docker")
+    def test_reader_creation_timeout_requires_sql_cleanup(self, docker):
+        image_id = b"sha256:" + b"a" * 64
+        for cleanup_error in (None, OSError("reader SID mismatch")):
+            with self.subTest(cleanup_error=cleanup_error):
+                transport = DockerPilotTransport()
+                docker.reset_mock()
+                docker.side_effect = [
+                    image_id, CID.encode(), CID.encode(), CID.encode(),
+                    image_id + b"|none|2000000000|4294967296|4294967296|[]|{}|created", CID.encode(),
+                    b"Avail\n2883584\n", CID.encode(), CID.encode(), CID.encode(), CID.encode(), b"", b"", b"",
+                ]
+                with patch.object(
+                    transport, "_sql", side_effect=[PROFILE.encode(), b"", TimeoutError(), cleanup_error or b""]
+                ) as sql:
+                    with self.assertRaises(TimeoutError):
+                        transport.start_verified_instance("TEST1", monotonic() + 30)
+                    self.assertEqual(transport.cleanup("TEST1", (), monotonic() + 30), cleanup_error is None)
+                create_sql, cleanup_sql = [call.args[1] for call in sql.call_args_list[-2:]]
+                self.assertIn(f"SID = 0x{transport._reader_sid}", create_sql)
+                self.assertIn(f"AND sid = 0x{transport._reader_sid}", cleanup_sql)
+                self.assertLess(cleanup_sql.index("ownership cannot be confirmed"), cleanup_sql.index("DROP LOGIN"))
+                self.assertIn(["rm", "--force", "--volumes", CID], [call.args[0] for call in docker.call_args_list])
+
+    @patch("idx010_docker_transport._docker")
     def test_mismatched_owner_is_never_removed(self, docker):
         transport = DockerPilotTransport()
         transport._name = "sqlperf-idx010-test"

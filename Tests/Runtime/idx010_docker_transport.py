@@ -22,6 +22,7 @@ from idx010_provision_sql import (
     TEMPDB_LOG_LIMIT_MIB,
     create_reader_batch,
     drop_database_batch,
+    drop_reader_batch,
     grant_reader_batch,
     provision_database_batch,
     reader_login,
@@ -49,6 +50,8 @@ class DockerPilotTransport:
         self._owner = secrets.token_hex(16)
         self._sa_password = "Idx9!" + secrets.token_hex(16)
         self._reader_password = "Idx9!" + secrets.token_hex(16)
+        self._reader_sid = secrets.token_hex(16)
+        self._reader_attempted = False
         self._run_token: str | None = None
         self._name: str | None = None
         self._container: str | None = None
@@ -111,7 +114,8 @@ class DockerPilotTransport:
         if match is None or int(match[1]) < MIN_DATA_AVAILABLE_KIB:
             raise OSError("pilot data filesystem does not have confirmed free capacity")
         self._sql("master", TEMPDB_CAPS, deadline)
-        self._sql("master", create_reader_batch(run_token, self._reader_password), deadline)
+        self._reader_attempted = True
+        self._sql("master", create_reader_batch(run_token, self._reader_password, self._reader_sid), deadline)
         self._ready = True
 
     def provision(self, target: Target, deadline: float) -> None:
@@ -166,7 +170,7 @@ class DockerPilotTransport:
         owned = self._find_owned(deadline)
         if owned is None:
             # A timed-out create can finish on the daemon after an empty listing.
-            return self._container is not None and not attempted
+            return self._container is not None and not attempted and not self._reader_attempted
         self._container = owned
         sql_confirmed = True
         for target in reversed(attempted):
@@ -182,13 +186,11 @@ class DockerPilotTransport:
                     sql_confirmed = False
             except (OSError, TimeoutError, ValueError):
                 sql_confirmed = False
-        if self._ready:
-            login = reader_login(run_token)
+        if self._reader_attempted:
             try:
                 self._sql(
                     "master",
-                    f"IF SUSER_ID(N'{login}') IS NOT NULL DROP LOGIN [{login}]; "
-                    f"IF SUSER_ID(N'{login}') IS NOT NULL THROW 51028, 'FAIL_CLEANUP: reader still exists.', 1;",
+                    drop_reader_batch(run_token, self._reader_sid),
                     min(deadline - 10, monotonic() + 10),
                 )
             except (OSError, TimeoutError, ValueError):
