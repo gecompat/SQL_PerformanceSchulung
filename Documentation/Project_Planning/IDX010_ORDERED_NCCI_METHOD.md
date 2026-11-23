@@ -305,6 +305,26 @@ der bestehenden CCI-Demo und der eigene Container wurden entfernt.
 Die Ausgabeform des eigentlichen NCCI-Paars bleibt empirisch zu prüfen.
 
 
+### Native Bereitstellungsprobe beider leeren Testdatenbanken
+
+Die Bereitstellungsprobe verwendete den vorhandenen
+`DockerPilotTransport` auf dem festgeschriebenen Developer-Build
+`17.0.5065.9` über die Docker-kompatible Schnittstelle von Podman.
+Vor dem Start prüfte der Transport das Image, zwei CPUs, 4 GiB RAM,
+das gleich große RAM-/Swap-Gesamtlimit und das Netzwerkprofil `none`.
+Im laufenden Container bestanden der Build- und Editionsabgleich, die
+Kapazitätsprüfung und die Abfrage der gesetzten TempDB-Obergrenzen.
+
+Anschließend legte der Transport beide markierten Datenbanken mit den
+festgelegten Dateigrenzen und je einer leeren `dbo.Events` an. Die
+Rechteprüfung unter dem laufgebundenen Reader bestätigte in beiden
+Datenbanken eine erfolgreiche Abfrage der leeren Tabelle, erteiltes
+`SHOWPLAN` und fehlendes `UPDATE`. Die isolierte Probe prüfte den
+markergestützten Abbau beider Datenbanken, des SID-gebundenen Logins und
+des Containers. Sie belegt Bereitstellung, Rechte und Abbau. Die
+Befüllung, beide NCCI-Bauten und die Segmentauswertung gehören zum
+isolierten Mechanismuspilot.
+
 ## Voraussetzungen, Stop und Cleanup für einen späteren Pilot
 
 Vor jeder SQL-Freigabe muss ein unabhängiger Methodenreview den vollständigen
