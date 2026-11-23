@@ -6,6 +6,7 @@ import argparse
 import os
 from pathlib import Path
 import re
+import secrets
 import subprocess
 
 from Tests.Runtime import execution_target
@@ -23,6 +24,8 @@ _STAGE_MARKER = re.compile(r"DGN007_IO_(BEGIN|END)\|([A-Z]+[0-9]?(?:_[1-4])?)")
 _SOURCE_IO = re.compile(
     r"Table '(CaseItem|CaseGroup|CaseItemDetail)'\. Scan count [0-9]+, logical reads ([0-9]+), .+"
 )
+_COMPILER_SLOT = re.compile(r"DGN007_COMPILER_SLOT\|([1-9][0-9]?)\|([01])\|([0-9]{1,18})\|([0-9]{1,18})")
+_COMPILER_ROSTER = "DGN007_COMPILER_EVENTS|22|10"
 _SOURCE_TABLES = {"CaseItem", "CaseGroup", "CaseItemDetail"}
 _WAIT_CONTEXT = re.compile(
     r"DGN007_WAIT_CONTEXT\|4\|(no_grant_wait|grant_wait_present)"
@@ -56,11 +59,13 @@ def _batch(target: execution_target.ExecutionTarget, sql: str, database: str, ti
     return (result.stdout + b"\n" + result.stderr).decode("utf-8")
 
 
-def _file(script: Path, *, parameter_mix: bool = False) -> str:
+def _file(script: Path, *, parameter_mix: bool = False, compile_session: str | None = None) -> str:
     source = script.read_text(encoding="utf-8")
     for key, value in {
         "DemoId": "DGN-007", "RunToken": "AUTO", "TargetDatabase": runner.DATABASE,
         "CompareParameterMix": "1" if parameter_mix else "0",
+        "MeasureCompileCost": "1" if compile_session else "0",
+        "CompileSession": compile_session or "SQLPERF_DGN007_COMPILE_DISABLED",
         "ConfirmIsolatedLab": "1", "HighImpactConfirmed": "1", "MaximumRuntimeSeconds": "120",
     }.items():
         source = source.replace(f"$({key})", value)
@@ -128,6 +133,43 @@ def _mitigation_mix_report(output: str) -> str:
     return "\n".join(lines)
 
 
+def _compile_cost_report(output: str) -> str:
+    _expect(output, _COMPILER_ROSTER)
+    values = []
+    for line in output.splitlines():
+        marker = line.strip()
+        if marker.startswith("DGN007_COMPILER_EVENTS|") and marker != _COMPILER_ROSTER:
+            raise runner.RunnerFailure("NOT_PROVEN")
+        if not marker.startswith("DGN007_COMPILER_SLOT"):
+            continue
+        match = _COMPILER_SLOT.fullmatch(marker)
+        if match is None:
+            raise runner.RunnerFailure("NOT_PROVEN")
+        slot, count, cpu, duration = map(int, match.groups())
+        if slot != len(values) + 1 or (count == 0 and (cpu != 0 or duration != 0)):
+            raise runner.RunnerFailure("NOT_PROVEN")
+        values.append((count, cpu, duration))
+    # Two explicit seed requests precede BASELINE1 and RESTORE respectively.
+    expected_counts = (1,) + (0,) * 8 + (1,) * 8 + (1,) + (0,) * 4
+    if tuple(row[0] for row in values) != expected_counts:
+        raise runner.RunnerFailure("NOT_PROVEN")
+
+    by_stage = []
+    observed = values[1:17] + values[18:22]
+    for offset, stage in enumerate(_MITIGATION_STAGES):
+        total = [sum(column) for column in zip(*observed[offset * 4:offset * 4 + 4], strict=True)]
+        by_stage.append(f"DGN007_COMPILE_COST|{stage}|" + "|".join(map(str, total)))
+    return "\n".join(by_stage)
+
+
+def _xe_absence(name: str) -> str:
+    return f"""SET NOCOUNT ON;
+IF EXISTS (SELECT 1 FROM sys.server_event_sessions WHERE name=N'{name}')
+   OR EXISTS (SELECT 1 FROM sys.dm_xe_sessions WHERE name=N'{name}')
+    THROW 51098,'FAIL_XE_ABSENCE',1;
+SELECT 'XE_ABSENT';"""
+
+
 def _read_wait_context(output: str) -> str:
     markers = [line.strip() for line in output.splitlines() if line.strip().startswith("DGN007_WAIT_CONTEXT|")]
     if len(markers) != 1 or _WAIT_CONTEXT.fullmatch(markers[0]) is None:
@@ -135,20 +177,32 @@ def _read_wait_context(output: str) -> str:
     return markers[0]
 
 
-def run_probe(container: str, *, mitigation: bool = False, parameter_mix: bool = False) -> str | None:
+def run_probe(
+    container: str, *, mitigation: bool = False, parameter_mix: bool = False, compile_cost: bool = False,
+) -> str | None:
+    if compile_cost and not parameter_mix:
+        raise runner.RunnerFailure("FAIL_CONTRACT")
     if not os.environ.get("SQLCMDPASSWORD") or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", container):
         raise runner.RunnerFailure("FAIL_SAFETY")
     target = runner.resolve_target(container)
     setup = _file(runner.AUTOMATED / "10_Setup.sql")
-    probe = _file(MITIGATION_PROBE if mitigation or parameter_mix else PROBE, parameter_mix=parameter_mix)
+    compile_session = f"SQLPERF_DGN007_COMPILE_{secrets.token_hex(16)}" if compile_cost else None
+    probe = _file(
+        MITIGATION_PROBE if mitigation or parameter_mix else PROBE,
+        parameter_mix=parameter_mix, compile_session=compile_session,
+    )
     cleanup = _file(runner.AUTOMATED / "90_Cleanup.sql")
     _expect(_batch(target, PREFLIGHT, "master", 10), "EMPTY_DEVELOPER")
+    if compile_session:
+        _expect(_batch(target, _xe_absence(compile_session), "master", 10), "XE_ABSENT")
     report = None
     try:
         _expect(_batch(target, setup, "master", 90), SETUP_SUMMARY)
         if parameter_mix:
             output = _batch(target, probe, runner.DATABASE, 30, stderr_limit=49_152)
             report = _mitigation_mix_report(output)
+            if compile_session:
+                report += "\n" + _compile_cost_report(output)
         else:
             output = _batch(target, probe, runner.DATABASE, 30)
             if mitigation:
@@ -159,9 +213,17 @@ def run_probe(container: str, *, mitigation: bool = False, parameter_mix: bool =
     finally:
         try:
             try:
-                _expect(_batch(target, cleanup, "master", 40), SETUP_SUMMARY)
+                if compile_session:
+                    stop = (
+                        f"IF EXISTS (SELECT 1 FROM sys.server_event_sessions WHERE name=N'{compile_session}') "
+                        f"DROP EVENT SESSION [{compile_session}] ON SERVER;"
+                    )
+                    _expect(_batch(target, stop + "\n" + _xe_absence(compile_session), "master", 10), "XE_ABSENT")
             finally:
-                _expect(_batch(target, ABSENCE, "master", 10), "ABSENT")
+                try:
+                    _expect(_batch(target, cleanup, "master", 40), SETUP_SUMMARY)
+                finally:
+                    _expect(_batch(target, ABSENCE, "master", 10), "ABSENT")
         except (runner.RunnerFailure, CaptureRunnerError, OSError, ValueError):
             raise runner.RunnerFailure("FAIL_CLEANUP") from None
     return report
@@ -175,7 +237,10 @@ def main() -> int:
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--mitigation", action="store_true", help="compare query-only recompile, including rollback")
     mode.add_argument("--mitigation-mix", action="store_true", help="report the four parameter classes separately")
+    parser.add_argument("--compile-cost", action="store_true", help="add per-phase XE compile totals to --mitigation-mix")
     args = parser.parse_args()
+    if args.compile_cost and not args.mitigation_mix:
+        parser.error("--compile-cost requires --mitigation-mix")
     prefix, summary = ("DGN007_MITIGATION", MITIGATION_SUMMARY) if args.mitigation else ("DGN007_COMPILE_VALUE", SUMMARY)
     if args.mitigation_mix:
         prefix = "DGN007_MITIGATION_MIX"
@@ -183,7 +248,9 @@ def main() -> int:
     try:
         if not args.confirm_disposable_instance or not args.confirm_isolated_lab:
             raise runner.RunnerFailure("FAIL_SAFETY")
-        report = run_probe(args.container, mitigation=args.mitigation, parameter_mix=args.mitigation_mix)
+        report = run_probe(
+            args.container, mitigation=args.mitigation, parameter_mix=args.mitigation_mix, compile_cost=args.compile_cost,
+        )
     except runner.RunnerFailure as error:
         print(f"{prefix}|FAIL|{error.code}")
         return 1

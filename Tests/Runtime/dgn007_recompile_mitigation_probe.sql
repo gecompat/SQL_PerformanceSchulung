@@ -56,6 +56,25 @@ BEGIN
 END;
 DECLARE @trial tinyint=1;
 DECLARE @label varchar(16);
+IF $(MeasureCompileCost)=1
+BEGIN
+    IF EXISTS (SELECT 1 FROM sys.server_event_sessions WHERE name=N'$(CompileSession)')
+        THROW 51098,'FAIL_XE_NAME',1;
+    DECLARE @eventId nvarchar(40)=CONVERT(nvarchar(40),@@SPID);
+    DECLARE @dbId nvarchar(40)=CONVERT(nvarchar(40),DB_ID());
+    DECLARE @scope nvarchar(200)=N' WHERE ([sqlserver].[session_id]=('+@eventId
+        +N') AND [sqlserver].[database_id]=('+@dbId+N'))';
+    DECLARE @xe nvarchar(max)=N'CREATE EVENT SESSION [$(CompileSession)] ON SERVER
+     ADD EVENT sqlserver.sql_statement_post_compile(
+       SET collect_statement=(1) ACTION(package0.event_sequence,sqlserver.session_id,sqlserver.database_id)'+@scope+N'),
+     ADD EVENT sqlserver.sp_statement_completed(
+       ACTION(package0.event_sequence,sqlserver.session_id,sqlserver.database_id)'+@scope+N')
+     ADD TARGET package0.ring_buffer(SET max_memory=(1024))
+     WITH (MAX_MEMORY=4 MB,MAX_DISPATCH_LATENCY=1 SECONDS,STARTUP_STATE=OFF);';
+    EXEC sys.sp_executesql @xe;
+    ALTER EVENT SESSION [$(CompileSession)] ON SERVER STATE=START;
+END;
+
 BEGIN TRANSACTION;
 WHILE @trial<=5
 BEGIN
@@ -117,4 +136,57 @@ BEGIN
     SET @trial+=1;
 END;
 ROLLBACK TRANSACTION;
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
+IF $(MeasureCompileCost)=1
+BEGIN
+    WAITFOR DELAY '00:00:02';
+    DECLARE @target xml;
+    SELECT @target=TRY_CONVERT(xml,t.target_data)
+    FROM sys.dm_xe_sessions s
+    JOIN sys.dm_xe_session_targets t ON t.event_session_address=s.address
+    WHERE s.name=N'$(CompileSession)' AND t.target_name=N'ring_buffer'
+      AND s.dropped_event_count=0 AND s.dropped_buffer_count=0
+      AND DATALENGTH(t.target_data)<=4194304
+      AND s.largest_event_dropped_size=0 AND s.pending_buffers=0;
+    IF @target IS NULL THROW 51098,'FAIL_XE_BUFFER',1;
+    DECLARE @retained int=@target.value('(/RingBufferTarget/@eventCount)[1]','int');
+    IF @target.value('(/RingBufferTarget/@truncated)[1]','int')<>0
+       OR @target.value('(/RingBufferTarget/@droppedCount)[1]','int')<>0
+       OR @retained<>@target.value('(/RingBufferTarget/@totalEventsProcessed)[1]','int')
+       OR @retained<>@target.value('count(/RingBufferTarget/event)','int')
+        THROW 51098,'FAIL_XE_RETENTION',1;
+    SELECT event.name,event.seq,event.cpu,event.duration
+    INTO #qualifiedEvents
+    FROM @target.nodes('/RingBufferTarget/event') AS x(e)
+    CROSS APPLY (SELECT
+        x.e.value('(@name)[1]','varchar(40)'),
+        x.e.value('(action[@name="event_sequence"]/value/text())[1]','bigint'),
+        x.e.value('(data[@name="statement"]/value/text())[1]','nvarchar(4000)'),
+        x.e.value('(data[@name="cpu_time"]/value/text())[1]','bigint'),
+        x.e.value('(data[@name="duration"]/value/text())[1]','bigint'),
+        x.e.value('(action[@name="session_id"]/value/text())[1]','int'),
+        x.e.value('(action[@name="database_id"]/value/text())[1]','int')
+    ) AS event(name,seq,statement_text,cpu,duration,session_id,database_id)
+    WHERE event.name IN ('sp_statement_completed','sql_statement_post_compile')
+      AND LTRIM(event.statement_text) COLLATE Latin1_General_100_BIN2 LIKE N'SELECT /* DGN007_CASE_SEARCH */%'
+      AND event.session_id=@@SPID AND event.database_id=DB_ID();
+    DECLARE @completed int=(SELECT COUNT(*) FROM #qualifiedEvents WHERE name='sp_statement_completed');
+    DECLARE @compiled int=(SELECT COUNT(*) FROM #qualifiedEvents WHERE name='sql_statement_post_compile');
+    PRINT CONCAT('DGN007_COMPILER_EVENTS|',@completed,'|',@compiled);
+    IF @completed<>22 OR @compiled<>10
+       OR EXISTS (SELECT seq FROM #qualifiedEvents GROUP BY seq HAVING seq IS NULL OR COUNT(*)<>1)
+       OR EXISTS (SELECT 1 FROM #qualifiedEvents WHERE name='sql_statement_post_compile'
+                  AND (cpu IS NULL OR duration IS NULL OR cpu<0 OR duration<0))
+        THROW 51098,'FAIL_XE_REQUEST_ROSTER',1;
+    ;WITH terminals AS (
+        SELECT seq,ROW_NUMBER() OVER (ORDER BY seq) AS slot,LAG(seq,1,0) OVER (ORDER BY seq) AS previous_seq
+        FROM #qualifiedEvents WHERE name='sp_statement_completed'
+    )
+    SELECT CONCAT('DGN007_COMPILER_SLOT|',t.slot,'|',COUNT(e.seq),'|',COALESCE(SUM(e.cpu),0),'|',COALESCE(SUM(e.duration),0))
+    FROM terminals t
+    LEFT JOIN #qualifiedEvents e ON e.name='sql_statement_post_compile' AND e.seq>t.previous_seq AND e.seq<t.seq
+    GROUP BY t.slot ORDER BY t.slot;
+END;
+
 PRINT 'DGN007_MITIGATION|RESULTS_AND_RESTORE|PASS';

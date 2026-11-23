@@ -319,5 +319,24 @@ Die beiden Ausgangsläufe lieferten bei `(1,1)` und `(5,3)` leichte
 gegenläufige Abweichungen. Der Lauf bestätigte alle Ergebnismengen und
 den vollständigen Abbau. Diese Messwerte gelten für diesen Lauf.
 
-Compilerkosten, Query-Store-Zeitfenster und Alternativhypothesen werden im
-durchgehenden Teilnehmerablauf getrennt qualifiziert.
+Mit `--compile-cost` ergänzt derselbe Diagnoseaufruf die Kompiliermessung
+auf dem festgeschriebenen Build. Eine eigene XE-Sitzung erfasst die
+markierte Suchanweisung in der Messverbindung und der Testdatenbank.
+Der Auswerter verlangt alle 22 Statementabschlüsse in festgelegter
+Reihenfolge. Zwei vorbereitende Requests werden separat geprüft.
+`DGN007_COMPILE_COST` gibt pro Messphase die Anzahl der Kompilierungen,
+die Summe ihrer CPU-Zeit und die Summe ihrer Dauer in Millisekunden aus.
+In beiden Änderungsläufen wird je Parameterklasse eine Kompilierung
+erwartet. Die gemessenen Ausgangs- und Rücknahmeläufe verwenden den
+vorbereiteten Plan. Die XE-Sitzung wird auch bei verworfener Evidenz
+entfernt. Rohereignisse bleiben in der isolierten Instanz.
+
+Im versionierten Lauf auf Build `17.0.5065.9` ergaben sich vier
+Kompilierungen je Änderungslauf mit zusammen 28 beziehungsweise 23 ms
+CPU-Zeit. Alle 20 Ergebnisvergleiche bestanden. Eine absichtlich
+verworfene Auswertung bestätigte separat den Abbau von Sitzung und
+Datenbank.
+
+Der Diagnoseaufruf bindet den Befund an diesen Build und diese Reihenfolge.
+Kompilierzeit, Query-Store-Zeitfenster und Alternativhypothesen bleiben für
+den durchgehenden Teilnehmerablauf gemeinsam zu qualifizieren.
