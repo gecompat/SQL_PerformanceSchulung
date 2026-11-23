@@ -162,9 +162,11 @@ an Dateigröße und SHA-256 binden:
 python Tests/Static/verify_external_tables_ubuntu_base.py MANIFEST --derived-vhdx VHDX
 ```
 
-Der nächste Lauf prüft den isolierten Start einer frischen Kopie in
-Hyper-V. Die hier geprüfte Dateiintegrität belegt weder einen erfolgreichen
-Gaststart noch eine installierte Rolle.
+Der isolierte Gaststart in Hyper-V bleibt offen. Die Ausführungsumgebung
+lehnte den kombinierten Befehl zum Anlegen, Starten und Entfernen der
+temporären Test-VM vor Prozessbeginn ab. Eine anschließende read-only
+Inventur fand keine Test-VM. Weiter geht es mit einem zugelassenen
+isolierten Gaststart. Die hier belegte Dateiintegrität bleibt gültig.
 
 ### Geprüfte Microsoft-Pakete für die Vorlagen
 
@@ -278,6 +280,29 @@ mehrdeutigem Workrecord, nicht auflösbaren Parametern oder abgeschnittenem
 Remote-Befehl bleibt der Pushdown-Befund `NOT_PROVEN`. Die lokale Referenz
 belegt das Ergebnis. Eine Remoteaggregation oder Leistungswirkung erfordert
 einen eigenen Befund.
+
+### SQL-Bausteine für den isolierten Pilot
+
+Die [SQL-Bausteine](../../Tests/Runtime/external_tables_pilot_sql.py) erzeugen
+die Fixture für beide Rollen, die zwei externen Tabellen samt Datenquellen,
+symmetrische Statistiken und die drei Abfragen. Sie verwenden den
+festgelegten Build und getrennte Datenbanknamen. Vor Änderungen prüfen
+sie vier Datenbankmarker für Projekt, Vertragsversion, Lauf und Rolle.
+Der spätere Runner bindet einen achtstelligen ASCII-Lauftoken, den privaten
+Quellhost `pbs-<token>` und den dazu passenden SQL-Reader. Die
+Connector-Batches erwarten ein bereits eingerichtetes, laufgebundenes
+Credential.
+
+Prüfe zunächst die vollständigen Tupel der Quelle, der lokalen Referenz
+und beider externer Tabellen gegen die synthetische Fixture. Baue die
+Statistiken vor dem Erhebungsfenster auf. Verwende danach die drei
+bereitgestellten Aggregatabfragen und vergleiche ihre vollständigen
+Ergebnisse mit dem Vier-Kategorien-Oracle. Der SQL-Baustein enthält den
+Offline-Prüfer für Tupel und Aggregatwerte.
+[Regressionen](../../Tests/Static/test_external_tables_pilot_sql.py)
+prüfen Fixture, Oracle, Routen und die Bindung vor Änderungen.
+Der tatsächliche Remote-Befehl, die Gastrechte und der Cleanup müssen
+im späteren Pilot beobachtet werden.
 
 ### Abbau und Wiederaufnahme
 

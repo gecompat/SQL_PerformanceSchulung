@@ -12,6 +12,8 @@ on:
       - 'Documentation/Project_Planning/external_tables_vhdx_evidence.json'
       - 'Tests/Static/verify_external_tables_apt_plan.py'
       - 'Tests/Static/test_external_tables_apt_plan.py'
+      - 'Tests/Runtime/external_tables_pilot_sql.py'
+      - 'Tests/Static/test_external_tables_pilot_sql.py'
       - 'Documentation/Project_Planning/external_tables_apt_lock.json'
       - '.github/workflows/external-tables-package-verification.yml'
   push:
@@ -26,6 +28,8 @@ on:
       - 'Documentation/Project_Planning/external_tables_vhdx_evidence.json'
       - 'Tests/Static/verify_external_tables_apt_plan.py'
       - 'Tests/Static/test_external_tables_apt_plan.py'
+      - 'Tests/Runtime/external_tables_pilot_sql.py'
+      - 'Tests/Static/test_external_tables_pilot_sql.py'
       - 'Documentation/Project_Planning/external_tables_apt_lock.json'
       - '.github/workflows/external-tables-package-verification.yml'
 
@@ -45,3 +49,4 @@ jobs:
       - run: python Tests/Static/test_external_tables_driver.py
       - run: python Tests/Static/test_external_tables_ubuntu_base.py
       - run: python Tests/Static/test_external_tables_apt_plan.py
+      - run: python Tests/Static/test_external_tables_pilot_sql.py
