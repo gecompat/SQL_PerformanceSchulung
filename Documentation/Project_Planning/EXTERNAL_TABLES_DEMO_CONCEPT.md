@@ -338,7 +338,8 @@ gepuffert liefern kann.
 Der Pilot übergibt dem Adapter eine bereits geprüfte Diagnoseverbindung
 und eine Reader-Funktion mit begrenzter Anmeldefrist, ohne MARS und ohne
 Connection Pooling. Die Reader-Abfrage übernimmt die verbleibende
-Pilotfrist als ODBC-Timeout. Der Adapter liefert aggregierte Zeilen erst
+Pilotfrist als ODBC-Timeout und verwendet dafür einen neuen Cursor auf derselben Verbindung.
+Der Adapter liefert aggregierte Zeilen erst
 nach der bestätigten Schließung des Reader-Cursors und der Verbindung.
 Ein unbestätigter Abbau ergibt `FAIL_CLEANUP`. Der Gaststart, die
 Verbindungsbereitstellung und der übrige SQL- und VM-Abbau bleiben Teil des

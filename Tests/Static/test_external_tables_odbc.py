@@ -39,7 +39,7 @@ class Cursor:
 
     def close(self):
         self.closed = True
-        if self.fail_close:
+        if self.fail_close and self.executed[-1] != REQUEST_IDENTITY:
             raise RuntimeError("unfiltered secret")
 
 
@@ -48,8 +48,10 @@ class Connection:
         self.bound_cursor = cursor
         self.timeout = 0
         self.closed = False
+        self.cursor_timeouts = []
 
     def cursor(self):
+        self.cursor_timeouts.append(self.timeout)
         return self.bound_cursor
 
     def close(self):
@@ -70,6 +72,9 @@ class OdbcTransportTests(unittest.TestCase):
             gate.set()
             self.assertEqual(request.result(deadline), EXPECTED)
         self.assertEqual(reader.bound_cursor.executed, [REQUEST_IDENTITY, SQL])
+        self.assertEqual(len(reader.cursor_timeouts), 2)
+        self.assertGreaterEqual(reader.cursor_timeouts[0], reader.cursor_timeouts[1])
+        self.assertGreater(reader.cursor_timeouts[1], 0)
         self.assertTrue(reader.closed)
         self.assertTrue(reader.bound_cursor.closed)
         self.assertFalse(observer.closed)

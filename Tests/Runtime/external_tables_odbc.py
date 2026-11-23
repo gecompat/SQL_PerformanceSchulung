@@ -96,12 +96,22 @@ class OdbcMeasurementTransport:
                 or type(request_id) is not int or request_id != 0 or cursor.nextset()
             ):
                 raise ValueError("invalid SQL session identity for a dedicated request")
+            identity_cursor, cursor = cursor, None
+            try:
+                identity_cursor.close()
+            except Exception:
+                raise UnconfirmedRequestCleanup("Reader identity cursor closure was not confirmed") from None
             identity.set_result((session_id, request_id))
+
+            # pyodbc applies SQL_ATTR_QUERY_TIMEOUT when it allocates a cursor.
             connection.timeout = _query_timeout(deadline)
+            cursor = connection.cursor()
             cursor.execute(sql)
             rows = _fetch(cursor, 4, 3)
             if any(type(value) is not int for row in rows for value in row) or cursor.nextset():
                 raise ValueError("invalid aggregate response")
+        except UnconfirmedRequestCleanup as exc:
+            failure = exc
         except Exception:
             failure = OSError("Reader request failed")
         else:
