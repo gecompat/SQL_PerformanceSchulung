@@ -44,6 +44,15 @@ RUNTIME_DEPENDENCIES = {
 }
 
 
+# The DGN-007 workflow still runs its static checks for this reader guide.
+DOCUMENTATION_ONLY = {
+    WORKFLOWS["dgn007"]: frozenset({
+        "Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated/README.md",
+    }),
+}
+
+
+
 def parse_trigger_paths(text: str) -> tuple[str, ...]:
     event_block = re.search(r"(?ms)^on:\n(?P<events>.*?)(?=^permissions:|^concurrency:|^jobs:|\Z)", text)
     if not event_block:
@@ -82,7 +91,8 @@ def select_runtime(
     affected = {path for path in changed_paths if any(fnmatchcase(path, pattern) for pattern in patterns)}
     if any(fnmatchcase(path, pattern) for path in affected for pattern in RUNTIME_DEPENDENCIES.get(workflow, ())):
         return True
-    if any(path != workflow and not path.startswith("Tests/Static/") for path in affected):
+    runtime_inputs = affected - DOCUMENTATION_ONLY.get(workflow, frozenset())
+    if any(path != workflow and not path.startswith("Tests/Static/") for path in runtime_inputs):
         return True
     return workflow in affected and runtime_job_changed
 
