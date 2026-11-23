@@ -75,13 +75,16 @@ Datentyps nach Sichtung der Ergebnisse erfordert ein eigenes Profil.
 | Obergrenzen | Ein eigener Container mit 2 CPUs, 4 GiB RAM, ohne externes Netzwerk. Je Testdatenbank maximal 512 MiB Daten und 512 MiB Log, für TempDB insgesamt maximal 512 MiB Daten und 256 MiB Log. Ein Pilotversuch mit insgesamt 900 Sekunden für Start, Setup, Builds und Auswertung sowie einem separaten Cleanupfenster von 90 Sekunden. Das Profil ist ein Budgetvorschlag, dessen Eignung der Review und spätere Lauf prüfen. |
 
 Binde die Ordnungsgüte an die [gesichtete Fassung des Microsoft-Skripts](https://github.com/microsoft/sql-server-samples/blob/c68199caedd6e843ee30cc982f469abdf25dec29/samples/features/columnstore/ordered-columnstore/order-quality.sql).
-Die Reviewprüfung muss sicherstellen, dass die ausgewertete Zeile genau dem
-Zielindex und dessen Spalte entspricht. Die Spaltenmetadaten des Beispiels
-werden über Objekt und Spalte verbunden. Für eine eindeutige Zuordnung muss
-die Auswertung auch die Index-ID absichern oder Mehrfachtreffer vollständig
-abweisen. Die Auswertung braucht außerdem einen geprüften Umgang mit gleichen
-Segmentgrenzen. Mehrdeutige Bindung, unvollständige Metadaten oder
-nicht auswertbare Grenzen führen zu `NOT_PROVEN`.
+Beschränke die Auswertung auf das Zielobjekt, die Index-ID, die Partition und
+die Schlüsselspalte. Ergänze beim Join auf `sys.index_columns` die Index-ID.
+Die ausgewerteten Segment-IDs müssen mit den vier komprimierten Rowgroups
+übereinstimmen. Die Schlüsselformel erzeugt eindeutige Werte. Bei vollständigen,
+disjunkten Rowgroups muss deshalb jede Segmentgrenze in einem Arm eindeutig
+sein und jedes Minimum unter dem zugehörigen Maximum liegen. Prüfe diese
+Vorbedingung mit der gebundenen Beispielauswertung, bevor deren
+`TOP (1)`-Abfragen zur Überlappung herangezogen werden. Bei gleichen Grenzen,
+Mehrfachtreffern oder unvollständigen Segmentmetadaten lautet das Ergebnis
+`NOT_PROVEN`.
 
 ## Evidenz und Auswertung
 
