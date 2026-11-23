@@ -670,6 +670,16 @@ Hyper-V-Anbindung muss im zugelassenen Pilot noch nachgewiesen werden.
    Verwende die Erzeugungsliste für den VM-Abbau und weise diesen Befund
    getrennt aus. Ein unvollständiger Cleanup verhindert `PASS`.
 
+Der [Hyper-V-Abbauprüfer](../../Tests/Runtime/Test-ExternalTablesHyperVAbsence.ps1)
+liest nach dem Abbau das Hostinventar und das lokale Laufverzeichnis.
+Der Gasttransport übergibt die zwei VM-IDs, die Switch-ID und beide
+absoluten VHDX-Pfade aus der ursprünglichen Erzeugungsliste. Die Plattenkopien
+liegen im selben eigenen Laufverzeichnis, das bis nach der Prüfung erhalten
+bleibt. Der Prüfer gibt `PASS` mit drei Nullzählungen aus, wenn alle fünf
+aufgezeichneten Ressourcen fehlen. Ein Inventarfehler, ein fehlendes oder
+umgeleitetes Laufverzeichnis oder ein verbliebener Eintrag verhindert den
+Nachweis. Der Prüfer verändert keine Ressourcen.
+
 Reserviere für jede Anmeldung vor der Einrichtung eine zufällige 16-Byte-SID
 in der Erzeugungsliste des Laufs. Führe bei vorhandener markierter Datenbank
 zuerst den Datenbankabbau aus. Der separate Loginabbau läuft danach in
