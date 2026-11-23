@@ -15,6 +15,7 @@ ROWS = 4096
 DAY_ZERO = date(2026, 1, 1)
 EXPECTED = ((0, 128, 250560), (1, 128, 251840), (2, 128, 253120), (3, 128, 254400))
 COLUMNS = "FactId int NOT NULL, EventDate date NOT NULL, CategoryId int NOT NULL, Amount int NOT NULL"
+SOURCE_PORT = 1433
 CONNECTION_OPTIONS = "Encrypt=Yes;TrustServerCertificate=No;"
 SOURCE_CREDENTIAL = "PilotSourceReader"
 SOURCE_READER_PREFIX = "SqlPerfExtReader"
@@ -146,9 +147,14 @@ COMMIT;
 """
 
 
+def source_host(token: str) -> str:
+    database_name(token, Role.SOURCE)
+    return f"pbs-{token.lower()}"
+
+
 def external_tables_batch(token: str) -> str:
     guard = owned_database_guard(token, Role.QUERY)
-    location = f"sqlserver://pbs-{token.lower()}:1433"
+    location = f"sqlserver://{source_host(token)}:{SOURCE_PORT}"
     source = database_name(token, Role.SOURCE)
     return guard + f"""
 IF NOT EXISTS (
