@@ -220,7 +220,7 @@ Konkurrenz.
 
 ## Statische Auswertung normalisierter Befunde
 
-Für den Methodenreview steht eine [SQL-freie Auswertung je Versuchsarm](../../Tests/Runtime/optsp_compile_evidence.py) bereit. Sie vergleicht tatsächliche Compile-Intervalle und verlangt im ON-Arm einen dem Compile-Actor zugeordneten Wait, der während der Kompilierung beginnt und bis zu deren Ende reicht. Alle erfolgreichen Folgeaufrufe müssen denselben Statement-Planhandle verwenden. Die [synthetischen Gegenproben](../../Tests/Static/test_optsp_compile_evidence.py) decken unter anderem nacheinander liegende Kompilierungen bei überlappenden RPCs, fremde Sessions, gewöhnliche X-Waits und abweichenden Batchtext ab.
+Für den Methodenreview steht eine [SQL-freie Auswertung je Versuchsarm](../../Tests/Runtime/optsp_compile_evidence.py) bereit. Sie verlangt im ON-Arm einen dem Compile-Actor zugeordneten Wait, der eine belegte, positive Zeitspanne der Kompilierung überlappt und bis zum bestätigten Ende reicht. Der Compile-Actor muss dieselbe Ressource bereits bei Wait-Beginn halten. Der Wait darf vor der ersten beobachteten Compilerphase beginnen. Alle erfolgreichen Folgeaufrufe müssen denselben Statement-Planhandle verwenden. Die [synthetischen Gegenproben](../../Tests/Static/test_optsp_compile_evidence.py) decken unter anderem nacheinander liegende Kompilierungen bei überlappenden RPCs, fremde Sessions, gewöhnliche X-Waits und abweichenden Batchtext ab.
 
 Der spätere Producer muss die gemeinsame Zeitbasis und die Compile-Grenzen, Statement-/Cache-Identität, Wait-Ressource und Blockerbindung aus qualifizierten Engine-Daten liefern. Die Auswertung erwartet außerdem eine vollständige Spur der vorab registrierten Actors und eine geprüfte Erfassung samt Abbau. Die Tests validieren die Annahmeregeln mit synthetischen Eingaben. Ein positiver Einzelarm ersetzt weder den gepaarten Lauf noch dessen Negativkontrollen. Die tatsächliche XE-Payload und der Ressourcenbezug des dynamischen Batches bleiben offen.
 
@@ -423,6 +423,33 @@ bezeichnete die Query-Store-Ressource `QDS_INTERVAL_STABILITY`.
 Der Ressourcenabgleich ordnet nur das Compile-Paar der Erstkompilierung
 zu. Der Cleanup der Aufnahme und der Testressourcen bestand.
 Die vollständige Zeitbindung und der gepaarte OFF/ON-Lauf bleiben offen.
+
+### Beobachtung aus zwei gepaarten Reihenfolgen
+
+In einem weiteren Komponentenlauf lagen zwei Paare auf demselben
+Engine-Start in frischen Testdatenbanken, zuerst OFF/ON, anschließend
+ON/OFF. Beide OFF-Arme zeigten je zwei Erstkompilierungen mit
+überlappenden Kardinalitätsschätzungen. Beide ON-Arme zeigten jeweils
+eine Erstkompilierung, den zugeordneten Compile-Wait und denselben
+vorbereiteten Plan für beide Aufrufe. Die sequenzielle OFF-Kontrolle
+kompilierte einmal. Die parallele Kontrolle mit unterschiedlichen
+Batchtexten kompilierte zweimal. Der Cleanup bestand für alle sechs
+Aufnahmen.
+
+In beiden ON-Armen begann der Wait vor dem ersten Schätzereignis.
+Der erfasste Erwerb der Compile-Sperre ging dem Wait-Beginn voraus.
+Die letzten Labels für Post-Compile, Sperrfreigabe und Wait-Ende
+waren gleich. Ihre Ereignisreihenfolge war unterscheidbar. Die
+Auswertung verlangt deshalb eine positive Überlappung mit einer
+belegten Compilerphase und weiterhin einen gebundenen Besitz und
+ein bestätigtes Compile-Ende. Der Beginn des Waits muss innerhalb
+des eigenen RPC liegen. Beim Replay der Zeitlabels meldete die
+Auswertung für beide OFF-Arme die Compile-Überlappung. In beiden
+ON-Armen hatten Erwerb und Freigabe des nachfolgenden Actors dasselbe
+Zeitlabel. Als reines Zeitintervall war dieser Besitz daher nicht
+auswertbar. Für eine vollständige Paarbewertung fehlen noch der
+qualifizierte Ordnungsbezug bei gleich lautenden Labels und die
+maschinenlesbare Bindung aller Profil- und Barrieredaten.
 
 ## Konkreter Pilotkandidat für den unabhängigen Methodenreview
 

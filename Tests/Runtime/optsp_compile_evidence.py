@@ -88,6 +88,7 @@ class Request:
 
 @dataclass(frozen=True)
 class FirstCompile:
+    # Start may bound an observed portion; end is the verified compilation end.
     actor: ActorRequest
     interval: Interval
     plan_handle: str
@@ -241,8 +242,7 @@ def evaluate_arm(arm: Arm) -> Result:
             or wait.resource is None
             or wait.resource.database_id != arm.database_id
             or not request.rpc.contains(wait.interval)
-            or not _at_or_before(winner.interval.start, wait.interval.start)
-            or not _strictly_before(wait.interval.start, winner.interval.end)
+            or not wait.interval.overlaps(winner.interval)
             or not _at_or_before(winner.interval.end, wait.interval.end)
             or not _at_or_before(wait.interval.end, request.statement_completed_at)
         ):

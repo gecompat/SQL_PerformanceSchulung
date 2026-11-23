@@ -66,10 +66,17 @@ class CompileEvidenceTests(unittest.TestCase):
         self.assert_unproven(replace(ON, requests=(REQUESTS[0], earlier_completion)), "statement_plan_reuse")
         uncertain_rpc = replace(REQUESTS[1], rpc=Interval(TimeBounds(2, 7), 19))
         self.assert_unproven(replace(ON, requests=(REQUESTS[0], uncertain_rpc)), "no_bound_compile_wait")
-        wait_overlapping_start = replace(WAIT, interval=Interval(TimeBounds(3, 7), 10))
-        self.assert_unproven(replace(ON, waits=(wait_overlapping_start,)), "no_bound_compile_wait")
+        wait_might_start_at_compile_end = replace(WAIT, interval=Interval(TimeBounds(8, 9), 10))
+        self.assert_unproven(replace(ON, waits=(wait_might_start_at_compile_end,)), "no_bound_compile_wait")
         no_proven_hold = replace(HOLD, interval=Interval(TimeBounds(3, 7), 11))
         self.assert_unproven(replace(ON, lock_holds=(no_proven_hold,)), "no_bound_compile_wait")
+
+    def test_wait_can_begin_before_the_observed_compile_phase_if_covered_by_the_lock(self):
+        early_wait = replace(WAIT, interval=Interval(3, 10))
+        confirmed = replace(ON, waits=(early_wait,))
+        self.assertEqual(evaluate_arm(confirmed).reason, "compile_wait_and_statement_plan_reuse")
+        late_acquire = replace(HOLD, interval=Interval(4, 11))
+        self.assert_unproven(replace(confirmed, lock_holds=(late_acquire,)), "no_bound_compile_wait")
 
     def test_on_excludes_possible_competing_ownership_but_accepts_a_proven_sequence(self):
         compile_ = replace(FIRST, interval=Interval(TimeBounds(3, 4), TimeBounds(8, 9)))
@@ -91,7 +98,7 @@ class CompileEvidenceTests(unittest.TestCase):
             replace(WAIT, wait_type_key=0),
             replace(WAIT, interval=Interval(9, 12)),
             replace(WAIT, interval=Interval(1, 10)),
-            replace(WAIT, interval=Interval(3, 10)),
+            replace(WAIT, interval=Interval(2, 10)),
             replace(WAIT, interval=Interval(6, 8)),
             replace(WAIT, interval=Interval(6, 17)),
         ):
