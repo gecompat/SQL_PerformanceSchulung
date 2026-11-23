@@ -79,8 +79,7 @@ Aufrufe `Language Event`. Beim Aufruf als Stored Procedure stand im
 Puffer die innere Anweisung mit ihrer Parameterdefinition. Beim
 Textaufruf enthielt er den äußeren `EXEC`-Batch. Damit ist der
 Ereignistyp des Eingabepuffers für den Nachweis eines direkten RPC
-ungeeignet. Der Pilot braucht weiterhin eine Beobachtung der
-RPC-Grenzen, die beide Aufrufwege unterscheiden kann.
+ungeeignet. Die Ereignisgrenzen lassen sich mit Extended Events prüfen.
 
 Der Test lief mit PowerShell 7.6.9 unter Windows und
 `System.Data.SqlClient` in Assemblyversion `4.6.1.6` gegen den
@@ -98,6 +97,30 @@ Instanz und `OFF` im aktuellen Datenbankkontext. Im Komponentenlauf
 wurden beide Verbindungen geschlossen und der eigene Container entfernt.
 Die Katalog-CI prüft die Syntax des PowerShell-Skripts.
 
+### Requestgrenzen mit Extended Events
+
+Mit `-CheckXeRequestBoundaries` prüft derselbe Komponententest die
+Aufrufgrenzen auf Build `17.0.5065.9`. Der Stored-Procedure-Aufruf erzeugte
+`rpc_starting` und `rpc_completed`. Der äußere T-SQL-Batch erzeugte
+`sql_batch_starting` und `sql_batch_completed`. Der Test verlangt diese
+Reihenfolge sowie dieselbe Actor-Session und Datenbank (`master`).
+Bei beiden RPC-Ereignissen prüft er `object_name` auf `sp_executesql` und
+`statement` auf die synthetische Anweisung. Bei beiden Batch-Ereignissen
+muss `batch_text` mit dem äußeren `EXEC`-Batch übereinstimmen.
+
+```powershell
+pwsh -NoProfile -File Tests/Runtime/Invoke-OptspInputBufferComponent.ps1 -Server $LoopbackInstanz -ConfirmDisposableInstance -CheckXeRequestBoundaries
+```
+
+Die kurzlebige XE-Sitzung filtert auf die eigene Actor-Session und hält
+die Ereignisse in einem begrenzten Ringpuffer im Speicher. Der Test prüft
+Ereignisverlust, abgeschnittene Daten und das Entfernen der Sitzung aus
+beiden Systemansichten. Die Ausgabe enthält nur die geprüften Ereignisnamen
+und den Cleanup-Status. Die Datenbankoption bleibt `OFF`.
+Für den Pilotversuch sind noch die Compile-Intervalle, die Bindung von
+Wait und Sperrressource sowie die Planwiederverwendung im gepaarten
+OFF-/ON-Lauf zu belegen.
+[Microsoft-Referenz zum Ringpuffer](https://learn.microsoft.com/en-us/sql/relational-databases/extended-events/targets-for-extended-events-in-sql-server?view=sql-server-ver17).
 
 ## Statische Auswertung normalisierter Befunde
 
