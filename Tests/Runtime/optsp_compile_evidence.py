@@ -1,11 +1,12 @@
 """Evaluate normalized evidence for the isolated OPTIMIZED_SP_EXECUTESQL pilot.
 
-The producer must qualify the shared time basis, compile boundaries and
-resource attribution before submitting evidence. This module does not infer
-those facts from raw XE fields or RPC duration.
+The producer must qualify the shared time basis, compile boundaries,
+canonical resource keys and their compile classification. This module
+joins independent waits and ownership intervals without interpreting raw
+XE fields or RPC duration.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from itertools import combinations
 from typing import Literal
 
@@ -49,12 +50,33 @@ class FirstCompile:
 
 
 @dataclass(frozen=True)
+class ResourceKey:
+    """Canonical database-scoped key from a qualified resource mapping."""
+
+    database_id: int
+    namespace: str
+    identity: str = field(repr=False)
+
+    def valid(self) -> bool:
+        return self.database_id > 0 and bool(self.namespace) and bool(self.identity)
+
+
+@dataclass(frozen=True)
+class LockHold:
+    """Granted ownership, from independently bound acquisition and release."""
+
+    owner: ActorRequest
+    resource: ResourceKey
+    interval: Interval
+    verified_compile: bool
+
+
+@dataclass(frozen=True)
 class Wait:
     actor: ActorRequest
-    blocker: ActorRequest
     interval: Interval
     wait_type_key: int
-    verified_compile_resource: str | None
+    resource: ResourceKey | None
 
 
 @dataclass(frozen=True)
@@ -66,6 +88,7 @@ class Arm:
     requests: tuple[Request, ...]
     first_compiles: tuple[FirstCompile, ...]
     waits: tuple[Wait, ...]
+    lock_holds: tuple[LockHold, ...]
     complete: bool  # Producer attests loss-free capture, provenance, and verified teardown.
 
 
@@ -137,16 +160,38 @@ def evaluate_arm(arm: Arm) -> Result:
     ):
         return Result("NOT_PROVEN", "statement_plan_reuse")
 
+    if any(
+        not hold.interval.valid() or not hold.resource.valid()
+        or hold.owner.database_id != hold.resource.database_id
+        for hold in arm.lock_holds
+    ):
+        return Result("NOT_PROVEN", "invalid_lock_ownership")
+
     for wait in arm.waits:
         request = waiters.get(wait.actor)
         if (
-            request is not None
-            and wait.blocker == winner.actor
-            and wait.wait_type_key == LCK_M_X
-            and wait.verified_compile_resource
-            and request.rpc.contains(wait.interval)
-            and winner.interval.start <= wait.interval.start < winner.interval.end
-            and winner.interval.end <= wait.interval.end <= request.statement_completed_at
+            request is None
+            or wait.wait_type_key != LCK_M_X
+            or wait.resource is None
+            or wait.resource.database_id != arm.database_id
+            or not request.rpc.contains(wait.interval)
+            or not winner.interval.start <= wait.interval.start < winner.interval.end
+            or not winner.interval.end <= wait.interval.end <= request.statement_completed_at
+        ):
+            continue
+        owners = tuple(
+            hold for hold in arm.lock_holds
+            if hold.resource == wait.resource and hold.interval.overlaps(wait.interval)
+        )
+        if len(owners) != 1:
+            continue
+        hold, = owners
+        if (
+            hold.owner == winner.actor
+            and hold.verified_compile is True
+            and requests[winner.actor].rpc.contains(hold.interval)
+            and hold.interval.start <= wait.interval.start
+            and winner.interval.end <= hold.interval.end
         ):
             return Result("PROVEN", "compile_wait_and_statement_plan_reuse")
     return Result("NOT_PROVEN", "no_bound_compile_wait")

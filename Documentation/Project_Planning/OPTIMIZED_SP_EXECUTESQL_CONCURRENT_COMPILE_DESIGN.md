@@ -68,6 +68,22 @@ Für den Methodenreview steht eine [SQL-freie Auswertung je Versuchsarm](../../T
 
 Der spätere Producer muss die gemeinsame Zeitbasis und die Compile-Grenzen, Statement-/Cache-Identität, Wait-Ressource und Blockerbindung aus qualifizierten Engine-Daten liefern. Die Auswertung erwartet außerdem eine vollständige Spur der vorab registrierten Actors und eine geprüfte Erfassung samt Abbau. Die Tests validieren die Annahmeregeln mit synthetischen Eingaben. Ein positiver Einzelarm ersetzt weder den gepaarten Lauf noch dessen Negativkontrollen. Die tatsächliche XE-Payload und der Ressourcenbezug des dynamischen Batches bleiben offen.
 
+Die Auswertung verbindet Wait und Sperrbesitz anhand desselben
+datenbankbezogenen Ressourcenschlüssels. Sie akzeptiert den ON-Arm nur,
+wenn genau ein erfasstes Besitzintervall diese Wartezeit überlappt. Der
+kompilierende Request muss die Ressource bereits beim Wait-Beginn halten.
+Sein Besitz muss mindestens bis zum Ende der Kompilierung reichen.
+Eine konkurrierende Zuordnung, ein anderer Schlüssel oder ein
+unvollständiges Besitzintervall ergeben `NOT_PROVEN`.
+
+Der Producer muss deshalb die erteilte Sperre mit Erwerb und Freigabe
+an denselben Request binden und Ressourcentyp sowie Identität mit der
+Wait-Spur abgleichen. Eine einzelne DMV-Stichprobe kann bei der
+Klassifikation helfen. Das vollständige Besitzintervall benötigt
+weiterführende Evidenz. Aus dem Modus `LCK_M_X` allein folgt kein
+Compile-Lock.
+[Microsoft-Referenz zu den Spalten einer Sperrressource](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-tran-locks-transact-sql?view=sql-server-ver17).
+
 ## Zeiteinheiten und Planhandle auf Build 17.0.5065.9
 
 Der [Kataloglauf 45188183551](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45188183551) dokumentiert unterschiedliche Einheiten in den Feldbeschreibungen.
