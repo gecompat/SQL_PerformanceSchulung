@@ -110,36 +110,43 @@ Dateien mit:
 python Tests/Static/verify_external_tables_ubuntu_base.py MANIFEST --archive VHD-ARCHIV
 ```
 
-### Aufgelöste Ubuntu-Pakete für beide VM-Rollen
+### Aufgelöste Pakete für beide VM-Rollen
 
 Der Paketstatus wurde am 23. November 2026 direkt aus dem Root-Dateisystem
 der geprüften VHD gelesen. Alle 659 installierten Paketnamen und Versionen
 stimmten mit Canonicals Manifest überein. APT 2.8.4 verwendete diesen
-Paketstatus, die beiden geprüften Microsoft-`.deb`-Dateien und die
-signierten Ubuntu-Quellen `noble`, `noble-updates` und `noble-security`
-aus dem [datierten Ubuntu-Archiv](https://snapshot.ubuntu.com/ubuntu/20261123T000000Z/).
-Die Simulation mit `--no-install-recommends` ergab zwölf zusätzliche
-Ubuntu-Pakete und zwei SQL-Pakete, ohne Upgrades oder Entfernungen.
-Die Versionen, Pfade, Größen und SHA-256-Werte stehen in der
-[APT-Paketliste](external_tables_apt_lock.json). Alle zwölf Ubuntu-Payloads
-wurden aus dem Snapshot geladen und gegen diese Prüfsummen geprüft.
+Paketstatus und die signierten Komponenten `main` und `universe` aus
+`noble`, `noble-updates` und `noble-security`.
+[Datierter Ubuntu-Snapshot](https://snapshot.ubuntu.com/ubuntu/20261123T000000Z/).
+
+Das Abfrageprofil umfasst 21 zusätzliche APT-Pakete. Zu den zwölf
+Ubuntu-Paketen sowie SQL Server und PolyBase kommen sechs
+Ubuntu-Bibliotheks- und unixODBC-Pakete sowie `msodbcsql18` in der Version
+`18.7.1.1-1`. Der Treiber stammt aus dem signierten Microsoft-`prod`-Index
+für Ubuntu 24.04. `libgssapi-krb5-2` war im geprüften Grundabbild vorhanden.
+Der Lösungslauf ergab weder Upgrades noch Entfernungen. Die sieben neuen
+Paketdateien wurden heruntergeladen und mit den Größen und SHA-256-Werten
+der signierten Indizes abgeglichen. Die
+[APT-Paketliste](external_tables_apt_lock.json) bindet für die Abfrage-VM
+zusätzlich das Linux-x86-64-Wheel für CPython 3.12 und `pyodbc 5.5.0`.
+[Microsoft-Anleitung für ODBC Driver 18](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-ver17#ubuntu).
 
 Der [APT-Prüfer](../../Tests/Static/verify_external_tables_apt_plan.py)
 erwartet die Ausgabe eines erfolgreich beendeten `apt-get -s`-Laufs.
-Er prüft die Paketnamen und Versionsübergänge. Optional prüft er die
-Dateien aller 14 Pakete in demselben Verzeichnis.
+`--payload-directory` prüft zusätzlich jede gebundene `.deb`-Datei
+im angegebenen Ordner. `--python-wheel` prüft getrennt Dateiname, Größe
+und Hash des Wheels.
 
 ```text
-python Tests/Static/verify_external_tables_apt_plan.py APT-PLAN --role query --payload-directory PAKETVERZEICHNIS
+python Tests/Static/verify_external_tables_apt_plan.py APT-PLAN --role query --payload-directory PAKETVERZEICHNIS --python-wheel WHEEL-DATEI
 ```
 
-Ein separater Lauf vom selben Paketstatus mit ausschließlich dem
-Engine-Paket ergab für die Quell-VM die zwölf bereits gebundenen
-Ubuntu-Pakete plus `mssql-server`. Die 13 Installationsschritte enthalten
-dieselben Versionen wie das Abfrageprofil und keine Upgrades oder
-Entfernungen. Verwende `--role source` für diesen Plan. Die Simulation
-installiert weder SQL Server noch PolyBase. Installationsskripte,
-Dienstzustand und der Connectorlauf bleiben im Gast zu prüfen.
+Für die Quell-VM ergab der Lauf vom selben Paketstatus unverändert 13
+Installationsschritte, zwölf Ubuntu-Pakete und `mssql-server`. Verwende
+`--role source` für diesen Plan. Die beiden Simulationen lösen Versionen
+und Abhängigkeiten auf. Installation, Dienstzustand und Connectorlauf
+werden in den bereitgestellten Gästen geprüft.
+
 
 ### Abgeleitetes Hyper-V-Abbild mit 24 GiB
 
@@ -427,7 +434,7 @@ Loopback im Wegwerfcontainer. Der SQL-Abbau und die Containerentfernung
 waren erfolgreich. Das verwendete CPython-3.12-Linux-x86-64-Wheel wurde
 gegen SHA-256
 `4ee64db80a3cdcf87be2234d3793833b324fbd11fbe738afdaba46ca478cac13` geprüft.
-Für den Pilot stehen die Gastbereitstellung samt Clientpaketen und der
+Für den Pilot stehen die Gastbereitstellung mit den gebundenen Paketen und der
 PolyBase-Lauf über den privaten Switch aus.
 [PyPI-Dateinachweis für `pyodbc 5.5.0`](https://pypi.org/project/pyodbc/5.5.0/#files).
 

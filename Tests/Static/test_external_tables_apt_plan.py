@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 import json
+from hashlib import sha256
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import TestCase, main
 
-from verify_external_tables_apt_plan import LOCK as LOCK_PATH, check_plan, parse_install_plan, select_role
+from verify_external_tables_apt_plan import (
+    LOCK as LOCK_PATH, check_plan, parse_install_plan, select_role, verify_python_wheel,
+)
 
 
 PLAN = """Reading package lists...
@@ -40,7 +45,12 @@ class AptPlanTests(TestCase):
         source = select_role(lock, "source")
         query_names = {entry["package"] for entry in query["packages"]}
         source_names = {entry["package"] for entry in source["packages"]}
-        self.assertEqual(query_names - source_names, {"mssql-server-polybase"})
+        self.assertEqual(query_names - source_names, {
+            "libltdl7", "libodbc2", "libodbcinst2", "msodbcsql18", "mssql-server-polybase",
+            "odbcinst", "unixodbc", "unixodbc-common",
+        })
+        self.assertIn("python_wheel", query)
+        self.assertNotIn("python_wheel", source)
         self.assertFalse(source_names - query_names)
         self.assertIn("mssql-server", source_names)
         solver = "\n".join(f"Inst {row['package']} ({row['version']} [amd64])" for row in source["packages"])
@@ -48,6 +58,24 @@ class AptPlanTests(TestCase):
         with self.assertRaises(ValueError):
             check_plan(solver, query)
 
+    def test_wheel_checks_name_size_and_digest_and_requires_query_role(self):
+        data = b"synthetic wheel bytes"
+        entry = {"filename": "fixture.whl", "size": len(data), "sha256": sha256(data).hexdigest()}
+        lock = {"python_wheel": entry}
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "fixture.whl"
+            path.write_bytes(data)
+            verify_python_wheel(path, lock)
+            with self.assertRaisesRegex(ValueError, "only part of the query role"):
+                verify_python_wheel(path, {"packages": []})
+            with self.assertRaisesRegex(ValueError, "differs"):
+                verify_python_wheel(path.with_name("wrong.whl"), lock)
+            path.write_bytes(b"x" * len(data))
+            with self.assertRaisesRegex(ValueError, "differs"):
+                verify_python_wheel(path, lock)
+            path.write_bytes(data + b"x")
+            with self.assertRaisesRegex(ValueError, "differs"):
+                verify_python_wheel(path, lock)
 
 
 if __name__ == "__main__":

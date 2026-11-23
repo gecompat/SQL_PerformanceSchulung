@@ -130,6 +130,69 @@
       "sha256": "302acda716e373d785dc8f1c394d762deb498010cbf96f10af679bba08b2c32a",
       "repository": "microsoft",
       "path": "pool/main/m/mssql-server-polybase/mssql-server-polybase_17.0.5065.9-3_amd64.deb"
+    },
+    {
+      "package": "libltdl7",
+      "version": "2.4.7-7build1",
+      "architecture": "amd64",
+      "size": 40258,
+      "sha256": "02d0d2d7e1bf73f838a92f8df7a9b07b698c837e82bd89aee6a581cf793cd966",
+      "repository": "ubuntu",
+      "path": "pool/main/libt/libtool/libltdl7_2.4.7-7build1_amd64.deb"
+    },
+    {
+      "package": "libodbc2",
+      "version": "2.3.12-1ubuntu0.24.04.1",
+      "architecture": "amd64",
+      "size": 158090,
+      "sha256": "95eac9d12c9fe50ed3a8a7bc32ffeb22060d41b224be1e960829baa03faa82a8",
+      "repository": "ubuntu",
+      "path": "pool/main/u/unixodbc/libodbc2_2.3.12-1ubuntu0.24.04.1_amd64.deb"
+    },
+    {
+      "package": "unixodbc-common",
+      "version": "2.3.12-1ubuntu0.24.04.1",
+      "architecture": "all",
+      "size": 8806,
+      "sha256": "139381c20139e28e9776c4cc519c23fd019f51e8a84f6a3f1c0b708a722dfb5f",
+      "repository": "ubuntu",
+      "path": "pool/main/u/unixodbc/unixodbc-common_2.3.12-1ubuntu0.24.04.1_all.deb"
+    },
+    {
+      "package": "libodbcinst2",
+      "version": "2.3.12-1ubuntu0.24.04.1",
+      "architecture": "amd64",
+      "size": 30720,
+      "sha256": "020551be53bb04bd7b87b97077432793fe7bce268eca9e4b3a4fc4a3d34345d6",
+      "repository": "ubuntu",
+      "path": "pool/main/u/unixodbc/libodbcinst2_2.3.12-1ubuntu0.24.04.1_amd64.deb"
+    },
+    {
+      "package": "odbcinst",
+      "version": "2.3.12-1ubuntu0.24.04.1",
+      "architecture": "amd64",
+      "size": 9672,
+      "sha256": "5dce518e345ea55ac1bdc38433d18245fb2c1c5ad0b7ebda04e5d7c2df0fdcb0",
+      "repository": "ubuntu",
+      "path": "pool/main/u/unixodbc/odbcinst_2.3.12-1ubuntu0.24.04.1_amd64.deb"
+    },
+    {
+      "package": "unixodbc",
+      "version": "2.3.12-1ubuntu0.24.04.1",
+      "architecture": "amd64",
+      "size": 27512,
+      "sha256": "d9868c15747c5173289dd26206dc0657a4e3eb55e89264798c98d30eac76cf8e",
+      "repository": "ubuntu",
+      "path": "pool/universe/u/unixodbc/unixodbc_2.3.12-1ubuntu0.24.04.1_amd64.deb"
+    },
+    {
+      "package": "msodbcsql18",
+      "version": "18.7.1.1-1",
+      "architecture": "amd64",
+      "size": 801706,
+      "sha256": "f506cb3de8b34cd94e9014d247b39e9dfd7effad79edad3ab67096dc3c1b6b0e",
+      "repository": "microsoft-client",
+      "path": "pool/main/m/msodbcsql18/msodbcsql18_18.7.1.1-1_amd64.deb"
     }
   ],
   "roles": {
@@ -147,7 +210,14 @@
       "libc++1",
       "libsss-nss-idmap0",
       "mssql-server",
-      "mssql-server-polybase"
+      "mssql-server-polybase",
+      "libltdl7",
+      "libodbc2",
+      "unixodbc-common",
+      "libodbcinst2",
+      "odbcinst",
+      "unixodbc",
+      "msodbcsql18"
     ],
     "source": [
       "libbabeltrace1",
@@ -164,5 +234,11 @@
       "libsss-nss-idmap0",
       "mssql-server"
     ]
+  },
+  "python_wheel": {
+    "filename": "pyodbc-5.5.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl",
+    "size": 417233,
+    "sha256": "4ee64db80a3cdcf87be2234d3793833b324fbd11fbe738afdaba46ca478cac13",
+    "url": "https://files.pythonhosted.org/packages/6c/d5/e7d282f48b384edfcbecd9b406316e84c2ab14cd126773896872e03a2740/pyodbc-5.5.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl"
   }
 }

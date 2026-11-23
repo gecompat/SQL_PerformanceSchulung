@@ -1,4 +1,4 @@
-"""Check the simulated package plan against the External Tables dependency lock."""
+"""Check the simulated External Tables package plan and optional offline artifacts."""
 from __future__ import annotations
 
 import argparse
@@ -49,13 +49,25 @@ def check_plan(text: str, lock: dict) -> int:
     return len(actual)
 
 
+def _matches_file(path: Path, entry: dict) -> bool:
+    with path.open("rb") as stream:
+        return path.stat().st_size == entry["size"] and file_digest(stream, "sha256").hexdigest() == entry["sha256"]
+
+
 def verify_packages(directory: Path, lock: dict) -> int:
     for entry in lock["packages"]:
         path = directory / Path(entry["path"]).name
-        with path.open("rb") as stream:
-            if path.stat().st_size != entry["size"] or file_digest(stream, "sha256").hexdigest() != entry["sha256"]:
-                raise ValueError(f"package bytes differ from lock: {entry['package']}")
+        if not _matches_file(path, entry):
+            raise ValueError(f"package bytes differ from lock: {entry['package']}")
     return len(lock["packages"])
+
+
+def verify_python_wheel(path: Path, lock: dict) -> None:
+    entry = lock.get("python_wheel")
+    if entry is None:
+        raise ValueError("Python wheel is only part of the query role")
+    if path.name != entry["filename"] or not _matches_file(path, entry):
+        raise ValueError("Python wheel differs from the query role lock")
 
 
 def select_role(lock: dict, role: str) -> dict:
@@ -64,7 +76,10 @@ def select_role(lock: dict, role: str) -> dict:
     packages = [entry for entry in lock["packages"] if entry["package"] in want]
     if len(want) != len(names) or {entry["package"] for entry in packages} != want:
         raise ValueError("APT role refers to duplicate or unknown packages")
-    return {"packages": packages}
+    selected = {"packages": packages}
+    if role == "query" and "python_wheel" in lock:
+        selected["python_wheel"] = lock["python_wheel"]
+    return selected
 
 
 def main() -> int:
@@ -72,6 +87,7 @@ def main() -> int:
     parser.add_argument("apt_plan", type=Path)
     parser.add_argument("--role", choices=("query", "source"), default="query")
     parser.add_argument("--payload-directory", type=Path, help="also verify all locked .deb files")
+    parser.add_argument("--python-wheel", type=Path, help="also verify the query guest's CPython wheel")
     args = parser.parse_args()
     try:
         with args.apt_plan.open("rb") as stream:
@@ -83,6 +99,9 @@ def main() -> int:
         print(f"PASS {count} locked package transitions, no package removals")
         if args.payload_directory is not None:
             print(f"PASS {verify_packages(args.payload_directory, lock)} locked package payloads")
+        if args.python_wheel is not None:
+            verify_python_wheel(args.python_wheel, lock)
+            print("PASS locked query-guest Python wheel")
     except (OSError, ValueError) as exc:
         print(f"FAIL {exc}")
         return 1
