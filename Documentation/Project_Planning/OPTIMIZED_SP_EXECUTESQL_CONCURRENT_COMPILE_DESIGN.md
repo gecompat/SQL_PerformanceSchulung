@@ -571,15 +571,38 @@ Die sequenzielle Kontrolle erfüllte das Überlappungskriterium nicht.
 Die abweichende Batchidentität wurde beim Paarvergleich abgewiesen.
 Die sechs XE-Sitzungen, Datenbanken und der eigene Container wurden
 nachweislich entfernt. Der Befund gilt für dieses synthetische Profil
-und den festgeschriebenen Build. Eine veröffentlichte, regelmäßig
-ausführbare Demo erfordert einen eigenen Vertrag und eine Freigabe.
+und den festgeschriebenen Build.
 
-## Gates vor einer Implementierung
+## Gebundenen Vergleich ausführen
 
-- Unabhängiger Methodenreview bestätigt Buildbindung, Ereignis-/Feldvertrag, Auswertungsregeln, Statistikbehandlung, Sicherheitsklasse und Restore.
-- Ein Wegwerfziel mit SQL Server 2025 und reproduzierbarem Cleanup ist verfügbar. SQL Server 2019/2022 führen keinen Versuch aus; falls sie im späteren Runner auftauchen, muss der Versions-Skip vor jeder Mutation erfolgen.
-- Der vollständige Versuch ist auf dem freigegebenen Build zunächst pilotiert. Fehlende oder mehrdeutige Evidenz bleibt `NOT_PROVEN`; sie darf nicht durch eine Quelltextannahme oder ältere `QRY-004`-Ergebnisse ersetzt werden.
-- Erst nach bestandenen Gates werden eigene Demo-ID, ausführbarer Vertrag, Tests und Runtime-Matrix vorgeschlagen. Dieser Entwurf erteilt diese Freigaben nicht.
+Der [Runner](../../Tests/Runtime/run_optsp_paired.py) benötigt Python ab
+3.12, PowerShell ab 7.2, einen lokalen Docker-kompatiblen Kontext und das
+bereits lokal verfügbare AMD64-Image mit dem unten genannten Digest. Der
+Schalter bestätigt die SQL Server Developer EULA und erlaubt dem Runner,
+einen eigenen Container zu erstellen. Der Runner lädt kein Image nach.
+
+```text
+python Tests/Runtime/run_optsp_paired.py --confirm-disposable-container
+```
+
+1. Der Runner prüft Image, Containergrenzen und Build und erstellt sechs
+   markierte Datenbanken in einer kurzlebigen Instanz.
+2. Er führt die beiden OFF/ON-Paare in umgekehrter Reihenfolge aus und
+   prüft die sequenzielle sowie die abweichende Batchkontrolle.
+3. Er prüft die XE-Zuordnung und den Planbezug, entfernt seine Messsitzungen
+   und Datenbanken und bestätigt anschließend die Abwesenheit des Containers.
+
+Der Runner meldet `OPTSP|PASS|cleanup=PASS` mit Exitcode 0 nach den beiden
+positiven Paaren, den erwarteten Negativkontrollen und dem bestätigten
+Abbau. `NOT_PROVEN` liefert Exitcode 1, `FAIL_CLEANUP` Exitcode 3.
+Bei `FAIL_CLEANUP` ist der ausgegebene Besitzmarker für die Suche nach dem
+eigenen Container vorgesehen. Die Laufgrenze beträgt 240 Sekunden, der
+getrennte Abbau hat eine Grenze von 60 Sekunden. Querytexte, Planhandles,
+Kennwörter und Rohereignisse erscheinen nicht im Ergebnis.
+
+Dieser eigenständige Traineraufruf gilt für den festgeschriebenen
+SQL-Server-2025-Developer-Build. Für eine Katalogaufnahme sind weiterhin
+eine eigene Demo-ID und der zugehörige Ausführungsvertrag vorgesehen.
 
 ## Quellen und Aussagegrenzen
 

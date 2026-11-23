@@ -11,6 +11,10 @@ on:
       - 'Tests/Runtime/Invoke-OptspInputBufferComponent.ps1'
       - 'Tests/Runtime/Invoke-OptspCompileWitnessComponent.ps1'
       - 'Tests/Runtime/OptspCompileWorkload.psd1'
+      - 'Tests/Runtime/Invoke-OptspPairedArm.ps1'
+      - 'Tests/Runtime/optsp_paired_evidence.py'
+      - 'Tests/Runtime/run_optsp_paired.py'
+      - 'Tests/Static/test_optsp_paired_evidence.py'
       - 'Tests/Runtime/optsp_xe_snapshot.py'
       - 'Tests/Static/test_optsp_xe_snapshot.py'
       - 'Tests/Static/test_optsp_compile_evidence.py'
@@ -28,6 +32,10 @@ on:
       - 'Tests/Runtime/Invoke-OptspInputBufferComponent.ps1'
       - 'Tests/Runtime/Invoke-OptspCompileWitnessComponent.ps1'
       - 'Tests/Runtime/OptspCompileWorkload.psd1'
+      - 'Tests/Runtime/Invoke-OptspPairedArm.ps1'
+      - 'Tests/Runtime/optsp_paired_evidence.py'
+      - 'Tests/Runtime/run_optsp_paired.py'
+      - 'Tests/Static/test_optsp_paired_evidence.py'
       - 'Tests/Runtime/optsp_xe_snapshot.py'
       - 'Tests/Static/test_optsp_xe_snapshot.py'
       - 'Tests/Static/test_optsp_compile_evidence.py'
@@ -59,13 +67,16 @@ jobs:
       - name: Run normalized compile evidence regressions
         run: python Tests/Static/test_optsp_compile_evidence.py
 
+      - name: Run paired evidence and launcher regressions
+        run: python Tests/Static/test_optsp_paired_evidence.py
+
       - name: Run XE snapshot regressions
         run: python Tests/Static/test_optsp_xe_snapshot.py
 
       - name: Parse the PowerShell components
         shell: pwsh
         run: |
-          foreach ($file in @('Invoke-OptspInputBufferComponent.ps1', 'Invoke-OptspCompileWitnessComponent.ps1')) {
+          foreach ($file in @('Invoke-OptspInputBufferComponent.ps1', 'Invoke-OptspCompileWitnessComponent.ps1', 'Invoke-OptspPairedArm.ps1')) {
             $tokens = $null
             $parseErrors = $null
             $path = (Resolve-Path "Tests/Runtime/$file").Path
