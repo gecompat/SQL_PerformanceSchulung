@@ -11,11 +11,22 @@ WORKFLOW = ROOT / ".github" / "workflows" / "optsp-xe-catalog-probe.yml"
 
 def validate(sql: str, workflow: str) -> list[str]:
     findings: list[str] = []
-    if "SERVERPROPERTY('ProductMajorVersion')" not in sql or "IF @ProductMajorVersion <> 17" not in sql:
+    if "SERVERPROPERTY('ProductMajorVersion')" not in sql or "IF @ProductMajorVersion IS NULL OR @ProductMajorVersion <> 17" not in sql:
         findings.append("probe must stop unless the engine is SQL Server 2025")
     for catalog in ("sys.dm_xe_objects", "sys.dm_xe_object_columns", "sys.dm_xe_packages"):
         if catalog not in sql:
             findings.append(f"probe must read {catalog}")
+    wait_event = "package.name = N'sqlos' AND event_object.name = N'wait_info'"
+    if wait_event not in sql:
+        findings.append("probe must select wait_info from the sqlos package")
+    wait_map_markers = (
+        "sys.dm_xe_map_values AS wait_map",
+        "package.guid = wait_map.object_package_guid",
+        "wait_map.name = N'wait_types'",
+        "wait_map.map_value = N'LCK_M_X'",
+    )
+    if any(marker not in sql for marker in wait_map_markers):
+        findings.append("probe must bind the LCK_M_X map key through the package GUID")
     for marker in ("FOR JSON PATH", "sql_text", "session_id", "database_id", "query_hash", "query_plan_hash"):
         if marker not in sql:
             findings.append(f"probe metadata marker missing: {marker}")

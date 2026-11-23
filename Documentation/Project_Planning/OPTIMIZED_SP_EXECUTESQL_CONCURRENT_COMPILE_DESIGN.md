@@ -23,6 +23,15 @@ Microsoft dokumentiert, dass die datenbankbezogene Option ab SQL Server 2025 sta
 6. **Auswertung:** OFF muss im ausgerichteten Zeitfenster mehrere tatsächliche Kompilierungen für die identische Batchgruppe nachweisen, bevor die Kontrollbehauptung zulässig ist. Für ON sind konkurrierende Compile-Waits und anschließende Planwiederverwendung mit batch- und zeitgebundener Evidenz zu belegen. Die abweichende Batchtextgruppe prüft, dass nicht fälschlich alle Texte als identisch behandelt werden. Ergebnisse, Fehler, Latenzverteilung, Compileaktivität und Waits werden getrennt berichtet; es gibt keinen vorab behaupteten Gewinner oder absoluten Performancegrenzwert.
 7. **Abbruch und Cleanup:** fehlende Ereignisfelder, nicht eindeutige Batchzuordnung, fehlgeschlagene Barriere, Timeout, unerwartete Abweichung zwischen Armen oder unvollständiger Cleanup ergeben `NOT_PROVEN` beziehungsweise einen expliziten Skip-/Failstatus. Vorher-/Nachherzustand aller Datenbankoptionen, XE-Session, Datenbanken und Testobjekte wird geprüft. Der Cleanup darf nur vollständige Projekt-/Vertrags-/Demo-/RunToken-Marker entfernen.
 
+## Kandidat für die Beobachtung von Wartezeiten
+
+Die Katalogprobe erfasst zusätzlich `sqlos.wait_info` und den numerischen
+Schlüssel von `LCK_M_X` aus `sqlos.wait_types`. Microsoft zeigt diese
+Paket- und Map-Zuordnung in der [Extended-Events-Dokumentation zu Waits](https://learn.microsoft.com/en-us/sql/database-engine/availability-groups/windows/always-on-wait-types?view=sql-server-ver17).
+Der Pilot braucht eine eindeutige Zuordnung des Waits zu einem teilnehmenden
+Request, dem Batch und einer Compile-Sperrressource. `LCK_M_X` beschreibt den
+Sperrmodus. Die konkrete Ursache bleibt bis zur Korrelation offen.
+
 ## Gates vor einer Implementierung
 
 - Unabhängiger Methodenreview bestätigt Buildbindung, Ereignis-/Feldvertrag, Auswertungsregeln, Statistikbehandlung, Sicherheitsklasse und Restore.
