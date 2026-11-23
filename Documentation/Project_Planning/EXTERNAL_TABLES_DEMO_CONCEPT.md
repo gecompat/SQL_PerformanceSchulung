@@ -328,10 +328,22 @@ Mehrdeutige Handle-Zuordnungen, widersprüchliche Befunde
 oder ein zu kurzer Request ohne beobachteten Handle ergeben `NOT_PROVEN`.
 Ein weiterer Aufruf im selben Arm würde die Zuordnung mehrdeutig machen.
 
-Der spätere Gasttransport meldet den bestätigten Abschluss der eigenen
-Reader-Verbindungen und Requests. Ein unbestätigter Abbau ergibt
-`FAIL_CLEANUP` und verhindert den Vergleich. Der Start der VMs und die
-Bereinigung der SQL- und VM-Ressourcen liegen im umschließenden Pilot.
+Der [ODBC-Adapter](../../Tests/Runtime/external_tables_odbc.py) gibt
+Session-ID und Request-ID 0 auf einer frischen Reader-Verbindung aus.
+Auf derselben Verbindung startet er anschließend genau eine Messabfrage.
+Parallel sucht die getrennte Diagnoseverbindung nach Session-ID, Request-ID
+und dem Marker des tatsächlich laufenden Statements. Die Identitätsabfrage
+läuft separat, weil der Treiber frühe Resultate einer gemeinsamen Ausführung
+gepuffert liefern kann.
+Der Pilot übergibt dem Adapter eine bereits geprüfte Diagnoseverbindung
+und eine Reader-Funktion mit begrenzter Anmeldefrist, ohne MARS und ohne
+Connection Pooling. Die Reader-Abfrage übernimmt die verbleibende
+Pilotfrist als ODBC-Timeout und verwendet dafür einen neuen Cursor auf derselben Verbindung.
+Der Adapter liefert aggregierte Zeilen erst
+nach der bestätigten Schließung des Reader-Cursors und der Verbindung.
+Ein unbestätigter Abbau ergibt `FAIL_CLEANUP`. Der Gaststart, die
+Verbindungsbereitstellung und der übrige SQL- und VM-Abbau bleiben Teil des
+umschließenden Piloten.
 Die [Ablauftests](../../Tests/Static/test_external_tables_measurement.py)
 verwenden simulierte Antworten. Ob der Connector die erwarteten Felder
 liefert und der Request lange genug für eine Live-Beobachtung sichtbar
