@@ -12,6 +12,7 @@ from tempfile import TemporaryDirectory
 from time import monotonic
 
 from dgn004_capture_runner import CaptureRunnerError, CaptureTimeoutError, collect_bounded_process
+from external_tables_odbc import read_pinned_pyodbc_wheel, stage_pinned_pyodbc
 from external_tables_package_state import read_dpkg_status, select_role, verify_guest_state
 from external_tables_pilot_sql import Role
 
@@ -77,7 +78,9 @@ def verify_packages(directory: Path, lock: dict) -> int:
     return len(lock["packages"])
 
 
-def install_verified_guest_packages(staging: Path, package_lock: dict, role: Role, deadline: float) -> int:
+def install_verified_guest_packages(
+    staging: Path, package_lock: dict, role: Role, deadline: float, *, wheel_install_dir: Path | None = None,
+) -> int:
     """Apply a role lock once on a freshly booted, detached pilot guest."""
     _remaining(deadline)
     if sys.platform != "linux" or os.geteuid() != 0:
@@ -94,6 +97,12 @@ def install_verified_guest_packages(staging: Path, package_lock: dict, role: Rol
 
     role_lock = select_role(package_lock, role.value.lower())
     verify_packages(stage, role_lock)
+    wheel = role_lock.get("python_wheel")
+    if (wheel is None) != (wheel_install_dir is None):
+        raise ValueError("guest wheel installation requires its role lock and private directory")
+    if wheel_install_dir is not None and not wheel_install_dir.is_dir():
+        raise ValueError("guest wheel installation requires an existing private directory")
+    wheel_payload = None if wheel is None else read_pinned_pyodbc_wheel(stage / wheel["filename"], wheel)
     package_paths = tuple(stage / Path(entry["path"]).name for entry in role_lock["packages"])
     with TemporaryDirectory(prefix="external-tables-apt-") as directory:
         apt_state = Path(directory)
@@ -109,6 +118,9 @@ def install_verified_guest_packages(staging: Path, package_lock: dict, role: Rol
         _run_apt(apt_install_command(package_paths, apt_state, simulate=False), deadline)
     require_guest_detached()
     installed = verify_guest_state(base_status, read_dpkg_status(_DPKG_STATUS), base_digest, role_lock)
+    if wheel_payload is not None:
+        _remaining(deadline)
+        stage_pinned_pyodbc(wheel_install_dir, wheel, wheel_payload)
     _remaining(deadline)
     return installed
 

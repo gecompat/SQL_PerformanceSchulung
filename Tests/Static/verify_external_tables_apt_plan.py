@@ -2,15 +2,14 @@
 from __future__ import annotations
 
 import argparse
-from hashlib import file_digest
 import json
 from pathlib import Path
 import sys
-from zipfile import BadZipFile, ZipFile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
-from external_tables_guest_apt import check_plan, matches_locked_file, verify_packages
+from external_tables_guest_apt import check_plan, verify_packages
+from external_tables_odbc import read_pinned_pyodbc_wheel
 from external_tables_package_state import read_dpkg_status, select_role, verify_guest_state
 
 
@@ -23,20 +22,8 @@ LOCK = (
 def verify_python_wheel(path: Path, lock: dict) -> None:
     entry = lock.get("python_wheel")
     if entry is None:
-        raise ValueError("Python wheel is only part of the query role")
-    if path.name != entry["filename"] or not matches_locked_file(path, entry):
-        raise ValueError("Python wheel differs from the query role lock")
-    extension = entry["installed_extension"]
-    try:
-        with ZipFile(path) as wheel:
-            entries = [member for member in wheel.infolist() if member.filename.endswith(".so")]
-            if len(entries) != 1 or entries[0].filename != extension["filename"] or entries[0].file_size != extension["size"]:
-                raise ValueError("Python wheel extension differs from the query role lock")
-            with wheel.open(entries[0]) as binary:
-                if file_digest(binary, "sha256").hexdigest() != extension["sha256"]:
-                    raise ValueError("Python wheel extension differs from the query role lock")
-    except BadZipFile:
-        raise ValueError("Python wheel is not a valid archive") from None
+        raise ValueError("the guest role has no Python wheel lock")
+    read_pinned_pyodbc_wheel(path, entry)
 
 
 def main() -> int:
@@ -44,7 +31,7 @@ def main() -> int:
     parser.add_argument("apt_plan", nargs="?", type=Path)
     parser.add_argument("--role", choices=("query", "source"), default="query")
     parser.add_argument("--payload-directory", type=Path, help="also verify all locked .deb files")
-    parser.add_argument("--python-wheel", type=Path, help="also verify the query guest's CPython wheel")
+    parser.add_argument("--python-wheel", type=Path, help="also verify the selected guest's CPython wheel")
     parser.add_argument("--base-status", type=Path, help="raw dpkg status from the pinned base image")
     parser.add_argument("--guest-status", type=Path, help="raw dpkg status captured from the prepared guest")
     args = parser.parse_args()
@@ -71,7 +58,7 @@ def main() -> int:
             print(f"PASS {verify_packages(args.payload_directory, lock)} locked package payloads")
         if args.python_wheel is not None:
             verify_python_wheel(args.python_wheel, lock)
-            print("PASS locked query-guest Python wheel")
+            print("PASS locked guest Python wheel")
     except (OSError, ValueError) as exc:
         print(f"FAIL {exc}")
         return 1
