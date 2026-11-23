@@ -38,11 +38,14 @@ Beobachtung dreier einzelner abgeschlossener Läufe, keine allgemeine
 Laufzeitgarantie. Die Workflow-Obergrenze bleibt 20 Minuten je Job, damit
 Start-, Login- und Cleanup-Varianz eingeschlossen ist.
 
-## Offene Entscheidung
+## Abschluss der Paketqualifikation
 
-Bis alle drei gepackten Läufe im PR bestehen, bleiben Demo und Katalog bei
-`IMPLEMENTED`. Bei Fehlern sind nur die betroffenen Eingaben und ihr
-fachlicher Fehlerpfad erneut zu prüfen. Ein erfolgreicher Lauf qualifiziert die
-Demonstration für die drei konkreten Builds; er ändert weder
-`METHOD_DRAFT`-Aussagen noch begründet er eine Performance- oder
-Generalgarantie.
+Die frische [PR-Matrix für PR #1149](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45154994472)
+bestand am 23. November 2026 auf den gebundenen SQL-Server-Builds 15, 16 und
+17. PR #1149 wurde anschließend mit Merge-Commit
+`04a799b6328dcf152e7cd27905ecf778bbd21084` in `origin/main` integriert. Der
+Katalogstatus ist damit für genau diese Paket- und Buildprofile `VALIDATED`.
+Bei einem späteren Fehler sind nur die betroffenen Eingaben und ihr
+fachlicher Fehlerpfad erneut zu prüfen. Die Paketqualifikation ändert weder
+`METHOD_DRAFT`-Aussagen noch begründet sie eine allgemeine Performance- oder
+Terminalseiten-Garantie.
