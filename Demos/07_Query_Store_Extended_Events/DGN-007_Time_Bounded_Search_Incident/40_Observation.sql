@@ -60,6 +60,17 @@ FROM sys.dm_exec_procedure_stats AS ps
 CROSS APPLY sys.dm_exec_plan_attributes(ps.plan_handle) AS pa
 WHERE ps.object_id=OBJECT_ID(N'dbo.usp_CaseSearch') AND pa.attribute IN(N'set_options',N'dbid');
 
+SELECT 3 AS EvidenceLevel,N'PHASE_QUERY_CONTEXT' AS EvidenceScope,p.IncidentPhase,
+       q.context_settings_id,CONVERT(varchar(16),cs.set_options,2) AS SetOptions,
+       SUM(p.CountExecutions) AS Executions
+FROM lab.IncidentQueryStoreProfile AS p
+JOIN sys.query_store_plan AS pl ON pl.plan_id=p.PlanId AND pl.query_id=p.QueryId
+JOIN sys.query_store_query AS q ON q.query_id=pl.query_id
+JOIN sys.query_context_settings AS cs ON cs.context_settings_id=q.context_settings_id
+WHERE p.IncidentPhase IN (N'T0_BASELINE',N'T1_INCIDENT')
+GROUP BY p.IncidentPhase,q.context_settings_id,cs.set_options
+ORDER BY p.IncidentPhase,q.context_settings_id;
+
 /* 4 – Plan und Verteilung: XML bleibt eine Evidenzquelle, keine fest erwartete Planform. */
 ;WITH StrictParentQuery AS
 (
@@ -102,6 +113,48 @@ SELECT 5 AS EvidenceLevel, N'SYSTEM_SIGNALS' AS EvidenceScope, @XeActive AS XeSe
        N'XE begann nach T1; Ereignisse sind nur begrenzte Evidenz fuer nachfolgende Vergleichsausfuehrungen.' AS ScopeLimit;
 SELECT 5 AS EvidenceLevel, N'SYSTEM_SIGNALS' AS EvidenceScope, session_id, status, wait_type, wait_time, granted_query_memory
 FROM sys.dm_exec_requests WHERE database_id=DB_ID() AND session_id<>@@SPID;
+
+/* Sitzungsdeltas aus T0/T1. Die erst nach T1 gestartete XE-Sitzung liefert diese Werte nicht. */
+DECLARE @RequestWaitEvidenceVisible bit=0;
+IF OBJECT_ID(N'lab.IncidentRequestWait',N'U') IS NOT NULL
+BEGIN
+    IF (SELECT COUNT(*) FROM lab.IncidentRequestWait WHERE IncidentPhase IN (N'T0_BASELINE',N'T1_INCIDENT'))=8
+       AND NOT EXISTS (
+           SELECT expected.Phase,expected.Ordinal,expected.GroupKey,expected.StatusCode
+           FROM (VALUES (N'T0_BASELINE',1,8,3),(N'T0_BASELINE',2,1,3),(N'T0_BASELINE',3,5,3),(N'T0_BASELINE',4,1,1),
+                        (N'T1_INCIDENT',1,1,3),(N'T1_INCIDENT',2,8,3),(N'T1_INCIDENT',3,5,3),(N'T1_INCIDENT',4,1,1))
+                AS expected(Phase,Ordinal,GroupKey,StatusCode)
+           EXCEPT SELECT IncidentPhase,RequestOrdinal,GroupKey,StatusCode FROM lab.IncidentRequestWait
+       )
+    BEGIN
+        SET @RequestWaitEvidenceVisible=1;
+        SELECT 5 AS EvidenceLevel,N'REQUEST_WAIT_DELTAS' AS EvidenceScope,
+               IncidentPhase,RequestOrdinal,GroupKey,StatusCode,GrantWaits,BufferIoWaits
+        FROM lab.IncidentRequestWait
+        WHERE IncidentPhase IN (N'T0_BASELINE',N'T1_INCIDENT')
+        ORDER BY IncidentPhase,RequestOrdinal;
+    END
+END;
+IF @RequestWaitEvidenceVisible=0
+    SELECT 5 AS EvidenceLevel,N'REQUEST_WAIT_DELTAS' AS EvidenceScope,N'WAIT_EVIDENCE_MISSING' AS EvidenceStatus;
+
+
+/* Vergleichbare physische Lesezugriffe aus genau den gespeicherten Plan-/Intervallschlüsseln. */
+SELECT 5 AS EvidenceLevel,N'PHASE_PHYSICAL_READS' AS EvidenceScope,p.IncidentPhase,
+       SUM(r.Executions) AS Executions,SUM(r.PhysicalReads) AS PhysicalReads
+FROM lab.IncidentQueryStoreProfile AS p
+OUTER APPLY (
+    SELECT SUM(rs.count_executions) AS Executions,
+           SUM(rs.avg_physical_io_reads*rs.count_executions) AS PhysicalReads
+    FROM sys.query_store_runtime_stats AS rs
+    WHERE rs.plan_id=p.PlanId AND rs.runtime_stats_interval_id=p.RuntimeStatsIntervalId
+      AND rs.execution_type=0 AND rs.count_executions>0
+) AS r
+WHERE p.IncidentPhase IN (N'T0_BASELINE',N'T1_INCIDENT')
+GROUP BY p.IncidentPhase
+HAVING SUM(p.CountExecutions)=4
+   AND SUM(CASE WHEN r.Executions=p.CountExecutions AND r.PhysicalReads IS NOT NULL THEN 0 ELSE 1 END)=0
+ORDER BY p.IncidentPhase;
 
 ;WITH StrictParentQuery AS
 (

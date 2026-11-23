@@ -92,7 +92,25 @@ Ursachen- und Mitigationsabnahme bleibt offen.
 | Client-/SET-Options-Unterschied | abweichende Optionen, Datenbank- oder Cacheattribute | offen | |
 | Parameter- und Planwiederverwendung | Verteilung, Compilewert, Laufzeitprofil und Arbeit bilden eine Kette | offen | |
 
-Mindestens zwei der ersten drei Hypothesen müssen anhand fehlender oder widersprechender Evidenz verworfen werden. Eine leere XE- oder Wait-Sicht widerlegt nichts ohne nachgewiesene Session, Predicate, Eventklasse und Zeitfenster.
+Prüfen und verwerfen Sie mindestens zwei der ersten drei Hypothesen anhand
+der im passenden Scope erwarteten Signale. Ein Signal darf nur dann als
+ausgeblieben eingeordnet werden, wenn dieser Scope vollständig beobachtet wurde.
+
+Für diesen Vergleich weist Stufe 3 die Query-Store-SET-Kontexte mit den
+zugehörigen Ausführungszahlen aus. Stufe 5 zeigt die Differenzen der
+Sitzungszähler für `RESOURCE_SEMAPHORE` und `PAGEIOLATCH_*` um jeden der
+acht vorgesehenen Suchaufrufe. Die Stichprobe umfasst den Suchaufruf
+und die ihn umgebenden Sitzungsabfragen. Ein `WAITFOR` vor T0 prüft
+den Messkanal. Bei fehlender Positivkontrolle, rückläufigen Zählern oder
+einer unvollständigen oder abweichenden Requestliste erscheint
+`WAIT_EVIDENCE_MISSING` statt einer Nullmessung. Die phasenbezogenen
+physischen Lesezugriffe stammen aus den gespeicherten Plan- und
+Intervallschlüsseln. Sie erscheinen nur, wenn die erfassten
+Ausführungszahlen für jeden Schlüssel übereinstimmen. Je Hypothese gilt
+der beobachtete Statement- oder Sitzungsausschnitt.
+[Microsoft-Referenz zu Sitzungs-Wait-Zählern](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-session-wait-stats-transact-sql?view=sql-server-ver17).
+
+Eine leere XE- oder Wait-Sicht widerlegt nichts ohne nachgewiesene Session, Predicate, Eventklasse und Zeitfenster.
 
 ## Erwartete Resultate und zulässige Abweichungen
 

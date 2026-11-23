@@ -94,18 +94,35 @@ class PhaseIntervalTests(unittest.TestCase):
 
     def test_adapter_uses_same_four_requests_in_opposite_order(self) -> None:
         text = INSTALL.read_text(encoding="utf-8")
-        baseline, incident = text.split("IF @PhaseNumber = 0", 1)[1].split("ELSE", 1)
-        call_pattern = re.compile(r"EXEC dbo\.usp_CaseSearch\s+(\d+)\s*,\s*(\d+)")
+        roster = re.search(r"INSERT @Requests VALUES(.*?);", text, re.S)
+        self.assertIsNotNone(roster)
         self.assertEqual(
-            tuple(tuple(map(int, row)) for row in call_pattern.findall(baseline)),
-            ((8, 3), (1, 3), (5, 3), (1, 1)),
+            tuple(tuple(map(int, row)) for row in re.findall(r"\((\d),(\d),(\d+),(\d+)\)", roster[1])),
+            ((0, 1, 8, 3), (0, 2, 1, 3), (0, 3, 5, 3), (0, 4, 1, 1),
+             (1, 1, 1, 3), (1, 2, 8, 3), (1, 3, 5, 3), (1, 4, 1, 1)),
         )
-        self.assertEqual(
-            tuple(tuple(map(int, row)) for row in call_pattern.findall(incident)),
-            ((1, 3), (8, 3), (5, 3), (1, 1)),
-        )
+        self.assertIn("WHERE PhaseNumber=@PhaseNumber AND RequestOrdinal=@RequestOrdinal", text)
+        self.assertIn("EXEC dbo.usp_CaseSearch @GroupKey,@StatusCode;", text)
         self.assertIn("SET @ExpectedExecutions = 4", text)
         self.assertIn("HAVING COALESCE(SUM(e.CountExecutions),0) <> 4", VALIDATE.read_text(encoding="utf-8"))
+
+    def test_wait_reader_requires_the_full_adapter_request_roster(self) -> None:
+        setup = INSTALL.read_text(encoding="utf-8")
+        writer = re.search(r"INSERT @Requests VALUES(.*?);", setup, re.S)[1]
+        observation = COMPARISON.with_name("40_Observation.sql").read_text(encoding="utf-8")
+        reader = re.search(r"FROM \(VALUES (.*?)\)\s+AS expected", observation, re.S)[1]
+        writer_rows = re.findall(r"\((\d),(\d),(\d+),(\d+)\)", writer)
+        reader_rows = re.findall(r"\(N'(T[01]_(?:BASELINE|INCIDENT))',(\d),(\d+),(\d+)\)?", reader)
+        self.assertEqual(
+            [("T0_BASELINE" if phase == "0" else "T1_INCIDENT", ordinal, group, status)
+             for phase, ordinal, group, status in writer_rows],
+            reader_rows,
+        )
+        self.assertIn("=8", observation)
+        self.assertIn("WAIT_EVIDENCE_MISSING", observation)
+        self.assertIn("wait_type=N''RESOURCE_SEMAPHORE''", setup)
+        self.assertIn("wait_type LIKE N''PAGEIOLATCH[_]%''", setup)
+        self.assertLess(setup.index("DECLARE @WaitControlBefore"), setup.index("WHILE @PhaseNumber < 2"))
 
     def test_observation_uses_phase_bound_profiles_without_minimum_plan_gate(self) -> None:
         observation = (ROOT / "Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/40_Observation.sql").read_text(encoding="utf-8")
