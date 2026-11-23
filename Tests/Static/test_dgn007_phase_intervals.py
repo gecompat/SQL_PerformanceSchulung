@@ -124,6 +124,30 @@ class PhaseIntervalTests(unittest.TestCase):
         self.assertIn("wait_type LIKE N''PAGEIOLATCH[_]%''", setup)
         self.assertLess(setup.index("DECLARE @WaitControlBefore"), setup.index("WHILE @PhaseNumber < 2"))
 
+    def test_t2_compile_capture_is_recorded_before_creation_and_released_before_profile_skips(self) -> None:
+        t2 = COMPARISON.read_text(encoding="utf-8")
+        recorded = t2.index("INSERT lab.Dgn007T2CompileOwner")
+        created = t2.index("CREATE EVENT SESSION", recorded)
+        started = t2.index("SET @T2Marker=SYSUTCDATETIME()")
+        completed = t2.index("UPDATE lab.IncidentState SET CompletedUtc", started)
+        dropped = t2.index("DROP EVENT SESSION", completed)
+        removed_owner = t2.index("DROP TABLE lab.Dgn007T2CompileOwner", dropped)
+        profiled = t2.index("EXEC sys.sp_query_store_flush_db", completed)
+        self.assertEqual([recorded, created, started, completed, dropped, removed_owner, profiled],
+                         sorted((recorded, created, started, completed, dropped, removed_owner, profiled)))
+        self.assertIn("HAVING MIN(CompileCount)=1 AND MAX(CompileCount)=1", t2)
+        self.assertIn("COMPILE_EVIDENCE_MISSING", t2)
+
+    def test_both_recovery_routes_use_only_the_recorded_t2_session_name(self) -> None:
+        for path in (COMPARISON.with_name("90_Cleanup.sql"), INSTALL.with_name("cleanup.sql")):
+            with self.subTest(path=path):
+                source = path.read_text(encoding="utf-8")
+                self.assertIn("lab.Dgn007T2CompileOwner", source)
+                self.assertIn("DATALENGTH(@T2OwnedSession)<>(LEN(@T2Prefix)+32)*2", source)
+                self.assertIn("LIKE N'%[^0-9a-f]%'", source)
+                self.assertIn("DROP EVENT SESSION '+QUOTENAME(@T2OwnedSession)", source)
+                self.assertIn("sys.dm_xe_sessions WHERE name=@T2OwnedSession", source)
+
     def test_observation_uses_phase_bound_profiles_without_minimum_plan_gate(self) -> None:
         observation = (ROOT / "Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/40_Observation.sql").read_text(encoding="utf-8")
         self.assertIn("FROM lab.IncidentQueryStoreProfile AS profile", observation)

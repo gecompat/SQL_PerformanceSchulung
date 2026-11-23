@@ -12,6 +12,28 @@ IF @Project IS NULL OR @Project COLLATE Latin1_General_100_BIN2 <> N'SQL_Perform
    OR @DemoId IS NULL OR @DemoId COLLATE Latin1_General_100_BIN2 <> N'DGN-007' OR DATALENGTH(@DemoId) <> DATALENGTH(N'DGN-007')
    OR @RunToken IS NULL OR @RunToken COLLATE Latin1_General_100_BIN2 <> N'LOCAL' OR DATALENGTH(@RunToken) <> DATALENGTH(N'LOCAL')
     THROW 51013, 'FAIL_CLEANUP: Die vier DGN-007-Eigentumsmarker stimmen nicht überein.', 1;
+DECLARE @T2OwnedSession sysname;
+IF OBJECT_ID(N'lab.Dgn007T2CompileOwner',N'U') IS NOT NULL
+BEGIN
+    SELECT @T2OwnedSession=SessionName FROM lab.Dgn007T2CompileOwner WHERE StateId=1;
+    IF @T2OwnedSession IS NOT NULL
+    BEGIN
+        DECLARE @T2Prefix sysname=N'SQLPERF_DGN007_T2_';
+        IF DATALENGTH(@T2OwnedSession)<>(LEN(@T2Prefix)+32)*2
+           OR LEFT(@T2OwnedSession,LEN(@T2Prefix)) COLLATE Latin1_General_100_BIN2<>@T2Prefix
+           OR RIGHT(@T2OwnedSession,32) COLLATE Latin1_General_100_BIN2 LIKE N'%[^0-9a-f]%'
+            THROW 51014,'FAIL_CLEANUP: Unbekannte T2-Messsitzung.',1;
+        IF EXISTS (SELECT 1 FROM sys.server_event_sessions WHERE name=@T2OwnedSession)
+        BEGIN
+            SET @Sql=N'DROP EVENT SESSION '+QUOTENAME(@T2OwnedSession)+N' ON SERVER;';
+            EXEC sys.sp_executesql @Sql;
+        END;
+        IF EXISTS (SELECT 1 FROM sys.server_event_sessions WHERE name=@T2OwnedSession)
+           OR EXISTS (SELECT 1 FROM sys.dm_xe_sessions WHERE name=@T2OwnedSession)
+            THROW 51014,'FAIL_CLEANUP: T2-Messsitzung noch vorhanden.',1;
+    END;
+    DROP TABLE lab.Dgn007T2CompileOwner;
+END;
 IF OBJECT_ID(N'lab.Dgn007ReferenceState',N'U') IS NOT NULL
 BEGIN
     SELECT @Original=OriginalProcedureDefinition FROM lab.Dgn007ReferenceState WHERE StateId=1 AND MitigationApplied=1;
