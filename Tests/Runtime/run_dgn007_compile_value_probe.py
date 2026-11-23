@@ -24,6 +24,10 @@ _SOURCE_IO = re.compile(
     r"Table '(CaseItem|CaseGroup|CaseItemDetail)'\. Scan count [0-9]+, logical reads ([0-9]+), .+"
 )
 _SOURCE_TABLES = {"CaseItem", "CaseGroup", "CaseItemDetail"}
+_WAIT_CONTEXT = re.compile(
+    r"DGN007_WAIT_CONTEXT\|4\|(no_grant_wait|grant_wait_present)"
+    r"\|(no_page_io_wait|io_wait_present)\|(no_physical_reads|physical_reads_present)"
+)
 SETUP_SUMMARY = "SQLPERF_SUMMARY|PASS|OK"
 PREFLIGHT = """SET NOCOUNT ON;
 IF COALESCE(TRY_CONVERT(int, SERVERPROPERTY('EditionID')), 0) NOT IN (-2117995310,-1785266663)
@@ -105,7 +109,14 @@ def _verify_mitigation(output: str) -> None:
         raise runner.RunnerFailure("NOT_PROVEN")
 
 
-def run_probe(container: str, *, mitigation: bool = False) -> None:
+def _read_wait_context(output: str) -> str:
+    markers = [line.strip() for line in output.splitlines() if line.strip().startswith("DGN007_WAIT_CONTEXT|")]
+    if len(markers) != 1 or _WAIT_CONTEXT.fullmatch(markers[0]) is None:
+        raise runner.RunnerFailure("NOT_PROVEN")
+    return markers[0]
+
+
+def run_probe(container: str, *, mitigation: bool = False) -> str | None:
     if not os.environ.get("SQLCMDPASSWORD") or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", container):
         raise runner.RunnerFailure("FAIL_SAFETY")
     target = runner.resolve_target(container)
@@ -113,6 +124,7 @@ def run_probe(container: str, *, mitigation: bool = False) -> None:
     probe = _file(MITIGATION_PROBE if mitigation else PROBE)
     cleanup = _file(runner.AUTOMATED / "90_Cleanup.sql")
     _expect(_batch(target, PREFLIGHT, "master", 10), "EMPTY_DEVELOPER")
+    wait_context = None
     try:
         _expect(_batch(target, setup, "master", 90), SETUP_SUMMARY)
         output = _batch(target, probe, runner.DATABASE, 30)
@@ -120,6 +132,7 @@ def run_probe(container: str, *, mitigation: bool = False) -> None:
             _verify_mitigation(output)
         else:
             _expect(output, SUMMARY)
+            wait_context = _read_wait_context(output)
     finally:
         try:
             try:
@@ -128,6 +141,7 @@ def run_probe(container: str, *, mitigation: bool = False) -> None:
                 _expect(_batch(target, ABSENCE, "master", 10), "ABSENT")
         except (runner.RunnerFailure, CaptureRunnerError, OSError, ValueError):
             raise runner.RunnerFailure("FAIL_CLEANUP") from None
+    return wait_context
 
 
 def main() -> int:
@@ -141,7 +155,7 @@ def main() -> int:
     try:
         if not args.confirm_disposable_instance or not args.confirm_isolated_lab:
             raise runner.RunnerFailure("FAIL_SAFETY")
-        run_probe(args.container, mitigation=args.mitigation)
+        wait_context = run_probe(args.container, mitigation=args.mitigation)
     except runner.RunnerFailure as error:
         print(f"{prefix}|FAIL|{error.code}")
         return 1
@@ -149,6 +163,8 @@ def main() -> int:
         print(f"{prefix}|FAIL|NOT_PROVEN")
         return 1
     print(summary + ";cleanup=PASS")
+    if wait_context is not None:
+        print(wait_context)
     return 0
 
 

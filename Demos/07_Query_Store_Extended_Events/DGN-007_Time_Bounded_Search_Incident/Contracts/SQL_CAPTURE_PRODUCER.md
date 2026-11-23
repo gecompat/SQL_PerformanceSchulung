@@ -246,6 +246,23 @@ Dauer sowie Alternativhypothesen und Mitigation bleiben Gegenstand
 der Incident-Abnahme.
 [Microsoft-Referenz zu sys.dm_exec_text_query_plan](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-text-query-plan-transact-sql?view=sql-server-ver17).
 
+### Speicherzuteilung und physische Lesezugriffe gegenprüfen
+
+Die Kompilierwertprobe prüft direkt vor und nach jedem der vier
+Suchaufrufe die Wait-Zähler derselben SQL-Sitzung. Ein vorheriger
+`WAITFOR`-Aufruf muss einen zusätzlichen sichtbaren Wait erzeugen.
+Die Befundzeile unterscheidet Speicherzuteilungs-Waits
+(`RESOURCE_SEMAPHORE*`), Seiten-I/O-Waits (`PAGEIOLATCH_*`) und
+physische Reads der markierten Cacheplan-Anweisung. Sie gibt nur
+die Anwesenheit der Signale aus.
+
+Im isolierten Test auf Build `17.0.5065.9` blieben alle drei Signale
+für die vier Aufrufe aus. Die Sitzungsdifferenz umfasst den
+`INSERT EXEC`-Aufruf und die umgebende Zählerabfrage. Der Befund gilt
+für diesen warmen Komponentenlauf. Die Zuordnung zum Dauerbefund
+der separaten Query-Store-Matrix bleibt offen.
+[Microsoft-Referenz zu den Sitzungs-Wait-Zählern](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-session-wait-stats-transact-sql?view=sql-server-ver17).
+
 ## Querylokale Mitigation mit Rücknahme prüfen
 
 Der Komponententest auf Build `17.0.5065.9` hat einen separaten Modus für

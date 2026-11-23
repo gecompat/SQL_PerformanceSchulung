@@ -8,7 +8,7 @@ from Tests.Runtime import run_dgn007_compile_value_probe as probe
 class CompileProbeTests(unittest.TestCase):
     @patch.dict(os.environ, {"SQLCMDPASSWORD": "synthetic"}, clear=True)
     def test_independent_absence_is_still_checked_after_cleanup_failure(self):
-        outputs = ["EMPTY_DEVELOPER", probe.SETUP_SUMMARY, probe.SUMMARY,
+        outputs = ["EMPTY_DEVELOPER", probe.SETUP_SUMMARY, probe.SUMMARY + "\nDGN007_WAIT_CONTEXT|4|no_grant_wait|no_page_io_wait|no_physical_reads",
                    probe.runner.RunnerFailure("NOT_PROVEN"), "ABSENT"]
         with patch.object(probe.runner, "resolve_target", return_value=object()), \
              patch.object(probe, "_batch", side_effect=outputs) as run:
@@ -24,6 +24,16 @@ class CompileProbeTests(unittest.TestCase):
                 probe.run_probe("synthetic-container")
         run.assert_called_once()
         self.assertEqual(run.call_args.args[1], probe.PREFLIGHT)
+
+
+class WaitContextTests(unittest.TestCase):
+    def test_requires_one_complete_summary_and_preserves_nonzero_signals(self):
+        observed = "DGN007_WAIT_CONTEXT|4|grant_wait_present|io_wait_present|physical_reads_present"
+        self.assertEqual(probe._read_wait_context(observed), observed)
+        for output in ("", observed + "\n" + observed, observed.replace("|4|", "|3|"),
+                       observed.replace("grant_wait_present", "unverified")):
+            with self.assertRaisesRegex(probe.runner.RunnerFailure, "NOT_PROVEN"):
+                probe._read_wait_context(output)
 
 
 class MitigationOutputTests(unittest.TestCase):
