@@ -193,6 +193,21 @@ class OdbcAdministrationTests(unittest.TestCase):
             self.admin.execute("master", "SYNTHETIC SETUP", self.deadline)
         self.assertTrue(connection.closed)
 
+    def test_non_row_status_results_are_drained_and_late_errors_fail(self):
+        self.connection_for((None,))
+        cursor = self.factory.return_value.bound_cursor
+        cursor.nextset = Mock(side_effect=[True, True, False])
+        self.admin.execute("master", "SYNTHETIC SETUP", self.deadline)
+        self.assertEqual(cursor.nextset.call_count, 3)
+
+        for outcomes in ((True, OSError("synthetic late error")), (True,) * 32):
+            self.connection_for((None,))
+            cursor = self.factory.return_value.bound_cursor
+            cursor.nextset = Mock(side_effect=outcomes)
+            with self.assertRaisesRegex(OSError, "could not be confirmed"):
+                self.admin.execute("master", "SYNTHETIC SETUP", self.deadline)
+            self.assertTrue(cursor.closed)
+
     def test_expired_deadline_prevents_opening_a_connection(self):
         with self.assertRaisesRegex(OSError, "could not be confirmed"):
             self.admin.execute("master", "SYNTHETIC SETUP", monotonic() - 1)

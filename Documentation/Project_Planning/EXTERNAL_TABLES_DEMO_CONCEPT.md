@@ -494,6 +494,26 @@ Gaststart zu prüfen. Die Dienste, der Python-Treiber und die
 Netzgrenzen werden separat geprüft.
 [Canonical-Dateiliste](https://packages.ubuntu.com/noble-updates/amd64/linux-modules-7.0.0-1017-azure/filelist).
 
+### Feste SQL-Operationen über den Gastkanal
+
+Der [SQL-Gastkanal](../../Tests/Runtime/external_tables_guest_admin.py)
+nimmt einen Aufruf pro Verbindung an. Der Host adressiert die
+aufgezeichnete VM und prüft auf derselben Verbindung Laufkennung,
+Gastrolle, aktuelle Zufallsabfrage und Paketfingerabdruck, bevor er
+Parameter übergibt. Der Linux-Dienst nimmt nur Verbindungen der
+Elternpartition an. Der reine Identitätsprüfer bleibt separat verwendbar.
+
+Der Pilot sendet einen festen Operationsnamen und begrenzte Datenfelder.
+Der Gast erzeugt daraus die vorhandenen SQL-Batches für Einrichtung,
+Fixture, Berechtigungsanlage, Statistik und SQL-Abbau. Er lehnt fremde
+Rollen und unbekannte Befehle ab. Die vollständigen Fixture-Zeilen werden
+auf dem Gast gegen das Oracle geprüft. Die Antwort enthält nur Erfolg,
+Ablehnung oder das getrennte Vorhandensein der eigenen Datenbank.
+Zugangsdaten bleiben im Speicher des Host- und Gastprozesses und werden
+erst nach der Identitätsprüfung über den lokalen Hyper-V-Kanal übertragen.
+Die Bereitstellung des Gastdienstes und der positive Aufruf auf zwei
+Hyper-V-Gästen bleiben Teil des Pilotlaufs.
+
 ### Private Gastadressen und Routing nach der Anbindung
 
 Der [Netzprüfer](../../Tests/Runtime/external_tables_guest_network.py)

@@ -2,22 +2,15 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import date
 from secrets import token_bytes, token_hex
 from time import monotonic
 from typing import ContextManager, Protocol
 
-from external_tables_cleanup import drop_pilot_database_batch, drop_pilot_logins_batch
+from external_tables_guest_admin import AdminAction, AdminCommand
 from external_tables_measurement import MeasurementResult, MeasurementTransport, measure_pushdown
-from external_tables_pilot_sql import (
-    Role, Route, configure_database_batch, create_database_batch, database_name, external_tables_batch, fixture_batch,
-    fixture_read_batch, statistics_batch, verify_fixture,
-)
-from external_tables_principals import (
-    Principal, create_connector_credential_batch, create_principal_batch, principal_probe_batch,
-)
+from external_tables_pilot_sql import Role, Route, database_name
+from external_tables_principals import Principal, principal_probe_batch
 
 
 WORK_SECONDS = 600
@@ -43,12 +36,8 @@ class GuestPilotTransport(Protocol):
         certificate to the query guest.
         """
 
-    def execute(self, role: Role, database: str, sql: str, deadline: float) -> None:
-        """Execute one complete admin batch without exposing payloads or retaining secrets.
-
-        Dispatch on the verified role. An ODBC-backed guest uses its local
-        OdbcPilotAdministration for execution, fixture rows and presence checks.
-        """
+    def admin(self, role: Role, command: AdminCommand, deadline: float) -> bool | None:
+        """Dispatch one fixed operation on the identity-bound guest connection."""
 
     def record_login(self, principal: Principal, sid: bytes, deadline: float) -> None:
         """Record the role and SID in the owned run inventory before CREATE LOGIN."""
@@ -59,9 +48,6 @@ class GuestPilotTransport(Protocol):
     def probe_principal(self, principal: Principal, secret: str, sql: str, deadline: float) -> None:
         """Run the rights probe over the actual principal connection and confirm its close."""
 
-    def fixture_rows(self, role: Role, sql: str, deadline: float) -> Iterable[tuple[int, date, int, int]]:
-        """Return bounded, complete ordered rows from the exact setup statement."""
-
     def open_measurement(
         self, token: str, reader_secret: str, observer_secret: str, deadline: float,
     ) -> ContextManager[MeasurementTransport]:
@@ -69,9 +55,6 @@ class GuestPilotTransport(Protocol):
 
     def close_data_connections(self, token: str, deadline: float) -> bool:
         """Prevent new calls and confirm closure of the owned Reader and connector sessions."""
-
-    def database_exists(self, role: Role, name: str, deadline: float) -> bool:
-        """Check exact existence on the owned guest; unverified access must raise."""
 
     def remove_verified_guests(self, token: str, deadline: float) -> bool:
         """Remove only recorded guest, switch, and disk identities and confirm absence.
@@ -92,7 +75,7 @@ class PilotResult:
 
 
 def run_pilot(transport: GuestPilotTransport, token: str) -> PilotResult:
-    databases = {role: database_name(token, role) for role in Role}
+    database_name(token, Role.QUERY)
     deadline = monotonic() + WORK_SECONDS
     attempted: list[Role] = []
     login_sids: dict[Principal, bytes] = {}
@@ -102,25 +85,22 @@ def run_pilot(transport: GuestPilotTransport, token: str) -> PilotResult:
     try:
         transport.start_verified_guests(token, deadline)
         stage = "database_setup"
-        for role, database in databases.items():
+        for role in Role:
             _require_time(deadline)
             attempted.append(role)
-            transport.execute(role, "master", create_database_batch(token, role), deadline)
-            transport.execute(role, database, configure_database_batch(token, role), deadline)
-            transport.execute(role, database, fixture_batch(token, role), deadline)
-            verify_fixture(transport.fixture_rows(role, fixture_read_batch(token, role), deadline))
+            _admin(transport, role, AdminAction.CREATE_DATABASE, deadline)
+            _admin(transport, role, AdminAction.CONFIGURE_DATABASE, deadline)
+            _admin(transport, role, AdminAction.CREATE_FIXTURE, deadline)
+            _admin(transport, role, AdminAction.VERIFY_FIXTURE, deadline, Route.LOCAL.name)
 
         stage = "source_access"
         _setup_principal(transport, token, Principal.SOURCE_READER, secrets, login_sids, deadline)
         transport.verify_source_tls(token, secrets[Principal.SOURCE_READER], deadline)
 
         stage = "external_setup"
-        query_db = databases[Role.QUERY]
-        credential = create_connector_credential_batch(
-            token, secrets[Principal.SOURCE_READER], "Ext9!" + token_hex(16),
-        )
-        transport.execute(Role.QUERY, query_db, credential, deadline)
-        transport.execute(Role.QUERY, query_db, external_tables_batch(token), deadline)
+        _admin(transport, Role.QUERY, AdminAction.CREATE_CREDENTIAL, deadline,
+               secrets[Principal.SOURCE_READER], "Ext9!" + token_hex(16))
+        _admin(transport, Role.QUERY, AdminAction.CREATE_EXTERNAL_TABLES, deadline)
 
         stage = "query_access"
         for principal in (Principal.QUERY_READER, Principal.OBSERVER):
@@ -129,10 +109,10 @@ def run_pilot(transport: GuestPilotTransport, token: str) -> PilotResult:
         stage = "external_fixture"
         for route in (Route.PUSHDOWN_ON, Route.PUSHDOWN_OFF):
             _require_time(deadline)
-            verify_fixture(transport.fixture_rows(Role.QUERY, fixture_read_batch(token, Role.QUERY, route), deadline))
+            _admin(transport, Role.QUERY, AdminAction.VERIFY_FIXTURE, deadline, route.name)
 
         stage = "statistics"
-        transport.execute(Role.QUERY, query_db, statistics_batch(token), deadline)
+        _admin(transport, Role.QUERY, AdminAction.CREATE_STATISTICS, deadline)
         stage = "measurement"
         _require_time(deadline)
         with transport.open_measurement(
@@ -144,11 +124,18 @@ def run_pilot(transport: GuestPilotTransport, token: str) -> PilotResult:
     except (OSError, ValueError):
         measured = MeasurementResult("NOT_PROVEN", stage)
     finally:
-        sql_clean, guests_clean = _cleanup(transport, token, databases, attempted, login_sids)
+        sql_clean, guests_clean = _cleanup(transport, token, attempted, login_sids)
 
     if not sql_clean or not guests_clean or measured.status == "FAIL_CLEANUP":
         return PilotResult("FAIL_CLEANUP", stage, None, sql_clean, guests_clean)
     return PilotResult(measured.status, stage, measured.filters, sql_clean, guests_clean)
+
+
+def _admin(
+    transport: GuestPilotTransport, role: Role, action: AdminAction, deadline: float, *fields: str,
+) -> None:
+    if transport.admin(role, AdminCommand(action, fields), deadline) is not None:
+        raise ValueError("guest returned an unexpected administration result")
 
 
 def _setup_principal(
@@ -159,15 +146,13 @@ def _setup_principal(
     sid = token_bytes(16)
     transport.record_login(principal, sid, deadline)
     login_sids[principal] = sid
-    transport.execute(
-        principal.role, database_name(token, principal.role),
-        create_principal_batch(token, principal, secrets[principal], sid), deadline,
-    )
+    _admin(transport, principal.role, AdminAction.CREATE_PRINCIPAL, deadline,
+           principal.name, secrets[principal], sid.hex())
     transport.probe_principal(principal, secrets[principal], principal_probe_batch(token, principal), deadline)
 
 
 def _cleanup(
-    transport: GuestPilotTransport, token: str, databases: dict[Role, str],
+    transport: GuestPilotTransport, token: str,
     attempted: list[Role], login_sids: dict[Principal, bytes],
 ) -> tuple[bool, bool]:
     deadline = monotonic() + CLEANUP_SECONDS
@@ -184,13 +169,16 @@ def _cleanup(
     for role in roles:
         try:
             _require_time(deadline)
-            exists = transport.database_exists(role, databases[role], deadline)
+            exists = transport.admin(role, AdminCommand(AdminAction.DATABASE_EXISTS), deadline)
             if exists is True:
-                transport.execute(role, databases[role], drop_pilot_database_batch(token, role), deadline)
+                _admin(transport, role, AdminAction.DROP_DATABASE, deadline)
             elif exists is not False:
                 raise ValueError("database absence was not confirmed")
-            owned_sids = {principal: sid for principal, sid in login_sids.items() if principal.role is role}
-            transport.execute(role, "master", drop_pilot_logins_batch(token, role, owned_sids), deadline)
+            sid_fields = tuple(
+                field for principal, sid in login_sids.items() if principal.role is role
+                for field in (principal.name, sid.hex())
+            )
+            _admin(transport, role, AdminAction.DROP_LOGINS, deadline, *sid_fields)
         except (OSError, ValueError):
             sql_clean = False
 
