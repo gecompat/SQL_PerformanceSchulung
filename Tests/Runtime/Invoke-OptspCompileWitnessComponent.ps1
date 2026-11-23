@@ -14,6 +14,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $requiredBuild = '17.0.5065.9'
+$workload = Import-PowerShellDataFile -LiteralPath (Join-Path $PSScriptRoot 'OptspCompileWorkload.psd1')
 $password = [Environment]::GetEnvironmentVariable('SQLCMDPASSWORD', 'Process')
 if (-not $ConfirmDisposableInstance -or [string]::IsNullOrEmpty($password) -or
     [int]($Server.Split(',')[1]) -gt 65535) {
@@ -35,7 +36,7 @@ function Invoke-XeCommand($Observer, [string] $Sql, [switch] $Scalar) {
 }
 
 function Read-PreparedPlanHandle($Observer, [string] $Statement) {
-    $cacheText = ('(@value int)' + $Statement).Replace("'", "''")
+    $cacheText = ('(' + $workload.Parameters + ')' + $Statement).Replace("'", "''")
     $handle = Invoke-XeCommand $Observer @"
 SELECT CASE WHEN COUNT_BIG(*) = 1 THEN MAX(CONVERT(varchar(128), p.plan_handle, 2)) END
 FROM sys.dm_exec_cached_plans AS p
@@ -247,26 +248,17 @@ ADD TARGET package0.ring_buffer(SET max_memory=(1024))
 WITH (MAX_MEMORY=4 MB, MAX_DISPATCH_LATENCY=1 SECONDS, STARTUP_STATE=OFF);
 ALTER EVENT SESSION [$xeName] ON SERVER STATE=START;
 "@
-                $stems = @(
-                    'SELECT @value + (SELECT COUNT(*) FROM (VALUES (1),(2),(3)) a(id)'
-                    'JOIN (VALUES (1),(3),(4)) b(id) ON a.id = b.id'
-                    'JOIN (VALUES (1),(2),(5)) c(id) ON b.id = c.id'
-                    'JOIN (VALUES (1),(2),(6)) d(id) ON c.id = d.id'
-                    'JOIN (VALUES (1),(3),(7)) e(id) ON d.id = e.id'
-                )
-                $common = $stems -join ' '
                 $batchByActor = @{
-                    $sessionId = "$common WHERE a.id > @value);"
-                    $secondId = "$common WHERE a.id > @value AND e.id < 9);"
+                    $sessionId = $workload.Batch
+                    $secondId = if ($IdenticalBatch) { $workload.Batch } else { $workload.DistinctBatch }
                 }
-                if ($IdenticalBatch) { $batchByActor[$secondId] = $batchByActor[$sessionId] }
                 foreach ($item in @(@{ Command = $command; Id = $sessionId }, @{ Command = $other; Id = $secondId })) {
                     $rpc = $item.Command
                     $rpc.CommandType = [System.Data.CommandType]::StoredProcedure
                     $rpc.CommandText = 'sys.sp_executesql'
                     $rpc.Parameters.Add('@stmt', [System.Data.SqlDbType]::NVarChar, -1).Value = $batchByActor[$item.Id]
-                    $rpc.Parameters.Add('@params', [System.Data.SqlDbType]::NVarChar, -1).Value = '@value int'
-                    $rpc.Parameters.Add('@value', [System.Data.SqlDbType]::Int).Value = 37
+                    $rpc.Parameters.Add('@params', [System.Data.SqlDbType]::NVarChar, -1).Value = $workload.Parameters
+                    $rpc.Parameters.Add('@value', [System.Data.SqlDbType]::Int).Value = $workload.Value
                 }
                 $stage = 'synthetic_requests'
                 $firstTask = $command.ExecuteScalarAsync()
@@ -278,7 +270,7 @@ ALTER EVENT SESSION [$xeName] ON SERVER STATE=START;
                 if (-not $SequentialControl) {
                     $firstResult = $firstTask.GetAwaiter().GetResult()
                 }
-                if ($firstResult -ne 37 -or $otherResult -ne 37) { throw 'Wrong synthetic results.' }
+                if ($firstResult -ne $workload.Value -or $otherResult -ne $workload.Value) { throw 'Wrong synthetic results.' }
                 $stage = 'xe_read'
                 $metrics = Read-CompileWitnesses $observer $xeName $batchByActor $verifyReuse
             } finally {
