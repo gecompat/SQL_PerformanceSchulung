@@ -78,7 +78,14 @@ python Tests/Runtime/idx007_hot_leaf_pilot.py 17
 ```
 
 Der Lauf prüft den konkreten Engine-Build, Compatibility Level und XE-Feld-
-beziehungsweise Actionbestand. `package0.event_sequence` ordnet die
+beziehungsweise Actionbestand. Vor jedem Insertschub hält der Reader einen
+exklusiven, sitzungsgebundenen `sp_getapplock`; die Actors fordern nach ihrer
+Bereitschaft jeweils einen Shared-Lock auf derselben Ressource an. Der Reader
+wartet auf alle Bereitschaftsrecords, setzt dann den XE-Startmarker und löst
+den Lock. Eine zusätzliche DMV-Abfrage der wartenden Lock-Anfragen wird nicht
+als Freigabebedingung verwendet.
+Die Markerereignisse filtern direkt auf das XE-Feld `statement`, nicht auf den
+gesamten Batch-Text. `package0.event_sequence` ordnet die
 Latch-Beginn- und -Endereignisse; zwei getrennte Insertschübe müssen
 verschachtelte exklusive `BUF`-Latch-Waits verschiedener Actor-Requests auf
 einer zu diesem Capture-Rand bestätigten rechten Blattseite zeigen. Das

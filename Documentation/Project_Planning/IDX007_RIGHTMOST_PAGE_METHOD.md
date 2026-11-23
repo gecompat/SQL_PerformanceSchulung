@@ -236,22 +236,29 @@ einen Startreihenfolgefehler: Die Orchestrierung öffnete die Actor-Barriere,
 bevor die Capture-Session ihren XE-Startmarker ausgab. Writer-Waits konnten
 dadurch vor dem markierten Kettenlesefenster liegen. Die Capture-Session wartet
 jetzt auf ein Startsignal. Die Actors melden sich danach vor dem Burst in
-`lab.ActorReady` und warten auf `lab.Go`. Der Reader wartet auf die erwartete
-Actorzahl, gibt den XE-Startmarker aus und öffnet unmittelbar danach `lab.Go`.
-So stehen alle Writer vor dem markierten Burst an derselben Barriere. Actorzahl
-und Einfügungen bleiben gleich. Die verbundene Session liest danach die Kette
-und pausiert nach jeder Blattseitenprobe fünfzig Millisekunden; zusätzliche
-Schreiblasten kommen nicht hinzu. Die vorherige 1-ms-Pollingvariante bestand
-auf SQL Server 2019/2022, ließ aber SQL Server 2025 in der CI in drei Versuchen
-ohne vollständigen Nachweis. Die aktuelle lokale Matrix mit der Zwei-Phasen-
-Barriere bestand auf SQL Server 2019/2022/2025 je drei von drei vollständigen
-Zweiburstversuchen. Die serielle
+`lab.ActorReady`. Für die Freigabe hält der Reader einen exklusiven,
+sitzungsgebundenen `sp_getapplock`; alle Actors fordern anschließend einen
+Shared-Lock auf derselben lauf- und burstgebundenen Ressource an. Nachdem die
+erwartete Actorzahl ihre Bereitschaft registriert hat, setzt der Reader den
+XE-Startmarker und gibt den exklusiven Lock frei. Eine zusätzliche Abfrage
+der wartenden Lock-Anfragen erwies sich als ungeeignete Freigabebedingung und
+ist nicht Teil des Kandidaten. Actorzahl und Einfügungen werden nicht erhöht.
+Die verbundene Session liest danach die Kette und pausiert nach jeder
+Blattseitenprobe fünfzig Millisekunden; zusätzliche Schreiblasten kommen nicht
+hinzu. Das XE-Markerfilter nutzt nun das Ereignisfeld `statement` statt der
+Action `sql_text`, die den ganzen Batch einschloss und auch Poll-Statements
+erfasste. Die vorherige 1-ms-Pollingvariante und die anschließende
+`ActorReady`-Pollingbarriere ließen SQL Server 2025 in der CI ohne vollständige
+Waitüberlappungen. Die Kandidatenvariante mit Anwendungs-Lock und gezieltem
+Ereignisfeldfilter bestand lokal auf SQL Server 2019/2022/2025 je drei von drei
+vollständigen Zweiburstversuchen; die neue PR-Matrix steht noch aus. Die
+serielle
 CI-Matrix ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
 bestand ebenfalls auf allen drei Builds: Build 15 mit drei, Build 16 mit zwei
 und Build 17 mit einem vollständigen Zweiburstnachweis aus je drei begrenzten
 Versuchen. Alle Versuche bestätigten das Cleanup; erfolglose Varianten blieben
-`NOT_PROVEN`. Die aktuelle Zwei-Phasen-Barriere muss in einer neuen PR-Matrix
-noch bestätigt werden.
+`NOT_PROVEN`. Die aktuelle Anwendungs-Lock-Barriere und der
+Ereignisfeldfilter müssen in einer neuen PR-Matrix bestätigt werden.
 
 Die angepasste Lastform verwendet 501 Seeds und eine Einfügung pro Actor je
 Burst. Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) verwenden

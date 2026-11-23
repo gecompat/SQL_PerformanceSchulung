@@ -615,23 +615,25 @@ Fortschritts-Updates der Actors auf der Steuerungstabelle wurden aus den
 Messfenstern entfernt; Burstabschluss wird nun über den Zeilenzuwachs der
 Zieltabelle erkannt. Alle drei SQL-Server-Builds bestanden mit dieser Korrektur
 lokal drei von drei Versuchen. Die CI-Artefakte zeigten danach, dass die
-Orchestrierung `lab.Go` vor dem XE-Startmarker freigab. Je nach Scheduling
-lagen die Writer-Waits dadurch außerhalb des markierten Lesefensters. Die
-Capture-Session wartet jetzt auf `lab.Start`. Die Actors melden sich danach in
-`lab.ActorReady` und warten an `lab.Go`; der Reader wartet auf die erwartete
-Actorzahl, setzt den XE-Startmarker und öffnet dann `lab.Go`. Eine folgende
-CI-Matrix mit nur 1-ms-Polling bestand SQL Server 2019 und 2022, doch SQL
-Server 2025 zeigte in drei Versuchen keine vollständigen Waitpaare. Die
-Zwei-Phasen-Barriere stellt sicher, dass alle Actors vor dem gemessenen Burst
-bereitstehen. Actorzahl, Einfügungen, Versuchszahl und Nachweiskriterien
-bleiben unverändert. Die aktuelle Variante bestand lokal auf allen drei
-Builds je drei von drei vollständigen Zweiburstversuchen; beide Bursts
-bestätigten die exklusive Waitüberlappung auf der rechten Blattseite, und alle
-Versuche bestätigten das Cleanup. Die serielle PR-Matrix
+Orchestrierung `lab.Go` vor dem XE-Startmarker freigab. Die korrigierte
+Markerreihenfolge und `ActorReady`-Pollingbarriere ließen SQL Server 2025 in
+der PR-Matrix jedoch gültige exklusive Wait-Paare, aber keine überlappenden
+Zielseiten-Waits im Capturefenster melden. Die neue Kandidatenvariante hält
+vor `lab.Start` einen exklusiven, sitzungsgebundenen `sp_getapplock`; alle
+Actors melden ihre Bereitschaft und warten danach mit Shared-Lock-Requests auf
+dieser Ressource. Nach Erreichen der erwarteten Actorzahl setzt der Reader den
+XE-Startmarker und gibt den Lock frei. Zusätzlich filtert XE nun direkt nach
+dem Ereignisfeld `statement`; das vorherige `sqlserver.sql_text` erfasste den
+gesamten Batch einschließlich Poll-Statements. Actorzahl, Einfügungen,
+Versuchszahl, 2-CPU-/4-GiB-Limit und Nachweiskriterien bleiben unverändert.
+Die lokale Kandidatenmatrix bestand alle drei Builds je 3/3 vollständige
+Zweiburstversuche mit Cleanup. Die neue PR-Matrix muss dies noch bestätigen.
+Die serielle PR-Matrix
 ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
 bestand ebenfalls: Build 15 dreimal, Build 16 zweimal und Build 17 einmal je
 drei begrenzten Zweiburstversuchen. Alle anderen Läufe blieben sichtbar
-`NOT_PROVEN`. Die frische PR-Matrix für die Zwei-Phasen-Barriere steht noch aus. Die
+`NOT_PROVEN`. Die frische PR-Matrix für die Anwendungs-Lock-Barriere und den
+Ereignisfeldfilter steht noch aus. Die
 getrennte Methodenfreigabe bleibt vor einer
 Statusänderung oder Leistungsbehauptung erforderlich.
 `METHOD_DRAFT` bleibt bestehen, da

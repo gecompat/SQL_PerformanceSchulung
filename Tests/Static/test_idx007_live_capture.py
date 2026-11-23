@@ -4,7 +4,7 @@ import inspect
 import unittest
 from unittest.mock import patch
 
-from Tests.Runtime.idx007_hot_leaf_pilot import (PilotError, overlaps_capture_window,
+from Tests.Runtime.idx007_hot_leaf_pilot import (PilotError, create_xe_sql, overlaps_capture_window,
                                                   page_metadata_sql, parse_chain_markers, parse_wait_pairs,
                                                   run_bounded_trials, run_live_pilot, wait_page_probe_sql)
 
@@ -55,20 +55,29 @@ class LiveCaptureParserTests(unittest.TestCase):
         query = page_metadata_sql({(1, 489)}, 1, actor_count=56)
         self.assertLess(query.index("lab.Start WHERE Stage=1"), query.index("lab.ActorReady WHERE Stage=1"))
         self.assertLess(query.index("lab.ActorReady WHERE Stage=1"), query.index("IDX007_CHAIN_CAPTURE_BEGIN"))
+        self.assertLess(query.index("sp_getapplock"), query.index("lab.CaptureReady"))
         self.assertLess(query.index("IDX007_CHAIN_CAPTURE_BEGIN"), query.index("DECLARE @candidate"))
-        self.assertLess(query.index("IDX007_CHAIN_CAPTURE_BEGIN"), query.index("INSERT lab.Go(Stage)"))
-        self.assertLess(query.index("INSERT lab.Go(Stage)"), query.index("DECLARE @candidate"))
+        self.assertLess(query.index("IDX007_CHAIN_CAPTURE_BEGIN"), query.index("sp_releaseapplock"))
+        self.assertLess(query.index("sp_releaseapplock"), query.index("DECLARE @candidate"))
         self.assertLess(query.index("DECLARE @candidate"), query.index("IDX007_CHAIN_CAPTURE_END"))
         self.assertIn("WAITFOR DELAY '00:00:00.050'", query)
         self.assertIn("WAITFOR DELAY '00:00:00.001'", query)
         source = inspect.getsource(run_live_pilot)
         self.assertIn("INSERT lab.Start(Stage) VALUES({stage})", source)
         self.assertLess(source.index("INSERT lab.ActorReady(Stage,SessionId) VALUES(1,@spid)"),
-                        source.index("WHILE @i<{ROWS_PER_BURST} BEGIN INSERT dbo.Hot DEFAULT VALUES"))
+                        source.index("EXEC @gate_result=sys.sp_getapplock @Resource=N'IDX007_{DB}_1'"))
+        self.assertIn("@LockMode='Shared'", source)
+        self.assertNotIn("lab.Go", source)
         self.assertEqual(inspect.getmodule(run_live_pilot).GATE_POLL_DELAY, "00:00:00.001")
         self.assertIn("LATCH_EVENT|stage=", source)
         self.assertIn("window_rows[:64]", source)
         self.assertIn("LATCH_EVENT_TRUNCATED|stage=", source)
+
+    def test_xe_marker_predicate_filters_statement_payload_not_entire_batch(self) -> None:
+        session = create_xe_sql("IDX007_STATIC_TEST", DATABASE_ID)
+        self.assertEqual(session.count("[sqlserver].[like_i_sql_unicode_string]([statement],"), 2)
+        self.assertNotIn("like_i_sql_unicode_string]([sqlserver].[sql_text]", session)
+        self.assertNotIn("sqlserver.sql_text)", session)
 
     def test_shared_wait_interval_must_intersect_chain_capture(self) -> None:
         left = {"begin_seq": 2, "end_seq": 9}

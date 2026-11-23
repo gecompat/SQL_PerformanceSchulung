@@ -80,13 +80,13 @@ ADD EVENT sqlserver.latch_suspend_end
 ),
 ADD EVENT sqlserver.sql_statement_starting
 (
-    ACTION(package0.event_sequence,sqlserver.session_id,sqlserver.request_id,sqlserver.sql_text)
-    WHERE ([database_id]=({database_id}) AND [sqlserver].[like_i_sql_unicode_string]([sqlserver].[sql_text],N'%IDX007_CHAIN_CAPTURE_%'))
+    ACTION(package0.event_sequence,sqlserver.session_id,sqlserver.request_id)
+    WHERE ([database_id]=({database_id}) AND [sqlserver].[like_i_sql_unicode_string]([statement],N'%IDX007_CHAIN_CAPTURE_%'))
 ),
 ADD EVENT sqlserver.sql_statement_completed
 (
-    ACTION(package0.event_sequence,sqlserver.session_id,sqlserver.request_id,sqlserver.sql_text)
-    WHERE ([database_id]=({database_id}) AND [sqlserver].[like_i_sql_unicode_string]([sqlserver].[sql_text],N'%IDX007_CHAIN_CAPTURE_%'))
+    ACTION(package0.event_sequence,sqlserver.session_id,sqlserver.request_id)
+    WHERE ([database_id]=({database_id}) AND [sqlserver].[like_i_sql_unicode_string]([statement],N'%IDX007_CHAIN_CAPTURE_%'))
 )
 ADD TARGET package0.ring_buffer(SET max_memory=(1024))
 WITH (MAX_MEMORY=4096 KB,EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,
@@ -242,13 +242,20 @@ def page_metadata_sql(addresses: set[tuple[int, int]], stage: int, actor_count: 
         raise PilotError("preflight page address set is empty or over its fixed cap")
     if actor_count < 1 or actor_count > 128:
         raise PilotError("actor gate count is empty or over its fixed cap")
+    gate_resource = f"IDX007_{DB}_{stage}"
     return f"""
 SET NOCOUNT ON; USE [{DB}];
+DECLARE @gate_result int;
+EXEC @gate_result=sys.sp_getapplock @Resource=N'{gate_resource}',@LockMode='Exclusive',
+ @LockOwner='Session',@LockTimeout=15000,@DbPrincipal='public';
+IF @gate_result<0 THROW 51024,'IDX-007 capture gate could not be acquired',1;
 INSERT lab.CaptureReady(Stage) VALUES({stage});
 WHILE NOT EXISTS(SELECT 1 FROM lab.Start WHERE Stage={stage}) WAITFOR DELAY '{GATE_POLL_DELAY}';
 WHILE (SELECT COUNT(*) FROM lab.ActorReady WHERE Stage={stage})<{actor_count} WAITFOR DELAY '{GATE_POLL_DELAY}';
 SELECT 'IDX007_CHAIN_CAPTURE_BEGIN';
-INSERT lab.Go(Stage) VALUES({stage});
+EXEC @gate_result=sys.sp_releaseapplock @Resource=N'{gate_resource}',
+ @LockOwner='Session',@DbPrincipal='public';
+IF @gate_result<0 THROW 51025,'IDX-007 capture gate could not be released',1;
 DECLARE @candidate table(FileId int NOT NULL,PageId int NOT NULL);
 INSERT @candidate(FileId,PageId)
 SELECT allocated_page_file_id,allocated_page_page_id
@@ -312,9 +319,15 @@ OUTER APPLY sys.dm_db_page_info(DB_ID(),a.FileId,a.PageId,'DETAILED') AS i;
 
 
 def wait_until(name: str, env: dict[str, str], sql: str, expected: str,
-               *, seconds: float = 20) -> None:
+               *, seconds: float = 20, process: subprocess.Popen[str] | None = None) -> None:
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
+        if process is not None and process.poll() is not None:
+            stdout, stderr = process.communicate()
+            raise PilotError(
+                f"bounded state wait expired for {expected}; capture exited "
+                f"with {process.returncode}: {(stdout + stderr)[-1500:]}"
+            )
         output = sqlcmd(name, env, sql, check=False)
         if expected in output.splitlines():
             return
@@ -382,7 +395,6 @@ CREATE SCHEMA lab;
 GO
 CREATE TABLE lab.ActorSessions(SessionId smallint NOT NULL PRIMARY KEY,RequestId int NOT NULL);
 CREATE TABLE lab.Start(Stage int NOT NULL PRIMARY KEY);
-CREATE TABLE lab.Go(Stage int NOT NULL PRIMARY KEY);
 CREATE TABLE lab.CaptureReady(Stage int NOT NULL PRIMARY KEY);
 CREATE TABLE lab.ActorReady(Stage int NOT NULL,SessionId smallint NOT NULL,PRIMARY KEY(Stage,SessionId));
 DECLARE @seed int=0; WHILE @seed<501 BEGIN INSERT dbo.Hot DEFAULT VALUES; SET @seed+=1; END;
@@ -446,15 +458,20 @@ WHERE p.name=N'sqlserver' AND o.name=N'latch_suspend_end' AND c.name=N'duration'
         for _ in range(actor_count):
             actor_sql = f"""
 SET NOCOUNT ON; USE [{DB}]; DECLARE @spid smallint=@@SPID,@request_id int,@i int=0;
+DECLARE @gate_result int;
 SELECT @request_id=request_id FROM sys.dm_exec_requests WHERE session_id=@spid;
 INSERT lab.ActorSessions(SessionId,RequestId) VALUES(@spid,@request_id);
 WHILE NOT EXISTS(SELECT 1 FROM lab.Start WHERE Stage=1) WAITFOR DELAY '{GATE_POLL_DELAY}';
 INSERT lab.ActorReady(Stage,SessionId) VALUES(1,@spid);
-WHILE NOT EXISTS(SELECT 1 FROM lab.Go WHERE Stage=1) WAITFOR DELAY '{GATE_POLL_DELAY}';
+EXEC @gate_result=sys.sp_getapplock @Resource=N'IDX007_{DB}_1',@LockMode='Shared',
+ @LockOwner='Session',@LockTimeout=15000,@DbPrincipal='public';
+IF @gate_result<0 THROW 51026,'IDX-007 actor gate could not be acquired',1;
 WHILE @i<{ROWS_PER_BURST} BEGIN INSERT dbo.Hot DEFAULT VALUES; WAITFOR DELAY '00:00:00.010'; SET @i+=1; END;
 WHILE NOT EXISTS(SELECT 1 FROM lab.Start WHERE Stage=2) WAITFOR DELAY '{GATE_POLL_DELAY}';
 INSERT lab.ActorReady(Stage,SessionId) VALUES(2,@spid);
-WHILE NOT EXISTS(SELECT 1 FROM lab.Go WHERE Stage=2) WAITFOR DELAY '{GATE_POLL_DELAY}';
+EXEC @gate_result=sys.sp_getapplock @Resource=N'IDX007_{DB}_2',@LockMode='Shared',
+ @LockOwner='Session',@LockTimeout=15000,@DbPrincipal='public';
+IF @gate_result<0 THROW 51026,'IDX-007 actor gate could not be acquired',1;
 SET @i=0;
 WHILE @i<{ROWS_PER_BURST} BEGIN INSERT dbo.Hot DEFAULT VALUES; WAITFOR DELAY '00:00:00.010'; SET @i+=1; END;
 SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
@@ -475,11 +492,11 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             chain_capture = sqlcmd_actor(name, env, page_metadata_sql(leaf_addresses, stage, actor_count))
             capture_processes.append(chain_capture)
             wait_until(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('CAPTURE_READY|',COUNT(*)) FROM lab.CaptureReady WHERE Stage={stage};",
-                       f"CAPTURE_READY|1")
+                       f"CAPTURE_READY|1", process=chain_capture)
             sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; INSERT lab.Start(Stage) VALUES({stage});")
             wait_until(name, env,
                 f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('DONE|',COUNT_BIG(*)-501) FROM dbo.Hot;",
-                f"DONE|{actor_count * stage}")
+                f"DONE|{actor_count * stage}", process=chain_capture)
             address_meta, capture_stderr = chain_capture.communicate(timeout=30)
             capture_processes.remove(chain_capture)
             if chain_capture.returncode:
