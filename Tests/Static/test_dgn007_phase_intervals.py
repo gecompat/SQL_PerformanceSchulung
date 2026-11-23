@@ -124,19 +124,38 @@ class PhaseIntervalTests(unittest.TestCase):
         self.assertIn("wait_type LIKE N''PAGEIOLATCH[_]%''", setup)
         self.assertLess(setup.index("DECLARE @WaitControlBefore"), setup.index("WHILE @PhaseNumber < 2"))
 
-    def test_t2_compile_capture_is_recorded_before_creation_and_released_before_profile_skips(self) -> None:
+    def test_pair_uses_shared_qualified_capture_and_preserves_phase_order(self) -> None:
+        install = INSTALL.read_text(encoding="utf-8")
         t2 = COMPARISON.read_text(encoding="utf-8")
-        recorded = t2.index("INSERT lab.Dgn007T2CompileOwner")
-        created = t2.index("CREATE EVENT SESSION", recorded)
-        started = t2.index("SET @T2Marker=SYSUTCDATETIME()")
-        completed = t2.index("UPDATE lab.IncidentState SET CompletedUtc", started)
-        dropped = t2.index("DROP EVENT SESSION", completed)
-        removed_owner = t2.index("DROP TABLE lab.Dgn007T2CompileOwner", dropped)
-        profiled = t2.index("EXEC sys.sp_query_store_flush_db", completed)
-        self.assertEqual([recorded, created, started, completed, dropped, removed_owner, profiled],
-                         sorted((recorded, created, started, completed, dropped, removed_owner, profiled)))
-        self.assertIn("HAVING MIN(CompileCount)=1 AND MAX(CompileCount)=1", t2)
+        begin = install.index("INSERT lab.Dgn007T2CompileOwner")
+        create = install.index("CREATE EVENT SESSION", begin)
+        control = install.index("SELECT /* DGN007_COMPILE_CONTROL */", create)
+        drop = install.index("DROP EVENT SESSION", control)
+        record = install.index("INSERT lab.Dgn007CompileProfile", drop)
+        self.assertEqual([begin, create, control, drop, record], sorted((begin, create, control, drop, record)))
+        self.assertIn("CaptureSessionId=@@SPID AND IncidentPhase=@Phase", install)
+        self.assertIn("@ControlSequence IS NOT NULL", install)
+        self.assertIn("MIN(CompileCount)>=@RequiredPerRequest AND MAX(CompileCount)<=1", install)
+        for source, phase_marker in (
+            (install[install.index("WHILE @PhaseNumber < 2"):], "INSERT lab.IncidentState"),
+            (t2, "SET @T2Marker=SYSUTCDATETIME()"),
+        ):
+            bound = [source.index(value) for value in (
+                "EXEC lab.usp_BeginDgn007CompileCapture", phase_marker,
+                "UPDATE lab.IncidentState SET CompletedUtc",
+                "EXEC lab.usp_EndDgn007CompileCapture", "EXEC sys.sp_query_store_flush_db",
+            )]
+            self.assertEqual(bound, sorted(bound))
         self.assertIn("COMPILE_EVIDENCE_MISSING", t2)
+
+    def test_t2_compares_parameters_in_the_same_order_as_t1(self) -> None:
+        install = INSTALL.read_text(encoding="utf-8")
+        t2 = COMPARISON.read_text(encoding="utf-8")
+        baseline = re.search(r"INSERT @Requests VALUES(.*?);", install, re.S)[1]
+        compared = re.search(r"INSERT #Parameters\(RequestOrdinal,GroupKey,StatusCode\) VALUES(.*?);", t2, re.S)[1]
+        self.assertEqual(re.findall(r"\(1,(\d),(\d),(\d)\)", baseline),
+                         re.findall(r"\((\d),(\d),(\d)\)", compared))
+        self.assertIn("FROM #Parameters ORDER BY RequestOrdinal;", t2)
 
     def test_both_recovery_routes_use_only_the_recorded_t2_session_name(self) -> None:
         for path in (COMPARISON.with_name("90_Cleanup.sql"), INSTALL.with_name("cleanup.sql")):
