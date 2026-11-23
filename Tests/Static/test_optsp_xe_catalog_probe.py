@@ -12,6 +12,8 @@ from validate_optsp_xe_catalog_probe import validate  # noqa: E402
 BASE_SQL = """
 DECLARE @ProductMajorVersion int = TRY_CONVERT(int, SERVERPROPERTY('ProductMajorVersion'));
 IF @ProductMajorVersion IS NULL OR @ProductMajorVersion <> 17 THROW 51000, 'SKIP_VERSION', 1;
+IF COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY('ProductVersion')), N'') <> N'17.0.5065.9'
+    THROW 51003, 'SKIP_VERSION', 1;
 SELECT JSON_QUERY((SELECT name FROM sys.dm_xe_objects
 JOIN sys.dm_xe_object_columns ON 1=1
 JOIN sys.dm_xe_packages ON 1=1 FOR JSON PATH))
@@ -26,7 +28,7 @@ WHERE package.name = N'sqlos'
 -- candidate fields: sql_text session_id database_id query_hash query_plan_hash
 """
 BASE_WORKFLOW = """
-image: mcr.microsoft.com/mssql/server:2025-latest
+image: mcr.microsoft.com/mssql/server@sha256:05644dad1266ca3d445d1e8f6d2ebb9a6a03df9a39376e0f7b48917356dca9d9
 run: cat Tests/Runtime/optsp_xe_catalog_probe.sql | docker exec -i -h -1 -y 8000 -w 8000
 - name: cleanup
   if: always()
@@ -45,9 +47,13 @@ class OptSpXeCatalogProbeTests(unittest.TestCase):
         self.assertTrue(any("wait_info from the sqlos package" in finding for finding in findings))
         self.assertTrue(any("package GUID" in finding for finding in findings))
 
+    def test_different_engine_build_is_rejected(self) -> None:
+        wrong_build = BASE_SQL.replace("17.0.5065.9", "17.0.5035.5")
+        self.assertTrue(any("exact engine build" in finding for finding in validate(wrong_build, BASE_WORKFLOW)))
+
     def test_mutation_or_unbounded_host_access_is_rejected(self) -> None:
         mutating_sql = BASE_SQL.replace("SELECT JSON_QUERY", "ALTER DATABASE x; SELECT JSON_QUERY")
-        unsafe_workflow = BASE_WORKFLOW.replace("2025-latest", "2025-latest --publish 1433:1433")
+        unsafe_workflow = BASE_WORKFLOW.replace("@sha256:", " --publish 1433:1433 @sha256:")
         findings = validate(mutating_sql, unsafe_workflow)
         self.assertTrue(any("read-only" in finding for finding in findings))
         self.assertTrue(any("publish" in finding for finding in findings))
