@@ -78,7 +78,16 @@ python Tests/Runtime/idx007_hot_leaf_pilot.py 17
 ```
 
 Der Lauf prüft den konkreten Engine-Build, Compatibility Level und XE-Feld-
-beziehungsweise Actionbestand. `package0.event_sequence` ordnet die
+beziehungsweise Actionbestand. Vor jedem Insertschub hält der Reader einen
+exklusiven, sitzungsgebundenen `sp_getapplock`; die Actors fordern nach ihrer
+Bereitschaft jeweils einen Shared-Lock auf derselben Ressource an. Der Reader
+wartet auf alle Bereitschaftsrecords, setzt dann den XE-Startmarker und löst
+den Lock. Die Steuerung signalisiert nach bestätigtem Zeilenzuwachs
+`lab.BurstDone`; der Reader wartet im markierten Fenster auf dieses Signal und
+liest danach die Seitenkette. Eine zusätzliche DMV-Abfrage der wartenden
+Lock-Anfragen wird nicht als Freigabebedingung verwendet.
+Die Markerereignisse filtern direkt auf das XE-Feld `statement`, nicht auf den
+gesamten Batch-Text. `package0.event_sequence` ordnet die
 Latch-Beginn- und -Endereignisse; zwei getrennte Insertschübe müssen
 verschachtelte exklusive `BUF`-Latch-Waits verschiedener Actor-Requests auf
 einer zu diesem Capture-Rand bestätigten rechten Blattseite zeigen. Das
@@ -95,5 +104,37 @@ Der Workflow
 führt die statischen Verträge auf Pull Requests aus und lässt die drei
 digest-gepinnten Runtime-Builds dort seriell laufen. `workflow_dispatch` kann
 dieselbe Matrix manuell erneut ausführen. Ein erfolgreicher Engineering-Pilot
-ändert den `METHOD_DRAFT`-Status nicht; unabhängiger Methodenreview,
-Demofreigabe und Leistungsqualifikation bleiben getrennte Gates.
+ändert den `METHOD_DRAFT`-Status nicht; Demofreigabe und
+Leistungsqualifikation bleiben getrennte Gates.
+
+Der Kettenleser wird vor der Actorfreigabe gestartet und wartet in derselben
+SQL-Session auf die Burstbarriere. XE erfasst zusätzlich markierte
+`sql_statement_starting`-/`sql_statement_completed`-Ereignisse für diesen
+synthetischen Batch. Ein Burst zählt nur, wenn zwei erfolgreiche exklusive
+`BUF`-Waits verschiedener Requests auf derselben Seite überlappen und ihre
+gemeinsame Waitzeit in das markierte Kettenlesefenster fällt. Die Kettenprüfung
+liest die zu diesem Zeitpunkt allozierten Blattkandidaten und bindet die
+Waitseite an Objekt, Index, Partition, Blattebene, terminalen Nachfolger und
+Vorgänger-Rücklink. Das ist eine geordnete empirische Klammer auf den drei
+konkreten Builds, keine atomare DMV-Snapshotgarantie und kein Nachweis für
+gleichzeitige Page-Splits.
+
+Der Pilot verwendet je Build eine konkret erprobte Indexform: SQL Server
+2019/2022 verwenden 501 Seeds, `FILLFACTOR=100` und 80 Actors; SQL Server
+2025 verwendet 501 Seeds, `FILLFACTOR=10` und 56 Actors. Je Actor erfolgt ein
+Insert pro Burst. Die physische Vorabprüfung bindet Seitenzahl und Reserve an
+den tatsächlichen Lauf. Der geforderte Wait- und Terminalnachweis bleibt für
+jeden Build unverändert. Actor-Sessions werden vor dem Burst registriert;
+Fortschritts-Updates auf der gemeinsamen Steuerungstabelle während der
+Messfenster entfallen. Der Harness erkennt Burstabschlüsse am Zeilenzuwachs der
+Zieltabelle, damit die Steuerung nicht selbst konkurrierende Seiten-Waits
+erzeugt. Der Kettenleser hält das markierte Fenster mit fünfzig Millisekunden
+Pause nach jeder Blattseitenprobe offen, ohne zusätzliche Schreiblast zu
+erzeugen.
+
+CI führt pro Build höchstens drei vollständige, voneinander getrennte Versuche
+mit identischen Grenzen aus. Ein Build-Job besteht, sobald mindestens ein
+Versuch beide Bursts vollständig nachweist; `NOT_PROVEN`-Versuche und ihre
+Cleanup-Ausgaben bleiben im Kurzzeit-Artefakt sichtbar. Besteht keiner der
+drei Versuche, schlägt der Job fehl. Das prüft, dass der Beleg auf dem Build
+erreichbar ist, und behauptet keine deterministische Erfolgsquote.

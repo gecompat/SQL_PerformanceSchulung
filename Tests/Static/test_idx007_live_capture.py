@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import inspect
 import unittest
+from unittest.mock import patch
 
-from Tests.Runtime.idx007_hot_leaf_pilot import PilotError, parse_wait_pairs
+from Tests.Runtime.idx007_hot_leaf_pilot import (PilotError, create_xe_sql, overlaps_capture_window,
+                                                  page_metadata_sql, parse_chain_markers, parse_wait_pairs,
+                                                  run_bounded_trials, run_live_pilot, wait_page_probe_sql)
 
 
 DATABASE_ID = 7
@@ -20,6 +24,86 @@ def output(*rows: str, stats: str = "XE_STATS|1|0|0|4|0") -> str:
 
 
 class LiveCaptureParserTests(unittest.TestCase):
+    @patch("Tests.Runtime.idx007_hot_leaf_pilot.run_live_pilot", side_effect=[2, 0, 2])
+    def test_bounded_trials_accept_one_complete_pass_and_keep_attempt_count(self, pilot) -> None:
+        self.assertEqual(run_bounded_trials(15), 0)
+        self.assertEqual(pilot.call_count, 3)
+
+    @patch("Tests.Runtime.idx007_hot_leaf_pilot.run_live_pilot", side_effect=[2, 2, 2])
+    def test_bounded_trials_fail_when_every_attempt_is_not_proven(self, pilot) -> None:
+        self.assertEqual(run_bounded_trials(17), 2)
+        self.assertEqual(pilot.call_count, 3)
+
+    def test_bounded_trials_reject_unbounded_attempt_limits(self) -> None:
+        with self.assertRaisesRegex(ValueError, "between one and three"):
+            run_bounded_trials(15, attempts=4)
+
+    def test_wait_page_probe_targets_only_observed_addresses(self) -> None:
+        query = wait_page_probe_sql({(1, 360), (2, 489)}, 2)
+        self.assertIn("WAIT_PAGE_PROBE|2|", query)
+        self.assertIn("(1,360),(2,489)", query)
+        self.assertIn("sys.dm_db_page_info(DB_ID(),a.FileId,a.PageId,'DETAILED')", query)
+        with self.assertRaisesRegex(PilotError, "over its fixed cap"):
+            wait_page_probe_sql({(1, page) for page in range(1, 130)}, 1)
+
+    def test_actor_progress_does_not_write_during_measured_bursts(self) -> None:
+        source = inspect.getsource(run_live_pilot)
+        self.assertNotIn("UPDATE lab.ActorSessions", source)
+        self.assertIn("COUNT_BIG(*)-501", source)
+
+    def test_live_chain_capture_markers_bracket_leaf_scan(self) -> None:
+        query = page_metadata_sql({(1, 489)}, 1, actor_count=56)
+        self.assertLess(query.index("lab.Start WHERE Stage=1"), query.index("lab.ActorReady WHERE Stage=1"))
+        self.assertLess(query.index("lab.ActorReady WHERE Stage=1"), query.index("IDX007_CHAIN_CAPTURE_BEGIN"))
+        self.assertLess(query.index("sp_getapplock"), query.index("lab.CaptureReady"))
+        self.assertLess(query.index("IDX007_CHAIN_CAPTURE_BEGIN"), query.index("DECLARE @candidate"))
+        self.assertLess(query.index("IDX007_CHAIN_CAPTURE_BEGIN"), query.index("sp_releaseapplock"))
+        self.assertLess(query.index("sp_releaseapplock"), query.index("DECLARE @candidate"))
+        self.assertLess(query.index("lab.BurstDone"), query.index("DECLARE @candidate"))
+        self.assertLess(query.index("DECLARE @candidate"), query.index("IDX007_CHAIN_CAPTURE_END"))
+        self.assertIn("WAITFOR DELAY '00:00:00.050'", query)
+        self.assertIn("WAITFOR DELAY '00:00:00.001'", query)
+        source = inspect.getsource(run_live_pilot)
+        self.assertIn("INSERT lab.Start(Stage) VALUES({stage})", source)
+        self.assertLess(source.index("INSERT lab.ActorReady(Stage,SessionId) VALUES(1,@spid)"),
+                        source.index("EXEC @gate_result=sys.sp_getapplock @Resource=N'IDX007_{DB}_1'"))
+        self.assertLess(source.index("f\"DONE|{actor_count * stage}\""),
+                        source.index("INSERT lab.BurstDone(Stage) VALUES({stage})"))
+        self.assertIn("@LockMode='Shared'", source)
+        self.assertNotIn("lab.Go", source)
+        self.assertEqual(inspect.getmodule(run_live_pilot).GATE_POLL_DELAY, "00:00:00.001")
+        self.assertIn("LATCH_EVENT|stage=", source)
+        self.assertIn("window_rows[:64]", source)
+        self.assertIn("LATCH_EVENT_TRUNCATED|stage=", source)
+
+    def test_xe_marker_predicate_filters_statement_payload_not_entire_batch(self) -> None:
+        session = create_xe_sql("IDX007_STATIC_TEST", DATABASE_ID)
+        self.assertEqual(session.count("[sqlserver].[like_i_sql_unicode_string]([statement],"), 2)
+        self.assertNotIn("like_i_sql_unicode_string]([sqlserver].[sql_text]", session)
+        self.assertNotIn("sqlserver.sql_text)", session)
+
+    def test_shared_wait_interval_must_intersect_chain_capture(self) -> None:
+        left = {"begin_seq": 2, "end_seq": 9}
+        right = {"begin_seq": 4, "end_seq": 8}
+        self.assertTrue(overlaps_capture_window(left, right, 5, 7))
+        self.assertFalse(overlaps_capture_window(left, right, 9, 12))
+        self.assertFalse(overlaps_capture_window(left, right, 3, 4))
+
+    def test_chain_markers_define_ordered_capture_window(self) -> None:
+        capture = "\n".join((
+            "XE_MARK|1|sql_statement_starting|10|51|0|BEGIN",
+            "XE_MARK|1|sql_statement_completed|20|51|0|END",
+        ))
+        self.assertEqual(parse_chain_markers(capture, 1), (10, 20))
+
+    def test_missing_or_reversed_chain_markers_are_rejected(self) -> None:
+        with self.assertRaisesRegex(PilotError, "missing, duplicated, or unordered"):
+            parse_chain_markers("XE_MARK|1|sql_statement_starting|20|51|0|BEGIN\n"
+                                "XE_MARK|1|sql_statement_completed|10|51|0|END", 1)
+        with self.assertRaisesRegex(PilotError, "missing, duplicated, or unordered"):
+            parse_chain_markers("XE_MARK|1|sql_statement_starting|10|51|0|BEGIN\n"
+                                "XE_MARK|1|sql_statement_completed|20|52|0|END", 1)
+
     def test_overlapping_exclusive_wait_intervals_on_same_page_are_found(self) -> None:
         capture = output(
             event("latch_suspend_begin", "2026-11-22T10:00:00.000Z", 1, 51),

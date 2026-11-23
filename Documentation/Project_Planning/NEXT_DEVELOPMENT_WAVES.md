@@ -594,6 +594,57 @@ unvollständige XE-Alternativzweig blockiert ihn nicht. CON-006 Range ist auf
 qualifiziert (PR #1142, Merge-Commit `116123dfa58e9b1232860a1f372b4b9d59e3f8d0`).
 IDX-007 bleibt wegen der nicht gebundenen Terminal-/Wait-Klammer offen.
 
+### IDX-007 – laufendes XE-/Kettenfenster (23. November 2026)
+
+Der Kettenleser wartet nun bereits verbunden an der Burstbarriere; seine
+markierten Statementgrenzen und die Actor-Waits liegen in derselben
+`event_sequence`. Ein PASS verlangt eine gemeinsame Waitüberlappung auf
+derselben Seite, die in das Kettenlesefenster fällt, sowie bestätigte
+Terminalseite und Vorgänger-Rücklink für genau diese Seite. Die Lastform ist
+501 Seeds und ein Insert je Actor/Burst. Build 15/16 verwenden lokal
+`FILLFACTOR=100` mit 80 Actors (661 Zeilen); Build 17 verwendet
+`FILLFACTOR=10` mit 56 Actors (613 Zeilen). Nach Entfernung der
+Fortschritts-Updates auf `lab.ActorSessions` bestanden alle drei lokalen Profile
+je drei von drei Zweiburstversuchen; Cleanup bestand. Frühere
+`FILLFACTOR=100`-CI-Formen mit 64 Actors verfehlten SQL 2019-Waits; 80×1 und
+96-Actor-Varianten trafen einzelne Seitensplits. Die CI-Matrix führt je Build
+höchstens drei vollständige Versuche aus, verlangt mindestens einen
+Zweiburstnachweis und erhält alle `NOT_PROVEN`-Ausgaben. Die Diagnose fand
+Waits auf einer anderen Objekt-ID als dem Zielindex. Die
+Fortschritts-Updates der Actors auf der Steuerungstabelle wurden aus den
+Messfenstern entfernt; Burstabschluss wird nun über den Zeilenzuwachs der
+Zieltabelle erkannt. Alle drei SQL-Server-Builds bestanden mit dieser Korrektur
+lokal drei von drei Versuchen. Die CI-Artefakte zeigten danach, dass die
+Orchestrierung `lab.Go` vor dem XE-Startmarker freigab. Die korrigierte
+Markerreihenfolge und `ActorReady`-Pollingbarriere ließen SQL Server 2025 in
+der PR-Matrix jedoch gültige exklusive Wait-Paare, aber keine überlappenden
+Zielseiten-Waits im Capturefenster melden. Die neue Kandidatenvariante hält
+vor `lab.Start` einen exklusiven, sitzungsgebundenen `sp_getapplock`; alle
+Actors melden ihre Bereitschaft und warten danach mit Shared-Lock-Requests auf
+dieser Ressource. Nach Erreichen der erwarteten Actorzahl setzt der Reader den
+XE-Startmarker und gibt den Lock frei. Die Steuerung wartet auf den erwarteten
+Zeilenzuwachs und setzt `lab.BurstDone`; der Reader wartet innerhalb des
+markierten Fensters auf dieses Signal und liest die Seitenkette erst danach.
+Zusätzlich filtert XE direkt nach dem Ereignisfeld `statement`; das vorherige
+`sqlserver.sql_text` erfasste den gesamten Batch einschließlich Poll-Statements.
+Actorzahl, Einfügungen, Versuchszahl, 2-CPU-/4-GiB-Limit und Nachweiskriterien
+bleiben unverändert. Die vorherige Kandidatenvariante bestand lokal alle drei
+Builds je 3/3 Zweiburstversuche. Der finale `BurstDone`-Kandidat bestand lokal
+Build 15 und 16 je einmal sowie Build 17 dreimal; alle Läufe bestätigten den
+Zweiburstnachweis und Cleanup. Die neue PR-Matrix steht noch aus. Die serielle
+PR-Matrix
+([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
+bestand ebenfalls: Build 15 dreimal, Build 16 zweimal und Build 17 einmal je
+drei begrenzten Zweiburstversuchen. Alle anderen Läufe blieben sichtbar
+`NOT_PROVEN`. Die frische PR-Matrix für die Anwendungs-Lock-Barriere und den
+Ereignisfeldfilter steht noch aus. Die
+getrennte Methodenfreigabe bleibt vor einer
+Statusänderung oder Leistungsbehauptung erforderlich.
+`METHOD_DRAFT` bleibt bestehen, da
+mehrere DMV-Lesevorgänge keine atomare Snapshotgarantie und keine
+Splitsemantik liefern. Die frische PR-Matrix und Pflichtchecks stehen noch
+aus.
+
 PR #424 bindet beim QRY-023-Proposed-Harness Phasenscript, Zieldatenbank,
 Zeitlimits, Cleanup und Gesamtbudgets. PR #426 ergänzt `Reads` und `Writes` als
 Pflichtfelder und gepaarte Statistikmetriken neben CPU, Logical Reads und

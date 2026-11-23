@@ -209,3 +209,92 @@ Pilot ist keine vollständige Demoqualifikation. Vor einer Änderung des
 Methodenstatus oder einem Leistungsclaim bleibt ein unabhängiger Review dieses
 Erhebungsvertrags erforderlich. Die serielle PR-/manuelle Runtime-Matrix steht
 in [IDX-007 Live-Capture](../../.github/workflows/idx007-live-capture.yml).
+
+### Zeitliche Klammer im laufenden Burst (22. November 2026)
+
+Die vorherige Pilotfassung las die Seitenmetadaten erst nach dem Actor-Ende
+und konnte die Terminalseite daher nicht in dasselbe Waitfenster einordnen.
+Der Erheber startet jetzt vor der Burstfreigabe eine eigene SQL-Session, die an
+der Barriere wartet. Die Actorfreigabe startet sowohl die Einfügungen als auch
+den bereits verbundenen Kettenleser. Markierte
+`sql_statement_starting`-/`sql_statement_completed`-XE-Ereignisse grenzen den
+Kettenlesebatch über `package0.event_sequence` ein. Ein PASS erfordert zwei
+erfolgreiche exklusive `BUF`-Waits verschiedener Actor-Requests auf derselben
+Seite, deren gemeinsame Überlappung in dieses Kettenlesefenster fällt. Die
+Kettenaufnahme liest die dann allozierten Blattkandidaten und muss dieselbe
+Waitseite mit passender Objekt-/Index-/Partitionsidentität, Blattebene,
+terminalem Nachfolger und stimmigem Vorgänger-Rücklink finden. Fehlt eine
+dieser Bindungen, liefert der Lauf `NOT_PROVEN`.
+
+Die Diagnose einer fremden Waitseite führte zu einer Korrektur am Harness:
+Actor-Sitzungen werden vor dem Burst registriert; Fortschritts-Updates auf
+`lab.ActorSessions` während der gemessenen Bursts entfallen. Der Harness
+erkennt Burstabschlüsse jetzt über die erwartete Zeilenzahl in `dbo.Hot`.
+So erzeugt die Fortschrittsverfolgung keine eigenen Seiten-Waits, die mit dem
+Zielindex verwechselt werden könnten. Die CI-Artefakte zeigten zusätzlich
+einen Startreihenfolgefehler: Die Orchestrierung öffnete die Actor-Barriere,
+bevor die Capture-Session ihren XE-Startmarker ausgab. Writer-Waits konnten
+dadurch vor dem markierten Kettenlesefenster liegen. Die Capture-Session wartet
+jetzt auf ein Startsignal. Die Actors melden sich danach vor dem Burst in
+`lab.ActorReady`. Für die Freigabe hält der Reader einen exklusiven,
+sitzungsgebundenen `sp_getapplock`; alle Actors fordern anschließend einen
+Shared-Lock auf derselben lauf- und burstgebundenen Ressource an. Nachdem die
+erwartete Actorzahl ihre Bereitschaft registriert hat, setzt der Reader den
+XE-Startmarker und gibt den exklusiven Lock frei. Die Steuerung wartet auf den
+erwarteten Zeilenzuwachs, meldet danach `lab.BurstDone`, und der Reader wartet
+innerhalb des markierten Fensters auf dieses Abschlusssignal, bevor er die
+Seitenkette liest. Dadurch umfasst das Fenster die beiden vollständigen
+Writerbursts samt serverseitiger Erfassung ihrer Warteintervalle, ohne
+Actorzahl oder Einfügungen zu erhöhen. Die verbundene Session pausiert nach jeder
+Blattseitenprobe fünfzig Millisekunden; zusätzliche Schreiblasten kommen nicht
+hinzu. Das XE-Markerfilter nutzt nun das Ereignisfeld `statement` statt der
+Action `sql_text`, die den ganzen Batch einschloss und auch Poll-Statements
+erfasste. Die vorherige 1-ms-Pollingvariante und die anschließende
+`ActorReady`-Pollingbarriere ließen SQL Server 2025 in der CI ohne vollständige
+Waitüberlappungen. Die Variante mit Anwendungs-Lock und Ereignisfeldfilter
+bestand lokal zuvor auf allen drei Builds je drei von drei Zweiburstversuchen.
+Der finale `BurstDone`-Kandidat bestand lokal Build 15 und 16 je einmal sowie
+Build 17 drei von drei Zweiburstversuchen, jeweils mit bestätigtem Cleanup. Die
+neue PR-Matrix steht noch aus. Die serielle
+CI-Matrix ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
+bestand ebenfalls auf allen drei Builds: Build 15 mit drei, Build 16 mit zwei
+und Build 17 mit einem vollständigen Zweiburstnachweis aus je drei begrenzten
+Versuchen. Alle Versuche bestätigten das Cleanup; erfolglose Varianten blieben
+`NOT_PROVEN`. Der finale lokale `BurstDone`-Kandidat bestand Build 15 und 16
+je einen vollständigen Zweiburstversuch sowie Build 17 drei von drei Versuchen;
+alle bestätigten Kettenbindungen und das Cleanup. Die unmittelbar vorherige
+Kandidatenmatrix ohne `BurstDone` bestand auf allen drei Builds je drei von drei
+Versuchen. Für den finalen Kandidaten steht die neue PR-Matrix noch aus.
+
+Die angepasste Lastform verwendet 501 Seeds und eine Einfügung pro Actor je
+Burst. Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) verwenden
+`FILLFACTOR=100` mit 80 Actors; Build 17 (`17.0.5035.5`) verwendet
+`FILLFACTOR=10` mit 56 Actors. Das Build-17-Profil folgt der beobachteten
+Seitenteilung bei 64 Actors; die Zwischenstufe soll mit weniger Inserts die
+Terminalseite halten und durch das geringere Füllziel genug Waits erzeugen.
+Vor jedem Lauf werden Blattseitenzahl und freie Bytes physisch
+gemessen. Die aktuellen lokalen Profile bestanden auf Build 15/16 und Build 17
+je drei von drei gleich begrenzten Versuchen mit je zwei getrennten
+Wait-/Kettenklammern; 661 synthetische Zeilen auf Build 15/16 und 613 auf
+Build 17. Ein früherer fehlgeschlagener CI-Lauf zeigte, dass die
+überlappende Waitseite eine andere Objekt-ID als den Zielindex hatte; die
+zusätzliche DMV-Diagnose bleibt deshalb fail-closed. Alle aktuellen lokalen
+Versuche bestätigten Datenbank- und Container-Cleanup. Die erfolgreichen
+Waitüberlappungen lagen jeweils innerhalb des markierten Kettenlesefensters.
+
+Die serielle CI-Matrix wiederholt pro Build bis zu drei vollständige
+Engineeringläufe mit denselben Profilgrenzen. Jeder Versuch protokolliert
+separat `PASS` oder `NOT_PROVEN` und bestätigt sein Cleanup. Der Buildjob ist
+nur erfolgreich, wenn mindestens ein vollständiger Zweiburstversuch den
+Nachweis erbringt; drei erfolglose Versuche schlagen ihn fehl. Das lässt
+variierende Konkurrenzsichtbarkeit sichtbar, ohne sie als deterministische
+Buildgarantie umzudeuten. Die Methodenfreigabe bleibt getrennt.
+
+Das bindet den beobachteten Wait und die Kettenabfrage über dieselbe geordnete
+XE-Ereignisfolge und denselben laufenden Burst. Es macht DMV-Abfragen nicht zu
+einem atomaren Snapshot: insbesondere beweist es nicht, dass jede einzelne
+Seitenkopfzeile exakt im Moment eines Latch-Waits gelesen wurde, und es
+qualifiziert keine gleichzeitigen Page-Splits. Der Methodenstatus bleibt
+`METHOD_DRAFT`; der Pilot ist weder vollständige Demo- noch
+Leistungsqualifikation. Der reproduzierbare Buildnachweis muss noch die frische
+serielle PR-Matrix bestehen.

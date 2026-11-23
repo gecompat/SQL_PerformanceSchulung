@@ -14474,3 +14474,76 @@ Slots, 7.671 freie Bytes, zwei per Eventsequenz bestätigte Wait-/Ketten-
 aufnahmen, 693 Zeilen sowie bestätigtes Datenbank- und Container-Cleanup. Die
 frische PR-Matrix für diesen Stand steht noch aus. Die Metadatenaufnahme bleibt
 nicht atomar zum exakten Waitzeitpunkt.
+
+### IDX-007 – Wait-/Kettenfenster im laufenden Burst gebunden (22. November 2026)
+
+Die vorige Pilotfassung erhob `sys.dm_db_page_info` erst nach dem Ende der
+Actor-Inserts; der Seitenkettenstand war damit zeitlich nicht an die Waits
+gebunden. Der Kettenleser startet jetzt vor der Freigabe in einer verbundenen
+SQL-Session und wartet an derselben Burstbarriere. XE zeichnet zusätzlich die
+markierten SQL-Statement-Start-/Endereignisse auf. Der Erheber verlangt, dass
+zwei erfolgreiche exklusive `BUF`-Waits verschiedener Actor-Requests auf
+derselben Seite überlappen und diese gemeinsame Waitzeit in das markierte
+Kettenlesefenster fällt. Die Seitenmetadaten umfassen die im Capturelauf
+allozierten Blattkandidaten; die tatsächliche Waitseite muss mit Zielobjekt,
+Index, Partition, Blattebene, terminalem Nachfolger und Vorgänger-Rücklink
+übereinstimmen. Fehlende zeitliche oder physische Bindung bleibt
+`NOT_PROVEN`.
+
+Die aktuelle Form verwendet 501 Seeds und ein Insert pro Actor und Burst.
+Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) nutzen
+`FILLFACTOR=100` mit 80 Actors; Build 17 (`17.0.5035.5`) nutzt
+`FILLFACTOR=10` mit 56 Actors, da 64 Actors dort im CI eine nichtterminale
+Waitseite ergaben. Blattzahl und freier Platz bleiben ein physisches
+Vorab-Gate. Eine gezielte DMV-Diagnose zeigte, dass wiederkehrende Waits auf
+einer anderen Objekt-ID als der Zielindex lagen. Der Pilot aktualisiert deshalb
+während der Bursts keine Fortschrittszeilen in `lab.ActorSessions` mehr und
+erkennt den Abschluss anhand des Zeilenzuwachses in `dbo.Hot`. Der erste neue
+CI-Läufe ließen SQL Server 2019/2022 gelegentlich ohne einen vollständigen
+Waitnachweis. Das Artefakt zeigte den Orchestrierungsfehler: Die Steuerung
+öffnete `lab.Go`, bevor die Capture-Session den XE-Startmarker ausgab. Je nach
+Scheduling lagen Writer-Waits damit vor dem markierten Kettenlesefenster. Die
+Capture-Session wartet nun auf `lab.Start`, gibt zuerst den Startmarker aus und
+öffnet direkt danach `lab.Go` für die Actors. So beginnt das markierte Fenster
+vor dem Writerburst. Der 1-ms-Polling-Fix allein und danach auch die
+`ActorReady`-Zwei-Phasen-Barriere verfehlten in der PR-Matrix SQL Server 2025:
+die drei begrenzten Versuche enthielten gültige exklusive Wait-Paare, aber
+keine überlappenden Intervalle auf der Zielseite innerhalb des Capturefensters.
+Die Actors prüfen deshalb nicht länger `lab.Go` per Polling. Stattdessen hält
+die Capture-Session vor `CaptureReady` einen exklusiven, sitzungsgebundenen
+`sp_getapplock`; jeder Actor meldet seine Bereitschaft und wartet danach mit
+einem Shared-Request auf derselben, lauf- und burstgebundenen Ressource. Nachdem
+alle Actor-Bereitschaftsrecords vorliegen, setzt der Reader den
+XE-Startmarker und gibt den exklusiven Lock frei. Die Steuerung wartet auf den
+erwarteten Zeilenzuwachs in `dbo.Hot` und signalisiert danach `lab.BurstDone`;
+der Reader wartet innerhalb des markierten Fensters auf dieses Signal und
+liest erst dann die Seitenkette. Damit umfasst das Fenster die vollständigen
+Writer-Waits statt eines schedulingabhängigen Ausschnitts. Zusätzlich bindet
+das korrigierte XE-Markerfilter die Auswahl direkt an das Ereignisfeld
+`statement`; zuvor prüfte `sqlserver.sql_text` den gesamten Batch und ließ
+dadurch auch Polling- und Metadatenstatements auf den Markerfilter passen.
+Actorzahl, Einfügungen, Capture-/Versuchszahl,
+2-CPU-/4-GiB-Ressourcenlimit und PASS-Bedingungen bleiben unverändert; die
+Pause von 50 Millisekunden je Blattseitenprobe bleibt bestehen. Die vorherige
+lokale Kandidatenmatrix ohne `BurstDone` bestand auf Build 15/16/17 je drei von
+drei Zweiburstversuchen. Mit dem neuen Burstabschluss-Signal bestand SQL Server
+2019 und 2022 lokal je einen vollständigen Zweiburstversuch sowie SQL Server
+2025 drei von drei Versuchen; Kettenbindung und Cleanup waren jeweils bestätigt.
+Die vorherige PR-Matrix auf `ae4fd055` bestand SQL Server 2019/2022, aber
+verfehlte SQL Server 2025 in drei Versuchen. Die frische PR-Matrix für den
+`BurstDone`-Kandidaten steht noch aus. Die
+serielle PR-Matrix ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
+bestand ebenfalls auf allen Builds: Build 15 mit drei, Build 16 mit zwei und
+Build 17 mit einem erfolgreichen Zweiburstnachweis aus je drei Versuchen; alle
+erfolglosen Varianten blieben `NOT_PROVEN` und bestätigten ihr Cleanup. Frühere
+CI-Versuche mit 64 Actors und `FILLFACTOR=100` lieferten auf SQL Server 2019
+keine überlappenden Waits; 80×1 und 96×1/96×2 trafen in
+einzelnen Builds auf Seitensplits. Die aktuelle CI-Matrix erlaubt je Build
+höchstens drei vollständige, gleich begrenzte Versuche und verlangt mindestens
+einen erfolgreichen Zweiburstnachweis; alle `NOT_PROVEN`-Versuche bleiben im
+Artefakt sichtbar. Der Status
+bleibt `METHOD_DRAFT`: XE ordnet Wait und Abfragefenster
+empirisch, macht mehrere DMV-Lesevorgänge aber nicht zu einem atomaren
+Snapshot. Gleichzeitige Page-Splits, Produktlast und Leistungswirkung sind
+nicht qualifiziert. Die frische serielle PR-Matrix und die Pflichtchecks
+stehen für den korrigierten Kandidaten noch aus.

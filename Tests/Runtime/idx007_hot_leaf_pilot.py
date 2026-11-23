@@ -17,8 +17,11 @@ PROFILES = {
     17: ("17.0.5035.5", "sha256:6972fb831759433def6a34e107fa32a85230bff5af8014c6263fe4633ea9cc0f"),
 }
 DB = "SQLPERF_LAB_IDX007_PENDING"
-ACTORS = 96
+ACTOR_COUNTS = {15: 80, 16: 80, 17: 56}
+FILLFACTORS = {15: 100, 16: 100, 17: 10}
 ROWS_PER_BURST = 1
+PAGE_SCAN_DELAY = "00:00:00.050"
+GATE_POLL_DELAY = "00:00:00.001"
 
 
 class PilotError(RuntimeError):
@@ -74,6 +77,16 @@ ADD EVENT sqlserver.latch_suspend_end
 (
     ACTION(package0.event_sequence,sqlserver.session_id,sqlserver.request_id)
     WHERE ([database_id]=({database_id}))
+),
+ADD EVENT sqlserver.sql_statement_starting
+(
+    ACTION(package0.event_sequence,sqlserver.session_id,sqlserver.request_id)
+    WHERE ([database_id]=({database_id}) AND [sqlserver].[like_i_sql_unicode_string]([statement],N'%IDX007_CHAIN_CAPTURE_%'))
+),
+ADD EVENT sqlserver.sql_statement_completed
+(
+    ACTION(package0.event_sequence,sqlserver.session_id,sqlserver.request_id)
+    WHERE ([database_id]=({database_id}) AND [sqlserver].[like_i_sql_unicode_string]([statement],N'%IDX007_CHAIN_CAPTURE_%'))
 )
 ADD TARGET package0.ring_buffer(SET max_memory=(1024))
 WITH (MAX_MEMORY=4096 KB,EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,
@@ -115,6 +128,16 @@ FROM @target.nodes('/RingBufferTarget/event') AS ring(n)
 WHERE n.value('(@name)[1]','nvarchar(40)') IN (N'latch_suspend_begin',N'latch_suspend_end')
   AND n.value('(action[@name="session_id"]/value/text())[1]','int')
       IN (SELECT SessionId FROM [{DB}].lab.ActorSessions)
+ORDER BY n.value('(action[@name="event_sequence"]/value/text())[1]','bigint');
+SELECT CONCAT('XE_MARK|{stage}|',
+  n.value('(@name)[1]','nvarchar(40)'),'|',
+  n.value('(action[@name="event_sequence"]/value/text())[1]','bigint'),'|',
+  n.value('(action[@name="session_id"]/value/text())[1]','int'),'|',
+  n.value('(action[@name="request_id"]/value/text())[1]','int'),'|',
+  CASE WHEN n.value('(data[@name="statement"]/value/text())[1]','nvarchar(4000)') LIKE N'%IDX007_CHAIN_CAPTURE_BEGIN%' THEN 'BEGIN' ELSE 'END' END)
+FROM @target.nodes('/RingBufferTarget/event') AS ring(n)
+WHERE n.value('(@name)[1]','nvarchar(40)') IN (N'sql_statement_starting',N'sql_statement_completed')
+  AND n.value('(data[@name="statement"]/value/text())[1]','nvarchar(4000)') LIKE N'%IDX007_CHAIN_CAPTURE_%'
 ORDER BY n.value('(action[@name="event_sequence"]/value/text())[1]','bigint');
 """
 
@@ -191,19 +214,66 @@ def parse_wait_pairs(output: str, stage: int, bindings: dict[int, int], database
     return rows, pairs, overlaps
 
 
-def page_metadata_sql(addresses: set[tuple[int, int]]) -> str:
+def parse_chain_markers(output: str, stage: int) -> tuple[int, int]:
+    starts, ends = [], []
+    for line in output.splitlines():
+        if not line.startswith(f"XE_MARK|{stage}|"):
+            continue
+        _, _, event_name, sequence, session_id, request_id, marker = line.split("|")
+        if event_name == "sql_statement_starting" and marker == "BEGIN":
+            starts.append((int(sequence), int(session_id), int(request_id)))
+        elif event_name == "sql_statement_completed" and marker == "END":
+            ends.append((int(sequence), int(session_id), int(request_id)))
+    if (len(starts) != 1 or len(ends) != 1 or starts[0][0] >= ends[0][0]
+            or starts[0][1:] != ends[0][1:]):
+        diagnostics = [line for line in output.splitlines() if line.startswith(f"XE_MARK|{stage}|")]
+        raise PilotError(f"chain capture XE markers are missing, duplicated, or unordered: {diagnostics}")
+    return starts[0][0], ends[0][0]
+
+
+def overlaps_capture_window(left: dict, right: dict, chain_start: int, chain_end: int) -> bool:
+    shared_start = max(left["begin_seq"], right["begin_seq"])
+    shared_end = min(left["end_seq"], right["end_seq"])
+    return shared_start < shared_end and shared_start < chain_end and shared_end > chain_start
+
+
+def page_metadata_sql(addresses: set[tuple[int, int]], stage: int, actor_count: int) -> str:
     if not addresses or len(addresses) > 128:
-        raise PilotError("candidate page address set is empty or over its fixed cap")
-    values = ",".join(f"({file_id},{page_id})" for file_id, page_id in sorted(addresses))
+        raise PilotError("preflight page address set is empty or over its fixed cap")
+    if actor_count < 1 or actor_count > 128:
+        raise PilotError("actor gate count is empty or over its fixed cap")
+    gate_resource = f"IDX007_{DB}_{stage}"
     return f"""
 SET NOCOUNT ON; USE [{DB}];
+DECLARE @gate_result int,@capture_deadline datetime2=DATEADD(SECOND,20,SYSUTCDATETIME());
+EXEC @gate_result=sys.sp_getapplock @Resource=N'{gate_resource}',@LockMode='Exclusive',
+ @LockOwner='Session',@LockTimeout=15000,@DbPrincipal='public';
+IF @gate_result<0 THROW 51024,'IDX-007 capture gate could not be acquired',1;
+INSERT lab.CaptureReady(Stage) VALUES({stage});
+WHILE NOT EXISTS(SELECT 1 FROM lab.Start WHERE Stage={stage}) WAITFOR DELAY '{GATE_POLL_DELAY}';
+WHILE (SELECT COUNT(*) FROM lab.ActorReady WHERE Stage={stage})<{actor_count} WAITFOR DELAY '{GATE_POLL_DELAY}';
+SELECT 'IDX007_CHAIN_CAPTURE_BEGIN';
+EXEC @gate_result=sys.sp_releaseapplock @Resource=N'{gate_resource}',
+ @LockOwner='Session',@DbPrincipal='public';
+IF @gate_result<0 THROW 51025,'IDX-007 capture gate could not be released',1;
+WHILE NOT EXISTS(SELECT 1 FROM lab.BurstDone WHERE Stage={stage})
+  AND SYSUTCDATETIME()<@capture_deadline WAITFOR DELAY '{GATE_POLL_DELAY}';
+IF NOT EXISTS(SELECT 1 FROM lab.BurstDone WHERE Stage={stage})
+  THROW 51029,'IDX-007 burst completion signal timed out',1;
 DECLARE @candidate table(FileId int NOT NULL,PageId int NOT NULL);
-INSERT @candidate(FileId,PageId) VALUES {values};
+INSERT @candidate(FileId,PageId)
+SELECT allocated_page_file_id,allocated_page_page_id
+FROM sys.dm_db_database_page_allocations(DB_ID(),OBJECT_ID(N'dbo.Hot'),1,NULL,'DETAILED')
+WHERE is_allocated=1 AND page_type_desc=N'DATA_PAGE' AND index_id=1;
+IF (SELECT COUNT(*) FROM @candidate)>128 THROW 51023,'IDX-007 candidate leaf set exceeds the fixed cap',1;
 DECLARE @meta table(FileId int,PageId int,ObjectId int,IndexId int,PartitionId bigint,PageLevel int,
  PrevFile int,PrevPage int,NextFile int,NextPage int,PrevObjectId int,PrevIndexId int,
  PrevPartitionId bigint,PrevPageLevel int,PrevNextFile int,PrevNextPage int,LeafPages bigint);
 DECLARE @file int,@page int;
-DECLARE page_cursor CURSOR LOCAL FAST_FORWARD FOR SELECT FileId,PageId FROM @candidate;
+DECLARE @leaf_pages bigint;
+SELECT @leaf_pages=SUM(page_count) FROM sys.dm_db_index_physical_stats(DB_ID(),OBJECT_ID(N'dbo.Hot'),1,NULL,'DETAILED')
+WHERE index_level=0 AND alloc_unit_type_desc='IN_ROW_DATA';
+DECLARE page_cursor CURSOR LOCAL FAST_FORWARD FOR SELECT FileId,PageId FROM @candidate ORDER BY FileId DESC,PageId DESC;
 OPEN page_cursor; FETCH NEXT FROM page_cursor INTO @file,@page;
 WHILE @@FETCH_STATUS=0
 BEGIN
@@ -213,29 +283,55 @@ BEGIN
       COALESCE(i.prev_page_file_id,0),COALESCE(i.prev_page_page_id,0),
       COALESCE(i.next_page_file_id,0),COALESCE(i.next_page_page_id,0),
       COALESCE(p.object_id,0),COALESCE(p.index_id,0),COALESCE(p.partition_id,0),COALESCE(p.page_level,-1),
-      COALESCE(p.next_page_file_id,0),COALESCE(p.next_page_page_id,0),ps.leaf_pages
+      COALESCE(p.next_page_file_id,0),COALESCE(p.next_page_page_id,0),@leaf_pages
     FROM sys.dm_db_page_info(DB_ID(),@file,@page,'DETAILED') AS i
-    OUTER APPLY sys.dm_db_page_info(DB_ID(),NULLIF(i.prev_page_file_id,0),NULLIF(i.prev_page_page_id,0),'DETAILED') AS p
-    CROSS APPLY (SELECT SUM(page_count) AS leaf_pages
-      FROM sys.dm_db_index_physical_stats(DB_ID(),OBJECT_ID(N'dbo.Hot'),1,NULL,'DETAILED')
-      WHERE index_level=0 AND alloc_unit_type_desc='IN_ROW_DATA') AS ps;
+    OUTER APPLY sys.dm_db_page_info(DB_ID(),NULLIF(i.prev_page_file_id,0),NULLIF(i.prev_page_page_id,0),'DETAILED') AS p;
   END TRY
   BEGIN CATCH
     -- Invalid or deallocated event resources are not candidates for this proof.
   END CATCH;
+  WAITFOR DELAY '{PAGE_SCAN_DELAY}';
   FETCH NEXT FROM page_cursor INTO @file,@page;
 END;
 CLOSE page_cursor; DEALLOCATE page_cursor;
 SELECT CONCAT('META|',FileId,'|',PageId,'|',ObjectId,'|',IndexId,'|',PartitionId,'|',PageLevel,'|',
  PrevFile,'|',PrevPage,'|',NextFile,'|',NextPage,'|',PrevObjectId,'|',PrevIndexId,'|',PrevPartitionId,'|',
  PrevPageLevel,'|',PrevNextFile,'|',PrevNextPage,'|',LeafPages) FROM @meta;
+SELECT 'IDX007_CHAIN_CAPTURE_END';
+"""
+
+
+def wait_page_probe_sql(addresses: set[tuple[int, int]], stage: int) -> str:
+    if not addresses or len(addresses) > 128:
+        raise PilotError("wait-page diagnostic set is empty or over its fixed cap")
+    values = ",".join(f"({file_id},{page_id})" for file_id, page_id in sorted(addresses))
+    return f"""
+SET NOCOUNT ON; USE [{DB}];
+SELECT CONCAT('WAIT_PAGE_PROBE|{stage}|',a.FileId,'|',a.PageId,'|',
+  COALESCE(CONVERT(varchar(12),i.object_id),'NULL'),'|',
+  COALESCE(OBJECT_SCHEMA_NAME(i.object_id)+'.'+OBJECT_NAME(i.object_id),'NULL'),'|',
+  COALESCE(CONVERT(varchar(12),i.index_id),'NULL'),'|',
+  COALESCE(CONVERT(varchar(20),i.partition_id),'NULL'),'|',
+  COALESCE(CONVERT(varchar(12),i.page_level),'NULL'),'|',
+  COALESCE(CONVERT(varchar(12),i.prev_page_file_id),'NULL'),'|',
+  COALESCE(CONVERT(varchar(12),i.prev_page_page_id),'NULL'),'|',
+  COALESCE(CONVERT(varchar(12),i.next_page_file_id),'NULL'),'|',
+  COALESCE(CONVERT(varchar(12),i.next_page_page_id),'NULL'))
+FROM (VALUES {values}) AS a(FileId,PageId)
+OUTER APPLY sys.dm_db_page_info(DB_ID(),a.FileId,a.PageId,'DETAILED') AS i;
 """
 
 
 def wait_until(name: str, env: dict[str, str], sql: str, expected: str,
-               *, seconds: float = 20) -> None:
+               *, seconds: float = 20, process: subprocess.Popen[str] | None = None) -> None:
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
+        if process is not None and process.poll() is not None:
+            stdout, stderr = process.communicate()
+            raise PilotError(
+                f"bounded state wait expired for {expected}; capture exited "
+                f"with {process.returncode}: {(stdout + stderr)[-1500:]}"
+            )
         output = sqlcmd(name, env, sql, check=False)
         if expected in output.splitlines():
             return
@@ -246,6 +342,8 @@ def wait_until(name: str, env: dict[str, str], sql: str, expected: str,
 def run_live_pilot(major: int) -> int:
     global DB
     build, digest = PROFILES[major]
+    actor_count = ACTOR_COUNTS[major]
+    fillfactor = FILLFACTORS[major]
     run_token = secrets.token_hex(4).upper()
     DB = f"SQLPERF_LAB_IDX007_{run_token}"
     name = f"sqlperf-idx007-xe-{major}-{secrets.token_hex(4)}"
@@ -256,6 +354,7 @@ def run_live_pilot(major: int) -> int:
     created = False
     database_created = False
     actors: list[subprocess.Popen[str]] = []
+    capture_processes: list[subprocess.Popen[str]] = []
     xe_sessions: list[str] = []
     try:
         image = "mcr.microsoft.com/mssql/server@" + digest
@@ -298,22 +397,30 @@ CREATE TABLE dbo.Hot(KeyValue bigint IDENTITY(1,1) NOT NULL, CONSTRAINT PK_Hot P
 GO
 CREATE SCHEMA lab;
 GO
-CREATE TABLE lab.ActorSessions(SessionId smallint NOT NULL PRIMARY KEY,RequestId int NOT NULL,Done1 bit NOT NULL DEFAULT(0),Done2 bit NOT NULL DEFAULT(0));
-CREATE TABLE lab.Go(Stage int NOT NULL PRIMARY KEY);
+CREATE TABLE lab.ActorSessions(SessionId smallint NOT NULL PRIMARY KEY,RequestId int NOT NULL);
+CREATE TABLE lab.Start(Stage int NOT NULL PRIMARY KEY);
+CREATE TABLE lab.CaptureReady(Stage int NOT NULL PRIMARY KEY);
+CREATE TABLE lab.ActorReady(Stage int NOT NULL,SessionId smallint NOT NULL,PRIMARY KEY(Stage,SessionId));
+CREATE TABLE lab.BurstDone(Stage int NOT NULL PRIMARY KEY);
 DECLARE @seed int=0; WHILE @seed<501 BEGIN INSERT dbo.Hot DEFAULT VALUES; SET @seed+=1; END;
 GO
-ALTER INDEX PK_Hot ON dbo.Hot REBUILD WITH (FILLFACTOR=100);
+ALTER INDEX PK_Hot ON dbo.Hot REBUILD WITH (FILLFACTOR={fillfactor});
 GO
 SELECT CONCAT('DBID|',DB_ID());
+SELECT CONCAT('TARGET_OBJECT|',OBJECT_ID(N'dbo.Hot'));
 SELECT CONCAT('RIGHT_EDGE|',a.allocated_page_file_id,'|',a.allocated_page_page_id,'|',i.slot_count,'|',i.free_bytes)
 FROM sys.dm_db_database_page_allocations(DB_ID(),OBJECT_ID(N'dbo.Hot'),1,NULL,'DETAILED') AS a
 CROSS APPLY sys.dm_db_page_info(DB_ID(),a.allocated_page_file_id,a.allocated_page_page_id,'DETAILED') AS i
 WHERE a.is_allocated=1 AND a.page_type_desc=N'DATA_PAGE' AND i.page_level=0
   AND i.next_page_page_id=0 AND i.next_page_file_id=0;
+SELECT CONCAT('LEAF|',allocated_page_file_id,'|',allocated_page_page_id)
+FROM sys.dm_db_database_page_allocations(DB_ID(),OBJECT_ID(N'dbo.Hot'),1,NULL,'DETAILED')
+WHERE is_allocated=1 AND page_type_desc=N'DATA_PAGE' AND index_id=1;
 """
         setup_output = sqlcmd(name, env, setup)
         database_created = True
         database_id = int(next(line.split("|", 1)[1] for line in setup_output.splitlines() if line.startswith("DBID|")))
+        target_object_id = int(next(line.split("|", 1)[1] for line in setup_output.splitlines() if line.startswith("TARGET_OBJECT|")))
         right_edge = next((line for line in setup_output.splitlines() if line.startswith("RIGHT_EDGE|")), None)
         if right_edge is None:
             raise PilotError("rebuilt index right edge could not be resolved")
@@ -323,6 +430,11 @@ WHERE a.is_allocated=1 AND a.page_type_desc=N'DATA_PAGE' AND i.page_level=0
         if int(edge_leaf_pages) <= 1 or int(edge_free_bytes) < 6000:
             raise PilotError(f"rebuilt terminal leaf lacks bounded burst capacity: pages={edge_leaf_pages}, free_bytes={edge_free_bytes}")
         print(f"RIGHT_EDGE|file={edge_file}|page={edge_page}|slots={edge_slots}|free_bytes={edge_free_bytes}|leaf_pages={edge_leaf_pages}|PASS")
+        print(f"TARGET_OBJECT|{target_object_id}")
+        leaf_addresses = {(int(parts[1]), int(parts[2])) for line in setup_output.splitlines()
+                          if line.startswith("LEAF|") for parts in [line.split("|")]}
+        if not leaf_addresses or len(leaf_addresses) > 128:
+            raise PilotError("pre-capture leaf address set is empty or over its fixed cap")
         compatibility = sqlcmd(name, env, f"SET NOCOUNT ON; SELECT CONCAT('COMPATIBILITY|',compatibility_level) FROM sys.databases WHERE name=N'{DB}';")
         if f"COMPATIBILITY|{major * 10}" not in compatibility.splitlines():
             raise PilotError("synthetic database compatibility level differs from the selected engine major")
@@ -330,9 +442,9 @@ WHERE a.is_allocated=1 AND a.page_type_desc=N'DATA_PAGE' AND i.page_level=0
         profile = sqlcmd(name, env, f"""
 SET NOCOUNT ON;
 SELECT CONCAT('XE_PROFILE|',
- (SELECT COUNT(DISTINCT o.name) FROM sys.dm_xe_objects AS o JOIN sys.dm_xe_packages AS p ON p.guid=o.package_guid WHERE p.name=N'sqlserver' AND o.object_type=N'event' AND o.name IN(N'latch_suspend_begin',N'latch_suspend_end')),'|',
- (SELECT COUNT(*) FROM sys.dm_xe_object_columns AS c JOIN sys.dm_xe_objects AS o ON o.name=c.object_name AND o.package_guid=c.object_package_guid JOIN sys.dm_xe_packages AS p ON p.guid=o.package_guid WHERE p.name=N'sqlserver' AND o.object_type=N'event' AND ((o.name=N'latch_suspend_begin' AND c.name IN(N'database_id',N'file_id',N'page_id',N'mode',N'class')) OR (o.name=N'latch_suspend_end' AND c.name IN(N'database_id',N'file_id',N'page_id',N'mode',N'class',N'success',N'duration')))),'|',
- (SELECT COUNT(DISTINCT o.name) FROM sys.dm_xe_objects AS o JOIN sys.dm_xe_packages AS p ON p.guid=o.package_guid WHERE p.name IN(N'sqlserver',N'package0') AND o.object_type=N'action' AND o.name IN(N'session_id',N'request_id',N'event_sequence')));
+ (SELECT COUNT(DISTINCT o.name) FROM sys.dm_xe_objects AS o JOIN sys.dm_xe_packages AS p ON p.guid=o.package_guid WHERE p.name=N'sqlserver' AND o.object_type=N'event' AND o.name IN(N'latch_suspend_begin',N'latch_suspend_end',N'sql_statement_starting',N'sql_statement_completed')),'|',
+ (SELECT COUNT(*) FROM sys.dm_xe_object_columns AS c JOIN sys.dm_xe_objects AS o ON o.name=c.object_name AND o.package_guid=c.object_package_guid JOIN sys.dm_xe_packages AS p ON p.guid=o.package_guid WHERE p.name=N'sqlserver' AND o.object_type=N'event' AND ((o.name=N'latch_suspend_begin' AND c.name IN(N'database_id',N'file_id',N'page_id',N'mode',N'class')) OR (o.name=N'latch_suspend_end' AND c.name IN(N'database_id',N'file_id',N'page_id',N'mode',N'class',N'success',N'duration')) OR (o.name IN(N'sql_statement_starting',N'sql_statement_completed') AND c.name=N'statement'))),'|',
+ (SELECT COUNT(DISTINCT o.name) FROM sys.dm_xe_objects AS o JOIN sys.dm_xe_packages AS p ON p.guid=o.package_guid WHERE p.name IN(N'sqlserver',N'package0') AND o.object_type=N'action' AND o.name IN(N'session_id',N'request_id',N'event_sequence',N'sql_text')));
 SELECT CONCAT('XE_DURATION_UNIT|',COALESCE(c.description,N''))
 FROM sys.dm_xe_object_columns AS c
 JOIN sys.dm_xe_objects AS o ON o.name=c.object_name AND o.package_guid=c.object_package_guid
@@ -340,34 +452,41 @@ JOIN sys.dm_xe_packages AS p ON p.guid=o.package_guid
 WHERE p.name=N'sqlserver' AND o.name=N'latch_suspend_end' AND c.name=N'duration' AND c.column_type=N'data';
 """)
         profile_line = next((line for line in profile.splitlines() if line.startswith("XE_PROFILE|")), "")
-        if profile_line != "XE_PROFILE|2|12|3":
+        if profile_line != "XE_PROFILE|4|14|4":
             raise PilotError(f"latch XE profile differs from the accepted shape: {profile_line}")
-        print(f"XE_PROFILE|build={build}|events=2|fields=12|actions=3|PASS")
+        print(f"XE_PROFILE|build={build}|events=4|fields=14|actions=4|PASS")
         duration_unit = next((line for line in profile.splitlines() if line.startswith("XE_DURATION_UNIT|")), "XE_DURATION_UNIT|MISSING")
         if "microseconds" not in duration_unit.lower():
             raise PilotError(f"latch XE duration unit is not verified: {duration_unit}")
         print(duration_unit)
 
-        for _ in range(ACTORS):
+        for _ in range(actor_count):
             actor_sql = f"""
 SET NOCOUNT ON; USE [{DB}]; DECLARE @spid smallint=@@SPID,@request_id int,@i int=0;
+DECLARE @gate_result int;
 SELECT @request_id=request_id FROM sys.dm_exec_requests WHERE session_id=@spid;
 INSERT lab.ActorSessions(SessionId,RequestId) VALUES(@spid,@request_id);
-WHILE NOT EXISTS(SELECT 1 FROM lab.Go WHERE Stage=1) WAITFOR DELAY '00:00:00.002';
+WHILE NOT EXISTS(SELECT 1 FROM lab.Start WHERE Stage=1) WAITFOR DELAY '{GATE_POLL_DELAY}';
+INSERT lab.ActorReady(Stage,SessionId) VALUES(1,@spid);
+EXEC @gate_result=sys.sp_getapplock @Resource=N'IDX007_{DB}_1',@LockMode='Shared',
+ @LockOwner='Session',@LockTimeout=15000,@DbPrincipal='public';
+IF @gate_result<0 THROW 51026,'IDX-007 actor gate could not be acquired',1;
 WHILE @i<{ROWS_PER_BURST} BEGIN INSERT dbo.Hot DEFAULT VALUES; WAITFOR DELAY '00:00:00.010'; SET @i+=1; END;
-UPDATE lab.ActorSessions SET Done1=1 WHERE SessionId=@spid;
-WHILE NOT EXISTS(SELECT 1 FROM lab.Go WHERE Stage=2) WAITFOR DELAY '00:00:00.002';
+WHILE NOT EXISTS(SELECT 1 FROM lab.Start WHERE Stage=2) WAITFOR DELAY '{GATE_POLL_DELAY}';
+INSERT lab.ActorReady(Stage,SessionId) VALUES(2,@spid);
+EXEC @gate_result=sys.sp_getapplock @Resource=N'IDX007_{DB}_2',@LockMode='Shared',
+ @LockOwner='Session',@LockTimeout=15000,@DbPrincipal='public';
+IF @gate_result<0 THROW 51026,'IDX-007 actor gate could not be acquired',1;
 SET @i=0;
 WHILE @i<{ROWS_PER_BURST} BEGIN INSERT dbo.Hot DEFAULT VALUES; WAITFOR DELAY '00:00:00.010'; SET @i+=1; END;
-UPDATE lab.ActorSessions SET Done2=1 WHERE SessionId=@spid;
 SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
 """
             actors.append(sqlcmd_actor(name, env, actor_sql))
-        wait_until(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('READY|',COUNT(*)) FROM lab.ActorSessions;", f"READY|{ACTORS}")
+        wait_until(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('READY|',COUNT(*)) FROM lab.ActorSessions;", f"READY|{actor_count}")
         bindings_output = sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('BIND|',SessionId,'|',RequestId) FROM lab.ActorSessions ORDER BY SessionId;")
         bindings = {int(parts[1]): int(parts[2]) for line in bindings_output.splitlines()
                     if line.startswith("BIND|") for parts in [line.split("|")]}
-        if len(bindings) != ACTORS or any(request < 0 for request in bindings.values()):
+        if len(bindings) != actor_count or any(request < 0 for request in bindings.values()):
             raise PilotError("actor request bindings are incomplete")
 
         captures = []
@@ -375,41 +494,68 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             session = f"IDX007_{secrets.token_hex(8)}"
             xe_sessions.append(session)
             sqlcmd(name, env, create_xe_sql(session, database_id))
-            sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; INSERT lab.Go(Stage) VALUES({stage});")
+            chain_capture = sqlcmd_actor(name, env, page_metadata_sql(leaf_addresses, stage, actor_count))
+            capture_processes.append(chain_capture)
+            wait_until(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('CAPTURE_READY|',COUNT(*)) FROM lab.CaptureReady WHERE Stage={stage};",
+                       f"CAPTURE_READY|1", process=chain_capture)
+            sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; INSERT lab.Start(Stage) VALUES({stage});")
             wait_until(name, env,
-                f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('DONE|',COUNT(*)) FROM lab.ActorSessions WHERE Done{stage}=1;",
-                f"DONE|{ACTORS}")
+                f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('DONE|',COUNT_BIG(*)-501) FROM dbo.Hot;",
+                f"DONE|{actor_count * stage}", process=chain_capture)
+            sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; INSERT lab.BurstDone(Stage) VALUES({stage});")
+            address_meta, capture_stderr = chain_capture.communicate(timeout=30)
+            capture_processes.remove(chain_capture)
+            if chain_capture.returncode:
+                raise PilotError(f"bounded page-chain capture request failed: {capture_stderr[-1000:]}")
+            meta_rows = {}
+            for line in address_meta.splitlines():
+                if not line.startswith("META|"):
+                    continue
+                values = tuple(map(int, line.split("|")[1:]))
+                meta_rows[(values[0], values[1])] = values
             capture_output = sqlcmd(name, env, read_xe_sql(session, stage), check=True)
             drop_output = sqlcmd(name, env, drop_xe_sql(session), check=True)
             if f"XE_ABSENT|1" not in drop_output.splitlines():
                 raise PilotError("bounded XE session cleanup was not confirmed")
             xe_sessions.remove(session)
-            rows, _, overlaps = parse_wait_pairs(capture_output, stage, bindings, database_id)
+            rows, wait_pairs, overlaps = parse_wait_pairs(capture_output, stage, bindings, database_id)
+            chain_start, chain_end = parse_chain_markers(capture_output, stage)
+            window_rows = [row for row in rows if chain_start <= row["seq"] <= chain_end]
+            for row in window_rows[:64]:
+                print(f"LATCH_EVENT|stage={stage}|seq={row['seq']}|session={row['sid']}|request={row['rid']}|page={row['db']}:{row['file']}:{row['page']}|mode={row['mode']}|class={row['class']}|event={row['event']}|duration_us={row['duration']}|success={row['success']}")
+            if len(window_rows) > 64:
+                print(f"LATCH_EVENT_TRUNCATED|stage={stage}|window_rows={len(window_rows)}|reported=64")
+            overlaps = [(left, right) for left, right in overlaps
+                        if overlaps_capture_window(left, right, chain_start, chain_end)]
             if not overlaps:
                 shapes = sorted({f"{row['event']}:{row['class']}:{row['mode']}" for row in rows})
                 if shapes:
                     print(f"LATCH_SHAPE|stage={stage}|{'/'.join(shapes)}")
-                print(f"NOT_PROVEN|stage={stage}|no-overlapping-exclusive-page-latch-waits")
+                print(f"WAIT_DIAGNOSTIC|stage={stage}|rows={len(rows)}|valid_exclusive_pairs={len(wait_pairs)}|chain_seq={chain_start}:{chain_end}")
+                print(f"NOT_PROVEN|stage={stage}|no-overlapping-exclusive-page-latch-waits-cover-chain-capture")
                 return 2
-            addresses = {(left["file"], left["page"]) for left, _ in overlaps}
-            address_meta = sqlcmd(name, env, page_metadata_sql(addresses))
-            meta_rows = {}
-            for line in address_meta.splitlines():
-                if not line.startswith("META|"):
-                    continue
-                parts = line.split("|")
-                values = tuple(map(int, parts[1:]))
-                meta_rows[(values[0], values[1])] = values
+            wait_addresses = {(wait["file"], wait["page"])
+                              for pair in overlaps for wait in pair}
             valid = []
             for address, values in meta_rows.items():
                 # file/page, object/index/partition/level, previous, next, previous-page identity/link, leaf count
-                if (values[2] > 0 and values[3] == 1 and values[4] > 0 and values[5] == 0
+                if (address in wait_addresses and values[2] > 0 and values[3] == 1 and values[4] > 0 and values[5] == 0
                         and (values[8], values[9]) == (0, 0)
                         and values[6] > 0 and values[7] > 0
                         and tuple(values[10:14]) == (values[2], values[3], values[4], 0)
                         and tuple(values[14:16]) == address and values[16] > 1):
                     valid.append((address, values))
             if not valid:
+                probe_output = sqlcmd(name, env, wait_page_probe_sql(wait_addresses, stage), check=False)
+                for line in probe_output.splitlines():
+                    if line.startswith(f"WAIT_PAGE_PROBE|{stage}|"):
+                        print(line)
+                for wait_address in sorted(wait_addresses):
+                    observed = meta_rows.get(wait_address)
+                    if observed is None:
+                        print(f"WAIT_PAGE_META|stage={stage}|page={wait_address[0]}:{wait_address[1]}|captured=0")
+                    else:
+                        print(f"WAIT_PAGE_META|stage={stage}|page={wait_address[0]}:{wait_address[1]}|captured=1|object={observed[2]}|index={observed[3]}|partition={observed[4]}|level={observed[5]}|next={observed[8]}:{observed[9]}|prev={observed[6]}:{observed[7]}")
                 print(f"NOT_PROVEN|stage={stage}|wait-overlap-page-not-terminal-for-target-index")
                 return 2
             valid.sort(key=lambda item: (-sum(1 for left, right in overlaps
@@ -421,7 +567,7 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             captures.append((database_id, address, values))
             left, right = group
             print(f"WAIT_OVERLAP|stage={stage}|sessions={left['sid']},{right['sid']}|request_ids={left['rid']},{right['rid']}|class=BUF|mode=EXCLUSIVE|page={database_id}:{address[0]}:{address[1]}|wait_us={left['duration_us']},{right['duration_us']}|PASS")
-            print(f"CHAIN_BRACKET|stage={stage}|index_pages={values[16]}|target_prev={values[6]}:{values[7]}|previous_next={values[14]}:{values[15]}|target_next=0:0|PASS")
+            print(f"CHAIN_BRACKET|stage={stage}|xe_seq={chain_start}:{chain_end}|index_pages={values[16]}|target_prev={values[6]}:{values[7]}|previous_next={values[14]}:{values[15]}|target_next=0:0|PASS")
 
         actor_results = []
         for actor in actors:
@@ -429,16 +575,16 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             if actor.returncode:
                 raise PilotError("an actor request failed")
             actor_results.extend(line for line in stdout.splitlines() if line.startswith("ACTOR|"))
-        if len(actor_results) != ACTORS:
+        if len(actor_results) != actor_count:
             raise PilotError("actor completion count differs")
         final = sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('FINAL|',COUNT_BIG(*)) FROM dbo.Hot;")
         final_count = int(next(line.split("|", 1)[1] for line in final.splitlines() if line.startswith("FINAL|")))
-        expected_rows = 501 + ACTORS * ROWS_PER_BURST * 2
+        expected_rows = 501 + actor_count * ROWS_PER_BURST * 2
         if final_count != expected_rows:
             raise PilotError("exact successful row count differs from the burst contract")
         if len(captures) != 2:
             raise PilotError("both burst captures were not independently verified")
-        print(f"RESULT|build={build}|actors={ACTORS}|burst_rows={ROWS_PER_BURST}|final_rows={final_count}|PASS")
+        print(f"RESULT|build={build}|actors={actor_count}|burst_rows={ROWS_PER_BURST}|final_rows={final_count}|PASS")
         return 0
     finally:
         for session in tuple(xe_sessions):
@@ -451,6 +597,13 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
                 actor.kill()
                 try:
                     actor.communicate(timeout=2)
+                except subprocess.TimeoutExpired:
+                    pass
+        for capture_process in capture_processes:
+            if capture_process.poll() is None:
+                capture_process.kill()
+                try:
+                    capture_process.communicate(timeout=2)
                 except subprocess.TimeoutExpired:
                     pass
         if created:
@@ -492,9 +645,27 @@ SELECT CONCAT('DB_ABSENT|',CASE WHEN DB_ID(@db) IS NULL THEN 1 ELSE 0 END);
                 raise PilotError(f"owned container cleanup failed: {type(exc).__name__}: {exc}") from exc
 
 
+def run_bounded_trials(major: int, attempts: int = 3) -> int:
+    if attempts < 1 or attempts > 3:
+        raise ValueError("bounded trial count must be between one and three")
+    successes = 0
+    not_proven = 0
+    for attempt in range(1, attempts + 1):
+        print(f"TRIAL_START|build={PROFILES[major][0]}|attempt={attempt}/{attempts}")
+        result = run_live_pilot(major)
+        if result == 0:
+            successes += 1
+        elif result == 2:
+            not_proven += 1
+        else:
+            return result
+    print(f"TRIAL_SUMMARY|build={PROFILES[major][0]}|passed={successes}|not_proven={not_proven}|attempts={attempts}")
+    return 0 if successes else 2
+
+
 if __name__ == "__main__":
     try:
-        code = run_live_pilot(int(sys.argv[1]))
+        code = run_bounded_trials(int(sys.argv[1]))
     except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError, PilotError, StopIteration, ValueError) as exc:
         print(f"idx007-live-pilot: FAIL ({type(exc).__name__}: {exc})", file=sys.stderr)
         code = 1
