@@ -137,12 +137,3 @@ Normative Methoden-/Grenzänderungen benötigen eine ausdrückliche neue
 Entscheidung. v1/G13/DEC-068, PR68 und der zurückgestellte interne API-Schnitt
 bleiben erhalten; keine Incident-, Ursachen-, Mitigations- oder Capstonefreigabe.
 
-
-## Aktuelle Fingerprint-Bindung (23. November 2026)
-
-Die PR-Gegenprobe meldete `BOOTSTRAP_CHANGED`: gespeicherte AST-Fingerprints
-entsprachen nicht den tatsächlich gebundenen `ROOT`-/Suchpfadblöcken im
-aktuellen, unveränderten `main`-Stand. Nach Vergleich der exakten AST-Strukturen
-wurden die festen Werte auf `5a6c6dd0…` und `16d394f5…` aktualisiert. Erlaubte
-Suchpfade und Prüflogik wurden nicht erweitert; jede Änderung an den
-Mitgliedsquellen bleibt an die vollständige Byte- und AST-Gegenprobe gebunden.

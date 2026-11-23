@@ -14570,8 +14570,3 @@ von allgemeiner Performancequalifikation bleiben unverändert. Details des
 tatsächlichen Prüf- und CI-Aufwands stehen in
 [IDX007_DEMO_PACKAGE_REVIEW.md](IDX007_DEMO_PACKAGE_REVIEW.md).
 
-
-Der erste PR-Lauf deckte außerdem vorbestehende, veraltete DGN-007-
-Quellenbundle-AST-Fingerprints auf. Die Fingerprints wurden nach Vergleich der
-unveränderten Main-Suchpfadblöcke aktualisiert, ohne DGN-007-Laufzeitquelle oder
-Importregeln zu ändern. Die frische PR-Gegenprobe läuft erneut.
