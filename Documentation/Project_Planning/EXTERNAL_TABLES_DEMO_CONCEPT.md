@@ -373,6 +373,29 @@ verwenden simulierte Antworten. Ob der Connector die erwarteten Felder
 liefert und der Request lange genug für eine Live-Beobachtung sichtbar
 bleibt, muss der zugelassene Pilot zeigen.
 
+### Gastidentität für den autonomen Start
+
+Die [Identitätsprobe](../../Tests/Runtime/external_tables_guest_identity.py)
+ist ein Baustein für die Verbindung vom Host zum gestarteten Gast ohne
+zusätzliche Host-Netzwerkschnittstelle. Auf Windows adressiert sie den
+Hyper-V-Socket mit der VM-ID aus der Erzeugungsliste und der Dienst-ID
+des VSOCK-Ports. Der Linux-Gast akzeptiert eine Verbindung vom
+Elternsystem. Er gibt eine feste Antwort mit erwarteter Rolle,
+Laufkennung und der aktuellen Zufallsabfrage zurück. Der Host prüft
+alle Felder innerhalb der gemeinsamen Frist. Der Austausch überträgt
+keine Zugangsdaten und führt keine Gastbefehle aus.
+[Microsoft-Referenz zu Hyper-V-Sockets](https://learn.microsoft.com/virtualization/hyper-v-on-windows/user-guide/make-integration-service).
+
+Auf dem Windows-Testhost ließ sich der native Socket mit Python 3.13
+öffnen. Die Paketliste des geprüften Abbilds enthält
+`linux-modules-7.0.0-1017-azure` in Version `7.0.0-1017.17~24.04.1`.
+Canonicals Dateiliste für dieses Paket führt `hv_sock.ko.zst` und
+`vsock.ko.zst`. Für den echten Lauf bleiben das Laden der Module, die
+bereits vorausgesetzte Registrierung der Dienst-ID am Host und der
+Gaststart zu prüfen. Die Identitätsantwort ersetzt keine Prüfung der
+Dienste, Pakete oder Netzgrenzen.
+[Canonical-Dateiliste](https://packages.ubuntu.com/noble-updates/amd64/linux-modules-7.0.0-1017-azure/filelist).
+
 ### Pilotablauf und Fristen
 
 Der [Pilotablauf](../../Tests/Runtime/external_tables_pilot.py) verbindet
