@@ -1,6 +1,6 @@
 # External Tables: statischer Lehr- und Demoentwurf
 
-Stand: 14. November 2026
+Stand: 23. November 2026
 Status: `PROPOSED`; Konzept auf Basis des Quellenreviews, keine registrierte Demo,
 kein ausgeführter Connector und keine Laufzeitfreigabe
 
@@ -34,8 +34,8 @@ Die Quelle enthält ein deterministisches Fakt-Fixture mit stabiler
 Run-Kennung, Schlüssel, Datum, Kategorie und numerischem Wert. Pro Lauf wird
 ein unveränderlicher Snapshot erzeugt. Eine lokale Tabelle erhält denselben
 Snapshot mit denselben Spalten, Typen, Collations und fachlichen Constraints.
-Der Entwurf sieht noch keine Zeilenanzahl oder Lastgröße vor: diese Werte
-benötigen ein bestätigtes Ressourcenprofil.
+Der erste Kandidat legt die Datenmenge und die erwarteten Ergebnisse im
+[isolierten Pilotprofil](#isoliertes-pilotprofil-für-sql-server-2025) fest.
 
 Eine festgelegte Abfrage filtert ein Datumintervall, projiziert nur benötigte
 Spalten und aggregiert nach Kategorie. Der Ergebnisvertrag bindet Schlüssel,
@@ -49,6 +49,101 @@ External-Table-Kontrolllauf. Remoteausführung, Transport, Data Movement Service
 Seiten-I/O unterscheiden sich systematisch. Ergebnisse werden deshalb als
 beobachtetes Profil mit getrennten Kostenkomponenten berichtet, nicht als
 allgemeine Rangfolge.
+
+## Isoliertes Pilotprofil für SQL Server 2025
+
+Der erste Kandidat nutzt zwei eigene Ubuntu-24.04-VMs (AMD64) mit SQL Server
+2025 CU11 (`17.0.5065.9`), Enterprise Developer Edition und
+Datenbankkompatibilitätsstufe 170. Eine VM ist der PolyBase-Abfrageknoten, die
+zweite die synthetische SQL-Quelle. Die gemeinsame Windows-Matrix für
+2019/2022/2025 bleibt ein eigenes Profil. Microsoft dokumentiert den
+SQL-Server-Connector mit SQL-Authentifizierung und PolyBase auf Linux.
+Das Profil übernimmt die dokumentierte Ubuntu-Installation und benötigt eine
+vorbereitete Wegwerfvorlage für beide Rollen.
+
+| Bereich | Vertrag für den Pilotkandidaten |
+|---|---|
+| Pakete | Der Microsoft-Paketindex für Ubuntu 24.04/AMD64 führt `mssql-server` und `mssql-server-polybase` jeweils als `17.0.5065.9-3`. SHA-256 laut Index: Engine `1174d93bf5384b45ef528353cc8f6829aa0ab12669700e96bfd4e2959a0de3ff`, PolyBase `302acda716e373d785dc8f1c394d762deb498010cbf96f10af679bba08b2c32a`. Engine auf beiden VMs, PolyBase samt erforderlichen Komponenten nur auf dem Abfrageknoten. Vor Einrichtung den signierten Paketindex und alle tatsächlich eingesetzten Pakete, Abhängigkeiten und Komponenten an die Vorlage binden. Vor SQL die installierten Paketstände und den Dienstzustand prüfen. |
+| Netz und Transport | Ein privater virtueller Switch verbindet ausschließlich diese zwei VMs. Die VMs verwenden je eine private Schnittstelle ohne Standardroute. Eine Firewall an der Quelle erlaubt eingehendes TCP 1433 nur vom Abfrageknoten. Administration erfolgt über die VM-Konsole. Der Connector verwendet einen laufgebundenen Hostnamen von höchstens 15 Zeichen. Ein kurzlebiges Zertifikat enthält diesen Namen und wird über die nur in der Abfrage-VM hinterlegte Labor-CA geprüft. Beide Datenquellen verwenden ODBC Driver 18 und `Encrypt=Yes;TrustServerCertificate=No`. Der Preflight prüft einen erfolgreichen verschlüsselten Zugriff und die Ablehnung des Zugriffs bei abweichender Serveridentität. |
+| Rollen | Die Einrichtung verbindet sich lokal mit jeder VM und erzeugt eigene markierte Testdatenbanken. Der laufgebundene Quelllogin erhält Datenbankzugriff und `SELECT` auf genau die synthetische Quelltabelle; er erhält keine zusätzlichen Serverrollen und keine DDL- oder Schreibrechte auf die Quelldatenbank. Der Abfrageprincipal erhält `SELECT` auf die beiden externen Tabellen und die lokale Referenz. Ein getrenntes Diagnoseprofil erhebt Pläne und Requestmetadaten. Rechteinventar und Gegenproben für Schreiben und Zugriff auf ein zweites eigenes Objekt laufen vor der Mechanismusprüfung. |
+| Zugangsdaten | Quelllogin, Datenbank-Hauptschlüssel und Credential verwenden getrennte, zufällige Laufgeheimnisse. Die Einrichtung überträgt sie im Arbeitsspeicher zum jeweiligen SQL-Client und hält sie aus Prozessargumenten, Umgebungsinventaren, Protokollen und Artefakten heraus. Setup-Capture bleibt deaktiviert. Im Evidenzfenster sind nur normalisierte Befunde zu eigenen synthetischen Abfragen zulässig. |
+| Ressourcen | Je VM 2 vCPUs, 4 GiB RAM und höchstens 24 GiB für die eigene virtuelle Platte. Je Testdatenbank höchstens 128 MiB Daten und 128 MiB Log. Ein Versuch aus vorbereiteten Vorlagen mit höchstens 600 Sekunden für VM-Start, Preflight, Setup und Abfragen, plus 120 Sekunden für Abbau. Bei Budgetüberschreitung endet die Erhebung und der Abbau beginnt. Vorlagenbereitstellung und Paketprüfung gehen dem Lauf voraus. |
+
+Microsoft dokumentiert seit SQL Server 2025 CU4 einen Offlineweg für die
+benötigten .NET-Komponenten. Die Vorlagenphase muss deshalb die Herkunft und
+Prüfsumme des unterstützten .NET-Bundles sowie die installierte
+Connectorversion erfassen. Der spätere Pilot läuft auf dem privaten Switch mit
+den vorbereiteten Vorlagen. Eine vorhandene Hyper-V-Installation belegt
+allein weder die Vorlagen noch Kapazität oder den Dienstzustand. Die
+Voraussetzungen gelten für die eigenen VMs und den eigenen Lauf.
+
+### Daten und Ergebniskontrolle
+
+Die deterministische Quelltabelle `dbo.Facts` und die lokale Referenz
+enthalten je 4.096 Zeilen mit den Spalten `FactId int`, `EventDate date`,
+`CategoryId int` und `Amount int`. Verwende für jede Kombination
+`d = 0..63`, `c = 0..3`, `r = 0..15` die Werte
+`FactId = 64*d + 16*c + r`, Datum `2026-01-01 + d Tage`,
+`CategoryId = c` und `Amount = 100*d + 10*c + r`. Prüfe den vollständigen
+Tupelbestand mit Schlüsseln und Multiplizitäten vor dem Erhebungsfenster.
+
+| Kategorie | Zeilen im Filterfenster | Erwartete Summe |
+|---:|---:|---:|
+| 0 | 128 | 250.560 |
+| 1 | 128 | 251.840 |
+| 2 | 128 | 253.120 |
+| 3 | 128 | 254.400 |
+
+Lege zwei externe Tabellen über derselben Quelle mit identischer Spaltenliste
+und zwei Datenquellen mit derselben Verbindung und demselben Credential an.
+Die Datenquellen unterscheiden sich durch `PUSHDOWN = ON` bzw.
+`PUSHDOWN = OFF`. Verwende für beide und für die lokale Referenz dasselbe
+halboffene Datumsintervall `[2026-01-17, 2026-01-25)` und dieselbe Gruppierung
+nach `CategoryId` mit Anzahl und Summe. Baue die benötigten Statistiken pro
+Tabelle vor der Messung symmetrisch auf und kontrolliere Änderungen im
+Messfenster. Nach Setup- und Rechteproben öffnet der Reader pro Arm eine
+eigene Session. Die Abfragen laufen einzeln und erhalten je ein abgegrenztes
+Erhebungsfenster.
+
+Der Datenweg ist nachgewiesen, wenn alle drei Ergebnisse dem Oracle entsprechen
+und beide externen Ausführungen der eigenen Quelle zugeordnet sind. Weise
+Pushdown getrennt für das Datumsprädikat aus. Die Remote-Anweisung für ON muss
+das äquivalente Datumsintervall enthalten; die gebundene OFF-Gegenprobe muss
+eine Remote-Anweisung ohne dieses Prädikat zeigen. Verknüpfe Workrecords über
+`execution_id`, die erwartete Tabellenadresse und die Session des Arms mit
+der jeweiligen Ausführung. Die konkrete Zuordnung des lokalen Requests zur
+PolyBase-Ausführung ist Gegenstand des Methodenreviews. Bei fehlendem oder
+mehrdeutigem Workrecord, nicht auflösbaren Parametern oder abgeschnittenem
+Remote-Befehl bleibt der Pushdown-Befund `NOT_PROVEN`. Die lokale Referenz
+belegt das Ergebnis. Eine Remoteaggregation oder Leistungswirkung erfordert
+einen eigenen Befund.
+
+### Abbau und Wiederaufnahme
+
+1. Sperre weitere Demoaufrufe und beende nur eigene ausstehende Requests.
+2. Prüfe in beiden Datenbanken den vollständigen Laufmarker. Entferne auf dem
+   Abfrageknoten externe Tabellen, Datenquellen, Credential und Hauptschlüssel
+   in dieser Reihenfolge und danach die eigene Datenbank und ihre Demoanmeldung.
+3. Beende laut Quellinventar verbliebene Sessions des eigenen Quelllogins und
+   entferne die eigene Quelldatenbank und den Quelllogin. Kontrolliere auf
+   beiden VMs die Abwesenheit aller Laufobjekte.
+4. Entferne nach Abgleich mit der Erzeugungsliste die beiden VM-IDs, ihre
+   eigenen Plattenkopien und den privaten Switch. Bestätige die Abwesenheit
+   anhand der IDs. Bei unerreichbarer VM bleibt der SQL-Abbau unbestätigt.
+   Verwende die Erzeugungsliste für den VM-Abbau und weise diesen Befund
+   getrennt aus. Ein unvollständiger Cleanup verhindert `PASS`.
+
+Für die Wiederaufnahme werden geprüfte Vorlagen für beide Rollen, ein
+ausführbarer Vertrag mit konkreten Grants und Ressourcenoracles sowie ein
+unabhängiger Methodenreview benötigt. Der Lauf bleibt nach DEC-078 ein eigenes
+Arbeitspaket mit separater Freigabe. Die Lehrnotiz verweist weiterhin auf den
+allgemeinen Pushdown-Befund.
+
+Quellen zum Profil: [Build und Ubuntu-Unterstützung](https://learn.microsoft.com/en-us/troubleshoot/sql/releases/linux/release-history-2025),
+[Microsoft-Paketindex für Ubuntu 24.04](https://packages.microsoft.com/ubuntu/24.04/mssql-server-2025/dists/noble/main/binary-amd64/Packages),
+[PolyBase-Installation und Offlinekomponenten](https://learn.microsoft.com/en-us/sql/relational-databases/polybase/polybase-linux-setup?view=sql-server-ver17),
+[SQL-Server-Connector](https://learn.microsoft.com/en-us/sql/relational-databases/polybase/polybase-configure-sql-server?view=sql-server-ver17)
+[ODBC-Verschlüsselung](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-data-source-transact-sql?view=sql-server-ver17#connection_options--key_value_pair) und [externe Workrecords](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-external-work-transact-sql?view=sql-server-ver17).
 
 ## Pushdown- und Messvertrag
 
@@ -118,12 +213,12 @@ eigenständig zu qualifizieren.
 
 Vor einem Demo-Vertrag bleiben offen:
 
-- Entscheidung über gemeinsames Windows-Profil oder explizite
-  Windows-/Linux-Teilprofile und konkrete Builds, CUs, Editionen sowie
-  Compatibility Levels;
+- Nachweis der vorbereiteten Linux-VMs und der gebundenen Abhängigkeiten für
+  den ersten Pilotkandidaten. Eine Windows-Matrix bleibt getrennt;
 - Verfügbarkeit und Eigentum der separaten synthetischen Quellinstanz,
   Netzwerkisolation, Berechtigungen und Credential-Lifecycle;
-- konkrete Fixturegröße, Ressourcenlimits, Zeitbudget und Abbruch-/Recoverypfad;
+- Durchsetzung der im Profil konkretisierten Ressourcen- und Zeitgrenzen sowie
+  Abnahme des Abbruch- und Wiederherstellungspfads;
 - Pushdown-Evidenzkorrelation und Aussagekraft der Transport-/DMS-Metriken im
   festgelegten Connectorprofil;
 - Statistikzustand, Setup-/Messphasentrennung, vollständiger Cleanup und
