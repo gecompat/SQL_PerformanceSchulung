@@ -15,6 +15,9 @@ on:
       - 'Tests/Runtime/optsp_paired_evidence.py'
       - 'Tests/Runtime/run_optsp_paired.py'
       - 'Tests/Static/test_optsp_paired_evidence.py'
+      - 'Tests/Static/test_opt018_demo_package.py'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-018_Optimized_Sp_Executesql/**'
+      - 'Demos/00_Framework/Tools/run_demo.py'
       - 'Tests/Runtime/optsp_xe_snapshot.py'
       - 'Tests/Static/test_optsp_xe_snapshot.py'
       - 'Tests/Static/test_optsp_compile_evidence.py'
@@ -36,6 +39,9 @@ on:
       - 'Tests/Runtime/optsp_paired_evidence.py'
       - 'Tests/Runtime/run_optsp_paired.py'
       - 'Tests/Static/test_optsp_paired_evidence.py'
+      - 'Tests/Static/test_opt018_demo_package.py'
+      - 'Demos/04_Optimizer_Statistics_Plans/OPT-018_Optimized_Sp_Executesql/**'
+      - 'Demos/00_Framework/Tools/run_demo.py'
       - 'Tests/Runtime/optsp_xe_snapshot.py'
       - 'Tests/Static/test_optsp_xe_snapshot.py'
       - 'Tests/Static/test_optsp_compile_evidence.py'
@@ -68,7 +74,9 @@ jobs:
         run: python Tests/Static/test_optsp_compile_evidence.py
 
       - name: Run paired evidence and launcher regressions
-        run: python Tests/Static/test_optsp_paired_evidence.py
+        run: |
+          python Tests/Static/test_optsp_paired_evidence.py
+          python Tests/Static/test_opt018_demo_package.py
 
       - name: Run XE snapshot regressions
         run: python Tests/Static/test_optsp_xe_snapshot.py

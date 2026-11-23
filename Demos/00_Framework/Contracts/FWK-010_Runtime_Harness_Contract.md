@@ -3,10 +3,10 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `IMPLEMENTED` |
-| Vertragsversion | 1.0, IDX-007-Ausführungsadapter |
-| Geltungsbereich | sequenzielle SQL-/Multi-Session-Demoausführung sowie die eng begrenzte IDX-007-Containerphase; Summary-Auswertung und Cleanup |
-| User-defined Tools | `run_demo.py`, `orchestrate_sessions.py`, `sqlcmd_process.py`, IDX-007 Runtime-Pilot |
-| Drittanbieter-Tool | externes Microsoft-Tool `sqlcmd`; Docker Engine nur für den IDX-007-Adapter |
+| Vertragsversion | 1.0 |
+| Geltungsbereich | sequenzielle SQL-/Multi-Session-Demoausführung sowie die festgelegten Containerphasen für IDX-007 und OPT-018; Summary-Auswertung und Cleanup |
+| User-defined Tools | `run_demo.py`, `orchestrate_sessions.py`, `sqlcmd_process.py`, IDX-007- und OPT-018-Runner |
+| Drittanbieter-Tool | externes Microsoft-Tool `sqlcmd`; lokaler Docker-kompatibler Kontext für die Containerphasen |
 
 ## 1. Zweck
 
@@ -24,8 +24,7 @@ Ein Manifest enthält:
 - geordnete SQL- oder Multi-Session-Phasen,
 - optionales Cleanup.
 
-Die einzige Ausnahme vom externen Servermodell ist die `idx007_container`-
-Phase. Sie ist ausschließlich für IDX-007 erlaubt, muss alleinige
+Die `idx007_container`-Phase ist ausschließlich für IDX-007 erlaubt und muss alleinige
 `PREFLIGHT`-Phase sein, verwendet den paketlokalen Wrapper
 `run_idx007_demo.py`, verlangt die gelbe Sicherheitsbestätigung und benötigt
 keinen Host-SQL-Server oder Host-`sqlcmd`. Der Wrapper startet genau einen
@@ -36,6 +35,16 @@ separates SQL-Cleanup vortäuschen. Bei Framework-Timeout werden ausschließlich
 Container mit dem IDX-007-Ressourcenlabel nach erneuter Prüfung des Labels und
 `NetworkMode=none` entfernt. Der Manifestvalidator lehnt andere Verwendungen
 dieses Phasentyps ab.
+
+Für OPT-018 bindet `opt018_container` das kanonische Manifest und den
+paketlokalen Wrapper `run_opt018_demo.py`. Der Wrapper ist die einzige
+erforderliche `PREFLIGHT`-Phase unter `YELLOW` und verwendet
+`self_cleaning_opt018_container`. Der Harness prüft Rückgabecode und
+eindeutigen Summary-Marker. Bei Zeitüberschreitung startet er den festen
+Wiederherstellungsmodus mit demselben Besitzmarker. Dieser prüft Name,
+Label, Container-ID und lokale Image-ID vor dem Entfernen und bestätigt
+anschließend die Containerabwesenheit. Bei unbestätigtem Abbau meldet der
+Harness `FAIL_CLEANUP`.
 
 Datenbankselektoren sind ausschließlich `master` oder `target`. Der Zielname wird deterministisch als `SQLPERF_LAB_<DEMO>_<RUN>` abgeleitet. Pfade müssen innerhalb des Manifestverzeichnisses liegen.
 
@@ -67,6 +76,7 @@ transportierter ADMIN-Nachweis; der READER prüft seine effektiven Rechte selbst
 - Ein optionaler `SKIP` wird als sichtbare Warnung behandelt und blockiert die übrigen Phasen nicht.
 - Multi-Session-Phasen delegieren an `FWK-006` (Multi-Session-Orchestrierungsvertrag).
 - Die IDX-007-Containerphase ist eine fest verdrahtete, parameterarme Ausnahme; sie akzeptiert nur die Majors 15, 16 oder 17 und startet keine manifestdefinierten beliebigen Befehle.
+- OPT-018 startet einen festgelegten SQL-Server-2025-Build mit zwei gepaarten Vergleichen und gebundenen Gegenproben. Die externe SQL-Verbindung entfällt.
 - Das globale Harness-Zeitbudget gilt über alle regulären Phasen.
 - Nach gestarteter Setup-Phase wird das konfigurierte Cleanup unabhängig vom vorherigen Ergebnis ausgeführt.
 - Cleanup-Fehler überschreiben das Gesamtergebnis mit `FAIL_CLEANUP`, ohne den ursprünglichen Fehlerkontext zu verbergen.

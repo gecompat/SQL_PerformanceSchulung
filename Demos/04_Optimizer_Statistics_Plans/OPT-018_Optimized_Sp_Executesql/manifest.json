@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "OPT-018",
+  "run_token": "LOCAL",
+  "safety_level": "YELLOW",
+  "resource_lifecycle": "self_cleaning_opt018_container",
+  "timeout_seconds": 330,
+  "cleanup_timeout_seconds": 60,
+  "phases": [
+    {
+      "id": "PREFLIGHT",
+      "kind": "opt018_container",
+      "script": "run_opt018_demo.py",
+      "database": "master",
+      "required": true,
+      "require_summary": true,
+      "timeout_seconds": 325
+    }
+  ]
+}

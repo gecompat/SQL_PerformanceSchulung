@@ -40,6 +40,10 @@ CORE_SQLCMD_VARIABLES = frozenset({
     "MaximumRuntimeSeconds", "StandardEndpointInventory", "BoundObjectInventory",
 })
 CORE_SQLCMD_VARIABLE_NAMES = frozenset(name.casefold() for name in CORE_SQLCMD_VARIABLES)
+CONTAINER_PHASE_KINDS = frozenset({"idx007_container", "opt018_container"})
+OPT018_MANIFEST = Path(__file__).resolve().parents[2] / (
+    "04_Optimizer_Statistics_Plans/OPT-018_Optimized_Sp_Executesql/manifest.json"
+)
 OUTCOME_PRIORITY = {"PASS": 0, "WARN": 1, "SKIP": 2, "FAIL": 3}
 QRY023_ENDPOINT_INVENTORY_HANDOFF = {
     "format": "ENDPOINT_ID_G_NAME_HEX_H_RECORDS_UTF16LE_HEX",
@@ -152,7 +156,7 @@ def _parse_phase(raw: Any, base: Path, *, cleanup: bool = False) -> PhaseSpec:
 
     phase_id = raw.get("id")
     kind = raw.get("kind", "sql")
-    path_value = raw.get("script" if kind in {"sql", "idx007_container"} else "manifest")
+    path_value = raw.get("script" if kind in {"sql", *CONTAINER_PHASE_KINDS} else "manifest")
     database_selector = raw.get("database", "target")
     required = raw.get("required", True)
     require_summary = raw.get("require_summary", phase_id == "PREFLIGHT")
@@ -161,7 +165,7 @@ def _parse_phase(raw: Any, base: Path, *, cleanup: bool = False) -> PhaseSpec:
 
     if not isinstance(phase_id, str) or not PHASE_ID_PATTERN.fullmatch(phase_id):
         raise ValueError(f"invalid phase id: {phase_id!r}")
-    if kind not in {"sql", "multi_session", "idx007_container"}:
+    if kind not in {"sql", "multi_session", *CONTAINER_PHASE_KINDS}:
         raise ValueError(f"invalid phase kind for {phase_id}")
     if not isinstance(path_value, str):
         raise ValueError(f"phase {phase_id} requires a file path")
@@ -181,10 +185,10 @@ def _parse_phase(raw: Any, base: Path, *, cleanup: bool = False) -> PhaseSpec:
     if cleanup and kind != "sql":
         raise ValueError("cleanup must be a SQL phase")
 
-    if kind == "idx007_container" and (database_selector != "master" or credential_profile is not None):
+    if kind in CONTAINER_PHASE_KINDS and (database_selector != "master" or credential_profile is not None):
         raise ValueError("IDX-007 container phase cannot use a server database or credentials")
 
-    suffixes = {".sql"} if kind == "sql" else ({".py"} if kind == "idx007_container" else {".json"})
+    suffixes = {".sql"} if kind == "sql" else ({".py"} if kind in CONTAINER_PHASE_KINDS else {".json"})
     return PhaseSpec(
         phase_id=phase_id,
         kind=kind,
@@ -294,6 +298,17 @@ def load_manifest(path: Path) -> DemoManifest:
         or payload.get("resource_lifecycle") != "self_cleaning_idx007_container"
     ):
         raise ValueError("container runtime is restricted to the self-cleaning IDX-007 demo contract")
+    opt018_phases = tuple(phase for phase in phases if phase.kind == "opt018_container")
+    if opt018_phases and (
+        demo_id != "OPT-018" or safety_level != "YELLOW" or run_token != "LOCAL"
+        or path.resolve() != OPT018_MANIFEST or len(phases) != 1
+        or opt018_phases[0].phase_id != "PREFLIGHT" or not opt018_phases[0].required
+        or not opt018_phases[0].require_summary or opt018_phases[0].timeout_seconds != 325
+        or opt018_phases[0].path != OPT018_MANIFEST.with_name("run_opt018_demo.py")
+        or cleanup is not None or timeout_seconds != 330 or cleanup_timeout_seconds != 60
+        or payload.get("resource_lifecycle") != "self_cleaning_opt018_container"
+    ):
+        raise ValueError("container runtime is restricted to the self-cleaning OPT-018 demo contract")
     if "ADMIN_PERMISSION_INVENTORY" in ids:
         expected_handoff = json.dumps(QRY023_ENDPOINT_INVENTORY_HANDOFF, sort_keys=True, separators=(",", ":"))
         contract = payload.get("admin_permission_inventory_contract")
@@ -556,6 +571,51 @@ def _execute_idx007_container_phase(phase: PhaseSpec, *, major: int, timeout_sec
     return PhaseResult(phase.phase_id, "FAIL", "FAIL_EXECUTION", "IDX-007 Lauf oder markergebundene Bereinigung fehlgeschlagen.", time.monotonic() - started)
 
 
+def _execute_opt018_container_phase(phase: PhaseSpec, *, timeout_seconds: float) -> PhaseResult:
+    started = time.monotonic()
+    command = [sys.executable, str(phase.path)]
+    environment = {key: value for key, value in os.environ.items()
+                   if not key.upper().startswith(("SQLPERF_SQL_", "SQLCMDPASSWORD"))}
+    owner = os.urandom(16).hex()
+    environment["SQLPERF_OPT018_OWNER_TOKEN"] = owner
+
+    def run(args: list[str], timeout: float) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(args, capture_output=True, text=True, encoding="utf-8",
+                              errors="replace", timeout=timeout, check=False, env=environment)
+
+    try:
+        result = run(command, timeout_seconds)
+    except subprocess.TimeoutExpired:
+        try:
+            recovered = run([*command, "--recover"], 65).returncode == 0
+        except (OSError, subprocess.TimeoutExpired):
+            recovered = False
+        code = "FAIL_TIMEOUT" if recovered else "FAIL_CLEANUP"
+        message = "OPT-018 Zeitbudget überschritten; Containerabwesenheit wurde geprüft." if recovered else (
+            f"OPT-018 Zeitbudget überschritten; Containerabwesenheit ist offen. Besitzmarker: {owner}."
+        )
+        return PhaseResult(phase.phase_id, "FAIL", code, message, time.monotonic() - started)
+    except OSError:
+        return PhaseResult(phase.phase_id, "FAIL", "FAIL_EXECUTION", "OPT-018 konnte nicht gestartet werden.",
+                           time.monotonic() - started)
+
+    lines = result.stdout.splitlines()
+    markers = [line for line in lines if line.startswith("SQLPERF_SUMMARY|")]
+    for line in lines:
+        if re.fullmatch(r"OPTSP\|[A-Z_]+\|(PROVEN|NOT_PROVEN)\|[a-z_]+", line):
+            print(f"[{phase.phase_id}] {line}")
+    allowed = {
+        (0, ("SQLPERF_SUMMARY|PASS|OK",)): ("PASS", "OK", "Beide OPT-018-Paare und der Abbau wurden bestätigt."),
+        (1, ("SQLPERF_SUMMARY|FAIL|FAIL_NOT_PROVEN",)): ("FAIL", "FAIL_NOT_PROVEN", "Die OPT-018-Evidenz ist unvollständig."),
+        (3, ("SQLPERF_SUMMARY|FAIL|FAIL_CLEANUP",)): ("FAIL", "FAIL_CLEANUP",
+                                                         f"Der OPT-018-Abbau ist unbestätigt. Besitzmarker: {owner}."),
+    }
+    outcome, code, message = allowed.get(
+        (result.returncode, tuple(markers)), ("FAIL", "FAIL_CONTRACT", "OPT-018 lieferte keine eindeutige Summary."),
+    )
+    return PhaseResult(phase.phase_id, outcome, code, message, time.monotonic() - started)
+
+
 def _cleanup_idx007_owned_container(owner_token: str) -> bool:
     if not re.fullmatch(r"[0-9a-f]{32}", owner_token):
         return False
@@ -617,8 +677,8 @@ def run_demo(
     if manifest.safety_level == "RED" and not allow_red:
         return HarnessResult("FAIL", "FAIL_SAFETY", "Rote Demo benötigt --allow-red.", ())
 
-    has_container_phase = any(phase.kind == "idx007_container" for phase in manifest.phases)
-    if has_container_phase and idx007_major not in {15, 16, 17}:
+    has_container_phase = any(phase.kind in CONTAINER_PHASE_KINDS for phase in manifest.phases)
+    if manifest.phases[0].kind == "idx007_container" and idx007_major not in {15, 16, 17}:
         raise ValueError("IDX-007 requires --idx007-major 15, 16, or 17")
     if not has_container_phase and not server:
         raise ValueError("server is required by argument or SQLPERF_SQL_SERVER")
@@ -692,6 +752,8 @@ def run_demo(
                     timeout_override_seconds=max(1, int(phase_timeout)),
                 )
                 result = PhaseResult(phase.phase_id, orchestration.outcome, orchestration.code, orchestration.message, 0.0)
+            elif phase.kind == "opt018_container":
+                result = _execute_opt018_container_phase(phase, timeout_seconds=phase_timeout)
             else:
                 result = _execute_idx007_container_phase(
                     phase, major=idx007_major or 17, timeout_seconds=phase_timeout, show_output=show_output

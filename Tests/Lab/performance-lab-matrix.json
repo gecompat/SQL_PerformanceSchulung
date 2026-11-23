@@ -317,6 +317,15 @@
       "expectedOutcomes": ["PASS", "WARN", "SKIP"], "defaultRepetitions": 2
     },
     {
+      "demoId": "OPT-018",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-018_Optimized_Sp_Executesql/manifest.json",
+      "implementationStatus": "IMPLEMENTED", "safetyLevel": "YELLOW", "sessions": 3,
+      "providers": ["docker", "podman"], "versions": ["2025"],
+      "resourceProfile": "performance", "environmentIsolation": "FRESH_INSTANCE",
+      "requiredCapabilities": ["DOCKER_LINUX_CONTAINERS", "CPU_2", "MEMORY_4GB", "SERVER_STATE", "EXTENDED_EVENTS", "MULTI_SESSION_SQLCMD"],
+      "expectedOutcomes": ["PASS"], "defaultRepetitions": 1
+    },
+    {
       "demoId": "IDX-007",
       "manifest": "Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/manifest.json",
       "implementationStatus": "IMPLEMENTED", "safetyLevel": "YELLOW", "sessions": 82,

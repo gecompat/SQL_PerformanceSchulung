@@ -5378,6 +5378,15 @@
       "relations": [],
       "title": "Historische Kennung OPT-017"
     },
+    "OPT-018": {
+      "aliases": [],
+      "artifact_uid": "urn:uuid:6ebc8d72-0ffa-447d-b699-aa692f869c0c",
+      "external_refs": [],
+      "kind": "optimizer_demo",
+      "registration_state": "REGISTERED",
+      "relations": [],
+      "title": "Gleichzeitige Kompilierung mit OPTIMIZED_SP_EXECUTESQL"
+    },
     "PRS-001": {
       "aliases": [],
       "artifact_uid": "urn:uuid:08860d96-b980-4144-8e40-70fc0b046327",
