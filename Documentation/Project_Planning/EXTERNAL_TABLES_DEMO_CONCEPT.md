@@ -399,25 +399,37 @@ Dienste, Pakete oder Netzgrenzen.
 ### TLS-Kontrollpaar am Quellendpunkt
 
 Die [ODBC-Probe](../../Tests/Runtime/external_tables_odbc.py)
-verwendet denselben laufgebundenen Quellhost, Port und Reader wie der
-spätere Connector. Zuerst muss die Verbindung mit Verschlüsselung und
-Zertifikatsprüfung die erwartete Datenbank und Anmeldung bestätigen.
-Für die zweite Verbindung ändert die Probe ausschließlich
-`HostnameInCertificate`. Sie verlangt eine SSL-Diagnose zur abweichenden
-Zertifikatsidentität. Verbindungs- und Anmeldefehler reichen dafür nicht
-aus. Der Gast muss Pooling vor der ersten Verbindung abschalten.
+verwendet in der Positivprobe denselben laufgebundenen Quellhost, Port und
+Reader wie der spätere Connector. Die verschlüsselte Verbindung mit
+Zertifikatsprüfung muss die erwartete Datenbank und Anmeldung bestätigen.
+`CONNECTIONPROPERTY` liefert in derselben Verbindung die private
+IPv4-Adresse und den tatsächlich verwendeten SQL-Port.
+[Microsoft-Referenz zu `CONNECTIONPROPERTY`](https://learn.microsoft.com/en-us/sql/t-sql/functions/connectionproperty-transact-sql?view=sql-server-ver17).
+
+Beim ersten nativen Versuch akzeptierte der Linux-Treiber den Namen aus
+`Server` auch mit abweichendem `HostnameInCertificate` und abgeschaltetem
+Pooling. Die Gegenprobe verbindet sich deshalb über die bestätigte
+numerische Adresse und denselben Port. Weder die Adresse noch der
+absichtlich falsche Name in `HostnameInCertificate` steht im
+Quellzertifikat. Die Probe verlangt SQLSTATE `08001` zusammen mit der
+SSL-Diagnose zum Namensfehler. Die
+[ODBC-Regressionen](../../Tests/Static/test_external_tables_odbc.py)
+prüfen auch, dass allgemeine Login-, Timeout- und CA-Fehler den
+Namensnachweis nicht ersetzen.
 [Microsoft-Referenz zu `HostnameInCertificate`](https://learn.microsoft.com/en-us/sql/connect/odbc/dsn-connection-string-attribute?view=sql-server-ver17#hostnameincertificate).
 
-Der Linux-Komponententest auf dem gebundenen SQL-Server-2025-Image
-verwendete dessen SQLCMD-Client mit ODBC Driver 18, eine temporäre
-Zertifizierungsstelle und denselben IPv4-Loopback-Endpunkt für beide
-Aufrufe. Der passende Name erlaubte eine Leseabfrage, der abweichende
-Name lieferte die erwartete SSL-Diagnose, und der eigene Container
-wurde entfernt. Die [ODBC-Regressionen](../../Tests/Static/test_external_tables_odbc.py)
-prüfen ihre Zuordnung sowie die Abweisung von Timeout, fehlender
-CA-Vertrauenskette und falscher Anmeldung. Die direkte Python-ODBC-
-Ausführung auf dem Abfragegast und der echte PolyBase-Zugriff stehen
-noch aus.
+Der native Komponententest lief auf Ubuntu 24.04
+mit SQL Server `17.0.5065.9`, ODBC Driver `18.7.1.1`, CPython `3.12.3`
+und `pyodbc 5.5.0`. Die Gegenprobe lieferte `08001` und die passende
+SSL-Diagnose. Der Test verwendete eine temporäre Labor-CA, eine
+markergebundene Quelldatenbank, den eigenen Reader und ausschließlich
+Loopback im Wegwerfcontainer. Der SQL-Abbau und die Containerentfernung
+waren erfolgreich. Das verwendete CPython-3.12-Linux-x86-64-Wheel wurde
+gegen SHA-256
+`4ee64db80a3cdcf87be2234d3793833b324fbd11fbe738afdaba46ca478cac13` geprüft.
+Für den Pilot stehen die Gastbereitstellung samt Clientpaketen und der
+PolyBase-Lauf über den privaten Switch aus.
+[PyPI-Dateinachweis für `pyodbc 5.5.0`](https://pypi.org/project/pyodbc/5.5.0/#files).
 
 
 ### Pilotablauf und Fristen

@@ -6,6 +6,7 @@ from collections.abc import Callable, Iterable, Iterator
 from concurrent.futures import Future
 from contextlib import contextmanager
 from dataclasses import dataclass, field
+from ipaddress import IPv4Address
 from math import floor, isfinite
 from threading import Thread
 from time import monotonic
@@ -52,19 +53,36 @@ def verify_source_tls(driver: OdbcDriver, token: str, secret: str, deadline: flo
         raise ValueError("TLS probe requires the run-bound secret and disabled pooling")
 
     settings = (
-        f"Driver={{ODBC Driver 18 for SQL Server}};Server=tcp:{host},{SOURCE_PORT};"
+        "Driver={ODBC Driver 18 for SQL Server};"
         f"Database={database};UID={login};PWD={secret};{CONNECTION_OPTIONS}"
         "MARS_Connection=No;ConnectRetryCount=0;"
     )
     try:
-        connection = driver.connect(settings, timeout=_query_timeout(deadline), autocommit=True)
+        connection = driver.connect(
+            f"Server=tcp:{host},{SOURCE_PORT};" + settings,
+            timeout=_query_timeout(deadline),
+            autocommit=True,
+        )
         try:
             connection.timeout = _query_timeout(deadline)
             cursor = connection.cursor()
             try:
-                cursor.execute("SET NOCOUNT ON; SELECT DB_NAME(), ORIGINAL_LOGIN();")
-                if _fetch(cursor, 1, 2) != ((database, login),) or cursor.nextset():
-                    raise ValueError("TLS endpoint did not return the expected database and login")
+                cursor.execute(
+                    "SET NOCOUNT ON; SELECT DB_NAME(), ORIGINAL_LOGIN(), "
+                    "CONVERT(varchar(48), CONNECTIONPROPERTY('local_net_address')), "
+                    "CONVERT(int, CONNECTIONPROPERTY('local_tcp_port'));"
+                )
+                (identity,) = _fetch(cursor, 1, 4)
+                actual_database, actual_login, address, port = identity
+                if (
+                    actual_database != database or actual_login != login
+                    or type(address) is not str or type(port) is not int or port != SOURCE_PORT
+                    or cursor.nextset()
+                ):
+                    raise ValueError("TLS endpoint did not return the expected database, login and TCP identity")
+                source_address = IPv4Address(address)
+                if not source_address.is_private or source_address.is_unspecified:
+                    raise ValueError("TLS endpoint is outside the private IPv4 profile")
             finally:
                 cursor.close()
         finally:
@@ -72,11 +90,12 @@ def verify_source_tls(driver: OdbcDriver, token: str, secret: str, deadline: flo
     except Exception:
         raise OSError("trusted source TLS connection was not confirmed") from None
 
-    # Change only the expected certificate name, retaining the actual endpoint.
+    # The Linux driver can also accept the name in Server. Use the verified
+    # numeric endpoint so neither Server nor HostnameInCertificate matches.
     wrong_name = f"pbn-{token.lower()}"
     try:
         rejected = driver.connect(
-            settings + f"HostnameInCertificate={wrong_name};",
+            f"Server=tcp:{source_address},{port};" + settings + f"HostnameInCertificate={wrong_name};",
             timeout=_query_timeout(deadline),
             autocommit=True,
         )
@@ -99,7 +118,6 @@ def _is_certificate_name_rejection(failure: Exception) -> bool:
         return False
     message = failure.args[1].lower()
     return "ssl provider:" in message and "subject name does not match host name" in message
-
 
 
 @dataclass
