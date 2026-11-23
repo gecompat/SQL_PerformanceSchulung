@@ -150,6 +150,45 @@ die Messung konkurrierender Kompilierungen fehlen weiterhin ein
 nachgewiesener Compilebeginn und die Unsicherheitsgrenze für die
 Umrechnung der Ereignisdauer in ein Intervall.
 
+### Überlappung anhand von Kardinalitätsschätzungen
+
+Der [Komponententest](../../Tests/Runtime/Invoke-OptspCompileWitnessComponent.ps1)
+sendet zwei unterscheidbare synthetische Batches auf getrennten
+RPC-Verbindungen. Beide haben eine einzige Anweisung und verwenden fünf
+verknüpfte Tabellenwertkonstruktoren. Die Datenbankoption bleibt `OFF`.
+Im parallelen Lauf können beide RPCs ausstehen. Im Kontrolllauf startet
+der zweite RPC erst, nachdem der erste vollständig zurückgekehrt ist.
+Für jeden Aufruf des Skripts ist eine frische Instanz erforderlich, damit
+beide Batches erstmals kompiliert werden.
+
+```powershell
+pwsh -NoProfile -File Tests/Runtime/Invoke-OptspCompileWitnessComponent.ps1 -Server $LoopbackInstanz -ConfirmDisposableInstance
+# In einer zweiten frischen Instanz
+pwsh -NoProfile -File Tests/Runtime/Invoke-OptspCompileWitnessComponent.ps1 -Server $LoopbackInstanz -ConfirmDisposableInstance -SequentialControl
+```
+
+Die Auswertung verlangt mindestens zwei Schätzereignisse aus
+`query_optimizer_estimate_cardinality` innerhalb jeder nachgewiesenen
+Erstkompilierung. Sie bindet sie an denselben RPC, dieselbe Datenbank
+und den zugehörigen Batchtext. Die Ereignisfolgen müssen sich in
+`event_sequence` kreuzen. Die anhand der ersten und letzten
+Schätzung je Batch gebildeten Zeitfenster müssen sich auch anhand der
+XE-Zeitstempel strikt überschneiden. Die Zeitspanne in 100-ns-Ticks ist
+eine Differenz der aufgezeichneten Labels. Ihre Darstellung kalibriert
+die Uhr nicht. `creation_time` wird bei der Berechnung nicht verwendet.
+In der Vorprobe lag dieses Feld vor dem zugehörigen RPC-Start.
+
+Auf Build `17.0.5065.9` lieferten beide Batches im parallelen und
+sequenziellen Komponentenlauf jeweils 48 Schätzereignisse. Der parallele
+Lauf zeigte eine Überlappung, die sequenzielle Kontrolle keine. Ein
+paralleler Lauf ohne beobachtete Überlappung liefert `NOT_PROVEN`.
+Die CE-Ereignisse enthalten XML-Payload. Das Skript hält sie ausschließlich
+im gefilterten XE-Ringpuffer und im Client-Arbeitsspeicher. Es gibt nur
+Anzahl, Reihenfolge, Zeitdifferenz und Cleanup-Status aus.
+Für den späteren Vergleich bleiben überlappende Erstkompilierungen
+desselben Batches im OFF-Arm und die Compile-Sperre im ON-Arm zu prüfen.
+[Microsoft-Referenz zur Kardinalitätsschätzung und zum XE-Ereignis](https://learn.microsoft.com/en-us/sql/relational-databases/performance/cardinality-estimation-sql-server?view=sql-server-ver17).
+
 ## Statische Auswertung normalisierter Befunde
 
 Für den Methodenreview steht eine [SQL-freie Auswertung je Versuchsarm](../../Tests/Runtime/optsp_compile_evidence.py) bereit. Sie vergleicht tatsächliche Compile-Intervalle und verlangt im ON-Arm einen dem Compile-Actor zugeordneten Wait, der während der Kompilierung beginnt und bis zu deren Ende reicht. Alle erfolgreichen Folgeaufrufe müssen denselben Statement-Planhandle verwenden. Die [synthetischen Gegenproben](../../Tests/Static/test_optsp_compile_evidence.py) decken unter anderem nacheinander liegende Kompilierungen bei überlappenden RPCs, fremde Sessions, gewöhnliche X-Waits und abweichenden Batchtext ab.
