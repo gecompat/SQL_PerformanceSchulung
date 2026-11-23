@@ -554,6 +554,14 @@ Beobachter bestätigte aus `master` den leeren Zielcache unmittelbar
 vor der Startfreigabe. Alle sechs Cacheprüfungen ergaben null Einträge.
 [Microsoft-Referenz zum datenbankbezogenen Cache-Reset](https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-configuration-transact-sql?view=sql-server-ver17#arguments)
 
+Die [festen Batchtexte, Parameterdefinition und Parameterwert](../../Tests/Runtime/OptspCompileWorkload.psd1)
+sind versioniert und gelten auch im Compile-Komponententest. Ein erneuter
+gebundener Lauf mit dieser Datenquelle lieferte dieselben Paarbefunde. Er
+band zusätzlich einen getrennten Digest an jeden tatsächlichen RPC-Text
+und prüfte die Reihenfolge `Begin`/`End` der Compile-Waits. Die
+abweichende Batchkontrolle scheiterte damit sowohl an der Requestbindung
+des Einzelarms als auch an der Workloadbindung beim Paarvergleich.
+
 | Vergleich | OFF | ON | Paarprüfung |
 |---|---|---|---|
 | OFF/ON | Zwei überlappende Erstkompilierungen | Eine Erstkompilierung, zugeordneter Compile-Wait, gemeinsamer vorbereiteter Plan | `PROVEN / matched_off_on_pair` |
