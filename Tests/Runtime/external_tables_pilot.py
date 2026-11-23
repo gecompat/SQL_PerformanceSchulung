@@ -28,7 +28,11 @@ class GuestPilotTransport(Protocol):
     """Operate only the guest identities recorded for this admitted run."""
 
     def start_verified_guests(self, token: str, deadline: float) -> None:
-        """Record ownership before effects and verify isolation, packages, caps and build."""
+        """Record ownership before effects and verify isolation, caps and build.
+
+        Verify each exact VM and its live package digest through the current
+        identity exchange before executing any SQL.
+        """
 
     def execute(self, role: Role, database: str, sql: str, deadline: float) -> None:
         """Execute one complete admin batch without exposing payloads or retaining secrets."""
