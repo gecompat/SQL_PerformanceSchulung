@@ -264,7 +264,9 @@ Versuchen. Alle Versuche bestätigten das Cleanup; erfolglose Varianten blieben
 je einen vollständigen Zweiburstversuch sowie Build 17 drei von drei Versuchen;
 alle bestätigten Kettenbindungen und das Cleanup. Die unmittelbar vorherige
 Kandidatenmatrix ohne `BurstDone` bestand auf allen drei Builds je drei von drei
-Versuchen. Für den finalen Kandidaten steht die neue PR-Matrix noch aus.
+Versuchen. Die frische PR-Matrix für den finalen Kandidaten bestand im Lauf
+[45097345906](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45097345906)
+auf SQL Server 2019, 2022 und 2025; alle drei Buildjobs waren erfolgreich.
 
 Die angepasste Lastform verwendet 501 Seeds und eine Einfügung pro Actor je
 Burst. Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) verwenden
