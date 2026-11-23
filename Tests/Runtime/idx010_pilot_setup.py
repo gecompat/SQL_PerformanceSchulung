@@ -29,7 +29,7 @@ def target_database(run_token: str, arm: Arm) -> str:
     return f"SQLPERF_LAB_IDX010_NCCI_{run_token}_{arm.value}"
 
 
-def _ownership_guard(run_token: str, arm: Arm) -> str:
+def owned_database_guard(run_token: str, arm: Arm) -> str:
     database = target_database(run_token, arm)
     return f"""SET NOCOUNT ON;
 SET XACT_ABORT ON;
@@ -70,7 +70,7 @@ IF (
 
 
 def fixture_setup_batch(run_token: str, arm: Arm) -> str:
-    return _ownership_guard(run_token, arm) + """
+    return owned_database_guard(run_token, arm) + """
 IF EXISTS (SELECT 1 FROM sys.objects WHERE schema_id = SCHEMA_ID(N'dbo') AND name = N'Events')
     THROW 51003, 'FAIL_STATE: IDX-010 fixture already exists.', 1;
 
@@ -87,7 +87,7 @@ def fixture_chunk_batch(run_token: str, arm: Arm, chunk: int) -> str:
         raise ValueError("expected a fixture chunk index from 0 to 3")
     start = chunk * ROWGROUP_ROWS
     end = start + ROWGROUP_ROWS - 1
-    return _ownership_guard(run_token, arm) + f"""
+    return owned_database_guard(run_token, arm) + f"""
 IF EXISTS (
     SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Events') AND type IN (5, 6)
 )
@@ -107,7 +107,7 @@ IF @@ROWCOUNT <> {ROWGROUP_ROWS}
 
 
 def fixture_identity_batch(run_token: str, arm: Arm) -> str:
-    return _ownership_guard(run_token, arm) + """
+    return owned_database_guard(run_token, arm) + """
 SELECT EventId, EventDayKey
 FROM dbo.Events
 ORDER BY EventId
@@ -137,7 +137,7 @@ def verify_fixture_identity(rows: Iterable[tuple[int, int]]) -> str:
 
 def index_build_batch(run_token: str, arm: Arm) -> str:
     """The caller must first prove the fixture identities for *both* arms."""
-    guard = _ownership_guard(run_token, arm)
+    guard = owned_database_guard(run_token, arm)
     order = " ORDER (EventDayKey)" if arm is Arm.ORDERED else ""
     return guard + f"""
 IF (SELECT COUNT_BIG(*) FROM dbo.Events) <> {FIXTURE_ROWS}

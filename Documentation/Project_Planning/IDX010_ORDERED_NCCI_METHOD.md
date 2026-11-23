@@ -142,6 +142,27 @@ starten. Die [Offlineprüfungen](../../Tests/Static/test_idx010_pilot_setup.py)
 sichern die Armtrennung, die Ladebereiche und den Identitätsnachweis ab.
 Die SQL-Batches sind für den Methodenreview bestimmt.
 
+### Indexmetadaten und überlappende Segmente
+
+Die [Metadatenabfrage](../../Tests/Runtime/idx010_index_metadata.py) bindet
+die Segmente an den genauen Index, seine einzige Partition und die
+Schlüsselspalte. Sie verlangt vier volle komprimierte Rowgroups und prüft
+auch den separaten Löschpuffer. Jede der vier Segmentgrenzenpaare muss
+einer dieser Rowgroups zugeordnet sein und in den Wertebereich der
+synthetischen Schlüssel fallen. Zusätzliche Segmente und mehrdeutige
+Grenzen werden abgewiesen.
+[Microsoft-Referenz zu Segmenten](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-column-store-segments-transact-sql?view=sql-server-ver17)
+und [Referenz zum Löschpuffer](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-internal-partitions-transact-sql?view=sql-server-ver17).
+
+Die Auswahl der Encoding-Typen und die Konvertierung der Grenzen
+entsprechen dem oben gebundenen Microsoft-Beispiel für `bigint`. Bei vier
+Segmenten mit acht unterschiedlichen Grenzen ist die Summe der
+Überlappungen im Microsoft-Verfahren doppelt so groß wie die Zahl der
+überlappenden Paare. Die Abfrage zählt jedes Paar einmal und gibt nur den
+Zähler und die gebundene Indexidentität aus. Der Decoder prüft das Ergebnis
+gegen das Profil. Die tatsächlich verwendeten Encodings und das Format der
+Katalogantwort bleiben auf dem Pilotbuild zu prüfen.
+
 ### Offlineprüfung der Abfrageevidenz
 
 Der [Offlineprüfer](../../Tests/Runtime/idx010_query_evidence.py) legt die
@@ -187,9 +208,9 @@ registriert jede Zielbereitstellung vor dem ersten Aufruf und fordert auch
 bei Fehlern während des Instanzstarts oder der Bereitstellung Cleanup an.
 `FAIL_CLEANUP` hat Vorrang vor einem positiven Befund. Der konkrete
 Container- und SQL-Transport muss die Fristen durchsetzen, Eigentum vor dem
-Abbau prüfen und die bestätigte Abwesenheit melden. Bereitstellung, Rechtevergabe,
-Metadatenaufnahme und Abbau stehen noch aus. Der Messadapter ist als
-einzelner Teil des Transports implementiert.
+Abbau prüfen und die bestätigte Abwesenheit melden. Bereitstellung, Rechtevergabe
+und Abbau stehen noch aus. Messadapter und Metadatenabfrage sind
+implementiert. Der konkrete Transport muss sie in den Ablauf einbinden.
 Die [Offlineprüfungen](../../Tests/Static/test_idx010_pilot_sequence.py)
 verwenden einen simulierten Transport.
 
