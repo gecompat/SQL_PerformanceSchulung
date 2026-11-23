@@ -33,7 +33,7 @@ def database_name(token: str, role: Role) -> str:
     return f"SQLPERF_LAB_EXT_{token}_{role.value}"
 
 
-def _database_guard(token: str, role: Role) -> str:
+def database_guard(token: str, role: Role) -> str:
     expected_db = database_name(token, role)
     return f"""SET NOCOUNT ON;
 IF DB_NAME() COLLATE Latin1_General_100_BIN2 <> N'{expected_db}'
@@ -48,7 +48,7 @@ IF DB_NAME() COLLATE Latin1_General_100_BIN2 <> N'{expected_db}'
 
 
 def _owner_guard(token: str, role: Role) -> str:
-    return _database_guard(token, role) + f"""
+    return database_guard(token, role) + f"""
 SET XACT_ABORT ON;
 IF (
     SELECT COUNT_BIG(*) FROM sys.extended_properties AS p
@@ -133,10 +133,15 @@ def fixture_read_batch(token: str, role: Role, route: Route = Route.LOCAL) -> st
     return guard + f"SELECT FactId, EventDate, CategoryId, Amount FROM dbo.{table} ORDER BY FactId;\n"
 
 
+def measurement_marker(token: str, route: Route) -> str:
+    _read_path(token, Role.QUERY, route)
+    return f"SQLPERF_EXT_{token}_{route.name}"
+
+
 def aggregate_batch(token: str, route: Route) -> str:
     guard, table = _read_path(token, Role.QUERY, route)
     return guard + f"""
-SELECT CategoryId, COUNT_BIG(*) AS [RowCount], SUM(CONVERT(bigint, Amount)) AS TotalAmount
+SELECT /* {measurement_marker(token, route)} */ CategoryId, COUNT_BIG(*) AS [RowCount], SUM(CONVERT(bigint, Amount)) AS TotalAmount
 FROM dbo.{table}
 WHERE EventDate >= CONVERT(date, '20260117', 112) AND EventDate < CONVERT(date, '20260125', 112)
 GROUP BY CategoryId
@@ -147,7 +152,7 @@ ORDER BY CategoryId;
 def _read_path(token: str, role: Role, route: Route) -> tuple[str, str]:
     if not isinstance(route, Route) or (role is Role.SOURCE and route is not Route.LOCAL):
         raise ValueError("unexpected External Tables read route")
-    return _database_guard(token, role), route.value
+    return database_guard(token, role), route.value
 
 
 def verify_fixture(rows: Iterable[tuple[int, date, int, int]]) -> None:

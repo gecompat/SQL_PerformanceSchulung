@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_pilot_sql import (
     EXPECTED, Role, Route, aggregate_batch, database_name, external_tables_batch, fixture_batch,
-    fixture_read_batch, statistics_batch, verify_aggregate, verify_fixture,
+    fixture_read_batch, measurement_marker, statistics_batch, verify_aggregate, verify_fixture,
 )
 
 
@@ -44,7 +44,11 @@ class PilotSqlTests(TestCase):
                 verify_fixture(candidate)
 
     def test_routes_share_predicate_and_only_remote_sources_differ_in_pushdown(self):
-        statements = [aggregate_batch(TOKEN, route).replace(f"FROM dbo.{route.value}", "FROM dbo.Placeholder") for route in Route]
+        statements = [
+            aggregate_batch(TOKEN, route).replace(f"FROM dbo.{route.value}", "FROM dbo.Placeholder")
+            .replace(measurement_marker(TOKEN, route), "ROUTE_MARKER")
+            for route in Route
+        ]
         self.assertTrue(all(statement == statements[0] for statement in statements))
         sql = external_tables_batch(TOKEN)
         self.assertEqual(sql.count("LOCATION = 'sqlserver://pbs-run12345:1433'"), 2)
