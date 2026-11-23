@@ -14,6 +14,8 @@ DAY_ZERO = date(2026, 1, 1)
 EXPECTED = ((0, 128, 250560), (1, 128, 251840), (2, 128, 253120), (3, 128, 254400))
 COLUMNS = "FactId int NOT NULL, EventDate date NOT NULL, CategoryId int NOT NULL, Amount int NOT NULL"
 CONNECTION_OPTIONS = "Encrypt=Yes;TrustServerCertificate=No;"
+SOURCE_CREDENTIAL = "PilotSourceReader"
+SOURCE_READER_PREFIX = "SqlPerfExtReader"
 
 
 class Role(Enum):
@@ -47,7 +49,7 @@ IF DB_NAME() COLLATE Latin1_General_100_BIN2 <> N'{expected_db}'
 """
 
 
-def _owner_guard(token: str, role: Role) -> str:
+def owned_database_guard(token: str, role: Role) -> str:
     return database_guard(token, role) + f"""
 SET XACT_ABORT ON;
 IF (
@@ -69,10 +71,11 @@ IF (
 
 
 def fixture_batch(token: str, role: Role) -> str:
-    return _owner_guard(token, role) + f"""
-IF OBJECT_ID(N'dbo.Facts') IS NOT NULL
+    return owned_database_guard(token, role) + f"""
+IF OBJECT_ID(N'dbo.Facts') IS NOT NULL OR OBJECT_ID(N'dbo.PilotDenied') IS NOT NULL
     THROW 51062, 'FAIL_STATE: pilot fixture already exists.', 1;
 BEGIN TRANSACTION;
+CREATE TABLE dbo.PilotDenied (FactId int NOT NULL);
 CREATE TABLE dbo.Facts (
     {COLUMNS},
     CONSTRAINT PK_Facts PRIMARY KEY (FactId)
@@ -91,13 +94,13 @@ COMMIT;
 
 
 def external_tables_batch(token: str) -> str:
-    guard = _owner_guard(token, Role.QUERY)
+    guard = owned_database_guard(token, Role.QUERY)
     location = f"sqlserver://pbs-{token.lower()}:1433"
     source = database_name(token, Role.SOURCE)
     return guard + f"""
 IF NOT EXISTS (
     SELECT 1 FROM sys.database_scoped_credentials
-    WHERE name = N'PilotSourceReader' AND credential_identity = N'SqlPerfExtReader_{token}'
+    WHERE name = N'{SOURCE_CREDENTIAL}' AND credential_identity = N'{SOURCE_READER_PREFIX}_{token}'
 )
     THROW 51064, 'FAIL_CONTRACT: run-bound source reader credential is unavailable.', 1;
 IF EXISTS (SELECT 1 FROM sys.external_data_sources)
@@ -105,10 +108,10 @@ IF EXISTS (SELECT 1 FROM sys.external_data_sources)
     THROW 51065, 'FAIL_STATE: query pilot target is not fresh.', 1;
 
 CREATE EXTERNAL DATA SOURCE PilotPush
-WITH (LOCATION = '{location}', PUSHDOWN = ON, CREDENTIAL = PilotSourceReader,
+WITH (LOCATION = '{location}', PUSHDOWN = ON, CREDENTIAL = {SOURCE_CREDENTIAL},
     CONNECTION_OPTIONS = '{CONNECTION_OPTIONS}');
 CREATE EXTERNAL DATA SOURCE PilotLocalFilter
-WITH (LOCATION = '{location}', PUSHDOWN = OFF, CREDENTIAL = PilotSourceReader,
+WITH (LOCATION = '{location}', PUSHDOWN = OFF, CREDENTIAL = {SOURCE_CREDENTIAL},
     CONNECTION_OPTIONS = '{CONNECTION_OPTIONS}');
 
 CREATE EXTERNAL TABLE dbo.FactsPush ({COLUMNS})
@@ -119,7 +122,7 @@ WITH (LOCATION = '{source}.dbo.Facts', DATA_SOURCE = PilotLocalFilter);
 
 
 def statistics_batch(token: str) -> str:
-    sql = _owner_guard(token, Role.QUERY)
+    sql = owned_database_guard(token, Role.QUERY)
     for route in Route:
         sql += (
             f"CREATE STATISTICS PilotEventDate ON dbo.{route.value} (EventDate) WITH FULLSCAN;\n"
