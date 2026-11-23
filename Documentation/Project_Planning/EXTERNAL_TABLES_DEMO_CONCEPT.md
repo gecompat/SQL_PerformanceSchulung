@@ -534,6 +534,37 @@ Versuch verwendete einen TCP-Listener als Testgegenstelle. Die
 Wiederholung mit SQL Server in den tatsächlichen Pilot-VMs steht aus.
 [Ubuntu-Manpage zu nftables](https://manpages.ubuntu.com/manpages/noble/man8/nftables.8.html).
 
+### Laufgebundenes TLS-Zertifikat erstellen
+
+Der [TLS-Baustein](../../Tests/Runtime/external_tables_tls_material.py)
+erstellt auf dem Quellgast eine einmalige Labor-CA und ein für einen
+Tag gültiges RSA-Serverzertifikat. Sein einziger Subject Alternative
+Name ist der vorgesehene SQL-Quellname des Laufs. OpenSSL prüft
+Serverzweck, Zertifikatskette, Namen und die Übereinstimmung mit dem
+privaten Schlüssel. Der CA-Schlüssel wird nach dem Signieren zusammen
+mit den temporären Signierdateien entfernt. Das Blattzertifikat und
+sein Schlüssel bleiben in einem privaten Verzeichnis im Quellgast.
+An den Abfragegast geht nur das öffentliche CA-Zertifikat.
+
+Die Quelldateien stehen innerhalb des Lebenszyklus des Bausteins
+bereit. Die aufrufende Gaststeuerung muss sie für das SQL-Dienstkonto
+lesbar halten und dieses Zertifikat in `mssql-conf` einrichten.
+Das öffentliche CA-Zertifikat wird im Abfragegast für die spätere
+Connectorverbindung verwendet. Die TLS-Probe prüft den tatsächlichen
+Verbindungsweg vor der Messung.
+[Microsoft-Referenz zu TLS-Einstellungen unter Linux](https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-configure-mssql-conf#specify-tls-settings).
+
+Im isolierten Linux-Komponententest akzeptierte eine native
+TLS-Verbindung den vorgesehenen DNS-Namen. Ein anderer Laufname und
+eine IP-Adresse ohne passenden SAN wurden abgewiesen. Der Test
+bestätigte auch die Beseitigung der lokalen Schlüsseldateien. In einem
+weiteren Komponentenlauf verwendete SQL Server 2025 Build `17.0.5065.9`
+das erzeugte Blattzertifikat. Der ODBC-`sqlcmd`-Client im getrennten
+Container akzeptierte das öffentliche CA-Zertifikat und den
+vorgesehenen DNS-Namen. Die Gegenprobe mit falschem Zertifikatsnamen
+wurde abgewiesen.
+[OpenSSL-Referenz zur Zertifikatserstellung](https://docs.openssl.org/3.0/man1/openssl-req/).
+
 ### TLS-Kontrollpaar am Quellendpunkt
 
 Vor der ersten ODBC-Verbindung lädt der Abfragegast `pyodbc` aus
