@@ -28,6 +28,8 @@ on:
       - 'Tests/Static/test_external_tables_hyperv_network.ps1'
       - 'Tests/Runtime/Test-ExternalTablesHyperVAbsence.ps1'
       - 'Tests/Static/test_external_tables_hyperv_absence.ps1'
+      - 'Tests/Runtime/Test-ExternalTablesHyperVResources.ps1'
+      - 'Tests/Static/test_external_tables_hyperv_resources.ps1'
       - 'Tests/Static/test_external_tables_guest_network.py'
       - 'Tests/Static/test_external_tables_guest_identity.py'
       - 'Tests/Static/test_external_tables_pilot.py'
@@ -70,6 +72,8 @@ on:
       - 'Tests/Static/test_external_tables_hyperv_network.ps1'
       - 'Tests/Runtime/Test-ExternalTablesHyperVAbsence.ps1'
       - 'Tests/Static/test_external_tables_hyperv_absence.ps1'
+      - 'Tests/Runtime/Test-ExternalTablesHyperVResources.ps1'
+      - 'Tests/Static/test_external_tables_hyperv_resources.ps1'
       - 'Tests/Static/test_external_tables_guest_network.py'
       - 'Tests/Static/test_external_tables_guest_identity.py'
       - 'Tests/Static/test_external_tables_pilot.py'
@@ -113,6 +117,7 @@ jobs:
       - run: |
           ./Tests/Static/test_external_tables_hyperv_network.ps1
           ./Tests/Static/test_external_tables_hyperv_absence.ps1
+          ./Tests/Static/test_external_tables_hyperv_resources.ps1
         shell: pwsh
       - run: python Tests/Static/test_external_tables_source_firewall.py
       - run: python Tests/Static/test_external_tables_tls_material.py
