@@ -316,6 +316,30 @@ prüfen Fixture, Oracle, Routen und die Bindung vor Änderungen.
 Der tatsächliche Remote-Befehl, die Gastrechte und der Cleanup müssen
 im späteren Pilot beobachtet werden.
 
+### Logins und Rechteprüfung
+
+Die [SQL-Bausteine für Logins und Rechte](../../Tests/Runtime/external_tables_principals.py)
+binden die Namen an den Laufmarker und die jeweilige Testdatenbank. Das
+Setup prüft deren Eigentumsmarker, erstellt die Anmeldung in `master`
+und ordnet ihr in der Testdatenbank einen Benutzer zu. Der Quellreader
+erhält `SELECT` auf die Quelltabelle. Der Messreader erhält `SELECT` auf
+die lokale Referenz und die zwei zuvor geprüften externen Tabellen. Nur
+das Diagnosekonto erhält `VIEW SERVER PERFORMANCE STATE`. Seine
+Reichweite setzt die eigene isolierte Abfrageinstanz voraus. Der
+Abfrageknoten legt das quellgebundene Credential und den Datenbank-
+Hauptschlüssel mit unterschiedlichen Laufgeheimnissen an. Beide
+Setup-Batches bleiben außerhalb der Abfrageprotokollierung.
+[Microsoft-Referenz für Serverrechte](https://learn.microsoft.com/en-us/sql/t-sql/statements/grant-server-permissions-transact-sql?view=sql-server-ver17).
+
+Die Rechteprüfung läuft über die tatsächliche Verbindung des jeweiligen
+Kontos. Sie prüft die wirksamen Rechte und erwartet die Ablehnung eines
+Leseversuchs auf einer zweiten, nicht freigegebenen Testtabelle. Der
+Diagnosepfad prüft zusätzlich den Zugriff auf die SQL-Request-DMVs.
+Ob das Diagnosekonto im Linux-Gast auch die benötigten PolyBase-Daten
+sieht, muss der Connector-Pilot zeigen. Die Anmeldung des Connectors
+mit dem zugehörigen Credential, der TLS-Gegenversuch und der Abbau
+der Laufobjekte gehören zum umschließenden Pilot.
+
 ### Ablauf der Messung
 
 Die [Messsteuerung](../../Tests/Runtime/external_tables_measurement.py)
