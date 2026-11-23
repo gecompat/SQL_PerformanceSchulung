@@ -43,6 +43,11 @@ gebundenen Offlinegraphen. Die festgelegten Bootstrap-Digests bleiben
 unverändert; der CI-Workflow verwendet den gebundenen CPython 3.12.14-
 Interpreter, da die AST-Darstellung an das Interpreterprofil gebunden ist.
 
+Das Ganzdatei-AST-Profil bindet auch den gemeinsam genutzten
+`run_demo.py`-Runner. Dessen eng begrenzte IDX-007-Containerphase wird deshalb
+mit einem neuen festen AST-Digest abgebildet; Importgraph, sechs DGN-007-
+SQL-Manifeste und die unveränderten Bootstrap-Digests bleiben geschlossen.
+
 `PASS_STATIC_CANDIDATE` verlangt genau die feste Mitgliederliste, reguläre
 Dateien und bytegleiche Gitblobs, danach die deklarierte Importprüfung.
 `FAIL_STATIC_CANDIDATE` liefert einen festen Fehlercode. Exitcodes sind 0/1.
