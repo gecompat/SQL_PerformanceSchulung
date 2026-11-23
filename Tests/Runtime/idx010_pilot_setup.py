@@ -149,6 +149,6 @@ IF EXISTS (
     THROW 51008, 'FAIL_STATE: IDX-010 columnstore index already exists.', 1;
 
 CREATE NONCLUSTERED COLUMNSTORE INDEX {INDEX_NAME}
-    ON dbo.Events (EventDayKey, EventId){order}
+    ON dbo.Events (EventId, EventDayKey){order}
     WITH (MAXDOP = 1, ONLINE = OFF);
 """

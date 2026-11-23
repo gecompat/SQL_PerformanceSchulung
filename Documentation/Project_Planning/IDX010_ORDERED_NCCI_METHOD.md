@@ -67,7 +67,7 @@ Datentyps nach Sichtung der Ergebnisse erfordert ein eigenes Profil.
 |---|---|
 | Daten und Ladefolge | `dbo.Events(EventId bigint NOT NULL, EventDayKey bigint NOT NULL)`. `EventId` ist der gruppierte eindeutige Primärschlüssel von 0 bis 4.194.303. `EventDayKey = (EventId * 1048573) % 4194304`. Der ungerade Faktor permutiert die Schlüssel eindeutig und mischt kurze und weite Abstände im physischen Primärschlüssel. Lade beide Arme nach denselben vier disjunkten ID-Bereichen mit je 1.048.576 Zeilen. Rechnerische und tatsächliche Segmentgrenzen werden getrennt beurteilt. |
 | Datenidentität | Prüfe je Arm exakt 4.194.304 unterschiedliche IDs im festgelegten geschlossenen Bereich und null Abweichungen von der Schlüsselformel. Vergleiche außerdem SHA-256 über den vollständigen, nach `EventId` sortierten Strom aus UTF-8-Zeilen `EventId,EventDayKey` mit LF als Zeilenende und dezimalen Ganzzahlen ohne Gruppierung, Header oder BOM. Gib nur Digest und Zähler aus. |
-| Index und Rowgroups | Eine Partition, gleiche NCCI-Spaltenliste `(EventDayKey, EventId)` und COLUMNSTORE-Kompression in beiden Armen. Erwartet sind vier vollständige komprimierte Rowgroups. Der Mechanismuslauf wertet nur vier vollständige Gruppen ohne Delta- oder gelöschte Zeilen je Arm aus. Ein anderer Aufteilungsschnitt endet als `NOT_PROVEN`. |
+| Index und Rowgroups | Eine Partition, gleiche NCCI-Spaltenliste `(EventId, EventDayKey)` und COLUMNSTORE-Kompression in beiden Armen. Erwartet sind vier vollständige komprimierte Rowgroups. Der Mechanismuslauf wertet nur vier vollständige Gruppen ohne Delta- oder gelöschte Zeilen je Arm aus. Ein anderer Aufteilungsschnitt endet als `NOT_PROVEN`. |
 | Abfrage und Oracle | Halboffenes Intervall `EventDayKey >= 1048576 AND EventDayKey < 1052672`. Erwartet sind `COUNT_BIG(*) = 4096` und `SUM(EventDayKey) = 4303353856`. Die Bijektion und die geprüfte Fixture bestimmen die erwartete Zeilenidentität. Führe pro Arm eine markierte Abfrage in einer eigenen englischsprachigen SQL-Session aus und binde ihren tatsächlichen Plan sowie genau eine Tabellenmeldung mit Segmentzählern an diesen Aufruf. |
 | Mindestbefund | In beiden Armen müssen gelesene und übersprungene Segmente zusammen vier ergeben. Die ungeordnete Kontrolle muss Segmente mit Überlappung enthalten. Der geordnete Arm muss höhere Ordnungsgüte und mindestens ein zusätzlich übersprungenes Segment zeigen. Andernfalls `NOT_PROVEN`. |
 | Rollen | Eine lokale Einrichtungsidentität erstellt ausschließlich die zwei markierten Datenbanken und die Fixture. Das Beobachtungsprofil erhält Zugriff auf genau die beiden Testdatenbanken, Leserechte auf `dbo.Events`, die für das Profil erforderliche Metadatensicht und `SHOWPLAN` für die Testdatenbanken. Die Umsetzung prüft die effektiven Rechte vor Messung und benennt die konkreten Grants und ihre Rücknahme im Laufvertrag. |
@@ -373,10 +373,21 @@ Der direkte Zahlenvergleich ergab dieselben 0 bzw. 6 überlappenden Paare
 wie der Katalogreader. Die Bereiche des Indexes mit `ORDER` weichen auch
 von den vorberechneten Bereichen der vier Ladeblöcke ab. Aus den
 Grenzen allein lässt sich die Ursache des beobachteten Layouts noch
-nicht bestimmen. Ein nächster Diagnosekandidat ändert ausschließlich
-die Spaltenreihenfolge in der NCCI-Definition für beide Varianten.
-Er vergleicht die tatsächlichen Bereiche erneut. Eine eventuell
-verwendbare Vergleichsfixture wird anschließend separat bewertet.
+nicht bestimmen. Eine separate Metadatenprobe änderte anschließend
+ausschließlich die Spaltenreihenfolge beider NCCI-Definitionen zu
+`(EventId, EventDayKey)`. Damit hatte der Kontrollindex sechs
+überlappende Paare. Seine Grenzen entsprachen den vorberechneten vier
+Ladeblöcken. Der geordnete Index hatte null überlappende Paare und die
+vier disjunkten, lückenlosen Schlüsselbereiche. Beide Varianten hatten
+weiterhin je vier volle Rowgroups mit Encoding 1 und acht eindeutigen
+Grenzen. Der Cleanup bestand.
+
+Der neue Pilotkandidat legt für beide Arme dieselbe erprobte
+Spaltenliste fest. `ORDER (EventDayKey)` bleibt der einzige
+DDL-Unterschied zwischen den Armen. Die Metadatenprobe hat noch keine
+Ergebnisabfragen ausgeführt. Für die Qualifikation muss der vollständige
+Pilot die Lese- und Skipzähler für beide tatsächlichen NCCI-Pläne
+und die unveränderte Ergebnisgleichheit bestätigen.
 
 ## Voraussetzungen, Stop und Cleanup für einen späteren Pilot
 
