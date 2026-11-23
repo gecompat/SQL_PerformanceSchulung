@@ -436,22 +436,15 @@ prüft vor dem Entfernen jeden Marker und Run-Token exakt; es löscht ausschlie�
 die beiden nachweislich eigenen Datenbanken. Bei abgebrochenem oder
 uneindeutigem Cleanup wird der Lauf nicht als bestanden gewertet.
 
-## Noch erforderliche Gates
+## Gates für die regelmäßige Vorführung
 
-1. Unabhängiger Review dieses Methodenentwurfs samt konkreter Daten-,
-   Rowgroup-, Rechte- und Messdefinition.
-2. Numerische Ressourcen-, Zeit- und Cleanupobergrenzen sowie ein für den
-   späteren Lauf unveränderlich gebundener SQL-Server-2025-Image-Digest,
-   Build und tatsächliche Edition.
-3. Separat autorisierter isolierter Pilot; dessen Ergebnis gilt nur für den
-   erfassten Build, die gewählten Indexoptionen, den Datentyp/Encoding und die
-   synthetische Verteilung.
-4. Ein eigener, späterer Performancevertrag, falls quantitative Aussagen
-   gewünscht sind.
-
-Die menschliche Generalprobe ist ausgeschlossen. Bis Gates 1–3 erfüllt sind,
-bleibt die Erweiterung `DEFER` und die bestehende IDX-010-Qualifikation gilt nur
-für die bisherige CCI-Demo.
+Der unabhängige Review, die gebundenen Ressourcen- und Zeitgrenzen und
+der vollständige isolierte Mechanismuspilot sind für das überprüfte
+SQL-Server-2025-Profil belegt. Eine regelmäßige Vorführung benötigt einen
+eigenen reproduzierbaren Einstieg mit Buildprüfung, Ergebniskontrolle und
+bestätigtem Cleanup. Der bestehende IDX-010-Vorführvertrag gilt für die
+CCI-Demo. Quantitative Performanceaussagen erfordern einen eigenen
+Messvertrag. Die menschliche Generalprobe ist ausgeschlossen.
 
 ### Quellenabgleich zu Build und Edition (17. November 2026)
 
