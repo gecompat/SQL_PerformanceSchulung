@@ -21,6 +21,8 @@ on:
       - 'Tests/Runtime/external_tables_guest_apt.py'
       - 'Tests/Runtime/external_tables_guest_network.py'
       - 'Tests/Runtime/external_tables_source_firewall.py'
+      - 'Tests/Runtime/external_tables_tls_material.py'
+      - 'Tests/Static/test_external_tables_tls_material.py'
       - 'Tests/Static/test_external_tables_source_firewall.py'
       - 'Tests/Runtime/Test-ExternalTablesHyperVNetwork.ps1'
       - 'Tests/Static/test_external_tables_hyperv_network.ps1'
@@ -59,6 +61,8 @@ on:
       - 'Tests/Runtime/external_tables_guest_apt.py'
       - 'Tests/Runtime/external_tables_guest_network.py'
       - 'Tests/Runtime/external_tables_source_firewall.py'
+      - 'Tests/Runtime/external_tables_tls_material.py'
+      - 'Tests/Static/test_external_tables_tls_material.py'
       - 'Tests/Static/test_external_tables_source_firewall.py'
       - 'Tests/Runtime/Test-ExternalTablesHyperVNetwork.ps1'
       - 'Tests/Static/test_external_tables_hyperv_network.ps1'
@@ -105,3 +109,4 @@ jobs:
       - run: ./Tests/Static/test_external_tables_hyperv_network.ps1
         shell: pwsh
       - run: python Tests/Static/test_external_tables_source_firewall.py
+      - run: python Tests/Static/test_external_tables_tls_material.py

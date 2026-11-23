@@ -37,6 +37,8 @@ class GuestPilotTransport(Protocol):
         Check private switch membership on the host and both guest networks
         against the two provisioned IPv4 endpoints. Install the source ingress
         policy before attachment and verify the live rules before source access.
+        Keep the source leaf key in its guest and transfer only the public CA
+        certificate to the query guest.
         """
 
     def execute(self, role: Role, database: str, sql: str, deadline: float) -> None:
