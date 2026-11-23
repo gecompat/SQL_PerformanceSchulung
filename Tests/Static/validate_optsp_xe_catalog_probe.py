@@ -18,6 +18,17 @@ def validate(sql: str, workflow: str) -> list[str]:
     for catalog in ("sys.dm_xe_objects", "sys.dm_xe_object_columns", "sys.dm_xe_packages"):
         if catalog not in sql:
             findings.append(f"probe must read {catalog}")
+    state_markers = (
+        "FROM sys.database_scoped_configurations",
+        "N'OPTIMIZED_SP_EXECUTESQL'",
+        "N'ASYNC_STATS_UPDATE_WAIT_AT_LOW_PRIORITY'",
+        "is_auto_create_stats_on",
+        "is_auto_update_stats_on",
+        "is_auto_update_stats_async_on",
+        "WHERE database_id = DB_ID()",
+    )
+    if any(marker not in sql for marker in state_markers):
+        findings.append("probe must capture option and statistics settings in the current database")
     wait_event = "package.name = N'sqlos' AND event_object.name = N'wait_info'"
     if wait_event not in sql:
         findings.append("probe must select wait_info from the sqlos package")

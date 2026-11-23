@@ -14,6 +14,10 @@ DECLARE @ProductMajorVersion int = TRY_CONVERT(int, SERVERPROPERTY('ProductMajor
 IF @ProductMajorVersion IS NULL OR @ProductMajorVersion <> 17 THROW 51000, 'SKIP_VERSION', 1;
 IF COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY('ProductVersion')), N'') <> N'17.0.5065.9'
     THROW 51003, 'SKIP_VERSION', 1;
+SELECT name, value FROM sys.database_scoped_configurations
+WHERE name IN (N'OPTIMIZED_SP_EXECUTESQL', N'ASYNC_STATS_UPDATE_WAIT_AT_LOW_PRIORITY');
+SELECT is_auto_create_stats_on, is_auto_update_stats_on, is_auto_update_stats_async_on
+FROM sys.databases WHERE database_id = DB_ID();
 SELECT JSON_QUERY((SELECT name FROM sys.dm_xe_objects
 JOIN sys.dm_xe_object_columns ON 1=1
 JOIN sys.dm_xe_packages ON 1=1 FOR JSON PATH))
@@ -48,6 +52,14 @@ run: cat Tests/Runtime/optsp_xe_catalog_probe.sql | docker exec -i -h -1 -y 8000
 class OptSpXeCatalogProbeTests(unittest.TestCase):
     def test_read_only_sql_server_2025_metadata_probe_is_accepted(self) -> None:
         self.assertEqual(validate(BASE_SQL, BASE_WORKFLOW), [])
+
+    def test_database_settings_must_use_the_current_context_and_include_async_statistics(self):
+        for unbound in (
+            BASE_SQL.replace("WHERE database_id = DB_ID()", "WHERE database_id = 1"),
+            BASE_SQL.replace("is_auto_update_stats_async_on", "0"),
+        ):
+            self.assertTrue(any("settings in the current database" in item for item in validate(unbound, BASE_WORKFLOW)))
+
 
     def test_wrong_wait_package_and_unbound_map_are_rejected(self) -> None:
         wrong_event = BASE_SQL.replace("N'sqlos' AND event_object.name", "N'sqlserver' AND event_object.name")

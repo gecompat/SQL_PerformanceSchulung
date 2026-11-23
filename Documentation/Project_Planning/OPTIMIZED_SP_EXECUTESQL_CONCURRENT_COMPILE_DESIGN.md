@@ -84,6 +84,45 @@ weiterführende Evidenz. Aus dem Modus `LCK_M_X` allein folgt kein
 Compile-Lock.
 [Microsoft-Referenz zu den Spalten einer Sperrressource](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-tran-locks-transact-sql?view=sql-server-ver17).
 
+### Nachweis für ein OFF/ON-Paar
+
+Die [Paarprüfung](../../Tests/Runtime/optsp_compile_evidence.py) akzeptiert
+zwei für sich nachgewiesene Arme erst mit übereinstimmendem Versuchsprofil.
+Vor und nach jedem Arm müssen Instanzidentität, Engine-Startkennung und
+Datenbankbindung konstant sein. Die beiden Datenbanken erhalten getrennte
+IDs unter demselben Engine-Start. Die gelesene Option muss in beiden
+Messungen zum jeweiligen Arm passen. Der aus dem Zustand gebildete
+SHA-256-Wert umfasst Schema, Daten, Rechte, Statistiken, effektive
+Session- und sonstige Datenbankoptionen. Instanz-, Datenbank- und
+Actor-IDs sowie die untersuchte Option gehen separat in die Prüfung ein.
+
+Vor der gemeinsamen Startfreigabe verlangt der Vertrag einen tatsächlich
+leeren Datenbankplanbestand und die vollständige Teilnehmerliste der
+Barriere. Für beide Arme müssen die Batch- und Parameterdefinition,
+die Anzahl der Teilnehmenden sowie deren logische Parameter- und
+Ergebniszuordnung übereinstimmen. Die Parameterwerte unterschiedlicher
+Teilnehmender dürfen voneinander abweichen. Der Producer muss pro
+Aufruf den erfolgreichen Abschluss und das erwartete synthetische
+Ergebnis belegen, bevor er dessen Zuordnung hasht.
+
+Die [read-only Katalogprobe](../../Tests/Runtime/optsp_xe_catalog_probe.sql)
+liest die untersuchte Option und die Konfiguration der Statistikupdates
+im aktuellen Datenbankkontext. Sie erfasst auch Kompatibilitätsstufe und
+Datenbank-ID. Auf dem festgeschriebenen Container lieferte die Abfrage
+getrennte Records für `master` und `tempdb`. In beiden stand die Option
+auf `0`, das automatische Erstellen und Aktualisieren von Statistiken
+auf `1` und die Optionen für asynchrone Updates und deren niedrige
+Priorität auf `0`. Der spätere Collector muss diese Werte vor und nach dem
+jeweiligen Arm erheben und die übrigen Profilmerkmale ergänzen.
+[Microsoft-Referenz zum Katalog der Datenbankoptionen](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-scoped-configurations-transact-sql?view=sql-server-ver17).
+
+Ein akzeptiertes Paar ist die Grundlage für die vorab festgelegten
+Wiederholungen und die Negativkontrollen. Die Regressionen prüfen die
+Zuordnung und Ablehnung anhand synthetischer Records. Die echte
+Zeitbasis, der Inhalt der Profile und die aktuelle Planidentität
+müssen weiterhin auf dem Pilotbuild erhoben werden.
+
+
 ## Zeiteinheiten und Planhandle auf Build 17.0.5065.9
 
 Der [Kataloglauf 45188183551](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45188183551) dokumentiert unterschiedliche Einheiten in den Feldbeschreibungen.
