@@ -154,9 +154,20 @@ decken diese Ablehnungen ab. Die Shape-Anforderungen orientieren sich am
 [Microsoft-Showplan-Schema](https://schemas.microsoft.com/sqlserver/2004/07/showplan/)
 und müssen auf dem Pilotbuild durch die reale Ausgabe bestätigt werden.
 
-Der spätere Runner muss Plan-XML, Informationsmeldungen und Ergebnis
-nachweislich aus genau demselben isolierten SQL-Aufruf beziehen. Die
-Offlineprüfung kann diese Herkunft selbst nicht belegen. Ordnungsgüte,
+Der [sqlcmd-Adapter](../../Tests/Runtime/idx010_sqlcmd_capture.py) erzeugt
+einen Batch für genau eine Messabfrage und eine Abschlusszeile. Er startet
+den ODBC-Client im Wegwerfcontainer über dessen feste ID und verbindet sich
+per Loopback mit dem für den Lauf eingerichteten Reader. Das Passwort
+gelangt über die Prozessumgebung zum Client. Plan und Ergebnis werden auf
+Standardausgabe erwartet, die eindeutige Segmentmeldung auf dem separaten
+Meldungskanal. Prozesslaufzeit und beide Ausgabeströme werden beim Lesen
+begrenzt. Fehlende, mehrdeutige oder abgeschnittene Ausgabe bleibt
+`NOT_PROVEN`.
+[Microsoft-Referenz zu sqlcmd](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver17).
+
+[Synthetische Prüfungen](../../Tests/Static/test_idx010_sqlcmd_capture.py)
+verbinden den Decoder mit dem Abfrageprüfer. Format und Zuordnung der
+tatsächlichen Engine-Ausgabe bleiben im Pilot zu bestätigen. Ordnungsgüte,
 Indexmetadaten und SQL-Cleanup bleiben weitere Annahmebedingungen.
 
 ### Reihenfolge und Abbruch im Pilotlauf
@@ -176,8 +187,9 @@ registriert jede Zielbereitstellung vor dem ersten Aufruf und fordert auch
 bei Fehlern während des Instanzstarts oder der Bereitstellung Cleanup an.
 `FAIL_CLEANUP` hat Vorrang vor einem positiven Befund. Der konkrete
 Container- und SQL-Transport muss die Fristen durchsetzen, Eigentum vor dem
-Abbau prüfen und die bestätigte Abwesenheit melden. Seine Implementierung
-sowie die Erhebung der echten Metadaten und Abfrageantworten stehen aus.
+Abbau prüfen und die bestätigte Abwesenheit melden. Bereitstellung, Rechtevergabe,
+Metadatenaufnahme und Abbau stehen noch aus. Der Messadapter ist als
+einzelner Teil des Transports implementiert.
 Die [Offlineprüfungen](../../Tests/Static/test_idx010_pilot_sequence.py)
 verwenden einen simulierten Transport.
 

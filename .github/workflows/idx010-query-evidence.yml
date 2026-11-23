@@ -6,6 +6,9 @@ on:
       - 'Tests/Runtime/idx010_query_evidence.py'
       - 'Tests/Runtime/idx010_pilot_setup.py'
       - 'Tests/Runtime/idx010_pilot_sequence.py'
+      - 'Tests/Runtime/idx010_sqlcmd_capture.py'
+      - 'Tests/Static/test_idx010_sqlcmd_capture.py'
+      - 'Tests/Runtime/dgn004_capture_runner.py'
       - 'Tests/Static/test_idx010_pilot_sequence.py'
       - 'Tests/Static/test_idx010_pilot_setup.py'
       - 'Tests/Static/test_idx010_query_evidence.py'
@@ -17,6 +20,9 @@ on:
       - 'Tests/Runtime/idx010_query_evidence.py'
       - 'Tests/Runtime/idx010_pilot_setup.py'
       - 'Tests/Runtime/idx010_pilot_sequence.py'
+      - 'Tests/Runtime/idx010_sqlcmd_capture.py'
+      - 'Tests/Static/test_idx010_sqlcmd_capture.py'
+      - 'Tests/Runtime/dgn004_capture_runner.py'
       - 'Tests/Static/test_idx010_pilot_sequence.py'
       - 'Tests/Static/test_idx010_pilot_setup.py'
       - 'Tests/Static/test_idx010_query_evidence.py'
@@ -38,3 +44,4 @@ jobs:
       - run: python Tests/Static/test_idx010_query_evidence.py
       - run: python Tests/Static/test_idx010_pilot_setup.py
       - run: python Tests/Static/test_idx010_pilot_sequence.py
+      - run: python Tests/Static/test_idx010_sqlcmd_capture.py
