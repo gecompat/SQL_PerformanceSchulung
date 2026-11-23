@@ -7,12 +7,15 @@ param(
     [Parameter(Mandatory)]
     [switch] $ConfirmDisposableInstance,
 
-    [switch] $CheckXeRequestBoundaries
+    [switch] $CheckXeRequestBoundaries,
+
+    [switch] $CheckXeCompileIdentity
 )
 
 $ErrorActionPreference = 'Stop'
 $requiredBuild = '17.0.5065.9'
 $requestBoundaryEvents = @('rpc_starting', 'rpc_completed', 'sql_batch_starting', 'sql_batch_completed')
+$useXe = $CheckXeRequestBoundaries -or $CheckXeCompileIdentity
 $password = [Environment]::GetEnvironmentVariable('SQLCMDPASSWORD', 'Process')
 if (-not $ConfirmDisposableInstance -or [string]::IsNullOrEmpty($password) -or
     [int]($Server.Split(',')[1]) -gt 65535) {
@@ -61,7 +64,7 @@ function Invoke-XeCommand($Observer, [string] $Sql, [switch] $Scalar) {
 }
 
 function Read-XeRequestBoundaries($Observer, [string] $Name, [int] $SessionId,
-                                  [string] $Statement, [string] $OuterBatch) {
+                                  [hashtable[]] $ExpectedEvents) {
     $sql = @"
 SELECT CONVERT(nvarchar(max), t.target_data)
 FROM sys.dm_xe_sessions AS s
@@ -94,17 +97,18 @@ WHERE s.name = N'$Name' AND t.target_name = N'ring_buffer'
         $root = $document.DocumentElement
         $events = $root.SelectNodes('event')
         if ($root.Name -cne 'RingBufferTarget' -or $root.GetAttribute('truncated') -cne '0' -or
-            $root.GetAttribute('droppedCount') -cne '0' -or $events.Count -gt $requestBoundaryEvents.Count -or
+            $root.GetAttribute('droppedCount') -cne '0' -or $events.Count -gt $ExpectedEvents.Count -or
             $root.GetAttribute('eventCount') -cne [string]$events.Count -or
             $root.GetAttribute('totalEventsProcessed') -cne [string]$events.Count) {
             throw 'XE component captured incomplete or unexpected ring data.'
         }
-        if ($events.Count -eq $requestBoundaryEvents.Count) {
+        if ($events.Count -eq $ExpectedEvents.Count) {
             $last = 0L
             for ($i = 0; $i -lt $events.Count; $i++) {
                 $event = $events[$i]
+                $expected = $ExpectedEvents[$i]
                 $sequence = 0L
-                if ($event.GetAttribute('name') -cne $requestBoundaryEvents[$i] -or
+                if ($event.GetAttribute('name') -cne $expected.Name -or
                     $event.GetAttribute('package') -cne 'sqlserver' -or
                     $event.SelectSingleNode("action[@name='session_id']/value").InnerText -cne [string]$SessionId -or
                     -not [long]::TryParse($event.SelectSingleNode("action[@name='event_sequence']/value").InnerText, [ref]$sequence) -or
@@ -114,18 +118,33 @@ WHERE s.name = N'$Name' AND t.target_name = N'ring_buffer'
                 if ($event.SelectSingleNode("action[@name='database_id']/value").InnerText -cne '1') {
                     throw 'XE component observed an unexpected request database.'
                 }
-                if ($i -lt 2) {
-                    $objectName = $event.SelectSingleNode("data[@name='object_name']/value").InnerText
-                    $rpcText = $event.SelectSingleNode("data[@name='statement']/value").InnerText
-                    if ($objectName -cne 'sp_executesql' -or -not $rpcText.Contains($Statement, [StringComparison]::Ordinal)) {
-                        throw 'XE component could not identify the synthetic RPC.'
+                switch -CaseSensitive ($event.GetAttribute('name')) {
+                    { $_ -ceq 'rpc_starting' -or $_ -ceq 'rpc_completed' } {
+                        $objectName = $event.SelectSingleNode("data[@name='object_name']/value").InnerText
+                        $rpcText = $event.SelectSingleNode("data[@name='statement']/value").InnerText
+                        if ($objectName -cne 'sp_executesql' -or -not $rpcText.Contains($expected.Text, [StringComparison]::Ordinal)) {
+                            throw 'XE component could not identify the synthetic RPC.'
+                        }
                     }
-                } elseif ($event.SelectSingleNode("data[@name='batch_text']/value").InnerText -cne $OuterBatch) {
-                    throw 'XE component could not identify the synthetic outer batch.'
+                    'sql_statement_post_compile' {
+                        $compiled = $event.SelectSingleNode("data[@name='statement']/value").InnerText
+                        $recompile = $event.SelectSingleNode("data[@name='is_recompile']/value").InnerText
+                        $duration = 0L
+                        $durationText = $event.SelectSingleNode("data[@name='duration']/value").InnerText
+                        if ($compiled -cne $expected.Text.TrimEnd(';') -or $recompile -cne 'false' -or
+                            -not [long]::TryParse($durationText, [ref]$duration) -or $duration -lt 0) {
+                            throw 'XE component could not bind the first compilation to its exact synthetic statement.'
+                        }
+                    }
+                    default {
+                        if ($event.SelectSingleNode("data[@name='batch_text']/value").InnerText -cne $expected.Text) {
+                            throw 'XE component could not identify the synthetic outer batch.'
+                        }
+                    }
                 }
                 $last = $sequence
             }
-            return $requestBoundaryEvents
+            return $ExpectedEvents.Name
         }
         Start-Sleep -Milliseconds 100
     } while ($timer.Elapsed.TotalSeconds -lt 6)
@@ -174,11 +193,14 @@ SELECT CONVERT(int, @@SPID);
             throw 'RPC component has no actor session.'
         }
 
-        if ($CheckXeRequestBoundaries) {
+        if ($useXe) {
             $stage = 'xe_start'
             $xeName = 'optsp_rpc_' + [guid]::NewGuid().ToString('N')
             $events = foreach ($event in $requestBoundaryEvents) {
                 "ADD EVENT sqlserver.$event(ACTION(package0.event_sequence, sqlserver.database_id, sqlserver.session_id) WHERE ([sqlserver].[session_id]=($sessionId)))"
+            }
+            if ($CheckXeCompileIdentity) {
+                $events += "ADD EVENT sqlserver.sql_statement_post_compile(SET collect_statement=(1) ACTION(package0.event_sequence, sqlserver.database_id, sqlserver.session_id) WHERE ([sqlserver].[session_id]=($sessionId)))"
             }
             $definition = $events -join ",`n"
             Invoke-XeCommand $observer @"
@@ -191,6 +213,10 @@ WITH (MAX_MEMORY=1 MB, MAX_DISPATCH_LATENCY=1 SECONDS, STARTUP_STATE=OFF);
         }
 
         $statement = 'SELECT @value /* OPTSP_RPC_COMPONENT */;'
+        $controlStatement = 'SELECT @value + 0 * LEN(NCHAR(67) + NCHAR(68));'
+        if ($CheckXeCompileIdentity) {
+            $statement = 'SELECT @value + 0 * LEN(NCHAR(65) + NCHAR(66));'
+        }
         $parameters = '@value int'
         $stage = 'stored_procedure'
         $command.CommandType = [System.Data.CommandType]::StoredProcedure
@@ -205,6 +231,18 @@ WITH (MAX_MEMORY=1 MB, MAX_DISPATCH_LATENCY=1 SECONDS, STARTUP_STATE=OFF);
             throw 'Input-buffer component did not reproduce the stored procedure shape.'
         }
 
+        if ($CheckXeCompileIdentity) {
+            $stage = 'compile_identity_controls'
+            $command.Parameters['@value'].Value = 41
+            $repeatResult = $command.ExecuteScalar()
+            $command.Parameters['@stmt'].Value = $controlStatement
+            $controlResult = $command.ExecuteScalar()
+            if ($repeatResult -isnot [int] -or $repeatResult -ne 41 -or
+                $controlResult -isnot [int] -or $controlResult -ne 41) {
+                throw 'Compile identity controls returned unexpected results.'
+            }
+        }
+
         $stage = 'text_command'
         $command.Parameters.Clear()
         $command.CommandType = [System.Data.CommandType]::Text
@@ -215,9 +253,25 @@ WITH (MAX_MEMORY=1 MB, MAX_DISPATCH_LATENCY=1 SECONDS, STARTUP_STATE=OFF);
             $text.Text -cne $command.CommandText) {
             throw 'Input-buffer component did not reproduce the outer SQL language batch.'
         }
-        if ($CheckXeRequestBoundaries) {
+        if ($useXe) {
             $stage = 'xe_read'
-            $boundaries = Read-XeRequestBoundaries $observer $xeName $sessionId $statement $command.CommandText
+            $expectedEvents = @(
+                @{ Name = 'rpc_starting'; Text = $statement }
+                if ($CheckXeCompileIdentity) {
+                    @{ Name = 'sql_statement_post_compile'; Text = $statement }
+                    @{ Name = 'rpc_completed'; Text = $statement }
+                    @{ Name = 'rpc_starting'; Text = $statement }
+                    @{ Name = 'rpc_completed'; Text = $statement }
+                    @{ Name = 'rpc_starting'; Text = $controlStatement }
+                    @{ Name = 'sql_statement_post_compile'; Text = $controlStatement }
+                    @{ Name = 'rpc_completed'; Text = $controlStatement }
+                } else {
+                    @{ Name = 'rpc_completed'; Text = $statement }
+                }
+                @{ Name = 'sql_batch_starting'; Text = $command.CommandText }
+                @{ Name = 'sql_batch_completed'; Text = $command.CommandText }
+            )
+            $boundaries = Read-XeRequestBoundaries $observer $xeName $sessionId $expectedEvents
         }
     } finally {
         $command.Dispose()
@@ -253,8 +307,11 @@ $result = [ordered]@{
     text_command_shape = 'outer_exec_batch'
     result = $procedureResult
 }
-if ($CheckXeRequestBoundaries) {
+if ($useXe) {
     $result['xe_request_boundaries'] = $boundaries
     $result['xe_cleanup'] = 'PASS'
+}
+if ($CheckXeCompileIdentity) {
+    $result['xe_compile_identity'] = 'two_first_compilations_one_repeat'
 }
 $result | ConvertTo-Json -Compress

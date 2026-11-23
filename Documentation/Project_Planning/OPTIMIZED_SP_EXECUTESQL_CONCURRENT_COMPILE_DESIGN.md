@@ -122,6 +122,34 @@ Wait und Sperrressource sowie die Planwiederverwendung im gepaarten
 OFF-/ON-Lauf zu belegen.
 [Microsoft-Referenz zum Ringpuffer](https://learn.microsoft.com/en-us/sql/relational-databases/extended-events/targets-for-extended-events-in-sql-server?view=sql-server-ver17).
 
+### Zuordnung einer Erstkompilierung zum dynamischen Batch
+
+`-CheckXeCompileIdentity` erfasst zusätzlich
+`sql_statement_post_compile` mit `collect_statement = 1`. Der Actor
+sendet zuerst Batch A per RPC, wiederholt A mit einem anderen Parameter
+und sendet dann den eigenständigen Batch B mit derselben Parameterdefinition.
+Beide Batchtexte liefern den Parameterwert zurück und enthalten
+unterschiedliche Ausdrücke im Anweisungstext. Der abschließende äußere
+`EXEC`-Batch verwendet noch einmal A.
+
+Auf Build `17.0.5065.9` lag je ein Erstkompilierungsereignis zwischen
+Start und Ende des ersten A-RPC und des B-RPC. Beim zweiten A-RPC
+und beim anschließenden äußeren Batch trat in dieser Spur kein weiteres
+`sql_statement_post_compile` auf. Der Test prüft den Anweisungstext
+zeichengetreu bis vor das abschließende Semikolon, einschließlich des
+unterscheidenden Ausdrucks. Ein Kommentar als Kennzeichen war in der
+Vorprobe im Compile-Ereignis entfallen.
+
+```powershell
+pwsh -NoProfile -File Tests/Runtime/Invoke-OptspInputBufferComponent.ps1 -Server $LoopbackInstanz -ConfirmDisposableInstance -CheckXeCompileIdentity
+```
+
+Die Erhebung bleibt auf die eigene Actor-Session und den verifizierten
+Wegwerfcontainer mit `OPTIMIZED_SP_EXECUTESQL = OFF` beschränkt. Für
+die Messung konkurrierender Kompilierungen fehlen weiterhin ein
+nachgewiesener Compilebeginn und die Unsicherheitsgrenze für die
+Umrechnung der Ereignisdauer in ein Intervall.
+
 ## Statische Auswertung normalisierter Befunde
 
 Für den Methodenreview steht eine [SQL-freie Auswertung je Versuchsarm](../../Tests/Runtime/optsp_compile_evidence.py) bereit. Sie vergleicht tatsächliche Compile-Intervalle und verlangt im ON-Arm einen dem Compile-Actor zugeordneten Wait, der während der Kompilierung beginnt und bis zu deren Ende reicht. Alle erfolgreichen Folgeaufrufe müssen denselben Statement-Planhandle verwenden. Die [synthetischen Gegenproben](../../Tests/Static/test_optsp_compile_evidence.py) decken unter anderem nacheinander liegende Kompilierungen bei überlappenden RPCs, fremde Sessions, gewöhnliche X-Waits und abweichenden Batchtext ab.
