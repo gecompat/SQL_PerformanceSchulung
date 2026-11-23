@@ -159,6 +159,28 @@ nachweislich aus genau demselben isolierten SQL-Aufruf beziehen. Die
 Offlineprüfung kann diese Herkunft selbst nicht belegen. Ordnungsgüte,
 Indexmetadaten und SQL-Cleanup bleiben weitere Annahmebedingungen.
 
+### Reihenfolge und Abbruch im Pilotlauf
+
+Die [Ablaufsteuerung](../../Tests/Runtime/idx010_pilot_sequence.py) verlangt
+die vollständige Identitätsprüfung beider Datenbestände vor dem ersten
+Indexbau. Nach dem Aufbau prüft sie je Arm Indexidentität, Ordnungsposition
+und vier vollständige komprimierte Rowgroups. Die Metadatenaufnahme liefert
+die Zahl überlappender Segmentpaare aus der geprüften Microsoft-Auswertung.
+Bei vier vollständig abgedeckten Segmenten entspricht weniger Überlappung
+einer höheren Ordnungsgüte. Für `PASS` muss der geordnete Arm zusätzlich mehr
+Segmente in der Ergebnisabfrage überspringen.
+
+Die Ablaufsteuerung übergibt dem Transport eine gemeinsame Laufzeitgrenze
+von 900 Sekunden und eine getrennte Cleanupfrist von 90 Sekunden. Sie
+registriert jede Zielbereitstellung vor dem ersten Aufruf und fordert auch
+bei Fehlern während des Instanzstarts oder der Bereitstellung Cleanup an.
+`FAIL_CLEANUP` hat Vorrang vor einem positiven Befund. Der konkrete
+Container- und SQL-Transport muss die Fristen durchsetzen, Eigentum vor dem
+Abbau prüfen und die bestätigte Abwesenheit melden. Seine Implementierung
+sowie die Erhebung der echten Metadaten und Abfrageantworten stehen aus.
+Die [Offlineprüfungen](../../Tests/Static/test_idx010_pilot_sequence.py)
+verwenden einen simulierten Transport.
+
 ## Voraussetzungen, Stop und Cleanup für einen späteren Pilot
 
 Vor jeder SQL-Freigabe muss ein unabhängiger Methodenreview den vollständigen
