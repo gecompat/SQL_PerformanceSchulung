@@ -185,8 +185,23 @@ paralleler Lauf ohne beobachtete Überlappung liefert `NOT_PROVEN`.
 Die CE-Ereignisse enthalten XML-Payload. Das Skript hält sie ausschließlich
 im gefilterten XE-Ringpuffer und im Client-Arbeitsspeicher. Es gibt nur
 Anzahl, Reihenfolge, Zeitdifferenz und Cleanup-Status aus.
-Für den späteren Vergleich bleiben überlappende Erstkompilierungen
-desselben Batches im OFF-Arm und die Compile-Sperre im ON-Arm zu prüfen.
+Mit `-IdenticalBatch` senden beide Verbindungen denselben Batchtext,
+dieselbe Parameterdefinition und denselben Wert als RPC. Der
+Komponententest prüft für beide Requests Start und Ende sowie das
+synthetische Ergebnis. Eine vollständige Spur aus RPC-Start und RPC-Ende
+allein ist für diese Variante zulässig. Eine erfasste Erstkompilierung
+erfordert weiterhin mindestens zwei gebundene Schätzereignisse.
+Der sequenzielle Kontrolllauf verlangt genau eine Erstkompilierung im
+ersten Request. Jede Variante läuft auf einer eigenen frischen Instanz.
+
+Auf Build `17.0.5065.9` mit `OFF` beobachtete der parallele Lauf mit
+identischem Batchtext zwei Erstkompilierungen mit je 48 Schätzereignissen.
+Ereignisreihenfolge und XE-Zeitstempel bestätigten die Überlappung.
+Der sequenzielle Lauf meldete eine Erstkompilierung mit 48
+Schätzereignissen. Die Zeitdifferenz ist nur bei zwei Kompilierungen
+definiert. Die Planhandles gehören zum gepaarten Versuch.
+Für den gepaarten Versuch fehlen die ON-Kompilierungssperre, die
+zugehörigen Wartezeiten und die Planwiederverwendung.
 [Microsoft-Referenz zur Kardinalitätsschätzung und zum XE-Ereignis](https://learn.microsoft.com/en-us/sql/relational-databases/performance/cardinality-estimation-sql-server?view=sql-server-ver17).
 
 ## Statische Auswertung normalisierter Befunde

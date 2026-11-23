@@ -7,7 +7,9 @@ param(
     [Parameter(Mandatory)]
     [switch] $ConfirmDisposableInstance,
 
-    [switch] $SequentialControl
+    [switch] $SequentialControl,
+
+    [switch] $IdenticalBatch
 )
 
 $ErrorActionPreference = 'Stop'
@@ -89,11 +91,10 @@ WHERE s.name = N'$Name' AND t.target_name = N'ring_buffer'
         }
         $lastSequence = $record.Sequence
     }
-    $bounds = foreach ($id in ($BatchByActor.Keys | Sort-Object)) {
+    $bounds = @(foreach ($id in ($BatchByActor.Keys | Sort-Object)) {
         $stream = @($ordered | Where-Object Session -eq $id)
-        $ce = @($stream | Select-Object -Skip 1 -SkipLast 2)
-        if ($stream.Count -lt 5 -or $stream[0].Name -cne 'rpc_starting' -or $stream[-1].Name -cne 'rpc_completed' -or
-            $stream[-2].Name -cne 'sql_statement_post_compile' -or $ce.Count -lt 2) {
+        if ($stream.Count -lt 2 -or $stream[0].Name -cne 'rpc_starting' -or $stream[-1].Name -cne 'rpc_completed' -or
+            $stream[0].Time -gt $stream[-1].Time) {
             throw 'Unexpected compile witness stream.'
         }
         $statement = $BatchByActor[$id]
@@ -102,6 +103,11 @@ WHERE s.name = N'$Name' AND t.target_name = N'ring_buffer'
                 -not $edge.Event.SelectSingleNode("data[@name='statement']/value").InnerText.Contains($statement, [StringComparison]::Ordinal)) {
                 throw 'Unbound RPC boundary.'
             }
+        }
+        if ($IdenticalBatch -and $stream.Count -eq 2) { continue }
+        $ce = @($stream | Select-Object -Skip 1 -SkipLast 2)
+        if ($stream[-2].Name -cne 'sql_statement_post_compile' -or $ce.Count -lt 2) {
+            throw 'Incomplete first compilation witness.'
         }
         if ($stream[-2].Event.SelectSingleNode("data[@name='is_recompile']/value").InnerText -cne 'false' -or
             $stream[-2].Event.SelectSingleNode("data[@name='statement']/value").InnerText -cne $statement.TrimEnd(';')) {
@@ -119,13 +125,19 @@ WHERE s.name = N'$Name' AND t.target_name = N'ring_buffer'
         if ($previousTime -gt $stream[-2].Time -or $stream[-2].Time -gt $stream[-1].Time) {
             throw 'Compile witness timestamps disagree with the request order.'
         }
-        [pscustomobject]@{ First = $ce[0]; Last = $ce[-1]; Count = $ce.Count }
+        [pscustomobject]@{ Session = $id; First = $ce[0]; Last = $ce[-1]; Count = $ce.Count }
+    })
+    if ($bounds.Count -eq 0) { throw 'No first compilation witness.' }
+    $intervalTicks = $null
+    $interleaved = $false
+    if ($bounds.Count -eq 2) {
+        $intervalTicks = [Math]::Min($bounds[0].Last.Time, $bounds[1].Last.Time) -
+            [Math]::Max($bounds[0].First.Time, $bounds[1].First.Time)
+        $interleaved = [Math]::Min($bounds[0].Last.Sequence, $bounds[1].Last.Sequence) -gt
+            [Math]::Max($bounds[0].First.Sequence, $bounds[1].First.Sequence)
     }
-    $intervalTicks = [Math]::Min($bounds[0].Last.Time, $bounds[1].Last.Time) -
-        [Math]::Max($bounds[0].First.Time, $bounds[1].First.Time)
-    $interleaved = [Math]::Min($bounds[0].Last.Sequence, $bounds[1].Last.Sequence) -gt
-        [Math]::Max($bounds[0].First.Sequence, $bounds[1].First.Sequence)
     return [ordered]@{
+        compile_actors = @($bounds | ForEach-Object Session)
         ce_counts = @($bounds | ForEach-Object Count)
         sequence_interleaved = $interleaved
         timestamp_interval_ticks = $intervalTicks
@@ -210,6 +222,7 @@ ALTER EVENT SESSION [$xeName] ON SERVER STATE=START;
                     $sessionId = "$common WHERE a.id > @value);"
                     $secondId = "$common WHERE a.id > @value AND e.id < 9);"
                 }
+                if ($IdenticalBatch) { $batchByActor[$secondId] = $batchByActor[$sessionId] }
                 foreach ($item in @(@{ Command = $command; Id = $sessionId }, @{ Command = $other; Id = $secondId })) {
                     $rpc = $item.Command
                     $rpc.CommandType = [System.Data.CommandType]::StoredProcedure
@@ -266,6 +279,10 @@ $overlap = $metrics.sequence_interleaved -and $metrics.timestamp_interval_ticks 
 if ($SequentialControl -and ($metrics.sequence_interleaved -or $metrics.timestamp_interval_ticks -gt 0)) {
     throw 'Sequential control produced overlapping compile witness events.'
 }
+if ($SequentialControl -and $IdenticalBatch -and
+    ($metrics.compile_actors.Count -ne 1 -or $metrics.compile_actors[0] -ne $sessionId)) {
+    throw 'Identical sequential control requires exactly one first compilation, from the first request.'
+}
 $decision = 'NOT_PROVEN'
 if ($SequentialControl) {
     $decision = 'CONTROL_PASS'
@@ -275,6 +292,8 @@ if ($SequentialControl) {
 [ordered]@{
     decision = $decision
     build = $requiredBuild
+    identical_batch = [bool]$IdenticalBatch
+    first_compile_count = $metrics.compile_actors.Count
     ce_counts = $metrics.ce_counts
     sequence_interleaved = $metrics.sequence_interleaved
     timestamp_interval_ticks = $metrics.timestamp_interval_ticks
