@@ -146,7 +146,12 @@ Die SQL-Batches sind für den Methodenreview bestimmt.
 
 Die [Metadatenabfrage](../../Tests/Runtime/idx010_index_metadata.py) bindet
 die Segmente an den genauen Index, seine einzige Partition und die
-Schlüsselspalte. Sie verlangt vier volle komprimierte Rowgroups und prüft
+Schlüsselspalte. Der Katalog muss genau die zwei geplanten
+`bigint NOT NULL`-Spalten ausweisen. `EventDayKey` hat die erwartete
+Ordnungsposition je Arm. `EventId` trägt in beiden Armen die
+Ordnungsposition 0. Ein fehlender `EventId`, eine weitere Indexspalte
+oder ein zweiter Ordnungsschlüssel macht das Paar unvergleichbar.
+Die Prüfung verlangt vier volle komprimierte Rowgroups und prüft
 auch den separaten Löschpuffer. Jedes der vier Segmentgrenzenpaare muss
 einer dieser Rowgroups zugeordnet sein und in den Wertebereich der
 synthetischen Schlüssel fallen. Zusätzliche Segmente und mehrdeutige
@@ -162,6 +167,15 @@ Segmenten mit acht unterschiedlichen Grenzen ist die Summe der
 Zähler und die gebundene Indexidentität aus. Der Decoder prüft das Ergebnis
 gegen das Profil. Die tatsächlich verwendeten Encodings und das Format der
 Katalogantwort bleiben auf dem Pilotbuild zu prüfen.
+
+Die synthetische Ladeformel wurde über alle 4.194.304 IDs ausgewertet.
+Der feste Abfragebereich enthält in den vier nach `EventId` definierten
+Ladebereichen 1.023, 1.027, 1.023 und 1.023 Treffer.
+Die Minima und Maxima jedes Ladebereichs umschließen den gesamten
+Abfragebereich. Die berechnete Verteilung ist eine Eigenschaft der
+Fixture. Die tatsächlich gebildeten Rowgroups und ihre Segmentgrenzen
+werden aus dem Engine-Katalog gelesen.
+
 
 ### Offlineprüfung der Abfrageevidenz
 
