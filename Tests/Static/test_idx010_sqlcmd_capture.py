@@ -13,7 +13,7 @@ from idx010_sqlcmd_capture import (
     COMPLETE,
     LANGUAGE_MESSAGE,
     MeasurementConnection,
-    PLAN_DISPLAY_WIDTH,
+    MAX_CAPTURE_PLAN_CHARS,
     capture_query,
     decode_capture,
 )
@@ -45,7 +45,7 @@ class SqlcmdCaptureTests(TestCase):
             OUT.replace(b"<BatchSequence>", b"\n<BatchSequence>"),
             OUT + b"42\n",
             OUT.replace(b"4096", b"NULL", 1),
-            OUT.replace(b"<BatchSequence>", b" " * PLAN_DISPLAY_WIDTH + b"<BatchSequence>"),
+            OUT.replace(b"<BatchSequence>", b" " * MAX_CAPTURE_PLAN_CHARS + b"<BatchSequence>"),
         ):
             with self.subTest(length=len(stdout)), self.assertRaises(ValueError):
                 decode_capture(stdout, ERR)
@@ -66,6 +66,11 @@ class SqlcmdCaptureTests(TestCase):
         self.assertGreater(options["timeout_seconds"], 20)
         self.assertEqual(argv[:3], ["docker", "exec", "-i"])
         self.assertIn("127.0.0.1", argv)
+        self.assertEqual(argv[argv.index("-y") + 1], "0")
+        self.assertNotIn("-h", argv)
+        self.assertGreater(int(argv[argv.index("-w") + 1]), MAX_CAPTURE_PLAN_CHARS)
+        self.assertEqual(options["stdout_limit_bytes"], 256 * 1024)
+        self.assertEqual(options["stderr_limit_bytes"], 16 * 1024)
         self.assertNotIn(CONNECTION.password, argv)
         self.assertEqual(options["environment"]["SQLCMDPASSWORD"], CONNECTION.password)
         batch = options["input_bytes"].decode("ascii")

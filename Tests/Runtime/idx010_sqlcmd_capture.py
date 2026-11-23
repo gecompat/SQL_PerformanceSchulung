@@ -12,7 +12,7 @@ from idx010_pilot_sequence import QueryCapture, Target, WORK_SECONDS
 from idx010_query_evidence import QUERY
 
 
-PLAN_DISPLAY_WIDTH = 60_000
+MAX_CAPTURE_PLAN_CHARS = 60_000
 STDOUT_BYTES = 256 * 1024
 STDERR_BYTES = 16 * 1024
 COMPLETE = "IDX010_CAPTURE_COMPLETE"
@@ -51,7 +51,8 @@ def capture_query(connection: MeasurementConnection, target: Target, sql: str, d
         "docker", "exec", "-i", "-e", "SQLCMDPASSWORD", "-e", "SQLCMDINI=",
         connection.container_id, "/opt/mssql-tools18/bin/sqlcmd", "-S", "127.0.0.1",
         "-d", database, "-U", connection.login, "-C", "-b", "-r", "1", "-x",
-        "-h", "-1", "-y", str(PLAN_DISPLAY_WIDTH), "-w", "65535", "-s", "|",
+        # Preserve XML without client truncation. The collector caps both channels.
+        "-y", "0", "-w", "65535", "-s", "|",
         "-l", str(min(10, floor(remaining))), "-t", str(min(65534, floor(remaining))),
     ]
     batch = (
@@ -102,7 +103,7 @@ def decode_capture(stdout: bytes, stderr: bytes) -> QueryCapture:
     plan = rows[1]
     if (
         result is None
-        or len(plan) >= PLAN_DISPLAY_WIDTH
+        or len(plan) >= MAX_CAPTURE_PLAN_CHARS
         or not plan.startswith("<ShowPlanXML")
         or not plan.endswith("</ShowPlanXML>")
     ):

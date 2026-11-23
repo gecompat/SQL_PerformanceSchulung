@@ -229,6 +229,30 @@ verwenden simulierte Prozess- und SQL-Antworten. Der Runner hat keinen
 automatischen Laufzeittrigger. Vor einem echten Lauf stehen der
 unabhängige Methodenreview und die Prüfung der Laufvoraussetzungen an.
 
+### Read-only-Komponententest für den SQLCMD-Transport
+
+Auf Build `17.0.5065.9` gab SQLCMD eine vollständige synthetische
+Seite mit 262.144 Wertepaaren aus zwei `bigint`-Spalten aus. Der
+[Fixture-Reader](../../Tests/Runtime/idx010_docker_transport.py) dekodierte
+alle Paare nach der vorgesehenen Schlüsselformel. Die Abfrage verwendete
+`GENERATE_SERIES` in `master`.
+
+Für die [Planerfassung](../../Tests/Runtime/idx010_sqlcmd_capture.py)
+wies der mitgelieferte SQLCMD-Client das bisherige `-y 60000` zurück.
+Der Aufruf verwendet jetzt `-y 0` ohne `-h`, da der Client diese
+beiden Optionen zusammen ablehnte. Damit erhielt der Transport in einem
+Read-only-Komponententest das Ergebnis, einen vollständigen XML-Plan
+mit 6.881 Zeichen und die Abschlussmarke. Die Begrenzung bleibt im
+Prozessreader bei 256 KiB Standardausgabe und 16 KiB Fehlerausgabe
+sowie bei weniger als 60.000 Zeichen für den verarbeiteten XML-Plan.
+Die synthetische Planabfrage auf einem Systemkatalog wurde wegen der
+fehlenden `Events`-Segmentmeldung erwartungsgemäß abgewiesen.
+[Microsoft-Referenz zu SQLCMD-Ausgabeoptionen](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver17#format-options).
+
+Die Komponentenläufe legten keine Testdatenbank und keinen Index an
+und bestätigten den Abbau des eigenen Containers. Die tatsächlichen
+NCCI-Pläne und Segmentmeldungen bleiben Gegenstand des späteren Piloten.
+
 ## Voraussetzungen, Stop und Cleanup für einen späteren Pilot
 
 Vor jeder SQL-Freigabe muss ein unabhängiger Methodenreview den vollständigen
