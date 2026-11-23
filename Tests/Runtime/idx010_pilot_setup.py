@@ -43,6 +43,7 @@ IF COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'ProductVersion')), N'') <> N
     THROW 51000, 'SKIP_VERSION: IDX-010 ordered NCCI requires the pinned Developer build.', 1;
 
 IF DB_NAME() COLLATE Latin1_General_100_BIN2 <> N'{database}'
+    OR DATALENGTH(DB_NAME()) <> DATALENGTH(N'{database}')
     OR NOT EXISTS (
         SELECT 1 FROM sys.databases
         WHERE database_id = DB_ID() AND compatibility_level = 170 AND recovery_model = 3
@@ -59,6 +60,7 @@ IF (
         (N'SQLPERF.PilotProfile', N'ORDERED_NCCI_{arm.value}')
     ) AS m(name, value)
         ON p.name COLLATE Latin1_General_100_BIN2 = m.name
+        AND DATALENGTH(p.name) = DATALENGTH(m.name)
         AND CONVERT(nvarchar(128), p.value) COLLATE Latin1_General_100_BIN2 = m.value
         AND DATALENGTH(CONVERT(nvarchar(max), p.value)) = DATALENGTH(m.value)
     WHERE p.class = 0 AND p.major_id = 0 AND p.minor_id = 0

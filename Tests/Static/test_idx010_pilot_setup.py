@@ -39,6 +39,8 @@ class PilotSetupTests(unittest.TestCase):
             self.assertTrue(delimiter)
             for marker in (
                 "@@TRANCOUNT",
+                "DATALENGTH(DB_NAME())",
+                "DATALENGTH(p.name) = DATALENGTH(m.name)",
                 "17.0.5065.9",
                 "Enterprise Developer Edition (64-bit)",
                 "SQLPERF_LAB_IDX010_NCCI_RUN8_CONTROL",
