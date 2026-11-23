@@ -77,6 +77,47 @@ den vorbereiteten Vorlagen. Eine vorhandene Hyper-V-Installation belegt
 allein weder die Vorlagen noch Kapazität oder den Dienstzustand. Die
 Voraussetzungen gelten für die eigenen VMs und den eigenen Lauf.
 
+### Geprüfte Ubuntu-Basis für beide VM-Rollen
+
+Als Basiskandidat dient das Canonical-Cloud-Image für Ubuntu Server 24.04,
+AMD64, Release `20261017`, im VHD-Format. Der Stand vom 23. November 2026
+prüfte Canonicals `SHA256SUMS.gpg` gegen den dokumentierten Fingerabdruck
+`D2EB44626FDDC30B513D5BB71A5D6C4C7DB87C81`. Das Paketmanifest und das
+843.188.381 Byte große VHD-Archiv bestanden den Abgleich mit der signierten
+SHA-256-Liste. Das Archiv wurde bei der Prüfung weder gestartet noch
+als VM importiert.
+[Datierter Canonical-Release](https://cloud-images.ubuntu.com/releases/noble/release-20261017/)
+und [Canonical-Anleitung zur Prüfsummenprüfung](https://ubuntu.com/docs/public-images/public-images-how-to/verify-image-checksum/).
+
+Der [Basisprüfer](../../Tests/Static/verify_external_tables_ubuntu_base.py)
+bindet Manifest und optionales Archiv an diese Prüfsummen. Er vergleicht die
+Namen aus dem `Depends`-Feld des verifizierten Microsoft-Enginepakets mit
+der nativen Paketliste. Von 21 direkten Abhängigkeiten enthält das Manifest
+16. Die folgenden fünf Namen fehlen:
+
+- `gdb`
+- `libatomic1`
+- `libc++1`
+- `libsasl2-modules-gssapi-mit`
+- `libsss-nss-idmap0`
+
+Lade für eine Wiederholung
+`ubuntu-24.04-server-cloudimg-amd64-azure.vhd.manifest` und optional das
+gleichnamige `.tar.gz`-Archiv aus dem datierten Release. Prüfe die erhaltenen
+Dateien mit:
+
+```text
+python Tests/Static/verify_external_tables_ubuntu_base.py MANIFEST --archive VHD-ARCHIV
+```
+
+Für die beiden Gastvorlagen prüft ein simulierter APT-Installationslauf als
+Nächstes die exakten Versionen, Anbieterpakete, Versionsbedingungen und
+transitiven Abhängigkeiten auf dieser Basis. Die Quellen der resultierenden
+Paketmenge und die Prüfsummen werden vor der Installation festgeschrieben.
+Der Manifestabgleich erhebt ausschließlich die direkte Namensabdeckung.
+Bootfähigkeit in Hyper-V, APT-Auflösung und Gastinstallation sind weiterhin
+offen.
+
 ### Geprüfte Microsoft-Pakete für die Vorlagen
 
 Die [Paketprüfung](../../Tests/Static/verify_external_tables_packages.py)
