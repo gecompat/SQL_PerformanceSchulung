@@ -213,3 +213,35 @@ Die Herstellerdokumentation belegt die Darstellungsgrenzen; sie bestätigt
 keinen ausgeführten Projektlauf. Ressourcen-, Reihenfolge-, Freeze- und
 Lifecycleattestation sowie Incident-, Ursachen-, Mitigations-, Capstone- und
 Szenariofreigabe bleiben offen.
+
+## Kompilierwert und Planwiederverwendung separat prüfen
+
+Die [Kompilierwertprobe](../../../../Tests/Runtime/run_dgn007_compile_value_probe.py)
+verwendet denselben synthetischen Aufbau und dieselbe markierte
+Suchprozedur. Sie läuft auf einer leeren SQL-Server-2025-Developer-Instanz
+mit Build `17.0.5065.9`. Je Durchlauf markiert sie nur die Suchprozedur
+für Neukompilierung. Sie führt die seltene und die häufige Suche aus
+und kehrt im zweiten Durchlauf die Reihenfolge um.
+
+```text
+python -m Tests.Runtime.run_dgn007_compile_value_probe --container CONTAINER --confirm-disposable-instance --confirm-isolated-lab
+```
+
+Die Probe prüft unmittelbar nach jedem Aufruf den kompilierten
+Parameter der markierten Anweisung im Plancache und deren
+Ausführungszähler. Innerhalb eines Durchlaufs muss der zweite Aufruf
+den ersten Kompilierwert und Planhash beibehalten. Zwischen den
+beiden Durchläufen müssen die Planhashes unterschiedlich sein.
+Für denselben Suchparameter müssen Zeilenzahl und Ergebnismenge
+in beiden Reihenfolgen exakt übereinstimmen. Der Runner gibt nur
+feste Befundmarker aus und prüft den Datenbankabbau separat.
+
+Im isolierten Buildlauf wurden zwei unterschiedliche Kompilierwerte
+und Planhashes sowie je eine Wiederverwendung beobachtet. Für
+beide Eingaben las die Anweisung jeweils weniger logische Seiten,
+wenn der Plan mit derselben Eingabe kompiliert worden war. Die
+Reads des Folgeaufrufs werden aus der Differenz der gebundenen
+Cachezähler abgeleitet. Die Verbindung dieses Mechanismus zur gemessenen
+Dauer sowie Alternativhypothesen und Mitigation bleiben Gegenstand
+der Incident-Abnahme.
+[Microsoft-Referenz zu sys.dm_exec_text_query_plan](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-text-query-plan-transact-sql?view=sql-server-ver17).
