@@ -1,4 +1,5 @@
 import os
+import re
 import unittest
 from unittest.mock import patch
 
@@ -24,6 +25,59 @@ class CompileProbeTests(unittest.TestCase):
                 probe.run_probe("synthetic-container")
         run.assert_called_once()
         self.assertEqual(run.call_args.args[1], probe.PREFLIGHT)
+
+
+    @patch.dict(os.environ, {"SQLCMDPASSWORD": "synthetic"}, clear=True)
+    def test_compile_rejection_still_drops_session_and_verifies_database_absence(self):
+        outputs = ["EMPTY_DEVELOPER", "XE_ABSENT", probe.SETUP_SUMMARY, "missing evidence",
+                   "XE_ABSENT", probe.SETUP_SUMMARY, "ABSENT"]
+        with patch.object(probe.runner, "resolve_target", return_value=object()), \
+             patch.object(probe, "_batch", side_effect=outputs) as run:
+            with self.assertRaisesRegex(probe.runner.RunnerFailure, "NOT_PROVEN"):
+                probe.run_probe("synthetic-container", parameter_mix=True, compile_cost=True)
+        session = re.search(r"SQLPERF_DGN007_COMPILE_[0-9a-f]{32}", run.call_args_list[1].args[1]).group()
+        self.assertIn(f"DROP EVENT SESSION [{session}]", run.call_args_list[4].args[1])
+        self.assertIn("sys.dm_xe_sessions", run.call_args_list[4].args[1])
+        self.assertEqual(run.call_args.args[1], probe.ABSENCE)
+
+    @patch.dict(os.environ, {"SQLCMDPASSWORD": "synthetic"}, clear=True)
+    def test_existing_named_session_is_rejected_before_setup_and_never_dropped(self):
+        with patch.object(probe.runner, "resolve_target", return_value=object()), \
+             patch.object(probe, "_batch", side_effect=["EMPTY_DEVELOPER", "EXISTS"]) as run:
+            with self.assertRaisesRegex(probe.runner.RunnerFailure, "NOT_PROVEN"):
+                probe.run_probe("synthetic-container", parameter_mix=True, compile_cost=True)
+        self.assertEqual(run.call_count, 2)
+
+
+class CompileCostOutputTests(unittest.TestCase):
+    def output(self):
+        compiled_slots = {1, *range(10, 19)}
+        rows = [
+            f"DGN007_COMPILER_SLOT|{slot}|{int(slot in compiled_slots)}|"
+            + ("2|3" if slot in compiled_slots else "0|0")
+            for slot in range(1, 23)
+        ]
+        return "\n".join([probe._COMPILER_ROSTER, *rows])
+
+    def test_compilation_cost_excludes_the_two_seed_requests(self):
+        self.assertEqual(probe._compile_cost_report(self.output()).splitlines(), [
+            "DGN007_COMPILE_COST|BASELINE1|0|0|0",
+            "DGN007_COMPILE_COST|BASELINE2|0|0|0",
+            "DGN007_COMPILE_COST|MITIGATION1|4|8|12",
+            "DGN007_COMPILE_COST|MITIGATION2|4|8|12",
+            "DGN007_COMPILE_COST|RESTORE|0|0|0",
+        ])
+
+    def test_rejects_missing_slot_reordered_rows_and_nonzero_cost_without_event(self):
+        fixture = self.output()
+        for bad in (
+            fixture.replace("DGN007_COMPILER_SLOT|2|0|0|0\n", ""),
+            fixture.replace("DGN007_COMPILER_SLOT|2|0|0|0", "DGN007_COMPILER_SLOT|4|0|0|0"),
+            fixture.replace("DGN007_COMPILER_SLOT|2|0|0|0", "DGN007_COMPILER_SLOT|2|0|9|0"),
+            fixture.replace("DGN007_COMPILER_SLOT|19|0|0|0", "DGN007_COMPILER_SLOT|19|1|2|3"),
+        ):
+            with self.subTest(case=bad), self.assertRaisesRegex(probe.runner.RunnerFailure, "NOT_PROVEN"):
+                probe._compile_cost_report(bad)
 
 
 class WaitContextTests(unittest.TestCase):
