@@ -293,6 +293,18 @@ Der [Kataloglauf 45188183551](https://github.com/gecompat/SQL_PerformanceSchulun
 
 [Microsoft Support zu `sql_statement_post_compile`](https://support.microsoft.com/en-us/servicing/sql/sql-server-2017/cumulative-update/kb4480630-improvement-enhancement-adds-sql-statement-post-compile-extended-event-in-sql-server-2017) beschreibt für SQL Server 2016/2017 das Kompilierungsende als Auslösepunkt und eine eigene Dauer für die Kompilierung. Für den 2025-Pilot sind der Zeitstempelbezug und die Unsicherheit der ganzzahligen Millisekundenwerte auf dem festgeschriebenen Build zu prüfen. Überlappung ist nur belegbar, wenn sie auch unter der bestätigten Unsicherheit besteht. Ein unbestimmter Zeitbezug, fehlende Grenzen oder eine Überschneidung innerhalb der Zeitauflösung ergeben `NOT_PROVEN`.
 
+Eine Komponentenvorprobe mit identischen RPCs auf dem Zielbuild
+verglich die Dauer des Post-Compile-Ereignisses mit zwei beobachteten
+Zeitspannen. In den zwei parallelen und der einen sequenziellen
+Erstkompilierung lag die gemeldete Dauer bei 17 bis 18 ms. Die
+XE-Zeitdifferenz vom ersten Schätzereignis bis zum Post-Compile-Ereignis
+lag bei 16 bis 17 ms, die Differenz ab RPC-Start bei 19 bis 20 ms. Die
+gemeldete Dauer lag in jeder Spur zwischen diesen beiden Differenzen.
+Damit besteht ein Plausibilitätsbefund für diese drei Spuren. Die
+Rundungsregel und der genaue Bezugspunkt des Compilebeginns bleiben zu
+prüfen. Der gepaarte Pilot kann aus diesen Beobachtungen noch kein
+zulässiges Unsicherheitsintervall ableiten.
+
 Die Auswertung kann für jede Zeitgrenze den frühesten und spätesten
 möglichen Zeitpunkt auf derselben qualifizierten Uhr übernehmen. Im
 OFF-Arm muss der späteste mögliche Start der beiden Kompilierungen
