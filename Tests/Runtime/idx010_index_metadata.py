@@ -31,15 +31,23 @@ FROM sys.partitions AS p
 WHERE p.object_id = @ObjectId AND p.index_id = @IndexId
     AND p.partition_number = 1 AND p.data_compression_desc = N'COLUMNSTORE';
 
-SELECT @ColumnId = c.column_id, @Ordinal = ic.column_store_order_ordinal
-FROM sys.columns AS c
-JOIN sys.index_columns AS ic
-    ON ic.object_id = c.object_id AND ic.column_id = c.column_id AND ic.index_id = @IndexId
-WHERE c.object_id = @ObjectId AND c.name = N'EventDayKey'
+DECLARE @IndexColumns table (column_id int NOT NULL, column_name sysname NOT NULL, order_ordinal int);
+INSERT @IndexColumns
+SELECT c.column_id, c.name, ic.column_store_order_ordinal
+FROM sys.index_columns AS ic
+JOIN sys.columns AS c ON c.object_id = ic.object_id AND c.column_id = ic.column_id
+WHERE ic.object_id = @ObjectId AND ic.index_id = @IndexId
+    AND ic.is_included_column = 1 AND ic.key_ordinal = 0 AND ic.partition_ordinal = 0
     AND c.system_type_id = TYPE_ID(N'bigint') AND c.user_type_id = c.system_type_id
     AND c.is_nullable = 0;
+
+SELECT @ColumnId = column_id, @Ordinal = order_ordinal
+FROM @IndexColumns WHERE column_name = N'EventDayKey';
 IF @PartitionId IS NULL OR @ColumnId IS NULL OR @Ordinal IS NULL
-    THROW 51012, 'NOT_PROVEN: partition or order column cannot be bound.', 1;
+    OR (SELECT COUNT_BIG(*) FROM sys.index_columns WHERE object_id = @ObjectId AND index_id = @IndexId) <> 2
+    OR (SELECT COUNT_BIG(*) FROM @IndexColumns) <> 2
+    OR NOT EXISTS (SELECT 1 FROM @IndexColumns WHERE column_name = N'EventId' AND order_ordinal = 0)
+    THROW 51012, 'NOT_PROVEN: index partition, columns or order differ from the profile.', 1;
 
 DECLARE @Groups table (group_id int NOT NULL, state int NOT NULL, total_rows bigint, deleted_rows bigint);
 INSERT @Groups

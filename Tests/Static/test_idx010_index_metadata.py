@@ -47,6 +47,20 @@ class IndexMetadataTests(TestCase):
         self.assertLess(sql.index("FAIL_OWNERSHIP"), sql.index("FROM sys.indexes"))
         self.assertNotIn("minimum AS", sql[sql.rindex("SELECT DB_NAME()"):])
 
+    def test_catalog_batch_requires_exact_two_column_projection_and_no_second_order_key(self):
+        sql = index_evidence_batch(TARGET)
+        for fragment in (
+            "ic.is_included_column = 1 AND ic.key_ordinal = 0 AND ic.partition_ordinal = 0",
+            "FROM @IndexColumns WHERE column_name = N'EventDayKey'",
+            "FROM sys.index_columns WHERE object_id = @ObjectId AND index_id = @IndexId) <> 2",
+            "FROM @IndexColumns) <> 2",
+            "FROM @IndexColumns WHERE column_name = N'EventId' AND order_ordinal = 0",
+        ):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, sql)
+        self.assertLess(sql.index("index partition, columns or order differ"), sql.index("DECLARE @Groups"))
+
+
     def test_decodes_only_bounded_normalized_receipt(self):
         evidence = decode_index_evidence(json.dumps(RECORD).encode(), TARGET)
         self.assertEqual(evidence.overlapping_pairs, 2)
