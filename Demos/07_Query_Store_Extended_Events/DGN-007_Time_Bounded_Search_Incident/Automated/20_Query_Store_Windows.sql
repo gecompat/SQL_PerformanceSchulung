@@ -369,19 +369,21 @@ END;
 IF @Ready<>1
 BEGIN
     /* Nur im echten SQL20-Fehlerpfad: begrenzte skalare Diagnose einer
-       erneuten Query-Store-Abfrage; kein atomarer Snapshot der Poll-Aufnahme. */
+       erneuten Query-Store-Abfrage; kein atomarer Snapshot der Poll-Aufnahme.
+       WindowId 2 markiert ausschließlich Diagnosezeilen außerhalb von T0/T1
+       (einschließlich Warmup); sie zählen nicht zum Ergebnisvertrag. */
     BEGIN TRY
-    SELECT TOP(17) ROW_NUMBER() OVER(ORDER BY w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id,
+    SELECT TOP(17) ROW_NUMBER() OVER(ORDER BY COALESCE(w.WindowId,2),s.ParentQueryId,s.QueryId,p.plan_id,
                                       r.runtime_stats_interval_id,r.execution_type,r.first_execution_time) AS Ordinal,
-           w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id AS PlanId,
+           COALESCE(w.WindowId,2) AS WindowId,s.ParentQueryId,s.QueryId,p.plan_id AS PlanId,
            r.runtime_stats_interval_id AS IntervalId,r.execution_type AS ExecutionType,
            r.count_executions AS ExecutionCount,r.first_execution_time AS FirstTime,
            r.last_execution_time AS LastTime
     INTO #Sql20FailureRaw
     FROM #ScopedQueries s JOIN sys.query_store_plan p ON p.query_id=s.QueryId
     JOIN sys.query_store_runtime_stats r ON r.plan_id=p.plan_id
-    JOIN lab.IncidentState w ON w.RuntimeStatsIntervalId=r.runtime_stats_interval_id
-    ORDER BY w.WindowId,s.ParentQueryId,s.QueryId,p.plan_id,r.runtime_stats_interval_id,
+    LEFT JOIN lab.IncidentState w ON w.RuntimeStatsIntervalId=r.runtime_stats_interval_id
+    ORDER BY COALESCE(w.WindowId,2),s.ParentQueryId,s.QueryId,p.plan_id,r.runtime_stats_interval_id,
              r.execution_type,r.first_execution_time;
     DECLARE @DiagRows int=(SELECT COUNT(*) FROM #Sql20FailureRaw),@DiagWindow tinyint=0;
     PRINT CONCAT('DGN007_SQL20_RAW|1|BEGIN|',CASE WHEN @DiagRows>16 THEN 'OVERFLOW' ELSE 'COMPLETE' END,
@@ -392,11 +394,9 @@ BEGIN
         SELECT @DiagRequestCount=RequestCount FROM lab.IncidentState WHERE WindowId=@DiagWindow;
         SELECT @DiagProfileCount=COALESCE(SUM(ExecutionCount),0)
         FROM lab.IncidentProfile WHERE WindowId=@DiagWindow;
-        SELECT @DiagRawCount=COALESCE(SUM(r.count_executions),0)
-        FROM #ScopedQueries s JOIN sys.query_store_plan p ON p.query_id=s.QueryId
-        JOIN sys.query_store_runtime_stats r ON r.plan_id=p.plan_id
-        JOIN lab.IncidentState w ON w.RuntimeStatsIntervalId=r.runtime_stats_interval_id
-        WHERE w.WindowId=@DiagWindow AND r.execution_type=0;
+        SELECT @DiagRawCount=COALESCE(SUM(ExecutionCount),0)
+        FROM #Sql20FailureRaw
+        WHERE WindowId=@DiagWindow AND ExecutionType=0;
         PRINT CONCAT('DGN007_SQL20_RAW|1|WINDOW|',@DiagWindow,'|',
             COALESCE(CONVERT(varchar(20),@DiagRequestCount),'N'),'|',@DiagProfileCount,'|',@DiagRawCount);
         SET @DiagWindow+=1;

@@ -665,7 +665,7 @@ def _query_store_raw_diagnostics(result: SqlcmdResult, *, contract: RunContract)
             return (f'DGN007_FAILURE|{label}|INSUFFICIENT|MALFORMED',)
     if len(middle) != declared:
         return (f'DGN007_FAILURE|{label}|INSUFFICIENT|MALFORMED',)
-    valid_windows = ('0', '1', '2') if phase == 'CONTROL_WINDOWS' else ('0', '1')
+    valid_windows = ('0', '1', '2') if label == 'SQL20_RAW' else ('0', '1')
     for index, row in enumerate(middle, 1):
         if (len(row) != 13 or row[:3] != [prefix, '1', 'ROW'] or row[3] != str(index)
                 or row[4] not in valid_windows

@@ -171,7 +171,7 @@ zu den folgenden unverändert bestehenden Prüfabschnitten:
 Er veröffentlicht keinen Rohfehlertext. Diese Diagnose ändert weder Outcome
 noch Fehlerpriorität, Budget oder Wiederholungsverhalten.
 
-Verfehlt `CONTROL_WINDOWS` den Query-Store-Count, enthält die begrenzte
+Verfehlt das Basis- oder Kontrollfenster den Query-Store-Count, enthält die begrenzte
 `SQL20_RAW`-Diagnose auch markierte Suchausführungen in anderen Intervallen
 unter `WindowId=2`. Dazu gehört der Warmup. Die tatsächliche Intervall-ID
 und die erste und letzte Ausführungszeit jeder Zeile bleiben sichtbar.
