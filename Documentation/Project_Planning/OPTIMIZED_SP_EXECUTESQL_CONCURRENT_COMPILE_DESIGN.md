@@ -526,6 +526,46 @@ Start, die Abfolge der Sperrereignisse, die negative Kontrolle und die
 Machbarkeit der vorgeschlagenen Grenzen prüfen. Die Kandidatenfassung
 dient der Prüfung vor der Aktivierung der Option.
 
+## Gebundener Versuch mit zwei OFF/ON-Paaren
+
+Der Versuch lief auf dem festgeschriebenen SQL-Server-2025-Build
+`17.0.5065.9` im gebundenen Developer-Image. Sechs frische Datenbanken
+hatten gleichzeitig getrennte IDs unter demselben Engine-Start. Die
+beiden Paare liefen in der Reihenfolge OFF/ON und ON/OFF. Die
+sequenzielle und die abweichende Batchkontrolle belegten die restlichen
+zwei Datenbanken. Eine gemeinsame Client-Barriere hielt beide bereits
+registrierten RPC-Aufrufe bis zur Startfreigabe zurück. Die sequenzielle
+Kontrolle verwendete die vorher festgelegte Reihenfolge ohne Barriere.
+
+Die Vor-/Nachheraufnahme band Datenbank- und Sessionoptionen,
+Datenbank- und Engine-Identität, Principals und Berechtigungen. Keine
+Versuchsdatenbank enthielt Anwenderobjekte, Anwenderzeilen oder
+Anwenderstatistiken. In allen sechs Fällen war das Profil vor und nach
+der Messung gleich. Der explizite Optionswert, die Batch- und
+Parameterbindung, die Actorliste der Barriere und die erwarteten
+Ergebnisse gingen separat in die Auswertung ein.
+
+Eine Vorprobe fand in einer noch unbenutzten Testdatenbank bereits
+zwei vorbereitete Cacheeinträge. Der gebundene Versuch verwendete deshalb
+denselben datenbankbezogenen Reset für alle sechs Arme. Eine von den Actors getrennte
+Beobachterverbindung prüfte Eigentumsmarker und Datenbank-ID vor
+`ALTER DATABASE SCOPED CONFIGURATION CLEAR PROCEDURE_CACHE`. Der
+Beobachter bestätigte aus `master` den leeren Zielcache unmittelbar
+vor der Startfreigabe. Alle sechs Cacheprüfungen ergaben null Einträge.
+[Microsoft-Referenz zum datenbankbezogenen Cache-Reset](https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-configuration-transact-sql?view=sql-server-ver17#arguments)
+
+| Vergleich | OFF | ON | Paarprüfung |
+|---|---|---|---|
+| OFF/ON | Zwei überlappende Erstkompilierungen | Eine Erstkompilierung, zugeordneter Compile-Wait, gemeinsamer vorbereiteter Plan | `PROVEN / matched_off_on_pair` |
+| ON/OFF | Zwei überlappende Erstkompilierungen | Eine Erstkompilierung, zugeordneter Compile-Wait, gemeinsamer vorbereiteter Plan | `PROVEN / matched_off_on_pair` |
+
+Die sequenzielle Kontrolle erfüllte das Überlappungskriterium nicht.
+Die abweichende Batchidentität wurde beim Paarvergleich abgewiesen.
+Die sechs XE-Sitzungen, Datenbanken und der eigene Container wurden
+nachweislich entfernt. Der Befund gilt für dieses synthetische Profil
+und den festgeschriebenen Build. Eine veröffentlichte, regelmäßig
+ausführbare Demo erfordert einen eigenen Vertrag und eine Freigabe.
+
 ## Gates vor einer Implementierung
 
 - Unabhängiger Methodenreview bestätigt Buildbindung, Ereignis-/Feldvertrag, Auswertungsregeln, Statistikbehandlung, Sicherheitsklasse und Restore.
