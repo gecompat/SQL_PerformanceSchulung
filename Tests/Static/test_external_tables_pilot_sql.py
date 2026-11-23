@@ -8,7 +8,7 @@ from unittest import TestCase, main
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_pilot_sql import (
-    EXPECTED, Role, Route, aggregate_batch, database_name, external_tables_batch, fixture_batch,
+    EXPECTED, Role, Route, aggregate_batch, configure_database_batch, create_database_batch, database_name, external_tables_batch, fixture_batch,
     fixture_read_batch, measurement_marker, statistics_batch, verify_aggregate, verify_fixture,
 )
 
@@ -24,6 +24,20 @@ def fixture():
 
 
 class PilotSqlTests(TestCase):
+    def test_database_creation_and_configuration_use_distinct_batches(self):
+        create = create_database_batch(TOKEN, Role.SOURCE)
+        self.assertIn("DB_NAME() <> N'master'", create)
+        self.assertIn("OR @@TRANCOUNT <> 0", create)
+        self.assertIn("OR DB_ID(N'SQLPERF_LAB_EXT_RUN12345_SOURCE') IS NOT NULL", create)
+        self.assertEqual(create.count("MAXSIZE = 128 MB"), 2)
+        self.assertNotIn("USE [", create)
+        config = configure_database_batch(TOKEN, Role.SOURCE)
+        self.assertIn("DB_NAME() COLLATE Latin1_General_100_BIN2", config)
+        self.assertIn("SQLPERF.RunToken", config)
+        self.assertIn("max_size = 16384 AND size <= max_size", config)
+        self.assertIn("SET AUTO_CREATE_STATISTICS OFF", config)
+        self.assertIn("SET AUTO_UPDATE_STATISTICS OFF", config)
+
     def test_exact_fixture_and_oracle(self):
         rows = fixture()
         verify_fixture(rows)

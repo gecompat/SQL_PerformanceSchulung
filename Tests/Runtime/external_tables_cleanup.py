@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from external_tables_pilot_sql import SOURCE_CREDENTIAL, VERSION, Role, Route, database_name, owned_database_guard
+from external_tables_pilot_sql import EDITION, SOURCE_CREDENTIAL, VERSION, Role, Route, database_name, owned_database_guard
 from external_tables_principals import Principal, login_sid_literal, principal_name
 
 
@@ -62,7 +62,7 @@ def drop_pilot_logins_batch(token: str, role: Role, login_sids: Mapping[Principa
 SET XACT_ABORT ON;
 IF DB_NAME() <> N'master'
     OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'ProductVersion')), N'') <> N'{VERSION}'
-    OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'Edition')), N'') <> N'Enterprise Developer Edition (64-bit)'
+    OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'Edition')), N'') <> N'{EDITION}'
     OR DB_ID(N'{db}') IS NOT NULL
     THROW 51076, 'FAIL_CLEANUP: unexpected guest or External Tables database still exists.', 1;
 """
