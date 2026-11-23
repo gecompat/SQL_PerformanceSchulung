@@ -485,9 +485,28 @@ und genau eine direkt verbundene Route für das Pilotnetz geben.
 Zusätzliche Schnittstellen, Standardrouten, Gateways und Routen aus
 des zugelassenen Bereichs verhindern die Bestätigung. IPv6 bleibt auf
 Loopback, Link-Local und die dazugehörige Multicast-Route beschränkt.
-Der Hyper-V-Host muss die Belegung des privaten Switches weiterhin
-separat nachweisen. Die Quell-Firewall ist ebenfalls ein eigenes Gate.
 [Ubuntu-Manpage zu ip-route](https://manpages.ubuntu.com/manpages/noble/man8/ip-route.8.html).
+
+Der [Hyper-V-Hostprüfer](../../Tests/Runtime/Test-ExternalTablesHyperVNetwork.ps1)
+verwendet die Switch-ID und die beiden VM-IDs aus der Erzeugungsliste.
+Er verlangt den Switch-Typ `Private` und liest die vollständige lokale
+Adapterliste einschließlich Managementadaptern. Jede Pilot-VM muss
+genau einen Adapter haben, der mit dem vorgesehenen Switch verbunden
+ist. Jeder weitere Teilnehmer auf dem Switch sowie ein zusätzlicher
+oder getrennter Adapter einer Pilot-VM verhindern die Bestätigung.
+
+```powershell
+pwsh -NoProfile -File Tests/Runtime/Test-ExternalTablesHyperVNetwork.ps1 -SwitchId $PilotSwitchId -SourceVmId $SourceVmId -QueryVmId $QueryVmId
+```
+
+Der Hostprüfer gibt nur Typ und Anzahl der erwarteten Adapter aus.
+Der Pilot ruft ihn innerhalb seiner gemeinsamen Prozessfrist auf.
+Beim read-only Komponententest auf dem Hyper-V-Host wurden unbekannte
+VM-IDs am vorhandenen privaten Switch abgewiesen. Der positive Fall
+und die Konfliktvarianten sind mit simuliertem Inventar geprüft.
+Der positive Nachweis für beide vorgesehenen Pilot-VMs und die
+Quell-Firewall bleiben Teil des vorgesehenen Gastlaufs.
+[Microsoft-Referenz zu Get-VMNetworkAdapter](https://learn.microsoft.com/en-us/powershell/module/hyper-v/get-vmnetworkadapter?view=windowsserver2025-ps).
 
 Der native Komponententest verwendete Ubuntu 24.04 mit einer einzelnen
 internen Schnittstelle. Der Prüfer akzeptierte ihre tatsächliche

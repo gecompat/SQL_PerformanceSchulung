@@ -34,7 +34,8 @@ class GuestPilotTransport(Protocol):
         Verify each exact VM and its live package digest through the current
         identity exchange before executing any SQL. Load the pinned pyodbc
         extension on the query guest before opening its first ODBC connection.
-        Check both guest networks against the two provisioned IPv4 endpoints.
+        Check private switch membership on the host and both guest networks
+        against the two provisioned IPv4 endpoints.
         """
 
     def execute(self, role: Role, database: str, sql: str, deadline: float) -> None:
