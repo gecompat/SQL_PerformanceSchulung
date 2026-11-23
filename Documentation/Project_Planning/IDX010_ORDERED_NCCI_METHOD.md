@@ -120,6 +120,23 @@ Mehrfachtreffern oder unvollständigen Segmentmetadaten lautet das Ergebnis
   Ressourcenobergrenzen. Bis dahin werden weder Laufzeit noch I/O-Vorteil
   quantifiziert.
 
+### Offlineprüfung der Abfrageevidenz
+
+Der [Offlineprüfer](../../Tests/Runtime/idx010_query_evidence.py) legt die
+Abfrage mit `OPTION (MAXDOP 1)` für beide Arme fest. Er verlangt die exakte
+Ergebniszeile, genau einen ausgeführten Scan des erwarteten NCCI sowie eine
+eindeutige Segmentmeldung für `Events`. Mehrere Datenzugriffe, Zugriffshints,
+ein abweichender Index oder widersprüchliche Segmentzähler verhindern die
+Annahme. [Synthetische Regressionen](../../Tests/Static/test_idx010_query_evidence.py)
+decken diese Ablehnungen ab. Die Shape-Anforderungen orientieren sich am
+[Microsoft-Showplan-Schema](https://schemas.microsoft.com/sqlserver/2004/07/showplan/)
+und müssen auf dem Pilotbuild durch die reale Ausgabe bestätigt werden.
+
+Der spätere Runner muss Plan-XML, Informationsmeldungen und Ergebnis
+nachweislich aus genau demselben isolierten SQL-Aufruf beziehen. Die
+Offlineprüfung kann diese Herkunft selbst nicht belegen. Ordnungsgüte,
+Indexmetadaten und SQL-Cleanup bleiben weitere Annahmebedingungen.
+
 ## Voraussetzungen, Stop und Cleanup für einen späteren Pilot
 
 Vor jeder SQL-Freigabe muss ein unabhängiger Methodenreview den vollständigen
