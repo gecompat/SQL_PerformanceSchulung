@@ -68,7 +68,12 @@ class GuestPilotTransport(Protocol):
         """Check exact existence on the owned guest; unverified access must raise."""
 
     def remove_verified_guests(self, token: str, deadline: float) -> bool:
-        """Remove only recorded guest, switch, and disk identities and confirm absence."""
+        """Remove only recorded guest, switch, and disk identities and confirm absence.
+
+        Run Test-ExternalTablesHyperVAbsence.ps1 with the original inventory
+        before releasing the run directory. Its PASS is required for guest
+        cleanup, independently of SQL cleanup.
+        """
 
 
 @dataclass(frozen=True)
