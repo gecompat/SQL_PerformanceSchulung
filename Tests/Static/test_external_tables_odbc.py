@@ -1,3 +1,4 @@
+from ipaddress import IPv4Address
 from pathlib import Path
 import sys
 from threading import Event
@@ -142,7 +143,7 @@ class SourceTlsTests(unittest.TestCase):
         self.secret = "Ext9!" + "a" * 32
         self.database = database_name(TOKEN, Role.SOURCE)
         self.login = principal_name(TOKEN, Principal.SOURCE_READER)
-        self.positive = Connection(Cursor((((self.database, self.login),),)))
+        self.positive = Connection(Cursor((((self.database, self.login, "127.0.0.1", 1433),),)))
         self.driver = Mock(Error=DriverError, pooling=False)
 
     def test_requires_certificate_name_rejection_at_the_same_endpoint(self):
@@ -151,7 +152,11 @@ class SourceTlsTests(unittest.TestCase):
         ]
         verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
         positive, negative = self.driver.connect.call_args_list
-        self.assertEqual(negative.args[0], positive.args[0] + "HostnameInCertificate=pbn-test0002;")
+        self.assertEqual(
+            negative.args[0],
+            positive.args[0].replace("tcp:pbs-test0002,1433", "tcp:127.0.0.1,1433")
+            + "HostnameInCertificate=pbn-test0002;",
+        )
         self.assertIn("Server=tcp:pbs-test0002,1433;", positive.args[0])
         self.assertIn("Encrypt=Yes;TrustServerCertificate=No;", positive.args[0])
         self.assertGreater(positive.kwargs["timeout"], 0)
@@ -165,12 +170,25 @@ class SourceTlsTests(unittest.TestCase):
             ("28000", "login rejected"),
         ):
             with self.subTest(state=state):
-                positive = Connection(Cursor((((self.database, self.login),),)))
+                positive = Connection(Cursor((((self.database, self.login, "127.0.0.1", 1433),),)))
                 self.driver.connect.side_effect = [positive, DriverError(state, detail + self.secret)]
                 with self.assertRaisesRegex(OSError, "could not be attributed") as error:
                     verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
                 self.assertNotIn(self.secret, str(error.exception))
                 self.assertTrue(positive.closed)
+
+    def test_unverified_tcp_address_does_not_receive_a_second_connection(self):
+        for address, port in ((None, 1433), ("::1", 1433), ("100.64.0.1", 1433),
+                              ("127.0.0.1", 1434), (str(IPv4Address(0)), 1433)):
+            with self.subTest(address=address, port=port):
+                self.driver.reset_mock()
+                connection = Connection(Cursor((((self.database, self.login, address, port),),)))
+                self.driver.connect.return_value = connection
+                with self.assertRaisesRegex(OSError, "trusted source TLS connection was not confirmed"):
+                    verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
+                self.driver.connect.assert_called_once()
+                self.assertTrue(connection.closed)
+
 
     def test_wrong_name_connection_is_closed_and_fails_probe(self):
         negative = Connection(None)
@@ -186,7 +204,7 @@ class SourceTlsTests(unittest.TestCase):
             verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
         self.driver.connect.assert_not_called()
         self.driver.pooling = False
-        unexpected = Connection(Cursor(((("master", self.login),),)))
+        unexpected = Connection(Cursor(((("master", self.login, "127.0.0.1", 1433),),)))
         self.driver.connect.return_value = unexpected
         with self.assertRaisesRegex(OSError, "trusted source TLS connection was not confirmed"):
             verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
