@@ -7,9 +7,10 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase, main
 
 from verify_external_tables_apt_plan import (
-    LOCK as LOCK_PATH, check_plan, parse_dpkg_status, parse_install_plan,
+    LOCK as LOCK_PATH, check_plan, parse_install_plan,
     select_role, verify_guest_state, verify_python_wheel,
 )
+from external_tables_package_state import installed_package_digest, parse_dpkg_status
 
 
 PLAN = """Reading package lists...
@@ -103,6 +104,12 @@ class GuestPackageStateTests(TestCase):
             self.verify(self.GUEST, base=self.BASE + b"\n")
         with self.assertRaisesRegex(ValueError, "locked transition"):
             self.verify(self.GUEST, lock={"packages": [dict(self.ROLE["packages"][0], previous_version="1:0.9")]})
+
+    def test_fingerprint_uses_sorted_package_identity_and_version(self):
+        expected = sha256(b"SQLPERF-EXTERNAL-DPKG-V1\nbase\tamd64\t1:2.0\nclient\tamd64\t3.0\ncommon\tall\t1.0\n").digest()
+        reordered = package("client", "3.0") + package("common", "1.0", "all") + package("base", "1:2.0")
+        self.assertEqual(installed_package_digest(reordered), expected)
+        self.assertEqual(installed_package_digest(self.GUEST), expected)
 
     def test_rejects_missing_extra_or_changed_packages(self):
         for guest, condition in (

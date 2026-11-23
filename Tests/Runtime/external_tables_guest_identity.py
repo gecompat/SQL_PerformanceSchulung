@@ -3,18 +3,22 @@
 from __future__ import annotations
 
 from math import isfinite
+from pathlib import Path
 from secrets import token_bytes
 import socket
 from struct import Struct
 from time import monotonic
 from uuid import UUID
 
+from external_tables_package_state import expected_package_digest, installed_package_digest, read_dpkg_status
 from external_tables_pilot_sql import Role, database_name
 
 
-_PACKET = Struct("!4s8sB16s")
-_QUERY = b"SEI1"
-_REPLY = b"SER1"
+_REQUEST = Struct("!4s8sB16s")
+_RESPONSE = Struct("!4s8sB16s32s")
+_QUERY = b"SEI2"
+_REPLY = b"SER2"
+_GUEST_STATUS_PATH = Path("/var/lib/dpkg/status")
 _ROLE_ID = {Role.SOURCE: 1, Role.QUERY: 2}
 
 
@@ -25,8 +29,12 @@ def linux_service_id(port: int) -> UUID:
     return UUID(f"{port:08x}-facb-11e6-bd58-64006a7986d3")
 
 
-def verify_guest(vm_id: UUID, port: int, token: str, role: Role, deadline: float) -> None:
-    """Probe the recorded VM ID; host registration and VM ownership precede this call."""
+def verify_guest(
+    vm_id: UUID, port: int, token: str, role: Role, deadline: float, *,
+    base_status: bytes, package_lock: dict,
+) -> None:
+    """Verify identity and package state on the recorded VM ID."""
+    _remaining(deadline)
     service_id = linux_service_id(port)
     run_marker, role_id = _identity(token, role)
     wildcards = {
@@ -40,13 +48,19 @@ def verify_guest(vm_id: UUID, port: int, token: str, role: Role, deadline: float
         family, protocol = socket.AF_HYPERV, socket.HV_PROTOCOL_RAW
     except AttributeError:
         raise OSError("Hyper-V sockets are unavailable on the host") from None
+    expected_digest = expected_package_digest(base_status, package_lock, role.value.lower())
     nonce = token_bytes(16)
     with socket.socket(family, socket.SOCK_STREAM, protocol) as channel:
         channel.settimeout(_remaining(deadline))
         channel.connect((str(vm_id), str(service_id)))
-        _send(channel, _PACKET.pack(_QUERY, run_marker, role_id, nonce), deadline)
-        if _receive(channel, deadline) != _PACKET.pack(_REPLY, run_marker, role_id, nonce):
+        _send(channel, _REQUEST.pack(_QUERY, run_marker, role_id, nonce), deadline)
+        reply, reply_token, reply_role, reply_nonce, digest = _RESPONSE.unpack(
+            _receive(channel, _RESPONSE.size, deadline)
+        )
+        if (reply, reply_token, reply_role, reply_nonce) != (_REPLY, run_marker, role_id, nonce):
             raise ValueError("guest identity response does not match the current probe")
+        if digest != expected_digest:
+            raise ValueError("guest package inventory does not match the locked role")
 
 
 def serve_guest_identity(port: int, token: str, role: Role, deadline: float) -> None:
@@ -70,10 +84,12 @@ def serve_guest_identity(port: int, token: str, role: Role, deadline: float) -> 
 
 def _reply_to_probe(channel: socket.socket, token: str, role: Role, deadline: float) -> None:
     expected_token, expected_role = _identity(token, role)
-    kind, request_token, role_id, nonce = _PACKET.unpack(_receive(channel, deadline))
+    kind, request_token, role_id, nonce = _REQUEST.unpack(_receive(channel, _REQUEST.size, deadline))
     if (kind, request_token, role_id) != (_QUERY, expected_token, expected_role):
         raise ValueError("guest identity probe does not match the configured run")
-    _send(channel, _PACKET.pack(_REPLY, expected_token, expected_role, nonce), deadline)
+    _remaining(deadline)
+    digest = installed_package_digest(read_dpkg_status(_GUEST_STATUS_PATH))
+    _send(channel, _RESPONSE.pack(_REPLY, expected_token, expected_role, nonce, digest), deadline)
 
 
 def _identity(token: str, role: Role) -> tuple[bytes, int]:
@@ -86,11 +102,11 @@ def _send(channel: socket.socket, payload: bytes, deadline: float) -> None:
     channel.sendall(payload)
 
 
-def _receive(channel: socket.socket, deadline: float) -> bytes:
+def _receive(channel: socket.socket, size: int, deadline: float) -> bytes:
     payload = bytearray()
-    while len(payload) < _PACKET.size:
+    while len(payload) < size:
         channel.settimeout(_remaining(deadline))
-        chunk = channel.recv(_PACKET.size - len(payload))
+        chunk = channel.recv(size - len(payload))
         if not chunk:
             raise OSError("identity channel closed before the fixed packet arrived")
         payload.extend(chunk)

@@ -421,8 +421,18 @@ Hyper-V-Socket mit der VM-ID aus der Erzeugungsliste und der Dienst-ID
 des VSOCK-Ports. Der Linux-Gast akzeptiert eine Verbindung vom
 Elternsystem. Er gibt eine feste Antwort mit erwarteter Rolle,
 Laufkennung und der aktuellen Zufallsabfrage zurück. Der Host prüft
-alle Felder innerhalb der gemeinsamen Frist. Der Austausch überträgt
-keine Zugangsdaten und führt keine Gastbefehle aus.
+alle Felder innerhalb der gemeinsamen Frist. Der Austausch führt keine
+Gastbefehle aus.
+
+Die Antwort enthält außerdem den SHA-256-Fingerabdruck des aktuell
+gelesenen Debian-Paketbestands aus `/var/lib/dpkg/status`. Dafür werden
+Paketname, Architektur und Version je installiertem Paket sortiert und
+in einem festgelegten Format gehasht. Der Host berechnet seinen
+Vergleichswert für die erwartete Rolle aus dem SHA-256-geprüften
+Basisbestand und der gesperrten Paketliste. Ein abweichender Bestand
+verhindert die Freigabe für SQL. Über den Kanal gehen weder die
+Paketliste selbst noch Zugangsdaten. Das separat verifizierte
+Python-Wheel des Abfragegasts ist außerhalb des Debian-Bestands.
 [Microsoft-Referenz zu Hyper-V-Sockets](https://learn.microsoft.com/virtualization/hyper-v-on-windows/user-guide/make-integration-service).
 
 Auf dem Windows-Testhost ließ sich der native Socket mit Python 3.13
@@ -431,8 +441,8 @@ Auf dem Windows-Testhost ließ sich der native Socket mit Python 3.13
 Canonicals Dateiliste für dieses Paket führt `hv_sock.ko.zst` und
 `vsock.ko.zst`. Für den echten Lauf bleiben das Laden der Module, die
 bereits vorausgesetzte Registrierung der Dienst-ID am Host und der
-Gaststart zu prüfen. Die Identitätsantwort ersetzt keine Prüfung der
-Dienste, Pakete oder Netzgrenzen.
+Gaststart zu prüfen. Die Dienste, der Python-Treiber und die
+Netzgrenzen werden separat geprüft.
 [Canonical-Dateiliste](https://packages.ubuntu.com/noble-updates/amd64/linux-modules-7.0.0-1017-azure/filelist).
 
 ### TLS-Kontrollpaar am Quellendpunkt

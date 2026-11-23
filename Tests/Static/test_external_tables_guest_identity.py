@@ -1,7 +1,9 @@
 from concurrent.futures import ThreadPoolExecutor
+from hashlib import sha256
 from pathlib import Path
 import socket
 import sys
+from tempfile import TemporaryDirectory
 from time import monotonic
 import unittest
 from unittest.mock import MagicMock, patch
@@ -10,8 +12,9 @@ from uuid import UUID
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_guest_identity import (
-    _PACKET, _QUERY, _REPLY, _receive, _reply_to_probe, linux_service_id, serve_guest_identity, verify_guest,
+    _REQUEST, _RESPONSE, _QUERY, _REPLY, _receive, _reply_to_probe, linux_service_id, serve_guest_identity, verify_guest,
 )
+from external_tables_package_state import installed_package_digest
 from external_tables_pilot_sql import Role
 
 
@@ -19,6 +22,14 @@ VM_ID = UUID("9584674e-d3c6-460b-9004-f311fd2a6f0a")
 TOKEN = "TEST0007"
 PORT = 2761
 NONCE = b"a" * 16
+BASE_STATUS = b"Package: ubuntu-base\nArchitecture: amd64\nVersion: 1.0\nStatus: install ok installed\n\n"
+QUERY_PACKAGE = b"Package: polybase\nArchitecture: amd64\nVersion: 2.0\nStatus: install ok installed\n\n"
+PACKAGE_LOCK = {
+    "dpkg_status_sha256": sha256(BASE_STATUS).hexdigest(),
+    "roles": {"source": [], "query": ["polybase"]},
+    "packages": [{"package": "polybase", "architecture": "amd64", "version": "2.0"}],
+}
+SOURCE_DIGEST = installed_package_digest(BASE_STATUS)
 
 
 class GuestIdentityTests(unittest.TestCase):
@@ -30,15 +41,19 @@ class GuestIdentityTests(unittest.TestCase):
 
     def test_guest_reads_fragmented_probe_and_returns_correlated_identity(self):
         deadline = monotonic() + 4
-        request = _PACKET.pack(_QUERY, TOKEN.encode(), 1, NONCE)
+        request = _REQUEST.pack(_QUERY, TOKEN.encode(), 1, NONCE)
         left, right = socket.socketpair()
-        with left, right, ThreadPoolExecutor(max_workers=1) as worker:
+        with left, right, TemporaryDirectory() as directory, ThreadPoolExecutor(max_workers=1) as worker:
+            status_path = Path(directory) / "status"
+            status_path.write_bytes(BASE_STATUS)
             fragmented = MagicMock(wraps=right)
             fragmented.recv.side_effect = lambda length: right.recv(min(7, length))
-            response = worker.submit(_reply_to_probe, fragmented, TOKEN, Role.SOURCE, deadline)
-            left.sendall(request)
-            self.assertEqual(_receive(left, deadline), _PACKET.pack(_REPLY, TOKEN.encode(), 1, NONCE))
-            response.result(timeout=2)
+            with patch("external_tables_guest_identity._GUEST_STATUS_PATH", status_path):
+                response = worker.submit(_reply_to_probe, fragmented, TOKEN, Role.SOURCE, deadline)
+                left.sendall(request)
+                expected = _RESPONSE.pack(_REPLY, TOKEN.encode(), 1, NONCE, SOURCE_DIGEST)
+                self.assertEqual(_receive(left, _RESPONSE.size, deadline), expected)
+                response.result(timeout=2)
             self.assertGreater(fragmented.recv.call_count, 1)
 
     def test_wrong_role_or_run_marker_is_refused(self):
@@ -46,7 +61,7 @@ class GuestIdentityTests(unittest.TestCase):
             with self.subTest(token=token, role=role):
                 left, right = socket.socketpair()
                 with left, right:
-                    left.sendall(_PACKET.pack(_QUERY, token, role, NONCE))
+                    left.sendall(_REQUEST.pack(_QUERY, token, role, NONCE))
                     with self.assertRaisesRegex(ValueError, "configured run"):
                         _reply_to_probe(right, TOKEN, Role.SOURCE, monotonic() + 2)
 
@@ -54,29 +69,46 @@ class GuestIdentityTests(unittest.TestCase):
         left, right = socket.socketpair()
         with left, right:
             with self.assertRaises(TimeoutError):
-                _receive(left, monotonic() - 1)
+                _receive(left, _REQUEST.size, monotonic() - 1)
             right.sendall(b"short")
             right.shutdown(socket.SHUT_WR)
             with self.assertRaisesRegex(OSError, "closed before"):
-                _receive(left, monotonic() + 2)
+                _receive(left, _REQUEST.size, monotonic() + 2)
 
-    def test_host_binds_exact_vm_and_rejects_a_stale_nonce(self):
+    def test_host_binds_exact_vm_nonce_base_and_role_specific_inventory(self):
         channel = MagicMock()
         channel.__enter__.return_value = channel
-        channel.recv.return_value = _PACKET.pack(_REPLY, TOKEN.encode(), 1, b"b" * 16)
+
         with (
             patch.object(socket, "AF_HYPERV", 34, create=True),
             patch.object(socket, "HV_PROTOCOL_RAW", 1, create=True),
             patch.object(socket, "socket", return_value=channel) as factory,
             patch("external_tables_guest_identity.token_bytes", return_value=NONCE),
         ):
-            with self.assertRaisesRegex(ValueError, "current probe"):
-                verify_guest(VM_ID, PORT, TOKEN, Role.SOURCE, monotonic() + 4)
+            def probe(vm_id=VM_ID, base_status=BASE_STATUS, role=Role.SOURCE):
+                verify_guest(vm_id, PORT, TOKEN, role, monotonic() + 4,
+                             base_status=base_status, package_lock=PACKAGE_LOCK)
+
             with self.assertRaisesRegex(ValueError, "exact Hyper-V guest ID"):
-                verify_guest(UUID(int=0), PORT, TOKEN, Role.SOURCE, monotonic() + 4)
-            factory.assert_called_once_with(34, socket.SOCK_STREAM, 1)
-        channel.connect.assert_called_once_with((str(VM_ID), str(linux_service_id(PORT))))
-        channel.sendall.assert_called_once_with(_PACKET.pack(_QUERY, TOKEN.encode(), 1, NONCE))
+                probe(UUID(int=0))
+            with self.assertRaisesRegex(ValueError, "pinned image"):
+                probe(base_status=BASE_STATUS + b"\n")
+            factory.assert_not_called()
+
+            channel.recv.return_value = _RESPONSE.pack(_REPLY, TOKEN.encode(), 1, NONCE, SOURCE_DIGEST)
+            probe()
+            channel.connect.assert_called_once_with((str(VM_ID), str(linux_service_id(PORT))))
+            channel.sendall.assert_called_once_with(_REQUEST.pack(_QUERY, TOKEN.encode(), 1, NONCE))
+
+            channel.recv.return_value = _RESPONSE.pack(_REPLY, TOKEN.encode(), 1, b"b" * 16, SOURCE_DIGEST)
+            with self.assertRaisesRegex(ValueError, "current probe"):
+                probe()
+            channel.recv.return_value = _RESPONSE.pack(_REPLY, TOKEN.encode(), 2, NONCE, SOURCE_DIGEST)
+            with self.assertRaisesRegex(ValueError, "locked role"):
+                probe(role=Role.QUERY)
+            query_digest = installed_package_digest(BASE_STATUS + QUERY_PACKAGE)
+            channel.recv.return_value = _RESPONSE.pack(_REPLY, TOKEN.encode(), 2, NONCE, query_digest)
+            probe(role=Role.QUERY)
 
     def test_guest_refuses_non_parent_peer_before_receiving(self):
         listener, channel = MagicMock(), MagicMock()
