@@ -7,7 +7,7 @@ from xml.etree import ElementTree as ET
 
 
 QUERY = (
-    "SELECT COUNT_BIG(*) AS RowCount, SUM(EventDayKey) AS DaySum "
+    "SELECT COUNT_BIG(*) AS [RowCount], SUM(EventDayKey) AS DaySum "
     "FROM dbo.Events WHERE EventDayKey >= 1048576 AND EventDayKey < 1052672 "
     "OPTION (MAXDOP 1)"
 )
