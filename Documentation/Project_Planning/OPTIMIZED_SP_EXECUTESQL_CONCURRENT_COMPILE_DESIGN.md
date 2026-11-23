@@ -199,9 +199,23 @@ identischem Batchtext zwei Erstkompilierungen mit je 48 Schätzereignissen.
 Ereignisreihenfolge und XE-Zeitstempel bestätigten die Überlappung.
 Der sequenzielle Lauf meldete eine Erstkompilierung mit 48
 Schätzereignissen. Die Zeitdifferenz ist nur bei zwei Kompilierungen
-definiert. Die Planhandles gehören zum gepaarten Versuch.
+definiert. Die serielle Kontrolle prüft zusätzlich den wiederverwendeten
+Plan. Beide `sp_statement_completed`-Ereignisse müssen innerhalb ihrer
+RPC-Spuren das exakte innere Statement und denselben Handle melden. Der
+Handle muss zum eindeutigen `Prepared`-Eintrag in derselben Datenbank
+passen. Die Cacheabfrage bindet Batchtext und Parameterdefinition über
+Text- und Längengleichheit. Auf diesem Build sind die beobachteten
+Statement-Handles 44 Byte lang und stehen im XML als Hex ohne Präfix.
+Der Test gibt ausschließlich den Befund zur Wiederverwendung aus.
+
+Die Erkundung lieferte für diese Aufrufe keine
+`sql_statement_completed`-Ereignisse. `sp_cache_hit` lieferte beim zweiten
+Aufruf einen 64-Byte-Wert mit Null-Padding hinter den 44 Cache-Bytes.
+Der direkte Abgleich mit `sp_statement_completed` nutzt die vollständigen
+44 Byte des zum inneren Statement gehörenden Handles.
 Für den gepaarten Versuch fehlen die ON-Kompilierungssperre, die
-zugehörigen Wartezeiten und die Planwiederverwendung.
+zugehörigen Wartezeiten und der Nachweis der Wiederverwendung unter
+Konkurrenz.
 [Microsoft-Referenz zur Kardinalitätsschätzung und zum XE-Ereignis](https://learn.microsoft.com/en-us/sql/relational-databases/performance/cardinality-estimation-sql-server?view=sql-server-ver17).
 
 ## Statische Auswertung normalisierter Befunde
