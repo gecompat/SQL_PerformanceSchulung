@@ -5,11 +5,12 @@ from unittest import TestCase, main
 from unittest.mock import patch
 from pathlib import Path
 import sys
+from subprocess import CompletedProcess
 import os
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
-from idx010_docker_transport import DockerPilotTransport, IMAGE, OWNER_LABEL, PROFILE, PROFILE_SQL, _run
+from idx010_docker_transport import CATALOG_JOIN_WARNING, DockerPilotTransport, IMAGE, OWNER_LABEL, PROFILE, PROFILE_SQL, _run
 from idx010_pilot_sequence import Arm, Target
 from idx010_pilot_setup import fixture_identity_batch
 from idx010_provision_sql import TEMPDB_CAPS, drop_database_batch, grant_reader_batch, provision_database_batch
@@ -163,6 +164,24 @@ class DockerPilotTransportTests(TestCase):
             b"", os.environ.copy(), monotonic() + 30, 64,
         )
         self.assertEqual(result.strip(), b"owned synthetic output")
+
+    def test_catalog_warning_requires_opt_in_and_successful_process(self):
+        command = ["synthetic"]
+        args = command, b"", {}, monotonic() + 30, 64
+        for exit_code, stderr, allow, accepted in (
+            (0, CATALOG_JOIN_WARNING, None, False),
+            (0, CATALOG_JOIN_WARNING, CATALOG_JOIN_WARNING, True),
+            (0, CATALOG_JOIN_WARNING + b"\nUnexpected warning", CATALOG_JOIN_WARNING, False),
+            (1, CATALOG_JOIN_WARNING, CATALOG_JOIN_WARNING, False),
+        ):
+            with self.subTest(exit_code=exit_code, stderr=stderr, allow=allow):
+                response = CompletedProcess(command, exit_code, b"catalog result", stderr)
+                with patch("idx010_docker_transport.collect_bounded_process", return_value=response):
+                    if accepted:
+                        self.assertEqual(_run(*args, allowed_warning=allow), b"catalog result")
+                    else:
+                        with self.assertRaises(OSError):
+                            _run(*args, allowed_warning=allow)
 
     def test_identity_reads_fixed_pages_in_primary_key_order(self):
         transport = DockerPilotTransport()

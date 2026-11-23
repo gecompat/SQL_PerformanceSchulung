@@ -42,6 +42,7 @@ CPU_NANOS = 2 * 10**9
 # Two databases with a data and a log file each, plus TempDB.
 MIN_DATA_AVAILABLE_KIB = (4 * DB_FILE_LIMIT_MIB + TEMPDB_DATA_LIMIT_MIB + TEMPDB_LOG_LIMIT_MIB) * 1024
 PAGE_ROWS = 262_144
+CATALOG_JOIN_WARNING = b"Warning: The join order has been enforced because a local join hint is used."
 ROW = re.compile(rb" *([0-9]{1,7}) *\| *([0-9]{1,7}) *")
 
 
@@ -154,7 +155,11 @@ class DockerPilotTransport:
 
     def index_evidence(self, target: Target, deadline: float) -> IndexEvidence:
         self._require_target(target)
-        return decode_index_evidence(self._sql(target.database_name, index_evidence_batch(target), deadline), target)
+        payload = self._sql(
+            target.database_name, index_evidence_batch(target), deadline,
+            allowed_warning=CATALOG_JOIN_WARNING,
+        )
+        return decode_index_evidence(payload, target)
 
     def capture_query(self, target: Target, sql: str, deadline: float) -> QueryCapture:
         self._require_target(target)
@@ -217,7 +222,10 @@ class DockerPilotTransport:
         if not self._ready or self._run_token != target.run_token:
             raise OSError("target does not belong to this ready pilot")
 
-    def _sql(self, database: str, sql: str, deadline: float, output_limit: int = 65_536) -> bytes:
+    def _sql(
+        self, database: str, sql: str, deadline: float, output_limit: int = 65_536,
+        *, allowed_warning: bytes | None = None,
+    ) -> bytes:
         if self._container is None:
             raise OSError("no verified pilot container")
         remaining = deadline - monotonic()
@@ -232,15 +240,20 @@ class DockerPilotTransport:
             "-y", "4096", "-w", "8192", "-l", str(min(5, int(remaining))),
             "-t", str(min(65534, int(remaining))),
         ]
-        data = _run(command, (sql.rstrip() + "\nGO\n").encode("ascii"), environment, deadline, output_limit)
-        return data
+        return _run(
+            command, (sql.rstrip() + "\nGO\n").encode("ascii"), environment, deadline, output_limit,
+            allowed_warning=allowed_warning,
+        )
 
 
 def _docker(args: Sequence[str], deadline: float, environment: dict[str, str] | None = None) -> bytes:
     return _run(["docker", *args], b"", environment or os.environ.copy(), deadline, 65_536)
 
 
-def _run(command: list[str], payload: bytes, environment: dict[str, str], deadline: float, limit: int) -> bytes:
+def _run(
+    command: list[str], payload: bytes, environment: dict[str, str], deadline: float, limit: int,
+    *, allowed_warning: bytes | None = None,
+) -> bytes:
     remaining = deadline - monotonic()
     if remaining <= 0:
         raise TimeoutError("pilot process deadline exceeded")
@@ -256,7 +269,10 @@ def _run(command: list[str], payload: bytes, environment: dict[str, str], deadli
     if result.returncode or result.stderr:
         # USE and ALTER DATABASE can emit an informational database-context line.
         messages = result.stderr.splitlines()
-        if result.returncode or any(not message.startswith(b"Changed database context to '") for message in messages):
+        if result.returncode or any(
+            message != allowed_warning and not message.startswith(b"Changed database context to '")
+            for message in messages
+        ):
             raise OSError("pilot process failed")
     if monotonic() >= deadline:
         raise TimeoutError("pilot process deadline exceeded")

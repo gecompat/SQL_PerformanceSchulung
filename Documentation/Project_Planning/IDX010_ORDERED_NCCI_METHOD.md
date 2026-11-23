@@ -168,7 +168,12 @@ Segmenten mit acht unterschiedlichen Grenzen ist die Summe der
 überlappenden Paare. Die Abfrage zählt jedes Paar einmal und gibt nur den
 Zähler und die gebundene Indexidentität aus. Der Decoder prüft das Ergebnis
 gegen das Profil. Die tatsächlich verwendeten Encodings und das Format der
-Katalogantwort bleiben auf dem Pilotbuild zu prüfen.
+Katalogantwort bleiben auf dem Pilotbuild zu prüfen. Eine native
+Metadatendiagnose bestätigte für beide Varianten vier volle Rowgroups,
+Encoding 1 und nur eindeutige Grenzen. SQLCMD gab mit Exitcode 0 eine
+Join-Reihenfolgewarnung für die Katalogabfrage aus. Der Transport akzeptiert
+genau diese Warnung für die kataloggebundene Abfrage. Die Katalogwerte
+durchlaufen auch in diesem Fall die vollständige Prüfung.
 
 Die synthetische Ladeformel wurde über alle 4.194.304 IDs ausgewertet.
 Der feste Abfragebereich enthält in den vier nach `EventId` definierten
