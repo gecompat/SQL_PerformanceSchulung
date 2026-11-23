@@ -40,6 +40,15 @@ neuen Ganzdatei-AST-Digest `0e1487a3c880b688a367d7a3e2c0f4467683ccbbaa7b2696b4ea
 keine Prozesskante, Importquelle, SQL-Datei oder Manifestprojektion wurde
 geändert. Die Runtime-/Methodengrenzen des Receipts stehen im
 [Producervertrag](../../Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Contracts/SQL_CAPTURE_PRODUCER.md).
+
+Am 2026-11-23 wurde der Ganzdatei-AST für den gemeinsamen FWK-010-Harness
+nach separater Codeprüfung auf
+`9046d767b205bc3d28dcc615e0032d91ce35ed2f503e3837f82f4403742d1056`
+(Python 3.12.3) aktualisiert. Die kanonische Manifestauflösung und der
+Containerstart liegen ausschließlich im OPT-018-Zweig. Die SQL-only-
+DGN-007-Manifeste behalten ihre Argumente, Credentialauflösung und
+markergebundenen Cleanup-Kanten. Die Import-only-Worker prüfen weiterhin
+die exakten gebundenen Quellbytes.
 [Python AST](https://docs.python.org/3/library/ast.html),
 [Python Encodingerkennung](https://docs.python.org/3/library/tokenize.html#tokenize.detect_encoding).
 

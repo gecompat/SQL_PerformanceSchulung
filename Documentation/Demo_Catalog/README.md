@@ -96,6 +96,7 @@ Instanz. Nach einem Abbruch gilt der verlinkte Erhaltungsweg.
 | [`DGN-003`](../../Demos/07_Query_Store_Extended_Events/DGN-003_Query_Store_History/README.md) | Query-Store-Historie | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`DGN-005`](../../Demos/07_Query_Store_Extended_Events/DGN-005_Bounded_Extended_Events/README.md) | Begrenzte Extended-Events-Evidenz | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
 | [`OPT-017`](../../Demos/04_Optimizer_Statistics_Plans/OPT-017_Parallelism_Skew/README.md) | Parallele Planbereiche und Skew | Gelb | 1 | 3 | `CONTAINER` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
+| [`OPT-018`](../../Demos/04_Optimizer_Statistics_Plans/OPT-018_Optimized_Sp_Executesql/README.md) | Gleichzeitige Kompilierung mit OPTIMIZED_SP_EXECUTESQL | Gelb | 3 | 3 | `CONTAINER` | `DISPOSABLE_INSTANCE` | `IMPLEMENTED` – festgelegter Build 17.0.5065.9 |
 | [`OPT-003`](../../Demos/04_Optimizer_Statistics_Plans/OPT-003_Sampling_Skew/README.md) | Sampling, Skew und Histogrammgrenzen | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`OPT-005`](../../Demos/04_Optimizer_Statistics_Plans/OPT-005_Ascending_Key/README.md) | Ascending Key und Statistikpflege | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`CON-006`](../../Demos/07_Concurrency/CON-006_Deadlock_Cycle/README.md) | Reproduzierbarer Deadlock-Zyklus | Gelb | 3 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |

@@ -292,6 +292,15 @@
       "rationale": "A bounded insert and rebuild workload runs in one synthetic database, while the disposable instance contains its I/O and log impact.", "escalation": null
     },
     {
+      "demoId": "OPT-018", "title": "Gleichzeitige Kompilierung mit OPTIMIZED_SP_EXECUTESQL",
+      "path": "Demos/04_Optimizer_Statistics_Plans/OPT-018_Optimized_Sp_Executesql",
+      "manifest": "Demos/04_Optimizer_Statistics_Plans/OPT-018_Optimized_Sp_Executesql/manifest.json",
+      "implementationStatus": "IMPLEMENTED", "safetyLevel": "YELLOW", "sessions": 3,
+      "stage": 3, "executionPath": "CONTAINER", "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "Kalte Plan-Caches, gleichzeitige Kompilierung und die XE-Zuordnung werden in sechs eigenen Datenbanken eines festgelegten SQL-Server-2025-Builds geprüft.",
+      "escalation": {"rejectedStage": 2, "reason": "Die frische Instanz und der vollständige belegte Abbau sind Teil des Versuchs."}
+    },
+    {
       "demoId": "IDX-007", "title": "Einfügungen an einer heißen letzten Indexseite",
       "path": "Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention",
       "manifest": "Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/manifest.json",

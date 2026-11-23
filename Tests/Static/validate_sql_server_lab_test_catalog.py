@@ -123,13 +123,14 @@ def validate_demo(entry: Any, manifests: dict[str, Path]) -> None:
     if not isinstance(manifest.get("phases"), list) or not manifest["phases"]:
         raise ContractError(f"{demo_id}: phases missing")
     if not isinstance(manifest.get("cleanup"), dict):
-        self_cleaning_idx007 = (
-            demo_id == "IDX-007"
-            and manifest.get("resource_lifecycle") == "self_cleaning_idx007_container"
-            and len(manifest.get("phases", [])) == 1
-            and manifest["phases"][0].get("kind") == "idx007_container"
+        container_phase = {"IDX-007": "idx007_container", "OPT-018": "opt018_container"}.get(demo_id)
+        self_cleaning_container = (
+            container_phase is not None
+            and manifest.get("resource_lifecycle") == f"self_cleaning_{container_phase}"
+            and len(manifest["phases"]) == 1
+            and manifest["phases"][0].get("kind") == container_phase
         )
-        if not self_cleaning_idx007:
+        if not self_cleaning_container:
             raise ContractError(f"{demo_id}: cleanup missing")
 
     safety = entry.get("safetyLevel")
@@ -335,8 +336,8 @@ def main() -> int:
             * full_lane["repetitions"]
             for entry in eligible
         )
-        if runs != 396:
-            raise ContractError(f"current full matrix must contain 396 runs, got {runs}")
+        if runs != 400:
+            raise ContractError(f"current full matrix must contain 400 runs, got {runs}")
 
         print(
             "sql-server-lab-scenario-contract: PASS "

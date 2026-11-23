@@ -613,9 +613,9 @@ eigenen Container vorgesehen. Die Laufgrenze beträgt 240 Sekunden, der
 getrennte Abbau hat eine Grenze von 60 Sekunden. Querytexte, Planhandles,
 Kennwörter und Rohereignisse erscheinen nicht im Ergebnis.
 
-Dieser eigenständige Traineraufruf gilt für den festgeschriebenen
-SQL-Server-2025-Developer-Build. Für eine Katalogaufnahme sind weiterhin
-eine eigene Demo-ID und der zugehörige Ausführungsvertrag vorgesehen.
+Der Standard-Harness bietet denselben Versuch als Katalogdemo
+[`OPT-018`](../../Demos/04_Optimizer_Statistics_Plans/OPT-018_Optimized_Sp_Executesql/README.md) für den festgeschriebenen
+SQL-Server-2025-Developer-Build an.
 
 ## Quellen und Aussagegrenzen
 

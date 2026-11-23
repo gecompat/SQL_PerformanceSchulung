@@ -36,8 +36,10 @@ class PilotError(RuntimeError):
 
 
 class OwnedPilot:
-    def __init__(self) -> None:
-        self.token = secrets.token_hex(16)
+    def __init__(self, owner_token: str | None = None) -> None:
+        if owner_token is not None and re.fullmatch(r"[0-9a-f]{32}", owner_token) is None:
+            raise ValueError("invalid OPTSP owner token")
+        self.token = owner_token if owner_token is not None else secrets.token_hex(16)
         self.name = f"sqlperf-optsp-{self.token}"
         self.password = "Opt9!" + secrets.token_hex(16)
         self.deadline = monotonic() + WORK_SECONDS
@@ -85,7 +87,7 @@ class OwnedPilot:
             "-b", "-x", "-r", "1", "-l", "3", "-t", "5", "-h", "-1", "-W",
         ], payload=(statement + "\nGO\n").encode("ascii"), secret="SQLCMDPASSWORD")
 
-    def _start(self) -> str:
+    def _bind_local_context(self) -> None:
         context = self._docker("context", "show")
         if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,63}", context) is None:
             raise PilotError("invalid Docker context")
@@ -93,6 +95,9 @@ class OwnedPilot:
         if not endpoint.startswith(("npipe:////./pipe/", "unix:///")):
             raise PilotError("Docker socket must be local")
         self.docker.extend(["--context", context])
+
+    def _start(self) -> str:
+        self._bind_local_context()
         image_id = self._docker("image", "inspect", "--format", "{{.Id}}", IMAGE)
         if re.fullmatch(r"sha256:[0-9a-f]{64}", image_id) is None:
             raise PilotError("pinned image is not locally verified")
@@ -243,14 +248,36 @@ IF DB_ID(N'{name}') IS NOT NULL
         return sql_clean and container_absent
 
 
-def main(argv: list[str] | None = None) -> int:
+def recover_framework_container(owner_token: str) -> bool:
+    """Recover only the coordinator-owned, digest-bound disposable container."""
+    pilot = OwnedPilot(owner_token)
+    pilot.deadline = monotonic() + CLEANUP_SECONDS
+    try:
+        pilot._bind_local_context()
+        owned = pilot._owned_container()
+        if owned is None:
+            # The terminated create might still be pending in the daemon.
+            return False
+        image_id = pilot._docker("image", "inspect", "--format", "{{.Id}}", IMAGE)
+        actual = pilot._docker("inspect", "--format", "{{.Image}}", owned)
+        if re.fullmatch(r"sha256:[0-9a-f]{64}", image_id) is None or actual != image_id:
+            return False
+        if pilot._owned_container() != owned:
+            return False
+        pilot._docker("rm", "--force", "--volumes", owned)
+        return pilot._owned_container() is None
+    except (CaptureRunnerError, OSError, PilotError, ValueError):
+        return False
+
+
+def main(argv: list[str] | None = None, *, owner_token: str | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument(
         "--confirm-disposable-container", required=True, action="store_true",
         help="Accept the SQL Server Developer EULA and start one isolated container.",
     )
     parser.parse_args(argv)
-    pilot = OwnedPilot()
+    pilot = OwnedPilot() if owner_token is None else OwnedPilot(owner_token)
     findings = ()
     evidence_code = None
     expected_failures = (CaptureRunnerError, IndexError, KeyError, OSError, PilotError, TypeError, ValueError)
