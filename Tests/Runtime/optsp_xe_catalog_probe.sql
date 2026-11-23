@@ -16,6 +16,35 @@ SELECT CONCAT(
     N'}'
 );
 
+-- Sample the primary-replica option and statistics policy in the current context.
+DECLARE @CompileOption int, @LowPriority int;
+SELECT @CompileOption = TRY_CONVERT(int, value)
+FROM sys.database_scoped_configurations
+WHERE name = N'OPTIMIZED_SP_EXECUTESQL';
+
+IF @@ROWCOUNT <> 1 OR @CompileOption IS NULL OR @CompileOption NOT IN (0, 1)
+    THROW 51004, 'NOT_PROVEN: expected the convertible compile option.', 1;
+
+SELECT @LowPriority = TRY_CONVERT(int, value)
+FROM sys.database_scoped_configurations
+WHERE name = N'ASYNC_STATS_UPDATE_WAIT_AT_LOW_PRIORITY';
+
+IF @@ROWCOUNT <> 1 OR @LowPriority IS NULL OR @LowPriority NOT IN (0, 1)
+    THROW 51005, 'NOT_PROVEN: expected the convertible statistics option.', 1;
+
+SELECT N'DATABASE_SETTINGS' AS record_type,
+       database_id,
+       compatibility_level,
+       @CompileOption AS optimized_sp_executesql,
+       CONVERT(int, is_auto_create_stats_on) AS auto_create_statistics,
+       CONVERT(int, is_auto_update_stats_on) AS auto_update_statistics,
+       CONVERT(int, is_auto_update_stats_async_on) AS auto_update_statistics_async,
+       @LowPriority AS async_stats_update_wait_at_low_priority
+FROM sys.databases
+WHERE database_id = DB_ID()
+FOR JSON PATH, WITHOUT_ARRAY_WRAPPER;
+
+
 SELECT CONCAT(
     N'{"record_type":"EVENT","package_name":',
     CONCAT(N'"', STRING_ESCAPE(package.name, 'json'), N'"'),

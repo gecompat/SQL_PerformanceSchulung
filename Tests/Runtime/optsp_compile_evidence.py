@@ -8,6 +8,7 @@ XE fields or RPC duration.
 
 from dataclasses import dataclass, field
 from itertools import combinations
+import re
 from typing import Literal
 
 
@@ -136,6 +137,27 @@ class Arm:
 
 
 @dataclass(frozen=True)
+class ArmState:
+    """Independently sampled options and comparison inputs for one database."""
+
+    instance_incarnation: str
+    database_id: int
+    option: Literal["OFF", "ON"]
+    profile_digest: str
+
+
+@dataclass(frozen=True)
+class ArmRun:
+    evidence: Arm
+    before: ArmState
+    after: ArmState
+    initial_database_plans: int
+    workload_digest: str
+    barrier_actors: frozenset[ActorRequest]
+
+
+
+@dataclass(frozen=True)
 class Result:
     status: Literal["PROVEN", "NOT_PROVEN"]
     reason: str
@@ -241,3 +263,56 @@ def evaluate_arm(arm: Arm) -> Result:
         ):
             return Result("PROVEN", "compile_wait_and_statement_plan_reuse")
     return Result("NOT_PROVEN", "no_bound_compile_wait")
+
+
+_SHA256 = re.compile(r"[0-9a-f]{64}", re.ASCII)
+
+
+def _valid_digest(value: str) -> bool:
+    return type(value) is str and _SHA256.fullmatch(value) is not None
+
+
+def evaluate_pair(off: ArmRun, on: ArmRun) -> Result:
+    """Compare one matched pair of normalized arms before any series-level claim."""
+    if off.evidence.mode != "OFF" or on.evidence.mode != "ON":
+        return Result("NOT_PROVEN", "pair_modes")
+
+    for run in (off, on):
+        arm = run.evidence
+        if (
+            run.before != run.after
+            or type(run.before.instance_incarnation) is not str
+            or not run.before.instance_incarnation
+            or type(arm.database_id) is not int
+            or arm.database_id <= 0
+            or run.before.database_id != arm.database_id
+            or run.before.option != arm.mode
+            or not _valid_digest(run.before.profile_digest)
+        ):
+            return Result("NOT_PROVEN", "arm_state")
+        if type(run.initial_database_plans) is not int or run.initial_database_plans != 0:
+            return Result("NOT_PROVEN", "initial_cache_state")
+        if run.barrier_actors != arm.expected_actors:
+            return Result("NOT_PROVEN", "barrier_actor_set")
+
+    if (
+        off.before.instance_incarnation != on.before.instance_incarnation
+        or off.before.database_id == on.before.database_id
+        or off.before.profile_digest != on.before.profile_digest
+    ):
+        return Result("NOT_PROVEN", "pair_profile")
+
+    if (
+        not _valid_digest(off.workload_digest)
+        or off.workload_digest != on.workload_digest
+        or not _valid_digest(off.evidence.batch_digest)
+        or off.evidence.batch_digest != on.evidence.batch_digest
+        or len(off.evidence.expected_actors) != len(on.evidence.expected_actors)
+    ):
+        return Result("NOT_PROVEN", "pair_workload")
+
+    for run in (off, on):
+        arm_result = evaluate_arm(run.evidence)
+        if arm_result.status != "PROVEN":
+            return Result("NOT_PROVEN", f"{run.evidence.mode.lower()}_{arm_result.reason}")
+    return Result("PROVEN", "matched_off_on_pair")

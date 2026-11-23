@@ -6,14 +6,14 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from optsp_compile_evidence import (  # noqa: E402
-    ActorRequest, Arm, FirstCompile, Interval, LCK_M_X, LockHold,
-    Request, ResourceKey, TimeBounds, Wait, evaluate_arm,
+    ActorRequest, Arm, ArmRun, ArmState, FirstCompile, Interval, LCK_M_X, LockHold,
+    Request, ResourceKey, TimeBounds, Wait, evaluate_arm, evaluate_pair,
 )
 
 
 WINNER = ActorRequest(9, 51, 0)
 WAITER = ActorRequest(9, 52, 0)
-BATCH = "synthetic-batch-and-parameters"
+BATCH = "a" * 64
 REQUESTS = (
     Request(WINNER, BATCH, Interval(1, 17), 14, "statement-plan-a"),
     Request(WAITER, BATCH, Interval(2, 19), 16, "statement-plan-a"),
@@ -160,6 +160,79 @@ class CompileEvidenceTests(unittest.TestCase):
         result = evaluate_arm(arm)
         self.assertEqual(result.status, "NOT_PROVEN")
         self.assertEqual(result.reason, reason)
+
+
+class PairedEvidenceTests(unittest.TestCase):
+    def setUp(self):
+        off_db = 8
+        remap = {actor: replace(actor, database_id=off_db) for actor in OFF.expected_actors}
+        off = replace(
+            OFF,
+            database_id=off_db,
+            expected_actors=frozenset(remap.values()),
+            requests=tuple(replace(request, actor=remap[request.actor]) for request in OFF.requests),
+            first_compiles=tuple(replace(item, actor=remap[item.actor]) for item in OFF.first_compiles),
+        )
+        self.off = self.run_with_state(off)
+        self.on = self.run_with_state(ON)
+
+    def run_with_state(self, arm):
+        state = ArmState("isolated-instance-start", arm.database_id, arm.mode, "b" * 64)
+        return ArmRun(arm, state, state, 0, "c" * 64, arm.expected_actors)
+
+    def test_matched_pair_binds_distinct_databases_and_both_arm_results(self):
+        self.assertEqual(evaluate_pair(self.off, self.on).reason, "matched_off_on_pair")
+        for off, on, reason in (
+            (self.on, self.off, "pair_modes"),
+            (replace(self.off, evidence=replace(self.off.evidence, complete=False)), self.on, "off_incomplete_capture"),
+            (self.off, replace(self.on, evidence=replace(self.on.evidence, waits=())), "on_no_bound_compile_wait"),
+            (self.run_with_state(OFF), self.on, "pair_profile"),
+        ):
+            with self.subTest(reason=reason):
+                result = evaluate_pair(off, on)
+                self.assertEqual((result.status, result.reason), ("NOT_PROVEN", reason))
+
+    def test_detects_state_change_missing_option_or_wrong_database(self):
+        before = self.off.before
+        for modified in (
+            replace(self.off, after=replace(before, option="ON")),
+            replace(self.off, after=replace(before, profile_digest="d" * 64)),
+            replace(self.off, after=replace(before, instance_incarnation="different-start")),
+            replace(self.off, before=replace(before, option="ON"), after=replace(before, option="ON")),
+            replace(self.off, before=replace(before, database_id=7), after=replace(before, database_id=7)),
+            replace(self.off, before=replace(before, profile_digest=""), after=replace(before, profile_digest="")),
+        ):
+            with self.subTest(modified=modified):
+                self.assertEqual(evaluate_pair(modified, self.on).reason, "arm_state")
+
+    def test_detects_instance_or_comparison_profile_change_between_arms(self):
+        for state in (
+            replace(self.on.before, instance_incarnation="different-start"),
+            replace(self.on.before, profile_digest="d" * 64),
+        ):
+            with self.subTest(state=state):
+                self.assertEqual(evaluate_pair(self.off, replace(self.on, before=state, after=state)).reason, "pair_profile")
+
+    def test_rejects_nonempty_or_unconfirmed_cache_and_partial_barrier(self):
+        for cache in (1, False, None):
+            with self.subTest(cache=cache):
+                self.assertEqual(
+                    evaluate_pair(replace(self.off, initial_database_plans=cache), self.on).reason,
+                    "initial_cache_state",
+                )
+        self.assertEqual(evaluate_pair(self.off, replace(self.on, barrier_actors=frozenset({WINNER}))).reason,
+                         "barrier_actor_set")
+
+    def test_rejects_different_batch_workload_or_actor_count(self):
+        for modified in (
+            replace(self.on, workload_digest="d" * 64),
+            replace(self.on, workload_digest=None),
+            replace(self.on, evidence=replace(self.on.evidence, batch_digest="d" * 64)),
+            replace(self.on, evidence=replace(self.on.evidence, expected_actors=frozenset({WINNER})),
+                    barrier_actors=frozenset({WINNER})),
+        ):
+            with self.subTest(modified=modified):
+                self.assertEqual(evaluate_pair(self.off, modified).reason, "pair_workload")
 
 
 if __name__ == "__main__":
