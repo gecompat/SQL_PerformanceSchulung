@@ -614,19 +614,21 @@ Waits auf einer anderen Objekt-ID als dem Zielindex. Die
 Fortschritts-Updates der Actors auf der Steuerungstabelle wurden aus den
 Messfenstern entfernt; Burstabschluss wird nun über den Zeilenzuwachs der
 Zieltabelle erkannt. Alle drei SQL-Server-Builds bestanden mit dieser Korrektur
-lokal drei von drei Versuchen. Der erste neue CI-Lauf zeigte, dass das
-Leserfenster auf SQL Server 2019 und 2022 noch zu kurz war. Der Reader hält es
-nun mit fünfzig Millisekunden Pause je Blattseitenprobe offen; die Bedingung
-für einen gültigen Waitnachweis bleibt unverändert. Ein späterer
-Dokumentationslauf auf dem 10-ms-Stand verfehlte SQL Server 2022 in allen drei
-Versuchen. Die aktuelle 50-ms-Variante bestand lokal erneut auf allen drei
-Builds je drei von drei vollständigen Zweiburstversuchen; beide Bursts
-bestätigten die exklusive Waitüberlappung auf der rechten Blattseite, und alle
-Versuche bestätigten das Cleanup. Die serielle PR-Matrix
+lokal drei von drei Versuchen. Die CI-Artefakte zeigten danach, dass die
+Orchestrierung `lab.Go` vor dem XE-Startmarker freigab. Je nach Scheduling
+lagen die Writer-Waits dadurch außerhalb des markierten Lesefensters. Die
+Capture-Session wartet jetzt auf `lab.Start`, gibt den Startmarker aus und
+öffnet direkt danach `lab.Go` für die Actors. Die Bedingung für einen gültigen
+Waitnachweis bleibt unverändert. Der 50-ms-Stand vor dieser Barrierenkorrektur
+verfehlte SQL Server 2022 in der CI in allen drei Versuchen. Die aktuelle
+Variante mit beiden Korrekturen bestand lokal erneut auf allen drei Builds je
+drei von drei vollständigen Zweiburstversuchen; beide Bursts bestätigten die
+exklusive Waitüberlappung auf der rechten Blattseite, und alle Versuche
+bestätigten das Cleanup. Die serielle PR-Matrix
 ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
 bestand ebenfalls: Build 15 dreimal, Build 16 zweimal und Build 17 einmal je
 drei begrenzten Zweiburstversuchen. Alle anderen Läufe blieben sichtbar
-`NOT_PROVEN`. Die frische PR-Matrix für die 50-ms-Variante steht noch aus. Die
+`NOT_PROVEN`. Die frische PR-Matrix für die Barrierenkorrektur steht noch aus. Die
 getrennte Methodenfreigabe bleibt vor einer
 Statusänderung oder Leistungsbehauptung erforderlich.
 `METHOD_DRAFT` bleibt bestehen, da

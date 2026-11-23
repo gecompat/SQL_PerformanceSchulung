@@ -242,8 +242,9 @@ def page_metadata_sql(addresses: set[tuple[int, int]], stage: int) -> str:
     return f"""
 SET NOCOUNT ON; USE [{DB}];
 INSERT lab.CaptureReady(Stage) VALUES({stage});
-WHILE NOT EXISTS(SELECT 1 FROM lab.Go WHERE Stage={stage}) WAITFOR DELAY '00:00:00.002';
+WHILE NOT EXISTS(SELECT 1 FROM lab.Start WHERE Stage={stage}) WAITFOR DELAY '00:00:00.002';
 SELECT 'IDX007_CHAIN_CAPTURE_BEGIN';
+INSERT lab.Go(Stage) VALUES({stage});
 DECLARE @candidate table(FileId int NOT NULL,PageId int NOT NULL);
 INSERT @candidate(FileId,PageId)
 SELECT allocated_page_file_id,allocated_page_page_id
@@ -376,6 +377,7 @@ GO
 CREATE SCHEMA lab;
 GO
 CREATE TABLE lab.ActorSessions(SessionId smallint NOT NULL PRIMARY KEY,RequestId int NOT NULL);
+CREATE TABLE lab.Start(Stage int NOT NULL PRIMARY KEY);
 CREATE TABLE lab.Go(Stage int NOT NULL PRIMARY KEY);
 CREATE TABLE lab.CaptureReady(Stage int NOT NULL PRIMARY KEY);
 DECLARE @seed int=0; WHILE @seed<501 BEGIN INSERT dbo.Hot DEFAULT VALUES; SET @seed+=1; END;
@@ -465,7 +467,7 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             capture_processes.append(chain_capture)
             wait_until(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('CAPTURE_READY|',COUNT(*)) FROM lab.CaptureReady WHERE Stage={stage};",
                        f"CAPTURE_READY|1")
-            sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; INSERT lab.Go(Stage) VALUES({stage});")
+            sqlcmd(name, env, f"SET NOCOUNT ON; USE [{DB}]; INSERT lab.Start(Stage) VALUES({stage});")
             wait_until(name, env,
                 f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('DONE|',COUNT_BIG(*)-501) FROM dbo.Hot;",
                 f"DONE|{actor_count * stage}")

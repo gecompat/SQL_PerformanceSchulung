@@ -14499,15 +14499,20 @@ Vorab-Gate. Eine gezielte DMV-Diagnose zeigte, dass wiederkehrende Waits auf
 einer anderen Objekt-ID als der Zielindex lagen. Der Pilot aktualisiert deshalb
 während der Bursts keine Fortschrittszeilen in `lab.ActorSessions` mehr und
 erkennt den Abschluss anhand des Zeilenzuwachses in `dbo.Hot`. Der erste neue
-CI-Lauf hatte danach auf SQL Server 2019 drei Versuche ohne überlappende
-Actor-Waits im kurzen Capturefenster. Ein folgender Lauf zeigte dasselbe
-Problem auf SQL Server 2022 im 10-ms-Fenster. Der Reader hält es nun mit
-50 Millisekunden Pause je Blattseitenprobe offen; die Nachweisbedingungen
-bleiben gleich. Die aktuellen lokalen Läufe auf Build 15/16/17 bestanden mit
-beiden Korrekturen je drei von drei Zweiburstversuchen: 661 Zeilen auf Build
-15/16 und 613 auf Build 17. Alle bestätigten Datenbank-/Container-Cleanup. Ein
-späterer Dokumentationslauf auf dem 10-ms-Stand verfehlte SQL Server 2022 in
-drei Versuchen; die neue 50-ms-Variante besteht lokal auf allen Builds. Die
+CI-Läufe ließen SQL Server 2019/2022 gelegentlich ohne einen vollständigen
+Waitnachweis. Das Artefakt zeigte den Orchestrierungsfehler: Die Steuerung
+öffnete `lab.Go`, bevor die Capture-Session den XE-Startmarker ausgab. Je nach
+Scheduling lagen Writer-Waits damit vor dem markierten Kettenlesefenster. Die
+Capture-Session wartet nun auf `lab.Start`, gibt zuerst den Startmarker aus und
+öffnet direkt danach `lab.Go` für die Actors. So beginnt das markierte Fenster
+vor dem Writerburst. Die Pause von 50 Millisekunden je Blattseitenprobe und
+alle Nachweisbedingungen bleiben unverändert. Die lokalen Läufe auf Build
+15/16/17 bestanden nach dieser Korrektur erneut je drei von drei
+Zweiburstversuchen: 661 Zeilen auf Build 15/16 und 613 auf Build 17. Alle
+bestätigten Datenbank-/Container-Cleanup. Die vorangehende PR-Matrix auf
+Commit `712364b` bestätigte die Diagnose durch ein erneutes SQL-2022-`0/3`;
+dieser Commit enthält die Barrierenkorrektur, deren frische PR-Matrix noch
+läuft. Die
 serielle PR-Matrix ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
 bestand ebenfalls auf allen Builds: Build 15 mit drei, Build 16 mit zwei und
 Build 17 mit einem erfolgreichen Zweiburstnachweis aus je drei Versuchen; alle
@@ -14522,4 +14527,4 @@ bleibt `METHOD_DRAFT`: XE ordnet Wait und Abfragefenster
 empirisch, macht mehrere DMV-Lesevorgänge aber nicht zu einem atomaren
 Snapshot. Gleichzeitige Page-Splits, Produktlast und Leistungswirkung sind
 nicht qualifiziert. Die frische serielle PR-Matrix und die Pflichtchecks
-stehen für den 50-ms-Kandidaten noch aus.
+stehen für den korrigierten Kandidaten noch aus.
