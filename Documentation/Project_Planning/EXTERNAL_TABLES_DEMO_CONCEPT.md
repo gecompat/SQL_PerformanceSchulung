@@ -148,6 +148,38 @@ und Abhängigkeiten auf. Installation, Dienstzustand und Connectorlauf
 werden in den bereitgestellten Gästen geprüft.
 
 
+### Installierten Paketstand vor dem SQL-Start prüfen
+
+Erfasse `/var/lib/dpkg/status` im vorbereiteten Gast nach bestätigter
+Gastidentität und abgeschlossener Paketinstallation. Übertrage die
+Datei bytegetreu. Verwende als Referenz die rohe Statusdatei aus dem
+festgeschriebenen Ubuntu-Abbild. Der Prüfer vergleicht zuerst deren
+SHA-256 mit der Paketliste. Anschließend berechnet er aus dem
+Grundbestand und den Paketübergängen den vollständigen Sollbestand
+für die gewählte Rolle. Paketname, Architektur und Version müssen
+unter den vollständig installierten Paketen exakt übereinstimmen.
+Fehlende, zusätzliche, geänderte oder unvollständig installierte
+Pakete verhindern den Nachweis.
+
+```text
+python Tests/Static/verify_external_tables_apt_plan.py --role query --base-status BASIS-STATUS --guest-status GAST-STATUS
+```
+
+Für den Quellgast verwende `--role source`. Statusdateien bleiben
+außerhalb des Repositories. Die Prüfung gibt den Paketbestand nur
+als Anzahl aus. Vor dem Pilot werden das CPython-Wheel, der aktive
+Treiber, die Gastidentität, die Dienste und die Netzgrenzen separat
+geprüft.
+
+Im Komponententest stimmten alle 21 APT-Paketdateien und das Wheel mit
+der Paketliste überein. Aus der rohen Statusdatei des geprüften Basisabbilds
+und den Metadaten der Paketdateien wurden synthetische Gastbestände
+gebildet. Der Prüfer bestätigte 672 installierte Pakete für die Quellrolle
+und 680 für die Abfragerolle. Mit dem Abfragebestand meldete der Prüfer
+für die Quellrolle acht zusätzliche Pakete. Die Erfassung des
+tatsächlichen Status aus den gestarteten Gästen steht aus.
+
+
 ### Abgeleitetes Hyper-V-Abbild mit 24 GiB
 
 Die Canonical-VHD hat unverändert 32.213.303.296 Byte virtuelle Größe.

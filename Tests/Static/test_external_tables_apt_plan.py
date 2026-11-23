@@ -7,7 +7,8 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase, main
 
 from verify_external_tables_apt_plan import (
-    LOCK as LOCK_PATH, check_plan, parse_install_plan, select_role, verify_python_wheel,
+    LOCK as LOCK_PATH, check_plan, parse_dpkg_status, parse_install_plan,
+    select_role, verify_guest_state, verify_python_wheel,
 )
 
 
@@ -76,6 +77,60 @@ class AptPlanTests(TestCase):
             path.write_bytes(data + b"x")
             with self.assertRaisesRegex(ValueError, "differs"):
                 verify_python_wheel(path, lock)
+
+
+def package(name, version, architecture="amd64", status="install ok installed"):
+    return (
+        f"Package: {name}\nStatus: {status}\nArchitecture: {architecture}\n"
+        f"Version: {version}\nDescription: Synthetic package\n continuation text\n\n"
+    ).encode()
+
+
+class GuestPackageStateTests(TestCase):
+    BASE = package("base", "1:1.0") + package("common", "1.0", "all")
+    ROLE = {"packages": [
+        {"package": "base", "architecture": "amd64", "previous_version": "1:1.0", "version": "1:2.0"},
+        {"package": "client", "architecture": "amd64", "version": "3.0"},
+    ]}
+    GUEST = package("base", "1:2.0") + package("common", "1.0", "all") + package("client", "3.0")
+
+    def verify(self, guest, base=BASE, lock=ROLE):
+        return verify_guest_state(base, guest, sha256(self.BASE).hexdigest(), lock)
+
+    def test_installed_state_must_match_pinned_base_and_exact_role_delta(self):
+        self.assertEqual(self.verify(self.GUEST), 3)
+        with self.assertRaisesRegex(ValueError, "pinned image"):
+            self.verify(self.GUEST, base=self.BASE + b"\n")
+        with self.assertRaisesRegex(ValueError, "locked transition"):
+            self.verify(self.GUEST, lock={"packages": [dict(self.ROLE["packages"][0], previous_version="1:0.9")]})
+
+    def test_rejects_missing_extra_or_changed_packages(self):
+        for guest, condition in (
+            (self.GUEST.replace(package("client", "3.0"), b""), "missing=1"),
+            (self.GUEST + package("polybase", "1.0"), "extra=1"),
+            (self.GUEST.replace(package("common", "1.0", "all"), package("common", "2.0", "all")), "changed=1"),
+            (self.GUEST.replace(package("client", "3.0"), package("client", "3.0", "all")), "missing=1, extra=1"),
+        ):
+            with self.subTest(condition=condition), self.assertRaisesRegex(ValueError, condition):
+                self.verify(guest)
+
+    def test_rejects_unconfigured_duplicate_and_non_native_status(self):
+        for sample in (
+            package("base", "1.0", status="install ok unpacked"),
+            package("base", "1.0", status="deinstall ok config-files"),
+            package("base", "1.0", "i386"),
+            package("base", "1.0") * 2,
+            package("base", "1.0").replace(b"Version: 1.0", b"Version: 0.9\nVersion: 1.0"),
+            package("base", "1.0").replace(b"Architecture: amd64\n", b""),
+        ):
+            with self.subTest(sample=sample), self.assertRaises(ValueError):
+                parse_dpkg_status(sample)
+
+    def test_role_selection_rejects_duplicate_package_transitions(self):
+        lock = {"roles": {"query": ["base"]}, "packages": [self.ROLE["packages"][0]] * 2}
+        with self.assertRaisesRegex(ValueError, "duplicate or unknown"):
+            select_role(lock, "query")
+
 
 
 if __name__ == "__main__":
