@@ -26,6 +26,11 @@ konzentriert sich auf Ausführungszahlen, Pläne und Laufzeitprofile.
 Der anschließende Teilnehmerpfad beschreibt die weitergehende Diagnose
 einer möglichen Regression, die eine eigene Laufzeitfreigabe benötigt.
 
+Für die Vertiefung stehen auf dem festgeschriebenen SQL-Server-2025-Build
+zwei separat geprüfte Komponenten zur Verfügung. Die erste zeigt
+Kompilierwert und Planwiederverwendung. Die zweite vergleicht
+`OPTION (RECOMPILE)` mit der Baseline und prüft die Rücknahme.
+[Vertiefung zur Vorführung](Automated/README.md#vertiefung-mit-sql-server-2025)
 
 ## Voraussetzungen und Grenzen
 

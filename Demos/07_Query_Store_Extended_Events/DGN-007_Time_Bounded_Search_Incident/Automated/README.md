@@ -278,6 +278,35 @@ Verwende die Werte als Lesebeispiel. Der [Reproduktionsvertrag](../Contracts/REA
 legt die Bewertung für sechs frische Kontrollläufe fest.
 
 
+## Vertiefung mit SQL Server 2025
+
+Bereite für jede der beiden Proben eine leere isolierte
+SQL-Server-2025-Developer-Instanz mit Build `17.0.5065.9` vor.
+Ersetze `CONTAINER` durch den Namen des eigenen Wegwerfcontainers und
+starte die Befehle im Repository-Stammverzeichnis.
+
+```text
+python -m Tests.Runtime.run_dgn007_compile_value_probe --container CONTAINER --confirm-disposable-instance --confirm-isolated-lab
+python -m Tests.Runtime.run_dgn007_compile_value_probe --container CONTAINER --confirm-disposable-instance --confirm-isolated-lab --mitigation
+```
+
+1. **Kompilierwert und Planwiederverwendung.** Vergleiche seltene und
+   häufige Suchwerte in beiden Startreihenfolgen. Der Ausgang zeigt, ob
+   der zweite Aufruf den Erstplan wiederverwendete und ob der passend
+   kompilierte Plan für dieselbe Eingabe weniger logische
+   Lesezugriffe brauchte. Lies die gemeldeten Wait- und I/O-Signale als
+   Befund des warmen Komponentenlaufs.
+2. **Querylokale Änderung und Rücknahme.** Beobachte zwei Aufrufe
+   derselben häufigen Suche mit der Ausgangsdefinition und mit
+   `OPTION (RECOMPILE)`. Ein bestandener Lauf bestätigt identische
+   Ergebnisse, weniger logische Lesezugriffe mit der Änderung und die
+   Wiederherstellung von Definition und Leseprofil.
+
+Werte einen Lauf erst mit `cleanup=PASS` aus. Der kombinierte
+Teilnehmerlauf mit T0/T1/T2, Dauervergleich und Ursachenabnahme bleibt
+ein eigener Qualifikationsschritt.
+[Prüfbedingungen der beiden Komponenten](../Contracts/SQL_CAPTURE_PRODUCER.md#kompilierwert-und-planwiederverwendung-separat-prüfen)
+
 ## Neutrale Kontrollcaptures
 
 Die drei eigenständigen Scopes konfigurieren vor der Last die feste Bedingung
