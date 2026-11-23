@@ -98,6 +98,22 @@ Der [Kataloglauf 45188183551](https://github.com/gecompat/SQL_PerformanceSchulun
 
 [Microsoft Support zu `sql_statement_post_compile`](https://support.microsoft.com/en-us/servicing/sql/sql-server-2017/cumulative-update/kb4480630-improvement-enhancement-adds-sql-statement-post-compile-extended-event-in-sql-server-2017) beschreibt für SQL Server 2016/2017 das Kompilierungsende als Auslösepunkt und eine eigene Dauer für die Kompilierung. Für den 2025-Pilot sind der Zeitstempelbezug und die Unsicherheit der ganzzahligen Millisekundenwerte auf dem festgeschriebenen Build zu prüfen. Überlappung ist nur belegbar, wenn sie auch unter der bestätigten Unsicherheit besteht. Ein unbestimmter Zeitbezug, fehlende Grenzen oder eine Überschneidung innerhalb der Zeitauflösung ergeben `NOT_PROVEN`.
 
+Die Auswertung kann für jede Zeitgrenze den frühesten und spätesten
+möglichen Zeitpunkt auf derselben qualifizierten Uhr übernehmen. Im
+OFF-Arm muss der späteste mögliche Start der beiden Kompilierungen
+vor ihrem frühesten möglichen Ende liegen. Im ON-Arm muss die
+Reihenfolge von Compile-, Wait-, Sperrbesitz- und Statementgrenzen
+auch mit den ungünstigsten Werten stimmen. Schon ein weiterer
+möglicher Sperrbesitz über dieselbe Ressource verhindert einen
+eindeutigen Befund.
+
+Die Dauergrenzen werden nur dann vom Ende abgezogen, wenn der
+Producer den Bezug der Dauer zu diesem Ende nachgewiesen hat. Die
+Auswertung setzt keine Millisekunden-Rundungsregel und keine
+Übereinstimmung zwischen verschiedenen Uhren voraus. Die Tests
+verwenden synthetische Zeitgrenzen. Die Messunsicherheit der
+SQL-Server-Ereignisse muss im Pilot bestimmt werden.
+
 Die optionalen Handle-Felder sind Kandidaten für einen Abgleich desselben inneren Statements. Dafür braucht der Pilot eine tatsächlich befüllte Payload, die Bindung an den synthetischen Marker sowie den Abgleich mit Batchtext und Cacheattributen.
 
 Die Katalogprobe löst die möglichen Feldwerte über den Typnamen und die zugehörige Paket-GUID auf. Auf Build `17.0.5065.9` listet `compile_synchronization.query_type` ausschließlich `Adhoc` (Schlüssel 0). Das Feld `step` beschreibt Cache-Lookups, das Einfügen eines Synchronisationsmarkers bei `CompileStarting` (Schlüssel 8) sowie dessen Zustandswechsel bei `CompileFinished` (Schlüssel 9 und 10). Diese Einträge geben keinen Zeitpunkt für den Beginn oder das Ende des konkreten parametrisierten RPC-Statements vor. Ein Pilot muss die tatsächliche Auslösung und die Zuordnung zu den inneren Statements belegen. `compilation_stage_statistics` liefert Stufenzähler ohne zugeordnete Start- oder Endpunkte einzelner Statements.

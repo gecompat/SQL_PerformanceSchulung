@@ -19,18 +19,61 @@ class ActorRequest:
 
 
 @dataclass(frozen=True)
+class TimeBounds:
+    """Inclusive earliest and latest ticks on the producer's qualified clock."""
+
+    earliest: int
+    latest: int
+
+    def __post_init__(self) -> None:
+        if type(self.earliest) is not int or type(self.latest) is not int or self.earliest > self.latest:
+            raise ValueError("invalid time bounds")
+
+
+Time = int | TimeBounds
+
+
+def _earliest(value: Time) -> int:
+    return value.earliest if isinstance(value, TimeBounds) else value
+
+
+def _latest(value: Time) -> int:
+    return value.latest if isinstance(value, TimeBounds) else value
+
+
+def _strictly_before(left: Time, right: Time) -> bool:
+    return _latest(left) < _earliest(right)
+
+
+def _at_or_before(left: Time, right: Time) -> bool:
+    return _latest(left) <= _earliest(right)
+
+
+@dataclass(frozen=True)
 class Interval:
-    start: int
-    end: int
+    start: Time
+    end: Time
+
+    @classmethod
+    def from_end_and_duration(cls, end: TimeBounds, duration: TimeBounds) -> "Interval":
+        """Use only when the producer has qualified the duration and end-time relationship."""
+        if duration.earliest < 0:
+            raise ValueError("duration bounds cannot be negative")
+        return cls(TimeBounds(end.earliest - duration.latest, end.latest - duration.earliest), end)
 
     def valid(self) -> bool:
-        return self.start < self.end
+        return _earliest(self.start) < _latest(self.end)
 
     def contains(self, other: "Interval") -> bool:
-        return other.valid() and self.start <= other.start < other.end <= self.end
+        return other.valid() and _at_or_before(self.start, other.start) and _at_or_before(other.end, self.end)
 
     def overlaps(self, other: "Interval") -> bool:
-        return max(self.start, other.start) < min(self.end, other.end)
+        """Overlap that holds for all admitted endpoint placements."""
+        return max(_latest(self.start), _latest(other.start)) < min(_earliest(self.end), _earliest(other.end))
+
+    def possibly_overlaps(self, other: "Interval") -> bool:
+        """Overlap that cannot be ruled out when excluding other lock holders."""
+        return max(_earliest(self.start), _earliest(other.start)) < min(_latest(self.end), _latest(other.end))
 
 
 @dataclass(frozen=True)
@@ -38,7 +81,7 @@ class Request:
     actor: ActorRequest
     batch_digest: str
     rpc: Interval
-    statement_completed_at: int
+    statement_completed_at: Time
     statement_plan_handle: str
 
 
@@ -121,7 +164,8 @@ def evaluate_arm(arm: Arm) -> Result:
             or not arm.batch_digest
             or request.batch_digest != arm.batch_digest
             or not request.rpc.valid()
-            or not request.rpc.start < request.statement_completed_at <= request.rpc.end
+            or not _strictly_before(request.rpc.start, request.statement_completed_at)
+            or not _at_or_before(request.statement_completed_at, request.rpc.end)
             or not request.statement_plan_handle
         ):
             return Result("NOT_PROVEN", "request_binding")
@@ -135,7 +179,7 @@ def evaluate_arm(arm: Arm) -> Result:
         if (
             request is None
             or not request.rpc.contains(compile_.interval)
-            or compile_.interval.end > request.statement_completed_at
+            or not _at_or_before(compile_.interval.end, request.statement_completed_at)
             or compile_.plan_handle != request.statement_plan_handle
         ):
             return Result("NOT_PROVEN", "compile_binding")
@@ -155,7 +199,7 @@ def evaluate_arm(arm: Arm) -> Result:
     waiters = {actor: request for actor, request in requests.items() if actor != winner.actor}
     if any(
         request.statement_plan_handle != winner.plan_handle
-        or request.statement_completed_at <= winner.interval.end
+        or not _strictly_before(winner.interval.end, request.statement_completed_at)
         for request in waiters.values()
     ):
         return Result("NOT_PROVEN", "statement_plan_reuse")
@@ -175,13 +219,15 @@ def evaluate_arm(arm: Arm) -> Result:
             or wait.resource is None
             or wait.resource.database_id != arm.database_id
             or not request.rpc.contains(wait.interval)
-            or not winner.interval.start <= wait.interval.start < winner.interval.end
-            or not winner.interval.end <= wait.interval.end <= request.statement_completed_at
+            or not _at_or_before(winner.interval.start, wait.interval.start)
+            or not _strictly_before(wait.interval.start, winner.interval.end)
+            or not _at_or_before(winner.interval.end, wait.interval.end)
+            or not _at_or_before(wait.interval.end, request.statement_completed_at)
         ):
             continue
         owners = tuple(
             hold for hold in arm.lock_holds
-            if hold.resource == wait.resource and hold.interval.overlaps(wait.interval)
+            if hold.resource == wait.resource and hold.interval.possibly_overlaps(wait.interval)
         )
         if len(owners) != 1:
             continue
@@ -190,8 +236,8 @@ def evaluate_arm(arm: Arm) -> Result:
             hold.owner == winner.actor
             and hold.verified_compile is True
             and requests[winner.actor].rpc.contains(hold.interval)
-            and hold.interval.start <= wait.interval.start
-            and winner.interval.end <= hold.interval.end
+            and _at_or_before(hold.interval.start, wait.interval.start)
+            and _at_or_before(winner.interval.end, hold.interval.end)
         ):
             return Result("PROVEN", "compile_wait_and_statement_plan_reuse")
     return Result("NOT_PROVEN", "no_bound_compile_wait")
