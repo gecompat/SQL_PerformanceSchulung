@@ -245,3 +245,34 @@ Cachezähler abgeleitet. Die Verbindung dieses Mechanismus zur gemessenen
 Dauer sowie Alternativhypothesen und Mitigation bleiben Gegenstand
 der Incident-Abnahme.
 [Microsoft-Referenz zu sys.dm_exec_text_query_plan](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-text-query-plan-transact-sql?view=sql-server-ver17).
+
+## Querylokale Mitigation mit Rücknahme prüfen
+
+Der Komponententest auf Build `17.0.5065.9` hat einen separaten Modus für
+`OPTION (RECOMPILE)`.
+
+```text
+python -m Tests.Runtime.run_dgn007_compile_value_probe --container CONTAINER --confirm-disposable-instance --confirm-isolated-lab --mitigation
+```
+
+Die seltene Suche kompiliert den Ausgangsplan. Zwei Aufrufe mit der
+häufigen Eingabe liefern die Baseline. Danach erhält ausschließlich
+die markierte Suchanweisung `OPTION (RECOMPILE)`. Zwei weitere Aufrufe
+verwenden dieselbe häufige Eingabe. Die SQL-Probe belässt die Modul-
+Optionen für ANSI-NULLs und Anführungszeichen unverändert. Sie nutzt
+einen Transaktionsspeicherpunkt und prüft nach der Rücknahme den Hash
+der ursprünglichen Prozedurdefinition und beide Moduloptionen.
+Ein erneuter Lauf mit Ausgangsplan ist die Rücknahmekontrolle.
+
+In allen fünf gemessenen Aufrufen müssen die vollständigen
+Ergebnismengen identisch sein. Der Runner prüft innerhalb jedes
+Aufrufs genau eine `STATISTICS IO`-Meldung pro Quelltabelle.
+Die Baselines und die Rücknahmekontrolle müssen dieselbe Summe
+logischer Lesezugriffe liefern. Beide Aufrufe unter der Änderung
+müssen weniger logische Lesezugriffe benötigen. Der native isolierte
+SQL-Server-2025-Lauf erfüllte diese Bedingungen einschließlich des
+Datenbankabbaus. Die Ausgabe enthält nur feste Befundmarker.
+
+Die Probe misst die logische Arbeit für eine feste Eingabe.
+Der vollständige T2-Mitigationstest mit dem Vierer-Mix, Compilerkosten,
+Dauer und Alternativhypothesen bleibt Teil der Incident-Abnahme.

@@ -15,6 +15,15 @@ from Tests.Runtime.dgn004_capture_runner import CaptureRunnerError, collect_boun
 
 PROBE = Path(__file__).with_name("dgn007_compile_value_probe.sql")
 SUMMARY = "DGN007_COMPILE_VALUE|PASS|two_compile_values;two_plan_hashes;two_reused_executions;logical_reads_follow_compile_context"
+MITIGATION_PROBE = Path(__file__).with_name("dgn007_recompile_mitigation_probe.sql")
+MITIGATION_SUMMARY = "DGN007_MITIGATION|PASS|fewer_logical_reads;equal_results;restored_definition"
+MITIGATION_SQL_SUMMARY = "DGN007_MITIGATION|RESULTS_AND_RESTORE|PASS"
+_MITIGATION_STAGES = ("BASELINE1", "BASELINE2", "MITIGATION1", "MITIGATION2", "RESTORE")
+_STAGE_MARKER = re.compile(r"DGN007_IO_(BEGIN|END)\|([A-Z]+[0-9]?)")
+_SOURCE_IO = re.compile(
+    r"Table '(CaseItem|CaseGroup|CaseItemDetail)'\. Scan count [0-9]+, logical reads ([0-9]+), .+"
+)
+_SOURCE_TABLES = {"CaseItem", "CaseGroup", "CaseItemDetail"}
 SETUP_SUMMARY = "SQLPERF_SUMMARY|PASS|OK"
 PREFLIGHT = """SET NOCOUNT ON;
 IF COALESCE(TRY_CONVERT(int, SERVERPROPERTY('EditionID')), 0) NOT IN (-2117995310,-1785266663)
@@ -60,17 +69,57 @@ def _expect(output: str, summary: str) -> None:
         raise runner.RunnerFailure("NOT_PROVEN")
 
 
-def run_probe(container: str) -> None:
+def _verify_mitigation(output: str) -> None:
+    _expect(output, MITIGATION_SQL_SUMMARY)
+    stages: dict[str, int] = {}
+    active = None
+    reads: dict[str, int] = {}
+    for line in output.splitlines():
+        line = line.strip()
+        if mark := _STAGE_MARKER.fullmatch(line):
+            boundary, stage = mark.groups()
+            if boundary == "BEGIN":
+                if active is not None or len(stages) == len(_MITIGATION_STAGES) or stage != _MITIGATION_STAGES[len(stages)]:
+                    raise runner.RunnerFailure("NOT_PROVEN")
+                active, reads = stage, {}
+            else:
+                if active != stage or reads.keys() != _SOURCE_TABLES:
+                    raise runner.RunnerFailure("NOT_PROVEN")
+                stages[stage] = sum(reads.values())
+                active = None
+        elif source := _SOURCE_IO.fullmatch(line):
+            table, count = source.groups()
+            if active is None or table in reads or len(count) > 19:
+                raise runner.RunnerFailure("NOT_PROVEN")
+            reads[table] = int(count)
+        elif line.startswith("DGN007_IO_"):
+            raise runner.RunnerFailure("NOT_PROVEN")
+
+    if active is not None or tuple(stages) != _MITIGATION_STAGES:
+        raise runner.RunnerFailure("NOT_PROVEN")
+    baseline = stages["BASELINE1"]
+    if (
+        baseline <= 0 or not baseline == stages["BASELINE2"] == stages["RESTORE"]
+        or not all(0 < stages[stage] < baseline for stage in ("MITIGATION1", "MITIGATION2"))
+    ):
+        raise runner.RunnerFailure("NOT_PROVEN")
+
+
+def run_probe(container: str, *, mitigation: bool = False) -> None:
     if not os.environ.get("SQLCMDPASSWORD") or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", container):
         raise runner.RunnerFailure("FAIL_SAFETY")
     target = runner.resolve_target(container)
     setup = _file(runner.AUTOMATED / "10_Setup.sql")
-    probe = _file(PROBE)
+    probe = _file(MITIGATION_PROBE if mitigation else PROBE)
     cleanup = _file(runner.AUTOMATED / "90_Cleanup.sql")
     _expect(_batch(target, PREFLIGHT, "master", 10), "EMPTY_DEVELOPER")
     try:
         _expect(_batch(target, setup, "master", 90), SETUP_SUMMARY)
-        _expect(_batch(target, probe, runner.DATABASE, 30), SUMMARY)
+        output = _batch(target, probe, runner.DATABASE, 30)
+        if mitigation:
+            _verify_mitigation(output)
+        else:
+            _expect(output, SUMMARY)
     finally:
         try:
             try:
@@ -86,18 +135,20 @@ def main() -> int:
     parser.add_argument("--container", required=True)
     parser.add_argument("--confirm-disposable-instance", action="store_true")
     parser.add_argument("--confirm-isolated-lab", action="store_true")
+    parser.add_argument("--mitigation", action="store_true", help="compare query-only recompile, including rollback")
     args = parser.parse_args()
+    prefix, summary = ("DGN007_MITIGATION", MITIGATION_SUMMARY) if args.mitigation else ("DGN007_COMPILE_VALUE", SUMMARY)
     try:
         if not args.confirm_disposable_instance or not args.confirm_isolated_lab:
             raise runner.RunnerFailure("FAIL_SAFETY")
-        run_probe(args.container)
+        run_probe(args.container, mitigation=args.mitigation)
     except runner.RunnerFailure as error:
-        print(f"DGN007_COMPILE_VALUE|FAIL|{error.code}")
+        print(f"{prefix}|FAIL|{error.code}")
         return 1
     except (execution_target.ExecutionTargetError, CaptureRunnerError, OSError, ValueError, subprocess.TimeoutExpired):
-        print("DGN007_COMPILE_VALUE|FAIL|NOT_PROVEN")
+        print(f"{prefix}|FAIL|NOT_PROVEN")
         return 1
-    print(SUMMARY + ";cleanup=PASS")
+    print(summary + ";cleanup=PASS")
     return 0
 
 
