@@ -6,7 +6,7 @@
 
 ## Lernfrage und Aussagegrenze
 
-Der Entwurf prüft, ob `ORDER (EventDate)` bei einem geordneten NCCI die
+Der Entwurf prüft, ob `ORDER (EventDayKey)` bei einem geordneten NCCI die
 Überlappung geeigneter Segmente gegenüber demselben ungeordneten NCCI reduziert
 und dadurch eine selektive Bereichsabfrage mehr Segmente überspringen kann.
 Microsoft beschreibt geordnete Columnstore-Indizes als Best-Effort-Sortierung;
@@ -26,11 +26,11 @@ bestehenden IDX-010-Demo.
    deterministisch erzeugten synthetischen Zeilen und identischem Seed. Ein
    gebundener Datenbestandshash und exakte Zeilenzahl müssen vor dem Indexbau
    übereinstimmen.
-2. Halte die Tabelle als Rowstore mit demselben nicht nach `EventDate`
+2. Halte die Tabelle als Rowstore mit demselben nicht nach `EventDayKey`
    geordneten Clustered Index. Erzeuge je Datenbank dieselbe NCCI-Spaltenliste,
-   die `EventDate` und alle von der Testabfrage benötigten Werte enthält.
+   die `EventDayKey` und alle von der Testabfrage benötigten Werte enthält.
 3. Der Kontrollarm baut den NCCI ohne `ORDER`; der Versuchsarm verwendet
-   `ORDER (EventDate)`. Beide Builds laufen offline mit `MAXDOP = 1`; die
+   `ORDER (EventDayKey)`. Beide Builds laufen offline mit `MAXDOP = 1`; die
    Option gilt identisch für beide Arme. Damit ist die Buildparallelität
    kontrolliert; höhere Parallelität kann laut Microsoft zusätzliche
    Segmentüberlappung verursachen, weil jeder Thread nur lokal sortiert.
@@ -46,20 +46,48 @@ bestehenden IDX-010-Demo.
    Datumsordnung erhält. Zeilenzahl, Generator und erwartete Rowgroupzahl
    werden vor einem Pilot im ausführbaren Vertrag festgelegt. Der Pilot ist
    nur aussagekräftig, wenn der Kontrollarm nach der unterstützten
-   Order-Quality-Auswertung tatsächlich überlappende `EventDate`-Segmente hat;
+   Order-Quality-Auswertung tatsächlich überlappende `EventDayKey`-Segmente hat;
    andernfalls ist die Datengestaltung kein gültiger Gegenfall.
-5. Die Testabfrage verwendet denselben selektiven `EventDate`-Bereich und
+5. Die Testabfrage verwendet denselben selektiven `EventDayKey`-Bereich und
    dieselbe Aggregation in beiden Armen. Exaktes Ergebnis und Zeilenidentität
    müssen übereinstimmen. Der tatsächliche Ausführungsplan muss jeweils den
    vorgesehenen NCCI-Scan zeigen. Wird der NCCI nicht verwendet, ist der
    Vergleich für diesen Lauf `NOT_PROVEN`; kein erzwungener Zugriffspfad darf
    unbemerkt als Optimizerwahl dargestellt werden.
 
+## Konkretes Profil für den unabhängigen Review
+
+Das veröffentlichte Microsoft-Skript für die Ordnungsgüte lässt den Typ `date`
+aus. Das Profil verwendet deshalb `EventDayKey bigint` als fortlaufenden
+synthetischen Tagesschlüssel. Das Skript muss für jede der beiden Varianten
+alle Segmente der Schlüsselspalte als auswertbar melden. Ein Wechsel des
+Datentyps nach Sichtung der Ergebnisse erfordert ein eigenes Profil.
+
+| Merkmal | Festlegung für den Pilotkandidaten |
+|---|---|
+| Daten und Ladefolge | `dbo.Events(EventId bigint NOT NULL, EventDayKey bigint NOT NULL)`. `EventId` ist der gruppierte eindeutige Primärschlüssel von 0 bis 4.194.303. `EventDayKey = (EventId * 1048573) % 4194304`. Der ungerade Faktor permutiert die Schlüssel eindeutig und mischt kurze und weite Abstände im physischen Primärschlüssel. Lade beide Arme nach denselben vier disjunkten ID-Bereichen mit je 1.048.576 Zeilen. Rechnerische und tatsächliche Segmentgrenzen werden getrennt beurteilt. |
+| Datenidentität | Prüfe je Arm exakt 4.194.304 unterschiedliche IDs im festgelegten geschlossenen Bereich und null Abweichungen von der Schlüsselformel. Vergleiche außerdem SHA-256 über den vollständigen, nach `EventId` sortierten Strom aus UTF-8-Zeilen `EventId,EventDayKey` mit LF als Zeilenende und dezimalen Ganzzahlen ohne Gruppierung, Header oder BOM. Gib nur Digest und Zähler aus. |
+| Index und Rowgroups | Eine Partition, gleiche NCCI-Spaltenliste `(EventDayKey, EventId)` und COLUMNSTORE-Kompression in beiden Armen. Erwartet sind vier vollständige komprimierte Rowgroups. Der Mechanismuslauf wertet nur vier vollständige Gruppen ohne Delta- oder gelöschte Zeilen je Arm aus. Ein anderer Aufteilungsschnitt endet als `NOT_PROVEN`. |
+| Abfrage und Oracle | Halboffenes Intervall `EventDayKey >= 1048576 AND EventDayKey < 1052672`. Erwartet sind `COUNT_BIG(*) = 4096` und `SUM(EventDayKey) = 4303353856`. Die Bijektion und die geprüfte Fixture bestimmen die erwartete Zeilenidentität. Führe pro Arm eine markierte Abfrage in einer eigenen englischsprachigen SQL-Session aus und binde ihren tatsächlichen Plan sowie genau eine Tabellenmeldung mit Segmentzählern an diesen Aufruf. |
+| Mindestbefund | In beiden Armen müssen gelesene und übersprungene Segmente zusammen vier ergeben. Die ungeordnete Kontrolle muss Segmente mit Überlappung enthalten. Der geordnete Arm muss höhere Ordnungsgüte und mindestens ein zusätzlich übersprungenes Segment zeigen. Andernfalls `NOT_PROVEN`. |
+| Rollen | Eine lokale Einrichtungsidentität erstellt ausschließlich die zwei markierten Datenbanken und die Fixture. Das Beobachtungsprofil erhält Zugriff auf genau die beiden Testdatenbanken, Leserechte auf `dbo.Events`, die für das Profil erforderliche Metadatensicht und `SHOWPLAN` für die Testdatenbanken. Die Umsetzung prüft die effektiven Rechte vor Messung und benennt die konkreten Grants und ihre Rücknahme im Laufvertrag. |
+| Buildkandidat | Linux/AMD64, SQL Server `17.0.5065.9`, `Enterprise Developer Edition (64-bit)`, Kompatibilitätsstufe 170. Der [OPTSP-Kataloglauf](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45165364360) bestätigte Version und Edition für den unten genannten Digest. Der NCCI-Pilot muss diese Werte selbst vor der Fixture verifizieren. |
+| Obergrenzen | Ein eigener Container mit 2 CPUs, 4 GiB RAM, ohne externes Netzwerk. Je Testdatenbank maximal 512 MiB Daten und 512 MiB Log, für TempDB insgesamt maximal 512 MiB Daten und 256 MiB Log. Ein Pilotversuch mit insgesamt 900 Sekunden für Start, Setup, Builds und Auswertung sowie einem separaten Cleanupfenster von 90 Sekunden. Das Profil ist ein Budgetvorschlag, dessen Eignung der Review und spätere Lauf prüfen. |
+
+Binde die Ordnungsgüte an die [gesichtete Fassung des Microsoft-Skripts](https://github.com/microsoft/sql-server-samples/blob/c68199caedd6e843ee30cc982f469abdf25dec29/samples/features/columnstore/ordered-columnstore/order-quality.sql).
+Die Reviewprüfung muss sicherstellen, dass die ausgewertete Zeile genau dem
+Zielindex und dessen Spalte entspricht. Die Spaltenmetadaten des Beispiels
+werden über Objekt und Spalte verbunden. Für eine eindeutige Zuordnung muss
+die Auswertung auch die Index-ID absichern oder Mehrfachtreffer vollständig
+abweisen. Die Auswertung braucht außerdem einen geprüften Umgang mit gleichen
+Segmentgrenzen. Mehrdeutige Bindung, unvollständige Metadaten oder
+nicht auswertbare Grenzen führen zu `NOT_PROVEN`.
+
 ## Evidenz und Auswertung
 
 - Binde Buildversion, Edition, Compatibility Level, Datenbank- und
   Indexmetadaten, Buildoptionen, Datenhash, Zeilenzahl und die finale
-  `column_store_order_ordinal` für `EventDate` an beide Arme.
+  `column_store_order_ordinal` für `EventDayKey` an beide Arme.
 - Erfasse Rowgroupzustand und Segmentmetadaten für genau den geprüften Index.
   Als Ausgangspunkt dient Microsofts offizielles Order-Quality-Skript, das
   geeignete Datentypen und Encodings anhand von `sys.column_store_segments`
@@ -79,7 +107,7 @@ bestehenden IDX-010-Demo.
   Order-Quality-Metrik beschreibt zusätzlich die physische Überlappung; sie
   ersetzt diese Queryevidenz nicht.
 - Akzeptanz für den Mechanismuspilot: der Kontrollarm zeigt messbare
-  `EventDate`-Segmentüberlappung; die geordnete Variante weist bei gleicher
+  `EventDayKey`-Segmentüberlappung; die geordnete Variante weist bei gleicher
   Segmentzahl weniger Überlappung und die Testabfrage mehr übersprungene bzw.
   weniger gelesene Segmente auf. Fehlt die Überlappung im Kontrollarm, ist die
   Ordnungsgüte wegen Typ/Encoding nicht auswertbar oder fehlt ein gebundener
