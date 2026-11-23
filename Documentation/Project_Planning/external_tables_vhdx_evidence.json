@@ -1,0 +1,48 @@
+{
+  "scope": "offline-derived-external-tables-ubuntu-base",
+  "source_archive_sha256": "cde3ca6a5aabe89702456cc5af69e2336600ce13c18898aba27e7212e3474e3f",
+  "source_virtual_bytes": 32213303296,
+  "derived_virtual_bytes": 25769803776,
+  "derived_file_bytes": 2592079872,
+  "derived_sha256": "13d0889dc23d169b934658c8d38f6fe1878f7f41d84ac971d395a64554f169f4",
+  "format": "VHDX",
+  "allocation": "Dynamic",
+  "logical_sector_bytes": 512,
+  "qemu_img": "8.2.2 (1:8.2.2+ds-0ubuntu1.18)",
+  "hyper_v_test_vhd": true,
+  "guest_boot": "NOT_RUN",
+  "partitions_before_and_after": [
+    {
+      "number": 1,
+      "first_lba": 2099200,
+      "sectors": 5240799,
+      "type": "0FC63DAF-8483-4772-8E79-3D69D8477DE4",
+      "uuid": "894056A3-B700-490F-BA09-B15DDBA61A34",
+      "sha256": "7ceb644c1d655ac09118b69e0460e213a3d01fa056a8b6949c14de09aef744db"
+    },
+    {
+      "number": 14,
+      "first_lba": 2048,
+      "sectors": 8192,
+      "type": "21686148-6449-6E6F-744E-656564454649",
+      "uuid": "B158DE07-1BB9-4D8D-BF8F-62D443573294",
+      "sha256": "a43f0a19c909592ae6740d45958ce290e6b4abe14549729ce884e2061dfafda2"
+    },
+    {
+      "number": 15,
+      "first_lba": 10240,
+      "sectors": 217088,
+      "type": "C12A7328-F81F-11D2-BA4B-00A0C93EC93B",
+      "uuid": "DAC8C437-EB59-4C41-9AD6-9C2B761EB074",
+      "sha256": "b6aa90384dacd9594d84601d5b3bdc473b468765975850fa8a4d87ffc50dba77"
+    },
+    {
+      "number": 16,
+      "first_lba": 227328,
+      "sectors": 1869825,
+      "type": "BC13C2FF-59E6-4262-A352-B275FD6F7172",
+      "uuid": "9C450BE3-F2E9-41D7-9A13-7B3998D2FB16",
+      "sha256": "54fcffa10cc3089b2f177f380f676a1519a65949b5516d83ad2072cb08cbcff1"
+    }
+  ]
+}
