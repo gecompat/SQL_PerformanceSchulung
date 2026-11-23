@@ -373,6 +373,34 @@ verwenden simulierte Antworten. Ob der Connector die erwarteten Felder
 liefert und der Request lange genug für eine Live-Beobachtung sichtbar
 bleibt, muss der zugelassene Pilot zeigen.
 
+### Pilotablauf und Fristen
+
+Der [Pilotablauf](../../Tests/Runtime/external_tables_pilot.py) verbindet
+Gastvorbereitung, Datenbankanlage, Datenabgleich, Rechteprüfung, TLS-Probe,
+Statistikaufbau, Messung und Abbau. Er verwendet eine gemeinsame Frist von
+600 Sekunden für den Versuch und danach 120 Sekunden für den Abbau. Der
+Gasttransport muss Eigentum, Paketstand, Isolation und Ressourcengrenzen
+belegen, bevor SQL ausgeführt wird. Er speichert die Login-SIDs vor der
+Erstellung. Der Ablauf reserviert den Abbau für jede Datenbank bereits
+vor dem ersten Einrichtungsaufruf.
+
+Die [SQL-Bausteine](../../Tests/Runtime/external_tables_pilot_sql.py)
+legen Daten- und Logdatei mit je 128 MiB Obergrenze an. Die Anlage in
+`master` und die Konfiguration auf der neuen Datenbank laufen getrennt.
+In den beiden Testdatenbanken bleiben automatische Erstellung und
+Aktualisierung von Statistiken ausgeschaltet. Die Messstatistiken
+entstehen ausdrücklich in der Setup-Phase.
+[Microsoft-Referenz zur Datenbankanlage](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-database-transact-sql?view=sql-server-ver17).
+
+Ein Abbruch vor dem Setzen der Laufmarker kann eine noch unmarkierte
+Testdatenbank hinterlassen. In diesem Fall bleibt ihr SQL-Abbau
+unbestätigt. Der Gasttransport darf den eigenen Gast anhand seiner
+Erzeugungsliste abbauen und meldet dessen Ergebnis getrennt. Jeder
+unbestätigte Abbau verhindert einen positiven Gesamtbefund. Die
+[Ablauftests](../../Tests/Static/test_external_tables_pilot.py) prüfen
+diese Teilausfälle mit simulierten Gästen. Die konkrete Linux- und
+Hyper-V-Anbindung muss im zugelassenen Pilot noch nachgewiesen werden.
+
 ### Abbau und Wiederaufnahme
 
 1. Sperre weitere Demoaufrufe und beende nur eigene ausstehende Requests.

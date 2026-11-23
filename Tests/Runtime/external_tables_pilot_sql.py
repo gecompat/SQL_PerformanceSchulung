@@ -9,6 +9,8 @@ import re
 
 TOKEN = re.compile(r"[A-Z0-9]{8}", re.ASCII)
 VERSION = "17.0.5065.9"
+EDITION = "Enterprise Developer Edition (64-bit)"
+DATABASE_FILE_MIB = 128
 ROWS = 4096
 DAY_ZERO = date(2026, 1, 1)
 EXPECTED = ((0, 128, 250560), (1, 128, 251840), (2, 128, 253120), (3, 128, 254400))
@@ -35,30 +37,81 @@ def database_name(token: str, role: Role) -> str:
     return f"SQLPERF_LAB_EXT_{token}_{role.value}"
 
 
-def database_guard(token: str, role: Role) -> str:
+def database_guard(token: str, role: Role, *, require_compatibility: bool = True) -> str:
     expected_db = database_name(token, role)
-    return f"""SET NOCOUNT ON;
-IF DB_NAME() COLLATE Latin1_General_100_BIN2 <> N'{expected_db}'
-    OR DATALENGTH(DB_NAME()) <> DATALENGTH(N'{expected_db}')
+    compatibility = """
     OR NOT EXISTS (
         SELECT 1 FROM sys.databases WHERE database_id = DB_ID() AND compatibility_level = 170
-    )
+    )""" if require_compatibility else ""
+    return f"""SET NOCOUNT ON;
+IF DB_NAME() COLLATE Latin1_General_100_BIN2 <> N'{expected_db}'
+    OR DATALENGTH(DB_NAME()) <> DATALENGTH(N'{expected_db}'){compatibility}
     OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'ProductVersion')), N'') <> N'{VERSION}'
-    OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'Edition')), N'') <> N'Enterprise Developer Edition (64-bit)'
+    OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'Edition')), N'') <> N'{EDITION}'
     THROW 51060, 'FAIL_CONTRACT: unexpected External Tables pilot database or engine.', 1;
 """
 
 
+def database_markers(token: str, role: Role) -> tuple[tuple[str, str], ...]:
+    database_name(token, role)
+    return (
+        ("SQLPERF.Project", "SQL_PerformanceSchulung"),
+        ("SQLPERF.ContractVersion", "1.0"),
+        ("SQLPERF.RunToken", token),
+        ("SQLPERF.PilotProfile", f"EXTERNAL_TABLES_{role.value}"),
+    )
+
+
+def create_database_batch(token: str, role: Role) -> str:
+    """Run in master on the verified empty guest, in autocommit mode."""
+    db = database_name(token, role)
+    return f"""SET NOCOUNT ON;
+IF DB_NAME() <> N'master' OR @@TRANCOUNT <> 0 OR (@@OPTIONS & 2) <> 0
+    OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'ProductVersion')), N'') <> N'{VERSION}'
+    OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'Edition')), N'') <> N'{EDITION}'
+    OR DB_ID(N'{db}') IS NOT NULL
+    THROW 51080, 'FAIL_CONTRACT: External Tables database target is not fresh.', 1;
+CREATE DATABASE [{db}]
+ON PRIMARY (NAME = N'PilotData', FILENAME = N'/var/opt/mssql/data/{db}.mdf',
+    SIZE = 32 MB, MAXSIZE = {DATABASE_FILE_MIB} MB, FILEGROWTH = 8 MB)
+LOG ON (NAME = N'PilotLog', FILENAME = N'/var/opt/mssql/data/{db}.ldf',
+    SIZE = 16 MB, MAXSIZE = {DATABASE_FILE_MIB} MB, FILEGROWTH = 8 MB);
+"""
+
+
+def configure_database_batch(token: str, role: Role) -> str:
+    """Configure the database just created by this run on a fresh connection."""
+    db = database_name(token, role)
+    sql = database_guard(token, role, require_compatibility=False) + f"""
+ALTER DATABASE [{db}] SET COMPATIBILITY_LEVEL = 170;
+SET XACT_ABORT ON;
+BEGIN TRANSACTION;
+"""
+    for name, value in database_markers(token, role):
+        sql += f"EXEC sys.sp_addextendedproperty N'{name}', N'{value}';\n"
+    return sql + f"""COMMIT;
+IF (SELECT COUNT(*) FROM sys.database_files) <> 2
+    OR (SELECT COUNT(*) FROM sys.database_files WHERE type IN (0, 1)
+        AND max_size = {DATABASE_FILE_MIB * 128} AND size <= max_size) <> 2
+    THROW 51081, 'FAIL_CONTRACT: External Tables file limits differ.', 1;
+ALTER DATABASE [{db}] SET RECOVERY SIMPLE;
+ALTER DATABASE [{db}] SET AUTO_CREATE_STATISTICS OFF;
+ALTER DATABASE [{db}] SET AUTO_UPDATE_STATISTICS OFF;
+IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'{db}'
+    AND compatibility_level = 170 AND recovery_model_desc = N'SIMPLE'
+    AND is_auto_create_stats_on = 0 AND is_auto_update_stats_on = 0)
+    THROW 51082, 'FAIL_CONTRACT: External Tables database settings differ.', 1;
+"""
+
+
 def owned_database_guard(token: str, role: Role) -> str:
+    markers = ",\n        ".join(f"(N'{name}', N'{value}')" for name, value in database_markers(token, role))
     return database_guard(token, role) + f"""
 SET XACT_ABORT ON;
 IF (
     SELECT COUNT_BIG(*) FROM sys.extended_properties AS p
     INNER JOIN (VALUES
-        (N'SQLPERF.Project', N'SQL_PerformanceSchulung'),
-        (N'SQLPERF.ContractVersion', N'1.0'),
-        (N'SQLPERF.RunToken', N'{token}'),
-        (N'SQLPERF.PilotProfile', N'EXTERNAL_TABLES_{role.value}')
+        {markers}
     ) AS marker(name, value)
         ON p.name COLLATE Latin1_General_100_BIN2 = marker.name
         AND DATALENGTH(p.name) = DATALENGTH(marker.name)
