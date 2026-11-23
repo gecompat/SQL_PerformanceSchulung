@@ -17,11 +17,12 @@ def create_reader_batch(run_token: str, password: str) -> str:
     login = reader_login(run_token)
     if re.fullmatch(r"Idx9![A-Za-z0-9]{32}", password, re.ASCII) is None:
         raise ValueError("invalid generated reader secret")
+    password_literal = "'" + password.replace("'", "''") + "'"
     return f"""
 SET NOCOUNT ON;
 IF DB_NAME() <> N'master' OR SUSER_ID(N'{login}') IS NOT NULL
     THROW 51020, 'FAIL_STATE: pilot reader target is not fresh.', 1;
-CREATE LOGIN [{login}] WITH PASSWORD = '{password}',
+CREATE LOGIN [{login}] WITH PASSWORD = {password_literal},
     DEFAULT_DATABASE = [master], CHECK_POLICY = ON, CHECK_EXPIRATION = OFF;
 """
 
