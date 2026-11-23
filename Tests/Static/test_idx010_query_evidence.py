@@ -34,6 +34,15 @@ PLAN = f"""<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/sh
 IO = "Table 'Events'. Scan count 0, logical reads 0, physical reads 0, Segment reads 1, segment skipped 3."
 
 
+PAGE_IO = (
+    "Table 'Events'. Scan count 1, logical reads 0, physical reads 0, "
+    "page server reads 0, read-ahead reads 0, page server read-ahead reads 0, "
+    "lob logical reads 4, lob physical reads 0, lob page server reads 0, "
+    "lob read-ahead reads 0, lob page server read-ahead reads 0."
+)
+SEGMENT_IO = "Table 'Events'. Segment reads 1, segment skipped 3."
+
+
 class QueryEvidenceTests(unittest.TestCase):
     def verify(self, plan=PLAN, messages=(IO,), result=(EXPECTED_RESULT,)):
         return verify_query_evidence(
@@ -50,6 +59,10 @@ class QueryEvidenceTests(unittest.TestCase):
             self.verify(messages=("Table 'Events'. Segment reads 4, segment skipped 0.",)),
             SegmentCounts(reads=4, skipped=0),
         )
+
+    def test_accepts_observed_separate_page_and_segment_records(self):
+        self.assertEqual(self.verify(messages=(PAGE_IO, SEGMENT_IO)), SegmentCounts(reads=1, skipped=3))
+
 
     def test_rejects_plan_from_wrong_statement_or_data_access(self):
         for original, replacement in (
@@ -83,6 +96,14 @@ class QueryEvidenceTests(unittest.TestCase):
         for messages in (
             (),
             (IO, IO),
+            (PAGE_IO, PAGE_IO),
+            (SEGMENT_IO, SEGMENT_IO),
+            (SEGMENT_IO, PAGE_IO),
+            (PAGE_IO, IO),
+            (PAGE_IO.replace("'Events'", "'Other'"), SEGMENT_IO),
+            (PAGE_IO, SEGMENT_IO.replace("'Events'", "'Other'")),
+            (PAGE_IO.replace("lob logical reads 4", "unexpected text"), SEGMENT_IO),
+            (PAGE_IO, SEGMENT_IO, "Warning"),
             (IO, "Table 'Events'. Scan count 1, logical reads 0."),
             (IO.replace("'Events'", "'Other'"),),
             (IO.replace("segment skipped 3", "segment skipped 2"),),

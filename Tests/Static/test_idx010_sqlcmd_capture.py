@@ -4,7 +4,7 @@ from time import monotonic
 from unittest import TestCase, main
 from unittest.mock import patch
 
-from test_idx010_query_evidence import IO, PLAN
+from test_idx010_query_evidence import IO, PAGE_IO, PLAN, SEGMENT_IO
 
 from dgn004_capture_runner import BoundedProcessResult, CaptureTimeoutError
 from idx010_pilot_sequence import Arm, Target, WORK_SECONDS
@@ -37,6 +37,19 @@ class SqlcmdCaptureTests(TestCase):
             index_name="IX_Events",
         )
         self.assertEqual((counts.reads, counts.skipped), (1, 3))
+
+    def test_reads_real_two_line_io_layout_through_the_full_evidence_checker(self):
+        capture = decode_capture(OUT, f"{LANGUAGE_MESSAGE}\n{PAGE_IO}\n{SEGMENT_IO}\n".encode())
+        self.assertEqual(capture.info_messages, (PAGE_IO, SEGMENT_IO))
+        counts = verify_query_evidence(
+            plan_xml=capture.plan_xml,
+            info_messages=capture.info_messages,
+            result_rows=capture.result_rows,
+            database_name=TARGET.database_name,
+            index_name="IX_Events",
+        )
+        self.assertEqual((counts.reads, counts.skipped), (1, 3))
+
 
     def test_rejects_truncated_wrapped_or_extra_stdout(self):
         for stdout in (

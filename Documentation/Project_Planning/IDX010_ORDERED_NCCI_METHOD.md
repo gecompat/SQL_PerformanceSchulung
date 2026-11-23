@@ -181,7 +181,11 @@ den ODBC-Client im Wegwerfcontainer über dessen feste ID und verbindet sich
 per Loopback mit dem für den Lauf eingerichteten Reader. Das Passwort
 gelangt über die Prozessumgebung zum Client. Plan und Ergebnis werden auf
 Standardausgabe erwartet, die eindeutige Segmentmeldung auf dem separaten
-Meldungskanal. Prozesslaufzeit und beide Ausgabeströme werden beim Lesen
+Meldungskanal. Der Messvertrag erlaubt das beobachtete Zweizeilenformat
+mit einer Standard-I/O-Zeile und genau einer Segmentzeile derselben
+Tabelle. Eine Segmentmeldung allein und das einzeilige kombinierte
+Format bleiben zulässig. Zwei Segmentmeldungen, weitere Tabellen oder
+Zusatzdiagnosen führen zum Abbruch. Prozesslaufzeit und beide Ausgabeströme werden beim Lesen
 begrenzt. Fehlende, mehrdeutige oder abgeschnittene Ausgabe bleibt
 `NOT_PROVEN`.
 [Microsoft-Referenz zu sqlcmd](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver17).
@@ -267,6 +271,18 @@ Der anschließende SQL-Aufruf bestätigte Build und Edition, die
 Kapazitätsabfrage war erfolgreich und der eigene Container wurde entfernt.
 Die SQL-Schritte für TempDB-Änderungen und Reader-Anlage waren in diesem
 Komponententest ausgenommen.
+
+Ein weiterer Komponententest führte eine lesende Abfrage über den
+gruppierten Columnstore-Index der bestehenden IDX-010-Demo aus.
+Auf demselben festgeschriebenen Build schrieb SQLCMD Standard- und
+Segmentzähler in zwei getrennte Meldungen für dieselbe Tabelle.
+Die Segmentmeldung wies ein gelesenes und ein übersprungenes Segment
+aus. Der XML-Plan zeigte den ausgeführten gruppierten Columnstore-Scan.
+Die Regressionstests bilden die beobachtete Ausgabeform mit den
+Sollzählern des Vier-Rowgroup-Profils nach. Der markierte Aufbau
+der bestehenden CCI-Demo und der eigene Container wurden entfernt.
+Die Ausgabeform des eigentlichen NCCI-Paars bleibt empirisch zu prüfen.
+
 
 ## Voraussetzungen, Stop und Cleanup für einen späteren Pilot
 
