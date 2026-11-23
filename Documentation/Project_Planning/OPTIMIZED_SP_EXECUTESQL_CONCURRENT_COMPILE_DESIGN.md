@@ -315,6 +315,33 @@ Die Katalogprobe löst die möglichen Feldwerte über den Typnamen und die zugeh
 
 Die Probe bindet `sqlos.wait_info.opcode` an `Begin` (0) und `End` (1) aus der zugehörigen Map. `lock_acquired` und `lock_released` führen beide Datenbank-ID, Sperrmodus, Ressourcentyp, Ressourcenkennungen und die zuschaltbare `resource_description`. Das liefert eine weitere Möglichkeit zur Gegenprüfung der Besitzdauer. Ob die dynamische Compile-Sperre in beiden Ereignissen erscheint und sich mit `wait_resource_desc` auf dieselbe Ressource abbilden lässt, bleibt vor einer positiven Aussage empirisch zu klären.
 
+### Gegenprobe mit einer partitionierten exklusiven Objektsperre
+
+Auf Build `17.0.5065.9` lief die Gegenprobe in einem eigenen
+Developer-Container mit deaktivierter Option. Der erste Actor las die
+einzige Zeile einer synthetischen Tabelle per `TABLOCKX, HOLDLOCK` in einer
+offenen Transaktion. Der zweite Actor forderte dieselbe Sperre an. Der
+erste Actor verifizierte in `sys.dm_exec_requests` seine eigene
+Blocker-ID, den wartenden Request und `LCK_M_X` und gab die Transaktion
+danach frei. Der zweite Actor erhielt den erwarteten Wert. Die
+Extended-Events-Sitzung erfasste `wait_info` mit
+`collect_wait_resource_desc=1` und die Sperrereignisse der Testtabelle
+mit `collect_resource_description=1`.
+
+| Quelle | Befund der Gegenprobe |
+|---|---|
+| DMV-Warteressource | `OBJECT:<Datenbank>:<Objekt>:<Partition>` |
+| `wait_info` | `Begin` und `End` enthielten `TAB: <Datenbank>:<Objekt>:<Partition>`. Alle drei IDs stimmten mit der DMV überein. |
+| Erwerb und Freigabe | Der Blocker erhielt und löste X-Sperren auf 24 Partitionen desselben Objekts. `resource_0` band das Objekt, `resource_1` war `0` und `resource_2` band die jeweilige Partition. Die Textbeschreibung der Sperrereignisse blieb leer. |
+| Reihenfolge | Auf der im Wait angegebenen Partition lag genau ein Erwerb vor Wait-Beginn und genau eine Freigabe zwischen Wait-Beginn und Wait-Ende. |
+
+Für diesen gewöhnlichen Objektlock benötigt der Ressourcenschlüssel
+Datenbank, Typ, Objekt und Partition. Nur so lässt sich der beobachtete
+Wait mit genau einem Besitzintervall verbinden. Die Gegenprobe gilt als
+Datensperre. Für die dynamische Compile-Ressource bleiben Format,
+Subressource und Übereinstimmung der Ereignisfelder empirisch zu belegen.
+Tabelle, XE-Sitzung und eigener Container wurden nach dem Lauf entfernt.
+
 ## Vollständigkeit der XE-Erfassung
 
 Der [Offline-Reader](../../Tests/Runtime/optsp_xe_snapshot.py) prüft die
