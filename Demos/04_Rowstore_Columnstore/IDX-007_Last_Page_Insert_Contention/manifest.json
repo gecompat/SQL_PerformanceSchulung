@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0",
+  "demo_id": "IDX-007",
+  "run_token": "LOCAL",
+  "safety_level": "YELLOW",
+  "resource_lifecycle": "self_cleaning_idx007_container",
+  "timeout_seconds": 3600,
+  "cleanup_timeout_seconds": 60,
+  "phases": [
+    {
+      "id": "PREFLIGHT",
+      "kind": "idx007_container",
+      "script": "run_idx007_demo.py",
+      "database": "master",
+      "required": true,
+      "require_summary": true,
+      "timeout_seconds": 3500
+    }
+  ]
+}

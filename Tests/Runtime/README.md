@@ -69,7 +69,9 @@ synthetische Datenbank hat einen pro Lauf erzeugten Namen und die vier
 Framework-Ownershipmarker; Cleanup prüft sie vor `DROP` und entfernt danach
 den eigenen Container.
 
-Ein Aufruf verwendet einen dieser Majorwerte:
+Die verwendbare, katalogisierte Vorführdemo liegt unter [`Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/`](../../Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/README.md). Sie verwendet das gemeinsame Manifest-Framework mit einer eng begrenzten `idx007_container`-Phase; der Runner erlaubt diesen Ausführungstyp ausschließlich für IDX-007. Der Aufruf benötigt keinen Host-SQL-Server und keinen Host-`sqlcmd`.
+
+Der Engineering-Pilot selbst bleibt der Runtime-Unterbau. Ein Aufruf verwendet einen dieser Majorwerte:
 
 ```text
 python Tests/Runtime/idx007_hot_leaf_pilot.py 15
@@ -103,9 +105,9 @@ Der Workflow
 [`idx007-live-capture.yml`](../../.github/workflows/idx007-live-capture.yml)
 führt die statischen Verträge auf Pull Requests aus und lässt die drei
 digest-gepinnten Runtime-Builds dort seriell laufen. `workflow_dispatch` kann
-dieselbe Matrix manuell erneut ausführen. Ein erfolgreicher Engineering-Pilot
-ändert den `METHOD_DRAFT`-Status nicht; Demofreigabe und
-Leistungsqualifikation bleiben getrennte Gates.
+dieselbe Matrix manuell erneut ausführen. Die paketierte Vorführdemo wird über den getrennten manifestbasierten Einstieg
+qualifiziert. Ein erfolgreicher Engineering-Pilot oder Demo-Lauf ändert den
+`METHOD_DRAFT`-Status nicht und ist keine allgemeine Leistungsqualifikation.
 
 Der Kettenleser wird vor der Actorfreigabe gestartet und wartet in derselben
 SQL-Session auf die Burstbarriere. XE erfasst zusätzlich markierte

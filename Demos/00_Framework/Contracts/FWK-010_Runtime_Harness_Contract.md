@@ -3,10 +3,10 @@
 | Merkmal | Wert |
 |---|---|
 | Status | `IMPLEMENTED` |
-| Vertragsversion | 1.0 |
-| Geltungsbereich | sequenzielle Demoausführung, Multi-Session-Phasen, Summary-Auswertung und Cleanup |
-| User-defined Tools | `run_demo.py`, `orchestrate_sessions.py`, `sqlcmd_process.py` |
-| Drittanbieter-Tool | externes Microsoft-Tool `sqlcmd` |
+| Vertragsversion | 1.0, IDX-007-Ausführungsadapter |
+| Geltungsbereich | sequenzielle SQL-/Multi-Session-Demoausführung sowie die eng begrenzte IDX-007-Containerphase; Summary-Auswertung und Cleanup |
+| User-defined Tools | `run_demo.py`, `orchestrate_sessions.py`, `sqlcmd_process.py`, IDX-007 Runtime-Pilot |
+| Drittanbieter-Tool | externes Microsoft-Tool `sqlcmd`; Docker Engine nur für den IDX-007-Adapter |
 
 ## 1. Zweck
 
@@ -23,6 +23,19 @@ Ein Manifest enthält:
 - globales Zeitbudget,
 - geordnete SQL- oder Multi-Session-Phasen,
 - optionales Cleanup.
+
+Die einzige Ausnahme vom externen Servermodell ist die `idx007_container`-
+Phase. Sie ist ausschließlich für IDX-007 erlaubt, muss alleinige
+`PREFLIGHT`-Phase sein, verwendet den paketlokalen Wrapper
+`run_idx007_demo.py`, verlangt die gelbe Sicherheitsbestätigung und benötigt
+keinen Host-SQL-Server oder Host-`sqlcmd`. Der Wrapper startet genau einen
+buildgebundenen Lauf des vorhandenen Piloten. Der Pilot besitzt die Ressourcen
+vom Containerstart bis zum markergeprüften Entfernen; das Manifest muss
+`resource_lifecycle: self_cleaning_idx007_container` deklarieren und darf kein
+separates SQL-Cleanup vortäuschen. Bei Framework-Timeout werden ausschließlich
+Container mit dem IDX-007-Ressourcenlabel nach erneuter Prüfung des Labels und
+`NetworkMode=none` entfernt. Der Manifestvalidator lehnt andere Verwendungen
+dieses Phasentyps ab.
 
 Datenbankselektoren sind ausschließlich `master` oder `target`. Der Zielname wird deterministisch als `SQLPERF_LAB_<DEMO>_<RUN>` abgeleitet. Pfade müssen innerhalb des Manifestverzeichnisses liegen.
 
@@ -53,6 +66,7 @@ transportierter ADMIN-Nachweis; der READER prüft seine effektiven Rechte selbst
 - Ein strukturierter `SKIP` einer erforderlichen Phase stoppt weitere zustandsverändernde Phasen.
 - Ein optionaler `SKIP` wird als sichtbare Warnung behandelt und blockiert die übrigen Phasen nicht.
 - Multi-Session-Phasen delegieren an `FWK-006` (Multi-Session-Orchestrierungsvertrag).
+- Die IDX-007-Containerphase ist eine fest verdrahtete, parameterarme Ausnahme; sie akzeptiert nur die Majors 15, 16 oder 17 und startet keine manifestdefinierten beliebigen Befehle.
 - Das globale Harness-Zeitbudget gilt über alle regulären Phasen.
 - Nach gestarteter Setup-Phase wird das konfigurierte Cleanup unabhängig vom vorherigen Ergebnis ausgeführt.
 - Cleanup-Fehler überschreiben das Gesamtergebnis mit `FAIL_CLEANUP`, ohne den ursprünglichen Fehlerkontext zu verbergen.

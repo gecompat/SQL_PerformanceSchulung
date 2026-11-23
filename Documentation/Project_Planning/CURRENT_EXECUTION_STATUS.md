@@ -14549,3 +14549,23 @@ empirisch, macht mehrere DMV-Lesevorgänge aber nicht zu einem atomaren
 Snapshot. Gleichzeitige Page-Splits, Produktlast und Leistungswirkung sind
 nicht qualifiziert. Die frische serielle PR-Matrix und die Pflichtchecks
 stehen für den korrigierten Kandidaten noch aus.
+
+
+### IDX-007 – verwendbares Demo-Paket ergänzt (23. November 2026)
+
+Der bisherige Live-Pilot ist jetzt als gelbe, katalogisierte und manifestbasierte
+Vorführdemo im bestehenden IDX-007-Scope verpackt. Der Frameworkrunner hat einen
+eng festgelegten, ausschließlich für IDX-007 zulässigen Containerphasenadapter;
+der Aufruf braucht keinen Host-SQL-Server und keinen Host-`sqlcmd`. Die README
+enthält Voraussetzungen, gepinnte Image-Digests, Schrittfolge, Moderationsfragen,
+Ergebnisinterpretation und Recovery. Ein neuer Versuch des paketierten Aufrufs
+bestand lokal auf Windows/Docker für SQL Server 2019 (`15.0.4500.2`), 2022
+(`16.0.4305.5`) und 2025 (`17.0.5035.5`) jeweils beide Wait-/Kettennachweise
+sowie bestätigtes Datenbank- und Containercleanup. Die drei Läufe dauerten rund
+65, 81 und 119 Sekunden. Neue Adaptertests, Demo-/Katalog-/Leitfadenvalidatoren
+und Frameworkvertragsvalidatoren bestehen lokal. Die frische PR-Matrix des
+paketierten Einstiegs ist noch ausstehend; bis zu ihrem Abschluss bleibt der
+Katalogstatus `IMPLEMENTED`. Der Methodenstatus `METHOD_DRAFT` und die Trennung
+von allgemeiner Performancequalifikation bleiben unverändert. Details des
+tatsächlichen Prüf- und CI-Aufwands stehen in
+[IDX007_DEMO_PACKAGE_REVIEW.md](IDX007_DEMO_PACKAGE_REVIEW.md).

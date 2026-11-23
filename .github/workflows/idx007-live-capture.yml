@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'Tests/Runtime/idx007_hot_leaf_pilot.py'
+      - 'Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/**'
+      - 'Demos/00_Framework/Tools/run_demo.py'
+      - 'Tests/Static/test_idx007_demo_package.py'
       - 'Tests/Runtime/README.md'
       - 'Tests/Static/test_idx007_live_capture.py'
       - 'Documentation/Project_Planning/IDX007_RIGHTMOST_PAGE_METHOD.md'
@@ -16,6 +19,9 @@ on:
     branches: [main]
     paths:
       - 'Tests/Runtime/idx007_hot_leaf_pilot.py'
+      - 'Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/**'
+      - 'Demos/00_Framework/Tools/run_demo.py'
+      - 'Tests/Static/test_idx007_demo_package.py'
       - 'Tests/Runtime/README.md'
       - 'Tests/Static/test_idx007_live_capture.py'
       - 'Documentation/Project_Planning/IDX007_RIGHTMOST_PAGE_METHOD.md'
@@ -42,6 +48,9 @@ jobs:
       - uses: actions/setup-python@v6
         with: {python-version: '3.12'}
       - run: python -m unittest Tests.Static.test_idx007_live_capture -v
+      - run: python -m unittest Tests.Static.test_idx007_demo_package -v
+      - run: python Tests/Static/validate_demo_execution_paths.py
+      - run: python Tests/Static/validate_sql_server_lab_test_catalog.py
       - run: python Tests/Static/test_idx007_last_page_contract.py
       - run: python Tests/Static/validate_idx007_lesson_query.py
       - run: python Tests/Static/test_validate_idx007_lesson_query.py
@@ -65,9 +74,9 @@ jobs:
         with: {python-version: '3.12'}
       - name: Pull pinned SQL Server image
         run: docker pull '${{ matrix.version.image }}'
-      - name: Run isolated two-burst capture
+      - name: Run packaged isolated two-burst demo
         shell: bash
-        run: python Tests/Runtime/idx007_hot_leaf_pilot.py '${{ matrix.version.major }}' 2>&1 | tee "${RUNNER_TEMP}/idx007-live-${{ matrix.version.major }}.log"
+        run: python Demos/00_Framework/Tools/run_demo.py Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/manifest.json --confirm-isolated-lab --idx007-major '${{ matrix.version.major }}' --show-output 2>&1 | tee "${RUNNER_TEMP}/idx007-live-${{ matrix.version.major }}.log"
       - if: always()
         uses: actions/upload-artifact@v4
         with:

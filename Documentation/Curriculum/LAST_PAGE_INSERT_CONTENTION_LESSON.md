@@ -1,8 +1,10 @@
 # IDX-007: Einfügungen an einer heißen Indexseite einordnen
 
-**Status:** kurze fachliche Erläuterung; ein begrenzter Erhebungspilot ist auf
-SQL Server 2019, 2022 und 2025 nachgewiesen. Das ist keine neue Demo, kein
-Benchmark und keine vollständige Runtimequalifikation.
+**Status:** ausführbare, eng begrenzte Containerdemo im bestehenden IDX-007-
+Scope. Ein Engineering-Pilot ist auf SQL Server 2019, 2022 und 2025
+nachgewiesen; die paketierte Demo durchläuft eine erneute Drei-Build-
+Runtimequalifikation. Sie ist kein Benchmark und begründet keine allgemeine
+Leistungsbehauptung.
 
 Der [Offline-Prüfer](../../Tests/Static/idx007_last_page_contract.py) prüft
 ergänzend caller-supplied Wait- und Seitenfelder: mindestens zwei verschiedene
@@ -20,8 +22,9 @@ Ein begrenzter XE-Pilot bindet dort tatsächliche Waitintervalle an Actor-
 Requests und prüft dieselbe terminale Zielseite vor und nach einem dazwischen
 liegenden Kettencheck auf den drei konkret genannten Builds. Die beobachtete
 Nulladresse des Nachfolgers ist ein Befund dieser Builds, keine allgemeine
-Herstellergarantie. Splitverhalten bei gleichzeitigen Strukturänderungen,
-unabhängiger Review und Demo-/Performancequalifikation bleiben offen.
+Herstellergarantie. Splitverhalten bei gleichzeitigen Strukturänderungen bleibt
+außerhalb dieser Demo offen; Demoqualifikation und allgemeine
+Performancequalifikation sind voneinander getrennte Gates.
 
 ## Was „Last-Page-Contention“ beschreibt
 
