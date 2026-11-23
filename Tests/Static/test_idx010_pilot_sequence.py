@@ -15,6 +15,7 @@ class FixtureTransport:
         self.calls = []
         self.cleanup_ok = True
         self.same_segments = False
+        self.control_overlapping_pairs = 6
         self.fail_provision = None
         self.bad_index = False
         self.preflight_timeout = False
@@ -50,7 +51,7 @@ class FixtureTransport:
             (ROWGROUP_ROWS,) * ROWGROUP_COUNT,
             False,
             ROWGROUP_COUNT,
-            0 if ordered else 6,
+            0 if ordered else self.control_overlapping_pairs,
         )
         return replace(metadata, index_name="IX_Other") if self.bad_index else metadata
 
@@ -76,6 +77,7 @@ class PilotSequenceTests(TestCase):
         self.assertEqual([arm.segments.skipped for arm in result.arms], [0, 3])
         names = [call[0] for call in transport.calls]
         self.assertLess(max(i for i, name in enumerate(names) if name == "stream"), names.index("build"))
+        self.assertLess(max(i for i, name in enumerate(names) if name == "catalog"), names.index("capture"))
         self.assertEqual(transport.closed_streams, list(Arm))
         self.assertEqual(transport.calls[-1][:3], ("cleanup", "RUN", tuple(Arm)))
 
@@ -104,6 +106,16 @@ class PilotSequenceTests(TestCase):
         result = run_pilot(transport, "RUN")
         self.assertEqual(result.status, "FAIL_CLEANUP")
         self.assertEqual(len(result.arms), 2)
+
+    @patch("idx010_pilot_sequence.verify_fixture_identity", side_effect=lambda rows: next(rows))
+    def test_nonoverlapping_control_ends_before_query_measurements(self, _verify):
+        transport = FixtureTransport()
+        transport.control_overlapping_pairs = 0
+        result = run_pilot(transport, "RUN")
+        self.assertEqual((result.status, result.stage), ("NOT_PROVEN", "metadata"))
+        self.assertEqual([call[1] for call in transport.calls if call[0] == "catalog"], list(Arm))
+        self.assertFalse(any(call[0] == "capture" for call in transport.calls))
+        self.assertEqual(transport.calls[-1][:3], ("cleanup", "RUN", tuple(Arm)))
 
     @patch("idx010_pilot_sequence.verify_fixture_identity", side_effect=lambda rows: next(rows))
     def test_metadata_rejection_precedes_capture_and_no_segment_gain_fails(self, _verify):

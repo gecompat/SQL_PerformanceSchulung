@@ -138,13 +138,20 @@ def run_pilot(transport: PilotTransport, run_token: str) -> PilotResult:
             _check_deadline(deadline)
             transport.execute(target, index_build_batch(run_token, target.arm), deadline)
 
+        stage = "metadata"
+        indexes: list[IndexEvidence] = []
         for target in targets:
-            stage = "metadata"
             _check_deadline(deadline)
             index = transport.index_evidence(target, deadline)
             _verify_index(target, index)
+            indexes.append(index)
 
-            stage = "query"
+        control_index, ordered_index = indexes
+        if control_index.overlapping_pairs <= ordered_index.overlapping_pairs:
+            raise ValueError("index layouts do not provide an ordered NCCI comparison")
+
+        stage = "query"
+        for target, index in zip(targets, indexes, strict=True):
             _check_deadline(deadline)
             capture = transport.capture_query(target, QUERY, deadline)
             counts = verify_query_evidence(
@@ -159,10 +166,7 @@ def run_pilot(transport: PilotTransport, run_token: str) -> PilotResult:
         stage = "comparison"
         _check_deadline(deadline)
         control, ordered = evidence
-        if (
-            control.overlapping_pairs > ordered.overlapping_pairs
-            and ordered.segments.skipped > control.segments.skipped
-        ):
+        if ordered.segments.skipped > control.segments.skipped:
             status = "PASS"
     except (TimeoutError, ValueError, OSError):
         # SQL adapters translate operational errors to OSError; raw payloads stay local.
