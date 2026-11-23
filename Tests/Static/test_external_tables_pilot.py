@@ -85,8 +85,8 @@ class GuestTransport:
         assert token == TOKEN and secret.startswith("Ext9!")
         self._event("tls", token, deadline)
 
-    def probe_principal(self, principal, secret, sql, deadline):
-        assert secret.startswith("Ext9!") and "ORIGINAL_LOGIN()" in sql
+    def probe_principal(self, principal, secret, deadline):
+        assert secret.startswith("Ext9!")
         self._event("rights", principal, deadline)
 
     def fixture_rows(self, role, sql, deadline):

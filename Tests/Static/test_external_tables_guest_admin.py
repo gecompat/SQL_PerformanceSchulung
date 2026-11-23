@@ -11,12 +11,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_guest_admin import (
     AdminAction, AdminCommand, _MAX_COMMAND, _SIZE, _receive_command, _send_command, invoke_guest_admin,
-    invoke_guest_measurement,
+    GuestSqlChannel, invoke_guest_measurement,
 )
 from external_tables_guest_identity import _QUERY, _REPLY, _REQUEST, _RESPONSE
 from external_tables_measurement import MeasurementResult
 from external_tables_odbc import OdbcPilotAdministration
 from external_tables_pilot_sql import Role, database_name
+from external_tables_principals import Principal
 from external_tables_pushdown_evidence import PUSHDOWN_FILTER_EVIDENCE
 
 
@@ -34,11 +35,11 @@ class GuestAdminChannelTests(unittest.TestCase):
         self.endpoint = Mock(spec=OdbcPilotAdministration)
         self.deadline = monotonic() + 5
 
-    def round_trip(self, command, role=Role.SOURCE, *, open_principal=None):
+    def round_trip(self, command, role=Role.SOURCE, **capabilities):
         left, right = socket.socketpair()
         with left, right, ThreadPoolExecutor(max_workers=1) as executor:
             guest = executor.submit(
-                _receive_command, right, TOKEN, role, self.endpoint, self.deadline, open_principal=open_principal,
+                _receive_command, right, TOKEN, role, self.endpoint, self.deadline, **capabilities,
             )
             try:
                 return _send_command(left, command, self.deadline)
@@ -103,6 +104,57 @@ class GuestAdminChannelTests(unittest.TestCase):
                 self.assertEqual(left.recv(1), b"\x00")
                 guest.result(timeout=3)
         self.assertFalse(self.endpoint.method_calls)
+
+    @patch("external_tables_guest_admin.verify_guest_principal")
+    def test_principal_check_uses_only_the_matching_guest(self, probe):
+        source = AdminCommand(AdminAction.CHECK_PRINCIPAL, ("SOURCE_READER", SECRET))
+        opener = Mock()
+        for role, factory in ((Role.QUERY, opener), (Role.SOURCE, None)):
+            with self.subTest(role=role), self.assertRaises(OSError):
+                self.round_trip(source, role, open_principal=factory)
+        probe.assert_not_called()
+        self.assertIsNone(self.round_trip(source, Role.SOURCE, open_principal=opener))
+        probe.assert_called_once_with(TOKEN, Principal.SOURCE_READER, SECRET, self.deadline, opener)
+        self.assertFalse(self.endpoint.method_calls)
+
+    @patch("external_tables_guest_admin.verify_source_tls")
+    def test_tls_check_uses_only_the_query_guest_and_its_preconfigured_network(self, probe):
+        command = AdminCommand(AdminAction.CHECK_SOURCE_TLS, (SECRET,))
+        driver, network = Mock(), Mock()
+        for role, endpoint in ((Role.SOURCE, network), (Role.QUERY, None)):
+            with self.subTest(role=role), self.assertRaises(OSError):
+                self.round_trip(command, role, source_driver=driver, network=endpoint)
+        probe.assert_not_called()
+        self.assertIsNone(self.round_trip(command, Role.QUERY, source_driver=driver, network=network))
+        probe.assert_called_once_with(driver, TOKEN, SECRET, self.deadline, network=network)
+        probe.side_effect = OSError("private driver message")
+        with self.assertRaisesRegex(OSError, "^guest administration command was not confirmed$"):
+            self.round_trip(command, Role.QUERY, source_driver=driver, network=network)
+
+    @patch("external_tables_guest_admin.invoke_guest_measurement")
+    @patch("external_tables_guest_admin.invoke_guest_admin", return_value=None)
+    def test_host_channel_dispatches_to_the_recorded_ids_and_rejects_a_foreign_run(self, invoke, measure):
+        query_vm = UUID(int=VM_ID.int + 1)
+        package_lock = {}
+        channel = GuestSqlChannel(TOKEN, VM_ID, query_vm, PORT, b"base", package_lock)
+        channel.probe_principal(Principal.SOURCE_READER, SECRET, self.deadline)
+        args = invoke.call_args.args
+        self.assertEqual(args[:4], (VM_ID, PORT, TOKEN, Role.SOURCE))
+        self.assertEqual(args[4], AdminCommand(AdminAction.CHECK_PRINCIPAL, ("SOURCE_READER", SECRET)))
+        channel.verify_source_tls(TOKEN, SECRET, self.deadline)
+        args = invoke.call_args.args
+        self.assertEqual(args[:4], (query_vm, PORT, TOKEN, Role.QUERY))
+        self.assertEqual(args[4], AdminCommand(AdminAction.CHECK_SOURCE_TLS, (SECRET,)))
+        with self.assertRaises(ValueError):
+            channel.verify_source_tls("TEST1000", SECRET, self.deadline)
+        self.assertEqual(invoke.call_count, 2)
+        observer = "Ext9!" + "c" * 32
+        channel.measure(TOKEN, SECRET, observer, self.deadline)
+        measure.assert_called_once_with(
+            query_vm, PORT, TOKEN, SECRET, observer, self.deadline, base_status=b"base", package_lock=package_lock,
+        )
+        with self.assertRaises(ValueError):
+            GuestSqlChannel(TOKEN, VM_ID, VM_ID, PORT, b"base", package_lock)
 
     @patch("external_tables_guest_admin.run_guest_measurement")
     def test_measurement_is_query_only_and_returns_only_fixed_results(self, measure):

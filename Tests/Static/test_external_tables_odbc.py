@@ -16,7 +16,7 @@ from external_tables_guest_network import GuestNetwork
 from external_tables_measurement import MeasurementResult, UnconfirmedRequestCleanup
 from external_tables_odbc import (
     OdbcMeasurementTransport, OdbcPilotAdministration, REQUEST_IDENTITY, load_pinned_pyodbc, run_guest_measurement,
-    verify_source_tls,
+    verify_guest_principal, verify_source_tls,
 )
 from external_tables_pilot_sql import (
     DAY_ZERO, EXPECTED, ROWS, Role, Route, aggregate_batch, database_name, fixture_read_batch, verify_fixture,
@@ -227,6 +227,19 @@ class OdbcGuestMeasurementTests(unittest.TestCase):
         self.reader_secret = "Ext9!" + "a" * 32
         self.observer_secret = "Ext9!" + "b" * 32
         self.deadline = monotonic() + 12
+
+    def test_standalone_principal_check_requires_local_scope_and_verified_close(self):
+        source = self.fresh_connection()
+        opener = Mock(return_value=source)
+        verify_guest_principal(TOKEN, Principal.SOURCE_READER, self.reader_secret, self.deadline, opener)
+        self.assertTrue(source.closed and source.bound_cursor.closed)
+        self.assertIn(principal_name(TOKEN, Principal.SOURCE_READER), source.bound_cursor.executed[0])
+        self.assertIn("127.0.0.1", source.bound_cursor.executed[0])
+
+        bad = self.fresh_connection()
+        bad.close = Mock(side_effect=OSError("private error"))
+        with self.assertRaises(UnconfirmedRequestCleanup):
+            verify_guest_principal(TOKEN, Principal.SOURCE_READER, self.reader_secret, self.deadline, Mock(return_value=bad))
 
     def test_fresh_verified_reader_and_observer_are_used_locally(self):
         observer, reader = self.fresh_connection(), self.fresh_connection()

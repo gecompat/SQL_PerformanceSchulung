@@ -511,6 +511,15 @@ auf dem Gast gegen das Oracle geprüft. Die Antwort enthält nur Erfolg,
 Ablehnung oder das getrennte Vorhandensein der eigenen Datenbank.
 Zugangsdaten bleiben im Speicher des Host- und Gastprozesses und werden
 erst nach der Identitätsprüfung über den lokalen Hyper-V-Kanal übertragen.
+Die Host-Anbindung verwendet `GuestSqlChannel` mit den aufgezeichneten
+VM-IDs beider Rollen. Sie sendet die Rechteprüfung ausschließlich an
+den Gast des jeweiligen Logins. Der Gast öffnet die tatsächliche lokale
+Verbindung, prüft Login, Rechte und die verbotene Kontrolltabelle und
+bestätigt das Schließen der Verbindung. Das TLS-Kontrollpaar darf nur
+der Abfragegast ausführen. Es verwendet die beim Start gebundenen
+Gastadressen sowie den bereits geladenen gepinnten Treiber. Der Aufruf
+liefert keine Netzwerkadressen oder Treiberdetails an den Host zurück.
+
 Der Abfragegast führt auch die drei Messrouten über diesen Kanal aus.
 Reader und Observer verwenden getrennte lokale ODBC-Verbindungen. Vor
 der Nutzung prüft der Gast ihre Identität, Rechte und Loopback-Adressen.

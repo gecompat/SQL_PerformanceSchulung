@@ -330,16 +330,16 @@ def run_guest_measurement(
     if not all(PASSWORD.fullmatch(secret) for secret in (reader_secret, observer_secret)) or reader_secret == observer_secret:
         raise ValueError("measurement requires distinct generated principal secrets")
     try:
-        observer = _open_measurement_principal(token, Principal.OBSERVER, observer_secret, deadline, open_principal)
+        observer = _open_verified_principal(token, Principal.OBSERVER, observer_secret, deadline, open_principal)
         try:
             def reader(_: int) -> Connection:
-                return _open_measurement_principal(
+                return _open_verified_principal(
                     token, Principal.QUERY_READER, reader_secret, deadline, open_principal,
                 )
 
             result = measure_pushdown(OdbcMeasurementTransport(token, reader, observer), token, deadline)
         finally:
-            _close_measurement_resource(observer)
+            _close_principal_resource(observer)
     except UnconfirmedRequestCleanup:
         return MeasurementResult("FAIL_CLEANUP", "query_connection")
     except (OSError, ValueError):
@@ -347,14 +347,25 @@ def run_guest_measurement(
     return result
 
 
-def _open_measurement_principal(
+def verify_guest_principal(
+    token: str, principal: Principal, secret: str, deadline: float, open_principal: PrincipalConnection,
+) -> None:
+    """Verify rights on an actual dedicated local connection and confirm its closure."""
+    if not PASSWORD.fullmatch(secret):
+        raise ValueError("expected a generated guest principal secret")
+    connection = _open_verified_principal(token, principal, secret, deadline, open_principal)
+    _close_principal_resource(connection)
+    _remaining(deadline)
+
+
+def _open_verified_principal(
     token: str, principal: Principal, secret: str, deadline: float, open_principal: PrincipalConnection,
 ) -> Connection:
     probe = principal_probe_batch(token, principal)
     try:
         connection = open_principal(principal, secret, _query_timeout(deadline))
     except Exception:
-        raise OSError("local measurement connection failed") from None
+        raise OSError("local guest principal connection failed") from None
     try:
         connection.timeout = _query_timeout(deadline)
         cursor = connection.cursor()
@@ -362,24 +373,24 @@ def _open_measurement_principal(
             cursor.execute("""
 IF COALESCE(CONVERT(varchar(48), CONNECTIONPROPERTY('local_net_address')), '') <> '127.0.0.1'
     OR COALESCE(CONVERT(varchar(48), CONNECTIONPROPERTY('client_net_address')), '') <> '127.0.0.1'
-    THROW 51084, 'FAIL_CONTRACT: expected a local measurement connection.', 1;
+    THROW 51084, 'FAIL_CONTRACT: expected a local guest principal connection.', 1;
 """ + probe)
             _consume_status_results(cursor, deadline)
         finally:
-            _close_measurement_resource(cursor)
+            _close_principal_resource(cursor)
     except Exception as error:
-        _close_measurement_resource(connection)
+        _close_principal_resource(connection)
         if isinstance(error, UnconfirmedRequestCleanup):
             raise
-        raise OSError("local measurement principal was not verified") from None
+        raise OSError("local guest principal was not verified") from None
     return connection
 
 
-def _close_measurement_resource(resource: Cursor | Connection) -> None:
+def _close_principal_resource(resource: Cursor | Connection) -> None:
     try:
         resource.close()
     except Exception:
-        raise UnconfirmedRequestCleanup("measurement resource closure was not confirmed") from None
+        raise UnconfirmedRequestCleanup("guest principal resource closure was not confirmed") from None
 
 
 @dataclass
