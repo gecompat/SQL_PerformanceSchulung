@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import re
 import sys
+from zipfile import BadZipFile, ZipFile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
@@ -74,6 +75,17 @@ def verify_python_wheel(path: Path, lock: dict) -> None:
         raise ValueError("Python wheel is only part of the query role")
     if path.name != entry["filename"] or not _matches_file(path, entry):
         raise ValueError("Python wheel differs from the query role lock")
+    extension = entry["installed_extension"]
+    try:
+        with ZipFile(path) as wheel:
+            entries = [member for member in wheel.infolist() if member.filename.endswith(".so")]
+            if len(entries) != 1 or entries[0].filename != extension["filename"] or entries[0].file_size != extension["size"]:
+                raise ValueError("Python wheel extension differs from the query role lock")
+            with wheel.open(entries[0]) as binary:
+                if file_digest(binary, "sha256").hexdigest() != extension["sha256"]:
+                    raise ValueError("Python wheel extension differs from the query role lock")
+    except BadZipFile:
+        raise ValueError("Python wheel is not a valid archive") from None
 
 
 def main() -> int:

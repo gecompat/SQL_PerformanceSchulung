@@ -31,7 +31,8 @@ class GuestPilotTransport(Protocol):
         """Record ownership before effects and verify isolation, caps and build.
 
         Verify each exact VM and its live package digest through the current
-        identity exchange before executing any SQL.
+        identity exchange before executing any SQL. Load the pinned pyodbc
+        extension on the query guest before opening its first ODBC connection.
         """
 
     def execute(self, role: Role, database: str, sql: str, deadline: float) -> None:
