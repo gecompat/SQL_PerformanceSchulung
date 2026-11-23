@@ -13,6 +13,8 @@ def validate(sql: str, workflow: str) -> list[str]:
     findings: list[str] = []
     if "SERVERPROPERTY('ProductMajorVersion')" not in sql or "IF @ProductMajorVersion IS NULL OR @ProductMajorVersion <> 17" not in sql:
         findings.append("probe must stop unless the engine is SQL Server 2025")
+    if "SERVERPROPERTY('ProductVersion')), N'') <> N'17.0.5065.9'" not in sql:
+        findings.append("probe must stop unless the exact engine build matches")
     for catalog in ("sys.dm_xe_objects", "sys.dm_xe_object_columns", "sys.dm_xe_packages"):
         if catalog not in sql:
             findings.append(f"probe must read {catalog}")
@@ -41,8 +43,8 @@ def validate(sql: str, workflow: str) -> list[str]:
         findings.append("probe SQL must remain read-only and must not execute dynamic SQL")
     if "optsp_xe_catalog_probe.sql" not in workflow:
         findings.append("runtime workflow must execute the probe SQL")
-    if "mcr.microsoft.com/mssql/server:2025-latest" not in workflow:
-        findings.append("runtime workflow must use the official SQL Server 2025 container")
+    if "mcr.microsoft.com/mssql/server@sha256:05644dad1266ca3d445d1e8f6d2ebb9a6a03df9a39376e0f7b48917356dca9d9" not in workflow:
+        findings.append("runtime workflow must use the digest-pinned SQL Server 2025 container")
     if "cleanup_ci_container.sh" not in workflow or "if: always()" not in workflow:
         findings.append("runtime workflow must always use the ownership-checked container cleanup")
     if "-h -1 -y 8000 -w 8000" not in workflow:

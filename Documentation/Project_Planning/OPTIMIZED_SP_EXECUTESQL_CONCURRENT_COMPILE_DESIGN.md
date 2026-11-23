@@ -32,6 +32,36 @@ Der Pilot braucht eine eindeutige Zuordnung des Waits zu einem teilnehmenden
 Request, dem Batch und einer Compile-Sperrressource. `LCK_M_X` beschreibt den
 Sperrmodus. Die konkrete Ursache bleibt bis zur Korrelation offen.
 
+## Zuordnung von Request, Kompilierung und Sperrwartezeit
+
+Der Pilotkandidat verwendet je Actor eine eigene Verbindung ohne mehrere
+gleichzeitig aktive Requests. Er ruft `sp_executesql` direkt als RPC auf.
+Der dynamische Batch enthält genau ein synthetisches, schreibfreies
+Statement. Alle Verbindungen verwenden dieselbe Identität, Sprache,
+Transaktionsisolation und dieselben SET-Optionen. Vergleiche die wirksamen
+Cache-Attribute innerhalb des jeweiligen Arms. Der dokumentierte Cache-Key
+umfasst weitere Attribute neben dem Batchtext.
+[Microsoft-Referenz zu Planattributen](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-plan-attributes-transact-sql?view=sql-server-ver17).
+
+| Evidenz | Annahmeregel für den Pilotkandidaten |
+|---|---|
+| Requestgrenzen | Binde RPC-Start und -Ende an die eigene Datenbank, den Actor und genau einen Aufruf. Die gehashte Batch-/Parameterdefinition, der bekannte synthetische Statementmarker und der erwartete RPC-Typ müssen übereinstimmen. Nutze Ereignisreihenfolge aus derselben XE-Session. Fehlende oder doppelte Grenzen machen die betreffende Actor-Spur unvollständig. |
+| OFF-Kompilierung | Verlange für das markierte Statement mindestens zwei getrennte Erstkompilierungen in Requests verschiedener Actors. Eventfelder und ausgewiesene Zeitsemantik müssen auch dann echte Kompilierungsüberlappung belegen, wenn die äußeren RPC-Fenster überlappen. Ohne belegten Compilebeginn oder nachgewiesenen Bezug der Compile-Dauer zum Zeitpunkt des Ereignisses bleibt die Überlappung `NOT_PROVEN`. |
+| ON-Sperrwartezeit | Ein Actor muss im eigenen RPC-Fenster einen Wait des Buildschlüssels für `LCK_M_X` auf einer eindeutig gebundenen Compile-Ressource derselben Datenbank zeigen. Begin/End-Paarung, Actor und Ressourcenbeschreibung müssen eindeutig sein. `wait_resource_desc` ist ein Kandidatenfeld. Fehlt der Subressourcennachweis in XE, kann ein zeitnahes, eindeutiges DMV-Recordpaar ihn beisteuern. Ein flüchtiger Lock-Adresswert überlebt nur innerhalb der Erhebung, in der die Adresse gelesen wurde. |
+| Abgrenzung | Microsoft dokumentiert `OBJECT.COMPILE` für gespeicherte Prozeduren. Die dynamische Batchressource und der Bezug zum laufenden Compile-Actor müssen im Pilot separat belegt werden. Ein beliebiger X-Wait, ein Cacheinsert oder ein Serialisierungsereignis allein genügt nicht. Eine Gegenprobe mit gewöhnlicher exklusiver Datensperre und eine zweite Batchidentität müssen von der Annahmeregel abgewiesen werden. |
+| ON-Planwiederverwendung | Binde den Plan des ersten erfolgreichen Compile-Actors und den Plan der späteren Statementausführung desselben Batchtexts an denselben eindeutigen Planhandle innerhalb dieses Arms. Prüfe den Handle gegen Cacheattribute und Statementidentität. Ein Hash allein genügt nicht. Ein fehlender, unbrauchbarer oder nachweislich zum äußeren RPC gehörender Handle ergibt `NOT_PROVEN`. |
+| Vollständigkeit | Unbekannte Ressourcenformate, nicht eindeutige Actor- oder Batchbindung, Eventverlust, Trunkierung und unbestätigter Abbau verhindern einen positiven Befund. Die Ressourcenerhebung exportiert nur die normalisierten Befunde aus dem synthetischen Lauf. |
+
+Die DMV-Route orientiert sich am dokumentierten Join von
+`sys.dm_tran_locks.lock_owner_address` mit
+`sys.dm_os_waiting_tasks.resource_address`. Die Stichprobe muss während des
+Wartens erfolgen. Fehlt sie bei einem kurzen Wait, bleibt der Ressourcenbezug
+offen. Die Katalogprobe erfasst die zusätzlich benötigten RPC-/Statement-
+Kandidaten und möglichen Actions auf dem festgeschriebenen Image. Die
+Kombinierbarkeit der Events, deren tatsächliche Payload und der direkte
+Ressourcennachweis bleiben separate Pilotfragen.
+[Microsoft-Referenz zu Sperrressourcen](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-tran-locks-transact-sql?view=sql-server-ver17).
+
 ## Gates vor einer Implementierung
 
 - Unabhängiger Methodenreview bestätigt Buildbindung, Ereignis-/Feldvertrag, Auswertungsregeln, Statistikbehandlung, Sicherheitsklasse und Restore.

@@ -4,6 +4,9 @@ DECLARE @ProductMajorVersion int = TRY_CONVERT(int, SERVERPROPERTY('ProductMajor
 IF @ProductMajorVersion IS NULL OR @ProductMajorVersion <> 17
     THROW 51000, 'SKIP_VERSION: XE catalog probe requires SQL Server 2025.', 1;
 
+IF COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY('ProductVersion')), N'') <> N'17.0.5065.9'
+    THROW 51003, 'SKIP_VERSION: XE catalog probe requires build 17.0.5065.9.', 1;
+
 SELECT CONCAT(
     N'{"record_type":"ENGINE","product_version":',
     CONCAT(N'"', STRING_ESCAPE(CONVERT(nvarchar(128), SERVERPROPERTY('ProductVersion')), 'json'), N'"'),
@@ -46,7 +49,11 @@ WHERE event_object.object_type = N'event'
             OR event_object.name IN (
                 N'sp_cache_insert',
                 N'sql_statement_recompile',
-                N'lock_acquired'
+                N'lock_acquired',
+                N'rpc_starting',
+                N'rpc_completed',
+                N'sql_statement_completed',
+                N'sp_cache_hit'
             )
         ))
         OR (package.name = N'sqlos' AND event_object.name = N'wait_info')
@@ -96,13 +103,17 @@ FROM sys.dm_xe_objects AS action_object
 INNER JOIN sys.dm_xe_packages AS package
     ON package.guid = action_object.package_guid
 WHERE action_object.object_type = N'action'
-  AND package.name = N'sqlserver'
-  AND action_object.name IN (
-        N'database_id',
-        N'query_hash',
-        N'query_plan_hash',
-        N'session_id',
-        N'sql_text',
-        N'tsql_stack'
+  AND (
+        (package.name = N'sqlserver' AND action_object.name IN (
+            N'database_id',
+            N'query_hash',
+            N'query_plan_hash',
+            N'session_id',
+            N'sql_text',
+            N'tsql_stack',
+            N'plan_handle',
+            N'request_id'
+        ))
+        OR (package.name = N'package0' AND action_object.name = N'event_sequence')
   )
-ORDER BY action_object.name;
+ORDER BY package.name, action_object.name;
