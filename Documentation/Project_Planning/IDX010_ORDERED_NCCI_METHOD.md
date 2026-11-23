@@ -120,6 +120,28 @@ Mehrfachtreffern oder unvollständigen Segmentmetadaten lautet das Ergebnis
   Ressourcenobergrenzen. Bis dahin werden weder Laufzeit noch I/O-Vorteil
   quantifiziert.
 
+### SQL-Batches für Datenaufbau und Indexbau
+
+Der [Setup-Baustein](../../Tests/Runtime/idx010_pilot_setup.py) erzeugt pro
+Arm einen Tabellenaufbau, vier aufeinanderfolgende Ladebatches, einen
+sortierten Lesestrom zum Identitätsnachweis und den Indexbau. Alle Batches
+prüfen den genauen Serverbuild, die Edition, die Datenbank, die
+Kompatibilitätsstufe, das Wiederherstellungsmodell und die fünf
+Eigentumsmarker. Die Batches setzen Autocommit voraus. Der zusätzliche Marker
+`SQLPERF.PilotProfile` und das Namenspräfix `SQLPERF_LAB_IDX010_NCCI_`
+kennzeichnen die Pilotdatenbanken eindeutig.
+
+Der spätere Runner muss beide Datenbanken mit diesen Markern und den
+festgelegten Ressourcenobergrenzen bereitstellen. Vor dem ersten Indexbau
+muss er beide sortierten Leseströme vollständig prüfen. Der erwartete
+SHA-256-Digest ist
+`bfa6e87fc9501d335d859b5d509d6ed466cd1a272e026cbd60e9657c065d955f`.
+Die Prüfung liest jeweils eine Zeile und hält nur den laufenden Digest und
+Zähler. Erst danach darf der Runner die beiden Indexbatches nacheinander
+starten. Die [Offlineprüfungen](../../Tests/Static/test_idx010_pilot_setup.py)
+sichern die Armtrennung, die Ladebereiche und den Identitätsnachweis ab.
+Die SQL-Batches sind für den Methodenreview bestimmt.
+
 ### Offlineprüfung der Abfrageevidenz
 
 Der [Offlineprüfer](../../Tests/Runtime/idx010_query_evidence.py) legt die
