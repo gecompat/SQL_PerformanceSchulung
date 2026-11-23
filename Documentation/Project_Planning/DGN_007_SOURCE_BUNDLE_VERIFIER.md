@@ -141,4 +141,3 @@ Acquisition, Kosten und kontinuierlicher Zustand bleiben offene Gates.
 Normative Methoden-/Grenzänderungen benötigen eine ausdrückliche neue
 Entscheidung. v1/G13/DEC-068, PR68 und der zurückgestellte interne API-Schnitt
 bleiben erhalten; keine Incident-, Ursachen-, Mitigations- oder Capstonefreigabe.
-

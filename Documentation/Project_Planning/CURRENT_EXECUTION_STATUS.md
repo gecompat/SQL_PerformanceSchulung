@@ -14569,4 +14569,3 @@ Katalogstatus `IMPLEMENTED`. Der Methodenstatus `METHOD_DRAFT` und die Trennung
 von allgemeiner Performancequalifikation bleiben unverändert. Details des
 tatsächlichen Prüf- und CI-Aufwands stehen in
 [IDX007_DEMO_PACKAGE_REVIEW.md](IDX007_DEMO_PACKAGE_REVIEW.md).
-
