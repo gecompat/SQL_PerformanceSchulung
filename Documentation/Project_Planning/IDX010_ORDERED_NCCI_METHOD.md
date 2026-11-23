@@ -209,7 +209,15 @@ Prozessrunner behält für DGN-004 seine Standardgrenze von 20 Sekunden. Die Abl
 bei Fehlern während des Instanzstarts oder der Bereitstellung Cleanup an.
 `FAIL_CLEANUP` hat Vorrang vor einem positiven Befund. Der [Docker- und SQL-Transport](../../Tests/Runtime/idx010_docker_transport.py)
 bindet das lokal vorgehaltene Image, das private Netzwerkprofil `none`, CPU,
-RAM und die laufende Engineversion. Vor der ersten SQL-Änderung prüft er
+RAM und die laufende Engineversion. Er erzeugt den Container aus dem lokal
+vorhandenen Image und startet ihn erst nach Prüfung von Eigentum,
+Image und Ressourcenlimits. Bricht der Client die Erzeugung ab, gilt eine
+leere Bestandsabfrage allein nicht als Abbaunachweis. Ein später
+sichtbarer Container wird nur nach eindeutigem Abgleich von Namen und
+Eigentumslabel entfernt.
+[Docker-Referenz zu `docker create`](https://docs.docker.com/reference/cli/docker/container/create/).
+
+Vor der ersten SQL-Änderung prüft der Transport
 mindestens 2.816 MiB freien Platz am Datenpfad im eigenen Container. Die
 Summe deckt die vier Datenbankdateien und TempDB bis zu ihren Obergrenzen.
 Fehlende oder zu geringe Kapazitätsangaben beenden den Preflight. Der
@@ -252,6 +260,13 @@ fehlenden `Events`-Segmentmeldung erwartungsgemäß abgewiesen.
 Die Komponentenläufe legten keine Testdatenbank und keinen Index an
 und bestätigten den Abbau des eigenen Containers. Die tatsächlichen
 NCCI-Pläne und Segmentmeldungen bleiben Gegenstand des späteren Piloten.
+
+Ein weiterer Read-only-Komponententest prüfte die getrennte Docker-Erzeugung
+und den Start am selben Image. Die Limits waren vor dem Start bestätigt.
+Der anschließende SQL-Aufruf bestätigte Build und Edition, die
+Kapazitätsabfrage war erfolgreich und der eigene Container wurde entfernt.
+Die SQL-Schritte für TempDB-Änderungen und Reader-Anlage waren in diesem
+Komponententest ausgenommen.
 
 ## Voraussetzungen, Stop und Cleanup für einen späteren Pilot
 

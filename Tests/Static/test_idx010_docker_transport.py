@@ -38,13 +38,16 @@ class DockerPilotTransportTests(TestCase):
         image_id = b"sha256:" + b"a" * 64
         docker.side_effect = [
             image_id, CID.encode(), CID.encode(), CID.encode(),
-            image_id + b"|none|2000000000|4294967296|4294967296|[]|{}",
+            image_id + b"|none|2000000000|4294967296|4294967296|[]|{}|created", CID.encode(),
             b"  Avail\n 2883584\n",
         ]
         with patch.object(transport, "_sql", side_effect=[PROFILE.encode(), b"", b""]) as sql:
             transport.start_verified_instance("TEST1", monotonic() + 30)
         argv = docker.call_args_list[1].args[0]
+        self.assertEqual(argv[:3], ["create", "--pull", "never"])
         self.assertEqual(argv[-1], IMAGE)
+        self.assertEqual(docker.call_args_list[4].args[0][0], "inspect")
+        self.assertEqual(docker.call_args_list[5].args[0], ["start", CID])
         self.assertIn("none", argv)
         self.assertIn("MSSQL_SA_PASSWORD", argv)
         self.assertNotIn(transport._sa_password, argv)
@@ -62,13 +65,51 @@ class DockerPilotTransportTests(TestCase):
                 transport = DockerPilotTransport()
                 docker.side_effect = [
                     image_id, CID.encode(), CID.encode(), CID.encode(),
-                    image_id + b"|none|2000000000|4294967296|4294967296|[]|{}",
+                    image_id + b"|none|2000000000|4294967296|4294967296|[]|{}|created", CID.encode(),
                     capacity,
                 ]
                 with patch.object(transport, "_sql", return_value=PROFILE.encode()) as sql:
                     with self.assertRaisesRegex(OSError, "confirmed free capacity"):
                         transport.start_verified_instance("TEST1", monotonic() + 30)
                 self.assertEqual([call.args[1] for call in sql.call_args_list], [PROFILE_SQL])
+
+    @patch("idx010_docker_transport._docker")
+    def test_mismatched_resources_prevent_container_start(self, docker):
+        transport = DockerPilotTransport()
+        image_id = b"sha256:" + b"a" * 64
+        docker.side_effect = [
+            image_id, CID.encode(), CID.encode(), CID.encode(),
+            image_id + b"|bridge|2000000000|4294967296|4294967296|[]|{}|created",
+        ]
+        with patch.object(transport, "_sql") as sql:
+            with self.assertRaisesRegex(OSError, "container limits"):
+                transport.start_verified_instance("TEST1", monotonic() + 30)
+        sql.assert_not_called()
+        self.assertNotIn("start", [call.args[0][0] for call in docker.call_args_list])
+
+    @patch("idx010_docker_transport._docker")
+    def test_interrupted_create_requires_positive_cleanup_evidence(self, docker):
+        transport = DockerPilotTransport()
+        image_id = b"sha256:" + b"a" * 64
+        docker.side_effect = [image_id, TimeoutError(), b"", b""]
+        with self.assertRaises(TimeoutError):
+            transport.start_verified_instance("TEST1", monotonic() + 30)
+        self.assertFalse(transport.cleanup("TEST1", (), monotonic() + 30))
+
+    @patch("idx010_docker_transport._docker")
+    def test_cleanup_recovers_owned_container_after_interrupted_create(self, docker):
+        transport = DockerPilotTransport()
+        image_id = b"sha256:" + b"a" * 64
+        docker.side_effect = [
+            image_id, TimeoutError(), CID.encode(), CID.encode(),
+            CID.encode(), CID.encode(), b"", b"", b"",
+        ]
+        with self.assertRaises(TimeoutError):
+            transport.start_verified_instance("TEST1", monotonic() + 30)
+        self.assertTrue(transport.cleanup("TEST1", (), monotonic() + 30))
+        commands = [call.args[0] for call in docker.call_args_list]
+        self.assertIn(["rm", "--force", "--volumes", CID], commands)
+        self.assertNotIn(["start", CID], commands)
 
     @patch("idx010_docker_transport._docker")
     def test_mismatched_owner_is_never_removed(self, docker):
