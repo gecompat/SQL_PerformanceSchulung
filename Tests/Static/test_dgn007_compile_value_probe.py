@@ -49,6 +49,30 @@ class MitigationOutputTests(unittest.TestCase):
             lines.append(f"DGN007_IO_END|{stage}")
         return "\n".join([*lines, probe.MITIGATION_SQL_SUMMARY])
 
+    def test_mix_keeps_class_regression_visible_when_total_improves(self):
+        by_stage = ((18, 12, 6, 3), (12, 18, 6, 3), (3, 6, 3, 6), (3, 6, 3, 6), (18, 12, 6, 3))
+        parts = []
+        for stage, values in zip(probe._MITIGATION_STAGES, by_stage, strict=True):
+            for slot, reads in enumerate(values, 1):
+                label = f"{stage}_{slot}"
+                parts.append(f"DGN007_IO_BEGIN|{label}")
+                parts.extend(
+                    f"Table '{table}'. Scan count 1, logical reads {reads // 3}, physical reads 0."
+                    for table in sorted(probe._SOURCE_TABLES)
+                )
+                parts.append(f"DGN007_IO_END|{label}")
+        output = "\n".join([*parts, probe.MITIGATION_SQL_SUMMARY])
+        self.assertEqual(probe._mitigation_mix_report(output).splitlines(), [
+            "DGN007_MIX_READS|TOTAL|39|39|18|18|39",
+            "DGN007_MIX_READS|1,1|18|12|3|3|18",
+            "DGN007_MIX_READS|1,3|12|18|6|6|12",
+            "DGN007_MIX_READS|5,3|6|6|3|3|6",
+            "DGN007_MIX_READS|8,3|3|3|6|6|3",
+        ])
+        incomplete = output.replace("DGN007_IO_END|MITIGATION2_4", "DGN007_IO_END|MITIGATION2_3")
+        with self.assertRaisesRegex(probe.runner.RunnerFailure, "NOT_PROVEN"):
+            probe._mitigation_mix_report(incomplete)
+
     def test_accepts_only_a_lower_workload_with_equal_baseline_and_restore(self):
         probe._verify_mitigation(self.output())
         for mutation in (

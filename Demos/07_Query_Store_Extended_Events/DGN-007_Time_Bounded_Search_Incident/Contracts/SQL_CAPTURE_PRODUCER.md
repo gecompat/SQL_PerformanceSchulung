@@ -297,6 +297,27 @@ müssen weniger logische Lesezugriffe benötigen. Der native isolierte
 SQL-Server-2025-Lauf erfüllte diese Bedingungen einschließlich des
 Datenbankabbaus. Die Ausgabe enthält nur feste Befundmarker.
 
-Die Probe misst die logische Arbeit für eine feste Eingabe.
-Der vollständige T2-Mitigationstest mit dem Vierer-Mix, Compilerkosten,
-Dauer und Alternativhypothesen bleibt Teil der Incident-Abnahme.
+Für denselben Teilnehmer-Mix steht ein getrennter Diagnoseaufruf bereit.
+
+```text
+python -m Tests.Runtime.run_dgn007_compile_value_probe --container CONTAINER --confirm-disposable-instance --confirm-isolated-lab --mitigation-mix
+```
+
+Die Ausgabe `DGN007_MIX_READS` nennt je Parameterklasse und in der Summe
+fünf Werte für die drei Quelltabellen in der Reihenfolge Ausgangslauf 1,
+Ausgangslauf 2, Änderung 1,
+Änderung 2 und Rücknahme. Alle 20 Ergebnisse werden einzeln gegen die
+relationale Referenz verglichen. `PASS` bestätigt vollständige Messwerte,
+Ergebnisgleichheit, Rücknahme und Abbau. Die Lesezugriffe sind Beobachtungen.
+Ein sinkender Gesamtwert kann mit mehr Zugriffen in einer Klasse einhergehen,
+und gleiche Gesamtsummen können Abweichungen je Klasse verdecken.
+
+Auf Build `17.0.5065.9` meldeten die beiden Ausgangsläufe je 13.832
+logische Zugriffe, die beiden Änderungsläufe je 3.782 und die Rücknahme
+13.832. Die seltene Klasse `(8,3)` stieg von 753 auf 780 Zugriffe.
+Die beiden Ausgangsläufe lieferten bei `(1,1)` und `(5,3)` leichte
+gegenläufige Abweichungen. Der Lauf bestätigte alle Ergebnismengen und
+den vollständigen Abbau. Diese Messwerte gelten für diesen Lauf.
+
+Compilerkosten, Query-Store-Zeitfenster und Alternativhypothesen werden im
+durchgehenden Teilnehmerablauf getrennt qualifiziert.
