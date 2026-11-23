@@ -65,7 +65,8 @@ class PrincipalContractTests(unittest.TestCase):
         self.assertLess(sql.index("FAIL_OWNERSHIP"), sql.index("CREATE MASTER KEY"))
         self.assertLess(sql.index("CREATE MASTER KEY"), sql.index("CREATE DATABASE SCOPED CREDENTIAL"))
         self.assertIn(f"IDENTITY = N'SqlPerfExtReader_TEST0004', SECRET = '{PASSWORD}'", sql)
-        self.assertIn(f"ENCRYPTION BY PASSWORD = '{key_password}'", sql)
+        key_literal = "'" + key_password + "'"
+        self.assertIn(f"ENCRYPTION BY PASSWORD = {key_literal}", sql)
         with self.assertRaises(ValueError):
             create_connector_credential_batch(TOKEN, PASSWORD, PASSWORD)
 

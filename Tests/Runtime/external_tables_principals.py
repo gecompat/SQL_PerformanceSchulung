@@ -35,6 +35,7 @@ def create_principal_batch(token: str, principal: Principal, password: str) -> s
     name = principal_name(token, principal)
     if not PASSWORD.fullmatch(password):
         raise ValueError("expected a generated per-run SQL login secret")
+    password_literal = "'" + password + "'"
     db = database_name(token, principal.role)
     sql = owned_database_guard(token, principal.role) + f"""
 IF SUSER_ID(N'{name}') IS NOT NULL OR USER_ID(N'{name}') IS NOT NULL
@@ -49,7 +50,7 @@ IF NOT EXISTS (SELECT 1 FROM sys.external_tables WHERE object_id = OBJECT_ID(N'd
     sql += f"""
 BEGIN TRANSACTION;
 USE [master];
-CREATE LOGIN [{name}] WITH PASSWORD = '{password}', DEFAULT_DATABASE = [{db}],
+CREATE LOGIN [{name}] WITH PASSWORD = {password_literal}, DEFAULT_DATABASE = [{db}],
     CHECK_POLICY = ON, CHECK_EXPIRATION = OFF;
 """
     if principal is Principal.OBSERVER:
@@ -70,14 +71,16 @@ def create_connector_credential_batch(token: str, source_password: str, master_k
         or source_password == master_key_password
     ):
         raise ValueError("expected two distinct generated pilot secrets")
+    source_literal = "'" + source_password + "'"
+    key_literal = "'" + master_key_password + "'"
     return owned_database_guard(token, Role.QUERY) + f"""
 IF EXISTS (SELECT 1 FROM sys.symmetric_keys WHERE name = N'##MS_DatabaseMasterKey##')
     OR EXISTS (SELECT 1 FROM sys.database_scoped_credentials WHERE name = N'{SOURCE_CREDENTIAL}')
     THROW 51073, 'FAIL_STATE: External Tables key or credential already exists.', 1;
 BEGIN TRANSACTION;
-CREATE MASTER KEY ENCRYPTION BY PASSWORD = '{master_key_password}';
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = {key_literal};
 CREATE DATABASE SCOPED CREDENTIAL [{SOURCE_CREDENTIAL}]
-WITH IDENTITY = N'{source_login}', SECRET = '{source_password}';
+WITH IDENTITY = N'{source_login}', SECRET = {source_literal};
 COMMIT;
 """
 
