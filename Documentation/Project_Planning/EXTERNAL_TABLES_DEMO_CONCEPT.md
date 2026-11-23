@@ -141,13 +141,30 @@ Entfernungen. Verwende `--role source` für diesen Plan. Die Simulation
 installiert weder SQL Server noch PolyBase. Installationsskripte,
 Dienstzustand und der Connectorlauf bleiben im Gast zu prüfen.
 
-Die Prüfung hat außerdem eine Abweichung bei der VM-Bereitstellung gezeigt.
-Das Canonical-Archiv enthält eine VHD mit 32.213.303.296 Byte virtueller
-Größe, rund 30 GiB. Damit überschreitet das unveränderte Abbild die
-Profilgrenze von 24 GiB pro VM. Vor dem Import braucht der Pilot entweder
-ein geprüftes, kleineres Abbild oder eine ausdrücklich angepasste
-Ressourcengrenze. Die Prüfung der Partitionstabelle und die Bootfähigkeit
-sind Teil der Abnahme des späteren VM-Abbilds.
+### Abgeleitetes Hyper-V-Abbild mit 24 GiB
+
+Die Canonical-VHD hat unverändert 32.213.303.296 Byte virtuelle Größe.
+Für die Profilgrenze von 24 GiB wurde aus dem geprüften Archiv eine eigene
+Offlinekopie abgeleitet. Vor dem Kürzen lagen alle vier Partitionen
+vollständig unterhalb der neuen Grenze und der abgeschnittene Bereich war
+leer. Anschließend wurde das GPT-Ende an die neue Kapazität angepasst und
+die Kopie als dynamische VHDX ausgegeben. Nach erneutem Lesen der VHDX
+stimmten Kennungen, Startsektoren, Längen und SHA-256 der Nutzdaten aller
+vier Partitionen mit dem Original überein. Hyper-V meldete 24 GiB und
+`Test-VHD` lieferte `True`.
+[Nachweis des konkreten Abbilds](external_tables_vhdx_evidence.json).
+
+Der [Basisprüfer](../../Tests/Static/verify_external_tables_ubuntu_base.py)
+kann die lokal vorgehaltene Kopie vor ihrer weiteren Verwendung erneut
+an Dateigröße und SHA-256 binden:
+
+```text
+python Tests/Static/verify_external_tables_ubuntu_base.py MANIFEST --derived-vhdx VHDX
+```
+
+Der nächste Lauf prüft den isolierten Start einer frischen Kopie in
+Hyper-V. Die hier geprüfte Dateiintegrität belegt weder einen erfolgreichen
+Gaststart noch eine installierte Rolle.
 
 ### Geprüfte Microsoft-Pakete für die Vorlagen
 

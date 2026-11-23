@@ -66,17 +66,34 @@ def verify_archive(path: Path) -> None:
             raise ValueError("VHD archive does not match the pinned Canonical release")
 
 
+def verify_derived_vhdx(path: Path) -> None:
+    evidence_path = (
+        Path(__file__).resolve().parents[2] / "Documentation" / "Project_Planning"
+        / "external_tables_vhdx_evidence.json"
+    )
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    if evidence["source_archive_sha256"] != ARCHIVE_SHA256 or evidence["derived_virtual_bytes"] != 24 * 1024**3:
+        raise ValueError("derived VHDX evidence differs from the source or resource profile")
+    with path.open("rb") as stream:
+        if path.stat().st_size != evidence["derived_file_bytes"] or file_digest(stream, "sha256").hexdigest() != evidence["derived_sha256"]:
+            raise ValueError("VHDX bytes do not match the locally verified candidate")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("manifest", type=Path)
     parser.add_argument("--archive", type=Path, help="also verify the downloaded Canonical VHD archive")
+    parser.add_argument("--derived-vhdx", type=Path, help="also check the locally derived Hyper-V candidate")
     args = parser.parse_args()
     try:
         comparison = verify_manifest(args.manifest)
         if args.archive is not None:
             verify_archive(args.archive)
+        if args.derived_vhdx is not None:
+            verify_derived_vhdx(args.derived_vhdx)
         print(json.dumps({
-            "release": RELEASE, "image": BASENAME, "archive_verified": args.archive is not None, **comparison,
+            "release": RELEASE, "image": BASENAME, "archive_verified": args.archive is not None,
+            "derived_vhdx_verified": args.derived_vhdx is not None, **comparison,
         }, sort_keys=True))
     except (OSError, ValueError) as exc:
         print(f"FAIL {exc}")

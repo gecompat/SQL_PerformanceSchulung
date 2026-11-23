@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from hashlib import sha256
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, main
@@ -41,6 +42,24 @@ class BaseImageTests(TestCase):
                 image.write_bytes(archive + b"x")
                 with self.assertRaises(ValueError):
                     verify_archive(image)
+
+    def test_derived_evidence_respects_disk_cap_and_partition_geometry(self):
+        base = Path(__file__).resolve().parents[2] / "Documentation" / "Project_Planning"
+        evidence = json.loads((base / "external_tables_vhdx_evidence.json").read_text(encoding="utf-8"))
+        self.assertEqual(evidence["guest_boot"], "NOT_RUN")
+        self.assertEqual(evidence["derived_virtual_bytes"], 24 * 1024**3)
+        self.assertGreater(evidence["source_virtual_bytes"], evidence["derived_virtual_bytes"])
+        self.assertTrue(evidence["hyper_v_test_vhd"])
+        partitions = evidence["partitions_before_and_after"]
+        self.assertEqual({entry["number"] for entry in partitions}, {1, 14, 15, 16})
+        self.assertEqual(len({entry["uuid"] for entry in partitions}), 4)
+        for entry in partitions:
+            self.assertLess(
+                (entry["first_lba"] + entry["sectors"] + 34) * evidence["logical_sector_bytes"],
+                evidence["derived_virtual_bytes"],
+            )
+            self.assertRegex(entry["sha256"], r"^[0-9a-f]{64}$")
+
 
 
 if __name__ == "__main__":
