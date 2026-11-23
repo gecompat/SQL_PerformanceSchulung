@@ -2,7 +2,7 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `IMPLEMENTED`; die konkrete Demoqualifikation läuft in der PR-Matrix |
+| Status | `VALIDATED` für je einen gebundenen Build auf SQL Server 2019, 2022 und 2025; die allgemeine Methode bleibt `METHOD_DRAFT` |
 | Sicherheit | `YELLOW`; eigener, netzwerkloser Wegwerfcontainer |
 | Zielversionen | SQL Server 2019, 2022 und 2025; jeweils ein konkreter Build |
 | Ressourcen | Container auf 2 CPUs und 4 GiB begrenzt; ein Lauf, zwei Insertschübe |

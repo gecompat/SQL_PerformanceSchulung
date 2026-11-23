@@ -7002,7 +7002,7 @@ Die bestehenden CI-Nachweise stammen aus den verlinkten GitHub-Actions-Läufen; 
 | `IDX-006` (Seitenaufteilungen und Seitenbelegung), `IDX-010` (Columnstore-Segmente gezielt überspringen) | Rowstore-Messkette je zweimal mit fachlich akzeptierter Warnung; klassische Columnstore-Segmente je zweimal `PASS` auf allen Zielversionen | `VALIDATED` |
 | `STL-008` (Transaktionslog und Dateiwachstum), `STL-009` (Mehrere Änderungen gemeinsam bestätigen) | rote VLF-/Growth-Lane und gelber Commit-/WRITELOG-Schnitt; je zwei `PASS` auf 2019/2022/2025 | `VALIDATED` |
 | `RES-007` (Wartezeiten im richtigen Messbereich) | Task-, Request- und Instanz-Waitscope mit Gegenprobe; je zwei `PASS` auf 2019/2022/2025 | `VALIDATED` |
-| `QRY-006` (NULL bei NOT IN und NOT EXISTS) | Lokaler Docker-Nachweis: SQL Server 2019/150, 2022/160 und 2025/170, je zwei vollständige Manifestläufe `PASS`; siehe [QRY-006 – lokaler Runtime-Nachweis](QRY_006_RUNTIME_EVIDENCE.md) | `IMPLEMENTED` – Runtime-Gate und SQL_Server_Lab-Szenariopromotion bleiben offen |
+| `QRY-006` (NULL bei NOT IN und NOT EXISTS) | Lokaler Docker-Nachweis: SQL Server 2019/150, 2022/160 und 2025/170, je zwei vollständige Manifestläufe `PASS`; siehe [QRY-006 – lokaler Runtime-Nachweis](QRY_006_RUNTIME_EVIDENCE.md) | `VALIDATED` – SQL_Server_Lab-Szenariopromotion bleibt offen |
 | `DGN-007_DATA_MODEL` | Lokaler Docker-Nachweis vom 2026-10-06: 2019/150, 2022/160 und 2025/170 je zwei vollständige Datenmodell-Lifecycles `PASS/OK`, unabhängiger Datenbankabbau nach jedem Lauf und Entfernung aller eigenen Container; siehe [DGN-007 – lokaler Runtime-Nachweis des Datenmodells](DGN_007_DATA_MODEL_RUNTIME_EVIDENCE.md) | `IMPLEMENTED` – begrenzter Datenmodellvertrag; vollständige Capstone-Abnahme und Szenariopromotion bleiben offen |
 | `DGN-007_QUERY_STORE_WINDOWS` | Lokaler Docker-Nachweis vom 2026-10-06: 2019/150, 2022/160 und 2025/170 je zwei vollständige Fenster-Lifecycles `PASS/OK`; disjunkte Katalogintervalle, gleiche vier Parameterklassen und je vier erfasste Suchausführungen, unabhängiger Datenbankabbau und Entfernung aller eigenen Container; siehe [DGN-007 – Runtime-Nachweis der Query-Store-Fenster](DGN_007_QUERY_STORE_WINDOWS_RUNTIME_EVIDENCE.md) | `IMPLEMENTED` – begrenzte Capture-Evidenz; kein Incident-, Regressions- oder Capstone-Nachweis |
 
@@ -14569,3 +14569,19 @@ Katalogstatus `IMPLEMENTED`. Der Methodenstatus `METHOD_DRAFT` und die Trennung
 von allgemeiner Performancequalifikation bleiben unverändert. Details des
 tatsächlichen Prüf- und CI-Aufwands stehen in
 [IDX007_DEMO_PACKAGE_REVIEW.md](IDX007_DEMO_PACKAGE_REVIEW.md).
+
+### Statusabgleich nach IDX-007-PR #1149 (23. November 2026)
+
+PR [#1149](https://github.com/gecompat/SQL_PerformanceSchulung/pull/1149)
+wurde mit Merge-Commit `04a799b6328dcf152e7cd27905ecf778bbd21084` in
+`origin/main` integriert. Die frische [IDX-007-Paketmatrix](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45154994472)
+bestand auf den konkreten SQL-Server-Buildprofilen 2019, 2022 und 2025. Der
+Paketstatus ist daher für diese drei Profile `VALIDATED`; der separate
+Methodenstatus bleibt `METHOD_DRAFT` und begründet keinen allgemeinen
+Performance- oder Terminalseitenclaim.
+
+| Arbeit | Aktueller Stand | Abgrenzung |
+|---|---|---|
+| DGN-004 `CLASSICAL_FORCING_AND_HINT_CONTROL` | Das begrenzte Qualifikationsgate für die registrierten SQL-Server-2022- und 2025-Builds ist durch [Actions-Lauf 44991028381](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44991028381) abgeschlossen. | Ein späterer, durch Main-Push ausgelöster Zusatzlauf gehört nicht zur genehmigten Versuchszahl und wird nicht als Ersatzqualifikation gewertet; Details und Diagnose stehen im Abschnitt „DGN-004 – begrenzte CI-Qualifikation je Build“ in [Nächste Entwicklungswellen](NEXT_DEVELOPMENT_WAVES.md). Keine weitere Wiederholung ohne neue Autorisierung. |
+| CON-006 Range-Deadlock | Vollständige Demo samt unabhängigem Methodenreview und markergebundenem Cleanup ist auf SQL Server 2019, 2022 und 2025 abgeschlossen; PR #1142 ist integriert. | Gilt für die konkret qualifizierten Builds und behauptet keine allgemeine Performance-Rangfolge. |
+| QRY-006 `NOT IN`/`NOT EXISTS` | `VALIDATED` für Linux/Docker mit je zwei vollständigen Läufen auf SQL Server 2019/150, 2022/160 und 2025/170; siehe [Runtime-Gate vom 21. November](#qry-006--runtime-gate-auf-drei-engineversionen-bestanden-21-november-2026). | Eine Windows-Abnahme und die optionale SQL_Server_Lab-Szenariopromotion sind nicht Teil dieser Runtimefreigabe. |
