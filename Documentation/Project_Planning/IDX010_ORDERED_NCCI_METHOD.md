@@ -67,7 +67,7 @@ Datentyps nach Sichtung der Ergebnisse erfordert ein eigenes Profil.
 |---|---|
 | Daten und Ladefolge | `dbo.Events(EventId bigint NOT NULL, EventDayKey bigint NOT NULL)`. `EventId` ist der gruppierte eindeutige Primärschlüssel von 0 bis 4.194.303. `EventDayKey = (EventId * 1048573) % 4194304`. Der ungerade Faktor permutiert die Schlüssel eindeutig und mischt kurze und weite Abstände im physischen Primärschlüssel. Lade beide Arme nach denselben vier disjunkten ID-Bereichen mit je 1.048.576 Zeilen. Rechnerische und tatsächliche Segmentgrenzen werden getrennt beurteilt. |
 | Datenidentität | Prüfe je Arm exakt 4.194.304 unterschiedliche IDs im festgelegten geschlossenen Bereich und null Abweichungen von der Schlüsselformel. Vergleiche außerdem SHA-256 über den vollständigen, nach `EventId` sortierten Strom aus UTF-8-Zeilen `EventId,EventDayKey` mit LF als Zeilenende und dezimalen Ganzzahlen ohne Gruppierung, Header oder BOM. Gib nur Digest und Zähler aus. |
-| Index und Rowgroups | Eine Partition, gleiche NCCI-Spaltenliste `(EventDayKey, EventId)` und COLUMNSTORE-Kompression in beiden Armen. Erwartet sind vier vollständige komprimierte Rowgroups. Der Mechanismuslauf wertet nur vier vollständige Gruppen ohne Delta- oder gelöschte Zeilen je Arm aus. Ein anderer Aufteilungsschnitt endet als `NOT_PROVEN`. |
+| Index und Rowgroups | Eine Partition, gleiche NCCI-Spaltenliste `(EventId, EventDayKey)` und COLUMNSTORE-Kompression in beiden Armen. Erwartet sind vier vollständige komprimierte Rowgroups. Der Mechanismuslauf wertet nur vier vollständige Gruppen ohne Delta- oder gelöschte Zeilen je Arm aus. Ein anderer Aufteilungsschnitt endet als `NOT_PROVEN`. |
 | Abfrage und Oracle | Halboffenes Intervall `EventDayKey >= 1048576 AND EventDayKey < 1052672`. Erwartet sind `COUNT_BIG(*) = 4096` und `SUM(EventDayKey) = 4303353856`. Die Bijektion und die geprüfte Fixture bestimmen die erwartete Zeilenidentität. Führe pro Arm eine markierte Abfrage in einer eigenen englischsprachigen SQL-Session aus und binde ihren tatsächlichen Plan sowie genau eine Tabellenmeldung mit Segmentzählern an diesen Aufruf. |
 | Mindestbefund | In beiden Armen müssen gelesene und übersprungene Segmente zusammen vier ergeben. Die ungeordnete Kontrolle muss Segmente mit Überlappung enthalten. Der geordnete Arm muss höhere Ordnungsgüte und mindestens ein zusätzlich übersprungenes Segment zeigen. Andernfalls `NOT_PROVEN`. |
 | Rollen | Eine lokale Einrichtungsidentität erstellt ausschließlich die zwei markierten Datenbanken und die Fixture. Das Beobachtungsprofil erhält Zugriff auf genau die beiden Testdatenbanken, Leserechte auf `dbo.Events`, die für das Profil erforderliche Metadatensicht und `SHOWPLAN` für die Testdatenbanken. Die Umsetzung prüft die effektiven Rechte vor Messung und benennt die konkreten Grants und ihre Rücknahme im Laufvertrag. |
@@ -356,6 +356,59 @@ empirischer Befund. Für einen nächsten Methodenstand sind die tatsächlichen
 Segmentgrenzen und die Eingabereihenfolge beim Aufbau zu prüfen. Erst mit
 einem erneut begründeten Kontrolllayout kann ein weiterer Vergleich
 Segmentelimination nachweisen.
+
+Eine zweite, ausschließlich auf die Metadaten begrenzte Probe mit
+demselben Profil bestätigte die Zählung unabhängig anhand der numerischen
+Segmentgrenzen. Beide Varianten hatten vier volle Rowgroups mit
+Encoding 1. Die beobachteten Bereiche waren:
+
+| Segment | Kontrollindex | Index mit `ORDER (EventDayKey)` |
+|---|---:|---:|
+| 0 | 0–1.048.575 | 0–4.194.300 |
+| 1 | 1.048.576–2.097.151 | 2–4.194.301 |
+| 2 | 2.097.152–3.145.727 | 3–4.194.302 |
+| 3 | 3.145.728–4.194.303 | 4–4.194.303 |
+
+Der direkte Zahlenvergleich ergab dieselben 0 bzw. 6 überlappenden Paare
+wie der Katalogreader. Die Bereiche des Indexes mit `ORDER` weichen auch
+von den vorberechneten Bereichen der vier Ladeblöcke ab. Aus den
+Grenzen allein lässt sich die Ursache des beobachteten Layouts noch
+nicht bestimmen. Eine separate Metadatenprobe änderte anschließend
+ausschließlich die Spaltenreihenfolge beider NCCI-Definitionen zu
+`(EventId, EventDayKey)`. Damit hatte der Kontrollindex sechs
+überlappende Paare. Seine Grenzen entsprachen den vorberechneten vier
+Ladeblöcken. Der geordnete Index hatte null überlappende Paare und die
+vier disjunkten, lückenlosen Schlüsselbereiche. Beide Varianten hatten
+weiterhin je vier volle Rowgroups mit Encoding 1 und acht eindeutigen
+Grenzen. Der Cleanup bestand.
+
+Der neue Pilotkandidat legt für beide Arme dieselbe erprobte
+Spaltenliste fest. `ORDER (EventDayKey)` bleibt der einzige
+DDL-Unterschied zwischen den Armen. Die Metadatenprobe hat noch keine
+Ergebnisabfragen ausgeführt. Für die Qualifikation muss der vollständige
+Pilot die Lese- und Skipzähler für beide tatsächlichen NCCI-Pläne
+und die unveränderte Ergebnisgleichheit bestätigen.
+
+### Bestandener Vergleich mit der überprüften Spaltenliste
+
+Der unabhängige Review akzeptierte den einmaligen vollständigen Lauf
+der revidierten Methode. Die getestete Revision `25b77dd2` verwendete
+das festgeschriebene Image mit Build `17.0.5065.9` und in beiden
+Varianten die Spaltenliste `(EventId, EventDayKey)`. Datenidentität,
+Datei- und Prozessgrenzen, Indexprofile und beide tatsächlichen Pläne
+wurden geprüft.
+
+| Variante | Überlappende Segmentpaare | Gelesene Segmente | Übersprungene Segmente |
+|---|---:|---:|---:|
+| Kontrolle | 6 | 4 | 0 |
+| `ORDER (EventDayKey)` | 0 | 1 | 3 |
+
+Beide Abfragen lieferten dieselbe Trefferzahl von 4.096 und dieselbe Schlüsselsumme
+4.303.353.856. Der Lauf meldete `PASS` und benötigte einschließlich
+bestätigtem SQL- und Containerabbau 105 Sekunden. Der Befund gilt für
+das festgelegte Build-, Daten- und Abfrageprofil. Eine Freigabe als
+regelmäßige Vorführung und eine Performanceaussage benötigen ihren
+jeweiligen eigenen Nachweis.
 
 ## Voraussetzungen, Stop und Cleanup für einen späteren Pilot
 

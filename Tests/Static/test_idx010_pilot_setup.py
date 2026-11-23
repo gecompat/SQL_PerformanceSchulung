@@ -71,6 +71,7 @@ class PilotSetupTests(unittest.TestCase):
         control = index_build_batch("RUN8", Arm.CONTROL).partition("CREATE NONCLUSTERED")[2]
         ordered = index_build_batch("RUN8", Arm.ORDERED).partition("CREATE NONCLUSTERED")[2]
         self.assertIn("WITH (MAXDOP = 1, ONLINE = OFF)", control)
+        self.assertIn("ON dbo.Events (EventId, EventDayKey)", control)
         self.assertEqual(ordered.replace(" ORDER (EventDayKey)", "", 1), control)
 
     def test_fixture_stream_matches_fixed_independent_digest(self):
