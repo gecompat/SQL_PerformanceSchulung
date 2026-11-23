@@ -17,6 +17,16 @@ Die Teilnehmenden verbinden ein zeitlich abgegrenztes Symptom mit Query-Store-Hi
 
 Query Store, Actual Execution Plan, DMVs (Dynamic Management Views; dynamische Verwaltungssichten für Diagnoseinformationen) und Extended Events liefern unterschiedliche Evidenz. Sie belegen jeweils nur ihren Scope; erst die konsistente Kette aus Zeitfenster, Parameterwert, Verteilung, Plan und gemessener Arbeit stützt eine Ursachenhypothese. Die referenzierte Änderung ist kein allgemeiner Tuningrat.
 
+## Vorführbarer Kontrolllauf
+
+Im [neutralen Query-Store-Kontrolllauf](Automated/README.md#neutrale-kontrollcaptures-vorführen)
+lässt sich auf SQL Server 2019, 2022 und 2025 zeigen, wie dieselben vier
+Suchaufrufe in zwei Zeitfenstern verglichen werden. Die Vorführung
+konzentriert sich auf Ausführungszahlen, Pläne und Laufzeitprofile.
+Der anschließende Teilnehmerpfad beschreibt die weitergehende Diagnose
+einer möglichen Regression, die eine eigene Laufzeitfreigabe benötigt.
+
+
 ## Voraussetzungen und Grenzen
 
 Dies ist Schnitt B zu dem bestehenden, markergebundenen Adapter unter [`Scenarios/DGN-007`](../../../Scenarios/DGN-007/README.md). Der Adapter erzeugt Datenmodell sowie die Fenster `T0_BASELINE` und `T1_INCIDENT`; diese Skripte bauen keinen Ersatzdatenbestand auf und ändern weder `Scenarios/` noch globale Caches. Vor der Ausführung ist eine bestätigte isolierte Wegwerfinstanz erforderlich (`--confirm-isolated-lab`), mit mindestens 4 logischen CPU-Kernen, 8 GB SQL-Server-Speicher sowie Platz für Testdaten, Query Store und TempDB.
