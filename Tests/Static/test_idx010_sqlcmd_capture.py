@@ -7,7 +7,7 @@ from unittest.mock import patch
 from test_idx010_query_evidence import IO, PLAN
 
 from dgn004_capture_runner import BoundedProcessResult, CaptureTimeoutError
-from idx010_pilot_sequence import Arm, Target
+from idx010_pilot_sequence import Arm, Target, WORK_SECONDS
 from idx010_query_evidence import QUERY, verify_query_evidence
 from idx010_sqlcmd_capture import (
     COMPLETE,
@@ -62,6 +62,8 @@ class SqlcmdCaptureTests(TestCase):
         collect.assert_called_once()
         argv, = collect.call_args.args
         options = collect.call_args.kwargs
+        self.assertEqual(options["timeout_ceiling_seconds"], WORK_SECONDS)
+        self.assertGreater(options["timeout_seconds"], 20)
         self.assertEqual(argv[:3], ["docker", "exec", "-i"])
         self.assertIn("127.0.0.1", argv)
         self.assertNotIn(CONNECTION.password, argv)

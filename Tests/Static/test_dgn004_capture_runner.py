@@ -80,6 +80,14 @@ class Dgn004CaptureRunnerTests(unittest.TestCase):
                         stdout_limit_bytes=5, stderr_limit_bytes=5,
                     )
 
+    def test_default_ceiling_and_explicit_budget_are_enforced(self):
+        for ceiling in ({}, {"timeout_ceiling_seconds": 20}, {"timeout_ceiling_seconds": float("inf")}):
+            with self.subTest(ceiling=ceiling), self.assertRaisesRegex(CaptureRunnerError, "invalid process limits"):
+                collect_bounded_process(
+                    child("raise SystemExit(42)"), input_bytes=b"", environment=env(), timeout_seconds=21,
+                    **ceiling,
+                )
+
     def test_timeout_stops_the_synthetic_process(self) -> None:
         with self.assertRaises(CaptureTimeoutError):
             collect_bounded_process(

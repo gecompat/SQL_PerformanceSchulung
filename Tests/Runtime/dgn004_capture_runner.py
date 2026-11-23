@@ -6,6 +6,7 @@ the handle to a query, statement, module, or intended execution.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import isfinite
 import os
 from pathlib import Path
 import re
@@ -185,6 +186,7 @@ def collect_bounded_process(
     timeout_seconds: float = PROCESS_TIMEOUT_SECONDS,
     stdout_limit_bytes: int = STDOUT_LIMIT_BYTES,
     stderr_limit_bytes: int = STDERR_LIMIT_BYTES,
+    timeout_ceiling_seconds: float = PROCESS_TIMEOUT_SECONDS,
 ) -> BoundedProcessResult:
     """Stream both channels concurrently, retain only their fixed allowances."""
     if type(command) not in (list, tuple) or not command or any(
@@ -193,7 +195,8 @@ def collect_bounded_process(
         raise CaptureRunnerError("invalid process argument vector")
     if type(input_bytes) is not bytes:
         raise CaptureRunnerError("process input must be bytes")
-    if (type(timeout_seconds) not in (int, float) or not 0 < timeout_seconds <= PROCESS_TIMEOUT_SECONDS
+    if (type(timeout_ceiling_seconds) not in (int, float) or not isfinite(timeout_ceiling_seconds)
+            or type(timeout_seconds) not in (int, float) or not 0 < timeout_seconds <= timeout_ceiling_seconds
             or type(stdout_limit_bytes) is not int or stdout_limit_bytes < 0
             or type(stderr_limit_bytes) is not int or stderr_limit_bytes < 0):
         raise CaptureRunnerError("invalid process limits")

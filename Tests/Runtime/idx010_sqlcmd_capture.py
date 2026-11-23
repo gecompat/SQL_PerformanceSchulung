@@ -8,7 +8,7 @@ import re
 from time import monotonic
 
 from dgn004_capture_runner import CaptureRunnerError, CaptureTimeoutError, collect_bounded_process
-from idx010_pilot_sequence import QueryCapture, Target
+from idx010_pilot_sequence import QueryCapture, Target, WORK_SECONDS
 from idx010_query_evidence import QUERY
 
 
@@ -75,6 +75,7 @@ def capture_query(connection: MeasurementConnection, target: Target, sql: str, d
             timeout_seconds=remaining,
             stdout_limit_bytes=STDOUT_BYTES,
             stderr_limit_bytes=STDERR_BYTES,
+            timeout_ceiling_seconds=WORK_SECONDS,
         )
     except CaptureTimeoutError:
         raise TimeoutError("SQL measurement deadline exceeded") from None

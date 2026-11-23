@@ -14,6 +14,7 @@ on:
       - 'Tests/Runtime/idx010_sqlcmd_capture.py'
       - 'Tests/Static/test_idx010_sqlcmd_capture.py'
       - 'Tests/Runtime/dgn004_capture_runner.py'
+      - 'Tests/Static/test_dgn004_capture_runner.py'
       - 'Tests/Static/test_idx010_pilot_sequence.py'
       - 'Tests/Static/test_idx010_pilot_setup.py'
       - 'Tests/Static/test_idx010_query_evidence.py'
@@ -33,6 +34,7 @@ on:
       - 'Tests/Runtime/idx010_sqlcmd_capture.py'
       - 'Tests/Static/test_idx010_sqlcmd_capture.py'
       - 'Tests/Runtime/dgn004_capture_runner.py'
+      - 'Tests/Static/test_dgn004_capture_runner.py'
       - 'Tests/Static/test_idx010_pilot_sequence.py'
       - 'Tests/Static/test_idx010_pilot_setup.py'
       - 'Tests/Static/test_idx010_query_evidence.py'
@@ -57,3 +59,4 @@ jobs:
       - run: python Tests/Static/test_idx010_sqlcmd_capture.py
       - run: python Tests/Static/test_idx010_index_metadata.py
       - run: python Tests/Static/test_idx010_docker_transport.py
+      - run: python Tests/Static/test_dgn004_capture_runner.py
