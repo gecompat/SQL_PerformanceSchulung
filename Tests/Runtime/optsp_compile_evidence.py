@@ -31,22 +31,51 @@ class TimeBounds:
             raise ValueError("invalid time bounds")
 
 
-Time = int | TimeBounds
+@dataclass(frozen=True)
+class EventTime:
+    """One event from a producer-qualified, loss-free XE recording.
+
+    The sequence orders events within that recording. It cannot add duration
+    to a pair of equal timestamp labels.
+    """
+
+    ticks: int
+    sequence: int
+    recording: str
+
+    def __post_init__(self) -> None:
+        if type(self.ticks) is not int or type(self.sequence) is not int or self.sequence <= 0:
+            raise ValueError("invalid recorded event time")
+        if type(self.recording) is not str or not self.recording:
+            raise ValueError("missing event recording identity")
+
+
+Time = int | TimeBounds | EventTime
 
 
 def _earliest(value: Time) -> int:
+    if isinstance(value, EventTime):
+        return value.ticks
     return value.earliest if isinstance(value, TimeBounds) else value
 
 
 def _latest(value: Time) -> int:
-    return value.latest if isinstance(value, TimeBounds) else value
+    return value.latest if isinstance(value, TimeBounds) else _earliest(value)
 
 
 def _strictly_before(left: Time, right: Time) -> bool:
+    if isinstance(left, EventTime) and isinstance(right, EventTime):
+        return (
+            left.recording == right.recording
+            and left.ticks <= right.ticks
+            and left.sequence < right.sequence
+        )
     return _latest(left) < _earliest(right)
 
 
 def _at_or_before(left: Time, right: Time) -> bool:
+    if isinstance(left, EventTime) or isinstance(right, EventTime):
+        return left == right or _strictly_before(left, right)
     return _latest(left) <= _earliest(right)
 
 
@@ -63,18 +92,24 @@ class Interval:
         return cls(TimeBounds(end.earliest - duration.latest, end.latest - duration.earliest), end)
 
     def valid(self) -> bool:
+        if isinstance(self.start, EventTime) or isinstance(self.end, EventTime):
+            return _strictly_before(self.start, self.end)
         return _earliest(self.start) < _latest(self.end)
 
     def contains(self, other: "Interval") -> bool:
         return other.valid() and _at_or_before(self.start, other.start) and _at_or_before(other.end, self.end)
 
     def overlaps(self, other: "Interval") -> bool:
-        """Overlap that holds for all admitted endpoint placements."""
-        return max(_latest(self.start), _latest(other.start)) < min(_earliest(self.end), _earliest(other.end))
+        """Strictly positive overlap that survives the admitted bounds."""
+        return (
+            max(_latest(self.start), _latest(other.start)) < min(_earliest(self.end), _earliest(other.end))
+            and _strictly_before(self.start, other.end)
+            and _strictly_before(other.start, self.end)
+        )
 
     def possibly_overlaps(self, other: "Interval") -> bool:
         """Overlap that cannot be ruled out when excluding other lock holders."""
-        return max(_earliest(self.start), _earliest(other.start)) < min(_latest(self.end), _latest(other.end))
+        return not (_at_or_before(self.end, other.start) or _at_or_before(other.end, self.start))
 
 
 @dataclass(frozen=True)
