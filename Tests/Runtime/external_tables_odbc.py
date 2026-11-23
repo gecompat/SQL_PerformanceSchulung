@@ -6,6 +6,7 @@ from collections.abc import Callable, Iterable, Iterator
 from concurrent.futures import Future
 from contextlib import contextmanager
 from dataclasses import dataclass, field
+from datetime import date
 from hashlib import file_digest
 from importlib.machinery import EXTENSION_SUFFIXES
 from importlib.util import module_from_spec, spec_from_file_location
@@ -17,21 +18,27 @@ from stat import S_ISREG
 import sys
 from threading import Thread
 from time import monotonic
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
-from external_tables_guest_network import GuestNetwork
 from external_tables_measurement import AggregateRows, PendingAggregate, UnconfirmedRequestCleanup
 from external_tables_pilot_sql import (
-    CONNECTION_OPTIONS, SOURCE_PORT, Role, Route, aggregate_batch, database_name, source_host,
+    CONNECTION_OPTIONS, EDITION, ROWS, SOURCE_PORT, VERSION, Role, Route, aggregate_batch,
+    database_name, fixture_read_batch, source_host,
 )
 from external_tables_principals import PASSWORD, Principal, principal_name
 from external_tables_pushdown_evidence import Work
+
+
+if TYPE_CHECKING:
+    from external_tables_guest_network import GuestNetwork
 
 
 REQUEST_IDENTITY = "SET NOCOUNT ON; SELECT @@SPID AS session_id, CURRENT_REQUEST_ID() AS request_id;\n"
 
 
 class Cursor(Protocol):
+    description: object | None
+
     def execute(self, sql: str) -> object: ...
     def fetchmany(self, size: int) -> Iterable[Iterable[object]]: ...
     def nextset(self) -> bool | None: ...
@@ -174,6 +181,84 @@ def _is_certificate_name_rejection(failure: Exception) -> bool:
         return False
     message = failure.args[1].lower()
     return "ssl provider:" in message and "subject name does not match host name" in message
+
+
+class OdbcPilotAdministration:
+    """Execute trusted pilot SQL inside a host-verified guest.
+
+    The factory opens a fresh autocommit admin connection on this guest's
+    TCP loopback, with pooling disabled. Guest identity and process deadlines
+    are owned by the enclosing guest transport.
+    """
+
+    def __init__(self, token: str, role: Role, open_admin: Callable[[str, int], Connection]) -> None:
+        self._database = database_name(token, role)
+        self._admin = open_admin
+        routes = (Route.LOCAL,) if role is Role.SOURCE else tuple(Route)
+        self._fixture_reads = {fixture_read_batch(token, role, route) for route in routes}
+
+    def execute(self, database: str, sql: str, deadline: float) -> None:
+        """Execute the coordinator's setup or cleanup batch with no result rows."""
+        if database not in ("master", self._database):
+            raise ValueError("unexpected database for guest administration")
+        with self._cursor(database, deadline) as cursor:
+            cursor.execute(self._guard(database) + sql)
+            if cursor.description is not None or cursor.nextset():
+                raise ValueError("unexpected result from guest administration")
+
+    def fixture_rows(self, sql: str, deadline: float) -> tuple[tuple[int, date, int, int], ...]:
+        if sql not in self._fixture_reads:
+            raise ValueError("unexpected fixture query for this guest")
+        with self._cursor(self._database, deadline) as cursor:
+            cursor.execute(self._guard(self._database) + sql)
+            rows = _fetch(cursor, ROWS, 4)
+            if len(rows) != ROWS or cursor.nextset():
+                raise ValueError("incomplete or ambiguous guest fixture")
+        return rows
+
+    def database_exists(self, name: str, deadline: float) -> bool:
+        if name != self._database:
+            raise ValueError("unexpected cleanup database for this guest")
+        with self._cursor("master", deadline) as cursor:
+            cursor.execute(
+                self._guard("master") +
+                f"SELECT CONVERT(int, CASE WHEN DB_ID(N'{name}') IS NULL THEN 0 ELSE 1 END);"
+            )
+            rows = _fetch(cursor, 1, 1)
+            if len(rows) != 1 or type(rows[0][0]) is not int or rows[0][0] not in (0, 1) or cursor.nextset():
+                raise ValueError("guest database existence was not confirmed")
+        return rows[0][0] == 1
+
+    @contextmanager
+    def _cursor(self, database: str, deadline: float) -> Iterator[Cursor]:
+        try:
+            connection = self._admin(database, _query_timeout(deadline))
+            try:
+                connection.timeout = _query_timeout(deadline)
+                cursor = connection.cursor()
+                try:
+                    yield cursor
+                finally:
+                    cursor.close()
+            finally:
+                connection.close()
+        except Exception:
+            raise OSError("guest administration could not be confirmed") from None
+        _remaining(deadline)
+
+    @staticmethod
+    def _guard(database: str) -> str:
+        return f"""SET NOCOUNT ON;
+IF DB_NAME() COLLATE Latin1_General_100_BIN2 <> N'{database}'
+    OR DATALENGTH(DB_NAME()) <> DATALENGTH(N'{database}')
+    OR @@TRANCOUNT <> 0 OR (@@OPTIONS & 2) <> 0
+    OR COALESCE(IS_SRVROLEMEMBER(N'sysadmin'), 0) <> 1
+    OR COALESCE(CONVERT(varchar(48), CONNECTIONPROPERTY('local_net_address')), '') <> '127.0.0.1'
+    OR COALESCE(CONVERT(varchar(48), CONNECTIONPROPERTY('client_net_address')), '') <> '127.0.0.1'
+    OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'ProductVersion')), N'') <> N'{VERSION}'
+    OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'Edition')), N'') <> N'{EDITION}'
+    THROW 51083, 'FAIL_CONTRACT: unexpected local guest administration session.', 1;
+"""
 
 
 @dataclass

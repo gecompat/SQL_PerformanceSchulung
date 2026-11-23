@@ -645,6 +645,23 @@ belegen, bevor SQL ausgeführt wird. Er speichert die Login-SIDs vor der
 Erstellung. Der Ablauf reserviert den Abbau für jede Datenbank bereits
 vor dem ersten Einrichtungsaufruf.
 
+Die lokale [ODBC-Administration](../../Tests/Runtime/external_tables_odbc.py)
+führt Setup und SQL-Abbau aus, liest das vollständige Fixture und
+unterscheidet für den Abbau bestätigte Anwesenheit und Abwesenheit.
+Die Gaststeuerung ordnet den Aufruf zuerst der geprüften VM und Rolle zu
+und stellt eine frische lokale Adminverbindung bereit. Vor jedem Batch
+prüft der Adapter IPv4-Loopback, Datenbankkontext, Engine-Build,
+Adminberechtigung und Autocommit. Unerwartete Resultsets oder Fehler
+beim Schließen der Verbindung verhindern eine Bestätigung. Der aktuelle
+Paketlock liefert den gepinnten Python-ODBC-Client für den Abfragegast.
+Der lokale Adminclient für die Quellvorlage und die Verbindung zur
+Hoststeuerung bleiben Teil der konkreten Gastanbindung.
+
+Ein Komponententest auf Build `17.0.5065.9` prüfte in einem lokalen
+Wegwerfcontainer Einrichtung, je 4.096 Fixture-Zeilen, falsche
+Datenbankkontexte und den Abbau beider markierter Datenbanken. Er
+bestätigte auch die Abwesenheit des Containers.
+
 Die [SQL-Bausteine](../../Tests/Runtime/external_tables_pilot_sql.py)
 legen Daten- und Logdatei mit je 128 MiB Obergrenze an. Die Anlage in
 `master` und die Konfiguration auf der neuen Datenbank laufen getrennt.
