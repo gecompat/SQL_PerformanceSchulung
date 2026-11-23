@@ -9,6 +9,9 @@ on:
       - 'Tests/Static/test_external_tables_driver.py'
       - 'Tests/Static/verify_external_tables_ubuntu_base.py'
       - 'Tests/Static/test_external_tables_ubuntu_base.py'
+      - 'Tests/Static/verify_external_tables_apt_plan.py'
+      - 'Tests/Static/test_external_tables_apt_plan.py'
+      - 'Documentation/Project_Planning/external_tables_apt_lock.json'
       - '.github/workflows/external-tables-package-verification.yml'
   push:
     branches: [main]
@@ -19,6 +22,9 @@ on:
       - 'Tests/Static/test_external_tables_driver.py'
       - 'Tests/Static/verify_external_tables_ubuntu_base.py'
       - 'Tests/Static/test_external_tables_ubuntu_base.py'
+      - 'Tests/Static/verify_external_tables_apt_plan.py'
+      - 'Tests/Static/test_external_tables_apt_plan.py'
+      - 'Documentation/Project_Planning/external_tables_apt_lock.json'
       - '.github/workflows/external-tables-package-verification.yml'
 
 permissions:
@@ -36,3 +42,4 @@ jobs:
       - run: python Tests/Static/test_external_tables_packages.py
       - run: python Tests/Static/test_external_tables_driver.py
       - run: python Tests/Static/test_external_tables_ubuntu_base.py
+      - run: python Tests/Static/test_external_tables_apt_plan.py

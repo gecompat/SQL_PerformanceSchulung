@@ -110,13 +110,41 @@ Dateien mit:
 python Tests/Static/verify_external_tables_ubuntu_base.py MANIFEST --archive VHD-ARCHIV
 ```
 
-Für die beiden Gastvorlagen prüft ein simulierter APT-Installationslauf als
-Nächstes die exakten Versionen, Anbieterpakete, Versionsbedingungen und
-transitiven Abhängigkeiten auf dieser Basis. Die Quellen der resultierenden
-Paketmenge und die Prüfsummen werden vor der Installation festgeschrieben.
-Der Manifestabgleich erhebt ausschließlich die direkte Namensabdeckung.
-Bootfähigkeit in Hyper-V, APT-Auflösung und Gastinstallation sind weiterhin
-offen.
+### Aufgelöste Ubuntu-Pakete für die Abfrage-VM
+
+Der Paketstatus wurde am 23. November 2026 direkt aus dem Root-Dateisystem
+der geprüften VHD gelesen. Alle 659 installierten Paketnamen und Versionen
+stimmten mit Canonicals Manifest überein. APT 2.8.4 verwendete diesen
+Paketstatus, die beiden geprüften Microsoft-`.deb`-Dateien und die
+signierten Ubuntu-Quellen `noble`, `noble-updates` und `noble-security`
+aus dem [datierten Ubuntu-Archiv](https://snapshot.ubuntu.com/ubuntu/20261123T000000Z/).
+Die Simulation mit `--no-install-recommends` ergab zwölf zusätzliche
+Ubuntu-Pakete und zwei SQL-Pakete, ohne Upgrades oder Entfernungen.
+Die Versionen, Pfade, Größen und SHA-256-Werte stehen in der
+[APT-Paketliste](external_tables_apt_lock.json). Alle zwölf Ubuntu-Payloads
+wurden aus dem Snapshot geladen und gegen diese Prüfsummen geprüft.
+
+Der [APT-Prüfer](../../Tests/Static/verify_external_tables_apt_plan.py)
+erwartet die Ausgabe eines erfolgreich beendeten `apt-get -s`-Laufs.
+Er prüft die Paketnamen und Versionsübergänge. Optional prüft er die
+Dateien aller 14 Pakete in demselben Verzeichnis.
+
+```text
+python Tests/Static/verify_external_tables_apt_plan.py APT-PLAN --payload-directory PAKETVERZEICHNIS
+```
+
+Der Befund gilt für das Paketprofil der Abfrage-VM. Für die Quell-VM muss
+der separate Plan nur mit dem Engine-Paket abgeglichen werden. Die
+Simulation installiert weder SQL Server noch PolyBase. Installationsskripte,
+Dienstzustand und der Connectorlauf bleiben im Gast zu prüfen.
+
+Die Prüfung hat außerdem eine Abweichung bei der VM-Bereitstellung gezeigt.
+Das Canonical-Archiv enthält eine VHD mit 32.213.303.296 Byte virtueller
+Größe, rund 30 GiB. Damit überschreitet das unveränderte Abbild die
+Profilgrenze von 24 GiB pro VM. Vor dem Import braucht der Pilot entweder
+ein geprüftes, kleineres Abbild oder eine ausdrücklich angepasste
+Ressourcengrenze. Die Prüfung der Partitionstabelle und die Bootfähigkeit
+sind Teil der Abnahme des späteren VM-Abbilds.
 
 ### Geprüfte Microsoft-Pakete für die Vorlagen
 

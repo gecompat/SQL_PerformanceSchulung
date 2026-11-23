@@ -1,0 +1,135 @@
+{
+  "scope": "polybase-query-vm-apt-simulation",
+  "ubuntu_release": "20261017",
+  "ubuntu_snapshot": "20261123T000000Z",
+  "dpkg_status_sha256": "8088298f3856487d9e1442340c4a8bc5a64d7bfe9c2dc1f3a8973ab0b4094926",
+  "apt_version": "2.8.4",
+  "packages": [
+    {
+      "package": "libbabeltrace1",
+      "version": "1.5.11-3build3",
+      "architecture": "amd64",
+      "size": 163626,
+      "sha256": "30f0b9fbe68115d7b50d478458e4d830695bce579529b52c7827720da9c0c2df",
+      "repository": "ubuntu",
+      "path": "pool/main/b/babeltrace/libbabeltrace1_1.5.11-3build3_amd64.deb"
+    },
+    {
+      "package": "libipt2",
+      "version": "2.0.6-1build1",
+      "architecture": "amd64",
+      "size": 45716,
+      "sha256": "c14702719d594c1ca099e2cd9ff0e9bbd0215c9bb6bebb4a0d7651f984600995",
+      "repository": "ubuntu",
+      "path": "pool/main/i/intel-processor-trace/libipt2_2.0.6-1build1_amd64.deb"
+    },
+    {
+      "package": "libsource-highlight-common",
+      "version": "3.1.9-4.3build1",
+      "architecture": "all",
+      "size": 64154,
+      "sha256": "3f331e390caadcff33f42f56acad1a8c7e8a1f282eb31316f489c38f6c2460a5",
+      "repository": "ubuntu",
+      "path": "pool/main/s/source-highlight/libsource-highlight-common_3.1.9-4.3build1_all.deb"
+    },
+    {
+      "package": "libsource-highlight4t64",
+      "version": "3.1.9-4.3build1",
+      "architecture": "amd64",
+      "size": 257514,
+      "sha256": "e0ef35d9b76669f22c2ad4ab3b9141ac46d3662823c5bbea248c21db53879470",
+      "repository": "ubuntu",
+      "path": "pool/main/s/source-highlight/libsource-highlight4t64_3.1.9-4.3build1_amd64.deb"
+    },
+    {
+      "package": "gdb",
+      "version": "15.1-1ubuntu1~24.04.1",
+      "architecture": "amd64",
+      "size": 4082912,
+      "sha256": "7069c23ce3bc350646498e6607749c568f5c403b0db2204310a94baff3d85745",
+      "repository": "ubuntu",
+      "path": "pool/main/g/gdb/gdb_15.1-1ubuntu1~24.04.1_amd64.deb"
+    },
+    {
+      "package": "libatomic1",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "size": 10466,
+      "sha256": "fe49cbbc7be753528380c724a8eef5f1e31dffa9221f692c5069048d81c7449d",
+      "repository": "ubuntu",
+      "path": "pool/main/g/gcc-14/libatomic1_14.2.0-4ubuntu2~24.04.1_amd64.deb"
+    },
+    {
+      "package": "libunwind-18",
+      "version": "1:18.1.3-1ubuntu1",
+      "architecture": "amd64",
+      "size": 60324,
+      "sha256": "e957574728eaba325760bceaf46fdd35e38cbfa99c1512b4f2c9dbb403dadb4c",
+      "repository": "ubuntu",
+      "path": "pool/universe/l/llvm-toolchain-18/libunwind-18_18.1.3-1ubuntu1_amd64.deb"
+    },
+    {
+      "package": "libc++abi1-18",
+      "version": "1:18.1.3-1ubuntu1",
+      "architecture": "amd64",
+      "size": 70690,
+      "sha256": "bca9a1c9cda96c2632b723e5b481d03bbb2e8248b42166abdc80bff23474ad79",
+      "repository": "ubuntu",
+      "path": "pool/universe/l/llvm-toolchain-18/libc++abi1-18_18.1.3-1ubuntu1_amd64.deb"
+    },
+    {
+      "package": "libc++1-18",
+      "version": "1:18.1.3-1ubuntu1",
+      "architecture": "amd64",
+      "size": 284850,
+      "sha256": "bfbcab24faa4cef3099b847a3413fc7b940e7b0d7c68b86ec0f6d7975c4cf265",
+      "repository": "ubuntu",
+      "path": "pool/universe/l/llvm-toolchain-18/libc++1-18_18.1.3-1ubuntu1_amd64.deb"
+    },
+    {
+      "package": "libsasl2-modules-gssapi-mit",
+      "version": "2.1.28+dfsg1-5ubuntu3.1",
+      "architecture": "amd64",
+      "size": 30374,
+      "sha256": "501711b8f3d1fd766d45d27233a405f92fa0f9ec1969571c01239917ab7fd487",
+      "repository": "ubuntu",
+      "path": "pool/main/c/cyrus-sasl2/libsasl2-modules-gssapi-mit_2.1.28+dfsg1-5ubuntu3.1_amd64.deb"
+    },
+    {
+      "package": "libc++1",
+      "version": "1:18.0-59~exp2",
+      "architecture": "amd64",
+      "size": 5594,
+      "sha256": "4170a8672a8014379f0a49b10329fe8a8f1ad8725baec1c96248f6e784fb3c8a",
+      "repository": "ubuntu",
+      "path": "pool/universe/l/llvm-defaults/libc++1_18.0-59~exp2_amd64.deb"
+    },
+    {
+      "package": "libsss-nss-idmap0",
+      "version": "2.9.4-1.1ubuntu6.9",
+      "architecture": "amd64",
+      "size": 31404,
+      "sha256": "ead0b201c6dc9b02d7189443b898b524a23d90d6a1315b4e2de2c70ef228869e",
+      "repository": "ubuntu",
+      "path": "pool/main/s/sssd/libsss-nss-idmap0_2.9.4-1.1ubuntu6.9_amd64.deb"
+    },
+    {
+      "package": "mssql-server",
+      "version": "17.0.5065.9-3",
+      "architecture": "amd64",
+      "size": 297677914,
+      "sha256": "1174d93bf5384b45ef528353cc8f6829aa0ab12669700e96bfd4e2959a0de3ff",
+      "repository": "microsoft",
+      "path": "pool/main/m/mssql-server/mssql-server_17.0.5065.9-3_amd64.deb"
+    },
+    {
+      "package": "mssql-server-polybase",
+      "version": "17.0.5065.9-3",
+      "architecture": "amd64",
+      "size": 51433158,
+      "sha256": "302acda716e373d785dc8f1c394d762deb498010cbf96f10af679bba08b2c32a",
+      "repository": "microsoft",
+      "path": "pool/main/m/mssql-server-polybase/mssql-server-polybase_17.0.5065.9-3_amd64.deb"
+    }
+  ]
+}
