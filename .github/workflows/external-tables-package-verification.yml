@@ -19,6 +19,8 @@ on:
       - 'Tests/Runtime/external_tables_guest_identity.py'
       - 'Tests/Runtime/external_tables_package_state.py'
       - 'Tests/Runtime/external_tables_guest_apt.py'
+      - 'Tests/Runtime/external_tables_guest_network.py'
+      - 'Tests/Static/test_external_tables_guest_network.py'
       - 'Tests/Static/test_external_tables_guest_identity.py'
       - 'Tests/Static/test_external_tables_pilot.py'
       - 'Tests/Runtime/external_tables_odbc.py'
@@ -51,6 +53,8 @@ on:
       - 'Tests/Runtime/external_tables_guest_identity.py'
       - 'Tests/Runtime/external_tables_package_state.py'
       - 'Tests/Runtime/external_tables_guest_apt.py'
+      - 'Tests/Runtime/external_tables_guest_network.py'
+      - 'Tests/Static/test_external_tables_guest_network.py'
       - 'Tests/Static/test_external_tables_guest_identity.py'
       - 'Tests/Static/test_external_tables_pilot.py'
       - 'Tests/Runtime/external_tables_odbc.py'
@@ -89,3 +93,4 @@ jobs:
       - run: python Tests/Static/test_external_tables_cleanup.py
       - run: python Tests/Static/test_external_tables_pilot.py
       - run: python Tests/Static/test_external_tables_guest_identity.py
+      - run: python Tests/Static/test_external_tables_guest_network.py

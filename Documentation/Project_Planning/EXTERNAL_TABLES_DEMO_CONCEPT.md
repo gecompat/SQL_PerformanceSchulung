@@ -474,6 +474,26 @@ Gaststart zu prüfen. Die Dienste, der Python-Treiber und die
 Netzgrenzen werden separat geprüft.
 [Canonical-Dateiliste](https://packages.ubuntu.com/noble-updates/amd64/linux-modules-7.0.0-1017-azure/filelist).
 
+### Private Gastadressen und Routing nach der Anbindung
+
+Der [Netzprüfer](../../Tests/Runtime/external_tables_guest_network.py)
+bindet beide Gastrollen an zwei verschiedene IPv4-Adressen desselben
+RFC-1918-Subnetzes. Er liest die Schnittstellen und sämtliche
+IPv4- und IPv6-Routingtabellen mit `iproute2`. Pro Gast muss es neben
+Loopback genau eine aktive Schnittstelle mit der vorgesehenen Adresse
+und genau eine direkt verbundene Route für das Pilotnetz geben.
+Zusätzliche Schnittstellen, Standardrouten, Gateways und Routen aus
+des zugelassenen Bereichs verhindern die Bestätigung. IPv6 bleibt auf
+Loopback, Link-Local und die dazugehörige Multicast-Route beschränkt.
+Der Hyper-V-Host muss die Belegung des privaten Switches weiterhin
+separat nachweisen. Die Quell-Firewall ist ebenfalls ein eigenes Gate.
+[Ubuntu-Manpage zu ip-route](https://manpages.ubuntu.com/manpages/noble/man8/ip-route.8.html).
+
+Der native Komponententest verwendete Ubuntu 24.04 mit einer einzelnen
+internen Schnittstelle. Der Prüfer akzeptierte ihre tatsächliche
+`iproute2`-Ausgabe für die vorgesehene Adresse und wies dieselbe
+Aufnahme für die Gegenrolle ab.
+
 ### TLS-Kontrollpaar am Quellendpunkt
 
 Vor der ersten ODBC-Verbindung lädt der Abfragegast `pyodbc` aus
@@ -497,8 +517,11 @@ Die [ODBC-Probe](../../Tests/Runtime/external_tables_odbc.py)
 verwendet in der Positivprobe denselben laufgebundenen Quellhost, Port und
 Reader wie der spätere Connector. Die verschlüsselte Verbindung mit
 Zertifikatsprüfung muss die erwartete Datenbank und Anmeldung bestätigen.
-`CONNECTIONPROPERTY` liefert in derselben Verbindung die private
-IPv4-Adresse und den tatsächlich verwendeten SQL-Port.
+`CONNECTIONPROPERTY` muss in dieser Verbindung die festgelegte
+Quelladresse, den SQL-Port und die festgelegte Adresse des
+Abfragegasts melden. Die Gegenprobe verwendet genau die bestätigte
+Quelladresse. Der Abgleich beider Adressen wurde mit einem echten
+SQL-Server-2025-TCP-Aufruf über ein getrenntes Linux-Containernetz geprüft.
 [Microsoft-Referenz zu `CONNECTIONPROPERTY`](https://learn.microsoft.com/en-us/sql/t-sql/functions/connectionproperty-transact-sql?view=sql-server-ver17).
 
 Beim ersten nativen Versuch akzeptierte der Linux-Treiber den Namen aus
