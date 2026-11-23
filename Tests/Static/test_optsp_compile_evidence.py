@@ -6,7 +6,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from optsp_compile_evidence import (  # noqa: E402
-    ActorRequest, Arm, FirstCompile, Interval, LCK_M_X, Request, Wait, evaluate_arm,
+    ActorRequest, Arm, FirstCompile, Interval, LCK_M_X, LockHold, Request, ResourceKey, Wait, evaluate_arm,
 )
 
 
@@ -18,14 +18,17 @@ REQUESTS = (
     Request(WAITER, BATCH, Interval(2, 19), 16, "statement-plan-a"),
 )
 FIRST = FirstCompile(WINNER, Interval(4, 9), "statement-plan-a")
-WAIT = Wait(WAITER, WINNER, Interval(6, 10), LCK_M_X, "verified-synthetic-compile-resource")
-ON = Arm("ON", 9, BATCH, frozenset({WINNER, WAITER}), REQUESTS, (FIRST,), (WAIT,), True)
+RESOURCE = ResourceKey(9, "synthetic-lock-key", "77")
+WAIT = Wait(WAITER, Interval(6, 10), LCK_M_X, RESOURCE)
+HOLD = LockHold(WINNER, RESOURCE, Interval(3, 11), True)
+ON = Arm("ON", 9, BATCH, frozenset({WINNER, WAITER}), REQUESTS, (FIRST,), (WAIT,), (HOLD,), True)
 OFF = replace(
     ON,
     mode="OFF",
     first_compiles=(FIRST, FirstCompile(WAITER, Interval(8, 12), "statement-plan-b")),
     requests=(REQUESTS[0], replace(REQUESTS[1], statement_plan_handle="statement-plan-b")),
     waits=(),
+    lock_holds=(),
 )
 
 
@@ -33,17 +36,18 @@ class CompileEvidenceTests(unittest.TestCase):
     def test_positive_arms(self):
         self.assertEqual(evaluate_arm(OFF).reason, "overlapping_first_compiles")
         self.assertEqual(evaluate_arm(ON).reason, "compile_wait_and_statement_plan_reuse")
+        release_during_wait = replace(HOLD, interval=Interval(3, 9))
+        self.assertEqual(evaluate_arm(replace(ON, lock_holds=(release_during_wait,))).status, "PROVEN")
 
     def test_touching_compiles_do_not_prove_overlap_even_if_both_rpcs_overlap(self):
         later = replace(OFF.first_compiles[1], interval=Interval(9, 12))
         self.assert_unproven(replace(OFF, first_compiles=(FIRST, later)), "no_compile_overlap")
 
     def test_wait_requires_owned_compile_resource_and_overlap(self):
-        foreign_actor = replace(WINNER, database_id=12)
         for detached_wait in (
-            replace(WAIT, blocker=foreign_actor),
+            replace(WAIT, resource=replace(RESOURCE, database_id=12)),
             replace(WAIT, actor=replace(WAITER, request_id=1)),
-            replace(WAIT, verified_compile_resource=None),
+            replace(WAIT, resource=None),
             replace(WAIT, wait_type_key=0),
             replace(WAIT, interval=Interval(9, 12)),
             replace(WAIT, interval=Interval(1, 10)),
@@ -53,6 +57,38 @@ class CompileEvidenceTests(unittest.TestCase):
         ):
             with self.subTest(detached_wait=detached_wait):
                 self.assert_unproven(replace(ON, waits=(detached_wait,)), "no_bound_compile_wait")
+
+    def test_wait_requires_one_unique_compile_owner_with_matching_resource_and_interval(self):
+        other_actor = replace(WINNER, session_id=53)
+        for holds in (
+            (),
+            (replace(HOLD, owner=other_actor),),
+            (replace(HOLD, resource=replace(RESOURCE, namespace="other-type")),),
+            (replace(HOLD, resource=replace(RESOURCE, identity="88")),),
+            (replace(HOLD, verified_compile=False),),
+            (replace(HOLD, interval=Interval(7, 11)),),
+            (replace(HOLD, interval=Interval(3, 8)),),
+            (replace(HOLD, interval=Interval(0, 11)),),
+            (HOLD, replace(HOLD, owner=other_actor, interval=Interval(9, 13))),
+            (HOLD, HOLD),
+        ):
+            with self.subTest(holds=holds):
+                self.assert_unproven(replace(ON, lock_holds=holds), "no_bound_compile_wait")
+
+    def test_ownership_on_unrelated_resource_and_nonoverlapping_time_does_not_conflict(self):
+        other_actor = replace(WINNER, session_id=53)
+        unrelated = replace(HOLD, owner=other_actor, resource=replace(RESOURCE, identity="88"))
+        # A successor that acquires after this wait cannot account for it.
+        later = replace(HOLD, owner=other_actor, interval=Interval(11, 14))
+        result = evaluate_arm(replace(ON, lock_holds=(HOLD, unrelated, later)))
+        self.assertEqual(result.status, "PROVEN")
+
+    def test_invalid_ownership_span_is_rejected(self):
+        malformed = replace(HOLD, interval=Interval(9, 9))
+        wrong_db = replace(HOLD, owner=replace(WINNER, database_id=12))
+        for hold in (malformed, wrong_db):
+            with self.subTest(hold=hold):
+                self.assert_unproven(replace(ON, lock_holds=(hold,)), "invalid_lock_ownership")
 
     def test_different_batch_is_rejected_even_with_same_plan_handle(self):
         different = replace(REQUESTS[1], batch_digest="different-batch")
