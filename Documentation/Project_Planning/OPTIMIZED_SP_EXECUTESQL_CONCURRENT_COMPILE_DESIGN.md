@@ -379,6 +379,51 @@ prüfen das Einlesen. Die zugehörige Zeitbasis und die semantische
 Zuordnung der Felder bleiben Gegenstand des Methodenreviews und des
 Engine-Piloten.
 
+### Erste begrenzte Beobachtung bei aktivierter Option
+
+Ein unabhängiger Review des festgeschriebenen Methodenstands ließ eine
+begrenzte ON-Erkundung zu. Sie verwendete den gepinnten Developer-Build
+`17.0.5065.9` und eine eigene, markierte Datenbank in einem privaten
+Wegwerfcontainer. Die Kompatibilitätsstufe war 170. Die Abfrage aus
+`master` bestätigte vor den beiden RPCs einen leeren Zielcache.
+Die Option war vor und nach den RPCs aktiv. Automatische
+Statistikaktualisierung war für diese Fixture deaktiviert.
+
+Zwei getrennte Verbindungen führten denselben parametrisierten Batch mit
+dem erwarteten Ergebnis aus. Die gebundene Extended-Events-Aufnahme
+enthielt ein Erstkompilierungsereignis, drei
+Serialisierungsereignisse und zwei Statement-Abschlüsse mit
+gleichem Planhandle. Für einen Actor gab es ein Begin-/End-Paar des
+`LCK_M_X`-Waits, dessen Ressourcenbeschreibung in beiden Ereignissen
+eine explizite Compile-Kennung enthielt. Die Aufnahme prüfte die
+Verlustzähler, die RPC-Grenzen und den Abbau der XE-Sitzung. Die
+markierte Beobachtungsdatenbank und der Container wurden entfernt.
+
+Für die Beobachtung waren die Sperrereignisse auf den katalogisierten
+X-Modus begrenzt. Während der Einrichtung überschritt die breitere
+Sperrerfassung das Ausgabelimit und ergab keine auswertbare Spur.
+Der begrenzte XML-Reader verarbeitet CDATA mit deaktivierter
+Entitätsauflösung.
+
+Eine zweite Aufnahme auf demselben Build erfasste die Ressourcenschlüssel
+und den Cacheabgleich. Das Begin-/End-Paar trug dieselbe Ressource im
+Format `TAB: <Datenbank>:<Objekt>:<Partition> [COMPILE]`. Der andere
+Actor erwarb und löste eine `OBJECT`-X-Sperre mit derselben Datenbank,
+Objekt-ID und Partition. `resource_1` war 2 und
+`resource_description` enthielt `[COMPILE]`. Für die zuvor geprüfte
+gewöhnliche Objektsperre war `resource_1` 0 und die Beschreibung leer.
+Der `TAB:`-Präfix kommt in beiden Fällen vor.
+
+Die Ereignisfolge dieser Aufnahme war Erwerb (2), Wait-Beginn (5),
+Erstkompilierungsereignis (20), Freigabe (21) und Wait-Ende (22).
+Ein nachfolgendes Besitzintervall des wartenden Actors begann erst nach
+Wait-Ende. Beide Statement-Handles entsprachen dem eindeutigen
+`Prepared`-Eintrag. Ein weiteres `LCK_M_X`-Paar desselben Actors
+bezeichnete die Query-Store-Ressource `QDS_INTERVAL_STABILITY`.
+Der Ressourcenabgleich ordnet nur das Compile-Paar der Erstkompilierung
+zu. Der Cleanup der Aufnahme und der Testressourcen bestand.
+Die vollständige Zeitbindung und der gepaarte OFF/ON-Lauf bleiben offen.
+
 ## Konkreter Pilotkandidat für den unabhängigen Methodenreview
 
 | Merkmal | Festlegung |
