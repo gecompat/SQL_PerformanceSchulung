@@ -13,16 +13,33 @@ from collections.abc import Iterator, Sequence
 
 from dgn004_capture_runner import CaptureRunnerError, CaptureTimeoutError, collect_bounded_process
 from idx010_index_metadata import decode_index_evidence, index_evidence_batch
-from idx010_pilot_sequence import IndexEvidence, QueryCapture, Target
+from idx010_pilot_sequence import IndexEvidence, QueryCapture, Target, WORK_SECONDS
 from idx010_pilot_setup import Arm, FIXTURE_ROWS, fixture_identity_batch, fixture_setup_batch, target_database
-from idx010_provision_sql import TEMPDB_CAPS, create_reader_batch, drop_database_batch, grant_reader_batch, provision_database_batch, reader_login
+from idx010_provision_sql import (
+    DB_FILE_LIMIT_MIB,
+    TEMPDB_CAPS,
+    TEMPDB_DATA_LIMIT_MIB,
+    TEMPDB_LOG_LIMIT_MIB,
+    create_reader_batch,
+    drop_database_batch,
+    grant_reader_batch,
+    provision_database_batch,
+    reader_login,
+)
 from idx010_sqlcmd_capture import CONTAINER_ID, MeasurementConnection, capture_query
 
 IMAGE = "mcr.microsoft.com/mssql/server@sha256:05644dad1266ca3d445d1e8f6d2ebb9a6a03df9a39376e0f7b48917356dca9d9"
 PROFILE = "17.0.5065.9|Enterprise Developer Edition (64-bit)"
+PROFILE_SQL = (
+    "SET NOCOUNT ON; SELECT CONCAT("
+    "CONVERT(nvarchar(128), SERVERPROPERTY('ProductVersion')), '|', "
+    "CONVERT(nvarchar(128), SERVERPROPERTY('Edition')));"
+)
 OWNER_LABEL = "com.sqlperf.idx010.owner"
 MEMORY = 4 * 1024**3
 CPU_NANOS = 2 * 10**9
+# Two databases with a data and a log file each, plus TempDB.
+MIN_DATA_AVAILABLE_KIB = (4 * DB_FILE_LIMIT_MIB + TEMPDB_DATA_LIMIT_MIB + TEMPDB_LOG_LIMIT_MIB) * 1024
 PAGE_ROWS = 262_144
 ROW = re.compile(rb" *([0-9]{1,7}) *\| *([0-9]{1,7}) *")
 
@@ -73,7 +90,7 @@ class DockerPilotTransport:
         while True:
             try:
                 profile = self._sql(
-                    "master", "SET NOCOUNT ON; SELECT CONCAT(SERVERPROPERTY('ProductVersion'), '|', SERVERPROPERTY('Edition'));",
+                    "master", PROFILE_SQL,
                     min(ready_deadline, monotonic() + 12),
                 )
                 break
@@ -83,6 +100,13 @@ class DockerPilotTransport:
                 sleep(1)
         if profile.strip().decode("ascii") != PROFILE:
             raise OSError("SQL Server build or edition does not match the profile")
+        capacity = _docker(
+            ["exec", "-e", "LC_ALL=C", result, "df", "-k", "--output=avail", "/var/opt/mssql/data"],
+            deadline,
+        )
+        match = re.fullmatch(rb" *Avail\r?\n *([0-9]{1,19}) *\r?\n?", capacity)
+        if match is None or int(match[1]) < MIN_DATA_AVAILABLE_KIB:
+            raise OSError("pilot data filesystem does not have confirmed free capacity")
         self._sql("master", TEMPDB_CAPS, deadline)
         self._sql("master", create_reader_batch(run_token, self._reader_password), deadline)
         self._ready = True
@@ -217,7 +241,7 @@ def _run(command: list[str], payload: bytes, environment: dict[str, str], deadli
     try:
         result = collect_bounded_process(
             command, input_bytes=payload, environment=environment, timeout_seconds=remaining,
-            stdout_limit_bytes=limit, stderr_limit_bytes=16_384,
+            stdout_limit_bytes=limit, stderr_limit_bytes=16_384, timeout_ceiling_seconds=WORK_SECONDS,
         )
     except CaptureTimeoutError:
         raise TimeoutError("pilot process deadline exceeded") from None

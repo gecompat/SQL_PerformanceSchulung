@@ -203,12 +203,17 @@ einer höheren Ordnungsgüte. Für `PASS` muss der geordnete Arm zusätzlich meh
 Segmente in der Ergebnisabfrage überspringen.
 
 Die Ablaufsteuerung übergibt dem Transport eine gemeinsame Laufzeitgrenze
-von 900 Sekunden und eine getrennte Cleanupfrist von 90 Sekunden. Sie
-registriert jede Zielbereitstellung vor dem ersten Aufruf und fordert auch
+von 900 Sekunden und eine getrennte Cleanupfrist von 90 Sekunden. Docker- und
+SQLCMD-Aufrufe verwenden die jeweils verbleibende Frist. Der gemeinsame
+Prozessrunner behält für DGN-004 seine Standardgrenze von 20 Sekunden. Die Ablaufsteuerung registriert jede Zielbereitstellung vor dem ersten Aufruf und fordert auch
 bei Fehlern während des Instanzstarts oder der Bereitstellung Cleanup an.
 `FAIL_CLEANUP` hat Vorrang vor einem positiven Befund. Der [Docker- und SQL-Transport](../../Tests/Runtime/idx010_docker_transport.py)
 bindet das lokal vorgehaltene Image, das private Netzwerkprofil `none`, CPU,
-RAM und die laufende Engineversion. Er liest die Fixture in begrenzten
+RAM und die laufende Engineversion. Vor der ersten SQL-Änderung prüft er
+mindestens 2.816 MiB freien Platz am Datenpfad im eigenen Container. Die
+Summe deckt die vier Datenbankdateien und TempDB bis zu ihren Obergrenzen.
+Fehlende oder zu geringe Kapazitätsangaben beenden den Preflight. Der
+Transport liest die Fixture in begrenzten
 Bereichen des Primärschlüssels, erhebt die Indexmetadaten und ruft den
 Messadapter mit dem laufgebundenen Reader auf. Die
 [SQL-Batches](../../Tests/Runtime/idx010_provision_sql.py) setzen und prüfen

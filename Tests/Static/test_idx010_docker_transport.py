@@ -5,10 +5,11 @@ from unittest import TestCase, main
 from unittest.mock import patch
 from pathlib import Path
 import sys
+import os
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
-from idx010_docker_transport import DockerPilotTransport, IMAGE, OWNER_LABEL, PROFILE
+from idx010_docker_transport import DockerPilotTransport, IMAGE, OWNER_LABEL, PROFILE, PROFILE_SQL, _run
 from idx010_pilot_sequence import Arm, Target
 from idx010_pilot_setup import fixture_identity_batch
 from idx010_provision_sql import TEMPDB_CAPS, drop_database_batch, grant_reader_batch, provision_database_batch
@@ -38,6 +39,7 @@ class DockerPilotTransportTests(TestCase):
         docker.side_effect = [
             image_id, CID.encode(), CID.encode(), CID.encode(),
             image_id + b"|none|2000000000|4294967296|4294967296|[]|{}",
+            b"  Avail\n 2883584\n",
         ]
         with patch.object(transport, "_sql", side_effect=[PROFILE.encode(), b"", b""]) as sql:
             transport.start_verified_instance("TEST1", monotonic() + 30)
@@ -47,6 +49,26 @@ class DockerPilotTransportTests(TestCase):
         self.assertIn("MSSQL_SA_PASSWORD", argv)
         self.assertNotIn(transport._sa_password, argv)
         self.assertIn(TEMPDB_CAPS, [call.args[1] for call in sql.call_args_list])
+        self.assertEqual(
+            docker.call_args.args[0],
+            ["exec", "-e", "LC_ALL=C", CID, "df", "-k", "--output=avail", "/var/opt/mssql/data"],
+        )
+
+    @patch("idx010_docker_transport._docker")
+    def test_unconfirmed_capacity_stops_before_any_sql_mutation(self, docker):
+        image_id = b"sha256:" + b"a" * 64
+        for capacity in (b"Avail\n2883583\n", b"Avail\nunknown\n", b"Avail\n9999999\n9999999\n"):
+            with self.subTest(capacity=capacity):
+                transport = DockerPilotTransport()
+                docker.side_effect = [
+                    image_id, CID.encode(), CID.encode(), CID.encode(),
+                    image_id + b"|none|2000000000|4294967296|4294967296|[]|{}",
+                    capacity,
+                ]
+                with patch.object(transport, "_sql", return_value=PROFILE.encode()) as sql:
+                    with self.assertRaisesRegex(OSError, "confirmed free capacity"):
+                        transport.start_verified_instance("TEST1", monotonic() + 30)
+                self.assertEqual([call.args[1] for call in sql.call_args_list], [PROFILE_SQL])
 
     @patch("idx010_docker_transport._docker")
     def test_mismatched_owner_is_never_removed(self, docker):
@@ -69,6 +91,13 @@ class DockerPilotTransportTests(TestCase):
         ):
             self.assertFalse(transport.cleanup("TEST1", (TARGET,), monotonic() + 90))
         self.assertEqual(docker.call_args.args[0], ["rm", "--force", "--volumes", CID])
+
+    def test_real_process_uses_pilot_deadline_above_diagnostic_default(self):
+        result = _run(
+            [sys.executable, "-c", "print('owned synthetic output')"],
+            b"", os.environ.copy(), monotonic() + 30, 64,
+        )
+        self.assertEqual(result.strip(), b"owned synthetic output")
 
     def test_identity_reads_fixed_pages_in_primary_key_order(self):
         transport = DockerPilotTransport()

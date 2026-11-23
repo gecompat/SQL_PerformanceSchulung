@@ -7,6 +7,11 @@ from idx010_pilot_sequence import Target
 from idx010_pilot_setup import owned_database_guard
 
 
+DB_FILE_LIMIT_MIB = 512
+TEMPDB_DATA_LIMIT_MIB = 512
+TEMPDB_LOG_LIMIT_MIB = 256
+
+
 def reader_login(run_token: str) -> str:
     if re.fullmatch(r"[A-Z0-9]{1,20}", run_token, re.ASCII) is None:
         raise ValueError("invalid pilot run token")
@@ -37,16 +42,16 @@ IF DB_NAME() <> N'master' OR DB_ID(N'{db}') IS NOT NULL OR SUSER_ID(N'{login}') 
 GO
 CREATE DATABASE [{db}]
 ON PRIMARY (NAME = N'PilotData', FILENAME = N'/var/opt/mssql/data/{db}.mdf',
-    SIZE = 128 MB, MAXSIZE = 512 MB, FILEGROWTH = 32 MB)
+    SIZE = 128 MB, MAXSIZE = {DB_FILE_LIMIT_MIB} MB, FILEGROWTH = 32 MB)
 LOG ON (NAME = N'PilotLog', FILENAME = N'/var/opt/mssql/data/{db}.ldf',
-    SIZE = 64 MB, MAXSIZE = 512 MB, FILEGROWTH = 32 MB);
+    SIZE = 64 MB, MAXSIZE = {DB_FILE_LIMIT_MIB} MB, FILEGROWTH = 32 MB);
 GO
 ALTER DATABASE [{db}] SET RECOVERY SIMPLE;
 ALTER DATABASE [{db}] SET COMPATIBILITY_LEVEL = 170;
 USE [{db}];
 SET XACT_ABORT ON;
 IF (SELECT COUNT(*) FROM sys.database_files) <> 2
-    OR (SELECT COUNT(*) FROM sys.database_files WHERE type IN (0, 1) AND max_size = 65536
+    OR (SELECT COUNT(*) FROM sys.database_files WHERE type IN (0, 1) AND max_size = {DB_FILE_LIMIT_MIB * 128}
         AND size <= max_size) <> 2
     THROW 51027, 'FAIL_CONTRACT: pilot database file caps cannot be confirmed.', 1;
 BEGIN TRANSACTION;
@@ -90,7 +95,7 @@ IF DB_ID(N'{db}') IS NOT NULL
 """
 
 
-TEMPDB_CAPS = """
+TEMPDB_CAPS = f"""
 SET NOCOUNT ON;
 DECLARE @File sysname, @Type tinyint, @Size int, @Cap int, @Command nvarchar(max);
 DECLARE @DataCount int = (SELECT COUNT(*) FROM tempdb.sys.database_files WHERE type = 0);
@@ -103,7 +108,7 @@ OPEN files;
 FETCH NEXT FROM files INTO @File, @Type, @Size;
 WHILE @@FETCH_STATUS = 0
 BEGIN
-    SET @Cap = CASE WHEN @Type = 0 THEN 512 / @DataCount ELSE 256 END;
+    SET @Cap = CASE WHEN @Type = 0 THEN {TEMPDB_DATA_LIMIT_MIB} / @DataCount ELSE {TEMPDB_LOG_LIMIT_MIB} END;
     IF @Size > @Cap * 128
         THROW 51025, 'FAIL_CONTRACT: TempDB file already exceeds its cap.', 1;
     SET @Command = N'ALTER DATABASE [tempdb] MODIFY FILE (NAME = ' + QUOTENAME(@File)
@@ -116,7 +121,7 @@ DEALLOCATE files;
 IF (SELECT COUNT(*) FROM tempdb.sys.database_files WHERE type = 0) <> @DataCount
     OR (SELECT COUNT(*) FROM tempdb.sys.database_files WHERE type = 1) <> @LogCount
     OR EXISTS (SELECT 1 FROM tempdb.sys.database_files WHERE max_size <= 0 OR size > max_size)
-    OR (SELECT SUM(CONVERT(bigint, max_size)) FROM tempdb.sys.database_files WHERE type = 0) > 65536
-    OR (SELECT SUM(CONVERT(bigint, max_size)) FROM tempdb.sys.database_files WHERE type = 1) > 32768
+    OR (SELECT SUM(CONVERT(bigint, max_size)) FROM tempdb.sys.database_files WHERE type = 0) > {TEMPDB_DATA_LIMIT_MIB * 128}
+    OR (SELECT SUM(CONVERT(bigint, max_size)) FROM tempdb.sys.database_files WHERE type = 1) > {TEMPDB_LOG_LIMIT_MIB * 128}
     THROW 51026, 'FAIL_CONTRACT: TempDB caps cannot be confirmed.', 1;
 """
