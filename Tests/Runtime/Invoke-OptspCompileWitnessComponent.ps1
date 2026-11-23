@@ -34,7 +34,24 @@ function Invoke-XeCommand($Observer, [string] $Sql, [switch] $Scalar) {
     }
 }
 
-function Read-CompileWitnesses($Observer, [string] $Name, [hashtable] $BatchByActor) {
+function Read-PreparedPlanHandle($Observer, [string] $Statement) {
+    $cacheText = ('(@value int)' + $Statement).Replace("'", "''")
+    $handle = Invoke-XeCommand $Observer @"
+SELECT CASE WHEN COUNT_BIG(*) = 1 THEN MAX(CONVERT(varchar(128), p.plan_handle, 2)) END
+FROM sys.dm_exec_cached_plans AS p
+CROSS APPLY sys.dm_exec_sql_text(p.plan_handle) AS t
+CROSS APPLY sys.dm_exec_plan_attributes(p.plan_handle) AS a
+WHERE t.text COLLATE Latin1_General_100_BIN2 = N'$cacheText'
+    AND DATALENGTH(t.text) = DATALENGTH(N'$cacheText')
+    AND p.objtype = 'Prepared' AND a.attribute = 'dbid' AND TRY_CONVERT(int,a.value) = 1;
+"@ -Scalar
+    if ($handle -isnot [string] -or $handle -notmatch '\A[0-9a-f]{88}\z') {
+        throw 'Prepared cache entry is missing or ambiguous.'
+    }
+    return $handle
+}
+
+function Read-CompileWitnesses($Observer, [string] $Name, [hashtable] $BatchByActor, [bool] $VerifyReuse) {
     $root = $null
     $deadline = [System.Diagnostics.Stopwatch]::StartNew()
     do {
@@ -91,6 +108,10 @@ WHERE s.name = N'$Name' AND t.target_name = N'ring_buffer'
         }
         $lastSequence = $record.Sequence
     }
+    $preparedHandle = $null
+    if ($VerifyReuse) {
+        $preparedHandle = Read-PreparedPlanHandle $Observer ($BatchByActor.Values | Select-Object -First 1)
+    }
     $bounds = @(foreach ($id in ($BatchByActor.Keys | Sort-Object)) {
         $stream = @($ordered | Where-Object Session -eq $id)
         if ($stream.Count -lt 2 -or $stream[0].Name -cne 'rpc_starting' -or $stream[-1].Name -cne 'rpc_completed' -or
@@ -103,6 +124,16 @@ WHERE s.name = N'$Name' AND t.target_name = N'ring_buffer'
                 -not $edge.Event.SelectSingleNode("data[@name='statement']/value").InnerText.Contains($statement, [StringComparison]::Ordinal)) {
                 throw 'Unbound RPC boundary.'
             }
+        }
+        if ($VerifyReuse) {
+            $completion = $stream[-2]
+            if ($stream.Count -lt 3 -or $completion.Name -cne 'sp_statement_completed' -or
+                $completion.Time -lt $stream[-3].Time -or $completion.Time -gt $stream[-1].Time -or
+                $completion.Event.SelectSingleNode("data[@name='statement']/value").InnerText -cne $statement.TrimEnd(';') -or
+                $completion.Event.SelectSingleNode("action[@name='plan_handle' and @package='sqlserver']/value").InnerText -ne $preparedHandle) {
+                throw 'Statement completion did not bind the prepared plan.'
+            }
+            $stream = @($stream | Where-Object Sequence -ne $completion.Sequence)
         }
         if ($IdenticalBatch -and $stream.Count -eq 2) { continue }
         $ce = @($stream | Select-Object -Skip 1 -SkipLast 2)
@@ -161,6 +192,7 @@ $actor = [System.Data.SqlClient.SqlConnection]::new($settings.ConnectionString)
 $observer = [System.Data.SqlClient.SqlConnection]::new($settings.ConnectionString)
 $xeName = $null
 $stage = 'preflight'
+$verifyReuse = $IdenticalBatch -and $SequentialControl
 try {
     $actor.Open()
     $observer.Open()
@@ -199,11 +231,16 @@ SELECT CONVERT(int, @@SPID);
                 $xeName = 'optsp_rpc_' + [guid]::NewGuid().ToString('N')
                 $filter = "WHERE (([sqlserver].[session_id]=($sessionId)) OR ([sqlserver].[session_id]=($secondId)))"
                 $actions = 'ACTION(package0.event_sequence, sqlserver.database_id, sqlserver.session_id)'
+                $completionEvent = ''
+                if ($verifyReuse) {
+                    $completionEvent = "ADD EVENT sqlserver.sp_statement_completed(ACTION(package0.event_sequence, sqlserver.database_id, sqlserver.session_id, sqlserver.plan_handle) $filter),"
+                }
                 Invoke-XeCommand $observer @"
 CREATE EVENT SESSION [$xeName] ON SERVER
 ADD EVENT sqlserver.rpc_starting($actions $filter),
 ADD EVENT sqlserver.rpc_completed($actions $filter),
 ADD EVENT sqlserver.sql_statement_post_compile(SET collect_statement=(1) $actions $filter),
+${completionEvent}
 ADD EVENT sqlserver.query_optimizer_estimate_cardinality(
     ACTION(package0.event_sequence, sqlserver.database_id, sqlserver.session_id, sqlserver.sql_text) $filter)
 ADD TARGET package0.ring_buffer(SET max_memory=(1024))
@@ -243,7 +280,7 @@ ALTER EVENT SESSION [$xeName] ON SERVER STATE=START;
                 }
                 if ($firstResult -ne 37 -or $otherResult -ne 37) { throw 'Wrong synthetic results.' }
                 $stage = 'xe_read'
-                $metrics = Read-CompileWitnesses $observer $xeName $batchByActor
+                $metrics = Read-CompileWitnesses $observer $xeName $batchByActor $verifyReuse
             } finally {
                 $other.Dispose()
             }
@@ -297,5 +334,6 @@ if ($SequentialControl) {
     ce_counts = $metrics.ce_counts
     sequence_interleaved = $metrics.sequence_interleaved
     timestamp_interval_ticks = $metrics.timestamp_interval_ticks
+    prepared_plan_reuse_observed = $(if ($verifyReuse) { $true } else { $null })
     xe_cleanup = 'PASS'
 } | ConvertTo-Json -Compress
