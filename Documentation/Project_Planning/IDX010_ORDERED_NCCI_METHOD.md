@@ -436,15 +436,41 @@ prüft vor dem Entfernen jeden Marker und Run-Token exakt; es löscht ausschlie�
 die beiden nachweislich eigenen Datenbanken. Bei abgebrochenem oder
 uneindeutigem Cleanup wird der Lauf nicht als bestanden gewertet.
 
-## Gates für die regelmäßige Vorführung
+## Den isolierten Vergleich ausführen
 
-Der unabhängige Review, die gebundenen Ressourcen- und Zeitgrenzen und
-der vollständige isolierte Mechanismuspilot sind für das überprüfte
-SQL-Server-2025-Profil belegt. Eine regelmäßige Vorführung benötigt einen
-eigenen reproduzierbaren Einstieg mit Buildprüfung, Ergebniskontrolle und
-bestätigtem Cleanup. Der bestehende IDX-010-Vorführvertrag gilt für die
-CCI-Demo. Quantitative Performanceaussagen erfordern einen eigenen
-Messvertrag. Die menschliche Generalprobe ist ausgeschlossen.
+Voraussetzungen sind Python ab 3.12, ein erreichbarer Container-Daemon über
+die Docker-CLI und das bereits lokal verfügbare AMD64-Image mit dem oben
+festgelegten Digest. Der [Einstieg](../../Tests/Runtime/run_idx010_ordered_ncci.py)
+lädt kein Image nach. Er verwendet den für den Prozess gewählten
+Docker-Kontext. Der Schalter bestätigt die SQL Server Developer EULA
+und den Start des isolierten Testcontainers.
+
+```text
+python Tests/Runtime/run_idx010_ordered_ncci.py --confirm-disposable-container
+```
+
+Der Ablauf erstellt zwei getrennte Testdatenbanken mit identischen
+synthetischen Daten und baut je einen nicht gruppierten Columnstore-Index.
+Der tatsächliche Plan und die Segmentmeldungen zeigen für jede Variante,
+wie viele Segmente gelesen und übersprungen wurden. Überlappende
+Segmentpaare zeigen, wie stark sich die Wertebereiche der Segmente
+überschneiden. Der Vergleich erwartet gleiche Abfrageergebnisse, weniger
+Überlappung und mindestens ein zusätzlich übersprungenes Segment in der
+geordneten Variante. Die letzte Zeile meldet den Befund nach dem Abbau.
+`PASS` ergibt Exitcode 0, `NOT_PROVEN` Exitcode 1 und
+`FAIL_CLEANUP` Exitcode 3. Der Vergleich hat 900 Sekunden Laufbudget
+und 90 weitere Sekunden für den Abbau.
+
+### Ergebnis des paketierten Aufrufs
+
+Der oben gezeigte Aufruf lief auf dem festgeschriebenen Developer-Build
+`17.0.5065.9` mit bestätigtem Datenbank-, Reader- und Containerabbau.
+Die Kontrolle meldete 6 überlappende Paare, 4 gelesene und 0
+übersprungene Segmente. Mit `ORDER (EventDayKey)` waren es 0
+überlappende Paare, 1 gelesenes und 3 übersprungene Segmente.
+Der Vergleich meldete `PASS`. Diese Aussage gilt für das gebundene Profil.
+Der bestehende IDX-010-Katalogeintrag beschreibt den CCI-Manifestablauf.
+Quantitative Performanceaussagen erfordern einen eigenen Messvertrag.
 
 ### Quellenabgleich zu Build und Edition (17. November 2026)
 

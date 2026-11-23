@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from contextlib import redirect_stderr, redirect_stdout
+from io import StringIO
 from time import monotonic
 from unittest import TestCase, main
 from unittest.mock import patch
@@ -11,13 +13,44 @@ import os
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from idx010_docker_transport import CATALOG_JOIN_WARNING, DockerPilotTransport, IMAGE, OWNER_LABEL, PROFILE, PROFILE_SQL, _run
-from idx010_pilot_sequence import Arm, Target
+from idx010_pilot_sequence import Arm, ArmEvidence, PilotResult, Target
+from idx010_query_evidence import SegmentCounts
+from run_idx010_ordered_ncci import main as run_ordered_ncci
 from idx010_pilot_setup import fixture_identity_batch
 from idx010_provision_sql import TEMPDB_CAPS, drop_database_batch, grant_reader_batch, provision_database_batch
 
 
 CID = "4" * 64
 TARGET = Target("TEST1", Arm.CONTROL)
+
+
+class OrderedNcciEntrypointTests(TestCase):
+    def test_confirmation_is_required_before_transport_creation(self):
+        with patch("run_idx010_ordered_ncci.DockerPilotTransport") as transport, redirect_stderr(StringIO()):
+            with self.assertRaises(SystemExit) as stopped:
+                run_ordered_ncci([])
+        self.assertEqual(stopped.exception.code, 2)
+        transport.assert_not_called()
+
+    def test_output_and_exit_status_are_bounded(self):
+        arms = (
+            ArmEvidence(Arm.CONTROL, 6, SegmentCounts(4, 0)),
+            ArmEvidence(Arm.ORDERED, 0, SegmentCounts(1, 3)),
+        )
+        expected = (
+            "IDX010_NCCI|ARM|CONTROL|overlapping_pairs=6|segments_read=4|segments_skipped=0\n"
+            "IDX010_NCCI|ARM|ORDERED|overlapping_pairs=0|segments_read=1|segments_skipped=3\n"
+        )
+        for status, code in (("PASS", 0), ("NOT_PROVEN", 1), ("FAIL_CLEANUP", 3)):
+            output = StringIO()
+            with (
+                self.subTest(status=status),
+                redirect_stdout(output),
+                patch("run_idx010_ordered_ncci.run_pilot", return_value=PilotResult(status, "comparison", arms)) as run,
+            ):
+                self.assertEqual(run_ordered_ncci(["--confirm-disposable-container"]), code)
+                self.assertRegex(run.call_args.args[1], r"^[0-9A-F]{20}$")
+                self.assertEqual(output.getvalue(), expected + f"IDX010_NCCI|{status}|stage=comparison\n")
 
 
 class DockerPilotTransportTests(TestCase):
