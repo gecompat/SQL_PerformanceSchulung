@@ -338,6 +338,25 @@ des Containers. Sie belegt Bereitstellung, Rechte und Abbau. Die
 Befüllung, beide NCCI-Bauten und die Segmentauswertung gehören zum
 isolierten Mechanismuspilot.
 
+### Layoutbefund des begrenzten Piloten
+
+Der Pilotlauf des transportkorrigierten Stands `da6345ea` verwendete
+das festgeschriebene Image und den Build `17.0.5065.9`. Nach bestätigter
+Datenidentität und Aufbau beider Indizes akzeptierte der Katalogreader
+beide Profile. Beim ungeordneten Kontrollindex fand er **0** und beim
+geordneten Index **6** überlappende Segmentpaare. Der Layout-Guard
+meldete `NOT_PROVEN` in der Metadatenphase vor beiden Messabfragen.
+SQL- und Containerabbau wurden bestätigt. Der Lauf einschließlich
+Cleanup dauerte 87,4 Sekunden.
+
+Damit ist die erwartete Layouttrennung für den festgelegten Aufbau
+verfehlt. Die vorberechneten Bereiche beschreiben die Ladefixture.
+Die physische Zuordnung des Indexbaus zu diesen Bereichen ist ein
+empirischer Befund. Für einen nächsten Methodenstand sind die tatsächlichen
+Segmentgrenzen und die Eingabereihenfolge beim Aufbau zu prüfen. Erst mit
+einem erneut begründeten Kontrolllayout kann ein weiterer Vergleich
+Segmentelimination nachweisen.
+
 ## Voraussetzungen, Stop und Cleanup für einen späteren Pilot
 
 Vor jeder SQL-Freigabe muss ein unabhängiger Methodenreview den vollständigen
