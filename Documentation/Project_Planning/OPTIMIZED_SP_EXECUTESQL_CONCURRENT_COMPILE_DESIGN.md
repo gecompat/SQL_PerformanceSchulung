@@ -62,6 +62,12 @@ Kombinierbarkeit der Events, deren tatsächliche Payload und der direkte
 Ressourcennachweis bleiben separate Pilotfragen.
 [Microsoft-Referenz zu Sperrressourcen](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-tran-locks-transact-sql?view=sql-server-ver17).
 
+## Statische Auswertung normalisierter Befunde
+
+Für den Methodenreview steht eine [SQL-freie Auswertung je Versuchsarm](../../Tests/Runtime/optsp_compile_evidence.py) bereit. Sie vergleicht tatsächliche Compile-Intervalle und verlangt im ON-Arm einen dem Compile-Actor zugeordneten Wait, der während der Kompilierung beginnt und bis zu deren Ende reicht. Alle erfolgreichen Folgeaufrufe müssen denselben Statement-Planhandle verwenden. Die [synthetischen Gegenproben](../../Tests/Static/test_optsp_compile_evidence.py) decken unter anderem nacheinander liegende Kompilierungen bei überlappenden RPCs, fremde Sessions, gewöhnliche X-Waits und abweichenden Batchtext ab.
+
+Der spätere Producer muss die gemeinsame Zeitbasis und die Compile-Grenzen, Statement-/Cache-Identität, Wait-Ressource und Blockerbindung aus qualifizierten Engine-Daten liefern. Die Auswertung erwartet außerdem eine vollständige Spur der vorab registrierten Actors und eine geprüfte Erfassung samt Abbau. Die Tests validieren die Annahmeregeln mit synthetischen Eingaben. Ein positiver Einzelarm ersetzt weder den gepaarten Lauf noch dessen Negativkontrollen. Die tatsächliche XE-Payload und der Ressourcenbezug des dynamischen Batches bleiben offen.
+
 ## Gates vor einer Implementierung
 
 - Unabhängiger Methodenreview bestätigt Buildbindung, Ereignis-/Feldvertrag, Auswertungsregeln, Statistikbehandlung, Sicherheitsklasse und Restore.
