@@ -29,6 +29,18 @@ def validate(sql: str, workflow: str) -> list[str]:
     )
     if any(marker not in sql for marker in wait_map_markers):
         findings.append("probe must bind the LCK_M_X map key through the package GUID")
+    field_map_markers = (
+        "event_column.object_package_guid = event_object.package_guid",
+        "field_map.object_package_guid = event_column.type_package_guid",
+        "field_map.name = event_column.type_name",
+        "event_package.name = N'sqlserver' AND event_object.name = N'compile_synchronization'",
+        "event_column.name IN (N'query_type', N'step')",
+        "event_package.name = N'sqlos' AND event_object.name = N'wait_info'",
+        "event_column.name = N'opcode'",
+        "N'lock_released'",
+    )
+    if any(marker not in sql for marker in field_map_markers):
+        findings.append("probe must bind field maps by event and type packages and inventory both lock edges")
     for marker in ("FOR JSON PATH", "sql_text", "session_id", "database_id", "query_hash", "query_plan_hash"):
         if marker not in sql:
             findings.append(f"probe metadata marker missing: {marker}")

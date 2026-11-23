@@ -25,6 +25,15 @@ JOIN sys.dm_xe_packages AS package ON package.guid = wait_map.object_package_gui
 WHERE package.name = N'sqlos'
   AND wait_map.name = N'wait_types'
   AND wait_map.map_value = N'LCK_M_X';
+SELECT field_map.map_key FROM sys.dm_xe_map_values AS field_map
+JOIN sys.dm_xe_object_columns AS event_column
+ON field_map.object_package_guid = event_column.type_package_guid AND field_map.name = event_column.type_name
+JOIN sys.dm_xe_objects AS event_object ON event_column.object_package_guid = event_object.package_guid
+JOIN sys.dm_xe_packages AS event_package ON event_package.guid = event_object.package_guid
+WHERE (event_package.name = N'sqlserver' AND event_object.name = N'compile_synchronization'
+AND event_column.name IN (N'query_type', N'step'))
+OR (event_package.name = N'sqlos' AND event_object.name = N'wait_info' AND event_column.name = N'opcode');
+SELECT name FROM sys.dm_xe_objects WHERE name IN (N'lock_acquired', N'lock_released');
 -- candidate fields: sql_text session_id database_id query_hash query_plan_hash
 """
 BASE_WORKFLOW = """
@@ -46,6 +55,10 @@ class OptSpXeCatalogProbeTests(unittest.TestCase):
         findings = validate(unbound_map, BASE_WORKFLOW)
         self.assertTrue(any("wait_info from the sqlos package" in finding for finding in findings))
         self.assertTrue(any("package GUID" in finding for finding in findings))
+
+    def test_field_maps_without_the_type_package_guid_are_rejected(self) -> None:
+        unbound = BASE_SQL.replace("field_map.object_package_guid = event_column.type_package_guid AND ", "")
+        self.assertTrue(any("event and type packages" in finding for finding in validate(unbound, BASE_WORKFLOW)))
 
     def test_different_engine_build_is_rejected(self) -> None:
         wrong_build = BASE_SQL.replace("17.0.5065.9", "17.0.5035.5")
