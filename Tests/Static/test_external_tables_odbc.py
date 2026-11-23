@@ -1,21 +1,62 @@
+from hashlib import sha256
 from ipaddress import IPv4Address
 from pathlib import Path
 import sys
+from tempfile import TemporaryDirectory
 from threading import Event
 from time import monotonic
+from types import SimpleNamespace
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_measurement import UnconfirmedRequestCleanup
-from external_tables_odbc import OdbcMeasurementTransport, REQUEST_IDENTITY, verify_source_tls
+from external_tables_odbc import OdbcMeasurementTransport, REQUEST_IDENTITY, load_pinned_pyodbc, verify_source_tls
 from external_tables_pilot_sql import EXPECTED, Role, Route, aggregate_batch, database_name
 from external_tables_principals import Principal, principal_name
 
 
 TOKEN = "TEST0002"
 SQL = aggregate_batch(TOKEN, Route.PUSHDOWN_ON)
+
+
+class PinnedPyodbcTests(unittest.TestCase):
+    def test_checks_native_bytes_before_load_and_disables_pooling(self):
+        filename = "pyodbc.cpython-312-x86_64-linux-gnu.so"
+        data = b"synthetic native extension"
+        wheel = {
+            "version": "5.5.0",
+            "installed_extension": {"filename": filename, "size": len(data), "sha256": sha256(data).hexdigest()},
+        }
+        runtime = SimpleNamespace(
+            implementation=SimpleNamespace(name="cpython"), version_info=(3, 12),
+            platform="linux", modules={},
+        )
+        loader = Mock()
+        spec = SimpleNamespace(loader=loader)
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            file = root / filename
+            file.write_bytes(b"!" * len(data))
+            module = SimpleNamespace(version="5.5.0", __file__=str(file.resolve()), pooling=True)
+            with (
+                patch("external_tables_odbc.sys", runtime),
+                patch("external_tables_odbc.os", SimpleNamespace(uname=lambda: SimpleNamespace(machine="x86_64"))),
+                patch("external_tables_odbc.EXTENSION_SUFFIXES", [filename.removeprefix("pyodbc")]),
+                patch("external_tables_odbc.spec_from_file_location", return_value=spec) as resolve,
+                patch("external_tables_odbc.module_from_spec", return_value=module),
+            ):
+                with self.assertRaisesRegex(ValueError, "differs from the wheel lock"):
+                    load_pinned_pyodbc(root, wheel)
+                resolve.assert_not_called()
+                file.write_bytes(data)
+                self.assertIs(load_pinned_pyodbc(root, wheel), module)
+                resolve.assert_called_once_with("pyodbc", file.resolve())
+                loader.exec_module.assert_called_once_with(module)
+                self.assertFalse(module.pooling)
+                with self.assertRaisesRegex(ValueError, "before loading"):
+                    load_pinned_pyodbc(root, wheel)
 
 
 class Cursor:

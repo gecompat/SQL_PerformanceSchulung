@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import json
 from hashlib import sha256
+from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, main
+from zipfile import ZipFile
 
 from verify_external_tables_apt_plan import (
     LOCK as LOCK_PATH, check_plan, parse_install_plan,
@@ -61,13 +63,24 @@ class AptPlanTests(TestCase):
             check_plan(solver, query)
 
     def test_wheel_checks_name_size_and_digest_and_requires_query_role(self):
-        data = b"synthetic wheel bytes"
-        entry = {"filename": "fixture.whl", "size": len(data), "sha256": sha256(data).hexdigest()}
+        binary = b"synthetic extension bytes"
+        buffer = BytesIO()
+        with ZipFile(buffer, "w") as archive:
+            archive.writestr("pyodbc.so", binary)
+        data = buffer.getvalue()
+        extension = {"filename": "pyodbc.so", "size": len(binary), "sha256": sha256(binary).hexdigest()}
+        entry = {
+            "filename": "fixture.whl", "size": len(data), "sha256": sha256(data).hexdigest(),
+            "installed_extension": extension,
+        }
         lock = {"python_wheel": entry}
         with TemporaryDirectory() as directory:
             path = Path(directory) / "fixture.whl"
             path.write_bytes(data)
             verify_python_wheel(path, lock)
+            wrong = dict(entry, installed_extension=dict(extension, sha256="f" * 64))
+            with self.assertRaisesRegex(ValueError, "extension differs"):
+                verify_python_wheel(path, {"python_wheel": wrong})
             with self.assertRaisesRegex(ValueError, "only part of the query role"):
                 verify_python_wheel(path, {"packages": []})
             with self.assertRaisesRegex(ValueError, "differs"):

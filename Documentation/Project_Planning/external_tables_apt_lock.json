@@ -237,6 +237,12 @@
   },
   "python_wheel": {
     "filename": "pyodbc-5.5.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl",
+    "version": "5.5.0",
+    "installed_extension": {
+      "filename": "pyodbc.cpython-312-x86_64-linux-gnu.so",
+      "size": 1182272,
+      "sha256": "018159cd923f0421da248c64cf831ba816c40d4b0b6fbe5f2e6b03d44f0a59d8"
+    },
     "size": 417233,
     "sha256": "4ee64db80a3cdcf87be2234d3793833b324fbd11fbe738afdaba46ca478cac13",
     "url": "https://files.pythonhosted.org/packages/6c/d5/e7d282f48b384edfcbecd9b406316e84c2ab14cd126773896872e03a2740/pyodbc-5.5.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl"

@@ -6,8 +6,16 @@ from collections.abc import Callable, Iterable, Iterator
 from concurrent.futures import Future
 from contextlib import contextmanager
 from dataclasses import dataclass, field
+from hashlib import file_digest
+from importlib.machinery import EXTENSION_SUFFIXES
+from importlib.util import module_from_spec, spec_from_file_location
 from ipaddress import IPv4Address
 from math import floor, isfinite
+import os
+from pathlib import Path
+import re
+from stat import S_ISREG
+import sys
 from threading import Thread
 from time import monotonic
 from typing import Protocol
@@ -42,6 +50,53 @@ class OdbcDriver(Protocol):
     pooling: bool
 
     def connect(self, connection_string: str, *, timeout: int, autocommit: bool) -> Connection: ...
+
+
+def load_pinned_pyodbc(install_dir: Path, wheel_entry: dict) -> OdbcDriver:
+    """Load the verified native file from the query guest's private install directory."""
+    try:
+        extension = wheel_entry["installed_extension"]
+        filename, size, digest = extension["filename"], extension["size"], extension["sha256"]
+        version = wheel_entry["version"]
+    except (KeyError, TypeError):
+        raise ValueError("invalid pyodbc wheel lock") from None
+    if (
+        filename != "pyodbc.cpython-312-x86_64-linux-gnu.so"
+        or type(size) is not int or not 0 < size <= 4 * 1024 * 1024
+        or not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+        or not isinstance(version, str) or re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version) is None
+    ):
+        raise ValueError("invalid pyodbc extension lock")
+    if (
+        sys.implementation.name != "cpython" or sys.version_info[:2] != (3, 12)
+        or sys.platform != "linux" or os.uname().machine != "x86_64"
+        or filename.removeprefix("pyodbc") not in EXTENSION_SUFFIXES
+    ):
+        raise ValueError("the pyodbc wheel requires Linux x86_64 CPython 3.12")
+    if "pyodbc" in sys.modules:
+        raise ValueError("the query process must verify pyodbc before loading any driver")
+
+    path = install_dir.resolve(strict=True) / filename
+    metadata = path.lstat()
+    if not S_ISREG(metadata.st_mode) or metadata.st_size != size:
+        raise ValueError("installed pyodbc extension differs from the wheel lock")
+    with path.open("rb") as binary:
+        if file_digest(binary, "sha256").hexdigest() != digest:
+            raise ValueError("installed pyodbc extension differs from the wheel lock")
+
+    spec = spec_from_file_location("pyodbc", path)
+    if spec is None or spec.loader is None:
+        raise ValueError("pinned pyodbc extension has no native loader")
+    try:
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+    except ImportError:
+        raise OSError("could not load the verified pyodbc extension and its native dependencies") from None
+    if getattr(module, "version", None) != version or getattr(module, "__file__", None) != str(path):
+        raise ValueError("loaded pyodbc identity differs from the wheel lock")
+    module.pooling = False
+    sys.modules["pyodbc"] = module
+    return module
 
 
 def verify_source_tls(driver: OdbcDriver, token: str, secret: str, deadline: float) -> None:

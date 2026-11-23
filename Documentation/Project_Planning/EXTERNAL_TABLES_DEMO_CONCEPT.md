@@ -447,6 +447,23 @@ Netzgrenzen werden separat geprüft.
 
 ### TLS-Kontrollpaar am Quellendpunkt
 
+Vor der ersten ODBC-Verbindung lädt der Abfragegast `pyodbc` aus
+seinem eigenen Installationsverzeichnis. Der
+[Ladebaustein](../../Tests/Runtime/external_tables_odbc.py) prüft
+Dateityp, Größe und SHA-256 der nativen Erweiterung anhand des
+Wheel-Locks und lädt genau diese Datei unter CPython 3.12 auf Linux
+x86-64. Er prüft die geladene Version und schaltet Pooling aus.
+Derselbe Treiber wird an die TLS-Probe und den Messadapter übergeben.
+Die Offlineprüfung leitet die erwarteten Erweiterungsbytes aus dem
+hashgeprüften Wheel ab.
+[Python-Referenz zum Wheel-Format](https://packaging.python.org/en/latest/specifications/binary-distribution-format/).
+
+Ein netzloser Linux-Komponententest installierte das gepinnte Wheel
+und lud die Erweiterung mit den aus den festgeschriebenen Ubuntu-Paketen
+entnommenen unixODBC-Bibliotheken. Der Import meldete `pyodbc 5.5.0`
+bei deaktiviertem Pooling. Der Importtest verwendete CPython 3.12.14.
+Die Wiederholung im Abfragegast bleibt Teil des Pilot-Preflights.
+
 Die [ODBC-Probe](../../Tests/Runtime/external_tables_odbc.py)
 verwendet in der Positivprobe denselben laufgebundenen Quellhost, Port und
 Reader wie der spätere Connector. Die verschlüsselte Verbindung mit
