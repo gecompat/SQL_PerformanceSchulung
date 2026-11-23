@@ -160,7 +160,9 @@ Grenzen werden abgewiesen.
 und [Referenz zum Löschpuffer](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-internal-partitions-transact-sql?view=sql-server-ver17).
 
 Die Auswahl der Encoding-Typen und die Konvertierung der Grenzen
-entsprechen dem oben gebundenen Microsoft-Beispiel für `bigint`. Bei vier
+entsprechen dem oben gebundenen Microsoft-Beispiel. Für `bigint` verwendet
+das Beispiel `min_data_id` und `max_data_id` bei `encoding_type` 1 oder 2.
+Der Projektfilter lässt nur diese Kombination zu. Bei vier
 Segmenten mit acht unterschiedlichen Grenzen ist die Summe der
 Überlappungen im Microsoft-Verfahren doppelt so groß wie die Zahl der
 überlappenden Paare. Die Abfrage zählt jedes Paar einmal und gibt nur den
@@ -217,8 +219,12 @@ Indexbau. Nach dem Aufbau prüft sie je Arm Indexidentität, Ordnungsposition
 und vier vollständige komprimierte Rowgroups. Die Metadatenaufnahme liefert
 die Zahl überlappender Segmentpaare aus der geprüften Microsoft-Auswertung.
 Bei vier vollständig abgedeckten Segmenten entspricht weniger Überlappung
-einer höheren Ordnungsgüte. Für `PASS` muss der geordnete Arm zusätzlich mehr
-Segmente in der Ergebnisabfrage überspringen.
+einer höheren Ordnungsgüte. Beide Metadatenprüfungen laufen vor der ersten
+Ergebnisabfrage. Hat der geordnete Arm nicht weniger überlappende Paare
+als der Kontrollarm, endet die Prüfung in der Metadatenphase mit
+`NOT_PROVEN`. Damit scheidet auch eine bereits überlappungsfreie Kontrolle
+aus. Für `PASS` muss der geordnete Arm zusätzlich mehr Segmente in der
+Ergebnisabfrage überspringen.
 
 Die Ablaufsteuerung übergibt dem Transport eine gemeinsame Laufzeitgrenze
 von 900 Sekunden und eine getrennte Cleanupfrist von 90 Sekunden. Docker- und
