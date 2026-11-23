@@ -236,6 +236,48 @@ grenzt lokale Runtime, numerische Fixtures und Cleanup voneinander ab.
 Technische Primärquelle, geprüft am 2026-10-06:
 [Query-Store-Runtime-Stats](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-query-store-runtime-stats-transact-sql?view=sql-server-ver17).
 
+## Neutrale Kontrollcaptures vorführen
+
+Bereite eine leere, isolierte Developer-Instanz vor und führe die drei
+[einzelnen Kontrollmanifeste](#ausführung-und-recovery) nacheinander mit
+`--show-output` aus. Beginne mit `control-ab.manifest.json`, wechsle zu
+`control-ba.manifest.json` und schließe mit `control-aa.manifest.json` ab.
+Bestätige nach jedem Lauf den erfolgreichen Cleanup, bevor du den nächsten
+startest. So startest du AB mit SQL-Authentifizierung. Setze
+`$LabInstanz` auf die Adresse deiner isolierten Instanz und
+`SQLCMDPASSWORD` in der Prozessumgebung.
+
+```powershell
+$Manifeste = 'Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated'
+python Demos/00_Framework/Tools/run_demo.py "$Manifeste/control-ab.manifest.json" `
+  --server $LabInstanz --auth sql --username sa --confirm-isolated-lab --show-output
+```
+
+Für ein selbstsigniertes Lab-Zertifikat verwende zusätzlich den
+[SQLCMD-Adapter aus der lokalen Ausführungsanleitung](../../../../Documentation/HowTo/LOCAL_TEST_ENVIRONMENT.md#7-vollständiger-demolauf).
+
+1. Lies je Lauf `DGN007_CONTROL_WINDOW`. Markiere A und B und prüfe jeweils
+   vier Aufrufe und vier reguläre Query-Store-Ausführungen pro Fenster.
+   In `DGN007_PROFILE_WINDOW` muss `TotalRows` je Fenster 4.229 betragen.
+2. Lies die Zeile `DurationUs` in `DGN007_PROFILE_METRIC`. Für den Vergleich
+   **B minus A** entspricht der AB-Kontrast `T1 − T0`. Bei BA verwende
+   `T0 − T1`, da B dort zuerst läuft. Der Betrag von `T1 − T0` in AA zeigt,
+   wie weit zwei Fenster mit derselben Aufrufreihenfolge in diesem Lauf
+   auseinanderlagen.
+3. Prüfe `DGN007_CONTROL_PLAN_UNION` anhand von `ExecutedInT0` und
+   `ExecutedInT1`. Vergleiche Plan-IDs nur innerhalb desselben Laufs.
+   Die Zahlen beantworten, welche Pläne tatsächlich ausgeführt wurden.
+   Erst weitere requestgebundene Evidenz könnte erklären, warum die
+   Laufzeitprofile auseinanderliegen.
+
+Im [historischen SQL-Server-2019-Beispiel](../../../../Documentation/Project_Planning/DGN_007_CONTROL_CAPTURE_RUNTIME_EVIDENCE.md)
+lag ein B-minus-A-Kontrast aus BA bei 1.155,25 µs und damit innerhalb der
+in AA beobachteten Abweichung von 1.713,5 µs. Das illustriert, weshalb ein
+langsameres Fenster allein für die Reproduktionsbewertung nicht ausreicht.
+Verwende die Werte als Lesebeispiel. Der [Reproduktionsvertrag](../Contracts/README.md)
+legt die Bewertung für sechs frische Kontrollläufe fest.
+
+
 ## Neutrale Kontrollcaptures
 
 Die drei eigenständigen Scopes konfigurieren vor der Last die feste Bedingung
@@ -304,11 +346,11 @@ in der festgelegten Reihenfolge aus. Er bindet die privaten Capture-Receipts,
 Quellenfreeze-Snapshots, Ressourcen- und Session-Randproben, Lifecyclezeiten,
 Cleanupbelege und die vollständigen Request-/Familienrecords an den
 prospektiven Evaluator. Ein gültiger `SKIP_EVIDENCE_MISSING` bleibt ein Skip.
-Die neue isolierte 2019/2022/2025-Matrix muss noch erfolgreich laufen, bevor
-diese Integration als qualifiziert gilt; Randproben belegen keine fortlaufende
-Hostexklusivität oder externe Quellherkunft. Das ist weiterhin kein
-Incident-Gate und kein Nachweis von Clientlatenz oder statistischer
-Signifikanz. Danach folgen Requestscope, Alternativhypothesen,
+Die [isolierte Matrix auf SQL Server 2019, 2022 und 2025](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44921319212)
+bestand je sechs Captures mit `decision=PASS` für die Reproduktionsregel.
+Die Randproben erfassen die gemeldete Belegung an den Lifecyclegrenzen.
+Die Aussage gilt für die beobachteten Query-Store-Profile und die
+gebundenen Kontrollen. Für die Incident-Abnahme folgen Requestscope, Alternativhypothesen,
 reversible Mitigation und T2-Vergleich. Szenariopromotion, `READY_FOR_USER`,
 Katalogaufnahme, vollständige Capstone-Matrix und Änderungen an
 `SQL_Server_Lab` bleiben offen.
