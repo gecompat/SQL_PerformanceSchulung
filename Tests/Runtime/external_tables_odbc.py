@@ -261,8 +261,16 @@ class OdbcPilotAdministration:
             raise ValueError("unexpected database for guest administration")
         with self._cursor(database, deadline) as cursor:
             cursor.execute(self._guard(database) + sql)
-            if cursor.description is not None or cursor.nextset():
-                raise ValueError("unexpected result from guest administration")
+            # SQL Server can emit non-row ODBC results for context changes.
+            # Consume them to detect late errors, while bounding the result chain.
+            for _ in range(32):
+                _remaining(deadline)
+                if cursor.description is not None:
+                    raise ValueError("unexpected rows from guest administration")
+                if not cursor.nextset():
+                    break
+            else:
+                raise ValueError("guest administration returned too many status results")
 
     def fixture_rows(self, sql: str, deadline: float) -> tuple[tuple[int, date, int, int], ...]:
         if sql not in self._fixture_reads:

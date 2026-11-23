@@ -1,12 +1,15 @@
 from contextlib import contextmanager
 from datetime import timedelta
 from pathlib import Path
+from types import SimpleNamespace
 import sys
+from time import monotonic
 import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
+from external_tables_guest_admin import dispatch_admin
 from external_tables_measurement import MeasurementResult
 from external_tables_pilot import CLEANUP_SECONDS, WORK_SECONDS, run_pilot
 from external_tables_pilot_sql import DAY_ZERO, ROWS, Role, database_name
@@ -33,6 +36,14 @@ class GuestTransport:
     def start_verified_guests(self, token, deadline):
         assert token == TOKEN
         self._event("boot", token, deadline)
+
+    def admin(self, role, command, deadline):
+        endpoint = SimpleNamespace(
+            execute=lambda database, sql, deadline: self.execute(role, database, sql, deadline),
+            fixture_rows=lambda sql, deadline: self.fixture_rows(role, sql, deadline),
+            database_exists=lambda name, deadline: self.database_exists(role, name, deadline),
+        )
+        return dispatch_admin(endpoint, TOKEN, role, command, deadline)
 
     def execute(self, role, database, sql, deadline):
         if "CREATE DATABASE" in sql and "CREATE DATABASE SCOPED CREDENTIAL" not in sql:
@@ -113,11 +124,12 @@ class PilotCoordinatorTests(unittest.TestCase):
     @patch("external_tables_pilot.measure_pushdown", return_value=MeasurementResult("PASS", "comparison", ("on", "off")))
     def test_pilot_uses_one_work_deadline_and_a_separate_cleanup_window(self, measure):
         transport = GuestTransport()
-        with patch("external_tables_pilot.monotonic", return_value=100):
+        now = monotonic()
+        with patch("external_tables_pilot.monotonic", return_value=now):
             result = run_pilot(transport, TOKEN)
         self.assertEqual(result.status, "PASS")
         self.assertEqual(result.filters, ("on", "off"))
-        work, teardown = (100 + WORK_SECONDS, 100 + CLEANUP_SECONDS)
+        work, teardown = (now + WORK_SECONDS, now + CLEANUP_SECONDS)
         measure.assert_called_once()
         self.assertEqual(measure.call_args.args[1:], (TOKEN, work))
         self.assertEqual(transport.events[0], ("boot", TOKEN, work))
