@@ -18,17 +18,44 @@ def reader_login(run_token: str) -> str:
     return f"idx010_reader_{run_token}"
 
 
-def create_reader_batch(run_token: str, password: str) -> str:
+def _reader_sid_literal(sid: str) -> str:
+    if re.fullmatch(r"[0-9a-f]{32}", sid, re.ASCII) is None:
+        raise ValueError("invalid pilot reader SID")
+    return "0x" + sid
+
+
+def create_reader_batch(run_token: str, password: str, sid: str) -> str:
     login = reader_login(run_token)
     if re.fullmatch(r"Idx9![A-Za-z0-9]{32}", password, re.ASCII) is None:
         raise ValueError("invalid generated reader secret")
+    sid_literal = _reader_sid_literal(sid)
     password_literal = "'" + password.replace("'", "''") + "'"
     return f"""
 SET NOCOUNT ON;
 IF DB_NAME() <> N'master' OR SUSER_ID(N'{login}') IS NOT NULL
     THROW 51020, 'FAIL_STATE: pilot reader target is not fresh.', 1;
-CREATE LOGIN [{login}] WITH PASSWORD = {password_literal},
+CREATE LOGIN [{login}] WITH PASSWORD = {password_literal}, SID = {sid_literal},
     DEFAULT_DATABASE = [master], CHECK_POLICY = ON, CHECK_EXPIRATION = OFF;
+IF NOT EXISTS (SELECT 1 FROM sys.sql_logins WHERE name = N'{login}' AND sid = {sid_literal})
+    THROW 51029, 'FAIL_CONTRACT: pilot reader SID cannot be confirmed.', 1;
+"""
+
+
+def drop_reader_batch(run_token: str, sid: str) -> str:
+    login = reader_login(run_token)
+    sid_literal = _reader_sid_literal(sid)
+    return f"""
+SET NOCOUNT ON;
+IF DB_NAME() <> N'master'
+    THROW 51028, 'FAIL_CLEANUP: not in master.', 1;
+IF EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'{login}')
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM sys.sql_logins WHERE name = N'{login}' AND sid = {sid_literal})
+        THROW 51028, 'FAIL_CLEANUP: pilot reader ownership cannot be confirmed.', 1;
+    DROP LOGIN [{login}];
+END;
+IF EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'{login}')
+    THROW 51028, 'FAIL_CLEANUP: pilot reader still exists.', 1;
 """
 
 

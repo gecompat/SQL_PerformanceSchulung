@@ -249,6 +249,13 @@ Reader und gleicht die Container-ID über Namen und zufälliges Eigentumslabel
 ab. Fehlender SQL-Abbaunachweis bleibt ein Fehler, auch wenn der eigene
 Container entfernt werden konnte.
 
+Die Reader-Erstellung wird vor dem SQL-Aufruf als versucht registriert.
+Der Login erhält eine zufällige 16-Byte-SID. Auch wenn der Client die
+Bestätigung der Erstellung nicht erhält, prüft der Abbau den Login anhand
+seines Namens und dieser SID. Bei abweichender SID bleibt das Login-DDL
+aus und der SQL-Abbau gilt als unbestätigt.
+[Microsoft-Referenz zur SID in CREATE LOGIN](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-login-transact-sql?view=sql-server-ver17).
+
 Die [Ablaufprüfungen](../../Tests/Static/test_idx010_pilot_sequence.py) und
 [Transportprüfungen](../../Tests/Static/test_idx010_docker_transport.py)
 verwenden simulierte Prozess- und SQL-Antworten. Der Runner hat keinen
