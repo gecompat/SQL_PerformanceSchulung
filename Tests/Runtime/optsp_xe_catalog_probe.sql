@@ -50,6 +50,7 @@ WHERE event_object.object_type = N'event'
                 N'sp_cache_insert',
                 N'sql_statement_recompile',
                 N'lock_acquired',
+                N'lock_released',
                 N'rpc_starting',
                 N'rpc_completed',
                 N'sql_statement_completed',
@@ -89,6 +90,44 @@ SELECT CONCAT(
     @WaitMapKey,
     N',"map_value":"LCK_M_X"}'
 );
+
+-- Resolve the enum from the event field's type identity, including its package.
+SELECT CONCAT(
+    N'{"record_type":"FIELD_MAP","event_package":',
+    CONCAT(N'"', STRING_ESCAPE(event_package.name, 'json'), N'"'),
+    N',"event_name":',
+    CONCAT(N'"', STRING_ESCAPE(event_object.name, 'json'), N'"'),
+    N',"field_name":',
+    CONCAT(N'"', STRING_ESCAPE(event_column.name, 'json'), N'"'),
+    N',"map_package":',
+    CONCAT(N'"', STRING_ESCAPE(map_package.name, 'json'), N'"'),
+    N',"map_name":',
+    CONCAT(N'"', STRING_ESCAPE(field_map.name, 'json'), N'"'),
+    N',"map_key":', field_map.map_key,
+    N',"map_value":',
+    CONCAT(N'"', STRING_ESCAPE(LEFT(field_map.map_value, 256), 'json'), N'"'),
+    N'}'
+)
+FROM sys.dm_xe_objects AS event_object
+JOIN sys.dm_xe_packages AS event_package
+    ON event_package.guid = event_object.package_guid
+JOIN sys.dm_xe_object_columns AS event_column
+    ON event_column.object_name = event_object.name
+   AND event_column.object_package_guid = event_object.package_guid
+JOIN sys.dm_xe_map_values AS field_map
+    ON field_map.object_package_guid = event_column.type_package_guid
+   AND field_map.name = event_column.type_name
+JOIN sys.dm_xe_packages AS map_package
+    ON map_package.guid = field_map.object_package_guid
+WHERE event_object.object_type = N'event'
+  AND event_column.column_type = N'data'
+  AND (
+      (event_package.name = N'sqlserver' AND event_object.name = N'compile_synchronization'
+          AND event_column.name IN (N'query_type', N'step'))
+      OR (event_package.name = N'sqlos' AND event_object.name = N'wait_info'
+          AND event_column.name = N'opcode')
+  )
+ORDER BY event_package.name, event_object.name, event_column.name, field_map.map_key;
 
 SELECT CONCAT(
     N'{"record_type":"ACTION","package_name":',
