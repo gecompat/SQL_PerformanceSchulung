@@ -77,6 +77,40 @@ den vorbereiteten Vorlagen. Eine vorhandene Hyper-V-Installation belegt
 allein weder die Vorlagen noch Kapazität oder den Dienstzustand. Die
 Voraussetzungen gelten für die eigenen VMs und den eigenen Lauf.
 
+### Geprüfte Microsoft-Pakete für die Vorlagen
+
+Die [Paketprüfung](../../Tests/Static/verify_external_tables_packages.py)
+prüft `InRelease` in einem temporären GnuPG-Schlüsselbund gegen den
+dokumentierten Microsoft-Fingerabdruck. Sie bindet den AMD64-Index über
+SHA-256 und Dateigröße an die signierte Freigabe und prüft beide Paketzeilen
+gegen die festen Werte des Pilotprofils.
+[Microsofts Repository-Signaturschlüssel](https://learn.microsoft.com/en-us/linux/packages#how-to-use-the-gpg-repository-signing-key).
+
+Lege `microsoft.asc`, `InRelease` und `Packages` in ein lokales
+Indexverzeichnis. Für die Bytes der beiden `.deb`-Dateien und des
+SDK-Archivs ergänze ein separates Paketverzeichnis und rufe auf:
+
+```text
+python Tests/Static/verify_external_tables_packages.py INDEXVERZEICHNIS --payload-directory PAKETVERZEICHNIS
+```
+
+`microsoft.asc` stammt aus [Microsofts Schlüsselverzeichnis](https://packages.microsoft.com/keys/microsoft.asc).
+`InRelease` und `main/binary-amd64/Packages` stammen aus dem
+[Ubuntu-Noble-Repository für SQL Server 2025](https://packages.microsoft.com/ubuntu/24.04/mssql-server-2025/dists/noble/).
+Der Index nennt die relativen Downloadpfade für
+`mssql-server_17.0.5065.9-3_amd64.deb` und
+`mssql-server-polybase_17.0.5065.9-3_amd64.deb`. Das benötigte
+`dotnet-sdk-8.0.418-linux-x64.tar.gz` enthält laut
+[Microsofts .NET-Freigabemetadaten](https://builds.dotnet.microsoft.com/dotnet/release-metadata/8.0/releases.json)
+die Runtime 8.0.24. Die Prüfung vergleicht seinen SHA-512 mit dem
+festgelegten Eintrag für das Linux-AMD64-SDK.
+
+Am 23. November 2026 bestanden die Signatur, der Index und die
+Prüfsummen der drei tatsächlich heruntergeladenen Dateien. Für die
+Vorlagen fehlen noch die Bindung der Betriebssystemabhängigkeiten und
+des ODBC-Treibers, die Installation und die Prüfung des Dienstzustands.
+Der Abfrage- und Cleanup-Pilot bleibt offen.
+
 ### Daten und Ergebniskontrolle
 
 Die deterministische Quelltabelle `dbo.Facts` und die lokale Referenz

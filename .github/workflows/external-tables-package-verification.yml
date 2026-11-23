@@ -1,0 +1,28 @@
+name: External Tables package verification
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Static/verify_external_tables_packages.py'
+      - 'Tests/Static/test_external_tables_packages.py'
+      - '.github/workflows/external-tables-package-verification.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Static/verify_external_tables_packages.py'
+      - 'Tests/Static/test_external_tables_packages.py'
+      - '.github/workflows/external-tables-package-verification.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  offline-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python Tests/Static/test_external_tables_packages.py
