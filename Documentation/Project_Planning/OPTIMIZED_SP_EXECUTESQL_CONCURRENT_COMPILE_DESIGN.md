@@ -403,10 +403,26 @@ Für die Beobachtung waren die Sperrereignisse auf den katalogisierten
 X-Modus begrenzt. Während der Einrichtung überschritt die breitere
 Sperrerfassung das Ausgabelimit und ergab keine auswertbare Spur.
 Der begrenzte XML-Reader verarbeitet CDATA mit deaktivierter
-Entitätsauflösung. Die Zuordnung des Waits zu genau einem erworbenen
-und freigegebenen Lock derselben Ressource, der Abgleich der
-Statement-Handles mit dem `Prepared`-Cacheeintrag und der gepaarte
-OFF/ON-Lauf bleiben erforderlich.
+Entitätsauflösung.
+
+Eine zweite Aufnahme auf demselben Build erfasste die Ressourcenschlüssel
+und den Cacheabgleich. Das Begin-/End-Paar trug dieselbe Ressource im
+Format `TAB: <Datenbank>:<Objekt>:<Partition> [COMPILE]`. Der andere
+Actor erwarb und löste eine `OBJECT`-X-Sperre mit derselben Datenbank,
+Objekt-ID und Partition. `resource_1` war 2 und
+`resource_description` enthielt `[COMPILE]`. Für die zuvor geprüfte
+gewöhnliche Objektsperre war `resource_1` 0 und die Beschreibung leer.
+Der `TAB:`-Präfix kommt in beiden Fällen vor.
+
+Die Ereignisfolge dieser Aufnahme war Erwerb (2), Wait-Beginn (5),
+Erstkompilierungsereignis (20), Freigabe (21) und Wait-Ende (22).
+Ein nachfolgendes Besitzintervall des wartenden Actors begann erst nach
+Wait-Ende. Beide Statement-Handles entsprachen dem eindeutigen
+`Prepared`-Eintrag. Ein weiteres `LCK_M_X`-Paar desselben Actors
+bezeichnete die Query-Store-Ressource `QDS_INTERVAL_STABILITY`.
+Der Ressourcenabgleich ordnet nur das Compile-Paar der Erstkompilierung
+zu. Der Cleanup der Aufnahme und der Testressourcen bestand.
+Die vollständige Zeitbindung und der gepaarte OFF/ON-Lauf bleiben offen.
 
 ## Konkreter Pilotkandidat für den unabhängigen Methodenreview
 
