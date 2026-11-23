@@ -6,7 +6,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from optsp_compile_evidence import (  # noqa: E402
-    ActorRequest, Arm, ArmRun, ArmState, FirstCompile, Interval, LCK_M_X, LockHold,
+    ActorRequest, Arm, ArmRun, ArmState, EventTime, FirstCompile, Interval, LCK_M_X, LockHold,
     Request, ResourceKey, TimeBounds, Wait, evaluate_arm, evaluate_pair,
 )
 
@@ -60,6 +60,39 @@ class CompileEvidenceTests(unittest.TestCase):
             Interval.from_end_and_duration(TimeBounds(100, 102), TimeBounds(-1, 1))
         with self.assertRaises(ValueError):
             TimeBounds(5, 4)
+
+    def test_equal_labels_preserve_compile_wait_and_exclude_successor_ownership(self):
+        def event(ticks, sequence):
+            return EventTime(ticks, sequence, "owned-ring")
+
+        requests = (
+            replace(REQUESTS[0], rpc=Interval(event(1, 1), event(17, 14)), statement_completed_at=event(14, 12)),
+            replace(REQUESTS[1], rpc=Interval(event(2, 3), event(19, 15)), statement_completed_at=event(16, 13)),
+        )
+        compile_ = replace(FIRST, interval=Interval(event(4, 5), event(9, 6)))
+        hold = replace(HOLD, interval=Interval(event(1, 2), event(9, 7)))
+        wait = replace(WAIT, interval=Interval(event(2, 4), event(9, 9)))
+        successor = replace(HOLD, owner=WAITER, interval=Interval(event(9, 10), event(9, 11)))
+        arm = replace(ON, requests=requests, first_compiles=(compile_,), waits=(wait,), lock_holds=(hold, successor))
+        self.assertTrue(successor.interval.valid())
+        self.assertFalse(wait.interval.possibly_overlaps(successor.interval))
+        self.assertEqual(evaluate_arm(arm).reason, "compile_wait_and_statement_plan_reuse")
+
+        competing = replace(successor, interval=Interval(event(9, 8), event(9, 10)))
+        self.assertTrue(wait.interval.possibly_overlaps(competing.interval))
+        self.assert_unproven(replace(arm, lock_holds=(hold, competing)), "no_bound_compile_wait")
+
+    def test_sequence_cannot_measure_duration_or_bind_another_recording(self):
+        first = Interval(EventTime(5, 1, "ring-a"), EventTime(8, 4, "ring-a"))
+        touching = Interval(EventTime(8, 3, "ring-a"), EventTime(10, 5, "ring-a"))
+        self.assertTrue(first.possibly_overlaps(touching))
+        self.assertFalse(first.overlaps(touching))
+
+        foreign = Interval(EventTime(8, 5, "ring-b"), EventTime(10, 6, "ring-b"))
+        self.assertTrue(first.possibly_overlaps(foreign))
+        self.assertFalse(first.overlaps(foreign))
+        self.assertFalse(Interval(EventTime(8, 1, "ring-a"), EventTime(8, 2, "ring-b")).valid())
+        self.assertFalse(Interval(EventTime(5, 4, "ring-a"), EventTime(8, 1, "ring-a")).valid())
 
     def test_on_timing_ambiguity_cannot_supply_a_missing_order(self):
         earlier_completion = replace(REQUESTS[1], statement_completed_at=TimeBounds(8, 16))

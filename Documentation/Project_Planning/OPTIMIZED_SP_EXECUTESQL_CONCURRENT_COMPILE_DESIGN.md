@@ -451,6 +451,35 @@ auswertbar. Für eine vollständige Paarbewertung fehlen noch der
 qualifizierte Ordnungsbezug bei gleich lautenden Labels und die
 maschinenlesbare Bindung aller Profil- und Barrieredaten.
 
+### Zeitgleiche Labels und Reihenfolge in derselben Aufzeichnung
+
+Der Auswerter kann für einen eindeutig gebundenen XE-Punkt Zeitlabel,
+`event_sequence` und Aufzeichnungsidentität gemeinsam übernehmen.
+Ein Gleichstand des Zeitlabels lässt sich für Reihenfolgeprüfungen
+innerhalb derselben qualifizierten Aufzeichnung durch die
+Ereignisnummer unterscheiden. Zeitlabel und Ereignisreihenfolge dürfen
+einander nicht widersprechen. Der Beginn eines nachfolgenden
+Besitzintervalls kann dadurch eindeutig nach dem Wait-Ende liegen,
+auch wenn beide das gleiche Zeitlabel haben.
+
+Positive Überlappung setzt weiterhin einen strikt positiven,
+durch die aufgenommenen Zeiten belegten Schnitt voraus. Bei einem
+Gleichstand weist die Ereignisnummer nur die Reihenfolge der
+Aufzeichnung aus. Sie misst keine verstrichene Zeit und bindet keine
+Punkte aus einer anderen Aufzeichnung. Die bestätigten
+RPC-, Compiler- und Sperrgrenzen sowie die verlustfreie Erfassung sind
+Voraussetzungen für diese Auswertung.
+[Microsoft SQL Server Blog zu Aufzeichnungsreihenfolge und Kausalität](https://techcommunity.microsoft.com/blog/sqlserver/sql-mysteries-causality-tracking-vs-event-sequence-for-xevent-sessions/3198826)
+
+Eine erneute native Aufzeichnung erfasste für beide Paare und die
+beiden Kontrollen auch die Ereignisnummern der RPC- und Statementgrenzen.
+Das Replay bestätigte in beiden OFF-Armen die Überlappung und in
+beiden ON-Armen den gebundenen Compile-Wait samt Planwiederverwendung.
+Der Kurzlebensaufbau entfernte seine Datenbanken nach jedem Arm. SQL
+Server verwendete die Datenbank-ID in den beiden ON-Aufnahmen erneut.
+Die formale Paarprüfung erhält eigene, gleichzeitig vorhandene
+Datenbanken sowie eine gebundene Profilaufnahme und Startbarriere.
+
 ## Konkreter Pilotkandidat für den unabhängigen Methodenreview
 
 | Merkmal | Festlegung |
