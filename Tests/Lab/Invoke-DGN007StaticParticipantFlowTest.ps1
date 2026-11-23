@@ -11,7 +11,7 @@
     Demo-Laufkatalog und verleiht keinen READY_FOR_USER-Status.
 
     Das SA-Kennwort wird ausschliesslich als SecureString verarbeitet. Fuer sqlcmd
-    wird es nur waehrend der sechs Teilnehmerstufen in SQLCMDPASSWORD der aktuellen
+    wird es nur fuer den Buildnachweis und die sechs Teilnehmerstufen in SQLCMDPASSWORD der aktuellen
     Prozessumgebung bereitgestellt und danach wiederhergestellt.
 #>
 [CmdletBinding()]
@@ -72,6 +72,21 @@ function Get-PlainSecret {
     return ([PSCredential]::new('sa', $Secret)).GetNetworkCredential().Password
 }
 
+function Read-Dgn007EngineIdentity {
+    param(
+        [Parameter(Mandatory)][string]$Server,
+        [Parameter(Mandatory)][string]$SqlcmdExecutable
+    )
+    $sql = "SET NOCOUNT ON; SELECT CONCAT('DGN007_LAB_ENGINE|', CONVERT(varchar(32),SERVERPROPERTY('ProductVersion')), '|', CONVERT(varchar(128),SERVERPROPERTY('Collation')));"
+    $lines = @(& $SqlcmdExecutable -S $Server -U sa -C -b -d master -l 5 -t 10 -h -1 -W -Q $sql 2>&1)
+    $exitCode = $LASTEXITCODE
+    $identity = [regex]::Match(($lines -join "`n").Trim(), '\ADGN007_LAB_ENGINE\|(17\.[0-9]+\.[0-9]+\.[0-9]+)\|([A-Za-z0-9_]+)\z')
+    if ($exitCode -ne 0 -or -not $identity.Success) {
+        throw 'Die SQL-Server-2025-Identität der eigenen Labinstanz konnte nicht gelesen werden.'
+    }
+    [PSCustomObject]@{ ProductVersion = $identity.Groups[1].Value; Collation = $identity.Groups[2].Value }
+}
+
 function Invoke-Dgn007ParticipantStage {
     param(
         [Parameter(Mandatory)][string]$Name,
@@ -85,20 +100,24 @@ function Invoke-Dgn007ParticipantStage {
     $output = & $SqlcmdExecutable -S $Server -U sa -C -b -d $Database -v 'DemoId=DGN-007' 'RunToken=LOCAL' -i $ScriptPath 2>&1
     $exitCode = $LASTEXITCODE
     $outputText = ($output | ForEach-Object { [string]$_ }) -join "`n"
-    if ($exitCode -ne 0) { throw "DGN-007-Stufe $Name endete mit Exitcode ${exitCode}: $outputText" }
+    if ($exitCode -ne 0) {
+        $codes = @([regex]::Matches($outputText, '(?m)^Msg ([0-9]{1,6}), Level [0-9]{1,2}, State [0-9]{1,3},') |
+            ForEach-Object { $_.Groups[1].Value } | Select-Object -First 8 -Unique)
+        throw "DGN-007-Stufe $Name endete mit Exitcode $exitCode (SQL-Fehlernummern: $($codes -join ', '))."
+    }
     $summaries = [regex]::Matches($outputText, '(?m)^SQLPERF_SUMMARY\|(PASS|SKIP)\|([A-Z0-9_]+)\s*$')
     if ($summaries.Count -ne 1) {
-        throw "DGN-007-Stufe ${Name} muss genau eine PASS- oder kontrollierte SKIP-Zusammenfassung liefern: $outputText"
+        throw "DGN-007-Stufe ${Name} muss genau eine PASS- oder kontrollierte SKIP-Zusammenfassung liefern."
     }
     $outcome = $summaries[0].Groups[1].Value
     $code = $summaries[0].Groups[2].Value
     if ($outcome -eq 'PASS' -and $code -ne 'OK') {
-        throw "DGN-007-Stufe ${Name} lieferte einen unzulaessigen PASS-Code ${code}: $outputText"
+        throw "DGN-007-Stufe ${Name} lieferte einen unzulaessigen PASS-Code ${code}."
     }
     if ($outcome -eq 'SKIP' -and $code -notin $AllowedSkipCodes) {
-        throw "DGN-007-Stufe ${Name} lieferte einen unzulaessigen SKIP-Code ${code}: $outputText"
+        throw "DGN-007-Stufe ${Name} lieferte einen unzulaessigen SKIP-Code ${code}."
     }
-    return [PSCustomObject]@{ Name = $Name; Script = $ScriptPath; Outcome = $outcome; Code = $code; Output = $outputText }
+    return [PSCustomObject]@{ Name = $Name; Script = $ScriptPath; Outcome = $outcome; Code = $code }
 }
 
 foreach ($path in @($adapterPath, $labManifest)) {
@@ -142,8 +161,10 @@ try {
     $validate = Install-SqlServerLabAdapter -Path $adapterPath -RunId $lab.RunId -InstanceId primary -SaPassword $SaPassword -Entrypoint validate -StateRoot $StateRoot
     if (-not $validate.Success -or $validate.Status -ne 'ADAPTER_APPLIED') { throw "DGN-007-Adaptervalidierung fehlgeschlagen ($($validate.Status)): $($validate.Message)" }
 
-    Set-Item -Path Env:SQLCMDPASSWORD -Value (Get-PlainSecret -Secret $SaPassword)
     $server = "$($instance.Host),$($instance.Port)"
+    Set-Item -Path Env:SQLCMDPASSWORD -Value (Get-PlainSecret -Secret $SaPassword)
+    $engineIdentity = Read-Dgn007EngineIdentity -Server $server -SqlcmdExecutable $sqlcmdExecutable
+
     $demoRoot = Join-Path $repositoryRoot 'Demos\07_Query_Store_Extended_Events\DGN-007_Time_Bounded_Search_Incident'
     foreach ($stage in @(
         @{ Name = 'PRECHECK'; Script = '00_Preflight.sql'; AllowedSkipCodes = @('SKIP_QUERY_STORE_REQUIRED') },
@@ -213,6 +234,7 @@ finally {
 
 [PSCustomObject]@{
     ScenarioId = 'DGN-007'; FlowStatus = 'STATIC_PARTICIPANT_FLOW_ONLY'; Provider = $Provider; SqlVersion = '2025'
+    SqlProductVersion = $engineIdentity.ProductVersion; SqlCollation = $engineIdentity.Collation
     AdapterPreflightStatus = $adapterPreflight.Status; InstallStatus = $install.Status; ValidateStatus = $validate.Status
     ParticipantStageResults = @($stages | Select-Object Name, Outcome, Code)
     ParticipantFlowOutcome = if ($controlledSkip) { 'CONTROLLED_SKIP_NO_EVIDENCE_CLAIM' } else { 'COMPLETED_WITHOUT_PROMOTION' }
