@@ -87,6 +87,7 @@ Instanz. Nach einem Abbruch gilt der verlinkte Erhaltungsweg.
 | [`QRY-013`](../../Demos/05_Query_Patterns/QRY-013_Client_Session_Context/README.md) | Anwendung langsam, SSMS (SQL Server Management Studio; Verwaltungs- und Abfragewerkzeug) schnell | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`QRY-004`](../../Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/README.md) | Catch-all, Recompile und dynamisches SQL | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`QRY-006`](../../Demos/05_Query_Patterns/QRY-006_NULL_Semantics/README.md) | NULL bei `NOT IN` und `NOT EXISTS` | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` – Linux/Docker 2019/150, 2022/160 und 2025/170; Szenariopromotion nicht eingeschlossen |
+| [`QRY-023`](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md) | SQL Graph Tables und relationale Pfadabfrage | Gelb | 1 | 3 | `CONTAINER` | `DISPOSABLE_INSTANCE` | `VALIDATED` – drei gepinnte Linux/AMD64-Builds, ausschließlich dokumentiertes YELLOW-Profil |
 | [`OPT-009`](../../Demos/04_Optimizer_Statistics_Plans/OPT-009_Parameter_Sensitive_Plans/README.md) | Parametersensitive Planoptimierung | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`OPT-010`](../../Demos/04_Optimizer_Statistics_Plans/OPT-010_Optional_Parameter_Plans/README.md) | Optional Parameter Plan Optimization | Grün | 1 | 1 | `TSQL_TESTDB` | `SHARED_TEST_INSTANCE` | `VALIDATED` |
 | [`OPT-013`](../../Demos/04_Optimizer_Statistics_Plans/OPT-013_Controlled_Spill/README.md) | Controlled Spill | Gelb | 1 | 2 | `TSQL_TESTDB` | `DISPOSABLE_INSTANCE` | `VALIDATED` |
@@ -212,17 +213,16 @@ Die Zeitangaben hier sind die von GitHub gelieferten UTC-Erstellungszeiten (`cre
 
 Die vollständigen Phasen-, Ressourcen-, Evidenz-, Quellen- und Cleanup-Verträge stehen in den jeweiligen Demo-README-Dateien. Die datierten Abnahmenachweise je Demo sind in der Runtime-Tabelle oben verlinkt.
 
-## Vorgeschlagene Erweiterung – Graph Tables
+## Begrenzte Runtime-Qualifikation – Graph Tables
 
 `QRY-023` – gerichtete Zwei-Kanten-Pfade mit Graph Tables und relationalen
-Joins – ist `PROPOSED` und dem bestehenden `LO-M03-06` / `CLM-047` zugeordnet.
-Die ausführbaren Skripte und der vorgeschlagene isolierte FWK-010-Aufrufer sind
-implementiert. Die festgeschriebenen SQL-Server-2019/2022/2025-Builds bestanden
-die vollständigen Lifecycle- und Negativprüfungen; ein zusätzlicher
-cgroup-v2-Schnitt erfasste je Engine eine Ressourcenstichprobe. QRY-023 ist
-weiterhin nicht in den allgemeinen Runtimekatalog aufgenommen. Eine
-allgemeine Produkt-/Runtimeaufnahme und Performanceempfehlung sind damit nicht
-behauptet. [Vertrag und offene Gates](../Project_Planning/GRAPH_TABLES_DEMO_CONCEPT.md).
+Joins – ist für `LO-M03-06` / `CLM-047` als `YELLOW` katalogisiert. Die drei
+gepinnten SQL-Server-Builds bestanden den vollständigen isolierten Lifecycle
+samt Rechte-, Negativ- und Cleanupprüfungen; eine zusätzliche Ressourcenerfassung
+ist dokumentiert. Das ist eine begrenzte Qualifikation der synthetischen Demo,
+keine allgemeine Produkt- oder Performanceaussage. Ausführung und sichere
+Voraussetzungen stehen in der [Demo-README](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md)
+und im [zentralen Leitfaden](../HowTo/DEMO_EXECUTION_GUIDE.md).
 
 ## Lokale KI-Demos – Implementierung vom 2026-10-11
 

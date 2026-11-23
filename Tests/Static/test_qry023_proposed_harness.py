@@ -29,9 +29,9 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                      self.root / "Documentation/Project_Planning/GRAPH_TABLES_BUILD_EDITION_REVIEW.md")
         shutil.copy2(validator.PUBLIC_SYSTEM_SELECT_BASELINE,
                      self.root / "Documentation/Project_Planning/QRY023_PUBLIC_SYSTEM_OBJECT_BASELINE.json")
-        workflow = self.root / ".github/workflows/qry023-proposed-runtime.yml"
+        workflow = self.root / ".github/workflows/qry023-runtime-qualification.yml"
         workflow.parent.mkdir(parents=True)
-        shutil.copy2(validator.ROOT / ".github/workflows/qry023-proposed-runtime.yml", workflow)
+        shutil.copy2(validator.ROOT / ".github/workflows/qry023-runtime-qualification.yml", workflow)
         framework_sql = self.root / "Demos/00_Framework/Sql/FWK_Measurement.sql"
         framework_sql.parent.mkdir(parents=True)
         shutil.copy2(validator.ROOT / "Demos/00_Framework/Sql/FWK_Measurement.sql", framework_sql)
@@ -43,7 +43,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertEqual(self.errors(), [])
 
     def test_runtime_matrix_must_be_resolved_from_the_image_lock(self) -> None:
-        path = self.root / ".github/workflows/qry023-proposed-runtime.yml"
+        path = self.root / ".github/workflows/qry023-runtime-qualification.yml"
         source = path.read_text(encoding="utf-8")
         changed = source.replace(
             "matrix: ${{ fromJSON(needs.image_lock.outputs.matrix) }}",
@@ -56,7 +56,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                             for error in self.errors()))
 
     def test_image_lock_rejects_duplicate_major(self) -> None:
-        workflow = (validator.ROOT / ".github/workflows/qry023-proposed-runtime.yml")
+        workflow = (validator.ROOT / ".github/workflows/qry023-runtime-qualification.yml")
         source = workflow.read_text(encoding="utf-8")
         lock = validator.json.loads(
             (validator.DEMO / "container-images.proposed.json").read_text(encoding="utf-8")
@@ -67,7 +67,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertFalse(validator.runtime_matrix_matches_image_lock(source, duplicate))
 
     def test_admin_inventory_phase_is_required_and_uses_admin_profile(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         phase = next(item for item in manifest["phases"] if item["id"] == "ADMIN_PERMISSION_INVENTORY")
         phase["credential_profile"] = "READER"
@@ -176,21 +176,21 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("workload must grant READER only the exact declared" in error for error in self.errors()))
 
     def test_reader_baseline_marks_admin_inventory_as_partial_and_unqualified(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["reader_baseline_contract"]["implementation_status"] = "DESIGN_ONLY_NOT_IMPLEMENTED"
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
         self.assertTrue(any("isolated READER baseline, inventory" in error for error in self.errors()))
 
     def test_reader_baseline_must_keep_single_run_database_inventory(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["reader_baseline_contract"]["user_database_inventory_after_setup"] = "ANY_DATABASES"
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
         self.assertTrue(any("isolated READER baseline, inventory" in error for error in self.errors()))
 
     def test_reader_baseline_must_reject_unapproved_server_permissions(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["reader_baseline_contract"]["conditionally_tolerated_public_permissions"].append("CONTROL SERVER")
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
@@ -276,7 +276,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                             for error in self.errors()))
 
     def test_reader_permission_contract_rejects_extra_database_permission(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["reader_permission_expectation_contract"]["database_permissions"].append("CONTROL")
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
@@ -284,7 +284,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                             for error in self.errors()))
 
     def test_reader_permission_contract_keeps_documented_public_database_baseline(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["reader_permission_expectation_contract"]["database_permissions"].remove(
             "VIEW ANY COLUMN MASTER KEY DEFINITION")
@@ -293,7 +293,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                             for error in self.errors()))
 
     def test_reader_permission_contract_limits_public_system_baseline_to_system_objects(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["reader_permission_expectation_contract"]["database_public_system_object_baseline"]["object_scope"] = "ALL_OBJECTS"
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
@@ -301,7 +301,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                             for error in self.errors()))
 
     def test_reader_permission_contract_requires_exact_versioned_public_system_baseline(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         baseline = manifest["reader_permission_expectation_contract"]["database_public_system_object_baseline"]
         baseline["status"] = "DOCUMENTED_SQL_SERVER_DEFAULT"
@@ -310,7 +310,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                             for error in self.errors()))
 
     def test_reader_permission_contract_requires_complete_object_inventory(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         del manifest["reader_permission_expectation_contract"]["object_permissions"]["lab.USP_EndMeasurement"]
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
@@ -318,7 +318,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                             for error in self.errors()))
 
     def test_reader_permission_contract_rejects_runtime_derived_expectations(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["reader_permission_expectation_contract"]["runtime_derived_expectations"] = "ALLOW"
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
@@ -326,15 +326,19 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                             for error in self.errors()))
 
     def test_reader_baseline_must_bind_permission_sources(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["reader_baseline_contract"]["server_permission_sources"]["VIEW ANY DATABASE"] = ["READER_LOGIN"]
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
         self.assertTrue(any("isolated READER baseline, inventory" in error for error in self.errors()))
 
-    def test_catalog_manifest_is_rejected(self) -> None:
-        (self.demo / "manifest.json").write_text("{}", encoding="utf-8")
-        self.assertTrue(any("catalog manifest.json" in error for error in self.errors()))
+    def test_runtime_authorization_must_be_explicit_and_scoped(self) -> None:
+        path = self.demo / "manifest.json"
+        manifest = validator.json.loads(path.read_text(encoding="utf-8"))
+        manifest["admin_permission_inventory_contract"]["runtime_authorization_scope"] = "ALL_SQL_SERVER_BUILDS"
+        path.write_text(validator.json.dumps(manifest), encoding="utf-8")
+        self.assertTrue(any("DEC-085 and the exact three-build disposable runtime scope" in error
+                            for error in self.errors()))
 
     def test_readme_must_keep_the_caller_side_sqlcmd_input_gate(self) -> None:
         path = self.demo / "README.md"
@@ -354,14 +358,14 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                             for error in self.errors()))
 
     def test_missing_required_cleanup_phase_is_rejected(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["cleanup"]["required"] = False
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
         self.assertTrue(any("cleanup must be required" in error for error in self.errors()))
 
     def test_phase_script_and_database_bindings_are_exact(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["phases"][1]["script"] = "00_Preflight.sql"
         manifest["phases"][2]["database"] = "master"
@@ -371,14 +375,14 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                             for error in self.errors()))
 
     def test_malformed_phase_record_fails_without_crashing(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["phases"][0] = "PREFLIGHT"
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
         self.assertTrue(any("phase must be an object" in error for error in self.errors()))
 
     def test_run_and_cleanup_budgets_are_exact(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["timeout_seconds"] = 901
         manifest["cleanup"]["database"] = "target"
@@ -388,7 +392,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("in master with a 90-second timeout" in error for error in errors))
 
     def test_sqlcmd_input_contract_must_validate_before_expansion(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["sqlcmd_input_validation"]["must_validate_before"] = "TSQL_GUARD"
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
@@ -396,7 +400,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                             for error in self.errors()))
 
     def test_sqlcmd_input_contract_must_bind_run_token_pattern(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["sqlcmd_input_validation"]["run_token"]["allowed_characters"] = "A-Z0-9_-"
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
@@ -404,7 +408,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                             for error in self.errors()))
 
     def test_manifest_run_token_must_satisfy_caller_contract(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         for token in ("_LOCAL", "A" * 21, "Ä", "A "):
             with self.subTest(token=token):
                 manifest = validator.json.loads(path.read_text(encoding="utf-8"))
@@ -414,7 +418,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                                     for error in self.errors()))
 
     def test_non_object_manifest_fails_without_crashing(self) -> None:
-        (self.demo / "manifest.proposed.json").write_text("[]", encoding="utf-8")
+        (self.demo / "manifest.json").write_text("[]", encoding="utf-8")
         self.assertIn("proposed manifest root must be an object", self.errors())
 
     def test_cleanup_without_run_token_marker_is_rejected(self) -> None:
@@ -579,7 +583,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
         self.assertTrue(any("SQLCMDMAXVARTYPEWIDTH to unlimited" in error for error in self.errors()))
 
     def test_phase_identity_mapping_is_bound_to_the_privilege_matrix(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["phases"][5]["credential_profile"] = "ADMIN"
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")
@@ -587,7 +591,7 @@ class Qry023ProposedHarnessTests(unittest.TestCase):
                             for error in self.errors()))
 
     def test_phase_identity_does_not_close_server_privilege_qualification(self) -> None:
-        path = self.demo / "manifest.proposed.json"
+        path = self.demo / "manifest.json"
         manifest = validator.json.loads(path.read_text(encoding="utf-8"))
         manifest["authorization_contract"]["gate_status"] = "PASS"
         path.write_text(validator.json.dumps(manifest), encoding="utf-8")

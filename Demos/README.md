@@ -4,11 +4,11 @@ Die Demos folgen [`.ai/DEMO_CONTRACT.md`](../.ai/DEMO_CONTRACT.md). Maßgeblich 
 
 ## Einstieg ohne Repository-Vorwissen
 
-1. Wählen Sie eine der 26 runtimevalidierten Demos im [Demo-Katalog](../Documentation/Demo_Catalog/README.md). IDX-007 ist als gelbe, manifestbasierte Live-Demo für die qualifizierten SQL-Server-Builds 2019, 2022 und 2025 verfügbar.
+1. Wählen Sie eine der 27 runtimevalidierten Demos im [Demo-Katalog](../Documentation/Demo_Catalog/README.md). IDX-007 ist als gelbe, manifestbasierte Live-Demo für die qualifizierten SQL-Server-Builds 2019, 2022 und 2025 verfügbar.
 2. Lesen Sie die verlinkte Demo-README für Lernziel, Rechte, Ressourcen und erwartete Beobachtung.
 3. Folgen Sie dem [zentralen Ausführungsleitfaden](../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md): Instanz und Arbeitsplatz vorbereiten, Manifest ausführen, Ergebnis einordnen und Cleanup prüfen. Ohne vorhandenen SQL Server beginnt der unterstützende Bereitstellungspfad im [Container-Quickstart](../Documentation/HowTo/CONTAINER_QUICKSTART.md).
 
-`QRY-006` (NULL bei NOT IN und NOT EXISTS) ist für die dokumentierte Linux-/Docker-Matrix ebenfalls runtimevalidiert; eine SQL_Server_Lab-Szenariopromotion ist darin nicht enthalten. Die Teilmanifeste von `DGN-007` (zeitabhängige Regression eines Suchworkloads) sind Entwicklungsschnitte und keine freigegebene vollständige Schulungsdemo. Eine vorhandene Datei allein begründet keine Schulungsfreigabe.
+`QRY-023` (SQL Graph Tables und relationale Pfadabfrage) ist als begrenzte YELLOW-Demo für drei gepinnte Builds katalogisiert; sie benötigt einen frischen Container und die ausdrückliche Bestätigung. `QRY-006` (NULL bei NOT IN und NOT EXISTS) ist für die dokumentierte Linux-/Docker-Matrix ebenfalls runtimevalidiert; eine SQL_Server_Lab-Szenariopromotion ist darin nicht enthalten. Die Teilmanifeste von `DGN-007` (zeitabhängige Regression eines Suchworkloads) sind Entwicklungsschnitte und keine freigegebene vollständige Schulungsdemo. Eine vorhandene Datei allein begründet keine Schulungsfreigabe.
 
 Die konkrete Schritt-für-Schritt-Ausführung aller freigegebenen Demos steht in
 [Ausführungsleitfaden für die katalogisierten Demos](../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md).
@@ -26,7 +26,7 @@ Sicherheitsbestätigung, die erwarteten Ausgaben sowie Cleanup und Recovery.
 | `04_Optimizer_Statistics_Plans/` | `OPT-002` (Statistiken lesen)<br>`OPT-003` (Stichproben und ungleiche Datenverteilung)<br>`OPT-005` (Wachsende Schlüssel und Statistikpflege)<br>`OPT-007` (Begrenzte Ad-hoc-Cachebelegung und Planwiederverwendung)<br>`OPT-009` (Parametersensitive Planoptimierung)<br>`OPT-010` (Planoptimierung für optionale Parameter)<br>`OPT-013` (Sortieren mit zu wenig Arbeitsspeicher)<br>`OPT-015` (Ausführungspläne systematisch lesen)<br>`OPT-016` (Wiederholte Operatorausführung und Zwischenspeicherung)<br>`OPT-017` (Ungleich verteilte parallele Arbeit) |
 | [`04_Rowstore_Columnstore/`](04_Rowstore_Columnstore/README.md) | `IDX-006` (Seitenaufteilungen und Seitenbelegung)<br>`IDX-007` (Einfügungen an einer heißen letzten Indexseite)<br>`IDX-010` (Columnstore-Segmente gezielt überspringen) |
 | `05_Concurrency_Isolation_TempDB/` | `CON-009` (Kosten in tempdb unterscheiden); Blocking und Deadlock stehen unter `07_Concurrency/` |
-| `05_Query_Patterns/` | `QRY-001` (Indexfreundliche Suchbedingungen)<br>`QRY-004` (Optionale Filter, Recompile und dynamisches SQL)<br>`QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell)<br>`QRY-006` (NULL-Semantik von `NOT IN` und `NOT EXISTS`; runtimevalidiert) |
+| `05_Query_Patterns/` | `QRY-001` (Indexfreundliche Suchbedingungen)<br>`QRY-004` (Optionale Filter, Recompile und dynamisches SQL)<br>`QRY-013` (Anwendung langsam, Verwaltungswerkzeug schnell)<br>`QRY-006` (NULL-Semantik von `NOT IN` und `NOT EXISTS`; runtimevalidiert)<br>`QRY-023` (Graph Tables und relationale Pfadabfrage; YELLOW, drei gepinnte Builds) |
 | `06_CPU_Memory_IO_Waits/` | `RES-007` (Wartezeiten im richtigen Messbereich) |
 | `07_Concurrency/` | `CON-004` (Blockierungsketten verfolgen)<br>`CON-005` (Schemasperren trotz NOLOCK; begrenzter Schnitt validiert)<br>`CON-006` (Zyklische Sperrkonflikte erkennen) |
 | `07_Query_Store_Extended_Events/` | `DGN-003` (Abfragehistorie mit Query Store)<br>`DGN-005` (Gezielte Ereigniserfassung mit Extended Events); zusätzlich begrenzte Entwicklungsschnitte für `DGN-007` |

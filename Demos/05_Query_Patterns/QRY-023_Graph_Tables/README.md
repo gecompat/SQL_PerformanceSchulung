@@ -2,14 +2,38 @@
 
 | Merkmal | Wert |
 |---|---|
-| Status | `PROPOSED`; integrierter Codeentwurf mit statischer Vertragsprüfung, ScriptDom-Grammatikparse und automatischer Enginequalifikation auf den drei festgeschriebenen SQL-Server-Builds; nicht katalogisiert |
+| Status | `VALIDATED` für die drei gepinnten Buildprofile; als `YELLOW`-Demo katalogisiert, ausschließlich für frische Wegwerfinstanzen mit den dokumentierten Grenzen |
 | Sicherheitsstufe | `YELLOW` |
 | Lernziel | `LO-M03-06` / `CLM-047` |
 | Daten | ausschließlich synthetisch; 10.000 disjunkte Zwei-Kanten-Pfade plus kleines Korrektheitsoracle |
 | Profile | Linux/AMD64-Images: SQL Server 2019/150, Build 15.0.4500.2; 2022/160, Build 16.0.4305.5; 2025/170, Build 17.0.5035.5; festgeschriebene und automatisiert qualifizierte Profile |
-| Hostressourcen | Vorschlag: x86-64, 2 Kerne mit mindestens 2 GHz, 8 GiB RAM und 20 GiB freier Speicher; nicht empirisch qualifiziert |
-| Containergrenze | Vorschlag: höchstens 2 CPU-Kerne, 4.096 MiB Speicher, SQL-Server-Limit 3.072 MiB; 900 Sekunden Lauf-/90 Sekunden Cleanupbudget |
+| Hostressourcen | Mindestprofil: x86-64, 2 Kerne mit mindestens 2 GHz, 8 GiB RAM und 20 GiB freier Speicher; Hostressourcen werden vor dem Start geprüft |
+| Containergrenze | Qualifiziertes Profil: höchstens 2 CPU-Kerne, 4.096 MiB Speicher, SQL-Server-Limit 3.072 MiB; 900 Sekunden Lauf-/90 Sekunden Cleanupbudget |
 | Runtime | automatisierter isolierter End-to-End-Lauf auf SQL Server 2019/2022/2025 bestanden; fünf synthetische Messpaare je Engine, keine Performanceaussage und keine menschliche Generalprobe |
+
+## Schritt-für-Schritt-Anleitung
+
+Die Demo ist manifestbasiert und verwendet ausschließlich eine frische, dedizierte Wegwerfinstanz. Der gelbe Sicherheitsvertrag verlangt `--confirm-isolated-lab`; die Datenbank wird ausschließlich markergebunden entfernt. Erstellen Sie einen Container aus einem der drei Digest-Images im [Image-Lock](container-images.proposed.json) mit höchstens 2 CPUs, 4 GiB Containerspeicher und 3.072 MiB SQL-Server-Speicher. Veröffentlichen Sie keinen Port.
+
+Provisionieren Sie den separaten READER-Login nur in diesem frischen Container. Vom Repository-Stamm in PowerShell:
+
+```powershell
+$env:SQLPERF_SQL_CONTAINER = '<container-name>'
+$env:SQLPERF_SQL_PASSWORD_ADMIN = '<wegwerfpasswort>'
+$env:SQLPERF_SQL_PASSWORD_READER = '<separates-wegwerfpasswort>'
+$env:SQLCMDPASSWORD = $env:SQLPERF_SQL_PASSWORD_ADMIN
+python Tests/Runtime/provision_qry023_reader_login.py
+Remove-Item Env:SQLCMDPASSWORD
+$env:SQLPERF_SQL_USERNAME_ADMIN = 'sa'
+$env:SQLPERF_SQL_USERNAME_READER = 'READER'
+python Demos/00_Framework/Tools/run_demo.py `
+  Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json `
+  --auth sql --username sa `
+  --sqlcmd Tests/Runtime/qry023_docker_sqlcmd_proxy.py `
+  --confirm-isolated-lab
+```
+
+Kontrollieren Sie `SQLPERF_SUMMARY` und den Cleanupstatus. Nach Erfolg entfernen Sie den Wegwerfcontainer; bei fehlgeschlagener Ownershipprüfung oder Cleanup erhalten Sie die markierte Datenbank zur Untersuchung. Das vollständige Lernziel, die Grenzen und der erwartete Ablauf stehen im [zentralen Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md#qry-023-isolierten-container-und-lauf-vorbereiten).
 
 ## Zweck
 
@@ -19,7 +43,7 @@ erwarteten Tupel `(1,2,5)` und `(1,3,5)`. Das Messprofil vergleicht danach
 10.000 disjunkte Pfade mit identischem Dateninhalt. Der Umfang begründet keine
 allgemeine Empfehlung für Graph- oder relationale Speicherung.
 
-## Codeentwurf und vorgesehene Phasen
+## Phasen und Vertragsbestandteile
 
 | Phase | Datei | Aufgabe |
 |---|---|---|
@@ -34,23 +58,23 @@ allgemeine Empfehlung für Graph- oder relationale Speicherung.
 | Plan | `50_Plan_Evidence.sql` | separate Actual-Plan-Diagnostik; Planläufe fließen nicht in Messwerte ein; sqlcmd gibt variable XML-Datentypen für diese auf zwei Abfragen begrenzte Phase ungekürzt aus |
 | Cleanup | `90_Cleanup.sql` | Wegwerfdatenbank nur mit vollständigen Projekt-, Demo- und Run-Markern entfernen |
 
-Der Entwurf heißt `manifest.proposed.json`, damit er von den bestehenden
-Runtimekatalogen und automatischen Manifestmatrizen nicht als freigegebene
-Demo erkannt wird. `YELLOW` erfordert im FWK-010-Aufrufer eine ausdrückliche
-`--confirm-isolated-lab`-Bestätigung; das Manifest autorisiert selbst keinen
-Lauf.
+Das `manifest.json` bindet den begrenzten Lauf an die drei qualifizierten Buildprofile. `YELLOW` erfordert im FWK-010-Aufrufer eine ausdrückliche `--confirm-isolated-lab`-Bestätigung. Die Autorisierung gilt ausschließlich für diese Profile und Grenzen.
 
 `15_Framework.sql` bindet `Demos/00_Framework/Sql/FWK_Measurement.sql` per
 SQLCMD-`:r` ein. Der dokumentierte Harness-Aufruf startet deshalb aus dem
-Repository-Stamm. Das Manifest ist noch nicht in einen allgemeinen
-Ausführungspfad aufgenommen. Die Dateien bleiben `PROPOSED`; die isolierte technische
-Enginequalifikation ist für die drei festgeschriebenen Profile bestanden und
-ersetzt weder die menschliche Generalprobe noch eine Katalogfreigabe.
+Repository-Stamm. Die Demo ist in den Ausführungspfad aufgenommen und auf den drei festgeschriebenen Profilen technisch qualifiziert. Die Qualifikation begründet weder eine allgemeine Produkt-/Performanceaussage noch eine menschliche Generalprobe.
+
+## Historischer Entwurfs- und Qualifikationsstand bis 22. November 2026
+
+Dieser Abschnitt erhält Entwurfsentscheidungen und Nachweise vor `DEC-085`.
+Aussagen wie „vorgeschlagen“, „nicht katalogisiert“ und „nicht runtime-autorisiert“
+beschreiben den damaligen Stand; seit 23. November 2026 gilt die begrenzte
+Freigabe aus der Tabelle oben.
 
 ## Rechte und Grenzen
 
 Die Rechte werden nach Setup, Qualifikation, Abfrage, Messung und Cleanup
-getrennt. Das vorgeschlagene Manifest weist Setup/Installation `ADMIN`,
+getrennt. Das Manifest weist Setup/Installation `ADMIN`,
 Qualifikations-, Korrektheits-, Mess- und Planphasen `READER` sowie Cleanup
 `ADMIN` zu. Der FWK-010-Caller verwendet dafür unterschiedliche SQL-Logins
 und übergibt deren Kennwörter nur als `SQLCMDPASSWORD` an den Phasenprozess.
@@ -64,7 +88,7 @@ Gegenproben #566–#581 weisen konkrete Abweichungen fail-closed zurück. Das
 qualifiziert die konkrete, synthetische Wegwerfinstanz und die drei gepinnten
 Builds. Es ist keine allgemeine Deployment-/Produktfreigabe und behauptet nicht,
 dass diese Sollmenge für beliebige Umgebungen die minimal mögliche Rechtevergabe
-ist. Ownership Chain und Messprozedurpfad wurden im vorgeschlagenen isolierten
+ist. Ownership Chain und Messprozedurpfad wurden im isolierten
 Lauf tatsächlich über `READER` ausgeführt; `FWK-004` speichert dabei keine
 Abfragetexte oder Pläne, sondern Sessiondeltas. Fremde oder nicht vollständig
 markierte Ziele werden abgewiesen und nicht entfernt.
@@ -103,7 +127,7 @@ vor dem nächsten SQL-Aufruf. Die tatsächliche
 READER-Verbindung prüft anschließend `CONNECT` für jeden übergebenen Endpoint.
 Der READER braucht dafür keine Endpointmetadatensicht. Die tatsächlichen
 READER-Verbindungen bestanden auf allen drei festgeschriebenen Engine-Builds.
-`manifest.proposed.json` hält den Vorschlagsstatus getrennt; der Offlinevalidator
+`manifest.json` hält den begrenzten Freigabestatus fest; der Offlinevalidator
 allein führt keine Rechteprüfung aus. Ein expliziter Grant an READER oder `public` außerhalb des gebundenen
 Objektinventars wird bereits durch die ADMIN-Inventur abgelehnt; unbekannte
 Effektivrechte in allen geprüften Scopes blockieren den Lauf ebenfalls.
@@ -119,7 +143,7 @@ Objektinventar, Server-/Datenbankrechte (einschließlich direktem `VIEW ANY
 DATABASE`-GRANT und -DENY sowie `CONNECT SQL`-DENY), Endpointrechte und
 `securityadmin`-Mitgliedschaft samt Cleanup sind im [aktuellen
 Ausführungsstatus](../../../Documentation/Project_Planning/CURRENT_EXECUTION_STATUS.md)
-nach PR dokumentiert. QRY-023 bleibt dabei `PROPOSED` und nicht katalogisiert.
+nach PR dokumentiert. QRY-023 bleibt auf die begrenzte, synthetische Demo und die gepinnten Profile beschränkt.
 
 `DEC-084` schließt den konkreten Verbindungsfehler im Setup und in dessen
 Offline-Vertragsprüfung:
@@ -131,13 +155,13 @@ Reservierte FWK-010-SQLCMD-Variablennamen können nicht überschrieben werden.
 Namens- oder SID-Konflikte brechen fail-closed ab. Die Setup- und SID-Prüfung
 lief auf allen drei gepinnten SQL-Server-Engines erfolgreich durch.
 
-Der vorgeschlagene isolierte CI-Aufrufer legt den dafür benötigten `READER`-
+Der isolierte CI-Aufrufer legt den dafür benötigten `READER`-
 SQL-Login vor dem Harness einmalig in der frischen Wegwerfinstanz an. Das
 separate Passwort gelangt ausschließlich über SQLCMD-stdin und phasengebundene
 Umgebungsvariablen; es ist keine allgemeine Loginprovisionierung und ändert
 keine Serverrolle oder Zusatzberechtigung.
 
-Das Proposed-Manifest bindet jetzt zusätzlich eine versionierte
+Das Manifest bindet jetzt zusätzlich eine versionierte
 READER-Effektivrechte-Sollmenge für Server, ADMIN-inventarisierte
 Standardendpoints, Datenbank, `dbo`/`lab` und alle 13 erwarteten
 QRY-023-/FWK-004-Securables. Der Offlinevalidator schützt die exakte Vertragsform sowie Fail-closed Regeln
@@ -209,8 +233,7 @@ bestand nach jeder vorab ausgeführten Gegenprobe. Die unregistrierte
 `STOPPED`-TSQL-Endpoint-Gegenprobe läuft aus DEC-083-Gründen als letzte
 Instanzmutation nach dem positiven Zehnphasenlauf; der owner-markierte Endpoint
 wird entfernt, danach wird die Wegwerfinstanz gelöscht. Absichtlich beschädigte
-SQL-Kataloge wurden nicht ausgeführt. QRY-023 bleibt vorgeschlagen und nicht
-katalogisiert.
+SQL-Kataloge wurden nicht ausgeführt. QRY-023 ist seit DEC-085 für die drei gepinnten Builds katalogisiert.
 
 Der statische Harnessvalidator synchronisiert die direkten `dbo`-/`lab`-
 Objektreferenzen der als `READER` markierten Phasenskripte mit den
@@ -306,17 +329,16 @@ die Skriptstruktur vor Auswertung der Guards verändern. Ein künftiger Harness-
 Aufrufer muss Demo-ID, RunToken und Zielnamen vor dem SQLCMD-Aufruf exakt gegen
 den Vertrag allowlisten. Der vorhandene FWK-010-Caller `run_demo.py` prüft das
 `sqlcmd_input_validation`-Vertragsobjekt bereits beim Laden des Manifests,
-bevor SQLCMD aufgelöst oder gestartet wird. Die vorgeschlagene Demo ist aber
-weiterhin nicht katalogisiert oder zur Ausführung freigegeben.
-Die exakten Anforderungen sind im Feld `sqlcmd_input_validation` des
-vorgeschlagenen Manifests maschinenlesbar festgelegt und durch statische sowie
+bevor SQLCMD aufgelöst oder gestartet wird. Seit DEC-085 ist die Demo im
+begrenzten Umfang katalogisiert und zur Ausführung freigegeben. Die exakten
+Anforderungen sind im Feld `sqlcmd_input_validation` des Manifests maschinenlesbar festgelegt und durch statische sowie
 synthetische Caller-Tests geprüft. Das Feld allein führt keine Validierung aus.
 
 Der automatisierte QRY-023-Prüflauf wurde auf allen drei gepinnten Builds
 ausgeführt und bestanden. Der read-only Preflight akzeptiert
-für die vorgeschlagenen Linux-Imageprofile ausschließlich Builds `15.0.4500.2`,
+für die gepinnten Linux-Imageprofile ausschließlich Builds `15.0.4500.2`,
 `16.0.4305.5` und `17.0.5035.5`; die Setupphase prüft denselben Pin nochmals
-vor der Datenbankanlage. Das sind reproduzierbare Designpins, die gemäß dem
+vor der Datenbankanlage. Das sind reproduzierbare Buildpins, die gemäß dem
 Servicingquellencheck vom 12. November 2026 weiterhin aktuell sind, keine
 Graph-Mindestbuilds. Die
 Images werben diese Builds über `com.microsoft.version`. Die AMD64-Manifestdigests
@@ -338,7 +360,7 @@ nicht als T-SQL. Platzhalter werden nur im Parserprozess synthetisch ersetzt.
 Ein Parser-PASS ist keine Kompilierung gegen eine SQL-Server-Engine und belegt
 keine Objektbindung, Berechtigungen oder Laufzeitsemantik. Ein Offlinevalidator
 prüft zusätzlich Manifestphasen, Markerbindung, Workloadarithmetik,
-Ergebnisorakel, Messreihenfolge, Plantrennung und den Nicht-Katalogstatus.
+Ergebnisorakel, Messreihenfolge und Plantrennung.
 
 `DEC-079` genehmigt die Methodenbasis; `DEC-080` akzeptiert die acht
 ausführbaren T-SQL-Dateien nur für statische ScriptDom-Syntax 150/160/170;
@@ -346,22 +368,18 @@ ausführbaren T-SQL-Dateien nur für statische ScriptDom-Syntax 150/160/170;
 12.11.2026. `DEC-082` bestätigt am selben Tag die OCI-Manifest-/Konfigurations-
 digests und Produktlabels gegen den vorgeschlagenen Lock. Das belegt keinen
 gestarteten SQL-Server-Prozess.
-Vor einer Katalog- oder allgemeinen Runtimeaufnahme bleiben formale
-Produktabnahme und allgemeine Runtimefreigabe offen. Ein eigener vorgeschlagener
-CI-Aufrufer ist inzwischen integriert und auf den drei festgeschriebenen
-Engine-Builds ausgeführt; er verwendet begrenzte Wegwerfinstanzen und separate
-ADMIN-/READER-Anmeldungen. Das qualifiziert nur diesen isolierten Einzelrun-
-Pfad, nicht einen allgemeinen Runtimeworkflow oder eine Katalogaufnahme. Die
-menschliche Generalprobe bleibt wie beauftragt ausgeschlossen.
+Die DEC-085-Freigabe katalogisiert und autorisiert ausschließlich den dokumentierten
+Einzelrun-Pfad für diese Builds. Allgemeine Produkt- und Performanceaussagen
+sowie die menschliche Generalprobe bleiben ausgeschlossen.
 
-Der vorgeschlagene CI-Aufrufer begrenzt TempDB vor dem Datenbank-Setup auf
+Der CI-Aufrufer begrenzt TempDB vor dem Datenbank-Setup auf
 insgesamt höchstens 1 GiB und 64 MiB Wachstum je Schritt. Weil SQL Server nach
 der Loginbereitschaft noch Dateien materialisieren kann, konfiguriert der Guard
 den jeweils vollständigen beobachteten Dateisatz neu; er verlangt zwei
 aufeinanderfolgende stabile, begrenzte Beobachtungen innerhalb von höchstens
 16 Durchläufen. Bei weiter wechselndem Dateisatz bricht er vor dem Setup ab.
 
-Der Ressourcenrahmen steht als Vorschlag im `resources`-Abschnitt von
+Der Ressourcenrahmen ist als begrenztes Profil im `resources`-Abschnitt von
 [`container-images.proposed.json`](container-images.proposed.json). Er ist aus
 Microsofts Linux-Mindestanforderungen und der geforderten Trennung zwischen
 Container- und SQL-Server-Speichergrenze abgeleitet. Der vorgeschlagene
@@ -400,7 +418,7 @@ owner-markierten Container.
 - [ScriptDom-Grammatikprüfung](../../../Documentation/Project_Planning/GRAPH_TABLES_SCRIPTDOM_PARSER_REVIEW.md)
 - [Coverage-Prüfung des Proposed Harness](../../../Documentation/Project_Planning/QRY023_PROPOSED_HARNESS_REVIEW.md)
 - [Normative Laufgrenze und Entwurf der Effektivrechtequalifikation](../../../Documentation/Project_Planning/QRY023_EFFECTIVE_PERMISSION_DESIGN.md)
-- Vorgeschlagener unveränderlicher Image-Lock: [`container-images.proposed.json`](container-images.proposed.json). Der isolierte Qualifikationsworkflow erzeugt seine geordnete Matrix über `Tests/Runtime/qry023_image_matrix.py` direkt aus dem Lock. Der Resolver akzeptiert ausschließlich die drei festgelegten Versionen und Image-Digests und weist einen Statuswechsel oder `runtime_authorized: true` zurück. Das qualifiziert diesen begrenzten Workflow; allgemeine Runtime-/Katalogfreigabe bleibt offen.
+- Gepinnter Image-Lock: [`container-images.proposed.json`](container-images.proposed.json). Der isolierte Qualifikationsworkflow erzeugt seine geordnete Matrix über `Tests/Runtime/qry023_image_matrix.py` direkt aus dem Lock. Der Resolver akzeptiert ausschließlich die drei festgelegten Versionen und Image-Digests; der Lock selbst erteilt keine Runtimefreigabe. `DEC-085` autorisiert die drei Profile im begrenzten Workflow.
 - Framework: `FWK-002`, `FWK-003`, `FWK-004`, `FWK-005`, `FWK-008`, `FWK-010`, `FWK-011` und `FWK-012`.
 
 ### Erneute isolierte Qualifikation (21. November 2026)
@@ -412,7 +430,7 @@ Enginejobs. SQL Server 2019, 2022 und 2025 bestanden jeweils Hostressourcen-
 und TempDB-Gates, die vollständigen zehn FWK-010-Phasen, die Negativfälle für
 RunToken, Zielnamen, Demo-ID und unerwartete Effektivrechte sowie Timeout-
 Recovery. Alle Jobs entfernten ihre owner-markierten Wegwerfcontainer nach
-bestätigtem Cleanup erfolgreich. Damit ist die vorgeschlagene isolierte
+bestätigtem Cleanup erfolgreich. Damit ist die isolierte
 Qualifikationsroute auf den festgelegten Builds erneut bestätigt. Der Lauf
 misst keine tatsächliche Anwendungsressourcennutzung oder Performance; QRY-023
 bleibt `PROPOSED`, nicht katalogisiert und `runtime_authorized: false`.

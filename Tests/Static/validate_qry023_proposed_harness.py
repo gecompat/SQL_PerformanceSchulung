@@ -66,7 +66,7 @@ EXPECTED_EXECUTION_SAFETY_CONTRACT = {
         "PHASE_OR_GLOBAL_TIMEOUT",
         "CTRL_C",
     ],
-    "enforcement_status": "PROPOSED_ISOLATED_CI_CALLER_NOT_GENERAL_RUNTIME_AUTHORIZED",
+    "enforcement_status": "VALIDATED_SCOPED_DISPOSABLE_PROFILE",
     "forced_abort_residual_state": (
         "The marked target database may contain partial synthetic objects; connection-cancel completion "
         "and TempDB release are not established. Preserve the target if exact ownership checks or cleanup fail."
@@ -93,12 +93,12 @@ EXPECTED_READER_BASELINE_CONTRACT = {
     "explicit_grant_deny_inventory": "ADMIN_REQUIRED",
     "unknown_or_unavailable_inventory": "NOT_PROVEN",
     "server_or_public_permission_mutation": "FORBIDDEN",
-    "implementation_status": "ADMIN_INVENTORY_AND_READER_PERMISSION_SET_IMPLEMENTED_OFFLINE_NOT_ENGINE_QUALIFIED",
+    "implementation_status": "ADMIN_INVENTORY_AND_READER_PERMISSION_SET_ENGINE_QUALIFIED_PINNED_BUILDS",
 }
 EXPECTED_SQLCMD_IDENTITY_VARIABLES = {"ReaderLogin": "READER"}
 EXPECTED_READER_PERMISSION_EXPECTATION_CONTRACT = {
     "version": "1.0",
-    "status": "IMPLEMENTED_OFFLINE_NOT_ENGINE_QUALIFIED",
+    "status": "ENGINE_QUALIFIED_PINNED_BUILDS",
     "evaluation_identity": "ACTUAL_READER_CONNECTION",
     "captured_classes": ["SERVER", "ENDPOINT", "DATABASE", "SCHEMA", "OBJECT"],
     "tuple_fields": ["context_class", "context_name", "permission_name"],
@@ -125,7 +125,7 @@ EXPECTED_READER_PERMISSION_EXPECTATION_CONTRACT = {
         "application_objects": "FORBIDDEN",
         "artifact": "Documentation/Project_Planning/QRY023_PUBLIC_SYSTEM_OBJECT_BASELINE.json",
         "exact_default_object_inventory": "BUILD_PINNED_COUNT_AND_SHA256_CANONICAL",
-        "status": "CAPTURED_FOR_PINNED_BUILDS; FULL_QRY023_ENGINE_QUALIFICATION_OPEN",
+        "status": "QUALIFIED_FOR_PINNED_BUILDS",
     },
     "schema_permissions": {"dbo": [], "lab": []},
     "object_permissions": {
@@ -150,7 +150,7 @@ EXPECTED_READER_PERMISSION_EXPECTATION_CONTRACT = {
 }
 EXPECTED_ADMIN_PERMISSION_INVENTORY_CONTRACT = {
     "version": "1.0",
-    "status": "ENGINE_QUALIFIED_PROPOSED_NOT_RUNTIME_AUTHORIZED",
+    "status": "VALIDATED_PINNED_BUILD_PROFILES",
     "phase": "ADMIN_PERMISSION_INVENTORY",
     "context": "EXACT_MARKED_TARGET_DATABASE",
     "metadata_visibility": "VERSIONED_REQUIRED_PERMISSIONS_FAIL_CLOSED",
@@ -182,7 +182,8 @@ EXPECTED_ADMIN_PERMISSION_INVENTORY_CONTRACT = {
     "public_system_object_select": EXPECTED_PUBLIC_SYSTEM_SELECT_CONTRACT,
     "unknown_or_unavailable_inventory": "FAIL_NOT_PROVEN",
     "permission_mutation": "FORBIDDEN",
-    "runtime_authorized": False,
+    "runtime_authorized": True,
+    "runtime_authorization_scope": "ONLY_THE_THREE_PINNED_LINUX_AMD64_SQL_SERVER_BUILDS_WITHIN_THE_DOCUMENTED_DISPOSABLE_RESOURCE_PROFILE",
 }
 EXPECTED_AUTHORIZATION_CONTRACT = {
     "phase_privileges": {
@@ -192,7 +193,7 @@ EXPECTED_AUTHORIZATION_CONTRACT = {
     },
     "current_fwk010_mode": "PHASE_SPECIFIC_SQL_AUTH_PROFILE",
     "phase_identity_enforced": True,
-    "gate_status": "OPEN_UNTIL_PRODUCT_AND_GENERAL_RUNTIME_AUTHORIZATION",
+    "gate_status": "CLEARED_FOR_PINNED_BUILDS_ONLY_NO_GENERAL_PRODUCT_OR_PERFORMANCE_CLAIM",
 }
 RUN_TOKEN_PATTERN = re.compile(r"[A-Z0-9][A-Z0-9_]{0,19}")
 COUNT_BIG_QUERY_PATTERN = re.compile(
@@ -804,8 +805,7 @@ def preflight_target_derivation_valid(preflight: str) -> bool:
 
 def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     errors: list[str] = []
-    proposed_manifest = demo / "manifest.proposed.json"
-    catalog_manifest = demo / "manifest.json"
+    proposed_manifest = demo / "manifest.json"
     try:
         manifest = json.loads(proposed_manifest.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -813,8 +813,12 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     if type(manifest) is not dict:
         return ["proposed manifest root must be an object"]
 
-    require(not catalog_manifest.exists(), "QRY-023 must not have a catalog manifest.json", errors)
-    require(manifest.get("demo_id") == "QRY-023", "proposed manifest must identify QRY-023", errors)
+    require(manifest.get("demo_id") == "QRY-023", "manifest must identify QRY-023", errors)
+    baseline = manifest.get("admin_permission_inventory_contract", {})
+    require(baseline.get("runtime_authorized") is True
+            and baseline.get("runtime_authorization_scope") == "ONLY_THE_THREE_PINNED_LINUX_AMD64_SQL_SERVER_BUILDS_WITHIN_THE_DOCUMENTED_DISPOSABLE_RESOURCE_PROFILE"
+            and manifest.get("runtime_authorization_decision") == "DEC-085",
+            "manifest must bind DEC-085 and the exact three-build disposable runtime scope", errors)
     require(manifest.get("contract_version") == "1.0", "proposed manifest contract version must be 1.0", errors)
     require(manifest.get("safety_level") == "YELLOW", "proposed manifest must retain YELLOW", errors)
     require(manifest.get("execution_safety_contract") == EXPECTED_EXECUTION_SAFETY_CONTRACT,
@@ -1019,7 +1023,7 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     }
     require(isinstance(image_profiles, list) and len(image_profiles) == 3,
             "image lock must declare exactly three product profiles", errors)
-    runtime_workflow_path = repository / ".github/workflows/qry023-proposed-runtime.yml"
+    runtime_workflow_path = repository / ".github/workflows/qry023-runtime-qualification.yml"
     try:
         runtime_workflow = runtime_workflow_path.read_text(encoding="utf-8")
     except OSError as exc:
@@ -1175,8 +1179,10 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
     require("sqlperf.project" in cleanup_sql and "sqlperf.contractversion" in cleanup_sql
             and "sqlperf.demoid" in cleanup_sql and "sqlperf.runtoken" in cleanup_sql,
             "database removal must verify all exact ownership markers", errors)
-    require("proposed" in readme and "not" in readme and "katalog" in readme,
-            "README must explain non-catalogued proposed status", errors)
+    current_status = readme.split("## zweck", 1)[0]
+    require("validated" in current_status and "drei gepinnten buildprofile" in current_status
+            and "nicht katalogisiert" not in current_status,
+            "README must explain the validated, bounded three-build status", errors)
     require("enginequalifikation" in readme
             and "2019/2022/2025 bestanden" in readme
             and "menschliche generalprobe" in readme,
@@ -1203,7 +1209,10 @@ def validate(demo: Path = DEMO, repository: Path = ROOT) -> list[str]:
         except OSError as exc:
             errors.append(f"Cannot read runtime catalog {relative}: {exc}")
             continue
-        require('"qry-023"' not in text, f"QRY-023 must not be registered in {relative}", errors)
+        if relative.endswith("demo_execution_paths.json"):
+            require('"qry-023"' in text, f"QRY-023 must be registered in {relative}", errors)
+        else:
+            require('"demoid": "qry-023"' in text, "QRY-023 must be represented in the discovered SQL_Server_Lab matrix", errors)
     return errors
 
 
@@ -1213,7 +1222,7 @@ def main() -> int:
         for error in errors:
             print(f"FAIL QRY-023: {error}")
         return 1
-    print("PASS QRY-023 proposed harness static contract (no SQL execution)")
+    print("PASS QRY-023 bounded runtime contract (no SQL execution)")
     return 0
 
 

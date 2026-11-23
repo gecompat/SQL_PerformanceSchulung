@@ -1,4 +1,4 @@
-name: QRY-023 proposed isolated runtime
+name: QRY-023 isolated runtime qualification
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ on:
       - 'Tests/Runtime/provision_qry023_reader_login.py'
       - 'Tests/Runtime/qry023_*'
       - 'Tests/Static/*qry023*'
-      - '.github/workflows/qry023-proposed-runtime.yml'
+      - '.github/workflows/qry023-runtime-qualification.yml'
   push:
     branches: [main]
     paths:
@@ -19,14 +19,14 @@ on:
       - 'Tests/Runtime/provision_qry023_reader_login.py'
       - 'Tests/Runtime/qry023_*'
       - 'Tests/Static/*qry023*'
-      - '.github/workflows/qry023-proposed-runtime.yml'
+      - '.github/workflows/qry023-runtime-qualification.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: qry023-proposed-runtime-${{ github.ref }}
+  group: qry023-runtime-qualification-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -177,7 +177,7 @@ jobs:
           echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -211,7 +211,7 @@ jobs:
           echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -245,7 +245,7 @@ jobs:
           echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -279,7 +279,7 @@ jobs:
           echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -311,7 +311,7 @@ jobs:
           echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -337,7 +337,7 @@ jobs:
           echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -367,7 +367,7 @@ jobs:
           echo "QRY023_SERVER_ROLE_ATTEMPTED=1" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -414,7 +414,7 @@ jobs:
           echo 'QRY023_SECURITYADMIN_ROLE_ATTEMPTED=0' >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -464,7 +464,7 @@ jobs:
           echo "QRY023_SERVER_PERMISSION_ATTEMPTED=1" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -511,7 +511,7 @@ jobs:
           echo "QRY023_SERVER_PERMISSION_DENY_ATTEMPTED=1" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -558,7 +558,7 @@ jobs:
           echo "QRY023_VIEW_ANY_DATABASE_ATTEMPTED=1" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -605,7 +605,7 @@ jobs:
           echo "QRY023_VIEW_ANY_DATABASE_DENY_ATTEMPTED=1" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -652,7 +652,7 @@ jobs:
           echo 'QRY023_CONNECT_SQL_DENY_ATTEMPTED=0' >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -699,7 +699,7 @@ jobs:
           echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -728,7 +728,7 @@ jobs:
           echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -758,7 +758,7 @@ jobs:
           echo 'QRY023_ENDPOINT_PERMISSION_GRANTED=0' >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -806,7 +806,7 @@ jobs:
           echo 'QRY023_ENDPOINT_PERMISSION_DENY_GRANTED=0' >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -853,7 +853,7 @@ jobs:
           echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -876,7 +876,7 @@ jobs:
           echo "QRY023_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_docker_sqlcmd_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
@@ -893,7 +893,7 @@ jobs:
           timeout_script="$demo_dir/.qry023_timeout_probe.sql"
           log="$RUNNER_TEMP/qry023-timeout-cleanup-${{ matrix.major }}.log"
           echo "QRY023_TIMEOUT_HARNESS_LOG=${log}" >> "$GITHUB_ENV"
-          python - "$demo_dir/manifest.proposed.json" "$timeout_manifest" <<'PY'
+          python - "$demo_dir/manifest.json" "$timeout_manifest" <<'PY'
           import json
           import sys
           from pathlib import Path
@@ -1028,7 +1028,7 @@ jobs:
           echo 'QRY023_CUSTOM_ENDPOINT_CREATED=0' >> "$GITHUB_ENV"
           set +e
           python Demos/00_Framework/Tools/run_demo.py \
-            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json \
+            Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json \
             --server localhost --auth sql --username sa \
             --sqlcmd Tests/Runtime/qry023_negative_permission_proxy.py \
             --confirm-isolated-lab --show-output 2>&1 | tee "$log"
