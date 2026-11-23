@@ -120,6 +120,31 @@ Die Katalogprobe löst die möglichen Feldwerte über den Typnamen und die zugeh
 
 Die Probe bindet `sqlos.wait_info.opcode` an `Begin` (0) und `End` (1) aus der zugehörigen Map. `lock_acquired` und `lock_released` führen beide Datenbank-ID, Sperrmodus, Ressourcentyp, Ressourcenkennungen und die zuschaltbare `resource_description`. Das liefert eine weitere Möglichkeit zur Gegenprüfung der Besitzdauer. Ob die dynamische Compile-Sperre in beiden Ereignissen erscheint und sich mit `wait_resource_desc` auf dieselbe Ressource abbilden lässt, bleibt vor einer positiven Aussage empirisch zu klären.
 
+## Vollständigkeit der XE-Erfassung
+
+Der [Offline-Reader](../../Tests/Runtime/optsp_xe_snapshot.py) prüft die
+XML-Ausgabe eines Ringpuffers vor der Zuordnung einzelner Ereignisse. Er
+verwirft abgeschnittene Dokumente, verlorene oder verdrängte Ereignisse,
+noch ausstehende volle Puffer und doppelte Ereignisnummern.
+`package0.event_sequence` dient zur Zuordnung innerhalb derselben
+Aufzeichnung. Die Reihenfolge im XML und lückenlose Nummerierung sind
+keine Voraussetzungen. Die Zeitstempel bleiben mit bis zu sieben
+Nachkommastellen erhalten.
+[Microsoft Learn zu Ringpuffer und XML-Trunkierung](https://learn.microsoft.com/en-us/sql/relational-databases/extended-events/targets-for-extended-events-in-sql-server?view=sql-server-ver17)
+· [Microsoft Learn zu den Sitzungszählern](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-xe-sessions-transact-sql?view=azuresqldb-current)
+
+Der spätere Collector muss die Zähler derselben Sitzung und die
+XML-Ausgabe erfassen, nachdem alle beteiligten Requests abgeschlossen
+sind und bevor die Sitzung beendet wird. Ein leerer Zähler für
+ausstehende **volle** Puffer belegt allein keinen vollständigen
+Dispatch. Der Pilot muss die Terminalereignisse aller erwarteten
+Requests wiederfinden und die vollständige Erfassung auf dem
+festgeschriebenen Build prüfen, bevor er die Rohdaten verwirft.
+Die [synthetischen Regressionstests](../../Tests/Static/test_optsp_xe_snapshot.py)
+prüfen das Einlesen. Die zugehörige Zeitbasis und die semantische
+Zuordnung der Felder bleiben Gegenstand des Methodenreviews und des
+Engine-Piloten.
+
 ## Gates vor einer Implementierung
 
 - Unabhängiger Methodenreview bestätigt Buildbindung, Ereignis-/Feldvertrag, Auswertungsregeln, Statistikbehandlung, Sicherheitsklasse und Restore.

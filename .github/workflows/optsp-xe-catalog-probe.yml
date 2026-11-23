@@ -8,6 +8,8 @@ on:
       - 'Documentation/Research/SOURCE_REGISTER.md'
       - 'Tests/Runtime/optsp_xe_catalog_probe.sql'
       - 'Tests/Runtime/optsp_compile_evidence.py'
+      - 'Tests/Runtime/optsp_xe_snapshot.py'
+      - 'Tests/Static/test_optsp_xe_snapshot.py'
       - 'Tests/Static/test_optsp_compile_evidence.py'
       - 'Tests/Static/validate_optsp_xe_catalog_probe.py'
       - 'Tests/Static/test_optsp_xe_catalog_probe.py'
@@ -20,6 +22,8 @@ on:
       - 'Documentation/Research/SOURCE_REGISTER.md'
       - 'Tests/Runtime/optsp_xe_catalog_probe.sql'
       - 'Tests/Runtime/optsp_compile_evidence.py'
+      - 'Tests/Runtime/optsp_xe_snapshot.py'
+      - 'Tests/Static/test_optsp_xe_snapshot.py'
       - 'Tests/Static/test_optsp_compile_evidence.py'
       - 'Tests/Static/validate_optsp_xe_catalog_probe.py'
       - 'Tests/Static/test_optsp_xe_catalog_probe.py'
@@ -48,6 +52,9 @@ jobs:
         run: python Tests/Static/test_optsp_xe_catalog_probe.py
       - name: Run normalized compile evidence regressions
         run: python Tests/Static/test_optsp_compile_evidence.py
+
+      - name: Run XE snapshot regressions
+        run: python Tests/Static/test_optsp_xe_snapshot.py
 
   catalog-probe:
     needs: static
