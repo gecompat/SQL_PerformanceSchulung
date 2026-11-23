@@ -159,7 +159,8 @@ class DockerPilotTransport:
             target.database_name, index_evidence_batch(target), deadline,
             allowed_warning=CATALOG_JOIN_WARNING,
         )
-        return decode_index_evidence(payload, target)
+        # sqlcmd pads the nvarchar(max) JSON result to the configured -y width.
+        return decode_index_evidence(payload.strip(b" \r\n"), target)
 
     def capture_query(self, target: Target, sql: str, deadline: float) -> QueryCapture:
         self._require_target(target)

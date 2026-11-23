@@ -183,6 +183,19 @@ class DockerPilotTransportTests(TestCase):
                         with self.assertRaises(OSError):
                             _run(*args, allowed_warning=allow)
 
+    def test_catalog_capture_removes_only_outer_sqlcmd_padding(self):
+        transport = DockerPilotTransport()
+        transport._ready = True
+        transport._run_token = TARGET.run_token
+        receipt = b'{"test": "  content  "}'
+        with (
+            patch.object(transport, "_sql", return_value=receipt.ljust(4096) + b"\n") as sql,
+            patch("idx010_docker_transport.decode_index_evidence") as decode,
+        ):
+            transport.index_evidence(TARGET, monotonic() + 30)
+        self.assertEqual(sql.call_args.kwargs["allowed_warning"], CATALOG_JOIN_WARNING)
+        decode.assert_called_once_with(receipt, TARGET)
+
     def test_identity_reads_fixed_pages_in_primary_key_order(self):
         transport = DockerPilotTransport()
         transport._ready = True

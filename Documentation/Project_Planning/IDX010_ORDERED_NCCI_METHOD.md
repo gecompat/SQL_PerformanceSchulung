@@ -172,8 +172,10 @@ Katalogantwort bleiben auf dem Pilotbuild zu prüfen. Eine native
 Metadatendiagnose bestätigte für beide Varianten vier volle Rowgroups,
 Encoding 1 und nur eindeutige Grenzen. SQLCMD gab mit Exitcode 0 eine
 Join-Reihenfolgewarnung für die Katalogabfrage aus. Der Transport akzeptiert
-genau diese Warnung für die kataloggebundene Abfrage. Die Katalogwerte
-durchlaufen auch in diesem Fall die vollständige Prüfung.
+genau diese Warnung für die kataloggebundene Abfrage. SQLCMD füllt die
+JSON-Zeile mit Leerzeichen bis zur konfigurierten Breite auf. Der
+Transport entfernt diesen äußeren Füllraum. Die Katalogwerte durchlaufen
+danach die vollständige Größen-, Schema- und Inhaltsprüfung.
 
 Die synthetische Ladeformel wurde über alle 4.194.304 IDs ausgewertet.
 Der feste Abfragebereich enthält in den vier nach `EventId` definierten
