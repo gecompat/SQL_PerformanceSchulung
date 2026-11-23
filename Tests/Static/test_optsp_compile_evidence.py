@@ -6,7 +6,8 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from optsp_compile_evidence import (  # noqa: E402
-    ActorRequest, Arm, FirstCompile, Interval, LCK_M_X, LockHold, Request, ResourceKey, Wait, evaluate_arm,
+    ActorRequest, Arm, FirstCompile, Interval, LCK_M_X, LockHold,
+    Request, ResourceKey, TimeBounds, Wait, evaluate_arm,
 )
 
 
@@ -42,6 +43,45 @@ class CompileEvidenceTests(unittest.TestCase):
     def test_touching_compiles_do_not_prove_overlap_even_if_both_rpcs_overlap(self):
         later = replace(OFF.first_compiles[1], interval=Interval(9, 12))
         self.assert_unproven(replace(OFF, first_compiles=(FIRST, later)), "no_compile_overlap")
+
+    def test_off_overlap_must_survive_the_endpoint_uncertainty(self):
+        first = replace(FIRST, interval=Interval(4, TimeBounds(8, 9)))
+        ambiguous = replace(OFF.first_compiles[1], interval=Interval(TimeBounds(8, 9), 12))
+        self.assertTrue(first.interval.possibly_overlaps(ambiguous.interval))
+        self.assert_unproven(replace(OFF, first_compiles=(first, ambiguous)), "no_compile_overlap")
+
+        definite = replace(ambiguous, interval=Interval(TimeBounds(6, 7), 12))
+        self.assertEqual(evaluate_arm(replace(OFF, first_compiles=(first, definite))).status, "PROVEN")
+
+    def test_duration_start_bounds_do_not_assume_rounding_or_clock_alignment(self):
+        interval = Interval.from_end_and_duration(TimeBounds(100, 102), TimeBounds(5, 6))
+        self.assertEqual(interval, Interval(TimeBounds(94, 97), TimeBounds(100, 102)))
+        with self.assertRaises(ValueError):
+            Interval.from_end_and_duration(TimeBounds(100, 102), TimeBounds(-1, 1))
+        with self.assertRaises(ValueError):
+            TimeBounds(5, 4)
+
+    def test_on_timing_ambiguity_cannot_supply_a_missing_order(self):
+        earlier_completion = replace(REQUESTS[1], statement_completed_at=TimeBounds(8, 16))
+        self.assert_unproven(replace(ON, requests=(REQUESTS[0], earlier_completion)), "statement_plan_reuse")
+        uncertain_rpc = replace(REQUESTS[1], rpc=Interval(TimeBounds(2, 7), 19))
+        self.assert_unproven(replace(ON, requests=(REQUESTS[0], uncertain_rpc)), "no_bound_compile_wait")
+        wait_overlapping_start = replace(WAIT, interval=Interval(TimeBounds(3, 7), 10))
+        self.assert_unproven(replace(ON, waits=(wait_overlapping_start,)), "no_bound_compile_wait")
+        no_proven_hold = replace(HOLD, interval=Interval(TimeBounds(3, 7), 11))
+        self.assert_unproven(replace(ON, lock_holds=(no_proven_hold,)), "no_bound_compile_wait")
+
+    def test_on_excludes_possible_competing_ownership_but_accepts_a_proven_sequence(self):
+        compile_ = replace(FIRST, interval=Interval(TimeBounds(3, 4), TimeBounds(8, 9)))
+        wait = replace(WAIT, interval=Interval(TimeBounds(5, 6), TimeBounds(10, 11)))
+        hold = replace(HOLD, interval=Interval(TimeBounds(2, 3), TimeBounds(10, 12)))
+        timed = replace(ON, first_compiles=(compile_,), waits=(wait,), lock_holds=(hold,))
+        self.assertEqual(evaluate_arm(timed).status, "PROVEN")
+
+        other = replace(HOLD, owner=replace(WINNER, session_id=53), interval=Interval(TimeBounds(10, 13), 15))
+        self.assertFalse(other.interval.overlaps(wait.interval))
+        self.assertTrue(other.interval.possibly_overlaps(wait.interval))
+        self.assert_unproven(replace(timed, lock_holds=(hold, other)), "no_bound_compile_wait")
 
     def test_wait_requires_owned_compile_resource_and_overlap(self):
         for detached_wait in (
