@@ -111,6 +111,44 @@ Vorlagen fehlen noch die Bindung der Betriebssystemabhängigkeiten und
 des ODBC-Treibers, die Installation und die Prüfung des Dienstzustands.
 Der Abfrage- und Cleanup-Pilot bleibt offen.
 
+### Tatsächlich geladenen ODBC-Treiber binden
+
+Der eingebaute Connector `sqlserver://` verwendet laut Microsoft den mit
+dem Produkt installierten ODBC Driver 18 als Standard. Den Linux-Treiber
+bindet das Profil deshalb über die vom Dienst geladene Datei.
+[Microsofts Beschreibung zur Treiberauswahl](https://learn.microsoft.com/en-us/sql/relational-databases/polybase/polybase-change-odbc-driver?view=sql-server-ver17).
+
+Die geprüfte Ubuntu-Paketdatei `mssql-server-polybase_17.0.5065.9-3_amd64.deb`
+enthält die Unit `mssql-ees.service`, Hilfsdateien für den Dienst und
+`/opt/mssql/lib/sqlservr.polybase.sfp`. Die sichtbare Paketdateiliste liefert
+keinen separat installierbaren Driver-18-Pfad. Das Dienstsetup und die
+tatsächliche Ladung auf Ubuntu bleiben Prüfgegenstand.
+
+Der [Gastprüfer](../../Tests/Static/inspect_external_tables_driver.py) ist
+für die eigene Abfrage-VM vorgesehen. Er überprüft Paketversionen,
+Dienstzustand, Prozesszugehörigkeit, Gerätekennung und Inode der im
+Prozess eingeblendeten Driver-18-Bibliothek. Ein Wechsel des Prozesses,
+ein mehrdeutiges Mapping und eine als gelöscht markierte Datei liefern
+`NOT_PROVEN`. Der Bericht enthält Dienst, Version, Dateiname und SHA-256.
+
+1. Ermittle während des späteren freigegebenen Connector-Aufrufs auf der
+   Abfrage-VM den zugehörigen Prozess in `mssql-ees.service` bzw.
+   `mssql-server.service`. Die Zuordnung zum Connector-Aufruf wird im
+   Laufprotokoll belegt.
+2. Starte auf derselben VM den Prüfer mit dem ausgewählten Dienst und der PID.
+   Die erste Erhebung liefert `OBSERVED`. Der Methodenreview bindet den
+   erfassten Digest an die geprüfte Vorlage.
+3. Bei folgenden Läufen prüft `--expected-sha256` den geladenen Treiber
+   gegen den gebundenen Digest. Ein Treffer liefert `MATCHED`.
+
+```text
+python Tests/Static/inspect_external_tables_driver.py --service mssql-ees.service --pid PID
+```
+
+Die Nachweislogik ist offline geprüft. Die tatsächlich geladene Datei,
+der ausführende Dienstprozess und die Betriebssystemabhängigkeiten
+sind erst im vorbereiteten Gast belegbar.
+
 ### Daten und Ergebniskontrolle
 
 Die deterministische Quelltabelle `dbo.Facts` und die lokale Referenz
