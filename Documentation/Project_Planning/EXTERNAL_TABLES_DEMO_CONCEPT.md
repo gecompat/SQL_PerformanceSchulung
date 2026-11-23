@@ -380,13 +380,24 @@ bleibt, muss der zugelassene Pilot zeigen.
    Abfrageknoten externe Tabellen, Datenquellen, Credential und Hauptschlüssel
    in dieser Reihenfolge und danach die eigene Datenbank und ihre Demoanmeldung.
 3. Beende laut Quellinventar verbliebene Sessions des eigenen Quelllogins und
-   entferne die eigene Quelldatenbank und den Quelllogin. Kontrolliere auf
-   beiden VMs die Abwesenheit aller Laufobjekte.
+   entferne die eigene Quelldatenbank und den Quelllogin. Die
+   [SQL-Abbaubatches](../../Tests/Runtime/external_tables_cleanup.py) prüfen
+   Datenbankmarker und bestehende Sessions vor dem Löschen. Sie erzwingen
+   keinen Verbindungsabbruch. Das Laufprogramm muss zuerst die eigenen
+   Reader- und Connectorverbindungen schließen.
 4. Entferne nach Abgleich mit der Erzeugungsliste die beiden VM-IDs, ihre
    eigenen Plattenkopien und den privaten Switch. Bestätige die Abwesenheit
    anhand der IDs. Bei unerreichbarer VM bleibt der SQL-Abbau unbestätigt.
    Verwende die Erzeugungsliste für den VM-Abbau und weise diesen Befund
    getrennt aus. Ein unvollständiger Cleanup verhindert `PASS`.
+
+Reserviere für jede Anmeldung vor der Einrichtung eine zufällige 16-Byte-SID
+in der Erzeugungsliste des Laufs. Führe bei vorhandener markierter Datenbank
+zuerst den Datenbankabbau aus. Der separate Loginabbau läuft danach in
+`master`. Er prüft auch bei einer Wiederaufnahme ohne Datenbank den
+exakten Namen und die gespeicherte SID. Unbekannte Anmeldungen oder aktive
+Sessions führen zum Abbruch. Die Gastverbindungen und der VM-Abbau müssen
+im Linux-Pilot noch nachgewiesen werden.
 
 Für die Wiederaufnahme werden geprüfte Vorlagen für beide Rollen, ein
 ausführbarer Vertrag mit konkreten Grants und Ressourcenoracles sowie ein
