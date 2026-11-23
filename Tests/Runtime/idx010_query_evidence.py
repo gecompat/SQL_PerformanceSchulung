@@ -20,6 +20,14 @@ SEGMENT_MESSAGE = re.compile(
     r"Segment reads ([0-4]), segment skipped ([0-4])\.",
     re.ASCII,
 )
+SEGMENT_ONLY = re.compile(r"Table 'Events'\. Segment reads ([0-4]), segment skipped ([0-4])\.", re.ASCII)
+PAGE_IO_MESSAGE = re.compile(
+    r"Table 'Events'\. Scan count [0-9]{1,20}, logical reads [0-9]{1,20}, physical reads [0-9]{1,20}, "
+    r"page server reads [0-9]{1,20}, read-ahead reads [0-9]{1,20}, page server read-ahead reads [0-9]{1,20}, "
+    r"lob logical reads [0-9]{1,20}, lob physical reads [0-9]{1,20}, lob page server reads [0-9]{1,20}, "
+    r"lob read-ahead reads [0-9]{1,20}, lob page server read-ahead reads [0-9]{1,20}\.",
+    re.ASCII,
+)
 SEGMENT_COUNTER = re.compile(r"\bsegment (?:reads|skipped)\b", re.IGNORECASE | re.ASCII)
 OWNED_IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]{0,127}", re.ASCII)
 
@@ -106,18 +114,18 @@ def _verify_actual_scan(plan_xml: str, database_name: str, index_name: str) -> N
 
 
 def _read_segment_counts(info_messages: tuple[str, ...]) -> SegmentCounts:
-    if len(info_messages) > 32 or any(len(message) > 4096 for message in info_messages):
-        raise QueryEvidenceMissing("STATISTICS IO capture exceeds the message limits")
-    candidates = [
-        message for message in info_messages
-        if message.lstrip().startswith("Table 'Events'.") or SEGMENT_COUNTER.search(message)
-    ]
-    if len(candidates) != 1:
-        raise QueryEvidenceMissing("expected one bounded STATISTICS IO segment message")
-    message = candidates[0].strip()
-    if len(SEGMENT_COUNTER.findall(message)) != 2:
-        raise QueryEvidenceMissing("ambiguous segment counters")
-    match = SEGMENT_MESSAGE.fullmatch(message)
+    if len(info_messages) not in (1, 2) or any(len(message) > 4096 for message in info_messages):
+        raise QueryEvidenceMissing("invalid number or size of STATISTICS IO messages")
+    messages = tuple(message.strip() for message in info_messages)
+    if len(messages) == 2:
+        if not PAGE_IO_MESSAGE.fullmatch(messages[0]):
+            raise QueryEvidenceMissing("unexpected page I/O record for the Events scan")
+        match = SEGMENT_ONLY.fullmatch(messages[1])
+    else:
+        message, = messages
+        if len(SEGMENT_COUNTER.findall(message)) != 2:
+            raise QueryEvidenceMissing("ambiguous segment counters")
+        match = SEGMENT_MESSAGE.fullmatch(message)
     if not match:
         raise QueryEvidenceMissing("segment message does not match the Events scan")
     counts = SegmentCounts(*(int(value) for value in match.groups()))

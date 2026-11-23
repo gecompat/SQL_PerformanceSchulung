@@ -110,6 +110,6 @@ def decode_capture(stdout: bytes, stderr: bytes) -> QueryCapture:
         raise ValueError("result or Showplan does not match the bounded sqlcmd profile")
     if diagnostics and diagnostics[0] == LANGUAGE_MESSAGE:
         diagnostics.pop(0)
-    if len(diagnostics) != 1 or not diagnostics[0].startswith("Table 'Events'."):
-        raise ValueError("expected a single Events information message without diagnostics")
+    if len(diagnostics) not in (1, 2) or any(not line.startswith("Table 'Events'.") for line in diagnostics):
+        raise ValueError("expected only the bounded Events I/O messages")
     return QueryCapture(plan, tuple(diagnostics), ((int(result[1]), int(result[2])),))
