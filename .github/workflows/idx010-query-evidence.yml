@@ -5,6 +5,9 @@ on:
     paths:
       - 'Tests/Runtime/idx010_query_evidence.py'
       - 'Tests/Runtime/idx010_pilot_setup.py'
+      - 'Tests/Runtime/idx010_docker_transport.py'
+      - 'Tests/Runtime/idx010_provision_sql.py'
+      - 'Tests/Static/test_idx010_docker_transport.py'
       - 'Tests/Runtime/idx010_index_metadata.py'
       - 'Tests/Static/test_idx010_index_metadata.py'
       - 'Tests/Runtime/idx010_pilot_sequence.py'
@@ -21,6 +24,9 @@ on:
     paths:
       - 'Tests/Runtime/idx010_query_evidence.py'
       - 'Tests/Runtime/idx010_pilot_setup.py'
+      - 'Tests/Runtime/idx010_docker_transport.py'
+      - 'Tests/Runtime/idx010_provision_sql.py'
+      - 'Tests/Static/test_idx010_docker_transport.py'
       - 'Tests/Runtime/idx010_index_metadata.py'
       - 'Tests/Static/test_idx010_index_metadata.py'
       - 'Tests/Runtime/idx010_pilot_sequence.py'
@@ -50,3 +56,4 @@ jobs:
       - run: python Tests/Static/test_idx010_pilot_sequence.py
       - run: python Tests/Static/test_idx010_sqlcmd_capture.py
       - run: python Tests/Static/test_idx010_index_metadata.py
+      - run: python Tests/Static/test_idx010_docker_transport.py

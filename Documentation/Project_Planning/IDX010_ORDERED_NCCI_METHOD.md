@@ -131,7 +131,7 @@ Eigentumsmarker. Die Batches setzen Autocommit voraus. Der zusätzliche Marker
 `SQLPERF.PilotProfile` und das Namenspräfix `SQLPERF_LAB_IDX010_NCCI_`
 kennzeichnen die Pilotdatenbanken eindeutig.
 
-Der spätere Runner muss beide Datenbanken mit diesen Markern und den
+Der Runner muss beide Datenbanken mit diesen Markern und den
 festgelegten Ressourcenobergrenzen bereitstellen. Vor dem ersten Indexbau
 muss er beide sortierten Leseströme vollständig prüfen. Der erwartete
 SHA-256-Digest ist
@@ -147,7 +147,7 @@ Die SQL-Batches sind für den Methodenreview bestimmt.
 Die [Metadatenabfrage](../../Tests/Runtime/idx010_index_metadata.py) bindet
 die Segmente an den genauen Index, seine einzige Partition und die
 Schlüsselspalte. Sie verlangt vier volle komprimierte Rowgroups und prüft
-auch den separaten Löschpuffer. Jede der vier Segmentgrenzenpaare muss
+auch den separaten Löschpuffer. Jedes der vier Segmentgrenzenpaare muss
 einer dieser Rowgroups zugeordnet sein und in den Wertebereich der
 synthetischen Schlüssel fallen. Zusätzliche Segmente und mehrdeutige
 Grenzen werden abgewiesen.
@@ -206,13 +206,23 @@ Die Ablaufsteuerung übergibt dem Transport eine gemeinsame Laufzeitgrenze
 von 900 Sekunden und eine getrennte Cleanupfrist von 90 Sekunden. Sie
 registriert jede Zielbereitstellung vor dem ersten Aufruf und fordert auch
 bei Fehlern während des Instanzstarts oder der Bereitstellung Cleanup an.
-`FAIL_CLEANUP` hat Vorrang vor einem positiven Befund. Der konkrete
-Container- und SQL-Transport muss die Fristen durchsetzen, Eigentum vor dem
-Abbau prüfen und die bestätigte Abwesenheit melden. Bereitstellung, Rechtevergabe
-und Abbau stehen noch aus. Messadapter und Metadatenabfrage sind
-implementiert. Der konkrete Transport muss sie in den Ablauf einbinden.
-Die [Offlineprüfungen](../../Tests/Static/test_idx010_pilot_sequence.py)
-verwenden einen simulierten Transport.
+`FAIL_CLEANUP` hat Vorrang vor einem positiven Befund. Der [Docker- und SQL-Transport](../../Tests/Runtime/idx010_docker_transport.py)
+bindet das lokal vorgehaltene Image, das private Netzwerkprofil `none`, CPU,
+RAM und die laufende Engineversion. Er liest die Fixture in begrenzten
+Bereichen des Primärschlüssels, erhebt die Indexmetadaten und ruft den
+Messadapter mit dem laufgebundenen Reader auf. Die
+[SQL-Batches](../../Tests/Runtime/idx010_provision_sql.py) setzen und prüfen
+die Dateiobergrenzen, erstellen die markierten Datenbanken und prüfen die
+effektiven Leserrechte. Der Abbau prüft die Datenbankmarker, entfernt den
+Reader und gleicht die Container-ID über Namen und zufälliges Eigentumslabel
+ab. Fehlender SQL-Abbaunachweis bleibt ein Fehler, auch wenn der eigene
+Container entfernt werden konnte.
+
+Die [Ablaufprüfungen](../../Tests/Static/test_idx010_pilot_sequence.py) und
+[Transportprüfungen](../../Tests/Static/test_idx010_docker_transport.py)
+verwenden simulierte Prozess- und SQL-Antworten. Der Runner hat keinen
+automatischen Laufzeittrigger. Vor einem echten Lauf stehen der
+unabhängige Methodenreview und die Prüfung der Laufvoraussetzungen an.
 
 ## Voraussetzungen, Stop und Cleanup für einen späteren Pilot
 
