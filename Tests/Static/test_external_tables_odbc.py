@@ -3,12 +3,14 @@ import sys
 from threading import Event
 from time import monotonic
 import unittest
+from unittest.mock import Mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_measurement import UnconfirmedRequestCleanup
-from external_tables_odbc import OdbcMeasurementTransport, REQUEST_IDENTITY
-from external_tables_pilot_sql import EXPECTED, Route, aggregate_batch
+from external_tables_odbc import OdbcMeasurementTransport, REQUEST_IDENTITY, verify_source_tls
+from external_tables_pilot_sql import EXPECTED, Role, Route, aggregate_batch, database_name
+from external_tables_principals import Principal, principal_name
 
 
 TOKEN = "TEST0002"
@@ -129,6 +131,68 @@ class OdbcTransportTests(unittest.TestCase):
         with self.assertRaisesRegex(OSError, "observer request failed"):
             transport.external_work("oversized work", monotonic() + 4)
         self.assertTrue(observer.bound_cursor.closed)
+
+
+class DriverError(Exception):
+    pass
+
+
+class SourceTlsTests(unittest.TestCase):
+    def setUp(self):
+        self.secret = "Ext9!" + "a" * 32
+        self.database = database_name(TOKEN, Role.SOURCE)
+        self.login = principal_name(TOKEN, Principal.SOURCE_READER)
+        self.positive = Connection(Cursor((((self.database, self.login),),)))
+        self.driver = Mock(Error=DriverError, pooling=False)
+
+    def test_requires_certificate_name_rejection_at_the_same_endpoint(self):
+        self.driver.connect.side_effect = [
+            self.positive, DriverError("08001", "SSL Provider: certificate verify failed:subject name does not match host name"),
+        ]
+        verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
+        positive, negative = self.driver.connect.call_args_list
+        self.assertEqual(negative.args[0], positive.args[0] + "HostnameInCertificate=pbn-test0002;")
+        self.assertIn("Server=tcp:pbs-test0002,1433;", positive.args[0])
+        self.assertIn("Encrypt=Yes;TrustServerCertificate=No;", positive.args[0])
+        self.assertGreater(positive.kwargs["timeout"], 0)
+        self.assertTrue(self.positive.closed)
+        self.assertTrue(self.positive.bound_cursor.closed)
+
+    def test_timeout_or_untrusted_ca_is_not_a_name_rejection(self):
+        for state, detail in (
+            ("HYT00", "login timeout"),
+            ("08001", "SSL Provider: certificate verify failed:unable to get local issuer certificate"),
+            ("28000", "login rejected"),
+        ):
+            with self.subTest(state=state):
+                positive = Connection(Cursor((((self.database, self.login),),)))
+                self.driver.connect.side_effect = [positive, DriverError(state, detail + self.secret)]
+                with self.assertRaisesRegex(OSError, "could not be attributed") as error:
+                    verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
+                self.assertNotIn(self.secret, str(error.exception))
+                self.assertTrue(positive.closed)
+
+    def test_wrong_name_connection_is_closed_and_fails_probe(self):
+        negative = Connection(None)
+        self.driver.connect.side_effect = [self.positive, negative]
+        with self.assertRaisesRegex(ValueError, "accepted the wrong certificate name"):
+            verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
+        self.assertTrue(negative.closed)
+        self.assertTrue(self.positive.closed)
+
+    def test_pooled_driver_and_wrong_endpoint_identity_fail_closed(self):
+        self.driver.pooling = True
+        with self.assertRaisesRegex(ValueError, "disabled pooling"):
+            verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
+        self.driver.connect.assert_not_called()
+        self.driver.pooling = False
+        unexpected = Connection(Cursor(((("master", self.login),),)))
+        self.driver.connect.return_value = unexpected
+        with self.assertRaisesRegex(OSError, "trusted source TLS connection was not confirmed"):
+            verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
+        self.driver.connect.assert_called_once()
+        self.assertTrue(unexpected.closed)
+
 
 
 if __name__ == "__main__":

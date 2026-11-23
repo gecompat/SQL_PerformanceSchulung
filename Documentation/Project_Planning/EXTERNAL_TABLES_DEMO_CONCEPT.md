@@ -396,6 +396,30 @@ Gaststart zu prüfen. Die Identitätsantwort ersetzt keine Prüfung der
 Dienste, Pakete oder Netzgrenzen.
 [Canonical-Dateiliste](https://packages.ubuntu.com/noble-updates/amd64/linux-modules-7.0.0-1017-azure/filelist).
 
+### TLS-Kontrollpaar am Quellendpunkt
+
+Die [ODBC-Probe](../../Tests/Runtime/external_tables_odbc.py)
+verwendet denselben laufgebundenen Quellhost, Port und Reader wie der
+spätere Connector. Zuerst muss die Verbindung mit Verschlüsselung und
+Zertifikatsprüfung die erwartete Datenbank und Anmeldung bestätigen.
+Für die zweite Verbindung ändert die Probe ausschließlich
+`HostnameInCertificate`. Sie verlangt eine SSL-Diagnose zur abweichenden
+Zertifikatsidentität. Verbindungs- und Anmeldefehler reichen dafür nicht
+aus. Der Gast muss Pooling vor der ersten Verbindung abschalten.
+[Microsoft-Referenz zu `HostnameInCertificate`](https://learn.microsoft.com/en-us/sql/connect/odbc/dsn-connection-string-attribute?view=sql-server-ver17#hostnameincertificate).
+
+Der Linux-Komponententest auf dem gebundenen SQL-Server-2025-Image
+verwendete dessen SQLCMD-Client mit ODBC Driver 18, eine temporäre
+Zertifizierungsstelle und denselben IPv4-Loopback-Endpunkt für beide
+Aufrufe. Der passende Name erlaubte eine Leseabfrage, der abweichende
+Name lieferte die erwartete SSL-Diagnose, und der eigene Container
+wurde entfernt. Die [ODBC-Regressionen](../../Tests/Static/test_external_tables_odbc.py)
+prüfen ihre Zuordnung sowie die Abweisung von Timeout, fehlender
+CA-Vertrauenskette und falscher Anmeldung. Die direkte Python-ODBC-
+Ausführung auf dem Abfragegast und der echte PolyBase-Zugriff stehen
+noch aus.
+
+
 ### Pilotablauf und Fristen
 
 Der [Pilotablauf](../../Tests/Runtime/external_tables_pilot.py) verbindet

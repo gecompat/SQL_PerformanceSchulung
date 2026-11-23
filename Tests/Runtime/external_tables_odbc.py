@@ -12,7 +12,10 @@ from time import monotonic
 from typing import Protocol
 
 from external_tables_measurement import AggregateRows, PendingAggregate, UnconfirmedRequestCleanup
-from external_tables_pilot_sql import Route, aggregate_batch
+from external_tables_pilot_sql import (
+    CONNECTION_OPTIONS, SOURCE_PORT, Role, Route, aggregate_batch, database_name, source_host,
+)
+from external_tables_principals import PASSWORD, Principal, principal_name
 from external_tables_pushdown_evidence import Work
 
 
@@ -31,6 +34,72 @@ class Connection(Protocol):
 
     def cursor(self) -> Cursor: ...
     def close(self) -> None: ...
+
+
+class OdbcDriver(Protocol):
+    Error: type[Exception]
+    pooling: bool
+
+    def connect(self, connection_string: str, *, timeout: int, autocommit: bool) -> Connection: ...
+
+
+def verify_source_tls(driver: OdbcDriver, token: str, secret: str, deadline: float) -> None:
+    """Check from the query guest with pooling disabled before the first driver connection."""
+    host = source_host(token)
+    database = database_name(token, Role.SOURCE)
+    login = principal_name(token, Principal.SOURCE_READER)
+    if not PASSWORD.fullmatch(secret) or driver.pooling is not False:
+        raise ValueError("TLS probe requires the run-bound secret and disabled pooling")
+
+    settings = (
+        f"Driver={{ODBC Driver 18 for SQL Server}};Server=tcp:{host},{SOURCE_PORT};"
+        f"Database={database};UID={login};PWD={secret};{CONNECTION_OPTIONS}"
+        "MARS_Connection=No;ConnectRetryCount=0;"
+    )
+    try:
+        connection = driver.connect(settings, timeout=_query_timeout(deadline), autocommit=True)
+        try:
+            connection.timeout = _query_timeout(deadline)
+            cursor = connection.cursor()
+            try:
+                cursor.execute("SET NOCOUNT ON; SELECT DB_NAME(), ORIGINAL_LOGIN();")
+                if _fetch(cursor, 1, 2) != ((database, login),) or cursor.nextset():
+                    raise ValueError("TLS endpoint did not return the expected database and login")
+            finally:
+                cursor.close()
+        finally:
+            connection.close()
+    except Exception:
+        raise OSError("trusted source TLS connection was not confirmed") from None
+
+    # Change only the expected certificate name, retaining the actual endpoint.
+    wrong_name = f"pbn-{token.lower()}"
+    try:
+        rejected = driver.connect(
+            settings + f"HostnameInCertificate={wrong_name};",
+            timeout=_query_timeout(deadline),
+            autocommit=True,
+        )
+    except driver.Error as failure:
+        if not _is_certificate_name_rejection(failure):
+            raise OSError("source TLS rejection could not be attributed to the certificate name") from None
+    except Exception:
+        raise OSError("source TLS negative control did not complete") from None
+    else:
+        try:
+            rejected.close()
+        except Exception:
+            raise OSError("source TLS negative control connection closure was not confirmed") from None
+        raise ValueError("source TLS connection accepted the wrong certificate name")
+    _remaining(deadline)
+
+
+def _is_certificate_name_rejection(failure: Exception) -> bool:
+    if len(failure.args) != 2 or failure.args[0] != "08001" or type(failure.args[1]) is not str:
+        return False
+    message = failure.args[1].lower()
+    return "ssl provider:" in message and "subject name does not match host name" in message
+
 
 
 @dataclass
