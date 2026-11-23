@@ -5,6 +5,8 @@ on:
     paths:
       - 'Tests/Runtime/idx010_query_evidence.py'
       - 'Tests/Runtime/idx010_pilot_setup.py'
+      - 'Tests/Runtime/idx010_pilot_sequence.py'
+      - 'Tests/Static/test_idx010_pilot_sequence.py'
       - 'Tests/Static/test_idx010_pilot_setup.py'
       - 'Tests/Static/test_idx010_query_evidence.py'
       - 'Documentation/Project_Planning/IDX010_ORDERED_NCCI_METHOD.md'
@@ -14,6 +16,8 @@ on:
     paths:
       - 'Tests/Runtime/idx010_query_evidence.py'
       - 'Tests/Runtime/idx010_pilot_setup.py'
+      - 'Tests/Runtime/idx010_pilot_sequence.py'
+      - 'Tests/Static/test_idx010_pilot_sequence.py'
       - 'Tests/Static/test_idx010_pilot_setup.py'
       - 'Tests/Static/test_idx010_query_evidence.py'
       - 'Documentation/Project_Planning/IDX010_ORDERED_NCCI_METHOD.md'
@@ -33,3 +37,4 @@ jobs:
           python-version: '3.12'
       - run: python Tests/Static/test_idx010_query_evidence.py
       - run: python Tests/Static/test_idx010_pilot_setup.py
+      - run: python Tests/Static/test_idx010_pilot_sequence.py
