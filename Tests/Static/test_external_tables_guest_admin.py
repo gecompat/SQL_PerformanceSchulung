@@ -11,10 +11,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_guest_admin import (
     AdminAction, AdminCommand, _MAX_COMMAND, _SIZE, _receive_command, _send_command, invoke_guest_admin,
+    invoke_guest_measurement,
 )
 from external_tables_guest_identity import _QUERY, _REPLY, _REQUEST, _RESPONSE
+from external_tables_measurement import MeasurementResult
 from external_tables_odbc import OdbcPilotAdministration
 from external_tables_pilot_sql import Role, database_name
+from external_tables_pushdown_evidence import PUSHDOWN_FILTER_EVIDENCE
 
 
 TOKEN = "TEST0011"
@@ -31,10 +34,12 @@ class GuestAdminChannelTests(unittest.TestCase):
         self.endpoint = Mock(spec=OdbcPilotAdministration)
         self.deadline = monotonic() + 5
 
-    def round_trip(self, command, role=Role.SOURCE):
+    def round_trip(self, command, role=Role.SOURCE, *, open_principal=None):
         left, right = socket.socketpair()
         with left, right, ThreadPoolExecutor(max_workers=1) as executor:
-            guest = executor.submit(_receive_command, right, TOKEN, role, self.endpoint, self.deadline)
+            guest = executor.submit(
+                _receive_command, right, TOKEN, role, self.endpoint, self.deadline, open_principal=open_principal,
+            )
             try:
                 return _send_command(left, command, self.deadline)
             finally:
@@ -98,6 +103,44 @@ class GuestAdminChannelTests(unittest.TestCase):
                 self.assertEqual(left.recv(1), b"\x00")
                 guest.result(timeout=3)
         self.assertFalse(self.endpoint.method_calls)
+
+    @patch("external_tables_guest_admin.run_guest_measurement")
+    def test_measurement_is_query_only_and_returns_only_fixed_results(self, measure):
+        opener = Mock()
+        observer = "Ext9!" + "c" * 32
+        command = AdminCommand(AdminAction.MEASURE, (SECRET, observer))
+        for role, open_principal in ((Role.SOURCE, opener), (Role.QUERY, None)):
+            with self.subTest(role=role), self.assertRaises(OSError):
+                self.round_trip(command, role, open_principal=open_principal)
+        measure.assert_not_called()
+        for expected in (
+            MeasurementResult("PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE),
+            MeasurementResult("NOT_PROVEN", "PUSHDOWN_OFF"),
+            MeasurementResult("FAIL_CLEANUP", "query_connection"),
+        ):
+            measure.return_value = expected
+            self.assertEqual(self.round_trip(command, Role.QUERY, open_principal=opener), expected)
+            measure.assert_called_with(TOKEN, SECRET, observer, self.deadline, opener)
+        measure.return_value = MeasurementResult("PASS", "comparison", ("unbound filter", "unbound filter"))
+        with self.assertRaises(OSError):
+            self.round_trip(command, Role.QUERY, open_principal=opener)
+        self.assertFalse(self.endpoint.method_calls)
+
+    @patch("external_tables_guest_admin.invoke_guest_admin")
+    def test_measurement_host_pins_query_role_and_requires_the_right_response(self, invoke):
+        expected = MeasurementResult("NOT_PROVEN", "LOCAL")
+        invoke.return_value = expected
+        result = invoke_guest_measurement(
+            VM_ID, PORT, TOKEN, SECRET, "Ext9!" + "c" * 32, self.deadline, base_status=b"base", package_lock={},
+        )
+        self.assertEqual(result, expected)
+        self.assertIs(invoke.call_args.args[3], Role.QUERY)
+        self.assertIs(invoke.call_args.args[4].action, AdminAction.MEASURE)
+        invoke.return_value = False
+        with self.assertRaises(OSError):
+            invoke_guest_measurement(
+                VM_ID, PORT, TOKEN, SECRET, "Ext9!" + "c" * 32, self.deadline, base_status=b"base", package_lock={},
+            )
 
     def test_secret_fields_are_sent_only_after_the_same_channel_verifies_package_identity(self):
         channel = MagicMock()

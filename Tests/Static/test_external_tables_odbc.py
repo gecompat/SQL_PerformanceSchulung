@@ -13,14 +13,16 @@ from unittest.mock import Mock, patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_guest_network import GuestNetwork
-from external_tables_measurement import UnconfirmedRequestCleanup
+from external_tables_measurement import MeasurementResult, UnconfirmedRequestCleanup
 from external_tables_odbc import (
-    OdbcMeasurementTransport, OdbcPilotAdministration, REQUEST_IDENTITY, load_pinned_pyodbc, verify_source_tls,
+    OdbcMeasurementTransport, OdbcPilotAdministration, REQUEST_IDENTITY, load_pinned_pyodbc, run_guest_measurement,
+    verify_source_tls,
 )
 from external_tables_pilot_sql import (
     DAY_ZERO, EXPECTED, ROWS, Role, Route, aggregate_batch, database_name, fixture_read_batch, verify_fixture,
 )
 from external_tables_principals import Principal, principal_name
+from external_tables_pushdown_evidence import PUSHDOWN_FILTER_EVIDENCE
 
 
 TOKEN = "TEST0002"
@@ -212,6 +214,70 @@ class OdbcAdministrationTests(unittest.TestCase):
         with self.assertRaisesRegex(OSError, "could not be confirmed"):
             self.admin.execute("master", "SYNTHETIC SETUP", monotonic() - 1)
         self.factory.assert_not_called()
+
+
+class OdbcGuestMeasurementTests(unittest.TestCase):
+    @staticmethod
+    def fresh_connection():
+        cursor = Cursor((None,))
+        cursor.description = None
+        return Connection(cursor)
+
+    def setUp(self):
+        self.reader_secret = "Ext9!" + "a" * 32
+        self.observer_secret = "Ext9!" + "b" * 32
+        self.deadline = monotonic() + 12
+
+    def test_fresh_verified_reader_and_observer_are_used_locally(self):
+        observer, reader = self.fresh_connection(), self.fresh_connection()
+        opener = Mock(side_effect=[observer, reader])
+        expected = MeasurementResult("PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE)
+
+        def compare(transport, token, deadline):
+            self.assertEqual((token, deadline), (TOKEN, self.deadline))
+            self.assertIs(transport._observer, observer)
+            connection = transport._reader(5)
+            self.assertIs(connection, reader)
+            connection.close()
+            return expected
+
+        with patch("external_tables_odbc.measure_pushdown", side_effect=compare):
+            self.assertEqual(
+                run_guest_measurement(TOKEN, self.reader_secret, self.observer_secret, self.deadline, opener),
+                expected,
+            )
+        self.assertEqual(
+            [event.args[:2] for event in opener.call_args_list],
+            [(Principal.OBSERVER, self.observer_secret), (Principal.QUERY_READER, self.reader_secret)],
+        )
+        for principal, connection in ((Principal.OBSERVER, observer), (Principal.QUERY_READER, reader)):
+            self.assertTrue(connection.closed and connection.bound_cursor.closed)
+            sql = connection.bound_cursor.executed[0]
+            self.assertIn(principal_name(TOKEN, principal), sql)
+            self.assertIn("127.0.0.1", sql)
+            self.assertIn("ORIGINAL_LOGIN()", sql)
+
+    @patch("external_tables_odbc.measure_pushdown", return_value=MeasurementResult("PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE))
+    def test_observer_close_failure_suppresses_the_positive_result(self, compare):
+        observer = self.fresh_connection()
+        observer.close = Mock(side_effect=OSError("driver detail"))
+        outcome = run_guest_measurement(
+            TOKEN, self.reader_secret, self.observer_secret, self.deadline, Mock(return_value=observer),
+        )
+        self.assertEqual(outcome, MeasurementResult("FAIL_CLEANUP", "query_connection"))
+        compare.assert_called_once()
+        observer.close.assert_called_once()
+
+    @patch("external_tables_odbc.measure_pushdown")
+    def test_unverified_observer_stops_before_measurement(self, compare):
+        observer = self.fresh_connection()
+        observer.bound_cursor.nextset = Mock(side_effect=OSError("private driver detail"))
+        outcome = run_guest_measurement(
+            TOKEN, self.reader_secret, self.observer_secret, self.deadline, Mock(return_value=observer),
+        )
+        self.assertEqual(outcome, MeasurementResult("NOT_PROVEN", "query_connection"))
+        self.assertTrue(observer.closed)
+        compare.assert_not_called()
 
 
 class OdbcTransportTests(unittest.TestCase):
