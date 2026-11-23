@@ -504,14 +504,35 @@ Der Pilot ruft ihn innerhalb seiner gemeinsamen Prozessfrist auf.
 Beim read-only Komponententest auf dem Hyper-V-Host wurden unbekannte
 VM-IDs am vorhandenen privaten Switch abgewiesen. Der positive Fall
 und die Konfliktvarianten sind mit simuliertem Inventar geprüft.
-Der positive Nachweis für beide vorgesehenen Pilot-VMs und die
-Quell-Firewall bleiben Teil des vorgesehenen Gastlaufs.
+Der positive Switchnachweis für beide vorgesehenen Pilot-VMs
+bleibt Teil des vorgesehenen Gastlaufs.
 [Microsoft-Referenz zu Get-VMNetworkAdapter](https://learn.microsoft.com/en-us/powershell/module/hyper-v/get-vmnetworkadapter?view=windowsserver2025-ps).
 
 Der native Komponententest verwendete Ubuntu 24.04 mit einer einzelnen
 internen Schnittstelle. Der Prüfer akzeptierte ihre tatsächliche
 `iproute2`-Ausgabe für die vorgesehene Adresse und wies dieselbe
 Aufnahme für die Gegenrolle ab.
+
+### Eingehendes SQL am Quellgast begrenzen
+
+Der [Firewallbaustein](../../Tests/Runtime/external_tables_source_firewall.py)
+legt vor der Netzanbindung eine eigene nftables-Tabelle an. Ihre
+Input-Kette verwirft eingehenden Verkehr standardmäßig. Sie lässt
+Loopback und TCP 1433 von der festgelegten Abfrageadresse zur
+Quelladresse auf der Pilot-Schnittstelle zu. Der Baustein erstellt die
+Tabelle in einer Transaktion und liest danach die tatsächlich aktive
+Regelreihenfolge aus dem Kernel. Andere Tabellen bleiben erhalten.
+Vor der ersten SQL-Verbindung wird dieselbe Kette erneut geprüft.
+
+Ein nativer Ubuntu-24.04-Komponententest installierte die Regel im
+netzgetrennten Quellcontainer und band ihn anschließend an ein internes
+Testnetz an. Der lokale Client und der vorgesehene Abfrageclient
+erreichten denselben TCP-Listener. Der Verbindungsversuch von einer
+dritten Adresse lief in den Timeout. Eine zweite Anlage derselben
+Tabelle scheiterte, die ursprüngliche Regel blieb überprüfbar. Der
+Versuch verwendete einen TCP-Listener als Testgegenstelle. Die
+Wiederholung mit SQL Server in den tatsächlichen Pilot-VMs steht aus.
+[Ubuntu-Manpage zu nftables](https://manpages.ubuntu.com/manpages/noble/man8/nftables.8.html).
 
 ### TLS-Kontrollpaar am Quellendpunkt
 
