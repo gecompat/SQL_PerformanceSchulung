@@ -99,7 +99,11 @@ SET @Sql = N'USE ' + QUOTENAME(@TargetDatabase) + N';'
     + N'REFERENCES lab.IncidentState(IncidentPhase),QueryId bigint NOT NULL,PlanId bigint NOT NULL,'
     + N'RuntimeStatsIntervalId bigint NOT NULL,CountExecutions bigint NOT NULL,'
     + N'FirstExecutionUtc datetimeoffset(7) NOT NULL,LastExecutionUtc datetimeoffset(7) NOT NULL,'
-    + N'PRIMARY KEY(IncidentPhase,QueryId,PlanId,RuntimeStatsIntervalId));';
+    + N'PRIMARY KEY(IncidentPhase,QueryId,PlanId,RuntimeStatsIntervalId));'
+    + N'CREATE TABLE lab.IncidentRequestWait(IncidentPhase nvarchar(32) NOT NULL '
+    + N'REFERENCES lab.IncidentState(IncidentPhase),RequestOrdinal tinyint NOT NULL,'
+    + N'GroupKey int NOT NULL,StatusCode tinyint NOT NULL,GrantWaits bigint NOT NULL,BufferIoWaits bigint NOT NULL,'
+    + N'PRIMARY KEY(IncidentPhase,RequestOrdinal),CHECK(GrantWaits>=0 AND BufferIoWaits>=0));';
 EXEC sys.sp_executesql @Sql;
 
 /* Der beobachtete Intervallabschluss steuert T1; Flush allein erzeugt kein neues Intervall. */
@@ -107,24 +111,48 @@ SET @Sql = N'USE ' + QUOTENAME(@TargetDatabase) + N';
 DECLARE @PhaseNumber int = 0, @Phase nvarchar(32), @ExpectedExecutions bigint,
         @ActualExecutions bigint, @VariantCount int, @EvidenceMessage nvarchar(2048),
         @IntervalEnd datetimeoffset(7), @Deadline datetime2(7);
+DECLARE @Requests table (
+    PhaseNumber tinyint NOT NULL, RequestOrdinal tinyint NOT NULL,
+    GroupKey int NOT NULL, StatusCode tinyint NOT NULL, PRIMARY KEY (PhaseNumber,RequestOrdinal)
+);
+INSERT @Requests VALUES (0,1,8,3),(0,2,1,3),(0,3,5,3),(0,4,1,1),
+                        (1,1,1,3),(1,2,8,3),(1,3,5,3),(1,4,1,1);
+DECLARE @WaitControlBefore bigint=COALESCE((
+    SELECT waiting_tasks_count FROM sys.dm_exec_session_wait_stats WHERE session_id=@@SPID AND wait_type=N''WAITFOR''
+),0);
+WAITFOR DELAY ''00:00:00.050'';
+DECLARE @WaitCaptureReady bit=CASE WHEN COALESCE((
+    SELECT waiting_tasks_count FROM sys.dm_exec_session_wait_stats WHERE session_id=@@SPID AND wait_type=N''WAITFOR''
+),0)>@WaitControlBefore THEN 1 ELSE 0 END;
+DECLARE @RequestOrdinal tinyint,@GroupKey int,@StatusCode tinyint,
+        @GrantBefore bigint,@GrantAfter bigint,@IoBefore bigint,@IoAfter bigint;
 WHILE @PhaseNumber < 2
 BEGIN
     SET @Phase = CASE @PhaseNumber WHEN 0 THEN N''T0_BASELINE'' ELSE N''T1_INCIDENT'' END;
     SET @ExpectedExecutions = 4;
     INSERT lab.IncidentState(IncidentPhase,MarkerUtc) VALUES(@Phase,SYSUTCDATETIME());
-    IF @PhaseNumber = 0
+    SET @RequestOrdinal=1;
+    WHILE @RequestOrdinal<=@ExpectedExecutions
     BEGIN
-        EXEC dbo.usp_CaseSearch 8,3;
-        EXEC dbo.usp_CaseSearch 1,3;
-        EXEC dbo.usp_CaseSearch 5,3;
-        EXEC dbo.usp_CaseSearch 1,1;
-    END
-    ELSE
-    BEGIN
-        EXEC dbo.usp_CaseSearch 1,3;
-        EXEC dbo.usp_CaseSearch 8,3;
-        EXEC dbo.usp_CaseSearch 5,3;
-        EXEC dbo.usp_CaseSearch 1,1;
+        SELECT @GroupKey=GroupKey,@StatusCode=StatusCode
+        FROM @Requests WHERE PhaseNumber=@PhaseNumber AND RequestOrdinal=@RequestOrdinal;
+        IF @WaitCaptureReady=1
+            SELECT @GrantBefore=COALESCE(SUM(CASE WHEN wait_type=N''RESOURCE_SEMAPHORE'' THEN waiting_tasks_count END),0),
+                   @IoBefore=COALESCE(SUM(CASE WHEN wait_type LIKE N''PAGEIOLATCH[_]%'' THEN waiting_tasks_count END),0)
+            FROM sys.dm_exec_session_wait_stats WHERE session_id=@@SPID;
+        EXEC dbo.usp_CaseSearch @GroupKey,@StatusCode;
+        IF @WaitCaptureReady=1
+        BEGIN
+            SELECT @GrantAfter=COALESCE(SUM(CASE WHEN wait_type=N''RESOURCE_SEMAPHORE'' THEN waiting_tasks_count END),0),
+                   @IoAfter=COALESCE(SUM(CASE WHEN wait_type LIKE N''PAGEIOLATCH[_]%'' THEN waiting_tasks_count END),0)
+            FROM sys.dm_exec_session_wait_stats WHERE session_id=@@SPID;
+            IF @GrantAfter<@GrantBefore OR @IoAfter<@IoBefore
+                SET @WaitCaptureReady=0;
+            ELSE
+                INSERT lab.IncidentRequestWait VALUES
+                    (@Phase,@RequestOrdinal,@GroupKey,@StatusCode,@GrantAfter-@GrantBefore,@IoAfter-@IoBefore);
+        END;
+        SET @RequestOrdinal+=1;
     END;
     UPDATE lab.IncidentState SET CompletedUtc = SYSUTCDATETIME() WHERE IncidentPhase = @Phase;
     EXEC sys.sp_query_store_flush_db;
