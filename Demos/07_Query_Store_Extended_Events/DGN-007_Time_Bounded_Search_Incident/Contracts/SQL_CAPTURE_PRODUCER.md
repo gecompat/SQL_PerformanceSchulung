@@ -237,9 +237,11 @@ in beiden Reihenfolgen exakt übereinstimmen. Der Runner gibt nur
 feste Befundmarker aus und prüft den Datenbankabbau separat.
 
 Im isolierten Buildlauf wurden zwei unterschiedliche Kompilierwerte
-und Planhashes sowie je eine Wiederverwendung beobachtet. Diese
-Komponente beobachtet den Einfluss des ersten Parameters auf
-den Cacheplan. Die Verbindung dieses Mechanismus zur gemessenen
+und Planhashes sowie je eine Wiederverwendung beobachtet. Für
+beide Eingaben las die Anweisung jeweils weniger logische Seiten,
+wenn der Plan mit derselben Eingabe kompiliert worden war. Die
+Reads des Folgeaufrufs werden aus der Differenz der gebundenen
+Cachezähler abgeleitet. Die Verbindung dieses Mechanismus zur gemessenen
 Dauer sowie Alternativhypothesen und Mitigation bleiben Gegenstand
 der Incident-Abnahme.
 [Microsoft-Referenz zu sys.dm_exec_text_query_plan](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-text-query-plan-transact-sql?view=sql-server-ver17).

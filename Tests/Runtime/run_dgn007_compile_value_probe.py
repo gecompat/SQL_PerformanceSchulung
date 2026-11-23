@@ -14,7 +14,7 @@ from Tests.Runtime.dgn004_capture_runner import CaptureRunnerError, collect_boun
 
 
 PROBE = Path(__file__).with_name("dgn007_compile_value_probe.sql")
-SUMMARY = "DGN007_COMPILE_VALUE|PASS|two_compile_values;two_plan_hashes;two_reused_executions"
+SUMMARY = "DGN007_COMPILE_VALUE|PASS|two_compile_values;two_plan_hashes;two_reused_executions;logical_reads_follow_compile_context"
 SETUP_SUMMARY = "SQLPERF_SUMMARY|PASS|OK"
 PREFLIGHT = """SET NOCOUNT ON;
 IF COALESCE(TRY_CONVERT(int, SERVERPROPERTY('EditionID')), 0) NOT IN (-2117995310,-1785266663)

@@ -17,7 +17,7 @@ CREATE TABLE #reference(
     PRIMARY KEY (InputGroup, ItemId)
 );
 DECLARE @phase tinyint=1, @ordinal tinyint, @group int, @status tinyint, @expected int;
-DECLARE @profiles table (Trial int, Sample int, CompiledClass varchar(10), PlanHash binary(8), ExecCount bigint, PRIMARY KEY (Trial, Sample));
+DECLARE @profiles table (Trial int, Sample int, CompiledClass varchar(10), PlanHash binary(8), ExecCount bigint, Reads bigint, PRIMARY KEY (Trial, Sample));
 WHILE @phase <= 2
 BEGIN
     EXEC sys.sp_recompile N'dbo.usp_CaseSearch';
@@ -47,7 +47,7 @@ BEGIN
         SELECT @phase,@ordinal,
             CASE n.x.value('@ParameterCompiledValue','varchar(20)') WHEN '(8)' THEN 'A'
                 WHEN '(1)' THEN 'B' ELSE 'UNKNOWN' END,
-            qs.query_plan_hash, qs.execution_count
+            qs.query_plan_hash, qs.execution_count, qs.total_logical_reads
         FROM sys.dm_exec_query_stats AS qs
         CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) AS t
         CROSS APPLY sys.dm_exec_text_query_plan(qs.plan_handle,qs.statement_start_offset,qs.statement_end_offset) AS tp
@@ -69,4 +69,10 @@ IF (SELECT COUNT(*) FROM @profiles)<>4
    OR EXISTS (SELECT Trial FROM @profiles GROUP BY Trial HAVING COUNT(DISTINCT PlanHash)<>1)
    OR (SELECT COUNT(DISTINCT PlanHash) FROM @profiles)<>2
     THROW 51083,'NOT_PROVEN: compiled parameter or plan reuse evidence is incomplete',1;
-SELECT 'DGN007_COMPILE_VALUE|PASS|two_compile_values;two_plan_hashes;two_reused_executions' AS Evidence;
+DECLARE @AWithA bigint=(SELECT Reads FROM @profiles WHERE Trial=1 AND Sample=1);
+DECLARE @BWithA bigint=(SELECT Reads FROM @profiles WHERE Trial=1 AND Sample=2)-@AWithA;
+DECLARE @BWithB bigint=(SELECT Reads FROM @profiles WHERE Trial=2 AND Sample=1);
+DECLARE @AWithB bigint=(SELECT Reads FROM @profiles WHERE Trial=2 AND Sample=2)-@BWithB;
+IF COALESCE(@AWithA,0)<=0 OR COALESCE(@BWithB,0)<=0 OR COALESCE(@AWithB,0)<=@AWithA OR COALESCE(@BWithA,0)<=@BWithB
+    THROW 51085,'NOT_PROVEN: per-request logical reads do not follow the compile context',1;
+SELECT 'DGN007_COMPILE_VALUE|PASS|two_compile_values;two_plan_hashes;two_reused_executions;logical_reads_follow_compile_context' AS Evidence;
