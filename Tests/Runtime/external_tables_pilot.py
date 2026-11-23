@@ -167,8 +167,10 @@ def _cleanup(
     except (OSError, ValueError):
         sql_clean = False
 
-    # Queries have to stop using the source before the source is removed.
-    for role in reversed(attempted):
+    # The SQL batches check current sessions, but only the transport can
+    # confirm that the reader and connector can no longer start requests.
+    roles = reversed(attempted) if sql_clean else ()
+    for role in roles:
         try:
             _require_time(deadline)
             exists = transport.database_exists(role, databases[role], deadline)
