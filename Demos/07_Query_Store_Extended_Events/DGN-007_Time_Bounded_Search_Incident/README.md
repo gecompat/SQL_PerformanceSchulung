@@ -62,7 +62,10 @@ legt gemäß `DEC-068` (Prospektive Duration- und Kontrollseparation für DGN-00
 zusätzlichen Plan-oder-Reads-Profilzweig fest. Seine reine Bewertungslogik
 und synthetischen Fixtures sind eine statische Voraussetzung. Sie verändern
 weder den Teilnehmerpfad noch die neutralen SQL-Captures und belegen keine
-Incident-Runtime-Abnahme. Collector und frische Bestätigungsläufe bleiben offen.
+Incident-Runtime-Abnahme. Der
+[Live-Befund der kontrollierten Lifecycles](Contracts/README.md#live-befund-aus-den-kontrollierten-lifecycles)
+belegt das Reproduktionsprädikat auf allen drei Engines. Die
+Ursachen- und Mitigationsabnahme bleibt offen.
 
 | Stufe | Freigabe | Arbeitsauftrag |
 |---|---|---|

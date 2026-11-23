@@ -69,6 +69,29 @@ Seine Runtime-Integration bestand den frischen isolierten
 Drei-Engine-Matrixlauf (PR #1096, Actions-Lauf #44921319212); die getrennte
 Incident-Runtime-Abnahme bleibt offen.
 
+### Live-Befund aus den kontrollierten Lifecycles
+
+Der integrierte [Drei-Build-Lauf 45206075266](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45206075266)
+lieferte auf jeder Zielversion sechs vollständige Captures und
+`decision=PASS` für das vorab festgelegte DEC-068/v2-Prädikat. Der
+gerichtete Dauerunterschied überschritt damit den im gleichen
+Lauf beobachteten AA-Drift. Je Zielversion trat zusätzlich mindestens
+einer der beiden vorgesehenen Plan- oder Reads-Befunde ein.
+
+Der Coordinator gibt die drei Teilbefunde jetzt einzeln aus:
+
+| Feld | Bedeutung bei `YES` |
+| --- | --- |
+| `duration_symptom` | Alle vier B−A-Dauerkontraste sind positiv und liegen über dem maximalen AA-Dauerdrift. |
+| `plan_sets_differ` | In allen vier Paaren unterscheiden sich die aktiven Query-Store-Planhashmengen innerhalb des jeweiligen Lifecycles. |
+| `reads_profile_separates` | Die vier Reads-Kontraste weisen dieselbe Richtung auf und überschreiten den AA-Reads-Drift im Absolutbetrag. |
+
+`NO` kennzeichnet ein ausgewertetes, verfehltes Prädikat.
+`NOT_EVALUATED` kennzeichnet einen fehlenden Evaluatorlauf.
+Die Ausgabe enthält keine Rohmetriken, Pläne oder Parameterwerte.
+Die Ursache der beobachteten Regression, die beiden zu verwerfenden
+Alternativhypothesen und die Mitigationsprüfung bleiben offen.
+
 ## Gerichtetes Symptom und getrennte zusätzliche Evidenz
 
 Die primäre Metrik ist gewichtete Statement-Duration in Mikrosekunden.

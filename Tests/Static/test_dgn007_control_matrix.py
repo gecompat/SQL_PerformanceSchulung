@@ -191,6 +191,24 @@ class MatrixExecutionTests(unittest.TestCase):
 
 
 class CliSafetyTests(unittest.TestCase):
+    def test_cli_reports_only_the_evaluated_preregistered_evidence_flags(self):
+        for outcome, code, duration, plans, reads, expected in (
+            ("PASS", "OK", True, False, True, "YES; plan_sets_differ=NO; reads_profile_separates=YES"),
+            ("SKIP", "SKIP_EVIDENCE_MISSING", False, True, False, "NO; plan_sets_differ=YES; reads_profile_separates=NO"),
+        ):
+            with self.subTest(outcome=outcome):
+                output = StringIO()
+                decision = SimpleNamespace(
+                    outcome=outcome, code=code, directed_symptom=duration, plan_evidence=plans,
+                    profile_evidence=reads, duration_contrasts=("synthetic raw metrics",),
+                )
+                with redirect_stdout(output), patch.object(matrix, "run_control_matrix", return_value=decision):
+                    result = matrix.main(["--container", "sql-container", "--expected-major", "17",
+                                          "--confirm-disposable-instance", "--confirm-isolated-lab"])
+                self.assertEqual(result, 0)
+                self.assertIn(f"decision={outcome}; decision_code={code}; duration_symptom={expected}", output.getvalue())
+                self.assertNotIn("synthetic raw metrics", output.getvalue())
+
     def test_cli_requires_both_isolation_confirmations(self):
         output = StringIO()
         with redirect_stdout(output), patch.object(matrix, "run_control_matrix") as run:
@@ -199,6 +217,10 @@ class CliSafetyTests(unittest.TestCase):
         self.assertEqual(result, 1)
         run.assert_not_called()
         self.assertIn("DGN007_COORDINATOR|FAIL|FAIL_SAFETY", output.getvalue())
+        self.assertIn(
+            "duration_symptom=NOT_EVALUATED; plan_sets_differ=NOT_EVALUATED; reads_profile_separates=NOT_EVALUATED",
+            output.getvalue(),
+        )
 
 
 if __name__ == "__main__":
