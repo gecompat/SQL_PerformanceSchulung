@@ -34,6 +34,7 @@ class GuestPilotTransport(Protocol):
         Verify each exact VM and its live package digest through the current
         identity exchange before executing any SQL. Load the pinned pyodbc
         extension on the query guest before opening its first ODBC connection.
+        Check both guest networks against the two provisioned IPv4 endpoints.
         """
 
     def execute(self, role: Role, database: str, sql: str, deadline: float) -> None:
@@ -43,7 +44,7 @@ class GuestPilotTransport(Protocol):
         """Record the role and SID in the owned run inventory before CREATE LOGIN."""
 
     def verify_source_tls(self, token: str, secret: str, deadline: float) -> None:
-        """Verify positive source TLS and a rejected wrong certificate identity from the query guest."""
+        """Bind source TLS to both provisioned addresses and reject a wrong certificate identity."""
 
     def probe_principal(self, principal: Principal, secret: str, sql: str, deadline: float) -> None:
         """Run the rights probe over the actual principal connection and confirm its close."""

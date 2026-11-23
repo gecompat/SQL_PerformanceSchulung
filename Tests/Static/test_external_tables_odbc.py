@@ -1,5 +1,5 @@
 from hashlib import sha256
-from ipaddress import IPv4Address
+from ipaddress import IPv4Address, IPv4Interface
 from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
@@ -11,6 +11,7 @@ from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
+from external_tables_guest_network import GuestNetwork
 from external_tables_measurement import UnconfirmedRequestCleanup
 from external_tables_odbc import OdbcMeasurementTransport, REQUEST_IDENTITY, load_pinned_pyodbc, verify_source_tls
 from external_tables_pilot_sql import EXPECTED, Role, Route, aggregate_batch, database_name
@@ -18,6 +19,11 @@ from external_tables_principals import Principal, principal_name
 
 
 TOKEN = "TEST0002"
+LAB_BLOCK = 0xC0A86300
+NETWORK = GuestNetwork(IPv4Interface((LAB_BLOCK + 2, 29)), IPv4Interface((LAB_BLOCK + 3, 29)))
+SOURCE_IP = str(NETWORK.source.ip)
+QUERY_IP = str(NETWORK.query.ip)
+WRONG_IP = str(NETWORK.query.ip + 1)
 SQL = aggregate_batch(TOKEN, Route.PUSHDOWN_ON)
 
 
@@ -184,18 +190,18 @@ class SourceTlsTests(unittest.TestCase):
         self.secret = "Ext9!" + "a" * 32
         self.database = database_name(TOKEN, Role.SOURCE)
         self.login = principal_name(TOKEN, Principal.SOURCE_READER)
-        self.positive = Connection(Cursor((((self.database, self.login, "127.0.0.1", 1433),),)))
+        self.positive = Connection(Cursor((((self.database, self.login, SOURCE_IP, 1433, QUERY_IP),),)))
         self.driver = Mock(Error=DriverError, pooling=False)
 
     def test_requires_certificate_name_rejection_at_the_same_endpoint(self):
         self.driver.connect.side_effect = [
             self.positive, DriverError("08001", "SSL Provider: certificate verify failed:subject name does not match host name"),
         ]
-        verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
+        verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4, network=NETWORK)
         positive, negative = self.driver.connect.call_args_list
         self.assertEqual(
             negative.args[0],
-            positive.args[0].replace("tcp:pbs-test0002,1433", "tcp:127.0.0.1,1433")
+            positive.args[0].replace("tcp:pbs-test0002,1433", f"tcp:{SOURCE_IP},1433")
             + "HostnameInCertificate=pbn-test0002;",
         )
         self.assertIn("Server=tcp:pbs-test0002,1433;", positive.args[0])
@@ -211,22 +217,25 @@ class SourceTlsTests(unittest.TestCase):
             ("28000", "login rejected"),
         ):
             with self.subTest(state=state):
-                positive = Connection(Cursor((((self.database, self.login, "127.0.0.1", 1433),),)))
+                positive = Connection(Cursor((((self.database, self.login, SOURCE_IP, 1433, QUERY_IP),),)))
                 self.driver.connect.side_effect = [positive, DriverError(state, detail + self.secret)]
                 with self.assertRaisesRegex(OSError, "could not be attributed") as error:
-                    verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
+                    verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4, network=NETWORK)
                 self.assertNotIn(self.secret, str(error.exception))
                 self.assertTrue(positive.closed)
 
     def test_unverified_tcp_address_does_not_receive_a_second_connection(self):
-        for address, port in ((None, 1433), ("::1", 1433), ("100.64.0.1", 1433),
-                              ("127.0.0.1", 1434), (str(IPv4Address(0)), 1433)):
+        for address, port, client in (
+            (None, 1433, QUERY_IP), ("::1", 1433, QUERY_IP), (WRONG_IP, 1433, QUERY_IP),
+            (SOURCE_IP, 1434, QUERY_IP), (str(IPv4Address(0)), 1433, QUERY_IP),
+            (SOURCE_IP, 1433, WRONG_IP), (SOURCE_IP, 1433, None),
+        ):
             with self.subTest(address=address, port=port):
                 self.driver.reset_mock()
-                connection = Connection(Cursor((((self.database, self.login, address, port),),)))
+                connection = Connection(Cursor((((self.database, self.login, address, port, client),),)))
                 self.driver.connect.return_value = connection
                 with self.assertRaisesRegex(OSError, "trusted source TLS connection was not confirmed"):
-                    verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
+                    verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4, network=NETWORK)
                 self.driver.connect.assert_called_once()
                 self.assertTrue(connection.closed)
 
@@ -235,20 +244,20 @@ class SourceTlsTests(unittest.TestCase):
         negative = Connection(None)
         self.driver.connect.side_effect = [self.positive, negative]
         with self.assertRaisesRegex(ValueError, "accepted the wrong certificate name"):
-            verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
+            verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4, network=NETWORK)
         self.assertTrue(negative.closed)
         self.assertTrue(self.positive.closed)
 
     def test_pooled_driver_and_wrong_endpoint_identity_fail_closed(self):
         self.driver.pooling = True
         with self.assertRaisesRegex(ValueError, "disabled pooling"):
-            verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
+            verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4, network=NETWORK)
         self.driver.connect.assert_not_called()
         self.driver.pooling = False
-        unexpected = Connection(Cursor(((("master", self.login, "127.0.0.1", 1433),),)))
+        unexpected = Connection(Cursor(((("master", self.login, SOURCE_IP, 1433, QUERY_IP),),)))
         self.driver.connect.return_value = unexpected
         with self.assertRaisesRegex(OSError, "trusted source TLS connection was not confirmed"):
-            verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4)
+            verify_source_tls(self.driver, TOKEN, self.secret, monotonic() + 4, network=NETWORK)
         self.driver.connect.assert_called_once()
         self.assertTrue(unexpected.closed)
 

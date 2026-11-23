@@ -9,7 +9,6 @@ from dataclasses import dataclass, field
 from hashlib import file_digest
 from importlib.machinery import EXTENSION_SUFFIXES
 from importlib.util import module_from_spec, spec_from_file_location
-from ipaddress import IPv4Address
 from math import floor, isfinite
 import os
 from pathlib import Path
@@ -20,6 +19,7 @@ from threading import Thread
 from time import monotonic
 from typing import Protocol
 
+from external_tables_guest_network import GuestNetwork
 from external_tables_measurement import AggregateRows, PendingAggregate, UnconfirmedRequestCleanup
 from external_tables_pilot_sql import (
     CONNECTION_OPTIONS, SOURCE_PORT, Role, Route, aggregate_batch, database_name, source_host,
@@ -99,7 +99,9 @@ def load_pinned_pyodbc(install_dir: Path, wheel_entry: dict) -> OdbcDriver:
     return module
 
 
-def verify_source_tls(driver: OdbcDriver, token: str, secret: str, deadline: float) -> None:
+def verify_source_tls(
+    driver: OdbcDriver, token: str, secret: str, deadline: float, *, network: GuestNetwork,
+) -> None:
     """Check from the query guest with pooling disabled before the first driver connection."""
     host = source_host(token)
     database = database_name(token, Role.SOURCE)
@@ -125,19 +127,18 @@ def verify_source_tls(driver: OdbcDriver, token: str, secret: str, deadline: flo
                 cursor.execute(
                     "SET NOCOUNT ON; SELECT DB_NAME(), ORIGINAL_LOGIN(), "
                     "CONVERT(varchar(48), CONNECTIONPROPERTY('local_net_address')), "
-                    "CONVERT(int, CONNECTIONPROPERTY('local_tcp_port'));"
+                    "CONVERT(int, CONNECTIONPROPERTY('local_tcp_port')), "
+                    "CONVERT(varchar(48), CONNECTIONPROPERTY('client_net_address'));"
                 )
-                (identity,) = _fetch(cursor, 1, 4)
-                actual_database, actual_login, address, port = identity
+                (identity,) = _fetch(cursor, 1, 5)
+                actual_database, actual_login, address, port, client_address = identity
                 if (
                     actual_database != database or actual_login != login
-                    or type(address) is not str or type(port) is not int or port != SOURCE_PORT
+                    or address != str(network.source.ip) or client_address != str(network.query.ip)
+                    or type(port) is not int or port != SOURCE_PORT
                     or cursor.nextset()
                 ):
                     raise ValueError("TLS endpoint did not return the expected database, login and TCP identity")
-                source_address = IPv4Address(address)
-                if not source_address.is_private or source_address.is_unspecified:
-                    raise ValueError("TLS endpoint is outside the private IPv4 profile")
             finally:
                 cursor.close()
         finally:
@@ -150,7 +151,7 @@ def verify_source_tls(driver: OdbcDriver, token: str, secret: str, deadline: flo
     wrong_name = f"pbn-{token.lower()}"
     try:
         rejected = driver.connect(
-            f"Server=tcp:{source_address},{port};" + settings + f"HostnameInCertificate={wrong_name};",
+            f"Server=tcp:{network.source.ip},{SOURCE_PORT};" + settings + f"HostnameInCertificate={wrong_name};",
             timeout=_query_timeout(deadline),
             autocommit=True,
         )
