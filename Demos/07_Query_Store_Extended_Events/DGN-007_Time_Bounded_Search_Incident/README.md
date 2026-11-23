@@ -30,6 +30,10 @@ Für die Vertiefung stehen auf dem festgeschriebenen SQL-Server-2025-Build
 zwei separat geprüfte Komponenten zur Verfügung. Die erste zeigt
 Kompilierwert und Planwiederverwendung. Die zweite vergleicht
 `OPTION (RECOMPILE)` mit der Baseline und prüft die Rücknahme.
+Die [Vierer-Mix-Diagnose](Contracts/SQL_CAPTURE_PRODUCER.md#querylokale-mitigation-mit-rücknahme-prüfen)
+zeigt für dieselben Parameterklassen die Lesezugriffe einzeln und in Summe.
+Sie ist als Ergänzung zum Teilnehmervergleich auf dem festgeschriebenen
+SQL-Server-2025-Build vorgesehen.
 [Vertiefung zur Vorführung](Automated/README.md#vertiefung-mit-sql-server-2025)
 
 ## Voraussetzungen und Grenzen

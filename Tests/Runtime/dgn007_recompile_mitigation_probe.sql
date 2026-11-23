@@ -28,11 +28,32 @@ DECLARE @apply nvarchar(max)=
     +N'; EXEC sys.sp_executesql @ddl;';
 DECLARE @before varbinary(32)=HASHBYTES('SHA2_256',CONVERT(varbinary(max),@definition));
 
-CREATE TABLE #reference(
+DECLARE @mix bit=$(CompareParameterMix);
+CREATE TABLE #parameters (Slot tinyint NOT NULL PRIMARY KEY, GroupKey int NOT NULL, StatusCode tinyint NOT NULL);
+IF @mix=1
+    INSERT #parameters VALUES (1,1,1),(2,1,3),(3,5,3),(4,8,3);
+ELSE
+    INSERT #parameters VALUES (1,1,3);
+
+CREATE TABLE #observed(
     ItemId int NOT NULL PRIMARY KEY, SearchValue nvarchar(64), StatusCode tinyint,
     GroupLabel nvarchar(64), DetailCount int
 );
-SELECT TOP(0) * INTO #observed FROM #reference;
+CREATE TABLE #reference(
+    Slot tinyint NOT NULL, ItemId int NOT NULL, SearchValue nvarchar(64), StatusCode tinyint,
+    GroupLabel nvarchar(64), DetailCount int, PRIMARY KEY (Slot,ItemId)
+);
+IF @mix=1
+BEGIN
+    INSERT #reference
+    SELECT p.Slot,i.ItemId,i.SearchValue,i.StatusCode,g.GroupLabel,COUNT(d.ItemId)
+    FROM #parameters AS p
+    JOIN dbo.CaseItem AS i ON i.GroupKey=p.GroupKey AND i.StatusCode=p.StatusCode
+    JOIN dbo.CaseGroup AS g ON g.GroupKey=i.GroupKey
+    LEFT JOIN dbo.CaseItemDetail AS d ON d.ItemId=i.ItemId
+    GROUP BY p.Slot,i.ItemId,i.SearchValue,i.StatusCode,g.GroupLabel;
+    IF (SELECT COUNT(DISTINCT Slot) FROM #reference)<>4 THROW 51092,'FAIL_RESULT',1;
+END;
 DECLARE @trial tinyint=1;
 DECLARE @label varchar(16);
 BEGIN TRANSACTION;
@@ -56,20 +77,32 @@ BEGIN
         )
             THROW 51093,'FAIL_MITIGATION',1;
     END;
-    SET @label=CHOOSE(@trial,'BASELINE1','BASELINE2','MITIGATION1','MITIGATION2','RESTORE');
-    PRINT CONCAT('DGN007_IO_BEGIN|',@label);
-    SET STATISTICS IO ON;
-    INSERT #observed EXEC dbo.usp_CaseSearch @GroupKey=1,@StatusCode=3;
-    DECLARE @rows int=@@ROWCOUNT;
-    SET STATISTICS IO OFF;
-    PRINT CONCAT('DGN007_IO_END|',@label);
-    IF @rows<>2286 THROW 51092,'FAIL_RESULT',1;
-    IF @trial=1
-        INSERT #reference SELECT * FROM #observed;
-    ELSE IF EXISTS (SELECT * FROM #reference EXCEPT SELECT * FROM #observed)
-         OR EXISTS (SELECT * FROM #observed EXCEPT SELECT * FROM #reference)
-        THROW 51092,'FAIL_RESULT',1;
-    TRUNCATE TABLE #observed;
+    DECLARE @slot tinyint=1, @group int, @status tinyint;
+    WHILE @slot<=CASE @mix WHEN 1 THEN 4 ELSE 1 END
+    BEGIN
+        SELECT @group=GroupKey,@status=StatusCode FROM #parameters WHERE Slot=@slot;
+        SET @label=CHOOSE(@trial,'BASELINE1','BASELINE2','MITIGATION1','MITIGATION2','RESTORE');
+        IF @mix=1 SET @label=CONCAT(@label,'_',@slot);
+        PRINT CONCAT('DGN007_IO_BEGIN|',@label);
+        SET STATISTICS IO ON;
+        INSERT #observed EXEC dbo.usp_CaseSearch @GroupKey=@group,@StatusCode=@status;
+        DECLARE @rows int=@@ROWCOUNT;
+        SET STATISTICS IO OFF;
+        PRINT CONCAT('DGN007_IO_END|',@label);
+        IF @mix=0 AND @rows<>2286 THROW 51092,'FAIL_RESULT',1;
+        IF @mix=0 AND @trial=1
+            INSERT #reference SELECT @slot,* FROM #observed;
+        ELSE IF EXISTS (
+            SELECT ItemId,SearchValue,StatusCode,GroupLabel,DetailCount FROM #reference WHERE Slot=@slot
+            EXCEPT SELECT * FROM #observed
+        ) OR EXISTS (
+            SELECT * FROM #observed
+            EXCEPT SELECT ItemId,SearchValue,StatusCode,GroupLabel,DetailCount FROM #reference WHERE Slot=@slot
+        )
+            THROW 51092,'FAIL_RESULT',1;
+        TRUNCATE TABLE #observed;
+        SET @slot+=1;
+    END;
 
     IF @trial=4
     BEGIN
