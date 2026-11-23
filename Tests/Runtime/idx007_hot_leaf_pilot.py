@@ -237,13 +237,16 @@ def overlaps_capture_window(left: dict, right: dict, chain_start: int, chain_end
     return shared_start < shared_end and shared_start < chain_end and shared_end > chain_start
 
 
-def page_metadata_sql(addresses: set[tuple[int, int]], stage: int) -> str:
+def page_metadata_sql(addresses: set[tuple[int, int]], stage: int, actor_count: int) -> str:
     if not addresses or len(addresses) > 128:
         raise PilotError("preflight page address set is empty or over its fixed cap")
+    if actor_count < 1 or actor_count > 128:
+        raise PilotError("actor gate count is empty or over its fixed cap")
     return f"""
 SET NOCOUNT ON; USE [{DB}];
 INSERT lab.CaptureReady(Stage) VALUES({stage});
 WHILE NOT EXISTS(SELECT 1 FROM lab.Start WHERE Stage={stage}) WAITFOR DELAY '{GATE_POLL_DELAY}';
+WHILE (SELECT COUNT(*) FROM lab.ActorReady WHERE Stage={stage})<{actor_count} WAITFOR DELAY '{GATE_POLL_DELAY}';
 SELECT 'IDX007_CHAIN_CAPTURE_BEGIN';
 INSERT lab.Go(Stage) VALUES({stage});
 DECLARE @candidate table(FileId int NOT NULL,PageId int NOT NULL);
@@ -381,6 +384,7 @@ CREATE TABLE lab.ActorSessions(SessionId smallint NOT NULL PRIMARY KEY,RequestId
 CREATE TABLE lab.Start(Stage int NOT NULL PRIMARY KEY);
 CREATE TABLE lab.Go(Stage int NOT NULL PRIMARY KEY);
 CREATE TABLE lab.CaptureReady(Stage int NOT NULL PRIMARY KEY);
+CREATE TABLE lab.ActorReady(Stage int NOT NULL,SessionId smallint NOT NULL,PRIMARY KEY(Stage,SessionId));
 DECLARE @seed int=0; WHILE @seed<501 BEGIN INSERT dbo.Hot DEFAULT VALUES; SET @seed+=1; END;
 GO
 ALTER INDEX PK_Hot ON dbo.Hot REBUILD WITH (FILLFACTOR={fillfactor});
@@ -444,8 +448,12 @@ WHERE p.name=N'sqlserver' AND o.name=N'latch_suspend_end' AND c.name=N'duration'
 SET NOCOUNT ON; USE [{DB}]; DECLARE @spid smallint=@@SPID,@request_id int,@i int=0;
 SELECT @request_id=request_id FROM sys.dm_exec_requests WHERE session_id=@spid;
 INSERT lab.ActorSessions(SessionId,RequestId) VALUES(@spid,@request_id);
+WHILE NOT EXISTS(SELECT 1 FROM lab.Start WHERE Stage=1) WAITFOR DELAY '{GATE_POLL_DELAY}';
+INSERT lab.ActorReady(Stage,SessionId) VALUES(1,@spid);
 WHILE NOT EXISTS(SELECT 1 FROM lab.Go WHERE Stage=1) WAITFOR DELAY '{GATE_POLL_DELAY}';
 WHILE @i<{ROWS_PER_BURST} BEGIN INSERT dbo.Hot DEFAULT VALUES; WAITFOR DELAY '00:00:00.010'; SET @i+=1; END;
+WHILE NOT EXISTS(SELECT 1 FROM lab.Start WHERE Stage=2) WAITFOR DELAY '{GATE_POLL_DELAY}';
+INSERT lab.ActorReady(Stage,SessionId) VALUES(2,@spid);
 WHILE NOT EXISTS(SELECT 1 FROM lab.Go WHERE Stage=2) WAITFOR DELAY '{GATE_POLL_DELAY}';
 SET @i=0;
 WHILE @i<{ROWS_PER_BURST} BEGIN INSERT dbo.Hot DEFAULT VALUES; WAITFOR DELAY '00:00:00.010'; SET @i+=1; END;
@@ -464,7 +472,7 @@ SELECT CONCAT('ACTOR|',@spid,'|',@request_id);
             session = f"IDX007_{secrets.token_hex(8)}"
             xe_sessions.append(session)
             sqlcmd(name, env, create_xe_sql(session, database_id))
-            chain_capture = sqlcmd_actor(name, env, page_metadata_sql(leaf_addresses, stage))
+            chain_capture = sqlcmd_actor(name, env, page_metadata_sql(leaf_addresses, stage, actor_count))
             capture_processes.append(chain_capture)
             wait_until(name, env, f"SET NOCOUNT ON; USE [{DB}]; SELECT CONCAT('CAPTURE_READY|',COUNT(*)) FROM lab.CaptureReady WHERE Stage={stage};",
                        f"CAPTURE_READY|1")

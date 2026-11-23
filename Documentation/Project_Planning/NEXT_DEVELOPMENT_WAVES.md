@@ -617,21 +617,21 @@ Zieltabelle erkannt. Alle drei SQL-Server-Builds bestanden mit dieser Korrektur
 lokal drei von drei Versuchen. Die CI-Artefakte zeigten danach, dass die
 Orchestrierung `lab.Go` vor dem XE-Startmarker freigab. Je nach Scheduling
 lagen die Writer-Waits dadurch außerhalb des markierten Lesefensters. Die
-Capture-Session wartet jetzt auf `lab.Start`, gibt den Startmarker aus und
-öffnet direkt danach `lab.Go` für die Actors. Eine folgende CI-Matrix bestand
-mit dieser Reihenfolge SQL Server 2019 und 2022, doch SQL Server 2025 zeigte
-in drei Versuchen noch keine vollständigen Waitpaare in beiden Bursts. Die
-Actors und der Capture-Reader prüfen die Barriere deshalb jede Millisekunde
-statt alle zwei Millisekunden. Actorzahl, Einfügungen, Versuchszahl und
-Nachweiskriterien bleiben unverändert. Die aktuelle Variante mit beiden
-Korrekturen bestand lokal erneut auf allen drei Builds je drei von drei
-vollständigen Zweiburstversuchen; beide Bursts bestätigten die exklusive
-Waitüberlappung auf der rechten Blattseite, und alle Versuche bestätigten das
-Cleanup. Die serielle PR-Matrix
+Capture-Session wartet jetzt auf `lab.Start`. Die Actors melden sich danach in
+`lab.ActorReady` und warten an `lab.Go`; der Reader wartet auf die erwartete
+Actorzahl, setzt den XE-Startmarker und öffnet dann `lab.Go`. Eine folgende
+CI-Matrix mit nur 1-ms-Polling bestand SQL Server 2019 und 2022, doch SQL
+Server 2025 zeigte in drei Versuchen keine vollständigen Waitpaare. Die
+Zwei-Phasen-Barriere stellt sicher, dass alle Actors vor dem gemessenen Burst
+bereitstehen. Actorzahl, Einfügungen, Versuchszahl und Nachweiskriterien
+bleiben unverändert. Die aktuelle Variante bestand lokal auf allen drei
+Builds je drei von drei vollständigen Zweiburstversuchen; beide Bursts
+bestätigten die exklusive Waitüberlappung auf der rechten Blattseite, und alle
+Versuche bestätigten das Cleanup. Die serielle PR-Matrix
 ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
 bestand ebenfalls: Build 15 dreimal, Build 16 zweimal und Build 17 einmal je
 drei begrenzten Zweiburstversuchen. Alle anderen Läufe blieben sichtbar
-`NOT_PROVEN`. Die frische PR-Matrix für die 1-ms-Barriere steht noch aus. Die
+`NOT_PROVEN`. Die frische PR-Matrix für die Zwei-Phasen-Barriere steht noch aus. Die
 getrennte Methodenfreigabe bleibt vor einer
 Statusänderung oder Leistungsbehauptung erforderlich.
 `METHOD_DRAFT` bleibt bestehen, da

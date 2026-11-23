@@ -14505,18 +14505,21 @@ Waitnachweis. Das Artefakt zeigte den Orchestrierungsfehler: Die Steuerung
 Scheduling lagen Writer-Waits damit vor dem markierten Kettenlesefenster. Die
 Capture-Session wartet nun auf `lab.Start`, gibt zuerst den Startmarker aus und
 öffnet direkt danach `lab.Go` für die Actors. So beginnt das markierte Fenster
-vor dem Writerburst. Der erste Gate-Fix bestand lokal auf allen drei Builds,
-doch die frische PR-Matrix ließ auf SQL Server 2025 noch zu selten
-überlappende Waits sichtbar werden. Actors und Capture-Session prüfen die
-Startbarriere jetzt jede Millisekunde statt alle zwei Millisekunden. Actorzahl,
-Einfügungen, Capture-/Versuchszahl und PASS-Bedingungen bleiben unverändert;
-die Pause von 50 Millisekunden je Blattseitenprobe bleibt bestehen. Die
-aktuelle lokale Matrix bestand nach beiden Synchronisierungskorrekturen auf
-Build 15/16/17 je drei von drei Zweiburstversuchen: 661 Zeilen auf Build 15/16
-und 613 Zeilen auf Build 17. Alle bestätigten Datenbank-/Container-Cleanup.
-Die vorangehende PR-Matrix auf Commit `cba643e` bestand auf SQL Server 2019/2022,
-aber verfehlte SQL Server 2025 in drei Versuchen; sie qualifiziert das 1-ms-
-Profil noch nicht. Die frische Matrix für diesen Stand steht aus. Die
+vor dem Writerburst. Der 1-ms-Polling-Fix alleine ließ in der PR-Matrix SQL
+Server 2025 noch ohne vollständige Waitüberlappungen. Deshalb verwenden die
+Actors eine Zwei-Phasen-Barriere: Nach `lab.Start` tragen sie sich vor dem
+gemessenen Burst in `lab.ActorReady` ein und warten dann auf `lab.Go`. Der
+Capture-Reader wartet auf die erwartete Actorzahl, setzt erst danach den
+XE-Startmarker und öffnet unmittelbar anschließend `lab.Go`. Somit stehen alle
+Writer bereit, bevor der markierte Burst beginnt. Actorzahl, Einfügungen,
+Capture-/Versuchszahl und PASS-Bedingungen bleiben unverändert; die Pause von
+50 Millisekunden je Blattseitenprobe bleibt bestehen. Die aktuelle lokale
+Matrix bestand mit dieser Reihenfolge auf Build 15/16/17 je drei von drei
+Zweiburstversuchen: 661 Zeilen auf Build 15/16 und 613 Zeilen auf Build 17.
+Alle bestätigten Datenbank-/Container-Cleanup. Die vorangehende PR-Matrix auf
+Commit `dfa80ff` bestand auf SQL Server 2019/2022, aber verfehlte SQL Server
+2025 in drei Versuchen; die frische Matrix für die Zwei-Phasen-Barriere steht
+aus. Die
 serielle PR-Matrix ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
 bestand ebenfalls auf allen Builds: Build 15 mit drei, Build 16 mit zwei und
 Build 17 mit einem erfolgreichen Zweiburstnachweis aus je drei Versuchen; alle
