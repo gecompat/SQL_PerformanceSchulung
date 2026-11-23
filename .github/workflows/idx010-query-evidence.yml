@@ -1,0 +1,30 @@
+name: IDX-010 ordered NCCI query evidence
+
+on:
+  pull_request:
+    paths:
+      - 'Tests/Runtime/idx010_query_evidence.py'
+      - 'Tests/Static/test_idx010_query_evidence.py'
+      - 'Documentation/Project_Planning/IDX010_ORDERED_NCCI_METHOD.md'
+      - '.github/workflows/idx010-query-evidence.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Tests/Runtime/idx010_query_evidence.py'
+      - 'Tests/Static/test_idx010_query_evidence.py'
+      - 'Documentation/Project_Planning/IDX010_ORDERED_NCCI_METHOD.md'
+      - '.github/workflows/idx010-query-evidence.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  offline-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python Tests/Static/test_idx010_query_evidence.py
