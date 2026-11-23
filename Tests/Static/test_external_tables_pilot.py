@@ -162,6 +162,27 @@ class PilotCoordinatorTests(unittest.TestCase):
                 self.assertNotIn(Role.SOURCE, transport.databases)
 
     @patch("external_tables_pilot.measure_pushdown", return_value=MeasurementResult("PASS", "comparison", ("on", "off")))
+    def test_unconfirmed_connection_closure_prevents_sql_teardown(self, _):
+        for confirmation in (False, OSError("closure could not be observed")):
+            with self.subTest(confirmation=confirmation):
+                transport = GuestTransport()
+                with patch.object(transport, "close_data_connections") as close_data:
+                    if isinstance(confirmation, OSError):
+                        close_data.side_effect = confirmation
+                    else:
+                        close_data.return_value = confirmation
+                    result = run_pilot(transport, TOKEN)
+                close_data.assert_called_once()
+                self.assertEqual((result.status, result.sql_cleanup, result.guest_cleanup),
+                                 ("FAIL_CLEANUP", False, True))
+                self.assertIsNone(result.filters)
+                self.assertEqual(transport.databases, {Role.SOURCE, Role.QUERY})
+                sql_teardown = {"database_exists", "drop_database", "drop_logins"}
+                observed = {name for name, _, _ in transport.events}
+                self.assertFalse(observed & sql_teardown)
+                self.assertEqual(transport.events[-1][:2], ("remove_guests", TOKEN))
+
+    @patch("external_tables_pilot.measure_pushdown", return_value=MeasurementResult("PASS", "comparison", ("on", "off")))
     def test_guest_cleanup_failure_overrides_a_positive_sql_result(self, _):
         result = run_pilot(GuestTransport(guests_clean=False), TOKEN)
         self.assertEqual(result.status, "FAIL_CLEANUP")

@@ -652,6 +652,9 @@ Hyper-V-Anbindung muss im zugelassenen Pilot noch nachgewiesen werden.
 ### Abbau und Wiederaufnahme
 
 1. Sperre weitere Demoaufrufe und beende nur eigene ausstehende Requests.
+   Der SQL-Abbau beginnt erst, wenn der Transport die Schließung der
+   Reader- und Connectorverbindungen bestätigt. Bei fehlender Bestätigung
+   bleibt der SQL-Abbau unbestätigt und der Ablauf setzt bei Schritt 4 fort.
 2. Prüfe in beiden Datenbanken den vollständigen Laufmarker. Entferne auf dem
    Abfrageknoten externe Tabellen, Datenquellen, Credential und Hauptschlüssel
    in dieser Reihenfolge und danach die eigene Datenbank und ihre Demoanmeldung.
