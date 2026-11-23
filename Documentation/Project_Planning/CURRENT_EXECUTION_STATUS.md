@@ -12326,6 +12326,28 @@ Feuer-/Zuordnungsprüfung bleiben offen; kein Compile-Sturm oder XE-Session wurd
 ausgeführt. `QRY-004` blieb unverändert. Aktivierung, Demo-ID und
 Performanceclaim bleiben `DEFER`; menschliche Generalprobe ausgeschlossen.
 
+### `OPTIMIZED_SP_EXECUTESQL`: Katalog auf demselben Build erneut geprüft (23. November 2026)
+
+Der manuelle, read-only [Kataloglauf 45165364360](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45165364360)
+bestand einschließlich Cleanup. Der temporäre Container meldete Build
+`17.0.5065.9`, Edition `Enterprise Developer Edition (64-bit)` und denselben
+Image-Digest `sha256:05644dad1266ca3d445d1e8f6d2ebb9a6a03df9a39376e0f7b48917356dca9d9`
+wie der Kataloglauf vom 17. November. Die Metadaten bestätigten
+`spexec_batch_compilation_serialization` mit `database_id` und `object_id`;
+`spexec_batch_compilation_serialization_telemetry` enthält zusätzlich
+`plan_handle` und `sql_handle`. `sql_statement_post_compile` stellt unter
+anderem Dauer, CPU-Zeit, Recompileflag und Statement-/Objektnamen bereit;
+`session_id`, `query_hash`, `query_plan_hash`, `sql_text` und `tsql_stack` sind
+als Actions verfügbar. Der Lauf hat keine Extended-Events-Session angelegt und
+die Datenbankoption nicht aktiviert.
+
+Die erneute Katalogsicht bestätigt nur die Verfügbarkeit dieser Schemata auf
+diesem konkreten Build. Sie beweist weder, dass die Ereignisse bei dynamischen
+`sp_executesql`-Batches ausgelöst werden, noch dass Batchidentität, Session,
+Compile-Wait und Wiederverwendung zuverlässig korreliert werden können. Der
+unabhängige Methodenreview und diese empirische Feuer-/Zuordnungsprüfung
+bleiben offen; `QRY-004` bleibt unverändert.
+
 ### RES-004 – Methodenentwurf für tatsächliche Grant-Konkurrenz (17. November 2026)
 
 Der neue [Methodenentwurf](RES004_GRANT_CONTENTION_METHOD.md) verbindet einen
