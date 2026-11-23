@@ -30,15 +30,23 @@ def principal_name(token: str, principal: Principal) -> str:
     return f"{principal.value}_{token}"
 
 
-def create_principal_batch(token: str, principal: Principal, password: str) -> str:
+def login_sid_literal(sid: bytes) -> str:
+    if type(sid) is not bytes or len(sid) != 16 or not any(sid):
+        raise ValueError("expected a nonzero 16-byte SQL login SID recorded for this run")
+    return "0x" + sid.hex().upper()
+
+
+def create_principal_batch(token: str, principal: Principal, password: str, sid: bytes) -> str:
     """Prepare secret-bearing SQL for the owned guest, with setup capture disabled."""
     name = principal_name(token, principal)
+    sid_literal = login_sid_literal(sid)
     if not PASSWORD.fullmatch(password):
         raise ValueError("expected a generated per-run SQL login secret")
     password_literal = "'" + password + "'"
     db = database_name(token, principal.role)
     sql = owned_database_guard(token, principal.role) + f"""
 IF SUSER_ID(N'{name}') IS NOT NULL OR USER_ID(N'{name}') IS NOT NULL
+    OR EXISTS (SELECT 1 FROM sys.server_principals WHERE sid = {sid_literal})
     THROW 51066, 'FAIL_STATE: External Tables principal already exists.', 1;
 """
     if principal is Principal.QUERY_READER:
@@ -50,7 +58,7 @@ IF NOT EXISTS (SELECT 1 FROM sys.external_tables WHERE object_id = OBJECT_ID(N'd
     sql += f"""
 BEGIN TRANSACTION;
 USE [master];
-CREATE LOGIN [{name}] WITH PASSWORD = {password_literal}, DEFAULT_DATABASE = [{db}],
+CREATE LOGIN [{name}] WITH PASSWORD = {password_literal}, DEFAULT_DATABASE = [{db}], SID = {sid_literal},
     CHECK_POLICY = ON, CHECK_EXPIRATION = OFF;
 """
     if principal is Principal.OBSERVER:

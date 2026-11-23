@@ -12,14 +12,18 @@ from external_tables_principals import (
 
 TOKEN = "TEST0004"
 PASSWORD = "Ext9!" + "0" * 32
+SID = bytes.fromhex("1a" * 16)
 
 
 class PrincipalContractTests(unittest.TestCase):
     def test_source_reader_matches_the_connector_credential_and_has_one_object_grant(self):
         name = principal_name(TOKEN, Principal.SOURCE_READER)
-        create = create_principal_batch(TOKEN, Principal.SOURCE_READER, PASSWORD)
+        create = create_principal_batch(TOKEN, Principal.SOURCE_READER, PASSWORD, SID)
         self.assertIn(f"credential_identity = N'{name}'", external_tables_batch(TOKEN))
         self.assertIn("EXTERNAL_TABLES_SOURCE", create)
+        self.assertIn("SID = 0x" + "1A" * 16, create)
+        with self.assertRaises(ValueError):
+            create_principal_batch(TOKEN, Principal.SOURCE_READER, PASSWORD, bytes(16))
         self.assertIn(f"GRANT SELECT ON OBJECT::dbo.Facts TO [{name}];", create)
         self.assertEqual(create.count("GRANT"), 1)
         self.assertLess(create.index("FAIL_OWNERSHIP"), create.index("CREATE LOGIN"))
@@ -27,7 +31,7 @@ class PrincipalContractTests(unittest.TestCase):
         self.assertIn("CREATE TABLE dbo.PilotDenied", fixture_batch(TOKEN, Role.SOURCE))
 
     def test_query_reader_requires_external_tables_and_has_three_select_grants(self):
-        create = create_principal_batch(TOKEN, Principal.QUERY_READER, PASSWORD)
+        create = create_principal_batch(TOKEN, Principal.QUERY_READER, PASSWORD, SID)
         self.assertIn("EXTERNAL_TABLES_QUERY", create)
         self.assertLess(create.index("sys.external_tables"), create.index("CREATE LOGIN"))
         self.assertIn("GRANT SELECT ON OBJECT::dbo.FactsPush", create)
@@ -36,7 +40,7 @@ class PrincipalContractTests(unittest.TestCase):
         self.assertNotIn("SERVER PERFORMANCE STATE", create)
 
     def test_only_observer_has_performance_state_and_no_object_grant(self):
-        create = create_principal_batch(TOKEN, Principal.OBSERVER, PASSWORD)
+        create = create_principal_batch(TOKEN, Principal.OBSERVER, PASSWORD, SID)
         self.assertIn("GRANT VIEW SERVER PERFORMANCE STATE", create)
         self.assertNotIn("GRANT VIEW SERVER STATE", create)
         self.assertEqual(create.count("GRANT"), 1)
@@ -56,7 +60,7 @@ class PrincipalContractTests(unittest.TestCase):
             (TOKEN, Principal.SOURCE_READER, "Ext9!';" + "0" * 32),
         ):
             with self.subTest(token=token, principal=principal), self.assertRaises(ValueError):
-                create_principal_batch(token, principal, password)
+                create_principal_batch(token, principal, password, SID)
 
     def test_credential_is_bound_to_query_database_and_separate_secrets(self):
         key_password = "Ext9!" + "1" * 32
