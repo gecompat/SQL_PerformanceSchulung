@@ -338,11 +338,21 @@ verworfene Auswertung bestätigte separat den Abbau von Sitzung und
 Datenbank.
 
 Der Diagnoseaufruf bindet den Befund an diesen Build und diese Reihenfolge.
-Der Teilnehmervergleich erfasst seine T2-Kompilierungen separat auf den
-Builds `17.0.4075.5` und `17.0.5065.9`. Für einen ausgewiesenen Wert muss
-jeder der vier tatsächlichen Statementabschlüsse genau einer erfassten
-Kompilierung folgen. Abweichungen erscheinen als
-`COMPILE_EVIDENCE_MISSING`. Die T2-Sitzung gehört zum markierten
-Datenbanklauf. Beide Recovery-Pfade prüfen den aufgezeichneten Sitzungsnamen
-und entfernen ausschließlich diese T2-Messsitzung. Ein gepaarter
-Kompiliervergleich zwischen T1 und T2 bleibt ein eigener Nachweis.
+Der Teilnehmervergleich misst auf den Builds `17.0.4075.5` und
+`17.0.5065.9` auch die tatsächlichen T1- und T2-Aufrufe. Beide Phasen
+verwenden dieselben vier Parameterklassen in derselben Reihenfolge.
+Eine getrennte, pro Messsitzung frisch kompilierte Konstantenabfrage
+prüft die Verfügbarkeit des Kompiliereignisses. Ihre Kosten gehen
+nicht in den Phasenvergleich ein. Die Auswertung bindet vier
+markierte Statementabschlüsse an ihre Kompiliereignisse. Für T1 sind
+pro Request null oder eine Kompilierung zulässig, für T2 genau eine.
+Erst nach bestätigtem Abbau wird die Phasensumme gespeichert. Fehlt
+eine vollständige Phase, meldet der Teilnehmervergleich
+`COMPILE_EVIDENCE_MISSING`. Beide Recovery-Pfade prüfen den
+aufgezeichneten Sitzungsnamen und entfernen nur diese Messsitzung.
+
+In den vollständigen isolierten Vergleichsläufen wurden auf beiden Builds
+null Kompilierungen in T1 und vier in T2 beobachtet. Die T2-Kompilierungen
+summierten sich auf 18 ms CPU-Zeit auf Build `17.0.5065.9` und 26 ms auf
+Build `17.0.4075.5`. Die Zahlen sind Laufbefunde. Sie liefern keine
+allgemeine Laufzeitbewertung der Änderung.

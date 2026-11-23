@@ -194,8 +194,25 @@ def main() -> int:
             findings.append(f"missing adapter entrypoint {name}")
             continue
         text = path.read_text(encoding="utf-8")
+        checked_text = text
+        if name == "install" and "CREATE EVENT SESSION" in text:
+            # Only the owned scalar compile capture may run before participant observation.
+            match = re.search(
+                r"CREATE PROCEDURE lab\.usp_BeginDgn007CompileCapture .*?(?=CREATE PROCEDURE lab\.usp_EndDgn007CompileCapture)",
+                text, re.S,
+            )
+            if (match and match[0].count("CREATE EVENT SESSION") == 1
+                and match[0].count("ADD EVENT ") == 2 and match[0].count("ADD TARGET ") == 1
+                and all(marker in match[0] for marker in (
+                "INSERT lab.Dgn007T2CompileOwner VALUES (1,@CompileSession,@@SPID,@Phase)",
+                "QUOTENAME(@CompileSession)", "ADD EVENT sqlserver.sql_statement_post_compile",
+                "ADD EVENT sqlserver.sp_statement_completed", "ADD TARGET package0.ring_buffer",
+                "STARTUP_STATE=OFF", "[sqlserver].[session_id]", "[sqlserver].[database_id]",
+            ))):
+                i = text.index("CREATE EVENT SESSION", match.start(), match.end())
+                checked_text = text[:i] + text[i + len("CREATE EVENT SESSION"):]
         for forbidden in FORBIDDEN_SOLUTION_MARKERS:
-            if forbidden in text:
+            if forbidden in checked_text:
                 findings.append(f"forbidden solution or export marker {forbidden} in {name}")
         if re.search(r"DROP DATABASE", text) is not None and name not in ("cleanup", "install"):
             findings.append(f"unexpected DROP DATABASE in {name}")

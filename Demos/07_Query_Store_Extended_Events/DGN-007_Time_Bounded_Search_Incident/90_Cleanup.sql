@@ -46,6 +46,8 @@ BEGIN
     END;
     UPDATE lab.Dgn007ReferenceState SET OriginalProcedureDefinition=NULL,OriginalChecksum=NULL,MitigationApplied=0,T2Utc=NULL,XeStartedUtc=NULL WHERE StateId=1;
 END;
+IF OBJECT_ID(N'lab.Dgn007CompileProfile',N'U') IS NOT NULL
+    DELETE FROM lab.Dgn007CompileProfile WHERE IncidentPhase=N'T2_COMPARISON';
 IF OBJECT_ID(N'lab.IncidentQueryStoreProfile',N'U') IS NOT NULL
     DELETE FROM lab.IncidentQueryStoreProfile WHERE IncidentPhase=N'T2_COMPARISON';
 DELETE FROM lab.IncidentState WHERE IncidentPhase=N'T2_COMPARISON';

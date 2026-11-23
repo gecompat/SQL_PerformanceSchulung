@@ -120,7 +120,7 @@ def main() -> int:
         "@Phase nvarchar(32)=N'T2_COMPARISON'",
         "WHILE SYSUTCDATETIME() <= @T1IntervalEnd",
         "DATEADD(second,90,SYSUTCDATETIME())",
-        "INSERT #Parameters(GroupKey,StatusCode) VALUES(8,3),(1,3),(5,3),(1,1)",
+        "INSERT #Parameters(RequestOrdinal,GroupKey,StatusCode) VALUES(1,1,3),(2,8,3),(3,5,3),(4,1,1)",
         "#Expected EXCEPT SELECT",
         "#Actual EXCEPT SELECT",
         "INSERT lab.IncidentQueryStoreProfile",

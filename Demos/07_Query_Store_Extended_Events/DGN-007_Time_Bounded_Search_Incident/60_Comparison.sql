@@ -34,8 +34,10 @@ BEGIN
     WAITFOR DELAY '00:00:01';
 END;
 
-CREATE TABLE #Parameters(GroupKey int NOT NULL,StatusCode tinyint NOT NULL,PRIMARY KEY(GroupKey,StatusCode));
-INSERT #Parameters(GroupKey,StatusCode) VALUES(8,3),(1,3),(5,3),(1,1);
+CREATE TABLE #Parameters(
+    RequestOrdinal tinyint NOT NULL UNIQUE,GroupKey int NOT NULL,StatusCode tinyint NOT NULL,PRIMARY KEY(GroupKey,StatusCode)
+);
+INSERT #Parameters(RequestOrdinal,GroupKey,StatusCode) VALUES(1,1,3),(2,8,3),(3,5,3),(4,1,1);
 CREATE TABLE #Expected(GroupKey int NOT NULL,StatusCode tinyint NOT NULL,ItemId int NOT NULL,SearchValue nvarchar(64) NOT NULL,ResultStatusCode tinyint NOT NULL,GroupLabel nvarchar(64) NOT NULL,DetailCount int NOT NULL,PRIMARY KEY(GroupKey,StatusCode,ItemId));
 CREATE TABLE #Actual(GroupKey int NOT NULL,StatusCode tinyint NOT NULL,ItemId int NOT NULL,SearchValue nvarchar(64) NOT NULL,ResultStatusCode tinyint NOT NULL,GroupLabel nvarchar(64) NOT NULL,DetailCount int NOT NULL,PRIMARY KEY(GroupKey,StatusCode,ItemId));
 
@@ -47,50 +49,16 @@ JOIN dbo.CaseGroup AS g ON g.GroupKey=i.GroupKey
 LEFT JOIN dbo.CaseItemDetail AS d ON d.ItemId=i.ItemId
 GROUP BY p.GroupKey,p.StatusCode,i.ItemId,i.SearchValue,i.StatusCode,g.GroupLabel;
 
-/*
-   The compile capture is optional on other builds. Its random session name is
-   recorded in the owned database before creation so recovery can retry safely.
-*/
-DECLARE @CompilePrefix sysname=N'SQLPERF_DGN007_T2_',@CompileSession sysname,
-        @CompileCpuMs bigint,@CompileDurationMs bigint,@CompileCount int,@CompileSql nvarchar(max);
-IF DB_NAME()=N'SQLPERF_LAB_DGN007_LOCAL'
-   AND CONVERT(varchar(32),SERVERPROPERTY('ProductVersion')) IN ('17.0.4075.5','17.0.5065.9')
-   AND (SELECT COUNT(*) FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0 AND (
-       (name=N'SQLPERF.Project' AND CONVERT(nvarchar(4000),value) COLLATE Latin1_General_100_BIN2=N'SQL_PerformanceSchulung'
-        AND DATALENGTH(CONVERT(nvarchar(4000),value))=DATALENGTH(N'SQL_PerformanceSchulung'))
-       OR (name=N'SQLPERF.ContractVersion' AND CONVERT(nvarchar(4000),value) COLLATE Latin1_General_100_BIN2=N'1.0'
-        AND DATALENGTH(CONVERT(nvarchar(4000),value))=DATALENGTH(N'1.0'))
-       OR (name=N'SQLPERF.DemoId' AND CONVERT(nvarchar(4000),value) COLLATE Latin1_General_100_BIN2=N'DGN-007'
-        AND DATALENGTH(CONVERT(nvarchar(4000),value))=DATALENGTH(N'DGN-007'))
-       OR (name=N'SQLPERF.RunToken' AND CONVERT(nvarchar(4000),value) COLLATE Latin1_General_100_BIN2=N'LOCAL'
-        AND DATALENGTH(CONVERT(nvarchar(4000),value))=DATALENGTH(N'LOCAL'))
-   ))=4
-BEGIN
-    IF OBJECT_ID(N'lab.Dgn007T2CompileOwner',N'U') IS NOT NULL
-        THROW 51012,'FAIL_STATE: Die T2-Messsitzung benötigt zuerst Recovery.',1;
-    SET @CompileSession=@CompilePrefix+LOWER(CONVERT(varchar(32),CONVERT(binary(16),NEWID()),2));
-    IF EXISTS (SELECT 1 FROM sys.server_event_sessions WHERE name=@CompileSession)
-        THROW 51012,'FAIL_STATE: Der T2-Messsitzungsname ist bereits belegt.',1;
-    CREATE TABLE lab.Dgn007T2CompileOwner(StateId tinyint PRIMARY KEY CHECK(StateId=1),SessionName sysname NOT NULL);
-    INSERT lab.Dgn007T2CompileOwner VALUES (1,@CompileSession);
-    DECLARE @CompileFilter nvarchar(128)=N' WHERE ([sqlserver].[session_id]=('
-        +CONVERT(nvarchar(12),@@SPID)+N') AND [sqlserver].[database_id]=('+CONVERT(nvarchar(12),DB_ID())+N'))';
-    SET @CompileSql=N'CREATE EVENT SESSION '+QUOTENAME(@CompileSession)+N' ON SERVER
-        ADD EVENT sqlserver.sql_statement_post_compile(
-            SET collect_statement=(1) ACTION(package0.event_sequence,sqlserver.session_id,sqlserver.database_id)'+@CompileFilter+N'),
-        ADD EVENT sqlserver.sp_statement_completed(
-            ACTION(package0.event_sequence,sqlserver.session_id,sqlserver.database_id)'+@CompileFilter+N')
-        ADD TARGET package0.ring_buffer(SET max_memory=(1024))
-        WITH(MAX_MEMORY=4 MB,MAX_DISPATCH_LATENCY=1 SECONDS,STARTUP_STATE=OFF);
-        ALTER EVENT SESSION '+QUOTENAME(@CompileSession)+N' ON SERVER STATE=START;';
-    EXEC sys.sp_executesql @CompileSql;
-END;
+DECLARE @CompileCaptureStarted bit=0;
+IF OBJECT_ID(N'lab.usp_BeginDgn007CompileCapture',N'P') IS NOT NULL
+   AND OBJECT_ID(N'lab.usp_EndDgn007CompileCapture',N'P') IS NOT NULL
+    EXEC lab.usp_BeginDgn007CompileCapture @Phase,@CompileCaptureStarted OUTPUT;
 
 SET @T2Marker=SYSUTCDATETIME();
 INSERT lab.IncidentState(IncidentPhase,MarkerUtc) VALUES(@Phase,@T2Marker);
 SET @Start=SYSUTCDATETIME();
 DECLARE @GroupKey int,@StatusCode tinyint;
-DECLARE parameter_cursor CURSOR LOCAL FAST_FORWARD FOR SELECT GroupKey,StatusCode FROM #Parameters ORDER BY GroupKey,StatusCode;
+DECLARE parameter_cursor CURSOR LOCAL FAST_FORWARD FOR SELECT GroupKey,StatusCode FROM #Parameters ORDER BY RequestOrdinal;
 OPEN parameter_cursor;
 FETCH NEXT FROM parameter_cursor INTO @GroupKey,@StatusCode;
 WHILE @@FETCH_STATUS=0
@@ -111,67 +79,8 @@ IF EXISTS(SELECT GroupKey,StatusCode,ItemId,SearchValue,ResultStatusCode,GroupLa
     THROW 51010, 'FAIL_RESULT_CONTRACT: Die Referenzänderung hat eine Ergebnismenge verändert.', 1;
 
 UPDATE lab.IncidentState SET CompletedUtc=SYSUTCDATETIME() WHERE IncidentPhase=@Phase;
-IF @CompileSession IS NOT NULL
-BEGIN
-    SET QUOTED_IDENTIFIER ON;
-    WAITFOR DELAY '00:00:02';
-    DECLARE @CompileEvents xml,@RetainedCount int;
-    SELECT @CompileEvents=TRY_CONVERT(xml,t.target_data)
-    FROM sys.dm_xe_sessions AS s
-    JOIN sys.dm_xe_session_targets AS t ON t.event_session_address=s.address
-    WHERE s.name=@CompileSession AND t.target_name=N'ring_buffer'
-      AND s.dropped_event_count=0 AND s.dropped_buffer_count=0
-      AND s.largest_event_dropped_size=0 AND s.pending_buffers=0
-      AND DATALENGTH(t.target_data)<=4194304;
-    SET @RetainedCount=@CompileEvents.value('(/RingBufferTarget/@eventCount)[1]','int');
-    IF @CompileEvents.value('(/RingBufferTarget/@truncated)[1]','int')=0
-       AND @CompileEvents.value('(/RingBufferTarget/@droppedCount)[1]','int')=0
-       AND @RetainedCount=@CompileEvents.value('(/RingBufferTarget/@totalEventsProcessed)[1]','int')
-       AND @RetainedCount=@CompileEvents.value('count(/RingBufferTarget/event)','int')
-    BEGIN
-        DECLARE @MarkedCompileEvents table (EventName varchar(40),SequenceNo bigint,CpuMs bigint,DurationMs bigint);
-        INSERT @MarkedCompileEvents
-        SELECT event.EventName,event.SequenceNo,event.CpuMs,event.DurationMs
-        FROM @CompileEvents.nodes('/RingBufferTarget/event') AS x(e)
-        CROSS APPLY (SELECT
-            x.e.value('(@name)[1]','varchar(40)'),
-            x.e.value('(action[@name="event_sequence"]/value/text())[1]','bigint'),
-            x.e.value('(data[@name="statement"]/value/text())[1]','nvarchar(4000)'),
-            x.e.value('(data[@name="cpu_time"]/value/text())[1]','bigint'),
-            x.e.value('(data[@name="duration"]/value/text())[1]','bigint'),
-            x.e.value('(action[@name="session_id"]/value/text())[1]','int'),
-            x.e.value('(action[@name="database_id"]/value/text())[1]','int')
-        ) AS event(EventName,SequenceNo,StatementText,CpuMs,DurationMs,SessionId,DatabaseId)
-        WHERE LTRIM(event.StatementText) COLLATE Latin1_General_100_BIN2 LIKE N'SELECT /* DGN007_CASE_SEARCH */%'
-          AND event.SessionId=@@SPID AND event.DatabaseId=DB_ID()
-          AND event.EventName IN ('sp_statement_completed','sql_statement_post_compile');
-        IF (SELECT COUNT(*) FROM @MarkedCompileEvents WHERE EventName='sp_statement_completed')=4
-           AND (SELECT COUNT(*) FROM @MarkedCompileEvents WHERE EventName='sql_statement_post_compile')=4
-           AND NOT EXISTS (SELECT SequenceNo FROM @MarkedCompileEvents GROUP BY SequenceNo
-                           HAVING SequenceNo IS NULL OR COUNT(*)<>1)
-           AND NOT EXISTS (SELECT 1 FROM @MarkedCompileEvents WHERE EventName='sql_statement_post_compile'
-                           AND (CpuMs IS NULL OR DurationMs IS NULL OR CpuMs<0 OR DurationMs<0))
-        BEGIN
-            ;WITH Terminals AS (
-                SELECT SequenceNo,LAG(SequenceNo,1,0) OVER (ORDER BY SequenceNo) AS PreviousSequence
-                FROM @MarkedCompileEvents WHERE EventName='sp_statement_completed'
-            ), PerRequest AS (
-                SELECT t.SequenceNo,COUNT(e.SequenceNo) AS CompileCount,SUM(e.CpuMs) AS CpuMs,SUM(e.DurationMs) AS DurationMs
-                FROM Terminals AS t LEFT JOIN @MarkedCompileEvents AS e ON e.EventName='sql_statement_post_compile'
-                    AND e.SequenceNo>t.PreviousSequence AND e.SequenceNo<t.SequenceNo
-                GROUP BY t.SequenceNo
-            )
-            SELECT @CompileCount=SUM(CompileCount),@CompileCpuMs=SUM(CpuMs),@CompileDurationMs=SUM(DurationMs)
-            FROM PerRequest HAVING MIN(CompileCount)=1 AND MAX(CompileCount)=1;
-        END;
-    END;
-    SET @CompileSql=N'DROP EVENT SESSION '+QUOTENAME(@CompileSession)+N' ON SERVER;';
-    EXEC sys.sp_executesql @CompileSql;
-    IF EXISTS (SELECT 1 FROM sys.server_event_sessions WHERE name=@CompileSession)
-       OR EXISTS (SELECT 1 FROM sys.dm_xe_sessions WHERE name=@CompileSession)
-        THROW 51014,'FAIL_CLEANUP: T2-Messsitzung noch vorhanden.',1;
-    DROP TABLE lab.Dgn007T2CompileOwner;
-END;
+IF @CompileCaptureStarted=1
+    EXEC lab.usp_EndDgn007CompileCapture @Phase;
 
 EXEC sys.sp_query_store_flush_db;
 ;WITH StrictParentQuery AS
@@ -233,9 +142,14 @@ SELECT 6 AS EvidenceLevel,N'COMPARISON' AS EvidenceScope,(SELECT COUNT(*) FROM #
 SELECT 4 AS Sequence,'COMPARISON' AS Phase,'SUMMARY' AS CheckId,'PASS' AS Outcome,'OK' AS Code,
        CONCAT(N'T2; Rows=',(SELECT COUNT(*) FROM #Actual),N'; DurationMs=',@DurationMs) AS ObservedValue,N'gleiches fachliches Ergebnis bei einer Änderung' AS RequiredValue,
        N'Die Vergleichsausführungen und das getrennte T2-Profil sind erfasst. Absolute Zeiten und Planwahl bleiben empirisch.' AS Message;
-IF @CompileCount=4
-    SELECT 6 AS EvidenceLevel,N'T2_COMPILE_COST' AS EvidenceScope,
-           @CompileCount AS Compilations,@CompileCpuMs AS CompileCpuMs,@CompileDurationMs AS CompileDurationMs;
+IF OBJECT_ID(N'lab.Dgn007CompileProfile',N'U') IS NOT NULL
+BEGIN
+    SELECT 6 AS EvidenceLevel,N'PHASE_COMPILE_COST' AS EvidenceScope,IncidentPhase,
+           RequestCount,CompileCount,CompileCpuMs,CompileDurationMs
+    FROM lab.Dgn007CompileProfile WHERE IncidentPhase IN(N'T1_INCIDENT',@Phase) ORDER BY IncidentPhase;
+    IF (SELECT COUNT(*) FROM lab.Dgn007CompileProfile WHERE IncidentPhase IN(N'T1_INCIDENT',@Phase))<>2
+        SELECT 6 AS EvidenceLevel,N'PHASE_COMPILE_COST' AS EvidenceScope,N'COMPILE_EVIDENCE_MISSING' AS EvidenceStatus;
+END
 ELSE
-    SELECT 6 AS EvidenceLevel,N'T2_COMPILE_COST' AS EvidenceScope,N'COMPILE_EVIDENCE_MISSING' AS EvidenceStatus;
+    SELECT 6 AS EvidenceLevel,N'PHASE_COMPILE_COST' AS EvidenceScope,N'COMPILE_EVIDENCE_MISSING' AS EvidenceStatus;
 PRINT 'SQLPERF_SUMMARY|PASS|OK';
