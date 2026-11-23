@@ -15,7 +15,6 @@ import json
 import os
 from pathlib import Path
 import re
-import secrets
 import subprocess
 import sys
 import time
@@ -516,7 +515,7 @@ def _execute_sql_phase(
 def _execute_idx007_container_phase(phase: PhaseSpec, *, major: int, timeout_seconds: float,
                                     show_output: bool) -> PhaseResult:
     started = time.monotonic()
-    owner_token = secrets.token_hex(16)
+    owner_token = os.urandom(16).hex()
     command = [sys.executable, str(phase.path), "--major", str(major)]
     environment = os.environ.copy()
     for name in tuple(environment):

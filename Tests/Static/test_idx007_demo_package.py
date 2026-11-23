@@ -75,21 +75,21 @@ class Idx007DemoPackageTests(unittest.TestCase):
         self.assertEqual((result.outcome, result.code), ("FAIL", "FAIL_SAFETY"))
         resolve_sqlcmd.assert_not_called()
 
-    @patch("run_demo.secrets.token_hex", return_value="a" * 32)
+    @patch("run_demo.os.urandom", return_value=bytes.fromhex("aa" * 16))
     @patch("run_demo.subprocess.run")
-    def test_timeout_cleanup_is_limited_to_owned_isolated_containers(self, process, owner_token) -> None:
+    def test_timeout_cleanup_is_limited_to_owned_isolated_containers(self, process, random_bytes) -> None:
         import subprocess
 
         process.side_effect = [
             subprocess.TimeoutExpired(["python"], 1),
             subprocess.CompletedProcess([], 0, "0123456789ab\n", ""),
-            subprocess.CompletedProcess([], 0, json.dumps([{"Config": {"Labels": {"sqlperf.demo.id": "IDX-007", "sqlperf.demo.owner": "a" * 32}}, "HostConfig": {"NetworkMode": "none"}}]), ""),
+            subprocess.CompletedProcess([], 0, json.dumps([{"Config": {"Labels": {"sqlperf.demo.id": "IDX-007", "sqlperf.demo.owner": "aa" * 16}}, "HostConfig": {"NetworkMode": "none"}}]), ""),
             subprocess.CompletedProcess([], 0, "0123456789ab\n", ""),
         ]
         phase = run_demo.load_manifest(MANIFEST).phases[0]
         result = run_demo._execute_idx007_container_phase(phase, major=15, timeout_seconds=1, show_output=False)
         self.assertEqual((result.outcome, result.code), ("FAIL", "FAIL_TIMEOUT"))
-        self.assertIn("label=sqlperf.demo.owner=" + "a" * 32, process.call_args_list[1].args[0])
+        self.assertIn("label=sqlperf.demo.owner=" + "aa" * 16, process.call_args_list[1].args[0])
         self.assertEqual(process.call_args_list[3].args[0][:3], ["docker", "rm", "--force"])
 
     @patch("run_demo.subprocess.run")
