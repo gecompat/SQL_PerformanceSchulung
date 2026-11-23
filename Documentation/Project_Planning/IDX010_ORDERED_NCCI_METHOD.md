@@ -357,6 +357,27 @@ Segmentgrenzen und die Eingabereihenfolge beim Aufbau zu prüfen. Erst mit
 einem erneut begründeten Kontrolllayout kann ein weiterer Vergleich
 Segmentelimination nachweisen.
 
+Eine zweite, ausschließlich auf die Metadaten begrenzte Probe mit
+demselben Profil bestätigte die Zählung unabhängig anhand der numerischen
+Segmentgrenzen. Beide Varianten hatten vier volle Rowgroups mit
+Encoding 1. Die beobachteten Bereiche waren:
+
+| Segment | Kontrollindex | Index mit `ORDER (EventDayKey)` |
+|---|---:|---:|
+| 0 | 0–1.048.575 | 0–4.194.300 |
+| 1 | 1.048.576–2.097.151 | 2–4.194.301 |
+| 2 | 2.097.152–3.145.727 | 3–4.194.302 |
+| 3 | 3.145.728–4.194.303 | 4–4.194.303 |
+
+Der direkte Zahlenvergleich ergab dieselben 0 bzw. 6 überlappenden Paare
+wie der Katalogreader. Die Bereiche des Indexes mit `ORDER` weichen auch
+von den vorberechneten Bereichen der vier Ladeblöcke ab. Aus den
+Grenzen allein lässt sich die Ursache des beobachteten Layouts noch
+nicht bestimmen. Ein nächster Diagnosekandidat ändert ausschließlich
+die Spaltenreihenfolge in der NCCI-Definition für beide Varianten.
+Er vergleicht die tatsächlichen Bereiche erneut. Eine eventuell
+verwendbare Vergleichsfixture wird anschließend separat bewertet.
+
 ## Voraussetzungen, Stop und Cleanup für einen späteren Pilot
 
 Vor jeder SQL-Freigabe muss ein unabhängiger Methodenreview den vollständigen
