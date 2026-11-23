@@ -110,7 +110,7 @@ Dateien mit:
 python Tests/Static/verify_external_tables_ubuntu_base.py MANIFEST --archive VHD-ARCHIV
 ```
 
-### Aufgelöste Ubuntu-Pakete für die Abfrage-VM
+### Aufgelöste Ubuntu-Pakete für beide VM-Rollen
 
 Der Paketstatus wurde am 23. November 2026 direkt aus dem Root-Dateisystem
 der geprüften VHD gelesen. Alle 659 installierten Paketnamen und Versionen
@@ -130,12 +130,15 @@ Er prüft die Paketnamen und Versionsübergänge. Optional prüft er die
 Dateien aller 14 Pakete in demselben Verzeichnis.
 
 ```text
-python Tests/Static/verify_external_tables_apt_plan.py APT-PLAN --payload-directory PAKETVERZEICHNIS
+python Tests/Static/verify_external_tables_apt_plan.py APT-PLAN --role query --payload-directory PAKETVERZEICHNIS
 ```
 
-Der Befund gilt für das Paketprofil der Abfrage-VM. Für die Quell-VM muss
-der separate Plan nur mit dem Engine-Paket abgeglichen werden. Die
-Simulation installiert weder SQL Server noch PolyBase. Installationsskripte,
+Ein separater Lauf vom selben Paketstatus mit ausschließlich dem
+Engine-Paket ergab für die Quell-VM die zwölf bereits gebundenen
+Ubuntu-Pakete plus `mssql-server`. Die 13 Installationsschritte enthalten
+dieselben Versionen wie das Abfrageprofil und keine Upgrades oder
+Entfernungen. Verwende `--role source` für diesen Plan. Die Simulation
+installiert weder SQL Server noch PolyBase. Installationsskripte,
 Dienstzustand und der Connectorlauf bleiben im Gast zu prüfen.
 
 Die Prüfung hat außerdem eine Abweichung bei der VM-Bereitstellung gezeigt.
