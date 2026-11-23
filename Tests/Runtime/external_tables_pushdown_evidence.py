@@ -55,6 +55,9 @@ ORDER BY dr.execution_id, w.step_index, w.compute_node_id, w.work_id;
 """
 
 
+PUSHDOWN_FILTER_EVIDENCE = ("REMOTE_DATE_FILTER", "NO_REMOTE_FILTER")
+
+
 def verify_pushdown(
     token: str, on_records: tuple[Work, ...], off_records: tuple[Work, ...],
 ) -> tuple[str, str]:
@@ -67,7 +70,7 @@ def verify_pushdown(
         raise ValueError("pushdown arms share a distributed execution")
     if not _is_filtered(on.read_command, source) or _is_filtered(off.read_command, source):
         raise ValueError("remote filter differs from the expected ON/OFF comparison")
-    return "REMOTE_DATE_FILTER", "NO_REMOTE_FILTER"
+    return PUSHDOWN_FILTER_EVIDENCE
 
 
 def _single_work(records: tuple[Work, ...], source: str) -> Work:

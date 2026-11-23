@@ -23,12 +23,14 @@ from time import monotonic
 from typing import TYPE_CHECKING, Protocol
 from zipfile import BadZipFile, ZipFile
 
-from external_tables_measurement import AggregateRows, PendingAggregate, UnconfirmedRequestCleanup
+from external_tables_measurement import (
+    AggregateRows, MeasurementResult, PendingAggregate, UnconfirmedRequestCleanup, measure_pushdown,
+)
 from external_tables_pilot_sql import (
     CONNECTION_OPTIONS, EDITION, ROWS, SOURCE_PORT, VERSION, Role, Route, aggregate_batch,
     database_name, fixture_read_batch, source_host,
 )
-from external_tables_principals import PASSWORD, Principal, principal_name
+from external_tables_principals import PASSWORD, Principal, principal_name, principal_probe_batch
 from external_tables_pushdown_evidence import Work
 
 
@@ -53,6 +55,9 @@ class Connection(Protocol):
 
     def cursor(self) -> Cursor: ...
     def close(self) -> None: ...
+
+
+PrincipalConnection = Callable[[Principal, str, int], Connection]
 
 
 class OdbcDriver(Protocol):
@@ -261,16 +266,7 @@ class OdbcPilotAdministration:
             raise ValueError("unexpected database for guest administration")
         with self._cursor(database, deadline) as cursor:
             cursor.execute(self._guard(database) + sql)
-            # SQL Server can emit non-row ODBC results for context changes.
-            # Consume them to detect late errors, while bounding the result chain.
-            for _ in range(32):
-                _remaining(deadline)
-                if cursor.description is not None:
-                    raise ValueError("unexpected rows from guest administration")
-                if not cursor.nextset():
-                    break
-            else:
-                raise ValueError("guest administration returned too many status results")
+            _consume_status_results(cursor, deadline)
 
     def fixture_rows(self, sql: str, deadline: float) -> tuple[tuple[int, date, int, int], ...]:
         if sql not in self._fixture_reads:
@@ -325,6 +321,65 @@ IF DB_NAME() COLLATE Latin1_General_100_BIN2 <> N'{database}'
     OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'Edition')), N'') <> N'{EDITION}'
     THROW 51083, 'FAIL_CONTRACT: unexpected local guest administration session.', 1;
 """
+
+
+def run_guest_measurement(
+    token: str, reader_secret: str, observer_secret: str, deadline: float, open_principal: PrincipalConnection,
+) -> MeasurementResult:
+    """Run measurements and observation locally, returning only the normalized result."""
+    if not all(PASSWORD.fullmatch(secret) for secret in (reader_secret, observer_secret)) or reader_secret == observer_secret:
+        raise ValueError("measurement requires distinct generated principal secrets")
+    try:
+        observer = _open_measurement_principal(token, Principal.OBSERVER, observer_secret, deadline, open_principal)
+        try:
+            def reader(_: int) -> Connection:
+                return _open_measurement_principal(
+                    token, Principal.QUERY_READER, reader_secret, deadline, open_principal,
+                )
+
+            result = measure_pushdown(OdbcMeasurementTransport(token, reader, observer), token, deadline)
+        finally:
+            _close_measurement_resource(observer)
+    except UnconfirmedRequestCleanup:
+        return MeasurementResult("FAIL_CLEANUP", "query_connection")
+    except (OSError, ValueError):
+        return MeasurementResult("NOT_PROVEN", "query_connection")
+    return result
+
+
+def _open_measurement_principal(
+    token: str, principal: Principal, secret: str, deadline: float, open_principal: PrincipalConnection,
+) -> Connection:
+    probe = principal_probe_batch(token, principal)
+    try:
+        connection = open_principal(principal, secret, _query_timeout(deadline))
+    except Exception:
+        raise OSError("local measurement connection failed") from None
+    try:
+        connection.timeout = _query_timeout(deadline)
+        cursor = connection.cursor()
+        try:
+            cursor.execute("""
+IF COALESCE(CONVERT(varchar(48), CONNECTIONPROPERTY('local_net_address')), '') <> '127.0.0.1'
+    OR COALESCE(CONVERT(varchar(48), CONNECTIONPROPERTY('client_net_address')), '') <> '127.0.0.1'
+    THROW 51084, 'FAIL_CONTRACT: expected a local measurement connection.', 1;
+""" + probe)
+            _consume_status_results(cursor, deadline)
+        finally:
+            _close_measurement_resource(cursor)
+    except Exception as error:
+        _close_measurement_resource(connection)
+        if isinstance(error, UnconfirmedRequestCleanup):
+            raise
+        raise OSError("local measurement principal was not verified") from None
+    return connection
+
+
+def _close_measurement_resource(resource: Cursor | Connection) -> None:
+    try:
+        resource.close()
+    except Exception:
+        raise UnconfirmedRequestCleanup("measurement resource closure was not confirmed") from None
 
 
 @dataclass
@@ -461,6 +516,18 @@ class OdbcMeasurementTransport:
             raise OSError("observer request failed") from None
         _remaining(deadline)
         return rows
+
+
+def _consume_status_results(cursor: Cursor, deadline: float) -> None:
+    # SQL Server can emit non-row results for context changes. Consume all of
+    # them to detect late errors, while bounding the result chain.
+    for _ in range(32):
+        _remaining(deadline)
+        if cursor.description is not None:
+            raise ValueError("unexpected row results")
+        if not cursor.nextset():
+            return
+    raise ValueError("too many status results")
 
 
 def _fetch(cursor: Cursor, limit: int, columns: int) -> tuple[tuple, ...]:

@@ -511,6 +511,13 @@ auf dem Gast gegen das Oracle geprüft. Die Antwort enthält nur Erfolg,
 Ablehnung oder das getrennte Vorhandensein der eigenen Datenbank.
 Zugangsdaten bleiben im Speicher des Host- und Gastprozesses und werden
 erst nach der Identitätsprüfung über den lokalen Hyper-V-Kanal übertragen.
+Der Abfragegast führt auch die drei Messrouten über diesen Kanal aus.
+Reader und Observer verwenden getrennte lokale ODBC-Verbindungen. Vor
+der Nutzung prüft der Gast ihre Identität, Rechte und Loopback-Adressen.
+Die Antwort enthält den geprüften Status und die Messphase aus einem
+festen Wertebereich. SQL-Handles, Rohzeilen und Remote-Abfragetexte
+bleiben im Gast. Unbestätigtes Schließen von Messverbindungen führt zu
+`FAIL_CLEANUP`.
 Die Bereitstellung des Gastdienstes und der positive Aufruf auf zwei
 Hyper-V-Gästen bleiben Teil des Pilotlaufs.
 

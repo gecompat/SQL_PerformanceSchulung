@@ -1,4 +1,3 @@
-from contextlib import contextmanager
 from datetime import timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -14,6 +13,7 @@ from external_tables_measurement import MeasurementResult
 from external_tables_pilot import CLEANUP_SECONDS, WORK_SECONDS, run_pilot
 from external_tables_pilot_sql import DAY_ZERO, ROWS, Role, database_name
 from external_tables_principals import Principal
+from external_tables_pushdown_evidence import PUSHDOWN_FILTER_EVIDENCE
 
 
 TOKEN = "TEST0006"
@@ -97,14 +97,10 @@ class GuestTransport:
             category, ordinal = divmod(offset, 16)
             yield index, DAY_ZERO + timedelta(days=day), category, day * 100 + category * 10 + ordinal
 
-    @contextmanager
-    def open_measurement(self, token, reader_secret, observer_secret, deadline):
+    def measure(self, token, reader_secret, observer_secret, deadline):
         assert token == TOKEN and reader_secret != observer_secret
-        self._event("open_measurement", token, deadline)
-        try:
-            yield object()
-        finally:
-            self._event("close_measurement", token, deadline)
+        self._event("measurement", token, deadline)
+        return MeasurementResult("PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE)
 
     def close_data_connections(self, token, deadline):
         self._event("close_data", token, deadline)
@@ -121,17 +117,19 @@ class GuestTransport:
 
 
 class PilotCoordinatorTests(unittest.TestCase):
-    @patch("external_tables_pilot.measure_pushdown", return_value=MeasurementResult("PASS", "comparison", ("on", "off")))
+    @patch.object(GuestTransport, "measure", return_value=MeasurementResult("PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE))
     def test_pilot_uses_one_work_deadline_and_a_separate_cleanup_window(self, measure):
         transport = GuestTransport()
         now = monotonic()
         with patch("external_tables_pilot.monotonic", return_value=now):
             result = run_pilot(transport, TOKEN)
         self.assertEqual(result.status, "PASS")
-        self.assertEqual(result.filters, ("on", "off"))
+        self.assertEqual(result.filters, PUSHDOWN_FILTER_EVIDENCE)
         work, teardown = (now + WORK_SECONDS, now + CLEANUP_SECONDS)
         measure.assert_called_once()
-        self.assertEqual(measure.call_args.args[1:], (TOKEN, work))
+        token, reader, observer, deadline = measure.call_args.args
+        self.assertEqual((token, deadline), (TOKEN, work))
+        self.assertNotEqual(reader, observer)
         self.assertEqual(transport.events[0], ("boot", TOKEN, work))
         self.assertIn(("rights", Principal.SOURCE_READER, work), transport.events)
         self.assertIn(("statistics", Role.QUERY, work), transport.events)
@@ -143,7 +141,7 @@ class PilotCoordinatorTests(unittest.TestCase):
         self.assertEqual(transport.events[-1], ("remove_guests", TOKEN, teardown))
         self.assertTrue(result.sql_cleanup and result.guest_cleanup)
 
-    @patch("external_tables_pilot.measure_pushdown")
+    @patch.object(GuestTransport, "measure")
     def test_partly_created_second_database_and_attempted_logins_are_cleaned(self, measure):
         for failure, expected_stage in (
             (("configure_database", Role.QUERY), "database_setup"),
@@ -173,7 +171,7 @@ class PilotCoordinatorTests(unittest.TestCase):
                 self.assertTrue(result.guest_cleanup)
                 self.assertNotIn(Role.SOURCE, transport.databases)
 
-    @patch("external_tables_pilot.measure_pushdown", return_value=MeasurementResult("PASS", "comparison", ("on", "off")))
+    @patch.object(GuestTransport, "measure", return_value=MeasurementResult("PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE))
     def test_unconfirmed_connection_closure_prevents_sql_teardown(self, _):
         for confirmation in (False, OSError("closure could not be observed")):
             with self.subTest(confirmation=confirmation):
@@ -194,7 +192,13 @@ class PilotCoordinatorTests(unittest.TestCase):
                 self.assertFalse(observed & sql_teardown)
                 self.assertEqual(transport.events[-1][:2], ("remove_guests", TOKEN))
 
-    @patch("external_tables_pilot.measure_pushdown", return_value=MeasurementResult("PASS", "comparison", ("on", "off")))
+    @patch.object(GuestTransport, "measure", return_value=MeasurementResult("FAIL_CLEANUP", "query_connection"))
+    def test_guest_measurement_cleanup_failure_survives_verified_host_cleanup(self, _):
+        result = run_pilot(GuestTransport(), TOKEN)
+        self.assertEqual((result.status, result.stage, result.filters), ("FAIL_CLEANUP", "query_connection", None))
+        self.assertTrue(result.sql_cleanup and result.guest_cleanup)
+
+    @patch.object(GuestTransport, "measure", return_value=MeasurementResult("PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE))
     def test_guest_cleanup_failure_overrides_a_positive_sql_result(self, _):
         result = run_pilot(GuestTransport(guests_clean=False), TOKEN)
         self.assertEqual(result.status, "FAIL_CLEANUP")

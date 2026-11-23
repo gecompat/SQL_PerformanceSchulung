@@ -5,10 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from secrets import token_bytes, token_hex
 from time import monotonic
-from typing import ContextManager, Protocol
+from typing import Protocol
 
 from external_tables_guest_admin import AdminAction, AdminCommand
-from external_tables_measurement import MeasurementResult, MeasurementTransport, measure_pushdown
+from external_tables_measurement import MeasurementResult
 from external_tables_pilot_sql import Role, Route, database_name
 from external_tables_principals import Principal, principal_probe_batch
 
@@ -48,10 +48,8 @@ class GuestPilotTransport(Protocol):
     def probe_principal(self, principal: Principal, secret: str, sql: str, deadline: float) -> None:
         """Run the rights probe over the actual principal connection and confirm its close."""
 
-    def open_measurement(
-        self, token: str, reader_secret: str, observer_secret: str, deadline: float,
-    ) -> ContextManager[MeasurementTransport]:
-        """Open the verified query-side connections and close them at scope exit."""
+    def measure(self, token: str, reader_secret: str, observer_secret: str, deadline: float) -> MeasurementResult:
+        """Return the normalized result of the query guest's local measurement."""
 
     def close_data_connections(self, token: str, deadline: float) -> bool:
         """Prevent new calls and confirm closure of the owned Reader and connector sessions."""
@@ -115,11 +113,9 @@ def run_pilot(transport: GuestPilotTransport, token: str) -> PilotResult:
         _admin(transport, Role.QUERY, AdminAction.CREATE_STATISTICS, deadline)
         stage = "measurement"
         _require_time(deadline)
-        with transport.open_measurement(
-            token, secrets[Principal.QUERY_READER], secrets[Principal.OBSERVER], deadline,
-        ) as connections:
-            measured = measure_pushdown(connections, token, deadline)
-        _require_time(deadline)
+        measured = transport.measure(token, secrets[Principal.QUERY_READER], secrets[Principal.OBSERVER], deadline)
+        if measured.status != "FAIL_CLEANUP":
+            _require_time(deadline)
         stage = measured.stage
     except (OSError, ValueError):
         measured = MeasurementResult("NOT_PROVEN", stage)
