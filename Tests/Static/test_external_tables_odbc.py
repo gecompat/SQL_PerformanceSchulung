@@ -1,3 +1,4 @@
+from datetime import timedelta
 from hashlib import sha256
 from ipaddress import IPv4Address, IPv4Interface
 from pathlib import Path
@@ -13,8 +14,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_guest_network import GuestNetwork
 from external_tables_measurement import UnconfirmedRequestCleanup
-from external_tables_odbc import OdbcMeasurementTransport, REQUEST_IDENTITY, load_pinned_pyodbc, verify_source_tls
-from external_tables_pilot_sql import EXPECTED, Role, Route, aggregate_batch, database_name
+from external_tables_odbc import (
+    OdbcMeasurementTransport, OdbcPilotAdministration, REQUEST_IDENTITY, load_pinned_pyodbc, verify_source_tls,
+)
+from external_tables_pilot_sql import (
+    DAY_ZERO, EXPECTED, ROWS, Role, Route, aggregate_batch, database_name, fixture_read_batch, verify_fixture,
+)
 from external_tables_principals import Principal, principal_name
 
 
@@ -106,6 +111,92 @@ class Connection:
 
     def close(self):
         self.closed = True
+
+
+class OdbcAdministrationTests(unittest.TestCase):
+    def setUp(self):
+        self.factory = Mock()
+        self.admin = OdbcPilotAdministration(TOKEN, Role.QUERY, self.factory)
+        self.database = database_name(TOKEN, Role.QUERY)
+        self.deadline = monotonic() + 20
+
+    def connection_for(self, outputs, *, has_rows=False):
+        cursor = Cursor(outputs)
+        cursor.description = ("result",) if has_rows else None
+        connection = Connection(cursor)
+        self.factory.return_value = connection
+        return connection, cursor
+
+    def test_setup_targets_the_expected_database_with_a_fresh_bounded_local_session(self):
+        connection, cursor = self.connection_for((None,))
+        self.admin.execute(self.database, "SYNTHETIC SETUP", self.deadline)
+        target, timeout = self.factory.call_args.args
+        self.assertEqual(target, self.database)
+        self.assertGreater(timeout, 0)
+        self.assertLessEqual(timeout, 20)
+        self.assertTrue(connection.closed and cursor.closed)
+        self.assertGreater(connection.cursor_timeouts[0], 0)
+        self.assertTrue(cursor.executed[0].endswith("SYNTHETIC SETUP"))
+        for check in (
+            self.database, "ProductVersion", "Edition", "@@TRANCOUNT", "sysadmin",
+            "CONNECTIONPROPERTY('local_net_address')", "CONNECTIONPROPERTY('client_net_address')",
+        ):
+            self.assertIn(check, cursor.executed[0])
+        self.assertEqual(cursor.executed[0].count("127.0.0.1"), 2)
+
+    def test_foreign_database_and_other_role_queries_are_rejected_before_connection(self):
+        source_db = database_name(TOKEN, Role.SOURCE)
+        with self.assertRaises(ValueError):
+            self.admin.execute(source_db, "FOREIGN SETUP", self.deadline)
+        with self.assertRaises(ValueError):
+            self.admin.database_exists(source_db, self.deadline)
+        source = OdbcPilotAdministration(TOKEN, Role.SOURCE, self.factory)
+        with self.assertRaises(ValueError):
+            source.fixture_rows(fixture_read_batch(TOKEN, Role.QUERY, Route.PUSHDOWN_ON), self.deadline)
+        self.factory.assert_not_called()
+
+    def test_exact_fixture_requires_all_rows_and_a_single_result(self):
+        rows = []
+        for key in range(ROWS):
+            day, remainder = divmod(key, 64)
+            category, ordinal = divmod(remainder, 16)
+            rows.append((key, DAY_ZERO + timedelta(days=day), category, 100 * day + 10 * category + ordinal))
+        query = fixture_read_batch(TOKEN, Role.QUERY, Route.PUSHDOWN_ON)
+        self.connection_for((rows,), has_rows=True)
+        verify_fixture(self.admin.fixture_rows(query, self.deadline))
+        for result in ((rows[:-1],), (rows + rows[:1],), (rows, rows[:1])):
+            with self.subTest(result_sets=len(result), rows=len(result[0])):
+                connection, cursor = self.connection_for(result, has_rows=True)
+                with self.assertRaisesRegex(OSError, "could not be confirmed"):
+                    self.admin.fixture_rows(query, self.deadline)
+                self.assertTrue(connection.closed and cursor.closed)
+
+    def test_exact_existence_result_distinguishes_malformed_responses_from_absence(self):
+        for value, expected in ((0, False), (1, True)):
+            connection, cursor = self.connection_for((((value,),),), has_rows=True)
+            self.assertIs(self.admin.database_exists(self.database, self.deadline), expected)
+            self.assertEqual(self.factory.call_args.args[0], "master")
+            self.assertIn(f"DB_ID(N'{self.database}')", cursor.executed[0])
+            self.assertTrue(connection.closed and cursor.closed)
+        for result in (((),), (((False,),),), (((0,),), ((1,),))):
+            self.connection_for(result, has_rows=True)
+            with self.assertRaisesRegex(OSError, "could not be confirmed"):
+                self.admin.database_exists(self.database, self.deadline)
+
+    def test_unexpected_results_and_unconfirmed_closure_prevent_success(self):
+        self.connection_for((((1,),),), has_rows=True)
+        with self.assertRaisesRegex(OSError, "could not be confirmed"):
+            self.admin.execute("master", "SYNTHETIC SETUP", self.deadline)
+        connection, cursor = self.connection_for((None,))
+        cursor.fail_close = True
+        with self.assertRaisesRegex(OSError, "^guest administration could not be confirmed$"):
+            self.admin.execute("master", "SYNTHETIC SETUP", self.deadline)
+        self.assertTrue(connection.closed)
+
+    def test_expired_deadline_prevents_opening_a_connection(self):
+        with self.assertRaisesRegex(OSError, "could not be confirmed"):
+            self.admin.execute("master", "SYNTHETIC SETUP", monotonic() - 1)
+        self.factory.assert_not_called()
 
 
 class OdbcTransportTests(unittest.TestCase):

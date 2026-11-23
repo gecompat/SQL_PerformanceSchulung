@@ -44,7 +44,11 @@ class GuestPilotTransport(Protocol):
         """
 
     def execute(self, role: Role, database: str, sql: str, deadline: float) -> None:
-        """Execute one complete admin batch without exposing payloads or retaining secrets."""
+        """Execute one complete admin batch without exposing payloads or retaining secrets.
+
+        Dispatch on the verified role. An ODBC-backed guest uses its local
+        OdbcPilotAdministration for execution, fixture rows and presence checks.
+        """
 
     def record_login(self, principal: Principal, sid: bytes, deadline: float) -> None:
         """Record the role and SID in the owned run inventory before CREATE LOGIN."""
