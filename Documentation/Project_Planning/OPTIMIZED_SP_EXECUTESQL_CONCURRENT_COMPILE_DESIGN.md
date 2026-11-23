@@ -68,6 +68,22 @@ Für den Methodenreview steht eine [SQL-freie Auswertung je Versuchsarm](../../T
 
 Der spätere Producer muss die gemeinsame Zeitbasis und die Compile-Grenzen, Statement-/Cache-Identität, Wait-Ressource und Blockerbindung aus qualifizierten Engine-Daten liefern. Die Auswertung erwartet außerdem eine vollständige Spur der vorab registrierten Actors und eine geprüfte Erfassung samt Abbau. Die Tests validieren die Annahmeregeln mit synthetischen Eingaben. Ein positiver Einzelarm ersetzt weder den gepaarten Lauf noch dessen Negativkontrollen. Die tatsächliche XE-Payload und der Ressourcenbezug des dynamischen Batches bleiben offen.
 
+## Zeiteinheiten und Planhandle auf Build 17.0.5065.9
+
+Der [Kataloglauf 45188183551](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45188183551) dokumentiert unterschiedliche Einheiten in den Feldbeschreibungen.
+
+| Ereignis | Relevante Metadaten des Builds |
+|---|---|
+| `sql_statement_post_compile` | `duration` und `cpu_time` in Millisekunden. Der Statementtext muss über `collect_statement` angefordert werden. |
+| `sqlos.wait_info` | `duration` in Millisekunden. `opcode` und die Ressourcenbeschreibung stehen als separate Felder zur Verfügung. |
+| `sql_statement_completed` | `duration` und `cpu_time` in Mikrosekunden. `collect_parameterized_plan_handle` schaltet ein separates Feld für den Handle des parametrisierten Plans frei. |
+| `sp_cache_hit` | `collect_plan_handle` schaltet das Feld für den Handle des Cacheeintrags frei. Der Katalog beschreibt den Eintrag als Objekt aus dem Cache. |
+| `spexec_batch_compilation_serialization_telemetry` | `plan_handle` und `sql_handle` bezeichnen den Cacheeintrag. |
+
+[Microsoft Support zu `sql_statement_post_compile`](https://support.microsoft.com/en-us/servicing/sql/sql-server-2017/cumulative-update/kb4480630-improvement-enhancement-adds-sql-statement-post-compile-extended-event-in-sql-server-2017) beschreibt für SQL Server 2016/2017 das Kompilierungsende als Auslösepunkt und eine eigene Dauer für die Kompilierung. Für den 2025-Pilot sind der Zeitstempelbezug und die Unsicherheit der ganzzahligen Millisekundenwerte auf dem festgeschriebenen Build zu prüfen. Überlappung ist nur belegbar, wenn sie auch unter der bestätigten Unsicherheit besteht. Ein unbestimmter Zeitbezug, fehlende Grenzen oder eine Überschneidung innerhalb der Zeitauflösung ergeben `NOT_PROVEN`.
+
+Die optionalen Handle-Felder sind Kandidaten für einen Abgleich desselben inneren Statements. Dafür braucht der Pilot eine tatsächlich befüllte Payload, die Bindung an den synthetischen Marker sowie den Abgleich mit Batchtext und Cacheattributen. Der Katalog enthält außerdem `compile_synchronization` mit `step`, beschreibt es jedoch als nur für Ad-hoc-Abfragen unterstützt. Die Verwendbarkeit für den direkten parametrisierten RPC und die Bedeutung seiner konkreten Schritte sind offen. `compilation_stage_statistics` liefert Stufenzähler und keine zugeordneten Start- und Endpunkte einzelner Statements.
+
 ## Gates vor einer Implementierung
 
 - Unabhängiger Methodenreview bestätigt Buildbindung, Ereignis-/Feldvertrag, Auswertungsregeln, Statistikbehandlung, Sicherheitsklasse und Restore.
