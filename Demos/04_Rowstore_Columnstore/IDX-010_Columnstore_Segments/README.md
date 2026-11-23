@@ -17,7 +17,8 @@ Der [isolierte NCCI-Vergleich](../../../Documentation/Project_Planning/IDX010_OR
 verwendet je einen nicht gruppierten Columnstore-Index mit und ohne
 `ORDER (EventDayKey)`. Er meldet die Überlappung der Segmentbereiche und
 die gelesenen und übersprungenen Segmente bei demselben Filter. Der Einstieg
-läuft separat vom unten beschriebenen CCI-Manifest.
+läuft separat vom unten beschriebenen CCI-Manifest. Die Aufnahme von
+Ordered Nonclustered Columnstore in dieses Manifest ist als `DEFER` geführt.
 
 ## 7. Ablauf
 
