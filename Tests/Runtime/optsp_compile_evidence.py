@@ -203,6 +203,21 @@ class Result:
 LCK_M_X = 5
 
 
+def _owns_compile_during_wait(hold: LockHold, wait: Wait, compile_: FirstCompile) -> bool:
+    acquired = hold.interval.start
+    waiting = wait.interval.start
+    if _at_or_before(acquired, waiting):
+        return True
+
+    # A wait and a granted lock may be recorded in reverse order at one clock
+    # label. This case proves ownership during the measured compile, not at onset.
+    return (
+        isinstance(acquired, EventTime) and isinstance(waiting, EventTime)
+        and acquired.ticks == waiting.ticks and _strictly_before(waiting, acquired)
+        and hold.interval.contains(compile_.interval)
+    )
+
+
 def evaluate_arm(arm: Arm) -> Result:
     if not arm.complete:
         return Result("NOT_PROVEN", "incomplete_capture")
@@ -293,7 +308,7 @@ def evaluate_arm(arm: Arm) -> Result:
             hold.owner == winner.actor
             and hold.verified_compile is True
             and requests[winner.actor].rpc.contains(hold.interval)
-            and _at_or_before(hold.interval.start, wait.interval.start)
+            and _owns_compile_during_wait(hold, wait, winner)
             and _at_or_before(winner.interval.end, hold.interval.end)
         ):
             return Result("PROVEN", "compile_wait_and_statement_plan_reuse")

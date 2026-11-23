@@ -13,6 +13,13 @@
 
 Dieser Bereich validiert die implementierten Framework-Komponenten gegen reale, ephemere SQL-Server-Instanzen. Die GitHub-Actions-Matrix verwendet getrennte Container für SQL Server 2019, 2022 und 2025. Pro Job läuft genau eine SQL-Server-Version.
 
+## Gebundener Vergleich für `OPTIMIZED_SP_EXECUTESQL`
+
+Der [OPTSP-Traineraufruf](../../Documentation/Project_Planning/OPTIMIZED_SP_EXECUTESQL_CONCURRENT_COMPILE_DESIGN.md#gebundenen-vergleich-ausführen)
+führt zwei OFF/ON-Paare und zwei Kontrollen auf dem festgeschriebenen
+SQL-Server-2025-Build aus. Er betreibt genau einen eigenen Container
+mit Loopback-Port und meldet den Befund nach geprüftem Abbau.
+
 ## Matrix
 
 | SQL Server | Container-Tag | erwartete Major Version | Compatibility Level | Ergebnis |

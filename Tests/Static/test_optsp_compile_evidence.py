@@ -82,6 +82,32 @@ class CompileEvidenceTests(unittest.TestCase):
         self.assertTrue(wait.interval.possibly_overlaps(competing.interval))
         self.assert_unproven(replace(arm, lock_holds=(hold, competing)), "no_bound_compile_wait")
 
+    def test_equal_onset_label_with_acquire_recorded_after_wait_proves_only_later_overlap(self):
+        def event(ticks, sequence):
+            return EventTime(ticks, sequence, "owned-ring")
+
+        requests = (
+            replace(REQUESTS[0], rpc=Interval(event(0, 1), event(14, 12)), statement_completed_at=event(13, 10)),
+            replace(REQUESTS[1], rpc=Interval(event(0, 2), event(15, 13)), statement_completed_at=event(14, 11)),
+        )
+        compile_ = replace(FIRST, interval=Interval(event(2, 5), event(11, 6)))
+        wait = replace(WAIT, interval=Interval(event(0, 3), event(11, 8)))
+        hold = replace(HOLD, interval=Interval(event(0, 4), event(11, 7)))
+        arm = replace(ON, requests=requests, first_compiles=(compile_,), waits=(wait,), lock_holds=(hold,))
+        self.assertEqual(evaluate_arm(arm).reason, "compile_wait_and_statement_plan_reuse")
+
+        late = replace(hold, interval=Interval(event(1, 4), hold.interval.end))
+        self.assert_unproven(replace(arm, lock_holds=(late,)), "no_bound_compile_wait")
+        early_compile = replace(compile_, interval=Interval(event(0, 4), compile_.interval.end))
+        late_sequence = replace(hold, interval=Interval(event(0, 5), hold.interval.end))
+        self.assert_unproven(
+            replace(arm, first_compiles=(early_compile,), lock_holds=(late_sequence,)), "no_bound_compile_wait",
+        )
+        other_ring = replace(hold, interval=Interval(EventTime(0, 4, "other-ring"), hold.interval.end))
+        self.assert_unproven(replace(arm, lock_holds=(other_ring,)), "invalid_lock_ownership")
+        flat = replace(compile_, interval=Interval(event(11, 5), event(11, 6)))
+        self.assert_unproven(replace(arm, first_compiles=(flat,)), "no_bound_compile_wait")
+
     def test_sequence_cannot_measure_duration_or_bind_another_recording(self):
         first = Interval(EventTime(5, 1, "ring-a"), EventTime(8, 4, "ring-a"))
         touching = Interval(EventTime(8, 3, "ring-a"), EventTime(10, 5, "ring-a"))
