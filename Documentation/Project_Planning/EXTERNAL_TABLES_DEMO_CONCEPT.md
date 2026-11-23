@@ -148,6 +148,35 @@ und Abhängigkeiten auf. Installation, Dienstzustand und Connectorlauf
 werden in den bereitgestellten Gästen geprüft.
 
 
+### Pakete im netzgetrennten Gast installieren
+
+Der [Installationsbaustein](../../Tests/Runtime/external_tables_guest_apt.py)
+prüft den Paketstatus gegen das gepinnte Basisabbild und alle Paketdateien
+der gewählten Rolle gegen die Größen und SHA-256-Werte im Lock. Die
+Dateien liegen auf einem schreibgeschützten Medium. Der frisch gestartete
+Gast hat während der Installation nur Loopback. Der Host hält seine
+Netzadapter bis zum bestätigten Paketbestand getrennt.
+Das ist erforderlich, weil die Paket-Skripte von SQL Server und PolyBase
+bereits Dienste starten können.
+
+APT verwendet absolute Pfade zu den geprüften Paketdateien und einen
+leeren Satz an Paketquellen, Paketlisten und zwischengespeicherten
+Archiven. Vor dem Installieren muss die Simulation genau die gesperrten
+Versionsübergänge liefern. Ein geänderter Paketstatus oder ein
+zusätzlicher Netzadapter verhindert die Installation. Danach muss der
+tatsächliche Debian-Bestand vollständig zum Rollen-Lock passen.
+Ein Teilfehler wird im selben Gast nicht durch einen neuen Versuch
+überdeckt, weil inzwischen ein anderer Basiszustand vorliegen kann.
+[Ubuntu-Manpage zu apt-get](https://manpages.ubuntu.com/manpages/noble/man8/apt-get.8.html).
+
+Die Simulation auf Ubuntu 24.04 mit der Paketstatusdatei des
+gebundenen Basisabbilds ergab aus den lokalen Dateien 13 Übergänge
+für den Quellgast und 21 für den Abfragegast. Ein einzelnes gepinntes
+`unixodbc-common`-Paket wurde über denselben Baustein in einem
+netzgetrennten Linux-Wegwerfcontainer installiert und im resultierenden
+Paketstatus bestätigt. Die vollständige Paketinstallation bleibt im
+zugelassenen Hyper-V-Gastlauf zu prüfen.
+
 ### Installierten Paketstand vor dem SQL-Start prüfen
 
 Erfasse `/var/lib/dpkg/status` im vorbereiteten Gast nach bestätigter

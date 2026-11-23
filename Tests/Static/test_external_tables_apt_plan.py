@@ -5,13 +5,18 @@ from hashlib import sha256
 from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from time import monotonic
+from types import SimpleNamespace
 from unittest import TestCase, main
+from unittest.mock import patch
 from zipfile import ZipFile
 
 from verify_external_tables_apt_plan import (
-    LOCK as LOCK_PATH, check_plan, parse_install_plan,
+    LOCK as LOCK_PATH, check_plan,
     select_role, verify_guest_state, verify_python_wheel,
 )
+from external_tables_guest_apt import apt_install_command, install_verified_guest_packages, parse_install_plan
+from external_tables_pilot_sql import Role
 from external_tables_package_state import installed_package_digest, parse_dpkg_status
 
 
@@ -98,6 +103,63 @@ def package(name, version, architecture="amd64", status="install ok installed"):
         f"Package: {name}\nStatus: {status}\nArchitecture: {architecture}\n"
         f"Version: {version}\nDescription: Synthetic package\n continuation text\n\n"
     ).encode()
+
+
+class DetachedAptTests(TestCase):
+    def test_command_uses_absolute_local_files_and_closes_apt_sources(self):
+        package_path = Path.cwd() / "example.deb"
+        apt_state = Path.cwd() / 'apt-state'
+        simulated = apt_install_command((package_path,), apt_state, simulate=True)
+        applied = apt_install_command((package_path,), apt_state, simulate=False)
+        self.assertEqual(simulated[2:], applied[2:])
+        self.assertEqual((simulated[1], applied[1]), ("--simulate", "--assume-yes"))
+        self.assertIn("--no-remove", applied)
+        self.assertIn(f"Dir::Etc::sourceparts={apt_state / 'sources.list.d'}", applied)
+        self.assertIn(f"Dir::State::lists={apt_state / 'lists'}", applied)
+        self.assertEqual(applied[-2:], ["install", str(package_path)])
+        with self.assertRaisesRegex(ValueError, "absolute package paths"):
+            apt_install_command((Path("example.deb"),), apt_state, simulate=True)
+
+    def test_requires_detachment_again_after_the_exact_simulation(self):
+        base = package("base", "1.0")
+        after = base + package("client", "2.0")
+        plan = b"Inst client (2.0 local [amd64])\n"
+        lock = {
+            "roles": {"source": ["client"]},
+            "dpkg_status_sha256": sha256(base).hexdigest(),
+            "packages": [{"package": "client", "version": "2.0", "architecture": "amd64", "path": "pool/client.deb"}],
+        }
+        guest_os = SimpleNamespace(geteuid=lambda: 0, statvfs=lambda _: SimpleNamespace(f_flag=1), ST_RDONLY=1)
+        for attach in (True, False):
+            with self.subTest(attach=attach), TemporaryDirectory() as directory:
+                net = Path(directory) / "net"
+                net.mkdir()
+                (net / "lo").touch()
+
+                def run_apt(command, _deadline):
+                    if "--simulate" in command:
+                        if attach:
+                            (net / "eth0").touch()
+                        return plan
+                    return b""
+
+                with (
+                    patch("external_tables_guest_apt.sys", SimpleNamespace(platform="linux")),
+                    patch("external_tables_guest_apt.os", guest_os),
+                    patch("external_tables_guest_apt._NET_INTERFACES", net),
+                    patch("external_tables_guest_apt.read_dpkg_status", side_effect=[base, base, after]),
+                    patch("external_tables_guest_apt.verify_packages"),
+                    patch("external_tables_guest_apt._run_apt", side_effect=run_apt) as apt,
+                ):
+                    if attach:
+                        with self.assertRaisesRegex(ValueError, "only its loopback"):
+                            install_verified_guest_packages(Path(directory), lock, Role.SOURCE, monotonic() + 3)
+                        self.assertEqual(apt.call_count, 1)
+                    else:
+                        self.assertEqual(
+                            install_verified_guest_packages(Path(directory), lock, Role.SOURCE, monotonic() + 3), 2,
+                        )
+                        self.assertEqual(apt.call_count, 2)
 
 
 class GuestPackageStateTests(TestCase):

@@ -5,75 +5,26 @@ import argparse
 from hashlib import file_digest
 import json
 from pathlib import Path
-import re
 import sys
 from zipfile import BadZipFile, ZipFile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
+from external_tables_guest_apt import check_plan, matches_locked_file, verify_packages
 from external_tables_package_state import read_dpkg_status, select_role, verify_guest_state
 
 
-INSTALL = re.compile(
-    r"Inst ([a-z0-9][a-z0-9+.-]*)(?::amd64)?(?: \[([^\s\]]+)\])? \(([^\s()]+) .+\)",
-    re.ASCII,
-)
 
 LOCK = (
     Path(__file__).resolve().parents[2] / "Documentation" / "Project_Planning" / "external_tables_apt_lock.json"
 )
 
 
-def parse_install_plan(text: str) -> dict[str, tuple[str | None, str]]:
-    result = {}
-    for line in text.splitlines():
-        if line.startswith(("Remv ", "Purg ")):
-            raise ValueError("APT plan would remove existing packages")
-        if not line.startswith("Inst "):
-            continue
-        match = INSTALL.fullmatch(line)
-        if match is None:
-            raise ValueError("APT plan includes an unexpected installation record")
-        package, old, new = match.groups()
-        if package in result:
-            raise ValueError("APT plan includes a duplicate package")
-        result[package] = (old, new)
-    if not result:
-        raise ValueError("APT plan contains no installation records")
-    return result
-
-
-def check_plan(text: str, lock: dict) -> int:
-    expected = {
-        entry["package"]: (entry.get("previous_version"), entry["version"])
-        for entry in lock["packages"]
-    }
-    if len(expected) != len(lock["packages"]):
-        raise ValueError("APT lock contains duplicate packages")
-    actual = parse_install_plan(text)
-    if actual != expected:
-        raise ValueError("APT plan differs from the locked names or version transitions")
-    return len(actual)
-
-
-def _matches_file(path: Path, entry: dict) -> bool:
-    with path.open("rb") as stream:
-        return path.stat().st_size == entry["size"] and file_digest(stream, "sha256").hexdigest() == entry["sha256"]
-
-
-def verify_packages(directory: Path, lock: dict) -> int:
-    for entry in lock["packages"]:
-        path = directory / Path(entry["path"]).name
-        if not _matches_file(path, entry):
-            raise ValueError(f"package bytes differ from lock: {entry['package']}")
-    return len(lock["packages"])
-
-
 def verify_python_wheel(path: Path, lock: dict) -> None:
     entry = lock.get("python_wheel")
     if entry is None:
         raise ValueError("Python wheel is only part of the query role")
-    if path.name != entry["filename"] or not _matches_file(path, entry):
+    if path.name != entry["filename"] or not matches_locked_file(path, entry):
         raise ValueError("Python wheel differs from the query role lock")
     extension = entry["installed_extension"]
     try:
