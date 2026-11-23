@@ -867,6 +867,31 @@ class PhaseDiagnosticsTests(unittest.TestCase):
             'QUERY_STORE_WINDOWS:stderr', 'SETUP:stderr')), contract=contract),
             ('DGN007_FAILURE|SQL20_RAW|INSUFFICIENT|MALFORMED',))
 
+    def test_control_window_diagnostics_keep_other_intervals_out_of_window_totals(self):
+        controls = runner.CONTROL_AA_CONTRACT
+        result = harness_result(contract=controls,
+            phases=[('CONTROL_WINDOWS', 'FAIL', 'FAIL_EXECUTION'), ('CLEANUP', 'PASS', 'OK')],
+            summary='FAIL|FAIL_EXECUTION', returncode=2)
+        records = (
+            'DGN007_SQL20_RAW|1|BEGIN|COMPLETE|3',
+            'DGN007_SQL20_RAW|1|WINDOW|0|4|2|2',
+            'DGN007_SQL20_RAW|1|WINDOW|1|4|0|0',
+            'DGN007_SQL20_RAW|1|ROW|1|0|10|10|20|30|0|2|N|N',
+            'DGN007_SQL20_RAW|1|ROW|2|2|10|10|20|29|0|4|N|N',
+            'DGN007_SQL20_RAW|1|ROW|3|2|10|10|20|32|0|2|N|N',
+            'DGN007_SQL20_RAW|1|END|3',
+        )
+        result = replace(result, stderr='\n'.join(f'[CONTROL_WINDOWS:stderr] {line}' for line in records))
+        diagnostics = runner._query_store_raw_diagnostics(result, contract=controls)
+        self.assertEqual(diagnostics[0], 'DGN007_FAILURE|SQL20_RAW|COMPLETE|rows=3')
+        self.assertIn('DGN007_FAILURE|SQL20_RAW|WINDOW|0|4|2|2', diagnostics)
+        self.assertIn('DGN007_FAILURE|SQL20_RAW|ROW|3|2|10|10|20|32|0|2|N|N', diagnostics)
+
+        for raw_count in ('4', 'N'):
+            invalid = replace(result, stderr=result.stderr.replace('WINDOW|0|4|2|2', f'WINDOW|0|4|2|{raw_count}'))
+            self.assertEqual(runner._query_store_raw_diagnostics(invalid, contract=controls),
+                             ('DGN007_FAILURE|SQL20_RAW|INSUFFICIENT|MALFORMED',))
+
     def test_g13_raw_evidence_preserves_zero_count_and_rejects_private_text(self):
         contract = runner.CONTROL_BA_CONTRACT
         result = harness_result(contract=contract,

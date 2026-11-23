@@ -171,6 +171,13 @@ zu den folgenden unverändert bestehenden Prüfabschnitten:
 Er veröffentlicht keinen Rohfehlertext. Diese Diagnose ändert weder Outcome
 noch Fehlerpriorität, Budget oder Wiederholungsverhalten.
 
+Verfehlt `CONTROL_WINDOWS` den Query-Store-Count, enthält die begrenzte
+`SQL20_RAW`-Diagnose auch markierte Suchausführungen in anderen Intervallen
+unter `WindowId=2`. Dazu gehört der Warmup. Die tatsächliche Intervall-ID
+und die erste und letzte Ausführungszeit jeder Zeile bleiben sichtbar.
+Der Runner summiert diese Zeilen weder zu T0 noch zu T1. Mehr als
+16 Fragmente werden als überlaufende Diagnose behandelt.
+
 Die neue lokale Prüfung bestand am 2026-10-07 auf 2019/150, 2022/160 und
 2025/170: je zweimal AB/BA/AA auf frisch erzeugten, ausdrücklich bestätigten
 eigenen Developer-Wegwerfinstanzen, insgesamt 18 vollständige Lifecycles mit
