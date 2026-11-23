@@ -271,7 +271,7 @@ def test_qry023_admin_phase_binds_endpoint_inventory_before_reader_phase(base: P
 
 
 def test_qry023_contract_loads_in_existing_caller() -> None:
-    manifest_path = ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json"
+    manifest_path = ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json"
     manifest = run_demo_module.load_manifest(manifest_path)
     assert_equal(manifest.demo_id, "QRY-023", "QRY-023 caller manifest ID")
     assert_equal(manifest.run_token, "LOCAL", "QRY-023 caller RunToken")

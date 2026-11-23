@@ -473,6 +473,15 @@
       "instanceRequirement": "DISPOSABLE_INSTANCE",
       "rationale": "Sequenzielle T-SQL-Diagnose in eigener markierter Datenbank einer bestätigten Wegwerfinstanz; Container dienen der begrenzten Versionsqualifikation.",
       "escalation": null
+    },
+    {
+      "demoId": "QRY-023", "title": "SQL Graph Tables und relationale Pfadabfrage",
+      "path": "Demos/05_Query_Patterns/QRY-023_Graph_Tables",
+      "manifest": "Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json",
+      "implementationStatus": "VALIDATED", "safetyLevel": "YELLOW", "sessions": 1,
+      "stage": 3, "executionPath": "CONTAINER", "instanceRequirement": "DISPOSABLE_INSTANCE",
+      "rationale": "Drei gepinnte Linux/AMD64-Builds qualifiziert; frische Instanz für vollständige Rechteinventur, synthetische Daten und markergebundenes Cleanup.",
+      "escalation": {"rejectedStage": 2, "reason": "Stage 2 bietet keine getrennte Wegwerfinstanz für Principal-/Endpointinventur und qualifizierte Ressourcenlimits."}
     }
   ]
 }

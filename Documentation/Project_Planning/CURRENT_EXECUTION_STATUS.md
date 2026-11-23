@@ -1,5 +1,10 @@
 # Aktueller Ausführungsstand
 
+## QRY-023 begrenzt katalogisiert (23. November 2026)
+
+PR-Änderung bindet QRY-023 an DEC-085 und den exakten YELLOW-Umfang: ausschließlich die drei gepinnten Linux/AMD64-Builds, frische Wegwerfinstanz, getrennte ADMIN-/READER-Logins, bestätigter Ressourcenrahmen und markergebundener Cleanup. Die vorhandenen Runtime-Läufe [2019/2022/2025 Lifecycle-Qualifikation](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44905615769) sowie [Ressourcenerfassung](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44906835593) bleiben an ihre damaligen Commits gebunden; die aktuelle PR-Matrix wiederholt die Qualifikation. Die Demo erhebt keine allgemeine Graph-Performanceaussage und beinhaltet keine menschliche Generalprobe. SQL_Server_Lab-Szenario-/Kurs-Promotion bleibt getrennt.
+
+
 ### DGN-004-Runtime-Implementierung: begrenzte Qualifikation bestanden, lokaler AIO-Engpass verbleibt
 
 Am 21. November 2026 wurde die begrenzte DGN-004-Runtime-Entwicklung und

@@ -360,7 +360,7 @@ Enginequalifikation ändert diesen Status nicht.
 
 ## Isolierte Ressourcen- und Timeoutdurchsetzung
 
-Der vorgeschlagene CI-Aufrufer in [`.github/workflows/qry023-proposed-runtime.yml`](../../.github/workflows/qry023-proposed-runtime.yml)
+Der vorgeschlagene CI-Aufrufer in [`.github/workflows/qry023-runtime-qualification.yml`](../../.github/workflows/qry023-runtime-qualification.yml)
 bindet die drei Image-Digests und setzt 2 CPU, 4 GiB Container-RAM sowie
 3 GiB SQL-Server-Speicher. Jeder Matrixjob läuft in einer eigenen GitHub-Hosted-VM
 und prüft die ADMIN-Anmeldung mit `SELECT 1`, bevor er Mutationen startet.

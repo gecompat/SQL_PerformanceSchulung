@@ -15,7 +15,7 @@ Lernziel, Datenmodell, Voraussetzungen und Grenzen.
 | Nach einem Lauf oder Abbruch prüfen, was erhalten bleiben muss | [6. Cleanup und Wiederherstellung](#6-cleanup-prüfen-und-nach-abbruch-wiederherstellen) |
 | Die Sitzung beenden | [7. Sitzung schließen](#7-sitzung-schließen) |
 
-Beginnen Sie mit dem [Demo-Katalog](../Demo_Catalog/README.md): Dort sind Ausführungsvoraussetzung, Implementierungsstatus und datierter Runtime-Nachweis getrennt dargestellt. `QRY-006` ist für die dokumentierte Linux-/Docker-Matrix auf SQL Server 2019, 2022 und 2025 `VALIDATED`; eine SQL_Server_Lab-Szenariopromotion oder Windows-Qualifikation ist nicht eingeschlossen. Die Teilmanifeste der zeitlich begrenzten Vorfallsdiagnose (`DGN-007`) gehören nicht zu diesem allgemeinen Ausführungspfad.
+Beginnen Sie mit dem [Demo-Katalog](../Demo_Catalog/README.md): Dort sind Ausführungsvoraussetzung, Implementierungsstatus und datierter Runtime-Nachweis getrennt dargestellt. `QRY-006` ist für die dokumentierte Linux-/Docker-Matrix auf SQL Server 2019, 2022 und 2025 `VALIDATED`; eine SQL_Server_Lab-Szenariopromotion oder Windows-Qualifikation ist nicht eingeschlossen. Die Teilmanifeste der zeitlich begrenzten Vorfallsdiagnose (`DGN-007`) gehören nicht zu diesem allgemeinen Ausführungspfad. QRY-023 ist ein begrenzter Sonderfall: ausschließlich die drei gepinnten Builds in einer frischen Wegwerfinstanz, wie in der Demo-README beschrieben.
 
 Für den ergänzenden Kurs zu künstlicher Intelligenz (KI) führen das
 [Offline-Arbeitsheft mit Trainerlösungen](SQL_SERVER_2025_AI_OFFLINE_WORKBOOK.md)
@@ -50,6 +50,7 @@ Die Sicherheitsstufen bedeuten `GREEN` (grün: eigene Testdatenbank), `YELLOW` (
 | [`QRY-001`](../../Demos/05_Query_Patterns/QRY-001_SARGability/README.md) – Indexfreundliche Suchbedingungen | Eine Funktion auf der Suchspalte durch eine gleichwertige Bereichsbedingung ersetzen und die Zugriffe vergleichen. | `GREEN` | 2019/150, 2022/160, 2025/170 | – |
 | [`QRY-004`](../../Demos/05_Query_Patterns/QRY-004_Classic_And_Dynamic/README.md) – Optionale Filter, Recompile und dynamisches SQL | Wiederverwendung, erneute Kompilierung und parameterisiertes dynamisches SQL im selben Suchproblem vergleichen. | `GREEN` | 2019/150, 2022/160, 2025/170 | historischer Nachweis mit `WARN_EMPIRICAL_VARIANCE`; kein beobachteter Read-Vorteil durch Recompile |
 | [`QRY-006`](../../Demos/05_Query_Patterns/QRY-006_NULL_Semantics/README.md) – NULL bei NOT IN und NOT EXISTS | Zeigen, wie unbekannte Werte die Ergebnismengen der beiden Vergleichsformen beeinflussen. | `GREEN` | 2019/150, 2022/160, 2025/170 | `VALIDATED` für Linux/Docker; Actions-Lauf [44896346186](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44896346186); Szenariopromotion separat |
+| [`QRY-023`](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md) – Graph Tables und relationale Pfadabfrage | SQL Graph `MATCH` und gleichwertige relationale Joins an identischen synthetischen Pfaden ausführen und Korrektheit/Pläne getrennt betrachten. | `YELLOW` | 2019/150, 2022/160, 2025/170 | ausschließlich frischer, dedizierter Container; drei gepinnte Builds; `--confirm-isolated-lab`; getrennte ADMIN-/READER-Logins |
 | [`QRY-013`](../../Demos/05_Query_Patterns/QRY-013_Client_Session_Context/README.md) – Anwendung langsam, Verwaltungswerkzeug schnell | Datenbankkontext, Sitzungseinstellungen, Parameter und Planwahl verschiedener Clients vergleichen. | `GREEN` | 2019/150, 2022/160, 2025/170 | – |
 | [`QRY-014`](../../Demos/09_AI_SQL_Server_2025/QRY-014_Vector_Type/README.md) – Vektortypen und Dimensionen | Synthetische Vektoren speichern und ihre Dimension sowie den gemeinsamen Modellraum unterscheiden. | `GREEN` | 2025/170 | 2019/2022: SKIP_VERSION; lokale Mechanikfixture |
 | [`QRY-015`](../../Demos/09_AI_SQL_Server_2025/QRY-015_Vector_Metrics/README.md) – Vektordistanzen und Normalisierung | Distanz, Vektorlänge und Normalisierung an konstruierten Geometrievektoren erklären. | `GREEN` | 2025/170 | 2019/2022: SKIP_VERSION; lokale Mechanikfixture |
@@ -73,6 +74,53 @@ Die Sicherheitsstufen bedeuten `GREEN` (grün: eigene Testdatenbank), `YELLOW` (
 | [`STL-008`](../../Demos/01_Storage_Pages_Log/STL-008_VLF_Log_Growth/README.md) – Transaktionslog und Dateiwachstum | Virtual Log Files (VLF), die internen Abschnitte einer Logdatei, und deren Wachstum untersuchen. | `RED` | 2019/150, 2022/160, 2025/170 | nur Wegwerf-Containerinstanz; Recovery muss vor Start bestätigt sein |
 | [`STL-009`](../../Demos/01_Storage_Pages_Log/STL-009_Commit_Batching/README.md) – Mehrere Änderungen gemeinsam bestätigen | Kleine und gebündelte Transaktionen hinsichtlich ihrer Log-Schreibvorgänge vergleichen. | `YELLOW` | 2019/150, 2022/160, 2025/170 | isolierte Instanz |
 | [`RES-007`](../../Demos/06_CPU_Memory_IO_Waits/RES-007_Wait_Scope_Deltas/README.md) – Wartezeiten im richtigen Messbereich | Zeitbezogene Differenzen von Wartezählern bilden und ihrem Erfassungsbereich zuordnen. | `YELLOW` | 2019/150, 2022/160, 2025/170 | Mehrsitzungsorchestrierung und Server-State-Berechtigung |
+
+### QRY-023: isolierten Container und Lauf vorbereiten
+
+QRY-023 ist `YELLOW`: Verwenden Sie ausschließlich einen frisch angelegten
+Wegwerfcontainer, einen der drei in
+[`container-images.proposed.json`](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/container-images.proposed.json)
+gepinnten Digests und das dokumentierte Limit von 2 CPUs, 4 GiB Containerspeicher
+und 3.072 MiB SQL-Server-Speicher. Veröffentlichen Sie keinen Port; der Proxy
+führt `sqlcmd` mit `docker exec` im Container aus. Der Container muss auf dem
+Arbeitsplatz zwei getrennte SQL-Logins `sa` (ADMIN) und `READER` bereitstellen.
+
+1. `docker run` Sie das ausgewählte gepinnte Image mit `ACCEPT_EULA=Y`,
+   `MSSQL_PID=Developer`, `MSSQL_MEMORY_LIMIT_MB=3072`, einem starken
+   Wegwerfpasswort für `MSSQL_SA_PASSWORD`, `--cpus 2` und `--memory 4g`.
+2. Warten Sie auf `SQL Server is now ready for client connections`. Prüfen Sie
+   den Image-Digest und die Containerlimits vor dem Start. Erstellen Sie das
+   READER-Login ausschließlich in diesem frischen Container:
+
+   ```powershell
+   $env:SQLPERF_SQL_CONTAINER = '<container-name>'
+   $env:SQLPERF_SQL_PASSWORD_ADMIN = '<wegwerfpasswort>'
+   $env:SQLPERF_SQL_PASSWORD_READER = '<separates starkes wegwerfpasswort>'
+   $env:SQLCMDPASSWORD = $env:SQLPERF_SQL_PASSWORD_ADMIN
+   python Tests/Runtime/provision_qry023_reader_login.py
+   Remove-Item Env:SQLCMDPASSWORD
+   ```
+
+3. Setzen Sie `SQLPERF_SQL_USERNAME_ADMIN=sa`,
+   `SQLPERF_SQL_USERNAME_READER=READER` sowie die getrennten Kennwörter als
+   `SQLPERF_SQL_PASSWORD_ADMIN` und `SQLPERF_SQL_PASSWORD_READER`. Starten Sie
+   vom Repository-Stamm:
+
+   ```powershell
+   python Demos/00_Framework/Tools/run_demo.py `
+     Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json `
+     --auth sql --username sa `
+     --sqlcmd Tests/Runtime/qry023_docker_sqlcmd_proxy.py `
+     --confirm-isolated-lab
+   ```
+
+   Der Runner weist fremde oder nicht leere Instanzen vor Setup zurück. Prüfen
+   Sie das `SQLPERF_SUMMARY`-Ergebnis und die Cleanupphase. Nach dem Lauf den
+   Wegwerfcontainer entfernen; schlagen Ownership-Prüfung oder Cleanup fehl,
+   erhalten Sie die markierte Datenbank bis zur manuellen Untersuchung.
+
+Die Ressourcen- und Versionsgrenzen, erwarteten Beobachtungen und fachlichen
+Aussagegrenzen stehen in der [QRY-023-README](../../Demos/05_Query_Patterns/QRY-023_Graph_Tables/README.md).
 
 ## 2. Arbeitsplatz und Instanz vorbereiten
 

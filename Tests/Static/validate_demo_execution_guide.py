@@ -79,7 +79,7 @@ def main() -> int:
             findings.append(f"{manifest_path.relative_to(ROOT)}: gelbe Sicherheitsbestätigung fehlt")
         if safety_level == "RED" and "-AllowRed" not in guide:
             findings.append(f"{manifest_path.relative_to(ROOT)}: rote Sicherheitsbestätigung fehlt")
-        if safety_level == "YELLOW" and "-ConfirmIsolatedLab" not in readme:
+        if safety_level == "YELLOW" and "-ConfirmIsolatedLab" not in readme and "--confirm-isolated-lab" not in readme:
             findings.append(f"{readme_path.relative_to(ROOT)}: gelbe Sicherheitsbestätigung fehlt")
         if safety_level == "RED" and "-AllowRed" not in readme:
             findings.append(f"{readme_path.relative_to(ROOT)}: rote Sicherheitsbestätigung fehlt")

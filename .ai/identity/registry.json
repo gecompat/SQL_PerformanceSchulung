@@ -6927,8 +6927,8 @@
       "aliases": [],
       "status": "in_progress",
       "priority": "P2",
-      "scope": "Autonomer, auf SQL Server Graph Tables begrenzter Ausbau des bestehenden Query-Rewrite-Lernziels LO-M03-06 / CLM-047. Vorhandene Graph-Quellen-, Curriculum-, Versions-, Index-, Syntax- und Konzeptreviews integrieren; stabile Demo-Identität und vollständigen statischen Vertrag pflegen; danach eigenständige Methoden-/Quellenprüfung und statische Vertragsprüfung durchführen. Keine SQL-/Lab-Ausführung oder Performancebehauptung ohne gesonderte konkrete Freigabe und vollständig erfüllte Gates.",
-      "acceptance_criteria": "QRY-023 ist zentral registriert, als PROPOSED im Demo-Katalog abgegrenzt und im CLM-047/LO-M03-06-Traceabilitypfad als TP-PERF geplant; statischer Vertrag fixiert Korrektheitsoracle, 10.000-Pfade-Messprofil, Graph-MATCH und relationale Baseline, Plan-/Baseline-/Vergleichsmessung nach FWK-004/FWK-005, getrennte Actual-Plan-Diagnostik, Reproduzierbarkeit, Sicherheit, Berechtigungsminimum, Fehler-/Cleanupgrenzen und Zielmatrix. DEC-079 genehmigt die Quellen- und Methodenbasis; DEC-080 akzeptiert die acht ausführbaren T-SQL-Dateien für statische ScriptDom-Syntax in 150/160/170; DEC-081 bestätigt die drei vorgeschlagenen Produktbuildpins als aktuelle Linux-Servicingstände und DEC-082 die aktuelle MCR-Manifest-/Konfigurationsbindung zum 12.11.2026. DEC-083 erlaubt CONNECT SQL als reguläres READER-Loginrecht und beschränkt VIEW ANY DATABASE sowie normales Endpoint-CONNECT aus public auf eine isolierte QRY-023-Einzel-Run-Wegwerfinstanz. Effektivrechtevergleich, Principal-/SID-/Rollen-/Endpointbindung sowie formale Harnessabnahme und Sicherheits-, Ressourcen-, Runtimecaller-, Cleanup- und Runtimegates bleiben offen. Kein neues Lernziel. Registry und relevante Projektgates sind erfolgreich; keine Runtimequalifikation oder allgemeine Leistungsrangfolge wird behauptet.",
+      "scope": "QRY-023 Graph Tables Demo: statischen Vertrag, unabhängige Methoden-/Quellenprüfung, drei isolierte Enginequalifikationen und Ressourcenmessung unter DEC-085 in eine begrenzte YELLOW-Demo überführen; Katalog, Manifest, Anleitungen und Runtime-Matrix konsistent halten. Keine allgemeine Produkt-/Performanceaussage oder menschliche Generalprobe.",
+      "acceptance_criteria": "QRY-023 hat ein normales manifest.json, ist mit DEC-085 auf genau drei gepinnte Linux/AMD64-Builds und das dokumentierte frische Wegwerfprofil runtime-authorized, im Demo-Ausführungskatalog und der automatisierten Matrix konsistent eingetragen, besitzt eine verwendbare Schritt-für-Schritt-Anleitung, und alle lokalen sowie PR-Qualifikationsgates bestehen. Die vorhandene unabhängige Review- und Lifecycle-/Rechte-/Negativ-/Cleanup-Evidenz ist referenziert. SQL_Server_Lab-Szenariopromotion sowie allgemeine Produkt-/Performanceaussagen bleiben separat.",
       "relations": [
         {
           "target": "QRY-023",
@@ -6983,6 +6983,23 @@
       "artifact_uid": "urn:uuid:0be033d9-fc13-4b4b-a7d9-7e738bce49cd",
       "kind": "decision",
       "title": "QRY-023 READER-Datenbankbenutzer sicher zuordnen",
+      "registration_state": "REGISTERED",
+      "aliases": [],
+      "relations": [
+        {
+          "target": "TSK-017",
+          "type": "governs"
+        },
+        {
+          "target": "QRY-023",
+          "type": "applies_to"
+        }
+      ]
+    },
+    "DEC-085": {
+      "artifact_uid": "urn:uuid:5857c03b-b7d9-42d6-ae60-a661c2bceb05",
+      "kind": "decision",
+      "title": "QRY-023 begrenzte Runtime-Qualifikation freigeben",
       "registration_state": "REGISTERED",
       "aliases": [],
       "relations": [

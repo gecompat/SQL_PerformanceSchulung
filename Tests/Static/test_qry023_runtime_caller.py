@@ -494,7 +494,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
                 return run_demo.PhaseResult(phase.phase_id, "FAIL", "FAIL_TIMEOUT", "timeout", 1.0)
             return run_demo.PhaseResult(phase.phase_id, "PASS", "OK", "done", 0.1)
 
-        manifest = ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.proposed.json"
+        manifest = ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/manifest.json"
         environment = {
             "SQLPERF_SQL_USERNAME_ADMIN": "sa",
             "SQLPERF_SQL_PASSWORD_ADMIN": "x",
@@ -531,7 +531,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
         self.assertIn("IF @total_max_mib > 1024", sql)
 
     def test_runtime_workflow_requires_negative_permission_rejection_and_cleanup(self) -> None:
-        workflow = (ROOT / ".github/workflows/qry023-proposed-runtime.yml").read_text(encoding="utf-8")
+        workflow = (ROOT / ".github/workflows/qry023-runtime-qualification.yml").read_text(encoding="utf-8")
         self.assertIn("Capture owned container peak resources", workflow)
         self.assertLess(workflow.index("Capture owned container peak resources"),
                         workflow.index("Remove only the owned SQL Server container"))
@@ -810,7 +810,7 @@ class Qry023RuntimeCallerTests(unittest.TestCase):
             provision.build_sql("short")
 
     def test_runtime_workflow_resolves_image_lock_and_bounds_disposable_resources(self) -> None:
-        workflow = (ROOT / ".github/workflows/qry023-proposed-runtime.yml").read_text(encoding="utf-8")
+        workflow = (ROOT / ".github/workflows/qry023-runtime-qualification.yml").read_text(encoding="utf-8")
         lock = json.loads(
             (ROOT / "Demos/05_Query_Patterns/QRY-023_Graph_Tables/container-images.proposed.json")
             .read_text(encoding="utf-8")

@@ -328,15 +328,15 @@ def main() -> int:
         full_lane = lanes["FULL_CONTAINER_MATRIX"]
         eligible = [entry for entry in entries if entry["safetyLevel"] in full_lane["safetyLevels"]]
         # Nur die je Demo deklarierten Provider und Versionen planen.
-        # CON-005, OPT-007 und der eng begrenzte IDX-007-Liveadapter ergänzen je sechs Dockerfälle; Podman bleibt dort offen.
+        # CON-005, OPT-007 und der eng begrenzte IDX-007-Liveadapter ergänzen je sechs Dockerfälle; QRY-023 ergänzt drei einmalige Dockerqualifikationen; Podman bleibt dort offen.
         runs = sum(
             len(set(entry["providers"]) & PROVIDERS)
             * len(set(entry["versions"]) & set(full_lane["versions"]))
             * full_lane["repetitions"]
             for entry in eligible
         )
-        if runs != 390:
-            raise ContractError(f"current full matrix must contain 390 runs, got {runs}")
+        if runs != 396:
+            raise ContractError(f"current full matrix must contain 396 runs, got {runs}")
 
         print(
             "sql-server-lab-scenario-contract: PASS "

@@ -41,7 +41,7 @@
       "PHASE_OR_GLOBAL_TIMEOUT",
       "CTRL_C"
     ],
-    "enforcement_status": "PROPOSED_ISOLATED_CI_CALLER_NOT_GENERAL_RUNTIME_AUTHORIZED",
+    "enforcement_status": "VALIDATED_SCOPED_DISPOSABLE_PROFILE",
     "forced_abort_residual_state": "The marked target database may contain partial synthetic objects; connection-cancel completion and TempDB release are not established. Preserve the target if exact ownership checks or cleanup fail."
   },
   "credential_profiles": [
@@ -86,11 +86,11 @@
     "explicit_grant_deny_inventory": "ADMIN_REQUIRED",
     "unknown_or_unavailable_inventory": "NOT_PROVEN",
     "server_or_public_permission_mutation": "FORBIDDEN",
-    "implementation_status": "ADMIN_INVENTORY_AND_READER_PERMISSION_SET_IMPLEMENTED_OFFLINE_NOT_ENGINE_QUALIFIED"
+    "implementation_status": "ADMIN_INVENTORY_AND_READER_PERMISSION_SET_ENGINE_QUALIFIED_PINNED_BUILDS"
   },
   "reader_permission_expectation_contract": {
     "version": "1.0",
-    "status": "IMPLEMENTED_OFFLINE_NOT_ENGINE_QUALIFIED",
+    "status": "ENGINE_QUALIFIED_PINNED_BUILDS",
     "evaluation_identity": "ACTUAL_READER_CONNECTION",
     "captured_classes": [
       "SERVER",
@@ -136,7 +136,7 @@
       "object_scope": "NEGATIVE_ID_SYSTEM_OBJECTS_AND_COMPATIBILITY_CATALOG_VIEWS",
       "application_objects": "FORBIDDEN",
       "exact_default_object_inventory": "BUILD_PINNED_COUNT_AND_SHA256_CANONICAL",
-      "status": "CAPTURED_FOR_PINNED_BUILDS; FULL_QRY023_ENGINE_QUALIFICATION_OPEN",
+      "status": "QUALIFIED_FOR_PINNED_BUILDS",
       "artifact": "Documentation/Project_Planning/QRY023_PUBLIC_SYSTEM_OBJECT_BASELINE.json"
     },
     "schema_permissions": {
@@ -189,7 +189,7 @@
   },
   "admin_permission_inventory_contract": {
     "version": "1.0",
-    "status": "ENGINE_QUALIFIED_PROPOSED_NOT_RUNTIME_AUTHORIZED",
+    "status": "VALIDATED_PINNED_BUILD_PROFILES",
     "phase": "ADMIN_PERMISSION_INVENTORY",
     "context": "EXACT_MARKED_TARGET_DATABASE",
     "metadata_visibility": "VERSIONED_REQUIRED_PERMISSIONS_FAIL_CLOSED",
@@ -240,7 +240,8 @@
     },
     "unknown_or_unavailable_inventory": "FAIL_NOT_PROVEN",
     "permission_mutation": "FORBIDDEN",
-    "runtime_authorized": false,
+    "runtime_authorized": true,
+    "runtime_authorization_scope": "ONLY_THE_THREE_PINNED_LINUX_AMD64_SQL_SERVER_BUILDS_WITHIN_THE_DOCUMENTED_DISPOSABLE_RESOURCE_PROFILE",
     "object_inventory_handoff": {
       "format": "FIXED_EXPECTED_OBJECT_COUNT",
       "marker": "QRY023_OBJECT_INVENTORY|PASS|13",
@@ -290,7 +291,7 @@
     },
     "current_fwk010_mode": "PHASE_SPECIFIC_SQL_AUTH_PROFILE",
     "phase_identity_enforced": true,
-    "gate_status": "OPEN_UNTIL_PRODUCT_AND_GENERAL_RUNTIME_AUTHORIZATION"
+    "gate_status": "CLEARED_FOR_PINNED_BUILDS_ONLY_NO_GENERAL_PRODUCT_OR_PERFORMANCE_CLAIM"
   },
   "phases": [
     {
@@ -390,5 +391,6 @@
     "require_summary": true,
     "timeout_seconds": 90,
     "credential_profile": "ADMIN"
-  }
+  },
+  "runtime_authorization_decision": "DEC-085"
 }
