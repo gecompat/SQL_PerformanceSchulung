@@ -272,12 +272,24 @@ Der Datenweg ist nachgewiesen, wenn alle drei Ergebnisse dem Oracle entsprechen
 und beide externen Ausführungen der eigenen Quelle zugeordnet sind. Weise
 Pushdown getrennt für das Datumsprädikat aus. Die Remote-Anweisung für ON muss
 das äquivalente Datumsintervall enthalten; die gebundene OFF-Gegenprobe muss
-eine Remote-Anweisung ohne dieses Prädikat zeigen. Verknüpfe Workrecords über
-`execution_id`, die erwartete Tabellenadresse und die Session des Arms mit
-der jeweiligen Ausführung. Die konkrete Zuordnung des lokalen Requests zur
-PolyBase-Ausführung ist Gegenstand des Methodenreviews. Bei fehlendem oder
+eine Remote-Anweisung ohne dieses Prädikat zeigen. Die [Nachweisbausteine](../../Tests/Runtime/external_tables_pushdown_evidence.py)
+binden den aktiven Request über Datenbank, Session, Request-ID und den
+laufspezifischen Statementmarker. Danach suchen sie den beobachteten
+`sql_handle` in den verteilten Requests und deren `execution_id` in den
+Workrecords. Pro Arm ist eine neue Reader-Verbindung und genau ein Aufruf
+mit diesem Marker vorgesehen. Wiederholungen erfordern einen frischen Token.
+Der Diagnoseprincipal braucht Zugriff auf die dokumentierten Systemansichten.
+Die konkrete Handle-Gleichheit und die Erfassbarkeit für die kurze Abfrage
+müssen auf dem festgelegten SQL-Build beobachtet werden.
+[Microsoft-Referenz zu verteilten Requests](https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-objects/sys-dm-exec-distributed-requests-transact-sql?view=sql-server-ver17)
+und [Referenz zum Pushdown-Nachweis](https://learn.microsoft.com/en-us/sql/relational-databases/polybase/polybase-how-to-tell-pushdown-computation?view=sql-server-ver17). Bei fehlendem oder
 mehrdeutigem Workrecord, nicht auflösbaren Parametern oder abgeschnittenem
-Remote-Befehl bleibt der Pushdown-Befund `NOT_PROVEN`. Die lokale Referenz
+Remote-Befehl bleibt der Pushdown-Befund `NOT_PROVEN`. Der Offlineprüfer
+wertet ausschließlich einen abgeschlossenen Workrecord je Arm und einfache
+Remote-`SELECT`-Befehle auf der vorgesehenen Tabelle aus. Der ON-Arm braucht
+beide erwarteten Datumsgrenzen, der OFF-Arm einen vollständigen Befehl ohne
+Prädikat. Andere Befehlsformen brauchen eine überprüfte Erweiterung. Im
+Laufprotokoll werden nur die normierten Befunde gespeichert. Die lokale Referenz
 belegt das Ergebnis. Eine Remoteaggregation oder Leistungswirkung erfordert
 einen eigenen Befund.
 
