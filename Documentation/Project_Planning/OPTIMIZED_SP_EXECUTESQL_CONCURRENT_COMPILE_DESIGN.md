@@ -379,6 +379,35 @@ prüfen das Einlesen. Die zugehörige Zeitbasis und die semantische
 Zuordnung der Felder bleiben Gegenstand des Methodenreviews und des
 Engine-Piloten.
 
+### Erste begrenzte Beobachtung bei aktivierter Option
+
+Ein unabhängiger Review des festgeschriebenen Methodenstands ließ eine
+begrenzte ON-Erkundung zu. Sie verwendete den gepinnten Developer-Build
+`17.0.5065.9` und eine eigene, markierte Datenbank in einem privaten
+Wegwerfcontainer. Die Kompatibilitätsstufe war 170. Die Abfrage aus
+`master` bestätigte vor den beiden RPCs einen leeren Zielcache.
+Die Option war vor und nach den RPCs aktiv. Automatische
+Statistikaktualisierung war für diese Fixture deaktiviert.
+
+Zwei getrennte Verbindungen führten denselben parametrisierten Batch mit
+dem erwarteten Ergebnis aus. Die gebundene Extended-Events-Aufnahme
+enthielt ein Erstkompilierungsereignis, drei
+Serialisierungsereignisse und zwei Statement-Abschlüsse mit
+gleichem Planhandle. Für einen Actor gab es ein Begin-/End-Paar des
+`LCK_M_X`-Waits, dessen Ressourcenbeschreibung in beiden Ereignissen
+eine explizite Compile-Kennung enthielt. Die Aufnahme prüfte die
+Verlustzähler, die RPC-Grenzen und den Abbau der XE-Sitzung. Die
+markierte Beobachtungsdatenbank und der Container wurden entfernt.
+
+Für die Beobachtung waren die Sperrereignisse auf den katalogisierten
+X-Modus begrenzt. Während der Einrichtung überschritt die breitere
+Sperrerfassung das Ausgabelimit und ergab keine auswertbare Spur.
+Der begrenzte XML-Reader verarbeitet CDATA mit deaktivierter
+Entitätsauflösung. Die Zuordnung des Waits zu genau einem erworbenen
+und freigegebenen Lock derselben Ressource, der Abgleich der
+Statement-Handles mit dem `Prepared`-Cacheeintrag und der gepaarte
+OFF/ON-Lauf bleiben erforderlich.
+
 ## Konkreter Pilotkandidat für den unabhängigen Methodenreview
 
 | Merkmal | Festlegung |
