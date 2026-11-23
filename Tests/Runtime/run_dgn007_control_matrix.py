@@ -225,22 +225,28 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     code = "OK"
-    decision_outcome = "NOT_RUN"
-    decision_code = "NOT_RUN"
+    decision = None
     try:
         if not args.confirm_disposable_instance or not args.confirm_isolated_lab:
             raise CoordinatorRuntimeError("FAIL_SAFETY")
         decision = run_control_matrix(args.container, args.expected_major)
-        decision_outcome, decision_code = decision.outcome, decision.code
     except CoordinatorRuntimeError as error:
         code = error.code
     except KeyboardInterrupt:
         code = "FAIL_EXECUTION"
     outcome = "PASS" if code == "OK" else "FAIL"
+    decision_outcome, decision_code = (decision.outcome, decision.code) if decision is not None else ("NOT_RUN", "NOT_RUN")
+    fields = ("duration_symptom", "plan_sets_differ", "reads_profile_separates")
+    evidence = (
+        (decision.directed_symptom, decision.plan_evidence, decision.profile_evidence)
+        if decision is not None else (None, None, None)
+    )
+    labels = {True: "YES", False: "NO", None: "NOT_EVALUATED"}
+    summary = "; ".join(f"{name}={labels[value]}" for name, value in zip(fields, evidence, strict=True))
     print(
         f"DGN007_COORDINATOR|{outcome}|{code}|major={args.expected_major}; "
         f"captures={len(EXPECTED_SEQUENCE) if code == 'OK' else 0}; "
-        f"decision={decision_outcome}; decision_code={decision_code}"
+        f"decision={decision_outcome}; decision_code={decision_code}; {summary}"
     )
     return 0 if code == "OK" else 1
 

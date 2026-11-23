@@ -29,7 +29,7 @@ CONTRACT = bundle.DEMO + "Contracts/incident-acceptance.contract.json"
 # und Layout sind kein ausführbarer AST; Encoding bleibt separat geschlossen.
 PYTHON_AST_SHA256 = (
     # Current DGN-007 runner AST with exact comparison resource limits.
-    "115cdd7b99fd79a0b72e74ae1830b7c8b12918b2b685fd78bd5495981af37134",
+    "80af66f1d20d12a302abc65967b45d8abbc11b27ff4e652f23e2be13ef7ddf93",
     "585493e97ba6e4c759bccf8fe983d6b61d32253435b4b2481a195f6784d38925",
     "958e555b9e25392e4bf6024eef6ea528305bf489b43ab1ed5af35388eddd37c8",
     # FWK-010 runner AST with the fixed, self-cleaning IDX-007 container phase.

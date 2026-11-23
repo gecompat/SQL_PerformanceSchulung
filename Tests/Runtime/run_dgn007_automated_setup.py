@@ -658,15 +658,17 @@ def _query_store_raw_diagnostics(result: SqlcmdResult, *, contract: RunContract)
         windows, middle = middle[:2], middle[2:]
         if (len(windows) != 2 or any(len(row) != 7 or row[:3] != [prefix, '1', 'WINDOW']
                                      or row[3] != str(index)
-                                     or any(not re.fullmatch(r'(?:N|[0-9]{1,19})', value)
-                                            for value in row[4:])
+                                     or not re.fullmatch(r'(?:N|[0-9]{1,19})', row[4])
+                                     or any(not re.fullmatch(r'[0-9]{1,19}', value)
+                                            for value in row[5:])
                                      for index, row in enumerate(windows))):
             return (f'DGN007_FAILURE|{label}|INSUFFICIENT|MALFORMED',)
     if len(middle) != declared:
         return (f'DGN007_FAILURE|{label}|INSUFFICIENT|MALFORMED',)
+    valid_windows = ('0', '1', '2') if label == 'SQL20_RAW' else ('0', '1')
     for index, row in enumerate(middle, 1):
         if (len(row) != 13 or row[:3] != [prefix, '1', 'ROW'] or row[3] != str(index)
-                or row[4] not in ('0', '1')
+                or row[4] not in valid_windows
                 or any(not re.fullmatch(r'[0-9]{1,19}', value) for value in row[5:11])
                 or any(not re.fullmatch(r'(?:N|[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{7})?(?:Z|\+00:00))', value) for value in row[11:])):
             return (f'DGN007_FAILURE|{label}|INSUFFICIENT|MALFORMED',)
