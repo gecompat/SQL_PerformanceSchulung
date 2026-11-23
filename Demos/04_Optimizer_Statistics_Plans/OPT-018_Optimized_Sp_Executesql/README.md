@@ -5,7 +5,7 @@ Batches aus zwei Sitzungen geschieht. Sie vergleichen überlappende
 Kompilierungen bei ausgeschalteter Option mit der Compile-Sperre und
 anschließenden Wiederverwendung desselben Plans bei eingeschalteter Option.
 
-## Durchführen
+## Schritt-für-Schritt-Anleitung
 
 Benötigt werden Python 3.12+, PowerShell 7.2+, ein lokaler Docker-kompatibler
 Linux-Containerkontext und das bereits lokal vorhandene AMD64-Image
@@ -14,7 +14,8 @@ Der Runner prüft SQL Server 2025 Enterprise Developer Edition Build
 `17.0.5065.9`. Die Bestätigung gilt für die SQL Server Developer EULA und
 für einen eigenen Wegwerfcontainer mit 2 CPUs, 4 GiB RAM und sechs markierten
 Versuchsdatenbanken. Die beiden Clients verbinden sich über einen dynamischen
-IPv4-Loopback-Port. Starten Sie den Lauf aus dem Repository-Stamm.
+IPv4-Loopback-Port. Starten Sie den Versuch manifestbasiert aus dem Repository-Stamm.
+Der Runner erfasst die Versuchsdatenbanken und den Abbau markergebunden.
 
 ```text
 python Demos/00_Framework/Tools/run_demo.py Demos/04_Optimizer_Statistics_Plans/OPT-018_Optimized_Sp_Executesql/manifest.json --confirm-isolated-lab
@@ -42,3 +43,5 @@ Die Beobachtungen gelten für diese Arbeitslast und diesen Build. Weitere
 Details stehen in der
 [Versuchsmethode zu OPTIMIZED_SP_EXECUTESQL](../../../Documentation/Project_Planning/OPTIMIZED_SP_EXECUTESQL_CONCURRENT_COMPILE_DESIGN.md#gebundenen-vergleich-ausführen)
 und im [Demo-Katalog](../../../Documentation/Demo_Catalog/README.md).
+Der [Ausführungsleitfaden](../../../Documentation/HowTo/DEMO_EXECUTION_GUIDE.md)
+führt zu den weiteren Optimizer-Demos.

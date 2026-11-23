@@ -139,7 +139,7 @@ sqlcmd -S '<instanz>' -E -Q 'SELECT SERVERPROPERTY(''ProductMajorVersion'') AS M
 
 **Sonderpfad IDX-007:** Diese Demo benötigt keinen vorhandenen SQL Server und kein Host-`sqlcmd`. Das Manifest `Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/manifest.json` startet selbst einen Linux-Docker-Container mit 2 CPUs, 4 GiB RAM, ohne Netzwerk, Host-Port oder persistentes Volume. Installieren Sie Python 3.12+ und Docker Engine und folgen Sie ausschließlich der versionsgebundenen Image-, Bestätigungs- und Aufrufanleitung in der [IDX-007-Demo-README](../../Demos/04_Rowstore_Columnstore/IDX-007_Last_Page_Insert_Contention/README.md). Sie wird nicht über `Invoke-SqlPerfDemo` ausgeführt.
 
-**Sonderpfad OPT-018.** Starten Sie den Standard-Harness mit dem [OPT-018-Manifest und der lokalen Bestätigung](../../Demos/04_Optimizer_Statistics_Plans/OPT-018_Optimized_Sp_Executesql/README.md#durchführen). Die Demo bringt ihre eigene SQL-Server-2025-Instanz im Container mit.
+**Sonderpfad OPT-018.** Starten Sie `run_demo.py` mit dem Manifest `Demos/04_Optimizer_Statistics_Plans/OPT-018_Optimized_Sp_Executesql/manifest.json` und `--confirm-isolated-lab`. Die [Schritt-für-Schritt-Anleitung](../../Demos/04_Optimizer_Statistics_Plans/OPT-018_Optimized_Sp_Executesql/README.md#schritt-für-schritt-anleitung) beschreibt den eigenen SQL-Server-2025-Container und die erwarteten Ergebnisse.
 
 Für SQL-Authentifizierung ersetzt `-U '<anmeldename>'` das `-E`. Wenn `sqlcmd` wegen eines selbstsignierten Zertifikats ablehnt, ergänzen Sie ausschließlich für die Wegwerfinstanz `-C`; der Harness erhält die entsprechende explizite Einstellung in Schritt 4.
 
