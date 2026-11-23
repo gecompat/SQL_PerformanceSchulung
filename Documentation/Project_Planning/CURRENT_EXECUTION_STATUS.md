@@ -14530,8 +14530,10 @@ drei Zweiburstversuchen. Mit dem neuen Burstabschluss-Signal bestand SQL Server
 2019 und 2022 lokal je einen vollständigen Zweiburstversuch sowie SQL Server
 2025 drei von drei Versuchen; Kettenbindung und Cleanup waren jeweils bestätigt.
 Die vorherige PR-Matrix auf `ae4fd055` bestand SQL Server 2019/2022, aber
-verfehlte SQL Server 2025 in drei Versuchen. Die frische PR-Matrix für den
-`BurstDone`-Kandidaten steht noch aus. Die
+verfehlte SQL Server 2025 in drei Versuchen. Die frische PR-Matrix des PR #1147
+([Lauf 45097345906](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45097345906))
+bestand den finalen Kandidaten auf SQL Server 2019, 2022 und 2025; alle
+drei Runtime-Buildjobs und übrigen Pflichtchecks waren erfolgreich. Die
 serielle PR-Matrix ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
 bestand ebenfalls auf allen Builds: Build 15 mit drei, Build 16 mit zwei und
 Build 17 mit einem erfolgreichen Zweiburstnachweis aus je drei Versuchen; alle
