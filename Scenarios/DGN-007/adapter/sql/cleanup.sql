@@ -31,6 +31,29 @@ BEGIN
     SET @Sql=N'DROP EVENT SESSION '+QUOTENAME(@SessionName)+N' ON SERVER;';
     EXEC sys.sp_executesql @Sql;
 END;
+DECLARE @T2OwnedSession sysname;
+IF OBJECT_ID(QUOTENAME(@TargetDatabase)+N'.lab.Dgn007T2CompileOwner',N'U') IS NOT NULL
+BEGIN
+    SET @Sql=N'SELECT @name=SessionName FROM '+QUOTENAME(@TargetDatabase)
+        +N'.lab.Dgn007T2CompileOwner WHERE StateId=1;';
+    EXEC sys.sp_executesql @Sql,N'@name sysname OUTPUT',@name=@T2OwnedSession OUTPUT;
+END;
+IF @T2OwnedSession IS NOT NULL
+BEGIN
+    DECLARE @T2Prefix sysname=N'SQLPERF_DGN007_T2_';
+    IF DATALENGTH(@T2OwnedSession)<>(LEN(@T2Prefix)+32)*2
+       OR LEFT(@T2OwnedSession,LEN(@T2Prefix)) COLLATE Latin1_General_100_BIN2<>@T2Prefix
+       OR RIGHT(@T2OwnedSession,32) COLLATE Latin1_General_100_BIN2 LIKE N'%[^0-9a-f]%'
+        THROW 51014,'FAIL_CLEANUP: Unbekannte T2-Messsitzung.',1;
+    IF EXISTS (SELECT 1 FROM sys.server_event_sessions WHERE name=@T2OwnedSession)
+    BEGIN
+        SET @Sql=N'DROP EVENT SESSION '+QUOTENAME(@T2OwnedSession)+N' ON SERVER;';
+        EXEC sys.sp_executesql @Sql;
+    END;
+    IF EXISTS (SELECT 1 FROM sys.server_event_sessions WHERE name=@T2OwnedSession)
+       OR EXISTS (SELECT 1 FROM sys.dm_xe_sessions WHERE name=@T2OwnedSession)
+        THROW 51014,'FAIL_CLEANUP: T2-Messsitzung noch vorhanden.',1;
+END;
 SET @Sql=N'ALTER DATABASE '+QUOTENAME(@TargetDatabase)+N' SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE '+QUOTENAME(@TargetDatabase)+N';';
 EXEC sys.sp_executesql @Sql;
 SELECT N'DGN-007' AS ScenarioId,N'CLEANUP' AS Phase,N'PASS' AS Outcome,N'QUERY_STORE_AND_DATABASE_REMOVED' AS Code;

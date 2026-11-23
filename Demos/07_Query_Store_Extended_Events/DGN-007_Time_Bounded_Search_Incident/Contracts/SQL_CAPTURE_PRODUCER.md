@@ -338,5 +338,11 @@ verworfene Auswertung bestätigte separat den Abbau von Sitzung und
 Datenbank.
 
 Der Diagnoseaufruf bindet den Befund an diesen Build und diese Reihenfolge.
-Kompilierzeit, Query-Store-Zeitfenster und Alternativhypothesen bleiben für
-den durchgehenden Teilnehmerablauf gemeinsam zu qualifizieren.
+Der Teilnehmervergleich erfasst seine T2-Kompilierungen separat auf den
+Builds `17.0.4075.5` und `17.0.5065.9`. Für einen ausgewiesenen Wert muss
+jeder der vier tatsächlichen Statementabschlüsse genau einer erfassten
+Kompilierung folgen. Abweichungen erscheinen als
+`COMPILE_EVIDENCE_MISSING`. Die T2-Sitzung gehört zum markierten
+Datenbanklauf. Beide Recovery-Pfade prüfen den aufgezeichneten Sitzungsnamen
+und entfernen ausschließlich diese T2-Messsitzung. Ein gepaarter
+Kompiliervergleich zwischen T1 und T2 bleibt ein eigener Nachweis.
