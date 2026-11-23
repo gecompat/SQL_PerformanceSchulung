@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import json
 from unittest import TestCase, main
 
-from verify_external_tables_apt_plan import check_plan, parse_install_plan
+from verify_external_tables_apt_plan import LOCK as LOCK_PATH, check_plan, parse_install_plan, select_role
 
 
 PLAN = """Reading package lists...
@@ -32,6 +33,21 @@ class AptPlanTests(TestCase):
             check_plan(PLAN.replace("1:2.0", "1:2.1"), LOCK)
         with self.assertRaises(ValueError):
             check_plan(PLAN, {"packages": LOCK["packages"] * 2})
+
+    def test_query_and_source_roles_only_accept_their_own_packages(self):
+        lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
+        query = select_role(lock, "query")
+        source = select_role(lock, "source")
+        query_names = {entry["package"] for entry in query["packages"]}
+        source_names = {entry["package"] for entry in source["packages"]}
+        self.assertEqual(query_names - source_names, {"mssql-server-polybase"})
+        self.assertFalse(source_names - query_names)
+        self.assertIn("mssql-server", source_names)
+        solver = "\n".join(f"Inst {row['package']} ({row['version']} [amd64])" for row in source["packages"])
+        self.assertEqual(check_plan(solver, source), 13)
+        with self.assertRaises(ValueError):
+            check_plan(solver, query)
+
 
 
 if __name__ == "__main__":

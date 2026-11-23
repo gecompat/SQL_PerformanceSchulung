@@ -1,5 +1,5 @@
 {
-  "scope": "polybase-query-vm-apt-simulation",
+  "scope": "polybase-query-and-source-vm-apt-simulations",
   "ubuntu_release": "20261017",
   "ubuntu_snapshot": "20261123T000000Z",
   "dpkg_status_sha256": "8088298f3856487d9e1442340c4a8bc5a64d7bfe9c2dc1f3a8973ab0b4094926",
@@ -131,5 +131,38 @@
       "repository": "microsoft",
       "path": "pool/main/m/mssql-server-polybase/mssql-server-polybase_17.0.5065.9-3_amd64.deb"
     }
-  ]
+  ],
+  "roles": {
+    "query": [
+      "libbabeltrace1",
+      "libipt2",
+      "libsource-highlight-common",
+      "libsource-highlight4t64",
+      "gdb",
+      "libatomic1",
+      "libunwind-18",
+      "libc++abi1-18",
+      "libc++1-18",
+      "libsasl2-modules-gssapi-mit",
+      "libc++1",
+      "libsss-nss-idmap0",
+      "mssql-server",
+      "mssql-server-polybase"
+    ],
+    "source": [
+      "libbabeltrace1",
+      "libipt2",
+      "libsource-highlight-common",
+      "libsource-highlight4t64",
+      "gdb",
+      "libatomic1",
+      "libunwind-18",
+      "libc++abi1-18",
+      "libc++1-18",
+      "libsasl2-modules-gssapi-mit",
+      "libc++1",
+      "libsss-nss-idmap0",
+      "mssql-server"
+    ]
+  }
 }

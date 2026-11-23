@@ -58,9 +58,19 @@ def verify_packages(directory: Path, lock: dict) -> int:
     return len(lock["packages"])
 
 
+def select_role(lock: dict, role: str) -> dict:
+    names = lock["roles"][role]
+    want = set(names)
+    packages = [entry for entry in lock["packages"] if entry["package"] in want]
+    if len(want) != len(names) or {entry["package"] for entry in packages} != want:
+        raise ValueError("APT role refers to duplicate or unknown packages")
+    return {"packages": packages}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("apt_plan", type=Path)
+    parser.add_argument("--role", choices=("query", "source"), default="query")
     parser.add_argument("--payload-directory", type=Path, help="also verify all locked .deb files")
     args = parser.parse_args()
     try:
@@ -68,7 +78,7 @@ def main() -> int:
             data = stream.read(128 * 1024 + 1)
         if len(data) > 128 * 1024:
             raise ValueError("APT plan exceeds the read limit")
-        lock = json.loads(LOCK.read_text(encoding="utf-8"))
+        lock = select_role(json.loads(LOCK.read_text(encoding="utf-8")), args.role)
         count = check_plan(data.decode("utf-8"), lock)
         print(f"PASS {count} locked package transitions, no package removals")
         if args.payload_directory is not None:
