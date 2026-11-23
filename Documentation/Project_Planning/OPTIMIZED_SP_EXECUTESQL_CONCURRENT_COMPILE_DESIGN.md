@@ -293,6 +293,18 @@ Der [Kataloglauf 45188183551](https://github.com/gecompat/SQL_PerformanceSchulun
 
 [Microsoft Support zu `sql_statement_post_compile`](https://support.microsoft.com/en-us/servicing/sql/sql-server-2017/cumulative-update/kb4480630-improvement-enhancement-adds-sql-statement-post-compile-extended-event-in-sql-server-2017) beschreibt für SQL Server 2016/2017 das Kompilierungsende als Auslösepunkt und eine eigene Dauer für die Kompilierung. Für den 2025-Pilot sind der Zeitstempelbezug und die Unsicherheit der ganzzahligen Millisekundenwerte auf dem festgeschriebenen Build zu prüfen. Überlappung ist nur belegbar, wenn sie auch unter der bestätigten Unsicherheit besteht. Ein unbestimmter Zeitbezug, fehlende Grenzen oder eine Überschneidung innerhalb der Zeitauflösung ergeben `NOT_PROVEN`.
 
+Eine Komponentenvorprobe mit identischen RPCs auf dem Zielbuild
+verglich die Dauer des Post-Compile-Ereignisses mit zwei beobachteten
+Zeitspannen. In den zwei parallelen und der einen sequenziellen
+Erstkompilierung lag die gemeldete Dauer bei 17 bis 18 ms. Die
+XE-Zeitdifferenz vom ersten Schätzereignis bis zum Post-Compile-Ereignis
+lag bei 16 bis 17 ms, die Differenz ab RPC-Start bei 19 bis 20 ms. Die
+gemeldete Dauer lag in jeder Spur zwischen diesen beiden Differenzen.
+Damit besteht ein Plausibilitätsbefund für diese drei Spuren. Die
+Rundungsregel und der genaue Bezugspunkt des Compilebeginns bleiben zu
+prüfen. Der gepaarte Pilot kann aus diesen Beobachtungen noch kein
+zulässiges Unsicherheitsintervall ableiten.
+
 Die Auswertung kann für jede Zeitgrenze den frühesten und spätesten
 möglichen Zeitpunkt auf derselben qualifizierten Uhr übernehmen. Im
 OFF-Arm muss der späteste mögliche Start der beiden Kompilierungen
@@ -366,6 +378,52 @@ Die [synthetischen Regressionstests](../../Tests/Static/test_optsp_xe_snapshot.p
 prüfen das Einlesen. Die zugehörige Zeitbasis und die semantische
 Zuordnung der Felder bleiben Gegenstand des Methodenreviews und des
 Engine-Piloten.
+
+## Konkreter Pilotkandidat für den unabhängigen Methodenreview
+
+| Merkmal | Festlegung |
+|---|---|
+| Ziel | Ein eigener AMD64-Linux-Container mit SQL Server `17.0.5065.9`, `Enterprise Developer Edition (64-bit)` und dem unten gebundenen Image-Digest. Zwei CPUs, 4 GiB RAM, nur ein dynamischer Host-Port auf IPv4-Loopback und keine externen Datenquellen. |
+| Arme und Reihenfolge | Zwei Paare mit je zwei frischen, unterschiedlich markierten Datenbanken auf derselben Instanz. Erst OFF und ON, dann ON und OFF. Zwei weitere frische Datenbanken tragen die sequenzielle Kontrolle mit identischem Batch und die parallele Kontrolle mit abweichendem Batch. Beide Kontrollen laufen mit OFF. |
+| Fixture und Optionen | Kompatibilitätsstufe 170. Die synthetische Abfrage verbindet die fünf Tabellenwertkonstruktoren des Komponententests. Sie benötigt keine Fixturetabellen. Beide Actors verwenden exakt denselben Batchtext, die Parameterdefinition `@value int`, den Wert `37` und erwarten das Ergebnis `37`. Nur in der getrennten Kontrolle wird der Text des zweiten Requests durch das zusätzliche Prädikat des Komponententests verändert. `AUTO_UPDATE_STATISTICS` bleibt in allen Pilotdatenbanken OFF, da der Batch ausschließlich Konstanten verarbeitet. Die Vor-/Nachhermessung erfasst alle Profiloptionen. |
+| Start und Cache | Zwei vorab verbundene Actors ohne MARS melden ihre Sitzung an dieselbe Clientbarriere. Beide rufen direkt per RPC auf. Die separate Beobachterverbindung liest den ersten Cachebestand in `master` über die `dbid`-Planattribute. Ein Plan mit der Ziel-Datenbank-ID vor dem Start macht den Arm unbrauchbar. Der Lauf verändert den Instanzcache nicht global. |
+| Messung | Eine eng gefilterte, flüchtige XE-Sitzung pro Arm. Zwei gebundene RPC-Start-/Endpaare und zwei gültige Statement-Abschlüsse sind erforderlich. RPC, Erstkompilierung, Wait-Beginn/-Ende und Sperrerwerb/-freigabe werden an dieselben Actor- und Datenbankidentitäten gebunden. Jede verwertete Zeitgrenze braucht eine belegte Semantik auf dem Zielbuild. |
+| Grenzen | Höchstens ein Container, sechs eigene Pilotdatenbanken und eine Messsitzung gleichzeitig. Ein Laufbudget von 240 Sekunden für Start, Setup und Messung sowie 60 Sekunden für Cleanup. Verbindungsversuche und Actor-Kommandos haben je fünf Sekunden Höchstdauer und werden auf das verbleibende Budget begrenzt. Eigentum und vollständiger Abbau werden durch separate Abfragen bestätigt. |
+
+Die vier Arme der Paare müssen jeweils ihren Befund vollständig belegen.
+Im OFF-Arm erfordert dies die überlappenden, getrennten Erstkompilierungen
+identischer Texte. Im ON-Arm erfordert es eine Erstkompilierung, einen
+gebundenen Wait des jeweils anderen Actors und die Wiederverwendung des
+vorbereiteten Statementplans. Wer kompiliert, ergibt sich aus den
+gebundenen Ereignissen. Die Reihenfolge der Clientaufrufe entscheidet
+diese Zuordnung nicht. Der bekannte OFF-Befund belegt die
+Eignung des Batches für die frühere Komponentenumgebung. Der Pilot muss
+die Überlappung in den frisch provisionierten Datenbanken erneut zeigen.
+
+Der ON-Collector muss die dynamische Compile-Ressource empirisch von
+gewöhnlichen Datenlocks trennen. Ein X-Wait ohne gesicherte
+Compile-Subressource und zuordenbares Besitzintervall ergibt
+`NOT_PROVEN`. Die Objektsperren-Gegenprobe liefert dafür ein negatives
+Vergleichsprofil. Fehlende Terminalereignisse, XE-Verluste, unbekannte
+Ressourcenformate, fehlerhafte Ergebnisse oder fehlender Cleanup
+verhindern einen positiven Befund. Die Identität des Plans wird pro
+Arm geprüft, da sich Handles zwischen Datenbanken unterscheiden können.
+
+Eine Vorprobe auf dem Zielbuild prüfte den Cache-Zensus mit deaktivierter
+Option. `CREATE DATABASE` und die datenbankbezogenen
+`ALTER DATABASE`-Aufrufe aus `master`, ein Eigentumsmarker per
+`sp_addextendedproperty` und dessen Rücklesen aus `master` ergaben
+jeweils null Cacheeinträge für die Ziel-Datenbank-ID. Ein anschließender
+synthetischer `sp_executesql`-Aufruf im Ziel ergab zwei Einträge. Die
+Gegenprobe belegt, dass der Zensus für diesen Aufbau zwischen leerem
+und belegtem Cache unterscheidet. Eigentumsmarker, Datenbank und
+Container wurden beim Abbau geprüft. Der Pilot prüft den Zensus erneut
+mit den tatsächlich angemeldeten Actors und Optionszuständen.
+
+Der Review muss insbesondere die tatsächliche Cache-Erfassung vor dem
+Start, die Abfolge der Sperrereignisse, die negative Kontrolle und die
+Machbarkeit der vorgeschlagenen Grenzen prüfen. Die Kandidatenfassung
+dient der Prüfung vor der Aktivierung der Option.
 
 ## Gates vor einer Implementierung
 
