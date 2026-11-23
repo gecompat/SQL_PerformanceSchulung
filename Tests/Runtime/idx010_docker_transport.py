@@ -66,7 +66,7 @@ class DockerPilotTransport:
         environment = os.environ.copy()
         environment["MSSQL_SA_PASSWORD"] = self._sa_password
         result = _docker([
-            "run", "--detach", "--name", self._name, "--label", f"{OWNER_LABEL}={self._owner}",
+            "create", "--pull", "never", "--name", self._name, "--label", f"{OWNER_LABEL}={self._owner}",
             "--network", "none", "--cpus", "2", "--memory", "4g", "--memory-swap", "4g",
             "-e", "ACCEPT_EULA=Y", "-e", "MSSQL_PID=Developer", "-e", "MSSQL_SA_PASSWORD", IMAGE,
         ], deadline, environment).strip().decode("ascii")
@@ -76,16 +76,19 @@ class DockerPilotTransport:
         shape = _docker([
             "inspect", "--format",
             "{{.Image}}|{{.HostConfig.NetworkMode}}|{{.HostConfig.NanoCpus}}|"
-            "{{.HostConfig.Memory}}|{{.HostConfig.MemorySwap}}|{{json .Mounts}}|{{json .HostConfig.PortBindings}}",
+            "{{.HostConfig.Memory}}|{{.HostConfig.MemorySwap}}|{{json .Mounts}}|{{json .HostConfig.PortBindings}}|"
+            "{{.State.Status}}",
             result,
         ], deadline).strip().split(b"|")
         if (
-            len(shape) != 7
+            len(shape) != 8
             or shape[:5] != [image_id, b"none", str(CPU_NANOS).encode(), str(MEMORY).encode(), str(MEMORY).encode()]
             or json.loads(shape[5]) not in ([], None)
             or json.loads(shape[6]) not in ({}, None)
+            or shape[7] != b"created"
         ):
             raise OSError("pilot container limits differ from the profile")
+        _docker(["start", result], deadline)
         ready_deadline = min(deadline, monotonic() + 90)
         while True:
             try:
@@ -162,7 +165,8 @@ class DockerPilotTransport:
             return False
         owned = self._find_owned(deadline)
         if owned is None:
-            return not attempted
+            # A timed-out create can finish on the daemon after an empty listing.
+            return self._container is not None and not attempted
         self._container = owned
         sql_confirmed = True
         for target in reversed(attempted):
