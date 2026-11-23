@@ -21,6 +21,7 @@ ACTOR_COUNTS = {15: 80, 16: 80, 17: 56}
 FILLFACTORS = {15: 100, 16: 100, 17: 10}
 ROWS_PER_BURST = 1
 PAGE_SCAN_DELAY = "00:00:00.050"
+GATE_POLL_DELAY = "00:00:00.001"
 
 
 class PilotError(RuntimeError):
@@ -242,7 +243,7 @@ def page_metadata_sql(addresses: set[tuple[int, int]], stage: int) -> str:
     return f"""
 SET NOCOUNT ON; USE [{DB}];
 INSERT lab.CaptureReady(Stage) VALUES({stage});
-WHILE NOT EXISTS(SELECT 1 FROM lab.Start WHERE Stage={stage}) WAITFOR DELAY '00:00:00.002';
+WHILE NOT EXISTS(SELECT 1 FROM lab.Start WHERE Stage={stage}) WAITFOR DELAY '{GATE_POLL_DELAY}';
 SELECT 'IDX007_CHAIN_CAPTURE_BEGIN';
 INSERT lab.Go(Stage) VALUES({stage});
 DECLARE @candidate table(FileId int NOT NULL,PageId int NOT NULL);
@@ -443,9 +444,9 @@ WHERE p.name=N'sqlserver' AND o.name=N'latch_suspend_end' AND c.name=N'duration'
 SET NOCOUNT ON; USE [{DB}]; DECLARE @spid smallint=@@SPID,@request_id int,@i int=0;
 SELECT @request_id=request_id FROM sys.dm_exec_requests WHERE session_id=@spid;
 INSERT lab.ActorSessions(SessionId,RequestId) VALUES(@spid,@request_id);
-WHILE NOT EXISTS(SELECT 1 FROM lab.Go WHERE Stage=1) WAITFOR DELAY '00:00:00.002';
+WHILE NOT EXISTS(SELECT 1 FROM lab.Go WHERE Stage=1) WAITFOR DELAY '{GATE_POLL_DELAY}';
 WHILE @i<{ROWS_PER_BURST} BEGIN INSERT dbo.Hot DEFAULT VALUES; WAITFOR DELAY '00:00:00.010'; SET @i+=1; END;
-WHILE NOT EXISTS(SELECT 1 FROM lab.Go WHERE Stage=2) WAITFOR DELAY '00:00:00.002';
+WHILE NOT EXISTS(SELECT 1 FROM lab.Go WHERE Stage=2) WAITFOR DELAY '{GATE_POLL_DELAY}';
 SET @i=0;
 WHILE @i<{ROWS_PER_BURST} BEGIN INSERT dbo.Hot DEFAULT VALUES; WAITFOR DELAY '00:00:00.010'; SET @i+=1; END;
 SELECT CONCAT('ACTOR|',@spid,'|',@request_id);

@@ -236,18 +236,20 @@ einen Startreihenfolgefehler: Die Orchestrierung öffnete die Actor-Barriere,
 bevor die Capture-Session ihren XE-Startmarker ausgab. Writer-Waits konnten
 dadurch vor dem markierten Kettenlesefenster liegen. Die Capture-Session wartet
 jetzt auf ein Startsignal, gibt zuerst den Marker aus und öffnet direkt danach
-die Actor-Barriere. Die verbundene Session liest danach die Kette und pausiert
-nach jeder Blattseitenprobe fünfzig Millisekunden; zusätzliche Schreiblasten
-kommen nicht hinzu. Der 50-ms-Stand vor dieser Barrierenkorrektur verfehlte
-SQL Server 2022 in der CI in drei Versuchen. Die aktuelle lokale Matrix mit
-beiden Korrekturen bestand auf SQL Server 2019/2022/2025 je drei von drei
-vollständigen Zweiburstversuchen. Die serielle
+die Actor-Barriere. Actors und Capture-Session prüfen diese Barriere jede
+Millisekunde statt alle zwei Millisekunden; Actorzahl und Einfügungen bleiben
+gleich. Die verbundene Session liest danach die Kette und pausiert nach jeder
+Blattseitenprobe fünfzig Millisekunden; zusätzliche Schreiblasten kommen nicht
+hinzu. Die 2-ms-Barrierenvariante ließ im CI SQL Server 2025 in drei Versuchen
+ohne vollständigen Nachweis, obwohl SQL Server 2019/2022 bestanden. Die
+aktuelle lokale Matrix mit 1-ms-Barriere bestand auf SQL Server
+2019/2022/2025 je drei von drei vollständigen Zweiburstversuchen. Die serielle
 CI-Matrix ([Lauf 45082708807](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45082708807))
 bestand ebenfalls auf allen drei Builds: Build 15 mit drei, Build 16 mit zwei
 und Build 17 mit einem vollständigen Zweiburstnachweis aus je drei begrenzten
 Versuchen. Alle Versuche bestätigten das Cleanup; erfolglose Varianten blieben
-`NOT_PROVEN`. Die aktuelle Barrierenkorrektur muss in einer neuen PR-Matrix
-noch bestätigt werden.
+`NOT_PROVEN`. Die aktuelle 1-ms-Barriere muss in einer neuen PR-Matrix noch
+bestätigt werden.
 
 Die angepasste Lastform verwendet 501 Seeds und eine Einfügung pro Actor je
 Burst. Build 15 (`15.0.4500.2`) und Build 16 (`16.0.4305.5`) verwenden
