@@ -200,7 +200,9 @@ IF DB_ID(N'{name}') IS NOT NULL
 BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM [{name}].sys.extended_properties
-        WHERE class=0 AND name=N'OptspOwner' AND CONVERT(nvarchar(32),value)=N'{database.token}'
+        WHERE class=0 AND name COLLATE Latin1_General_100_BIN2=N'OptspOwner'
+        AND DATALENGTH(CONVERT(nvarchar(4000),value))=64
+        AND CONVERT(nvarchar(4000),value) COLLATE Latin1_General_100_BIN2=N'{database.token}'
     ) THROW 51000,'cleanup marker missing',1;
     IF EXISTS (SELECT 1 FROM sys.server_event_sessions WHERE name=N'{xe}')
         DROP EVENT SESSION [{xe}] ON SERVER;

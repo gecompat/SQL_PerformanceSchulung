@@ -50,7 +50,9 @@ SET NOCOUNT ON;
 IF SERVERPROPERTY('ProductVersion')<>N'17.0.5065.9'
  OR SERVERPROPERTY('Edition')<>N'Enterprise Developer Edition (64-bit)'
  OR (SELECT COUNT(*) FROM sys.databases WHERE database_id > 4)<>6
- OR NOT EXISTS (SELECT 1 FROM [$Database].sys.extended_properties WHERE class=0 AND name=N'OptspOwner' AND CONVERT(nvarchar(32),value)=N'$Owner')
+ OR NOT EXISTS (SELECT 1 FROM [$Database].sys.extended_properties WHERE class=0 AND name COLLATE Latin1_General_100_BIN2=N'OptspOwner'
+        AND DATALENGTH(CONVERT(nvarchar(4000),value))=64
+        AND CONVERT(nvarchar(4000),value) COLLATE Latin1_General_100_BIN2=N'$Owner')
  THROW 51000,'invalid isolated discovery target',1;
 SELECT CONVERT(int, DB_ID(N'$Database'));
 "@ -Scalar
@@ -172,7 +174,9 @@ ALTER EVENT SESSION [$xeName] ON SERVER STATE=START;
         $observer.ChangeDatabase($Database)
         try {
             Local-Sql $observer @"
-IF DB_ID()<>$dbid OR NOT EXISTS (SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'OptspOwner' AND CONVERT(nvarchar(32),value)=N'$Owner')
+IF DB_ID()<>$dbid OR NOT EXISTS (SELECT 1 FROM sys.extended_properties WHERE class=0 AND name COLLATE Latin1_General_100_BIN2=N'OptspOwner'
+        AND DATALENGTH(CONVERT(nvarchar(4000),value))=64
+        AND CONVERT(nvarchar(4000),value) COLLATE Latin1_General_100_BIN2=N'$Owner')
     THROW 51007,'cache reset target is not the owned database',1;
 ALTER DATABASE SCOPED CONFIGURATION CLEAR PROCEDURE_CACHE;
 "@

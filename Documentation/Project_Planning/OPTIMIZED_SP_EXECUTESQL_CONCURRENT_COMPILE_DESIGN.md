@@ -220,15 +220,20 @@ Konkurrenz.
 
 ## Statische Auswertung normalisierter Befunde
 
-Für den Methodenreview steht eine [SQL-freie Auswertung je Versuchsarm](../../Tests/Runtime/optsp_compile_evidence.py) bereit. Sie verlangt im ON-Arm einen dem Compile-Actor zugeordneten Wait, der eine belegte, positive Zeitspanne der Kompilierung überlappt und bis zum bestätigten Ende reicht. Der Compile-Actor muss dieselbe Ressource bereits bei Wait-Beginn halten. Der Wait darf vor der ersten beobachteten Compilerphase beginnen. Alle erfolgreichen Folgeaufrufe müssen denselben Statement-Planhandle verwenden. Die [synthetischen Gegenproben](../../Tests/Static/test_optsp_compile_evidence.py) decken unter anderem nacheinander liegende Kompilierungen bei überlappenden RPCs, fremde Sessions, gewöhnliche X-Waits und abweichenden Batchtext ab.
+Für den Methodenreview steht eine [SQL-freie Auswertung je Versuchsarm](../../Tests/Runtime/optsp_compile_evidence.py) bereit. Sie verlangt im ON-Arm einen dem Compile-Actor zugeordneten Wait, der eine belegte, positive Zeitspanne der Kompilierung überlappt und bis zum bestätigten Ende reicht. Der Compile-Actor muss dieselbe Ressource während des belegten Abschnitts halten. Der Wait darf vor der ersten beobachteten Compilerphase beginnen. Alle erfolgreichen Folgeaufrufe müssen denselben Statement-Planhandle verwenden. Die [synthetischen Gegenproben](../../Tests/Static/test_optsp_compile_evidence.py) decken unter anderem nacheinander liegende Kompilierungen bei überlappenden RPCs, fremde Sessions, gewöhnliche X-Waits und abweichenden Batchtext ab.
 
 Der spätere Producer muss die gemeinsame Zeitbasis und die Compile-Grenzen, Statement-/Cache-Identität, Wait-Ressource und Blockerbindung aus qualifizierten Engine-Daten liefern. Die Auswertung erwartet außerdem eine vollständige Spur der vorab registrierten Actors und eine geprüfte Erfassung samt Abbau. Die Tests validieren die Annahmeregeln mit synthetischen Eingaben. Ein positiver Einzelarm ersetzt weder den gepaarten Lauf noch dessen Negativkontrollen. Die tatsächliche XE-Payload und der Ressourcenbezug des dynamischen Batches bleiben offen.
 
 Die Auswertung verbindet Wait und Sperrbesitz anhand desselben
 datenbankbezogenen Ressourcenschlüssels. Sie akzeptiert den ON-Arm nur,
 wenn genau ein erfasstes Besitzintervall diese Wartezeit überlappt. Der
-kompilierende Request muss die Ressource bereits beim Wait-Beginn halten.
-Sein Besitz muss mindestens bis zum Ende der Kompilierung reichen.
+kompilierende Request muss die Ressource bis zum Ende der gemessenen
+Kompilierung halten. Im Regelfall ist der Besitz bereits beim
+Wait-Beginn belegt. Nur bei identischem Zeitlabel von Wait-Beginn und
+Sperrerwerb kann der Erwerb in derselben Aufzeichnung danach liegen.
+Dann muss der belegte Besitz die ganze beobachtete Compile-Phase
+umschließen. Für den Beginn des Waits wird in diesem Fall kein Besitz
+behauptet. Die spätere positive Überlappung bleibt erforderlich.
 Eine konkurrierende Zuordnung, ein anderer Schlüssel oder ein
 unvollständiges Besitzintervall ergeben `NOT_PROVEN`.
 
@@ -572,6 +577,14 @@ Die abweichende Batchidentität wurde beim Paarvergleich abgewiesen.
 Die sechs XE-Sitzungen, Datenbanken und der eigene Container wurden
 nachweislich entfernt. Der Befund gilt für dieses synthetische Profil
 und den festgeschriebenen Build.
+
+Im paketierten Versuch traten Wait-Beginn und Erwerb der Compile-Sperre
+mit demselben Zeitlabel auch in der umgekehrten Ereignisreihenfolge auf.
+Bei dieser Aufnahme lag die gemessene Compile-Phase vollständig danach
+und innerhalb des Besitzintervalls. Der überlappende Wait und die
+Planwiederverwendung waren belegbar. Ein späteres Erwerbszeitlabel,
+eine andere Aufzeichnung, eine nicht vollständig gehaltene Compilerphase
+oder eine Überlappung ohne positive Dauer ergeben weiterhin `NOT_PROVEN`.
 
 ## Gebundenen Vergleich ausführen
 
