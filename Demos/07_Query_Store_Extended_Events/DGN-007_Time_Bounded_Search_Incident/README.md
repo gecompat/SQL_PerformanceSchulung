@@ -104,6 +104,18 @@ T0, T1 und T2 bleiben getrennte Zeitfenster und Query-Store-Intervalle. Die Quer
 
 ## Statische Prüfung und Statusgrenze
 
+Der [Lab-Harness](../../../Tests/Lab/Invoke-DGN007StaticParticipantFlowTest.ps1)
+wurde auf einer frischen Podman-Labinstanz mit dem unveränderten
+`SQL_Server_Lab`-Stand `ca170c119c4b` ausgeführt. Adapterinstallation,
+Validierung und alle sechs Teilnehmerstufen bis T2 und Recovery bestanden.
+`Remove-SqlServerLab` meldete `REMOVED`. Eine getrennte Inventarabfrage
+fand unter der Lauf-ID keine Container, Volumes oder Netzwerke.
+Der Harness meldet Produktversion und Kollation aus der eigenen Instanz
+sowie Stufenstatus und Fehlernummern. Die Rohresultate bleiben lokal.
+Der Lauf belegt den vorhandenen Teilnehmerablauf über den Lab-Einstieg.
+Die integrierte Bewertung der Alternativhypothesen und Kompilierkosten
+steht für die Incident-Abnahme weiterhin aus.
+
 Die lokale Korrektur wurde statisch und im nicht-promotenden Teilnehmerablauf auf einer frischen Docker-Instanz mit SQL Server 2025 geprüft; sechs SQL-Stufen sowie Adapter- und Teilnehmer-Cleanup bestanden. Das ist weder vollständige Runtime-Matrix noch Incident-/Ursachenabnahme oder `VALIDATED`-Freigabe. Die Bestätigungsmatrix und Capstone-Qualifikation bleiben offen; die menschliche Generalprobe ist ausgeschlossen.
 
 Die begrenzten Compatibility-Gegenproben laufen mit

@@ -19,6 +19,11 @@ def main() -> int:
     required = ("STATIC_PARTICIPANT_FLOW_ONLY", "Test-SqlServerLabManifest", "New-SqlServerLab", "Get-SqlServerLab", "Test-SqlServerLabAdapter", "Install-SqlServerLabAdapter", "Remove-SqlServerLab", "SQLCMDPASSWORD", "SQLPERF_SUMMARY\\|(PASS|SKIP)\\|([A-Z0-9_]+)", "SKIP_QUERY_STORE_REQUIRED", "SKIP_INCIDENT_NOT_REPRODUCED", "SKIP_EVIDENCE_MISSING", "CONTROLLED_SKIP_NO_EVIDENCE_CLAIM", "COMPLETED_WITHOUT_PROMOTION", "ParticipantStageResults", "RECOVERY_FINALLY", "-Entrypoint cleanup", "-SkipPreflight")
     for marker in required:
         if marker not in harness: findings.append(f"harness marker missing: {marker}")
+    for marker in ("SERVERPROPERTY('ProductVersion')", "Read-Dgn007EngineIdentity", "SqlProductVersion", "SqlCollation"):
+        if marker not in harness:
+            findings.append(f"engine identity marker missing: {marker}")
+    if "Output = $outputText" in harness or ": $outputText" in harness:
+        findings.append("participant summaries and errors must omit raw SQL output")
     stages = [harness.index(marker) for marker in ("00_Preflight.sql", "20_Baseline.sql", "40_Observation.sql", "50_Mitigation.sql", "60_Comparison.sql", "90_Cleanup.sql")]
     if stages != sorted(stages): findings.append("documented SQL stages must remain ordered")
     expected_skips = {
