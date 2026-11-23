@@ -14,6 +14,8 @@ on:
       - 'Tests/Static/test_external_tables_apt_plan.py'
       - 'Tests/Runtime/external_tables_pilot_sql.py'
       - 'Tests/Runtime/external_tables_pushdown_evidence.py'
+      - 'Tests/Runtime/external_tables_measurement.py'
+      - 'Tests/Static/test_external_tables_measurement.py'
       - 'Tests/Static/test_external_tables_pushdown_evidence.py'
       - 'Tests/Static/test_external_tables_pilot_sql.py'
       - 'Documentation/Project_Planning/external_tables_apt_lock.json'
@@ -32,6 +34,8 @@ on:
       - 'Tests/Static/test_external_tables_apt_plan.py'
       - 'Tests/Runtime/external_tables_pilot_sql.py'
       - 'Tests/Runtime/external_tables_pushdown_evidence.py'
+      - 'Tests/Runtime/external_tables_measurement.py'
+      - 'Tests/Static/test_external_tables_measurement.py'
       - 'Tests/Static/test_external_tables_pushdown_evidence.py'
       - 'Tests/Static/test_external_tables_pilot_sql.py'
       - 'Documentation/Project_Planning/external_tables_apt_lock.json'
@@ -55,3 +59,4 @@ jobs:
       - run: python Tests/Static/test_external_tables_apt_plan.py
       - run: python Tests/Static/test_external_tables_pilot_sql.py
       - run: python Tests/Static/test_external_tables_pushdown_evidence.py
+      - run: python Tests/Static/test_external_tables_measurement.py

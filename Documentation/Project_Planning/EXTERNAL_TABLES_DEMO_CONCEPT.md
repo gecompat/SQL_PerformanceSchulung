@@ -316,6 +316,27 @@ prüfen Fixture, Oracle, Routen und die Bindung vor Änderungen.
 Der tatsächliche Remote-Befehl, die Gastrechte und der Cleanup müssen
 im späteren Pilot beobachtet werden.
 
+### Ablauf der Messung
+
+Die [Messsteuerung](../../Tests/Runtime/external_tables_measurement.py)
+verwendet nach dem Abgleich der Daten und dem Statistikaufbau die verbleibende
+Pilotfrist. Sie führt einmal die lokale Referenz und danach je einen Aufruf
+mit und ohne Pushdown aus. Eine getrennte Diagnoseverbindung muss den
+markierten Request während seiner Ausführung eindeutig sehen. Erst nach
+erfolgreichem Ergebnisabgleich liest die Diagnose die zugehörigen Workrecords.
+Mehrdeutige Handle-Zuordnungen, widersprüchliche Befunde
+oder ein zu kurzer Request ohne beobachteten Handle ergeben `NOT_PROVEN`.
+Ein weiterer Aufruf im selben Arm würde die Zuordnung mehrdeutig machen.
+
+Der spätere Gasttransport meldet den bestätigten Abschluss der eigenen
+Reader-Verbindungen und Requests. Ein unbestätigter Abbau ergibt
+`FAIL_CLEANUP` und verhindert den Vergleich. Der Start der VMs und die
+Bereinigung der SQL- und VM-Ressourcen liegen im umschließenden Pilot.
+Die [Ablauftests](../../Tests/Static/test_external_tables_measurement.py)
+verwenden simulierte Antworten. Ob der Connector die erwarteten Felder
+liefert und der Request lange genug für eine Live-Beobachtung sichtbar
+bleibt, muss der zugelassene Pilot zeigen.
+
 ### Abbau und Wiederaufnahme
 
 1. Sperre weitere Demoaufrufe und beende nur eigene ausstehende Requests.
