@@ -57,6 +57,24 @@ class RuntimeSelectorTests(unittest.TestCase):
             runtime_job_changed=True,
         ))
 
+    def test_dgn007_readme_stays_static_unless_an_executable_input_changes(self) -> None:
+        workflow = selector.WORKFLOWS["dgn007"]
+        patterns = selector.trigger_paths(workflow)
+        automated = "Demos/07_Query_Store_Extended_Events/DGN-007_Time_Bounded_Search_Incident/Automated"
+        readme = f"{automated}/README.md"
+        self.assertTrue(any(selector.fnmatchcase(readme, pattern) for pattern in patterns))
+        self.assertFalse(selector.select_runtime({readme}, patterns, workflow, runtime_job_changed=False))
+        for other in (f"{automated}/control-ab.manifest.json", f"{automated}/35_Control_Evidence.sql",
+                      f"{automated}/potential-runtime-input.md"):
+            with self.subTest(other=other):
+                self.assertTrue(selector.select_runtime(
+                    {readme, other}, patterns, workflow, runtime_job_changed=False,
+                ))
+        self.assertTrue(selector.select_runtime(
+            {readme, workflow}, patterns, workflow, runtime_job_changed=True,
+        ))
+
+
     def test_dgn007_sql_and_shared_tool_changes_select_runtime(self) -> None:
         workflow = selector.WORKFLOWS["dgn007"]
         patterns = selector.trigger_paths(workflow)

@@ -27,6 +27,27 @@ SQL-Runtime-Workflows erzeugen und mutieren Container; ihre Runner sind teilweis
 
 Eine Integration Queue oder gemeinsame Batch-Validierung wird nicht aktiviert. Eine spätere automatische Cancellation mutierender Validierungen setzt einen dokumentierten, nachweislich idempotenten Cleanup- und Recovery-Vertrag voraus, der auch nach harter Unterbrechung wirksam bleibt. Eine fehlgeschlagene Bereinigung oder unbekannte Runtime-Situation bleibt ein offener Fehler beziehungsweise ungeklärter Zustand und darf nicht in erfolgreiche Evidenz umgedeutet werden. Die Regeln zu `VALIDATION_FAILURE`, `INFRASTRUCTURE_UNAVAILABLE`, `UNKNOWN` und Break-glass gelten unverändert.
 
+## Umfang der DGN-007-Laufzeitprüfung bei Anleitungskorrekturen
+
+Die DGN-007-Matrix in [PR 1188](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/45206075266)
+wurde durch eine reine README-Änderung gestartet. Der breite
+`Automated/**`-Trigger erfasste die Anleitung wie einen ausführbaren
+Eingabepfad. Als Referenz benötigten im [vorherigen gebundenen Lauf](https://github.com/gecompat/SQL_PerformanceSchulung/actions/runs/44921319212)
+die drei Enginejobs jeweils rund 20,5 Minuten. Die DGN-007-Enginejobs
+erzeugen eigene Container und führen je sechs Captures samt Abbau aus.
+
+Die einzige dokumentationsbezogene Ausnahme in der DGN-007-Auswahl ist
+`Automated/README.md`. Ausführbare Verbraucher verwenden diesen Pfad
+nicht. Der Trigger für statische DGN-007-Vertragschecks sowie die
+zentralen Datenschutzprüfungen bleibt wirksam. Der
+[Selektortest](../Tests/Static/test_runtime_workflow_selector.py) prüft
+auch gemischte Änderungen mit SQL und Manifest sowie einen geänderten
+Runtime-Job. Unbekannte Eingaben, der manuell ausgelöste Lauf und die
+bestehenden Runtime-, Abbau- und Reviewpflichten folgen ihren bisherigen
+Verträgen. Die Änderung ergänzt keine zusätzlichen Modelle, Reviewer
+oder Logübertragungen.
+
+
 ## Zulässige Klassifikation
 
 Ein CI-Bypass ist ausschließlich bei `INFRASTRUCTURE_UNAVAILABLE` zulässig. Dafür muss mindestens eine der folgenden Bedingungen belegt sein:
