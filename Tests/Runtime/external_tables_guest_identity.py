@@ -24,6 +24,7 @@ _DETACHED_QUERY = b"SED1"
 _DETACHED_REPLY = b"SEP1"
 _GUEST_STATUS_PATH = Path("/var/lib/dpkg/status")
 _ROLE_ID = {Role.SOURCE: 1, Role.QUERY: 2}
+_HYPERV_SERVICES = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization\GuestCommunicationServices"
 
 
 def linux_service_id(port: int) -> UUID:
@@ -31,6 +32,28 @@ def linux_service_id(port: int) -> UUID:
     if type(port) is not int or not 1024 <= port <= 65535:
         raise ValueError("expected a nonprivileged VSOCK port")
     return UUID(f"{port:08x}-facb-11e6-bd58-64006a7986d3")
+
+
+def require_registered_hyperv_ports(bootstrap_port: int, sql_port: int) -> None:
+    """Check the two exact Windows registrations without changing the host."""
+    services = linux_service_id(bootstrap_port), linux_service_id(sql_port)
+    if services[0] == services[1]:
+        raise ValueError("External Tables requires two distinct Hyper-V services")
+    try:
+        import winreg
+    except ImportError:
+        raise OSError("Hyper-V service registration requires a Windows host") from None
+    try:
+        for service in services:
+            with winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE, f"{_HYPERV_SERVICES}\\{service}", 0,
+                winreg.KEY_READ | winreg.KEY_WOW64_64KEY,
+            ) as key:
+                label, value_type = winreg.QueryValueEx(key, "ElementName")
+                if value_type != winreg.REG_SZ or not isinstance(label, str) or not label.strip():
+                    raise ValueError("invalid guest service registration")
+    except (OSError, ValueError):
+        raise OSError("External Tables requires both Hyper-V guest services to be registered") from None
 
 
 def verify_guest(
