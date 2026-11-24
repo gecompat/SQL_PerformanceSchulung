@@ -29,7 +29,8 @@ _RUNTIME = Path("Tests/Runtime")
 _MODULES = (
     "dgn004_capture_runner", "execution_target", "external_tables_cleanup", "external_tables_guest_admin",
     "external_tables_guest_apt", "external_tables_guest_bootstrap", "external_tables_guest_identity",
-    "external_tables_guest_network", "external_tables_guest_tls", "external_tables_measurement", "external_tables_odbc",
+    "external_tables_guest_network", "external_tables_guest_service", "external_tables_guest_tls",
+    "external_tables_measurement", "external_tables_odbc",
     "external_tables_package_state", "external_tables_pilot", "external_tables_pilot_sql",
     "external_tables_principals", "external_tables_pushdown_evidence", "external_tables_source_firewall",
     "external_tables_tls_material",
@@ -47,13 +48,16 @@ _WHEEL_DIRECTORY = PurePosixPath("/opt/sqlperf-external/wheel")
 _BUILD_SECONDS = 120
 
 
-def cloud_seed(token: str, role: Role, port: int, network: GuestNetwork) -> dict[str, str]:
+def cloud_seed(token: str, role: Role, port: int, network: GuestNetwork, *, sql_port: int) -> dict[str, str]:
     """Return fixed role-bound NoCloud configuration without any credential input."""
     database_name(token, role)
     linux_service_id(port)
+    linux_service_id(sql_port)
+    if port == sql_port:
+        raise ValueError("the guest preparation and SQL ports must be distinct")
     bootstrap = [
         "/usr/bin/python3", "-B", str(_MEDIA / "Tests/Runtime/external_tables_guest_bootstrap.py"),
-        "--token", token, "--role", role.value, "--port", str(port),
+        "--token", token, "--role", role.value, "--port", str(port), "--sql-port", str(sql_port),
         "--source-address", str(network.source), "--query-address", str(network.query),
         "--staging", str(_MEDIA / "packages"), "--wheel-directory", str(_WHEEL_DIRECTORY),
     ]
@@ -76,10 +80,10 @@ def cloud_seed(token: str, role: Role, port: int, network: GuestNetwork) -> dict
 
 def build_bootstrap_iso(
     destination: Path, packages: Path, token: str, role: Role, port: int, network: GuestNetwork, *,
-    xorriso: Path = Path("/usr/bin/xorriso"),
+    sql_port: int, xorriso: Path = Path("/usr/bin/xorriso"),
 ) -> str:
     """Publish one ISO and return its SHA-256 for the provider's attachment check."""
-    config = cloud_seed(token, role, port, network)
+    config = cloud_seed(token, role, port, network, sql_port=sql_port)
     output = destination.parent.resolve(strict=True) / destination.name
     if output.suffix.lower() != ".iso" or os.path.lexists(output):
         raise ValueError("expected a new ISO in the private run directory")
@@ -140,6 +144,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--token", required=True)
     parser.add_argument("--role", required=True, choices=[role.value for role in Role])
     parser.add_argument("--port", required=True, type=int)
+    parser.add_argument("--sql-port", required=True, type=int)
     parser.add_argument("--source-address", required=True, type=IPv4Interface)
     parser.add_argument("--query-address", required=True, type=IPv4Interface)
     parser.add_argument("--packages", required=True, type=Path)
@@ -149,7 +154,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         digest = build_bootstrap_iso(
             args.output, args.packages, args.token, Role(args.role), args.port,
-            GuestNetwork(args.source_address, args.query_address), xorriso=args.xorriso,
+            GuestNetwork(args.source_address, args.query_address), sql_port=args.sql_port, xorriso=args.xorriso,
         )
     except (KeyError, OSError, ValueError):
         print("EXTERNAL_TABLES_BOOT_MEDIA|FAIL", file=sys.stderr)

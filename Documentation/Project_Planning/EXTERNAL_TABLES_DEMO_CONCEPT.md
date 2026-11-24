@@ -796,8 +796,8 @@ der SQL-Ablauf nicht starten.
 Der [Mediengenerator](../../Tests/Runtime/external_tables_boot_media.py)
 erstellt unter Linux mit xorriso je Gast ein ISO-Abbild mit der
 Datenträgerbezeichnung _CIDATA_. Der Aufruf erwartet die Laufkennung,
-Rolle, Bootstrap-Port, die beiden vorgesehenen privaten Gastadressen
-und das lokale Verzeichnis mit den gesperrten Paketen und dem Python-Wheel.
+Rolle, getrennte Ports für Bootstrap und SQL-Steuerdienst, die beiden
+vorgesehenen privaten Gastadressen und das lokale Verzeichnis mit den gesperrten Paketen und dem Python-Wheel.
 Er prüft die Paketbytes gegen die Rolle und gibt den SHA-256-Wert des
 fertigen Abbilds für die spätere Zuordnung am Host aus. Das Abbild enthält
 die für den Bootstrap benötigten Projektdateien und NoCloud-Konfiguration.
@@ -865,7 +865,15 @@ anschließend das private Subnetz und das Fehlen einer Standardroute.
 Die Konfiguration verwendet dieselbe Gastfrist wie der Bootstrap.
 [Linux-Kernel-Dokumentation zum Hyper-V-Netzwerktreiber](https://docs.kernel.org/networking/device_drivers/ethernet/microsoft/netvsc.html).
 
-Nach dem TLS-Austausch muss der Gast die SQL-Instanz und den SQL-Gastdienst starten.
+Nach dem TLS-Austausch startet der Bootstrap die lokale SQL-Instanz
+mit der Enterprise Developer Edition. Das Gastprogramm erzeugt das
+eigene Administratorkennwort im Arbeitsspeicher und übergibt es nur
+an die dokumentierte unbeaufsichtigte SQL-Einrichtung. Der Gast öffnet
+den Steuerdienst, nachdem eine lokale Verbindung den exakten Build
+und die Edition bestätigt hat. Auf dem Abfragegast bestätigt er vor
+der Freigabe zusätzlich, dass PolyBase installiert und aktiv ist.
+[Microsoft-Referenz zur unbeaufsichtigten Einrichtung](https://learn.microsoft.com/en-us/sql/linux/configure/environment-variables?view=sql-server-ver17)
+und [Microsoft-Anleitung zu PolyBase unter Linux](https://learn.microsoft.com/en-us/sql/relational-databases/polybase/polybase-linux-setup?view=sql-server-ver17).
 [Microsoft-Referenz zur VHDX-Kennung](https://learn.microsoft.com/en-us/powershell/module/hyper-v/set-vhd?view=windowsserver2025-ps).
 
 ### Vorbereitete Gäste am Hyper-V-Host übernehmen

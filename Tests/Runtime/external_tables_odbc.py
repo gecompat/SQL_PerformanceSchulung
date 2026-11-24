@@ -294,8 +294,34 @@ class OdbcPilotAdministration:
     def __init__(self, token: str, role: Role, open_admin: Callable[[str, int], Connection]) -> None:
         self._database = database_name(token, role)
         self._admin = open_admin
+        self._role = role
         routes = (Route.LOCAL,) if role is Role.SOURCE else tuple(Route)
         self._fixture_reads = {fixture_read_batch(token, role, route) for route in routes}
+
+    def prepare_instance(self, deadline: float) -> None:
+        """Verify the local engine before exposing its command channel."""
+        sql = self._guard("master")
+        if self._role is Role.QUERY:
+            sql += """
+IF COALESCE(CONVERT(int, SERVERPROPERTY(N'IsPolyBaseInstalled')), 0) <> 1
+    THROW 51086, 'NOT_PROVEN: PolyBase is not installed on the query engine.', 1;
+IF NOT EXISTS (
+    SELECT 1 FROM sys.configurations
+    WHERE name = N'polybase enabled' AND CONVERT(int, value_in_use) = 1
+)
+BEGIN
+    EXEC sys.sp_configure N'polybase enabled', 1;
+    RECONFIGURE WITH OVERRIDE;
+END;
+IF NOT EXISTS (
+    SELECT 1 FROM sys.configurations
+    WHERE name = N'polybase enabled' AND CONVERT(int, value_in_use) = 1
+)
+    THROW 51087, 'NOT_PROVEN: PolyBase is not active on the query engine.', 1;
+"""
+        with self._cursor("master", deadline) as cursor:
+            cursor.execute(sql)
+            _consume_status_results(cursor, deadline)
 
     def execute(self, database: str, sql: str, deadline: float) -> None:
         """Execute the coordinator's setup or cleanup batch with no result rows."""

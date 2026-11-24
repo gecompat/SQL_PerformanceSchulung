@@ -21,6 +21,7 @@ from external_tables_pilot_sql import Role
 
 TOKEN = "TEST0067"
 PORT = 2760
+SQL_PORT = 2762
 NETWORK = GuestNetwork(IPv4Interface((0xC0A8FD02, 29)), IPv4Interface((0xC0A8FD03, 29)))
 IMAGE = b"synthetic image"
 
@@ -87,7 +88,7 @@ class BootMediaTests(unittest.TestCase):
                     [action] = json.loads(user.split("\n", 1)[1])["runcmd"]
                     self.assertEqual(action[:2], ["/bin/sh", "-ec"])
                     self.assertIn("ro,nodev,nosuid,noexec LABEL=CIDATA", action[2])
-                    self.assertIn(f"--role {role.value} --port {PORT}", action[2])
+                    self.assertIn(f"--role {role.value} --port {PORT} --sql-port {SQL_PORT}", action[2])
                     self.assertIn("external_tables_guest_bootstrap.py", action[2])
                     self.assertEqual((seed / media._LOCK_PATH).read_bytes(), (self.repository / media._LOCK_PATH).read_bytes())
                     self.assertEqual(set(path.relative_to(seed) for path in seed.rglob("*.py")), set(media._GUEST_FILES))
@@ -105,11 +106,15 @@ class BootMediaTests(unittest.TestCase):
                     patch.object(media, "_REPOSITORY", self.repository),
                     patch.object(media, "collect_bounded_process", side_effect=compile_iso),
                 ):
-                    digest = media.build_bootstrap_iso(output, self.cache, TOKEN, role, PORT, NETWORK, xorriso=self.program)
+                    digest = media.build_bootstrap_iso(output, self.cache, TOKEN, role, PORT, NETWORK, sql_port=SQL_PORT, xorriso=self.program)
                     self.assertEqual(output.read_bytes(), IMAGE)
                     self.assertEqual(digest, sha256(IMAGE).hexdigest())
                     with self.assertRaisesRegex(ValueError, "new ISO"):
-                        media.build_bootstrap_iso(output, self.cache, TOKEN, role, PORT, NETWORK, xorriso=self.program)
+                        media.build_bootstrap_iso(output, self.cache, TOKEN, role, PORT, NETWORK, sql_port=SQL_PORT, xorriso=self.program)
+
+    def test_rejects_reusing_the_bootstrap_port_for_the_sql_service(self):
+        with self.assertRaisesRegex(ValueError, "ports must be distinct"):
+            media.cloud_seed(TOKEN, Role.SOURCE, PORT, NETWORK, sql_port=PORT)
 
     def test_wrong_package_prevents_generation_and_publishing(self):
         (self.cache / "base.deb").write_bytes(b"changed")
@@ -119,7 +124,7 @@ class BootMediaTests(unittest.TestCase):
             patch.object(media, "collect_bounded_process") as compiler,
         ):
             with self.assertRaisesRegex(ValueError, "package bytes differ"):
-                media.build_bootstrap_iso(output, self.cache, TOKEN, Role.SOURCE, PORT, NETWORK, xorriso=self.program)
+                media.build_bootstrap_iso(output, self.cache, TOKEN, Role.SOURCE, PORT, NETWORK, sql_port=SQL_PORT, xorriso=self.program)
         compiler.assert_not_called()
         self.assertFalse(output.exists())
 
@@ -130,7 +135,7 @@ class BootMediaTests(unittest.TestCase):
             patch.object(media, "collect_bounded_process", return_value=SimpleNamespace(returncode=1)),
         ):
             with self.assertRaisesRegex(OSError, "could not be confirmed"):
-                media.build_bootstrap_iso(output, self.cache, TOKEN, Role.QUERY, PORT, NETWORK, xorriso=self.program)
+                media.build_bootstrap_iso(output, self.cache, TOKEN, Role.QUERY, PORT, NETWORK, sql_port=SQL_PORT, xorriso=self.program)
         self.assertFalse(output.exists())
 
 

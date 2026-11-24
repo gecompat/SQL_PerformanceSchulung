@@ -7,14 +7,17 @@ from pathlib import Path
 import socket
 import sys
 from time import monotonic
+from types import SimpleNamespace
 import unittest
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, Mock, call, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_guest_admin import AdminAction, AdminCommand, _send_command, serve_guest_admin
 from external_tables_guest_identity import _QUERY, _REQUEST, _RESPONSE, _receive
-from external_tables_guest_service import LocalGuestConnections, main, read_startup_secret
+from external_tables_guest_network import GuestNetwork
+from external_tables_guest_service import LocalGuestConnections, _configure_engine, main, read_startup_secret, run_guest_engine
+from external_tables_odbc import OdbcPilotAdministration
 from external_tables_pilot_sql import Role, database_name
 from external_tables_principals import Principal
 
@@ -111,6 +114,74 @@ class GuestServiceTests(unittest.TestCase):
                         read_startup_secret(reader, monotonic() + 2)
             finally:
                 os.close(reader)
+
+    def test_owned_engine_opens_service_only_after_engine_profile_check(self):
+        network = GuestNetwork(IPv4Interface((0xC0A8FD02, 29)), IPv4Interface((0xC0A8FD03, 29)))
+        for invalid in (False, True):
+            with self.subTest(invalid=invalid):
+                events = Mock()
+                events.open.return_value = events.driver, events.connections
+                events.connections.admin.side_effect = [OSError("not ready"), events.session]
+                events.admin.return_value = events.preflight
+                if invalid:
+                    events.preflight.prepare_instance.side_effect = OSError("wrong engine or unavailable PolyBase")
+                deadline = monotonic() + 10
+                with (
+                    patch("external_tables_guest_service.sys.platform", "linux"),
+                    patch.object(os, "geteuid", create=True, return_value=0),
+                    patch("external_tables_guest_service.token_hex", return_value="a" * 32),
+                    patch("external_tables_guest_service._open_guest_connections", events.open),
+                    patch("external_tables_guest_service._configure_engine", events.setup),
+                    patch("external_tables_guest_service.sleep"),
+                    patch("external_tables_guest_service.OdbcPilotAdministration", events.admin),
+                    patch("external_tables_guest_service.serve_guest_admin", events.serve),
+                ):
+                    args = (PORT, TOKEN, Role.QUERY, network, Path("wheel"), deadline)
+                    if invalid:
+                        with self.assertRaisesRegex(OSError, "wrong engine"):
+                            run_guest_engine(*args)
+                    else:
+                        run_guest_engine(*args)
+                expected = [
+                    call.open(TOKEN, Role.QUERY, network, Path("wheel"), SECRET, deadline),
+                    call.setup(SECRET, deadline), call.connections.admin("master", 2),
+                    call.connections.admin("master", 2), call.session.close(),
+                    call.admin(TOKEN, Role.QUERY, events.connections.admin),
+                    call.preflight.prepare_instance(deadline),
+                ]
+                if not invalid:
+                    expected.append(call.serve(
+                        PORT, TOKEN, Role.QUERY, events.connections.admin, deadline + 120,
+                        open_principal=events.connections.principal, source_driver=events.driver, network=network,
+                    ))
+                self.assertEqual(events.mock_calls, expected)
+
+    def test_local_setup_uses_fixed_command_and_does_not_emit_child_output(self):
+        result = SimpleNamespace(returncode=1, stderr=SECRET.encode(), stdout=SECRET.encode())
+        with patch("external_tables_guest_service.collect_bounded_process", return_value=result) as setup:
+            with self.assertRaisesRegex(OSError, "^local SQL engine setup failed$"):
+                _configure_engine(SECRET, monotonic() + 4)
+        self.assertEqual(setup.call_args.args[0], ["/opt/mssql/bin/mssql-conf", "-n", "setup"])
+        self.assertEqual(setup.call_args.kwargs["environment"]["MSSQL_PID"], "EnterpriseDeveloper")
+        self.assertEqual(setup.call_args.kwargs["environment"]["MSSQL_SA_PASSWORD"], SECRET)
+        self.assertNotIn(SECRET, setup.call_args.args[0])
+
+    def test_only_the_query_role_activates_and_checks_polybase(self):
+        for role in Role:
+            with self.subTest(role=role):
+                cursor = Mock(description=None)
+                cursor.nextset.return_value = None
+                connection = Mock()
+                connection.cursor.return_value = cursor
+                admin = OdbcPilotAdministration(TOKEN, role, Mock(return_value=connection))
+                admin.prepare_instance(monotonic() + 4)
+                batch = cursor.execute.call_args.args[0]
+                self.assertIn("CONNECTIONPROPERTY('local_net_address')", batch)
+                self.assertIn("SERVERPROPERTY(N'Edition')", batch)
+                self.assertEqual("sp_configure N'polybase enabled'" in batch, role is Role.QUERY)
+                self.assertEqual("IsPolyBaseInstalled" in batch, role is Role.QUERY)
+                self.assertEqual("value_in_use" in batch, role is Role.QUERY)
+                connection.close.assert_called_once()
 
     def test_entrypoint_requires_network_and_pinned_driver_before_listening(self):
         driver = Mock(pooling=False)

@@ -12,6 +12,7 @@ from time import monotonic
 from external_tables_guest_apt import install_verified_guest_packages, require_guest_detached
 from external_tables_guest_identity import linux_service_id, serve_detached_guest_ready
 from external_tables_guest_network import PILOT_INTERFACE, GuestNetwork, configure_guest_private_link
+from external_tables_guest_service import run_guest_engine
 from external_tables_guest_tls import prepare_guest_tls
 from external_tables_pilot import WORK_SECONDS
 from external_tables_pilot_sql import Role, database_name
@@ -45,6 +46,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--token", required=True)
     parser.add_argument("--role", required=True)
     parser.add_argument("--port", required=True, type=int)
+    parser.add_argument("--sql-port", required=True, type=int)
     parser.add_argument("--source-address", required=True, type=IPv4Interface)
     parser.add_argument("--query-address", required=True, type=IPv4Interface)
     parser.add_argument("--staging", required=True, type=Path)
@@ -53,10 +55,14 @@ def main(argv: list[str] | None = None) -> int:
     try:
         network = GuestNetwork(args.source_address, args.query_address)
         role = Role(args.role)
+        linux_service_id(args.sql_port)
+        if args.port == args.sql_port:
+            raise ValueError("the guest preparation and SQL ports must be distinct")
         deadline = monotonic() + WORK_SECONDS
         prepare_detached_guest(args.token, role, args.port, network, args.staging, args.wheel_directory, deadline)
         configure_guest_private_link(network, role, deadline)
         prepare_guest_tls(args.port, args.token, role, network, deadline)
+        run_guest_engine(args.sql_port, args.token, role, network, args.wheel_directory, deadline)
     except (KeyError, OSError, ValueError):
         print("EXTERNAL_TABLES_GUEST_BOOTSTRAP|FAIL", file=sys.stderr)
         return 1

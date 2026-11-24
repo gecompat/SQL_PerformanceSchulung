@@ -99,7 +99,7 @@ class GuestBootstrapTests(unittest.TestCase):
 
     def test_boot_entrypoint_configures_network_after_preparation_with_same_deadline(self):
         args = [
-            "--token", TOKEN, "--role", Role.SOURCE.value, "--port", str(PORT),
+            "--token", TOKEN, "--role", Role.SOURCE.value, "--port", str(PORT), "--sql-port", str(PORT + 1),
             "--source-address", str(NETWORK.source), "--query-address", str(NETWORK.query),
             "--staging", "packages", "--wheel-directory", "wheel",
         ]
@@ -108,12 +108,14 @@ class GuestBootstrapTests(unittest.TestCase):
             patch.object(bootstrap, "prepare_detached_guest", events.prepare),
             patch.object(bootstrap, "configure_guest_private_link", events.configure),
             patch.object(bootstrap, "prepare_guest_tls", events.tls),
+            patch.object(bootstrap, "run_guest_engine", events.engine),
         ):
             self.assertEqual(bootstrap.main(args), 0)
         deadline = events.prepare.call_args.args[-1]
-        self.assertEqual([call[0] for call in events.mock_calls], ["prepare", "configure", "tls"])
+        self.assertEqual([call[0] for call in events.mock_calls], ["prepare", "configure", "tls", "engine"])
         events.configure.assert_called_once_with(NETWORK, Role.SOURCE, deadline)
         events.tls.assert_called_once_with(PORT, TOKEN, Role.SOURCE, NETWORK, deadline)
+        events.engine.assert_called_once_with(PORT + 1, TOKEN, Role.SOURCE, NETWORK, Path("wheel"), deadline)
 
     def test_sql_probe_cannot_use_detached_endpoint(self):
         self.assertEqual(
