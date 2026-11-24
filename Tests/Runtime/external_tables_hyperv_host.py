@@ -282,15 +282,15 @@ class HyperVPreparedTransport:
             self._transition("Boot", "BOOTED", deadline)
             self._probe("resources", deadline)
             self._prove_guests(self._bootstrap_port, deadline, detached=True, wait=True)
+            # ATTACHED requires the same network verifier to pass inside the transition.
             self._transition("Attach", "ATTACHED", deadline)
-        else:
-            self._probe("resources", deadline)
-        self._probe("network", deadline)
-        if self._bootstrap_port is not None:
             relay_guest_ca(
                 self._inventory.source_vm, self._inventory.query_vm, self._bootstrap_port, token, deadline,
                 base_status=self._base_status, package_lock=self._package_lock,
             )
+        else:
+            self._probe("resources", deadline)
+            self._probe("network", deadline)
         self._prove_guests(self._inventory.service_port, deadline, wait=self._bootstrap_port is not None)
         self._verified = True
 

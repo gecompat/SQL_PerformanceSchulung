@@ -962,7 +962,9 @@ ist zusätzlich ein unabhängig geprüfter `--driver-sha256` nötig.
 Für den Versuch und den späteren Abbau gelten 600 beziehungsweise 120
 Sekunden. Innerhalb der Versuchsfrist haben der Hyper-V-Start beider VMs
 und das anschließende Anschließen der beiden Netzwerkadapter jeweils
-bis zu 120 Sekunden einschließlich der Besitzprüfungen.
+bis zu 120 Sekunden einschließlich der Besitzprüfungen. Beim Anschließen
+prüft der Host den privaten Switch und beide Adapter, bevor er die
+Gastzertifikate weitergibt.
 
 Wenn die Medienübergabe nach vollständiger Bereitstellung fehlschlägt,
 versucht der Einstieg den eigentumsgeprüften Abbau der noch nicht
