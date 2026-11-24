@@ -176,7 +176,7 @@ class HyperVHostTests(unittest.TestCase):
                     if name == "Start-ExternalTablesHyperVOwnedRun":
                         phase = command[command.index("-Phase") + 1]
                         events.append(phase)
-                        self.assertEqual(options["timeout_ceiling_seconds"], 120 if phase == "Boot" else 60)
+                        self.assertEqual(options["timeout_ceiling_seconds"], 120)
                         self.assertLessEqual(options["timeout_seconds"], 8)
                         self.assertIn("-ApplyOwnedRun", command)
                         self.assertIn(str(inventory.query_disk_id), command)
