@@ -8,6 +8,14 @@ $bound = @{
     QueryDiskPath=Join-Path $directory.FullName 'query.vhdx'
 }
 $fixtureGuests = @{}
+$fixtureDvd = @{}
+$sourceMedia = Join-Path $directory.FullName 'source.iso'
+$queryMedia = Join-Path $directory.FullName 'query.iso'
+[IO.File]::WriteAllText($sourceMedia, 'synthetic source media')
+[IO.File]::WriteAllText($queryMedia, 'synthetic query media')
+$bound.SourceMediaSha256 = (Get-FileHash -LiteralPath $sourceMedia).Hash
+$bound.QueryMediaSha256 = (Get-FileHash -LiteralPath $queryMedia).Hash
+$fixtureDvd[$bound.QueryVmId] = [pscustomobject]@{VMId=$bound.QueryVmId; Path=$null}
 $disks = @{}
 $fixtureAdapters = [Collections.Generic.List[object]]::new()
 $events = [Collections.Generic.List[string]]::new()
@@ -37,9 +45,29 @@ function Get-VMSwitch {
 function Get-VMNetworkAdapter { param([switch] $All); $fixtureAdapters }
 function Get-VMHardDiskDrive { param($VM); [pscustomobject]@{Path=$VM.Path} }
 function Get-VHD { param($Path); $disks[$Path] }
+function Get-VMDvdDrive { param($VM); if ($fixtureDvd.ContainsKey($VM.Id)) { $fixtureDvd[$VM.Id] } }
+function Add-VMDvdDrive {
+    param($VM, $Path, [switch] $Confirm)
+    if ($VM.State -cne 'Off' -or $Path -cne $sourceMedia -or $VM.Id -ne $bound.SourceVmId) {
+        throw 'Wrong source medium.'
+    }
+    $fixtureDvd[$VM.Id] = [pscustomobject]@{VMId=$VM.Id; Path=$Path}
+    $events.Add('source-media')
+}
+function Set-VMDvdDrive {
+    param($VMDvdDrive, $Path, [switch] $Confirm)
+    if ($VMDvdDrive.Path -or $Path -cne $queryMedia -or $VMDvdDrive.VMId -ne $bound.QueryVmId) {
+        throw 'Wrong query medium.'
+    }
+    $VMDvdDrive.Path = $Path
+    $events.Add('query-media')
+}
 function Start-VM {
     param($VM, [switch] $Confirm)
     if ($VM.Count -ne 2 -or $fixtureAdapters.Count -ne 0) { throw 'Unsafe boot target.' }
+    if ($fixtureDvd[$bound.SourceVmId].Path -cne $sourceMedia -or $fixtureDvd[$bound.QueryVmId].Path -cne $queryMedia) {
+        throw 'Boot reached before both media matched.'
+    }
     foreach ($guest in $VM) {
         $guest.State = 'Running'
         $disks[$guest.Path].Attached = $true
@@ -83,16 +111,30 @@ try {
     $disks[$bound.SourceDiskPath].Size = [ulong]25GB
     Confirm-Rejected 'Boot'
     $disks[$bound.SourceDiskPath].Size = [ulong]24GB
+    $correct = $bound.QueryMediaSha256
+    $bound.QueryMediaSha256 = $bound.SourceMediaSha256
+    Confirm-Rejected 'Boot'
+    $bound.QueryMediaSha256 = $correct
+    $fixtureDvd[$bound.QueryVmId].Path = $sourceMedia
+    Confirm-Rejected 'Boot'
+    $fixtureDvd[$bound.QueryVmId].Path = $null
+    $originalBytes = [IO.File]::ReadAllBytes($queryMedia)
+    [IO.File]::WriteAllText($queryMedia, 'unexpected replacement')
+    Confirm-Rejected 'Boot'
+    [IO.File]::WriteAllBytes($queryMedia, $originalBytes)
     $boot = & $scriptPath @bound -Phase Boot -ApplyOwnedRun | ConvertFrom-Json
-    if ($boot.status -cne 'BOOTED' -or ($events -join ',') -cne 'boot' -or $fixtureAdapters.Count) {
+    if ($boot.status -cne 'BOOTED' -or ($events -join ',') -cne 'source-media,query-media,boot' -or $fixtureAdapters.Count) {
         throw 'Boot did not leave the owned guests detached.'
     }
     Confirm-Rejected 'Boot'
     $fixtureAdapters.Add([pscustomobject]@{VMId=[guid]::NewGuid(); SwitchId=$bound.SwitchId; IsManagementOs=$false})
     Confirm-Rejected 'Attach'
     $fixtureAdapters.Clear()
+    $fixtureDvd[$bound.QueryVmId].Path = $null
+    Confirm-Rejected 'Attach'
+    $fixtureDvd[$bound.QueryVmId].Path = $queryMedia
     $attach = & $scriptPath @bound -Phase Attach -ApplyOwnedRun | ConvertFrom-Json
-    if ($attach.status -cne 'ATTACHED' -or ($events -join ',') -cne 'boot,add,add,connect' -or
+    if ($attach.status -cne 'ATTACHED' -or ($events -join ',') -cne 'source-media,query-media,boot,add,add,connect' -or
         @($fixtureAdapters | Where-Object SwitchId -EQ $bound.SwitchId).Count -ne 2) {
         throw 'Only the owned guests may join their private switch.'
     }
@@ -100,6 +142,8 @@ try {
 } finally {
     [IO.File]::Delete($bound.SourceDiskPath)
     [IO.File]::Delete($bound.QueryDiskPath)
+    [IO.File]::Delete($sourceMedia)
+    [IO.File]::Delete($queryMedia)
     [IO.Directory]::Delete($directory.FullName)
 }
 'External Tables Hyper-V boot and attachment tests passed.'

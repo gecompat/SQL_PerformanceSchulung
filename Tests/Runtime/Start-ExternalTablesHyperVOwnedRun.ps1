@@ -9,6 +9,8 @@ param(
     [Parameter(Mandatory)] [string] $QueryDiskPath,
     [Parameter(Mandatory)] [guid] $SourceDiskId,
     [Parameter(Mandatory)] [guid] $QueryDiskId,
+    [Parameter(Mandatory)] [ValidatePattern('\A[0-9a-fA-F]{64}\z')] [string] $SourceMediaSha256,
+    [Parameter(Mandatory)] [ValidatePattern('\A[0-9a-fA-F]{64}\z')] [string] $QueryMediaSha256,
     [switch] $ApplyOwnedRun
 )
 
@@ -21,6 +23,11 @@ $ownerCheck = Join-Path $PSScriptRoot 'Remove-ExternalTablesHyperVOwnedRun.ps1'
 $networkCheck = Join-Path $PSScriptRoot 'Test-ExternalTablesHyperVNetwork.ps1'
 $network = @{ SourceVmId=$SourceVmId; QueryVmId=$QueryVmId; SwitchId=$SwitchId }
 $ids = @($SourceVmId, $QueryVmId)
+$runDir = [IO.Path]::GetDirectoryName($SourceDiskPath)
+$mediaById = @{
+    $SourceVmId = @{ Path=(Join-Path $runDir 'source.iso'); Digest=$SourceMediaSha256 }
+    $QueryVmId = @{ Path=(Join-Path $runDir 'query.iso'); Digest=$QueryMediaSha256 }
+}
 
 function Read-OwnedGuests([string] $ExpectedState) {
     $status = & $ownerCheck @ownership | ConvertFrom-Json
@@ -50,6 +57,31 @@ function Read-OwnedGuests([string] $ExpectedState) {
     return @{ Guests=$guests; Switch=$switch[0] }
 }
 
+function Read-OwnedDvd($Guest, [bool] $RequireAttached) {
+    $expectedPath = $mediaById[$Guest.Id].Path
+    $dvd = @(Get-VMDvdDrive -VM $Guest)
+    if ($dvd.Count -gt 1 -or ($dvd.Count -eq 1 -and
+        ($dvd[0].VMId -ne $Guest.Id -or ($dvd[0].Path -and $dvd[0].Path -ine $expectedPath)))) {
+        throw 'The owned guest has an unexpected DVD attachment.'
+    }
+    if ($RequireAttached -and ($dvd.Count -ne 1 -or $dvd[0].Path -ine $expectedPath)) {
+        throw 'The recorded guest ISO attachment was not confirmed.'
+    }
+    $dvd
+}
+
+function Test-RoleMedia {
+    if ($SourceMediaSha256 -ieq $QueryMediaSha256) { throw 'Expected distinct role media hashes.' }
+    foreach ($medium in $mediaById.Values) {
+        $file = Get-Item -LiteralPath $medium.Path -Force
+        if ($file -isnot [IO.FileInfo] -or $file.Length -eq 0 -or
+            ($file.Attributes -band [IO.FileAttributes]::ReparsePoint) -or
+            (Get-FileHash -LiteralPath $medium.Path -Algorithm SHA256).Hash -ine $medium.Digest) {
+            throw 'An offline role ISO differs from its recorded digest.'
+        }
+    }
+}
+
 function Read-RelevantAdapters {
     Get-VMNetworkAdapter -All | Where-Object { $_.VMId -in $ids -or $_.SwitchId -eq $SwitchId }
 }
@@ -59,12 +91,24 @@ try {
     $current = Read-OwnedGuests $state
     $adapters = @(Read-RelevantAdapters)
     if ($adapters.Count) { throw 'Expected both guests and the private switch to have no adapters.' }
+    if ($Phase -eq 'Boot') { Test-RoleMedia }
+    foreach ($guest in $current.Guests) { $null = Read-OwnedDvd $guest ($Phase -eq 'Attach') }
 
     if (-not $ApplyOwnedRun) {
         '{"status":"VERIFIED"}'
         return
     }
     if ($Phase -eq 'Boot') {
+        foreach ($guest in $current.Guests) {
+            $dvd = @(Read-OwnedDvd $guest $false)
+            $path = $mediaById[$guest.Id].Path
+            if (-not $dvd.Count) {
+                Add-VMDvdDrive -VM $guest -Path $path -Confirm:$false
+            } elseif (-not $dvd[0].Path) {
+                Set-VMDvdDrive -VMDvdDrive $dvd[0] -Path $path -Confirm:$false
+            }
+        }
+        foreach ($guest in $current.Guests) { $null = Read-OwnedDvd $guest $true }
         Start-VM -VM $current.Guests -Confirm:$false
         $null = Read-OwnedGuests 'Running'
         if (@(Read-RelevantAdapters).Count) { throw 'The booted guests must remain isolated.' }

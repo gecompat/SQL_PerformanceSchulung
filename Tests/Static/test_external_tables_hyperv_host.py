@@ -14,7 +14,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_guest_admin import AdminAction, AdminCommand
 from external_tables_hyperv_host import (
-    _PROBES, HyperVPreparedTransport, HyperVRunInventory, RunJournal, provision_detached_hyperv, run_prepared_hyperv_pilot,
+    _PROBES, BootstrapMedia, HyperVPreparedTransport, HyperVRunInventory, RunJournal,
+    provision_detached_hyperv, run_prepared_hyperv_pilot,
 )
 from external_tables_measurement import MeasurementResult
 from external_tables_pilot_sql import Role
@@ -24,6 +25,7 @@ from external_tables_pushdown_evidence import PUSHDOWN_FILTER_EVIDENCE
 
 TOKEN = "TEST0049"
 SID = b"a" * 16
+MEDIA = BootstrapMedia("a" * 64, "b" * 64)
 
 
 class HyperVHostTests(unittest.TestCase):
@@ -147,6 +149,8 @@ class HyperVHostTests(unittest.TestCase):
                         events.append(phase)
                         self.assertIn("-ApplyOwnedRun", command)
                         self.assertIn(str(inventory.query_disk_id), command)
+                        self.assertEqual(command[command.index("-SourceMediaSha256") + 1], MEDIA.source_sha256)
+                        self.assertEqual(command[command.index("-QueryMediaSha256") + 1], MEDIA.query_sha256)
                         status = "BOOTED" if phase == "Boot" else "ATTACHED"
                     elif name == "Remove-ExternalTablesHyperVOwnedRun":
                         events.append("remove")
@@ -170,7 +174,7 @@ class HyperVHostTests(unittest.TestCase):
                     patch("external_tables_hyperv_host.verify_guest", side_effect=verify),
                     patch("external_tables_hyperv_host.require_registered_hyperv_ports") as registration,
                 ):
-                    transport = HyperVPreparedTransport(journal, b"base", {}, bootstrap_port=2763)
+                    transport = HyperVPreparedTransport(journal, b"base", {}, bootstrap_port=2763, boot_media=MEDIA)
                     if missing:
                         with self.assertRaisesRegex(ValueError, "readiness mismatch"):
                             transport.start_verified_guests(TOKEN, self.deadline)
@@ -186,6 +190,15 @@ class HyperVHostTests(unittest.TestCase):
                     expected.extend(["Attach", "Test-ExternalTablesHyperVNetwork", (False, Role.SOURCE), (False, Role.QUERY)])
                 self.assertEqual(events, [*expected, "remove", "Test-ExternalTablesHyperVAbsence"])
 
+    def test_bootstrap_port_and_role_media_must_be_supplied_together(self):
+        with self.assertRaisesRegex(ValueError, "distinct role"):
+            BootstrapMedia("a" * 64, "A" * 64)
+        with self.assertRaisesRegex(ValueError, "role ISO"):
+            BootstrapMedia("a" * 63, "b" * 64)
+        for kwargs in ({"bootstrap_port": 2763}, {"boot_media": MEDIA}):
+            with self.subTest(kwargs=kwargs), self.assertRaisesRegex(ValueError, "both role media together"):
+                HyperVPreparedTransport(self.journal, b"base", {}, **kwargs)
+
     def test_missing_host_registration_does_not_claim_or_start_the_run(self):
         directory = self.directory / "ports"
         directory.mkdir()
@@ -197,7 +210,7 @@ class HyperVHostTests(unittest.TestCase):
             patch("external_tables_hyperv_host.collect_bounded_process") as process,
         ):
             with self.assertRaisesRegex(OSError, "missing registration"):
-                run_prepared_hyperv_pilot(journal, b"base", {}, bootstrap_port=2763)
+                run_prepared_hyperv_pilot(journal, b"base", {}, bootstrap_port=2763, boot_media=MEDIA)
         process.assert_not_called()
         journal.claim_work()
 
