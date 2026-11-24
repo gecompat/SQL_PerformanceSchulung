@@ -227,7 +227,7 @@ class HyperVHostTests(unittest.TestCase):
 
                 expected = ["Boot", "Test-ExternalTablesHyperVResources", (True, Role.SOURCE), (True, Role.QUERY)]
                 if failure != "offline":
-                    expected.extend(["Attach", "Test-ExternalTablesHyperVNetwork", "relay certificate"])
+                    expected.extend(["Attach", "relay certificate"])
                 if failure is None:
                     expected.extend([(False, Role.SOURCE), (False, Role.QUERY)])
                 self.assertEqual(events, [*expected, "remove", "Test-ExternalTablesHyperVAbsence"])
