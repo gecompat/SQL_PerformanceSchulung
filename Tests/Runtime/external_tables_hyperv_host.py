@@ -96,6 +96,52 @@ class RunJournal:
             raise ValueError("External Tables run ownership record is not canonical")
         return cls(directory, inventory)
 
+    @classmethod
+    def from_detached(cls, directory: Path, token: str, service_port: int) -> RunJournal:
+        """Bind the completed provision receipt and its individual ownership records."""
+        root = directory.resolve(strict=True)
+
+        def record(name: str) -> dict:
+            data = cls._read(root / name, 4096)
+            if data is None:
+                raise ValueError("External Tables detached provision record is missing")
+            try:
+                value = json.loads(data)
+            except (ValueError, RecursionError):
+                raise ValueError("invalid External Tables detached provision record") from None
+            if type(value) is not dict:
+                raise ValueError("invalid External Tables detached provision record")
+            return value
+
+        receipt = record("external-tables-detached.json")
+        prefix = f"SQLPerfExt-{token}"
+        if set(receipt) != {"run", "source_vm", "query_vm", "switch", "source_disk_id", "query_disk_id"} or receipt["run"] != token:
+            raise ValueError("detached provision receipt differs from the expected run")
+        if record("external-tables-provision-intent.json") != {
+            "version": 1, "run": token, "switch": prefix, "vms": [f"{prefix}-SOURCE", f"{prefix}-QUERY"],
+            "disks": ["source.vhdx", "query.vhdx"],
+        } or record("external-tables-switch.json") != {"name": prefix, "id": receipt["switch"]}:
+            raise ValueError("detached provision intent or switch differs from the receipt")
+        for role in Role:
+            key = role.value.lower()
+            if record(f"external-tables-vm-{role.value}.json") != {
+                "role": role.value, "name": f"{prefix}-{role.value}", "id": receipt[f"{key}_vm"],
+            } or record(f"external-tables-disk-{role.value}.json") != {
+                "role": role.value, "file": f"{key}.vhdx", "id": receipt[f"{key}_disk_id"],
+            }:
+                raise ValueError("detached provision guest or disk differs from the receipt")
+        try:
+            inventory = HyperVRunInventory(
+                token, UUID(receipt["source_vm"]), UUID(receipt["query_vm"]), UUID(receipt["switch"]),
+                PureWindowsPath(root / "source.vhdx"), PureWindowsPath(root / "query.vhdx"), service_port,
+                UUID(receipt["source_disk_id"]), UUID(receipt["query_disk_id"]),
+            )
+        except (AttributeError, TypeError, ValueError):
+            raise ValueError("invalid detached External Tables identity") from None
+        journal = cls(root, inventory)
+        journal.bind()
+        return journal
+
     def bind(self) -> None:
         self._publish(self._directory / "external-tables-owner.json", self.inventory.binding(), allow_existing=True)
 
@@ -291,6 +337,27 @@ class HyperVPreparedTransport:
         except (CaptureRunnerError, OSError, ValueError, RecursionError):
             raise OSError(f"External Tables Hyper-V {name} verification failed") from None
 
+
+
+def provision_detached_hyperv(
+    directory: Path, token: str, service_port: int, deadline: float, *,
+    source_template: Path, source_sha256: str, query_template: Path, query_sha256: str,
+) -> RunJournal:
+    """Create the detached resources only inside an admitted provider operation."""
+    database_name(token, Role.QUERY)
+    linux_service_id(service_port)
+    if os.name != "nt":
+        raise OSError("External Tables Hyper-V provisioning requires Windows")
+    root = directory.resolve(strict=True)
+    script = Path(__file__).resolve().with_name("New-ExternalTablesHyperVDetachedRun.ps1")
+    arguments = [
+        "-RunToken", token, "-RunDirectory", str(root),
+        "-SourceTemplate", str(source_template.resolve(strict=True)), "-SourceSha256", source_sha256,
+        "-QueryTemplate", str(query_template.resolve(strict=True)), "-QuerySha256", query_sha256,
+        "-ApplyOwnedRun",
+    ]
+    HyperVPreparedTransport._run_hyperv_script(script, arguments, {"status": "DETACHED"}, "provision", deadline, 600)
+    return RunJournal.from_detached(root, token, service_port)
 
 
 def run_prepared_hyperv_pilot(
