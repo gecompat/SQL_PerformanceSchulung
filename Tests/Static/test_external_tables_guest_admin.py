@@ -4,13 +4,13 @@ import socket
 import sys
 from time import monotonic
 import unittest
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import ANY, MagicMock, Mock, patch
 from uuid import UUID
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_guest_admin import (
-    AdminAction, AdminCommand, _MAX_COMMAND, _SIZE, _receive_command, _send_command, invoke_guest_admin,
+    AdminAction, AdminCommand, _MAX_COMMAND, _COMMAND_HEADER, _receive_command, _send_command, invoke_guest_admin,
     GuestSqlAccess, GuestSqlChannel, invoke_guest_measurement,
 )
 from external_tables_guest_identity import _QUERY, _REPLY, _REQUEST, _RESPONSE
@@ -53,7 +53,8 @@ class GuestAdminChannelTests(unittest.TestCase):
         self.assertIsNone(self.round_trip(AdminCommand(AdminAction.CREATE_DATABASE)))
         self.endpoint.execute.assert_called_once()
         db, sql, deadline = self.endpoint.execute.call_args.args
-        self.assertEqual((db, deadline), ("master", self.deadline))
+        self.assertEqual(db, "master")
+        self.assertLessEqual(deadline, self.deadline)
         self.assertIn(f"CREATE DATABASE [{database_name(TOKEN, Role.SOURCE)}]", sql)
         self.endpoint.reset_mock()
         access = GuestSqlAccess(TOKEN, Role.SOURCE)
@@ -67,10 +68,34 @@ class GuestAdminChannelTests(unittest.TestCase):
         for expected in (True, False):
             self.endpoint.database_exists.return_value = expected
             self.assertIs(self.round_trip(AdminCommand(AdminAction.DATABASE_EXISTS)), expected)
-        self.endpoint.database_exists.assert_called_with(database_name(TOKEN, Role.SOURCE), self.deadline)
+        self.endpoint.database_exists.assert_called_with(database_name(TOKEN, Role.SOURCE), ANY)
         self.endpoint.database_exists.side_effect = OSError("private driver data")
         with self.assertRaisesRegex(OSError, "^guest administration command was not confirmed$"):
             self.round_trip(AdminCommand(AdminAction.DATABASE_EXISTS))
+
+    def test_expired_work_does_not_use_the_cleanup_window(self):
+        access = GuestSqlAccess(TOKEN, Role.SOURCE)
+        budget = {"access": access, "work_deadline": monotonic() - 1}
+        with self.assertRaises(OSError):
+            self.round_trip(AdminCommand(AdminAction.CREATE_DATABASE), **budget)
+        self.endpoint.execute.assert_not_called()
+        self.assertIsNone(self.round_trip(AdminCommand(AdminAction.QUIESCE), **budget))
+        self.assertIsNone(self.round_trip(AdminCommand(AdminAction.DROP_DATABASE), **budget))
+        self.assertEqual(self.endpoint.execute.call_count, 2)
+
+    def test_guest_budget_stays_within_the_shorter_host_window(self):
+        left, right = socket.socketpair()
+        initial = monotonic()
+        with left, right, ThreadPoolExecutor(max_workers=1) as executor:
+            guest = executor.submit(
+                _receive_command, right, TOKEN, Role.SOURCE, self.endpoint, initial + 60,
+                work_deadline=initial + 30, access=GuestSqlAccess(TOKEN, Role.SOURCE),
+            )
+            self.assertIsNone(_send_command(left, AdminCommand(AdminAction.CREATE_DATABASE), initial + 2))
+            guest.result(timeout=3)
+        _, _, deadline = self.endpoint.execute.call_args.args
+        self.assertGreater(deadline, initial)
+        self.assertLess(deadline, initial + 2.2)
 
     def test_rejects_foreign_operations_and_invalid_fields_before_sql(self):
         for command in (
@@ -129,10 +154,11 @@ class GuestAdminChannelTests(unittest.TestCase):
 
     def test_invalid_wire_frames_never_reach_sql(self):
         invalid = (
-            _SIZE.pack(_MAX_COMMAND + 1),
-            _SIZE.pack(20) + b"[]",
-            _SIZE.pack(6) + b"[true]",
-            _SIZE.pack(3) + b"SQL",
+            _COMMAND_HEADER.pack(1000, _MAX_COMMAND + 1),
+            _COMMAND_HEADER.pack(1000, 20) + b"[]",
+            _COMMAND_HEADER.pack(1000, 6) + b"[true]",
+            _COMMAND_HEADER.pack(1000, 3) + b"SQL",
+            _COMMAND_HEADER.pack(0, 20) + b'["create_database"]',
         )
         for wire in invalid:
             left, right = socket.socketpair()
@@ -157,7 +183,7 @@ class GuestAdminChannelTests(unittest.TestCase):
                 self.round_trip(source, role, open_principal=factory)
         probe.assert_not_called()
         self.assertIsNone(self.round_trip(source, Role.SOURCE, open_principal=opener))
-        probe.assert_called_once_with(TOKEN, Principal.SOURCE_READER, SECRET, self.deadline, opener)
+        probe.assert_called_once_with(TOKEN, Principal.SOURCE_READER, SECRET, ANY, opener)
         self.assertFalse(self.endpoint.method_calls)
 
     @patch("external_tables_guest_admin.verify_source_tls")
@@ -169,7 +195,7 @@ class GuestAdminChannelTests(unittest.TestCase):
                 self.round_trip(command, role, source_driver=driver, network=endpoint)
         probe.assert_not_called()
         self.assertIsNone(self.round_trip(command, Role.QUERY, source_driver=driver, network=network))
-        probe.assert_called_once_with(driver, TOKEN, SECRET, self.deadline, network=network)
+        probe.assert_called_once_with(driver, TOKEN, SECRET, ANY, network=network)
         probe.side_effect = OSError("private driver message")
         with self.assertRaisesRegex(OSError, "^guest administration command was not confirmed$"):
             self.round_trip(command, Role.QUERY, source_driver=driver, network=network)
@@ -218,7 +244,7 @@ class GuestAdminChannelTests(unittest.TestCase):
         ):
             measure.return_value = expected
             self.assertEqual(self.round_trip(command, Role.QUERY, open_principal=opener), expected)
-            measure.assert_called_with(TOKEN, SECRET, observer, self.deadline, opener, network=None)
+            measure.assert_called_with(TOKEN, SECRET, observer, ANY, opener, network=None)
         measure.return_value = MeasurementResult("PASS", "comparison", ("unbound filter", "unbound filter"))
         with self.assertRaises(OSError):
             self.round_trip(command, Role.QUERY, open_principal=opener)
