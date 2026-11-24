@@ -133,9 +133,9 @@ class HyperVHostTests(unittest.TestCase):
         )
 
     def test_bootstrap_proves_both_detached_guests_before_joining_the_switch(self):
-        for missing in (None, Role.QUERY):
-            with self.subTest(missing=missing):
-                directory = self.directory / ("missing" if missing else "ready")
+        for failure in (None, "offline", "tls"):
+            with self.subTest(failure=failure):
+                directory = self.directory / (failure or "ready")
                 directory.mkdir()
                 inventory = replace(self.inventory, source_disk_id=uuid4(), query_disk_id=uuid4())
                 journal = RunJournal(directory, inventory)
@@ -166,17 +166,26 @@ class HyperVHostTests(unittest.TestCase):
                     self.assertEqual(port, 2763 if detached else inventory.service_port)
                     self.assertEqual(deadline, self.deadline)
                     events.append((detached, role))
-                    if detached and role is missing:
+                    if failure == "offline" and detached and role is Role.QUERY:
                         raise ValueError("synthetic readiness mismatch")
+
+                def relay(source_vm, query_vm, port, token, deadline, **options):
+                    self.assertEqual((source_vm, query_vm, port, token, deadline),
+                                     (inventory.source_vm, inventory.query_vm, 2763, TOKEN, self.deadline))
+                    self.assertEqual(options, {"base_status": b"base", "package_lock": {}})
+                    events.append("relay certificate")
+                    if failure == "tls":
+                        raise ValueError("synthetic trust installation failure")
 
                 with (
                     patch("external_tables_hyperv_host.collect_bounded_process", side_effect=bounded),
                     patch("external_tables_hyperv_host.verify_guest", side_effect=verify),
                     patch("external_tables_hyperv_host.require_registered_hyperv_ports") as registration,
+                    patch("external_tables_hyperv_host.relay_guest_ca", side_effect=relay),
                 ):
                     transport = HyperVPreparedTransport(journal, b"base", {}, bootstrap_port=2763, boot_media=MEDIA)
-                    if missing:
-                        with self.assertRaisesRegex(ValueError, "readiness mismatch"):
+                    if failure:
+                        with self.assertRaisesRegex(ValueError, "synthetic"):
                             transport.start_verified_guests(TOKEN, self.deadline)
                         with self.assertRaisesRegex(OSError, "preflight"):
                             transport.admin(Role.SOURCE, AdminCommand(AdminAction.CREATE_DATABASE), self.deadline)
@@ -186,8 +195,10 @@ class HyperVHostTests(unittest.TestCase):
                 registration.assert_called_once_with(2763, inventory.service_port)
 
                 expected = ["Boot", "Test-ExternalTablesHyperVResources", (True, Role.SOURCE), (True, Role.QUERY)]
-                if missing is None:
-                    expected.extend(["Attach", "Test-ExternalTablesHyperVNetwork", (False, Role.SOURCE), (False, Role.QUERY)])
+                if failure != "offline":
+                    expected.extend(["Attach", "Test-ExternalTablesHyperVNetwork", "relay certificate"])
+                if failure is None:
+                    expected.extend([(False, Role.SOURCE), (False, Role.QUERY)])
                 self.assertEqual(events, [*expected, "remove", "Test-ExternalTablesHyperVAbsence"])
 
     def test_bootstrap_port_and_role_media_must_be_supplied_together(self):

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
+from enum import Enum
 from math import isfinite
 from pathlib import Path
 from secrets import token_bytes
@@ -22,9 +23,16 @@ _QUERY = b"SEI2"
 _REPLY = b"SER2"
 _DETACHED_QUERY = b"SED1"
 _DETACHED_REPLY = b"SEP1"
+
 _GUEST_STATUS_PATH = Path("/var/lib/dpkg/status")
 _ROLE_ID = {Role.SOURCE: 1, Role.QUERY: 2}
 _HYPERV_SERVICES = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization\GuestCommunicationServices"
+
+
+class GuestPhase(Enum):
+    SQL = (_QUERY, _REPLY)
+    DETACHED = (_DETACHED_QUERY, _DETACHED_REPLY)
+    TLS = (b"SET1", b"SEC1")
 
 
 def linux_service_id(port: int) -> UUID:
@@ -63,7 +71,8 @@ def verify_guest(
     """Verify the exact VM and role inventory in the requested phase."""
     with connect_verified_guest(
         vm_id, port, token, role, deadline,
-        base_status=base_status, package_lock=package_lock, detached=detached, wait=wait,
+        base_status=base_status, package_lock=package_lock,
+        phase=GuestPhase.DETACHED if detached else GuestPhase.SQL, wait=wait,
     ):
         pass
 
@@ -71,7 +80,7 @@ def verify_guest(
 @contextmanager
 def connect_verified_guest(
     vm_id: UUID, port: int, token: str, role: Role, deadline: float, *,
-    base_status: bytes, package_lock: dict, detached: bool = False, wait: bool = False,
+    base_status: bytes, package_lock: dict, phase: GuestPhase = GuestPhase.SQL, wait: bool = False,
 ) -> Iterator[socket.socket]:
     """Yield only the channel that returned the current identity proof."""
     _remaining(deadline)
@@ -90,7 +99,7 @@ def connect_verified_guest(
         raise OSError("Hyper-V sockets are unavailable on the host") from None
     expected_digest = expected_package_digest(base_status, package_lock, role.value.lower())
     nonce = token_bytes(16)
-    request_kind, reply_kind = (_DETACHED_QUERY, _DETACHED_REPLY) if detached else (_QUERY, _REPLY)
+    request_kind, reply_kind = phase.value
     with _connect_hyperv(family, protocol, (str(vm_id), str(service_id)), deadline, wait) as channel:
         _send(channel, _REQUEST.pack(request_kind, run_marker, role_id, nonce), deadline)
         reply, reply_token, reply_role, reply_nonce, digest = _RESPONSE.unpack(
@@ -135,7 +144,7 @@ def serve_detached_guest_ready(
     """Report detached preparation once, after a fresh guest-side check."""
     _identity(token, role)
     with accept_parent_connection(port, deadline) as channel:
-        _reply_to_probe(channel, token, role, deadline, verify_ready=verify_ready)
+        _reply_to_probe(channel, token, role, deadline, phase=GuestPhase.DETACHED, verify_ready=verify_ready)
 
 
 @contextmanager
@@ -165,10 +174,11 @@ def open_parent_listener(port: int) -> Iterator[tuple[socket.socket, int]]:
 
 
 def _reply_to_probe(
-    channel: socket.socket, token: str, role: Role, deadline: float, *, verify_ready: Callable[[], None] | None = None,
+    channel: socket.socket, token: str, role: Role, deadline: float, *,
+    phase: GuestPhase = GuestPhase.SQL, verify_ready: Callable[[], None] | None = None,
 ) -> None:
     expected_token, expected_role = _identity(token, role)
-    request_kind, reply_kind = (_QUERY, _REPLY) if verify_ready is None else (_DETACHED_QUERY, _DETACHED_REPLY)
+    request_kind, reply_kind = phase.value
     kind, request_token, role_id, nonce = _REQUEST.unpack(_receive(channel, _REQUEST.size, deadline))
     if (kind, request_token, role_id) != (request_kind, expected_token, expected_role):
         raise ValueError("guest identity probe does not match the configured run")

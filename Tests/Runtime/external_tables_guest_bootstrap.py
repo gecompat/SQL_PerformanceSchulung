@@ -12,6 +12,7 @@ from time import monotonic
 from external_tables_guest_apt import install_verified_guest_packages, require_guest_detached
 from external_tables_guest_identity import linux_service_id, serve_detached_guest_ready
 from external_tables_guest_network import PILOT_INTERFACE, GuestNetwork, configure_guest_private_link
+from external_tables_guest_tls import prepare_guest_tls
 from external_tables_pilot import WORK_SECONDS
 from external_tables_pilot_sql import Role, database_name
 from external_tables_source_firewall import install_source_firewall, verify_source_firewall
@@ -55,6 +56,7 @@ def main(argv: list[str] | None = None) -> int:
         deadline = monotonic() + WORK_SECONDS
         prepare_detached_guest(args.token, role, args.port, network, args.staging, args.wheel_directory, deadline)
         configure_guest_private_link(network, role, deadline)
+        prepare_guest_tls(args.port, args.token, role, network, deadline)
     except (KeyError, OSError, ValueError):
         print("EXTERNAL_TABLES_GUEST_BOOTSTRAP|FAIL", file=sys.stderr)
         return 1
