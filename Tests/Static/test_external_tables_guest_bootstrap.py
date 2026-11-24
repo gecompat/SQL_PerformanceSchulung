@@ -97,6 +97,22 @@ class GuestBootstrapTests(unittest.TestCase):
             with self.subTest(fail=fail):
                 self.assertEqual(self.run_preparation(Role.SOURCE, _DETACHED_QUERY, fail=fail), expected)
 
+    def test_boot_entrypoint_configures_network_after_preparation_with_same_deadline(self):
+        args = [
+            "--token", TOKEN, "--role", Role.SOURCE.value, "--port", str(PORT),
+            "--source-address", str(NETWORK.source), "--query-address", str(NETWORK.query),
+            "--staging", "packages", "--wheel-directory", "wheel",
+        ]
+        events = Mock()
+        with (
+            patch.object(bootstrap, "prepare_detached_guest", events.prepare),
+            patch.object(bootstrap, "configure_guest_private_link", events.configure),
+        ):
+            self.assertEqual(bootstrap.main(args), 0)
+        deadline = events.prepare.call_args.args[-1]
+        self.assertEqual([call[0] for call in events.mock_calls], ["prepare", "configure"])
+        events.configure.assert_called_once_with(NETWORK, Role.SOURCE, deadline)
+
     def test_sql_probe_cannot_use_detached_endpoint(self):
         self.assertEqual(
             self.run_preparation(Role.SOURCE, _QUERY), ["install_packages", "install_firewall", "accept"],

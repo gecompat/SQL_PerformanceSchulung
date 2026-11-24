@@ -851,8 +851,16 @@ Anschluss an den Switch prüft die Zuordnung erneut. Die ISO-Abbilder
 sind Eingabedateien des Providers.
 [Microsoft-Referenz für virtuelle DVD-Laufwerke](https://learn.microsoft.com/en-us/powershell/module/hyper-v/add-vmdvddrive?view=windowsserver2025-ps).
 
-Der Gast muss nach dem Netzanschluss seine Schnittstelle konfigurieren,
-TLS einrichten und den SQL-Gastdienst starten.
+Nach dem Bereitschaftsnachweis wartet der Bootstrap auf genau eine neue
+Hyper-V-Netzwerkschnittstelle. Vor jeder Änderung prüft er, dass die
+Schnittstelle inaktiv und ohne Adresse ist und ausschließlich
+Loopback-Routen vorhanden sind. Der Gast benennt den Adapter in
+`sqlperf0` um, weist ihm die feste Rollenadresse zu und bestätigt
+anschließend das private Subnetz und das Fehlen einer Standardroute.
+Die Konfiguration verwendet dieselbe Gastfrist wie der Bootstrap.
+[Linux-Kernel-Dokumentation zum Hyper-V-Netzwerktreiber](https://docs.kernel.org/networking/device_drivers/ethernet/microsoft/netvsc.html).
+
+Der Gast muss anschließend TLS einrichten und den SQL-Gastdienst starten.
 [Microsoft-Referenz zur VHDX-Kennung](https://learn.microsoft.com/en-us/powershell/module/hyper-v/set-vhd?view=windowsserver2025-ps).
 
 ### Vorbereitete Gäste am Hyper-V-Host übernehmen

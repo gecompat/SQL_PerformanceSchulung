@@ -15,7 +15,6 @@ from external_tables_guest_network import GuestNetwork
 from external_tables_pilot_sql import SOURCE_PORT
 
 
-SOURCE_INTERFACE = "sqlperf0"
 _TABLE = "sqlperf_external_source"
 _CHAIN = "inbound"
 _FAMILY = "inet"

@@ -1,12 +1,16 @@
 from copy import deepcopy
 from ipaddress import IPv4Interface
+import os
 from pathlib import Path
 import sys
 from unittest import TestCase, main
+from unittest.mock import call, patch
+from time import monotonic
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
-from external_tables_guest_network import GuestNetwork, verify_network_snapshot
+import external_tables_guest_network as guest_network
+from external_tables_guest_network import GuestNetwork, configure_guest_private_link, verify_network_snapshot
 from external_tables_pilot_sql import Role
 
 
@@ -45,6 +49,53 @@ class GuestNetworkTests(TestCase):
         ):
             with self.subTest(source=source, query=query), self.assertRaises(ValueError):
                 GuestNetwork(IPv4Interface((source, 29)), IPv4Interface((query, 29)))
+
+    def test_hotplug_configures_only_the_single_role_address(self):
+        loopback = [{"ifname": "lo"}]
+        raw_link = {"ifname": "eth0", "flags": ["BROADCAST"], "addr_info": []}
+        for role in Role:
+            with (
+                self.subTest(role=role),
+                patch.object(guest_network.sys, "platform", "linux"),
+                patch.object(os, "geteuid", create=True, return_value=0),
+                patch.object(guest_network, "_is_hyperv_link", return_value=True) as is_hyperv,
+                patch.object(guest_network, "sleep") as wait,
+                patch.object(guest_network, "_ip", side_effect=[loopback, [*loopback, raw_link], [], []]),
+                patch.object(guest_network, "_run_ip") as command,
+                patch.object(guest_network, "verify_guest_network", return_value="sqlperf0") as verify,
+            ):
+                deadline = monotonic() + 4
+                configure_guest_private_link(NETWORK, role, deadline)
+                wait.assert_called_once()
+                is_hyperv.assert_called_once_with("eth0")
+                self.assertEqual(command.call_args_list, [
+                    call(["link", "set", "dev", "eth0", "name", "sqlperf0"], deadline),
+                    call(["-4", "address", "add", str(NETWORK.address(role)), "dev", "sqlperf0"], deadline),
+                    call(["link", "set", "dev", "sqlperf0", "up"], deadline),
+                ])
+                verify.assert_called_once_with(NETWORK, role, deadline)
+
+    def test_refuses_foreign_or_preconfigured_network_before_any_change(self):
+        loopback = {"ifname": "lo"}
+        link = {"ifname": "eth0", "flags": ["BROADCAST"], "addr_info": []}
+        for state, hyperv, routes in (
+            ([loopback, link, {"ifname": "eth1"}], True, []),
+            ([loopback, link], False, []),
+            ([loopback, {**link, "flags": ["UP"]}], True, []),
+            ([loopback, {**link, "addr_info": [{}]}], True, []),
+            ([loopback, link], True, [{"dst": "default", "dev": "eth0"}]),
+        ):
+            with (
+                self.subTest(state=state, hyperv=hyperv, routes=routes),
+                patch.object(guest_network.sys, "platform", "linux"),
+                patch.object(os, "geteuid", create=True, return_value=0),
+                patch.object(guest_network, "_is_hyperv_link", return_value=hyperv),
+                patch.object(guest_network, "_ip", side_effect=[state, routes, []]),
+                patch.object(guest_network, "_run_ip") as command,
+            ):
+                with self.assertRaises(ValueError):
+                    configure_guest_private_link(NETWORK, Role.SOURCE, monotonic() + 4)
+                command.assert_not_called()
 
     def test_wrong_address_and_extra_interface_are_rejected(self):
         with self.assertRaisesRegex(ValueError, "exact configured address"):
