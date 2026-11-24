@@ -67,6 +67,35 @@ def install_dotnet_sdk(staging: Path, entry: dict, deadline: float, *, destinati
         raise ValueError("installed .NET runtimes do not match the locked versions")
 
 
+def ensure_polybase_service_setup(sdk_version: str, deadline: float) -> None:
+    """Complete the offline vendor setup if the package hook skipped the service account."""
+    _remaining(deadline)
+    if _execution_account_present():
+        return
+    if _command([str(_DOTNET_HOME / "dotnet"), "--version"], deadline).strip() != sdk_version.encode("ascii"):
+        raise ValueError("the PolyBase installer requires the locked local .NET SDK")
+    _command(["/usr/bin/bash", "/opt/mssql/bin/installexecutionservice.sh", "--non-interactive"], deadline)
+    if not _execution_account_present():
+        raise ValueError("the PolyBase installer did not create the service account")
+
+
+def _execution_account_present() -> bool:
+    import grp
+    import pwd
+
+    try:
+        account = pwd.getpwnam("mssql_ees")
+    except KeyError:
+        return False
+    try:
+        engine_group = grp.getgrnam("mssql").gr_gid
+    except KeyError:
+        raise ValueError("the PolyBase execution account has no SQL Server group") from None
+    if account.pw_uid <= 0 or engine_group <= 0 or engine_group not in os.getgrouplist(account.pw_name, account.pw_gid):
+        raise ValueError("the PolyBase execution account or SQL Server group is invalid")
+    return True
+
+
 def verify_polybase_service(deadline: float) -> None:
     """Confirm the official query-node service and its local listener before SQL admission."""
     _command([_SYSTEMCTL, "start", _EXECUTION_SERVICE], deadline)

@@ -55,6 +55,31 @@ class PolyBaseServiceTests(unittest.TestCase):
                             self.assertFalse(destination.exists())
                         self.assertFalse((staging / "outside").exists())
 
+    def test_offline_setup_requires_the_locked_sdk_and_confirms_the_vendor_account(self):
+        deadline = monotonic() + 5
+        installer = ["/usr/bin/bash", "/opt/mssql/bin/installexecutionservice.sh", "--non-interactive"]
+        version = [str(polybase._DOTNET_HOME / "dotnet"), "--version"]
+        for accounts, checked_sdk, error in (
+            ([True], b"", None),
+            ([False, True], b"8.0.418\n", None),
+            ([False], b"8.0.417\n", "locked local"),
+            ([False, False], b"8.0.418\n", "did not create"),
+        ):
+            with (
+                self.subTest(accounts=accounts, error=error),
+                patch.object(polybase, "_execution_account_present", side_effect=accounts),
+                patch.object(polybase, "_command", side_effect=[checked_sdk, b""]) as command,
+            ):
+                if error is None:
+                    polybase.ensure_polybase_service_setup("8.0.418", deadline)
+                else:
+                    with self.assertRaisesRegex(ValueError, error):
+                        polybase.ensure_polybase_service_setup("8.0.418", deadline)
+                expected = [] if accounts[0] else [call(version, deadline)]
+                if len(accounts) == 2:
+                    expected.append(call(installer, deadline))
+                self.assertEqual(command.call_args_list, expected)
+
     def test_readiness_checks_service_process_and_loopback_before_sql(self):
         binary = MagicMock(spec=Path)
         process = MagicMock(spec=Path)

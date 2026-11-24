@@ -324,7 +324,11 @@ APT-Installation nach `/opt/mssql-ees-dotnet`. Er prüft dort SDK 8.0.418 sowie
 die beiden Laufzeitkomponenten Microsoft.NETCore.App und
 Microsoft.AspNetCore.App in Version 8.0.24. So findet das
 Installationsskript des PolyBase-Pakets die bereits bereitgestellten
-Komponenten, während der Gast weiterhin kein Netz hat.
+Komponenten, während der Gast weiterhin kein Netz hat. Wenn der
+Paket-Hook das Dienstkonto auslässt, prüft der Offline-Aufbau die lokale
+SDK-Version erneut und ruft den Installer aus dem gesperrten Paket im
+noch vom Netz getrennten Gast auf. Anschließend verlangt er das eigene
+Dienstkonto mit der SQL-Server-Gruppe `mssql`.
 [Microsoft-Anleitung zur Offline-Installation von PolyBase](https://learn.microsoft.com/en-us/sql/relational-databases/polybase/polybase-linux-setup?view=sql-server-ver17#polybase-offline-installation).
 
 Vor dem Öffnen des SQL-Steuerdiensts prüft die Gaststeuerung den
