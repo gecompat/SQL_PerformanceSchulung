@@ -37,6 +37,7 @@ class PilotInputs:
     base_status: Path
     bootstrap_port: int
     sql_port: int
+    expected_driver_sha256: str | None = None
 
 
 def run_hyperv_lab(inputs: PilotInputs, *, apply: bool = False) -> PilotResult:
@@ -55,6 +56,8 @@ def run_hyperv_lab(inputs: PilotInputs, *, apply: bool = False) -> PilotResult:
         directory = inputs.directory.resolve(strict=True)
         if not directory.is_dir() or any(directory.iterdir()):
             raise ValueError("expected the empty provider run directory")
+        if inputs.expected_driver_sha256 is not None and re.fullmatch(r"[0-9a-f]{64}", inputs.expected_driver_sha256) is None:
+            raise ValueError("expected a reviewed lowercase driver SHA-256")
         lock = json.loads(_LOCK.read_bytes())
         base_status = read_dpkg_status(inputs.base_status)
         if sha256(base_status).hexdigest() != lock["dpkg_status_sha256"]:
@@ -87,6 +90,7 @@ def run_hyperv_lab(inputs: PilotInputs, *, apply: bool = False) -> PilotResult:
         stage = "host_handoff"
         return run_prepared_hyperv_pilot(
             journal, base_status, lock, bootstrap_port=inputs.bootstrap_port, boot_media=inputs.media,
+            expected_driver_sha256=inputs.expected_driver_sha256,
         )
     except (OSError, ValueError):
         cleanup = HyperVPreparedTransport(journal, base_status, lock)
@@ -148,13 +152,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--base-status", required=True, type=Path)
     parser.add_argument("--bootstrap-port", required=True, type=int)
     parser.add_argument("--sql-port", required=True, type=int)
+    parser.add_argument("--driver-sha256", help="reviewed Connector Driver 18 digest")
     parser.add_argument("--apply-owned-run", action="store_true")
     args = parser.parse_args(argv)
     try:
         media = BootstrapMedia(args.source_sha256, args.query_sha256)
         inputs = PilotInputs(
             args.token, args.run_directory, args.template, args.template_sha256, args.source_iso, args.query_iso, media,
-            args.base_status, args.bootstrap_port, args.sql_port,
+            args.base_status, args.bootstrap_port, args.sql_port, args.driver_sha256,
         )
     except ValueError:
         result = PilotResult("NOT_PROVEN", "host_inputs", None, False, False)

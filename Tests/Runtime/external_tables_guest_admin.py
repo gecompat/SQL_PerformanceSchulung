@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 import json
 from socket import socket
@@ -18,6 +18,7 @@ from external_tables_cleanup import drop_pilot_database_batch, drop_pilot_logins
 from external_tables_guest_identity import (
     _receive, _remaining, _reply_to_probe, _send, connect_verified_guest, linux_service_id, open_parent_listener,
 )
+from external_tables_driver_evidence import DriverEvidence
 from external_tables_measurement import MeasurementResult
 from external_tables_odbc import (
     Connection, OdbcDriver, OdbcPilotAdministration, PrincipalConnection, run_guest_measurement,
@@ -63,6 +64,7 @@ _SIZE = Struct("!H")
 _MAX_COMMAND = 1024
 _REJECTED, _DONE, _ABSENT, _PRESENT = b"\x00", b"\x01", b"\x02", b"\x03"
 _MEASUREMENT = b"\x04"
+_MAX_DRIVER_EVIDENCE = 512
 _MEASUREMENT_STATES = ("NOT_PROVEN", "FAIL_CLEANUP", "PASS")
 _MEASUREMENT_STAGES = ("query_connection", *(route.name for route in Route), "comparison")
 _NO_FIELDS = {
@@ -262,27 +264,38 @@ def _send_command(channel: socket, command: AdminCommand, deadline: float) -> bo
             return reply == _PRESENT
     elif command.action is AdminAction.MEASURE:
         if reply == _MEASUREMENT:
-            return _decode_measurement(_receive(channel, 2, deadline))
+            codes = _receive(channel, 2, deadline)
+            (size,) = _SIZE.unpack(_receive(channel, _SIZE.size, deadline))
+            if size > _MAX_DRIVER_EVIDENCE:
+                raise OSError("guest driver evidence exceeds its frame")
+            return _decode_measurement(codes, _receive(channel, size, deadline))
     elif reply == _DONE:
         return None
     raise OSError("guest administration command was not confirmed")
 
 
-def _decode_measurement(codes: bytes) -> MeasurementResult:
+def _decode_measurement(codes: bytes, payload: bytes) -> MeasurementResult:
     state, stage = codes
     if state >= len(_MEASUREMENT_STATES) or stage >= len(_MEASUREMENT_STAGES):
         raise OSError("guest measurement result was not confirmed")
     status, phase = _MEASUREMENT_STATES[state], _MEASUREMENT_STAGES[stage]
-    if status == "PASS" and phase != "comparison":
+    if (status == "PASS" and phase != "comparison") or (payload and status != "PASS"):
         raise OSError("guest measurement result was not confirmed")
-    return MeasurementResult(status, phase, PUSHDOWN_FILTER_EVIDENCE if status == "PASS" else None)
+    driver = None
+    if payload:
+        try:
+            driver = DriverEvidence(**json.loads(payload.decode("ascii")))
+        except (TypeError, ValueError, RecursionError):
+            raise OSError("guest driver evidence was not confirmed") from None
+    return MeasurementResult(status, phase, PUSHDOWN_FILTER_EVIDENCE if status == "PASS" else None, driver)
 
 
 def _encode_measurement(result: MeasurementResult) -> bytes:
     codes = bytes((_MEASUREMENT_STATES.index(result.status), _MEASUREMENT_STAGES.index(result.stage)))
-    if _decode_measurement(codes) != result:
+    payload = json.dumps(asdict(result.driver), separators=(",", ":")).encode("ascii") if result.driver else b""
+    if len(payload) > _MAX_DRIVER_EVIDENCE or _decode_measurement(codes, payload) != result:
         raise ValueError("unexpected guest measurement result")
-    return _MEASUREMENT + codes
+    return _MEASUREMENT + codes + _SIZE.pack(len(payload)) + payload
 
 
 def serve_guest_admin(
@@ -349,7 +362,9 @@ def _receive_command(
             elif command.action is AdminAction.MEASURE:
                 if role is not Role.QUERY or open_principal is None or len(command.fields) != 2:
                     raise ValueError("query guest measurement is unavailable")
-                reply = _encode_measurement(run_guest_measurement(token, *command.fields, deadline, open_principal))
+                reply = _encode_measurement(
+                    run_guest_measurement(token, *command.fields, deadline, open_principal, network=network),
+                )
             else:
                 result = dispatch_admin(admin, token, role, command, deadline)
                 reply = _PRESENT if result is True else _ABSENT if result is False else _DONE

@@ -347,30 +347,36 @@ enthält die Unit `mssql-ees.service`, Hilfsdateien für den Dienst und
 keinen separat installierbaren Driver-18-Pfad. Das Dienstsetup und die
 tatsächliche Ladung auf Ubuntu bleiben Prüfgegenstand.
 
-Der [Gastprüfer](../../Tests/Static/inspect_external_tables_driver.py) ist
-für die eigene Abfrage-VM vorgesehen. Er überprüft Paketversionen,
-Dienstzustand, Prozesszugehörigkeit, Gerätekennung und Inode der im
-Prozess eingeblendeten Driver-18-Bibliothek. Ein Wechsel des Prozesses,
-ein mehrdeutiges Mapping und eine als gelöscht markierte Datei liefern
-`NOT_PROVEN`. Der Bericht enthält Dienst, Version, Dateiname und SHA-256.
+Der [Ablauf für den Treibernachweis](../../Tests/Runtime/external_tables_driver_evidence.py)
+erfasst auf der Abfrage-VM während jeder der beiden gemessenen externen
+Abfragen den Prozess, der die TCP-Verbindung zur vorgesehenen Quelladresse
+besitzt. Die Erfassung erfolgt nach dem Nachweis des aktiven
+SQL-Requests. Sie erwartet einen eindeutigen Socket-Eigentümer und prüft
+Dienstgruppe, Prozessstart, Paketversionen sowie Gerätekennung und Inode
+der eingeblendeten Driver-18-Bibliothek. Beide Varianten müssen
+dieselbe Dienst- und Bibliotheksidentität liefern.
 
-1. Ermittle während des späteren freigegebenen Connector-Aufrufs auf der
-   Abfrage-VM den zugehörigen Prozess in `mssql-ees.service` bzw.
-   `mssql-server.service`. Die Zuordnung zum Connector-Aufruf wird im
-   Laufprotokoll belegt.
-2. Starte auf derselben VM den Prüfer mit dem ausgewählten Dienst und der PID.
-   Die erste Erhebung liefert `OBSERVED`. Der Methodenreview bindet den
-   erfassten Digest an die geprüfte Vorlage.
-3. Bei folgenden Läufen prüft `--expected-sha256` den geladenen Treiber
-   gegen den gebundenen Digest. Ein Treffer liefert `MATCHED`.
+Der Bericht enthält Dienst, Paketversion, Dateiname und SHA-256. Ohne
+einen unabhängig begutachteten Referenzwert lautet der Hostbefund
+`OBSERVED`. Eine spätere Ausführung vergleicht mit dem über
+`--driver-sha256` gebundenen Digest. Ein abweichender Digest,
+ein Prozesswechsel während der Beobachtung oder eine nicht eindeutige
+Zuordnung verhindert einen positiven Gesamtnachweis.
+[Microsoft-Dokumentation zum PolyBase-Ausführungsdienst](https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-polybase-ees-encryption?view=sql-server-ver17)
+und [iproute2-Referenz zum Socket-Filter](https://github.com/iproute2/iproute2/blob/main/man/man8/ss.8).
+
+Der [Gastprüfer](../../Tests/Static/inspect_external_tables_driver.py)
+steht zusätzlich für die lesende Kontrolle einer bereits zugeordneten
+Prozess-ID zur Verfügung.
 
 ```text
 python Tests/Static/inspect_external_tables_driver.py --service mssql-ees.service --pid PID
 ```
 
-Die Nachweislogik ist offline geprüft. Die tatsächlich geladene Datei,
-der ausführende Dienstprozess und die Betriebssystemabhängigkeiten
-sind erst im vorbereiteten Gast belegbar.
+Die Komponentenprüfung hat in einem eigenen Linux-Netzwerk einen
+tatsächlichen Socket-Eigentümer ermittelt. Sie hat außerdem eine aus
+dem gesperrten ODBC-Paket geladene Bibliothek ihrer Speicherabbildung
+zugeordnet. Der Treiberbefund des konkreten PolyBase-Laufs steht aus.
 
 ### Daten und Ergebniskontrolle
 
@@ -948,6 +954,8 @@ fehlende oder ungültige Socket-Dienstregistrierungen hin. Die Stufe
 Ein nach DEC-078 zugelassener Pilot verwendet zusätzlich `--apply-owned-run`.
 Der Host erstellt die beiden VM-Kopien, übernimmt die Medien, startet
 den Messablauf und gibt den normalisierten Ergebnis- und Abbaustatus aus.
+Der erste Durchlauf kann den Treiberbefund `OBSERVED` liefern. Für `PASS`
+ist zusätzlich ein unabhängig geprüfter `--driver-sha256` nötig.
 Für die Messung und den späteren Abbau gelten die vorhandenen Fristen
 von 600 beziehungsweise 120 Sekunden.
 

@@ -15,6 +15,8 @@ on:
       - 'Tests/Runtime/external_tables_pilot_sql.py'
       - 'Tests/Runtime/external_tables_pushdown_evidence.py'
       - 'Tests/Runtime/external_tables_measurement.py'
+      - 'Tests/Runtime/external_tables_driver_evidence.py'
+      - 'Tests/Static/test_external_tables_driver_evidence.py'
       - 'Tests/Runtime/external_tables_pilot.py'
       - 'Tests/Runtime/external_tables_guest_identity.py'
       - 'Tests/Runtime/external_tables_guest_admin.py'
@@ -90,6 +92,8 @@ on:
       - 'Tests/Runtime/external_tables_pilot_sql.py'
       - 'Tests/Runtime/external_tables_pushdown_evidence.py'
       - 'Tests/Runtime/external_tables_measurement.py'
+      - 'Tests/Runtime/external_tables_driver_evidence.py'
+      - 'Tests/Static/test_external_tables_driver_evidence.py'
       - 'Tests/Runtime/external_tables_pilot.py'
       - 'Tests/Runtime/external_tables_guest_identity.py'
       - 'Tests/Runtime/external_tables_guest_admin.py'
@@ -170,6 +174,7 @@ jobs:
       - run: python Tests/Static/test_external_tables_pilot_sql.py
       - run: python Tests/Static/test_external_tables_pushdown_evidence.py
       - run: python Tests/Static/test_external_tables_measurement.py
+      - run: python Tests/Static/test_external_tables_driver_evidence.py
       - run: python Tests/Static/test_external_tables_odbc.py
       - run: python Tests/Static/test_external_tables_principals.py
       - run: python Tests/Static/test_external_tables_cleanup.py

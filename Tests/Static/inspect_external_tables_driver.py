@@ -10,6 +10,7 @@ from pathlib import Path
 import re
 import stat
 import subprocess
+from time import monotonic
 
 from verify_external_tables_packages import VERSION
 
@@ -58,16 +59,16 @@ def in_service_group(cgroup: str, expected: str) -> bool:
     )
 
 
-def observe(pid: int, service: str) -> dict[str, str]:
+def observe(pid: int, service: str, *, deadline: float | None = None) -> dict[str, str]:
     if service not in SERVICES or not 1 <= pid <= 2**31 - 1:
         raise ValueError("invalid pilot service or process ID")
     if subprocess.run(
-        ["systemctl", "is-active", "--quiet", service], capture_output=True, timeout=5, check=False,
+        ["systemctl", "is-active", "--quiet", service], capture_output=True, timeout=_timeout(deadline), check=False,
     ).returncode:
         raise ValueError("selected SQL Server service is inactive")
-    group = _command("systemctl", "show", service, "--property=ControlGroup", "--value")
+    group = _command("systemctl", "show", service, "--property=ControlGroup", "--value", deadline=deadline)
     for package in ("mssql-server", "mssql-server-polybase"):
-        installed = _command("dpkg-query", "-W", "-f=${Status}|${Version}|${Architecture}", package)
+        installed = _command("dpkg-query", "-W", "-f=${Status}|${Version}|${Architecture}", package, deadline=deadline)
         if installed != f"install ok installed|{VERSION}|amd64":
             raise ValueError(f"unexpected installed version or architecture for {package}")
 
@@ -84,6 +85,7 @@ def observe(pid: int, service: str) -> dict[str, str]:
         or mapping != select_driver_mapping(_read(proc / "maps", 2 * 1024 * 1024))
     ):
         raise ValueError("process identity or driver mapping changed during inspection")
+    _timeout(deadline)
     return {"service": service, "version": VERSION, "driver_file": mapping.path.name, "sha256": digest}
 
 
@@ -121,8 +123,17 @@ def _read(path: Path, limit: int) -> str:
     return data.decode("utf-8")
 
 
-def _command(*argv: str) -> str:
-    result = subprocess.run(argv, capture_output=True, timeout=5, check=False, text=True)
+def _timeout(deadline: float | None) -> float:
+    if deadline is None:
+        return 5
+    remaining = deadline - monotonic()
+    if remaining <= 0:
+        raise TimeoutError("connector observation deadline exceeded")
+    return min(5, remaining)
+
+
+def _command(*argv: str, deadline: float | None = None) -> str:
+    result = subprocess.run(argv, capture_output=True, timeout=_timeout(deadline), check=False, text=True)
     if result.returncode or result.stderr:
         raise ValueError("guest service or package metadata query failed")
     return result.stdout.strip()

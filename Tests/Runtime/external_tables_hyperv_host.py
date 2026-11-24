@@ -240,6 +240,7 @@ class HyperVPreparedTransport:
         self, journal: RunJournal, base_status: bytes, package_lock: dict,
         remove_owned: Callable[[HyperVRunInventory, float], None] | None = None, *,
         bootstrap_port: int | None = None, boot_media: BootstrapMedia | None = None,
+        expected_driver_sha256: str | None = None,
     ) -> None:
         self._journal = journal
         self._inventory = journal.inventory
@@ -255,6 +256,9 @@ class HyperVPreparedTransport:
             require_registered_hyperv_ports(bootstrap_port, self._inventory.service_port)
         self._bootstrap_port = bootstrap_port
         self._boot_media = boot_media
+        self._expected_driver_sha256 = expected_driver_sha256
+        if expected_driver_sha256 is not None and re.fullmatch(r"[0-9a-f]{64}", expected_driver_sha256) is None:
+            raise ValueError("expected a reviewed lowercase driver SHA-256")
         self._base_status = base_status
         self._package_lock = package_lock
         self._remove_owned = self._remove_recorded if remove_owned is None else remove_owned
@@ -324,7 +328,16 @@ class HyperVPreparedTransport:
         self._sql().probe_principal(principal, secret, deadline)
 
     def measure(self, token: str, reader_secret: str, observer_secret: str, deadline: float) -> MeasurementResult:
-        return self._sql().measure(token, reader_secret, observer_secret, deadline)
+        result = self._sql().measure(token, reader_secret, observer_secret, deadline)
+        if result.status != "PASS":
+            return result
+        if result.driver is None:
+            return MeasurementResult("NOT_PROVEN", "driver_evidence")
+        if self._expected_driver_sha256 is None:
+            return MeasurementResult("OBSERVED", "driver_review", result.filters, result.driver)
+        if result.driver.sha256 != self._expected_driver_sha256:
+            return MeasurementResult("NOT_PROVEN", "driver_mismatch", driver=result.driver)
+        return result
 
     def close_data_connections(self, token: str, login_sids: Mapping[Principal, bytes], deadline: float) -> bool:
         if self._journal.login_sids() != login_sids:
@@ -433,9 +446,11 @@ def run_prepared_hyperv_pilot(
     journal: RunJournal, base_status: bytes, package_lock: dict,
     remove_owned: Callable[[HyperVRunInventory, float], None] | None = None, *,
     bootstrap_port: int | None = None, boot_media: BootstrapMedia | None = None,
+    expected_driver_sha256: str | None = None,
 ) -> PilotResult:
     """Run after the provider journaled both guests and staged their admitted boot inputs."""
     transport = HyperVPreparedTransport(
         journal, base_status, package_lock, remove_owned, bootstrap_port=bootstrap_port, boot_media=boot_media,
+        expected_driver_sha256=expected_driver_sha256,
     )
     return run_pilot(transport, journal.inventory.token)
