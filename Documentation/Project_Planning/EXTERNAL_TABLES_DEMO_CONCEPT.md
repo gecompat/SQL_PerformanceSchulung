@@ -741,6 +741,26 @@ unbestätigte Abbau verhindert einen positiven Gesamtbefund. Die
 diese Teilausfälle mit simulierten Gästen. Die konkrete Linux- und
 Hyper-V-Anbindung muss im zugelassenen Pilot noch nachgewiesen werden.
 
+### Vorbereitete Gäste am Hyper-V-Host übernehmen
+
+Die [Host-Anbindung](../../Tests/Runtime/external_tables_hyperv_host.py)
+übernimmt die vom zugelassenen Provider vorbereiteten Gäste. Der Provider
+übergibt VM- und Switch-IDs, beide VHDX-Pfade und den Gastport über das
+private Laufjournal. Der Host verwendet diesen Datensatz für die
+Ressourcen- und Switchprüfungen und für die beiden Gastidentitätsproben.
+Erst nach allen vier Bestätigungen öffnet die Ablaufsteuerung den
+SQL-Pfad. Der Aufruf `run_prepared_hyperv_pilot` erwartet außerdem
+einen Provider-Callback für den eigentumsgeprüften Abbau. Der Host
+bestätigt anschließend selbst die Abwesenheit aller aufgezeichneten
+Ressourcen.
+
+Das Journal hält die VM- und Datenträgerbindung sowie jede SID vor
+dem Anlegen des jeweiligen Logins fest. Es liegt nur im privaten
+Laufverzeichnis. Ein atomarer Startmarker erlaubt einen Versuch.
+Ein weiterer Start greift weder auf die Gäste zu noch baut er sie
+ab. Die Gastbereitstellung und der konkrete Abbau-Callback gehören
+zum zugelassenen Hyper-V-Provider.
+
 ### Abbau und Wiederaufnahme
 
 1. Sperre weitere Demoaufrufe auf beiden Gästen. Der Dienst hält diese
