@@ -29,9 +29,10 @@ _RUNTIME = Path("Tests/Runtime")
 _MODULES = (
     "dgn004_capture_runner", "execution_target", "external_tables_cleanup", "external_tables_guest_admin",
     "external_tables_guest_apt", "external_tables_guest_bootstrap", "external_tables_guest_identity",
-    "external_tables_guest_network", "external_tables_measurement", "external_tables_odbc",
+    "external_tables_guest_network", "external_tables_guest_tls", "external_tables_measurement", "external_tables_odbc",
     "external_tables_package_state", "external_tables_pilot", "external_tables_pilot_sql",
     "external_tables_principals", "external_tables_pushdown_evidence", "external_tables_source_firewall",
+    "external_tables_tls_material",
 )
 _GUEST_FILES = (
     *(_RUNTIME / f"{module}.py" for module in _MODULES),

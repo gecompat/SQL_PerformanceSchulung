@@ -107,11 +107,13 @@ class GuestBootstrapTests(unittest.TestCase):
         with (
             patch.object(bootstrap, "prepare_detached_guest", events.prepare),
             patch.object(bootstrap, "configure_guest_private_link", events.configure),
+            patch.object(bootstrap, "prepare_guest_tls", events.tls),
         ):
             self.assertEqual(bootstrap.main(args), 0)
         deadline = events.prepare.call_args.args[-1]
-        self.assertEqual([call[0] for call in events.mock_calls], ["prepare", "configure"])
+        self.assertEqual([call[0] for call in events.mock_calls], ["prepare", "configure", "tls"])
         events.configure.assert_called_once_with(NETWORK, Role.SOURCE, deadline)
+        events.tls.assert_called_once_with(PORT, TOKEN, Role.SOURCE, NETWORK, deadline)
 
     def test_sql_probe_cannot_use_detached_endpoint(self):
         self.assertEqual(

@@ -15,6 +15,7 @@ from uuid import UUID
 from dgn004_capture_runner import CaptureRunnerError, collect_bounded_process
 from external_tables_guest_admin import AdminCommand, GuestSqlChannel
 from external_tables_guest_identity import _remaining, linux_service_id, require_registered_hyperv_ports, verify_guest
+from external_tables_guest_tls import relay_guest_ca
 from external_tables_measurement import MeasurementResult
 from external_tables_pilot import PilotResult, run_pilot
 from external_tables_pilot_sql import Role, database_name
@@ -281,6 +282,11 @@ class HyperVPreparedTransport:
         else:
             self._probe("resources", deadline)
         self._probe("network", deadline)
+        if self._bootstrap_port is not None:
+            relay_guest_ca(
+                self._inventory.source_vm, self._inventory.query_vm, self._bootstrap_port, token, deadline,
+                base_status=self._base_status, package_lock=self._package_lock,
+            )
         self._prove_guests(self._inventory.service_port, deadline, wait=self._bootstrap_port is not None)
         self._verified = True
 

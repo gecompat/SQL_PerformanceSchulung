@@ -644,12 +644,17 @@ mit den temporären Signierdateien entfernt. Das Blattzertifikat und
 sein Schlüssel bleiben in einem privaten Verzeichnis im Quellgast.
 An den Abfragegast geht nur das öffentliche CA-Zertifikat.
 
-Die Quelldateien stehen innerhalb des Lebenszyklus des Bausteins
-bereit. Die aufrufende Gaststeuerung muss sie für das SQL-Dienstkonto
-lesbar halten und dieses Zertifikat in `mssql-conf` einrichten.
-Das öffentliche CA-Zertifikat wird im Abfragegast für die spätere
-Connectorverbindung verwendet. Die TLS-Probe prüft den tatsächlichen
-Verbindungsweg vor der Messung.
+Die [TLS-Gaststeuerung](../../Tests/Runtime/external_tables_guest_tls.py)
+stellt die Dateien auf dem Quellgast in einem eigenen, auf das
+SQL-Dienstkonto beschränkten Verzeichnis bereit. Sie hinterlegt die
+Pfade in der SQL-Konfiguration und verlangt verschlüsselte Verbindungen.
+Der Host fordert nach bestätigtem Netzanschluss auf einem eigenen
+Protokollschritt ausschließlich das öffentliche CA-Zertifikat an.
+Er bindet beide Verbindungen an VM-Kennung, Lauf, Rolle und Paketbestand.
+Der Abfragegast prüft das erwartete CA-Profil, trägt das Zertifikat
+in seinen lokalen Vertrauensspeicher ein und bestätigt den Digest.
+Er richtet den laufgebundenen Quellnamen für die feste Quelladresse ein.
+Die TLS-Probe prüft später den tatsächlichen Verbindungsweg vor der Messung.
 [Microsoft-Referenz zu TLS-Einstellungen unter Linux](https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-configure-mssql-conf#specify-tls-settings).
 
 Im isolierten Linux-Komponententest akzeptierte eine native
@@ -860,7 +865,7 @@ anschließend das private Subnetz und das Fehlen einer Standardroute.
 Die Konfiguration verwendet dieselbe Gastfrist wie der Bootstrap.
 [Linux-Kernel-Dokumentation zum Hyper-V-Netzwerktreiber](https://docs.kernel.org/networking/device_drivers/ethernet/microsoft/netvsc.html).
 
-Der Gast muss anschließend TLS einrichten und den SQL-Gastdienst starten.
+Nach dem TLS-Austausch muss der Gast die SQL-Instanz und den SQL-Gastdienst starten.
 [Microsoft-Referenz zur VHDX-Kennung](https://learn.microsoft.com/en-us/powershell/module/hyper-v/set-vhd?view=windowsserver2025-ps).
 
 ### Vorbereitete Gäste am Hyper-V-Host übernehmen
