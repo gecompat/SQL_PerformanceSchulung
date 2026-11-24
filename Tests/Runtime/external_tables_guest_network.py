@@ -1,4 +1,4 @@
-"""Read-only validation of the post-attachment External Tables guest network."""
+"""Configure and validate the isolated External Tables guest network."""
 
 from __future__ import annotations
 
@@ -6,12 +6,18 @@ from dataclasses import dataclass
 from ipaddress import IPv4Interface, IPv4Network, IPv6Address, IPv6Network, ip_network
 import json
 from math import isfinite
-from time import monotonic
+import os
+from pathlib import Path
+import re
+import sys
+from time import monotonic, sleep
 
 from dgn004_capture_runner import CaptureRunnerError, CaptureTimeoutError, collect_bounded_process
 from external_tables_pilot_sql import Role
 
 
+PILOT_INTERFACE = "sqlperf0"
+_SYS_NET = Path("/sys/class/net")
 _PRIVATE = (IPv4Network((0x0A000000, 8)), IPv4Network((0xAC100000, 12)), IPv4Network((0xC0A80000, 16)))
 _LOOPBACK_V4 = IPv4Network("127.0.0.0/8")
 _LINK_LOCAL_V6 = ip_network("fe80::/10")
@@ -38,6 +44,44 @@ class GuestNetwork:
 
     def address(self, role: Role) -> IPv4Interface:
         return {Role.SOURCE: self.source, Role.QUERY: self.query}[role]
+
+
+def configure_guest_private_link(network: GuestNetwork, role: Role, deadline: float) -> None:
+    """Wait for just the fresh Hyper-V adapter, then set its one role address."""
+    if sys.platform != "linux" or os.geteuid() != 0:
+        raise ValueError("private link configuration requires the prepared Linux guest")
+    while True:
+        interfaces = _ip(["address", "show"], deadline)
+        if [record.get("ifname") for record in interfaces] != ["lo"]:
+            break
+        sleep(min(0.25, max(0, deadline - monotonic())))
+    names = [record.get("ifname") for record in interfaces]
+    if len(names) != 2 or names.count("lo") != 1:
+        raise ValueError("expected exactly one new private guest interface")
+    link = next(record for record in interfaces if record["ifname"] != "lo")
+    device = link.get("ifname")
+    if not isinstance(device, str) or not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9_.-]{0,14}", device):
+        raise ValueError("unexpected private guest interface name")
+    if not _is_hyperv_link(device) or link.get("addr_info") != [] or "UP" in link.get("flags", []):
+        raise ValueError("expected an unconfigured Hyper-V guest interface")
+    for family, loopback in ((4, _LOOPBACK_V4), (6, _LOOPBACK_V6)):
+        for route in _ip([f"-{family}", "route", "show", "table", "all"], deadline):
+            if route.get("dev") != "lo" or not _route(route, family, device).subnet_of(loopback):
+                raise ValueError("expected loopback routes before guest network configuration")
+
+    if device != PILOT_INTERFACE:
+        _run_ip(["link", "set", "dev", device, "name", PILOT_INTERFACE], deadline)
+    _run_ip(["-4", "address", "add", str(network.address(role)), "dev", PILOT_INTERFACE], deadline)
+    _run_ip(["link", "set", "dev", PILOT_INTERFACE, "up"], deadline)
+    if verify_guest_network(network, role, deadline) != PILOT_INTERFACE:
+        raise ValueError("the configured interface does not match the pilot profile")
+
+
+def _is_hyperv_link(device: str) -> bool:
+    try:
+        return (_SYS_NET / device / "device" / "driver").resolve(strict=True).name == "hv_netvsc"
+    except OSError:
+        return False
 
 
 def verify_guest_network(network: GuestNetwork, role: Role, deadline: float) -> str:
@@ -106,21 +150,25 @@ def _route(record: dict, family: int, device: str) -> IPv4Network | IPv6Network:
 
 
 def _ip(options: list[str], deadline: float) -> list[dict]:
+    data = json.loads(_run_ip(["-json", *options], deadline))
+    if not isinstance(data, list) or any(not isinstance(record, dict) for record in data):
+        raise ValueError("guest network capture did not return iproute2 JSON")
+    return data
+
+
+def _run_ip(options: list[str], deadline: float) -> bytes:
     remaining = deadline - monotonic()
     if not isfinite(remaining) or remaining <= 0:
         raise TimeoutError("guest network check deadline exceeded")
     try:
         result = collect_bounded_process(
-            ["/usr/sbin/ip", "-json", *options], input_bytes=b"", environment={"LC_ALL": "C"},
+            ["/usr/sbin/ip", *options], input_bytes=b"", environment={"LC_ALL": "C"},
             timeout_seconds=min(5, remaining), stdout_limit_bytes=65_536, stderr_limit_bytes=4096,
         )
     except CaptureTimeoutError:
         raise TimeoutError("guest network check deadline exceeded") from None
     except CaptureRunnerError:
-        raise OSError("guest network capture did not complete") from None
+        raise OSError("guest network command did not complete") from None
     if result.returncode or result.stderr or monotonic() >= deadline:
-        raise OSError("guest network capture did not complete")
-    data = json.loads(result.stdout)
-    if not isinstance(data, list) or any(not isinstance(record, dict) for record in data):
-        raise ValueError("guest network capture did not return iproute2 JSON")
-    return data
+        raise OSError("guest network command did not complete")
+    return result.stdout
