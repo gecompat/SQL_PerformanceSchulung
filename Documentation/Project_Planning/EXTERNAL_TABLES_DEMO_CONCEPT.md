@@ -1106,10 +1106,19 @@ Vor einem Demo-Vertrag bleiben offen:
   Abnahme des Abbruch- und Wiederherstellungspfads;
 - Pushdown-Evidenzkorrelation und Aussagekraft der Transport-/DMS-Metriken im
   festgelegten Connectorprofil;
-- Statistikzustand, Setup-/Messphasentrennung, vollständiger Cleanup und
-  unabhängiger Methodenreview;
+- Laufzeitnachweis für Statistikzustand, Setup-/Messphasentrennung und vollständiges
+  Cleanup sowie unabhängige Prüfung des beobachteten Treiberdigests;
 - Zulassung des separaten Arbeitspakets für einen vollständigen Pilot
   gemäß [DEC-078](../../.ai/DECISIONS.md).
+
+Der unabhängige statische Methodenreview vom 24. November 2026
+prüfte den Pilotcode auf Commit `74c2d786a6da7957327bfbf172617faf30b1ef79`. Er fand keinen konkreten
+Pfad zu einem falschen `PASS` und keinen eindeutigen T-SQL-Fehler im
+gebundenen Profil. Geprüft wurden die vollständige Fixture, das
+Aggregatergebnis, die getrennte Zuordnung beider externen Requests
+und die Filteroracles. Die Kompilierung auf SQL Server 2025 CU11,
+Sichtbarkeit und Kardinalität der DMV-Zeilen sowie die tatsächlichen
+Connector-Kommandos und der Treiberdigest bleiben Laufzeitevidenz.
 
 Die integrierten Komponentenprüfungen belegen einzelne Voraussetzungen.
 Dazu zählen die gebundene Paketinstallation bei getrenntem Netzwerk,
