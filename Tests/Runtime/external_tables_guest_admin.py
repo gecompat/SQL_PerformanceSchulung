@@ -8,20 +8,28 @@ from enum import Enum
 import json
 from socket import socket
 from struct import Struct
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from external_tables_cleanup import drop_pilot_database_batch, drop_pilot_logins_batch
 from external_tables_guest_identity import (
-    _receive, _remaining, _reply_to_probe, _send, accept_parent_connection, connect_verified_guest,
+    _receive, _remaining, _reply_to_probe, _send, accept_parent_connection, connect_verified_guest, linux_service_id,
 )
 from external_tables_measurement import MeasurementResult
-from external_tables_odbc import Connection, OdbcPilotAdministration, PrincipalConnection, run_guest_measurement
+from external_tables_odbc import (
+    Connection, OdbcDriver, OdbcPilotAdministration, PrincipalConnection, run_guest_measurement,
+    verify_guest_principal, verify_source_tls,
+)
 from external_tables_pilot_sql import (
     Role, Route, configure_database_batch, create_database_batch, database_name, external_tables_batch,
     fixture_batch, fixture_read_batch, statistics_batch, verify_fixture,
 )
 from external_tables_principals import Principal, create_connector_credential_batch, create_principal_batch
 from external_tables_pushdown_evidence import PUSHDOWN_FILTER_EVIDENCE
+
+
+if TYPE_CHECKING:
+    from external_tables_guest_network import GuestNetwork
 
 
 class AdminAction(Enum):
@@ -33,6 +41,8 @@ class AdminAction(Enum):
     CREATE_CREDENTIAL = "create_credential"
     CREATE_EXTERNAL_TABLES = "create_external_tables"
     CREATE_STATISTICS = "create_statistics"
+    CHECK_PRINCIPAL = "check_principal"
+    CHECK_SOURCE_TLS = "check_source_tls"
     MEASURE = "measure"
     DATABASE_EXISTS = "database_exists"
     DROP_DATABASE = "drop_database"
@@ -137,6 +147,59 @@ def invoke_guest_measurement(
     return result
 
 
+@dataclass(frozen=True)
+class GuestSqlChannel:
+    """Bind the host's SQL operations to the two recorded VM identities."""
+
+    token: str
+    source_vm: UUID = field(repr=False)
+    query_vm: UUID = field(repr=False)
+    port: int
+    base_status: bytes = field(repr=False)
+    package_lock: dict = field(repr=False)
+
+    def __post_init__(self) -> None:
+        database_name(self.token, Role.QUERY)
+        linux_service_id(self.port)
+        ids = (self.source_vm, self.query_vm)
+        if any(not isinstance(vm_id, UUID) or not vm_id.int for vm_id in ids) or len(set(ids)) != 2:
+            raise ValueError("expected distinct recorded source and query VM IDs")
+
+    def admin(self, role: Role, command: AdminCommand, deadline: float) -> bool | None:
+        vm_id = {Role.SOURCE: self.source_vm, Role.QUERY: self.query_vm}.get(role)
+        if vm_id is None or command.action is AdminAction.MEASURE:
+            raise ValueError("expected a fixed guest administration operation")
+        result = invoke_guest_admin(
+            vm_id, self.port, self.token, role, command, deadline,
+            base_status=self.base_status, package_lock=self.package_lock,
+        )
+        if result is not None and type(result) is not bool:
+            raise OSError("guest administration result was not confirmed")
+        return result
+
+    def probe_principal(self, principal: Principal, secret: str, deadline: float) -> None:
+        result = self.admin(principal.role, AdminCommand(AdminAction.CHECK_PRINCIPAL, (principal.name, secret)), deadline)
+        if result is not None:
+            raise OSError("guest principal check was not confirmed")
+
+    def verify_source_tls(self, token: str, secret: str, deadline: float) -> None:
+        self._verify_token(token)
+        result = self.admin(Role.QUERY, AdminCommand(AdminAction.CHECK_SOURCE_TLS, (secret,)), deadline)
+        if result is not None:
+            raise OSError("guest source TLS check was not confirmed")
+
+    def measure(self, token: str, reader_secret: str, observer_secret: str, deadline: float) -> MeasurementResult:
+        self._verify_token(token)
+        return invoke_guest_measurement(
+            self.query_vm, self.port, self.token, reader_secret, observer_secret, deadline,
+            base_status=self.base_status, package_lock=self.package_lock,
+        )
+
+    def _verify_token(self, token: str) -> None:
+        if token != self.token:
+            raise ValueError("unexpected guest channel run token")
+
+
 def _send_command(channel: socket, command: AdminCommand, deadline: float) -> bool | MeasurementResult | None:
     payload = json.dumps([command.action.value, *command.fields], separators=(",", ":")).encode("ascii")
     if not 0 < len(payload) <= _MAX_COMMAND:
@@ -174,19 +237,23 @@ def _encode_measurement(result: MeasurementResult) -> bytes:
 def serve_guest_admin(
     port: int, token: str, role: Role, open_admin: Callable[[str, int], Connection], deadline: float, *,
     open_principal: PrincipalConnection | None = None,
+    source_driver: OdbcDriver | None = None,
+    network: GuestNetwork | None = None,
 ) -> None:
     """Serve one fixed command on a dedicated parent-only VSOCK listener."""
     with accept_parent_connection(port, deadline) as channel:
         _reply_to_probe(channel, token, role, deadline)
         _receive_command(
             channel, token, role, OdbcPilotAdministration(token, role, open_admin), deadline,
-            open_principal=open_principal,
+            open_principal=open_principal, source_driver=source_driver, network=network,
         )
 
 
 def _receive_command(
     channel: socket, token: str, role: Role, admin: OdbcPilotAdministration, deadline: float, *,
     open_principal: PrincipalConnection | None = None,
+    source_driver: OdbcDriver | None = None,
+    network: GuestNetwork | None = None,
 ) -> None:
     try:
         (size,) = _SIZE.unpack(_receive(channel, _SIZE.size, deadline))
@@ -196,7 +263,18 @@ def _receive_command(
         if type(fields) is not list or not fields or any(type(field) is not str for field in fields):
             raise ValueError("expected bounded guest command fields")
         command = AdminCommand(AdminAction(fields[0]), tuple(fields[1:]))
-        if command.action is AdminAction.MEASURE:
+        if command.action is AdminAction.CHECK_PRINCIPAL:
+            if open_principal is None or len(command.fields) != 2:
+                raise ValueError("guest principal check is unavailable")
+            name, secret = command.fields
+            verify_guest_principal(token, _principal(name, role), secret, deadline, open_principal)
+            reply = _DONE
+        elif command.action is AdminAction.CHECK_SOURCE_TLS:
+            if role is not Role.QUERY or source_driver is None or network is None or len(command.fields) != 1:
+                raise ValueError("guest source TLS check is unavailable")
+            verify_source_tls(source_driver, token, command.fields[0], deadline, network=network)
+            reply = _DONE
+        elif command.action is AdminAction.MEASURE:
             if role is not Role.QUERY or open_principal is None or len(command.fields) != 2:
                 raise ValueError("query guest measurement is unavailable")
             reply = _encode_measurement(run_guest_measurement(token, *command.fields, deadline, open_principal))

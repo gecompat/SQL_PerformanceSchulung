@@ -10,7 +10,7 @@ from typing import Protocol
 from external_tables_guest_admin import AdminAction, AdminCommand
 from external_tables_measurement import MeasurementResult
 from external_tables_pilot_sql import Role, Route, database_name
-from external_tables_principals import Principal, principal_probe_batch
+from external_tables_principals import Principal
 
 
 WORK_SECONDS = 600
@@ -45,7 +45,7 @@ class GuestPilotTransport(Protocol):
     def verify_source_tls(self, token: str, secret: str, deadline: float) -> None:
         """Bind source TLS to both provisioned addresses and reject a wrong certificate identity."""
 
-    def probe_principal(self, principal: Principal, secret: str, sql: str, deadline: float) -> None:
+    def probe_principal(self, principal: Principal, secret: str, deadline: float) -> None:
         """Run the rights probe over the actual principal connection and confirm its close."""
 
     def measure(self, token: str, reader_secret: str, observer_secret: str, deadline: float) -> MeasurementResult:
@@ -144,7 +144,7 @@ def _setup_principal(
     login_sids[principal] = sid
     _admin(transport, principal.role, AdminAction.CREATE_PRINCIPAL, deadline,
            principal.name, secrets[principal], sid.hex())
-    transport.probe_principal(principal, secrets[principal], principal_probe_batch(token, principal), deadline)
+    transport.probe_principal(principal, secrets[principal], deadline)
 
 
 def _cleanup(
