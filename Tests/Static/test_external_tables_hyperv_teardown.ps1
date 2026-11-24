@@ -23,6 +23,9 @@ function Reset-Fixture {
     $fakeDisks.Clear()
     $fake.ExtraAdapter = $null
     $fake.ForeignDisk = $false
+    $fake.MissingDiskReference = $false
+    $fake.InventoryFailure = $false
+    $fake.MissingPortReference = $false
     $fake.Switch = [pscustomobject]@{ Id = $inputs.SwitchId; Name = 'SQLPerfExt-TEST0053'; SwitchType = 'Private' }
     foreach ($role in @('SOURCE', 'QUERY')) {
         $vmId = $inputs["$($role)VmId"]
@@ -42,37 +45,66 @@ function Reset-Fixture {
 function Get-VM { $fakeGuests.Values; $unrelatedVm }
 function Get-VMSwitch { if ($null -ne $fake.Switch) { $fake.Switch } }
 function Get-VMNetworkAdapter {
-    param([switch] $All)
-    foreach ($vm in $fakeGuests.Values) {
-        [pscustomobject]@{ SwitchId = if ($fake.Switch) { $inputs.SwitchId } else { $null }; VMId = $vm.Id; IsManagementOs = $false }
+    param([object[]] $VM, [switch] $ManagementOS, [string] $SwitchName)
+    if ($ManagementOS) {
+        if ($SwitchName -cne $fake.Switch.Name) { throw 'Unexpected management switch lookup.' }
+        if ($fake.ExtraAdapter.IsManagementOs) { $fake.ExtraAdapter }
+        return
     }
-    if ($null -ne $fake.ExtraAdapter) { $fake.ExtraAdapter }
+    foreach ($guest in $VM) {
+        [pscustomobject]@{ SwitchId = if ($fake.Switch) { $inputs.SwitchId } else { $null }; VMId = $guest.Id; IsManagementOs = $false }
+    }
 }
 function Get-VMHardDiskDrive {
     param($VM)
-    if ($VM.Id -ne $unrelatedVm.Id) { [pscustomobject]@{ Path = $VM.Path } }
-    elseif ($fake.ForeignDisk) { [pscustomobject]@{ Path = $inputs.SourceDiskPath } }
+    if ($VM.Id -eq $unrelatedVm.Id) { throw 'The script queried a foreign drive individually.' }
+    [pscustomobject]@{ Path = $VM.Path }
+}
+function Get-CimInstance {
+    param($Namespace, $ClassName, $Filter, $Property)
+    if ($ClassName -ceq 'Msvm_EthernetPortAllocationSettingData') {
+        if ($fake.Switch) {
+            $n = $fakeGuests.Count + [int]($null -ne $fake.ExtraAdapter -and -not $fake.ExtraAdapter.IsManagementOs) - [int]$fake.MissingPortReference
+            for ($i = 0; $i -lt $n; $i++) {
+                [pscustomobject]@{ HostResource = @(
+                    'root\virtualization\v2:Msvm_VirtualEthernetSwitch.CreationClassName="Msvm_VirtualEthernetSwitch",Name="' + $inputs.SwitchId + '"'
+                ) }
+            }
+        }
+        return
+    }
+    if ($Namespace -cne 'root/virtualization/v2' -or $ClassName -cne 'Msvm_StorageAllocationSettingData' -or
+        $Filter -cne "ResourceSubType = 'Microsoft:Hyper-V:Virtual Hard Disk'" -or $Property -cne 'HostResource') {
+        throw 'Unexpected global VHD inventory query.'
+    }
+    if ($fake.InventoryFailure) { throw 'Synthetic provider inventory failure.' }
+    foreach ($guest in $fakeGuests.Values) {
+        if (-not $fake.MissingDiskReference -or $guest.Id -ne $inputs.SourceVmId) {
+            [pscustomobject]@{ HostResource = @($guest.Path) }
+        }
+    }
+    if ($fake.ForeignDisk) { [pscustomobject]@{ HostResource = @($inputs.SourceDiskPath) } }
 }
 function Get-VHD {
     param($Path)
     $fakeDisks[$Path]
 }
 function Stop-VM {
-    param($VM, [switch] $TurnOff, [switch] $Confirm)
-    if (-not $TurnOff -or -not $fakeGuests.ContainsKey($VM.Id)) { throw 'Unexpected stop target.' }
+    param($VM, [switch] $TurnOff, [switch] $Force, [switch] $Confirm)
+    if (-not $TurnOff -or -not $Force -or $Confirm -or -not $fakeGuests.ContainsKey($VM.Id)) { throw 'Unexpected stop target.' }
     $fakeEvents.Add("stop:$($VM.Name)")
     $VM.State = 'Off'
 }
 function Remove-VM {
-    param($VM, [switch] $Confirm)
-    if (-not $fakeGuests.ContainsKey($VM.Id) -or $VM.State -cne 'Off') { throw 'Unexpected VM removal target.' }
+    param($VM, [switch] $Force, [switch] $Confirm)
+    if (-not $Force -or $Confirm -or -not $fakeGuests.ContainsKey($VM.Id) -or $VM.State -cne 'Off') { throw 'Unexpected VM removal target.' }
     $fakeEvents.Add("remove:$($VM.Name)")
     $fakeDisks[$VM.Path].Attached = $false
     $fakeGuests.Remove($VM.Id)
 }
 function Remove-VMSwitch {
-    param($VMSwitch, [switch] $Confirm)
-    if ($VMSwitch.Id -ne $inputs.SwitchId -or $fakeGuests.Count -ne 0 -or
+    param($VMSwitch, [switch] $Force, [switch] $Confirm)
+    if (-not $Force -or $Confirm -or $VMSwitch.Id -ne $inputs.SwitchId -or $fakeGuests.Count -ne 0 -or
         [IO.File]::Exists($inputs.SourceDiskPath) -or [IO.File]::Exists($inputs.QueryDiskPath)) {
         throw 'Unexpected switch removal target or sequence.'
     }
@@ -99,7 +131,19 @@ try {
     $fake.ExtraAdapter = [pscustomobject]@{ SwitchId = $inputs.SwitchId; VMId = $unrelatedVm.Id; IsManagementOs = $false }
     Confirm-Rejected
     Reset-Fixture
+    $fake.ExtraAdapter = [pscustomobject]@{ SwitchId = $inputs.SwitchId; VMId = $null; IsManagementOs = $true }
+    Confirm-Rejected
+    Reset-Fixture
+    $fake.MissingPortReference = $true
+    Confirm-Rejected
+    Reset-Fixture
     $fake.ForeignDisk = $true
+    Confirm-Rejected
+    Reset-Fixture
+    $fake.MissingDiskReference = $true
+    Confirm-Rejected
+    Reset-Fixture
+    $fake.InventoryFailure = $true
     Confirm-Rejected
     Reset-Fixture
     $fakeGuests[$inputs.SourceVmId].Notes = 'foreign'

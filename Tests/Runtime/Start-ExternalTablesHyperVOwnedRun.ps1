@@ -30,31 +30,22 @@ $mediaById = @{
 }
 
 function Read-OwnedGuests([string] $ExpectedState) {
-    $status = & $ownerCheck @ownership | ConvertFrom-Json
-    if ($status.status -cne 'VERIFIED') { throw 'Expected the recorded resource ownership.' }
-
+    $inventory = & $ownerCheck @ownership -PassThruVerifiedInventory
     $guests = foreach ($id in $ids) {
-        $vm = @(Get-VM -Id $id)
-        if ($vm.Count -ne 1 -or $vm[0].Id -ne $id -or [string]$vm[0].State -cne $ExpectedState -or
-            $vm[0].ProcessorCount -ne 2 -or $vm[0].MemoryStartup -ne 4GB -or
-            $vm[0].DynamicMemoryEnabled -isnot [bool] -or $vm[0].DynamicMemoryEnabled) {
+        $vm = $inventory.Guests[$id]
+        if ($null -eq $vm -or [string]$vm.State -cne $ExpectedState -or
+            $vm.ProcessorCount -ne 2 -or $vm.MemoryStartup -ne 4GB -or
+            $vm.DynamicMemoryEnabled -isnot [bool] -or $vm.DynamicMemoryEnabled) {
             throw 'Expected the recorded guest and its resource profile.'
         }
-        $vm[0]
-    }
-    $switch = @(Get-VMSwitch -Id $SwitchId)
-    if ($switch.Count -ne 1 -or $switch[0].Id -ne $SwitchId -or
-        $switch[0].Name -cne "SQLPerfExt-$RunToken" -or [string]$switch[0].SwitchType -cne 'Private') {
-        throw 'Expected the recorded private switch.'
-    }
-    foreach ($path in @($SourceDiskPath, $QueryDiskPath)) {
-        $disk = @(Get-VHD -Path $path)
-        if ($disk.Count -ne 1 -or $disk[0].Size -isnot [ulong] -or
-            $disk[0].Size -eq 0 -or $disk[0].Size -gt 24GB) {
+        $disk = $inventory.Disks[$id]
+        if ($disk.Size -isnot [ulong] -or $disk.Size -eq 0 -or $disk.Size -gt 24GB) {
             throw 'Expected the recorded guest disk within its capacity limit.'
         }
+        $vm
     }
-    return @{ Guests=$guests; Switch=$switch[0] }
+    if ($inventory.Switch.Count -ne 1) { throw 'Expected the recorded private switch.' }
+    return @{ Guests=$guests; Switch=$inventory.Switch[0]; Adapters=$inventory.Adapters }
 }
 
 function Read-OwnedDvd($Guest, [bool] $RequireAttached) {
@@ -82,15 +73,11 @@ function Test-RoleMedia {
     }
 }
 
-function Read-RelevantAdapters {
-    Get-VMNetworkAdapter -All | Where-Object { $_.VMId -in $ids -or $_.SwitchId -eq $SwitchId }
-}
 
 try {
     $state = if ($Phase -eq 'Boot') { 'Off' } else { 'Running' }
     $current = Read-OwnedGuests $state
-    $adapters = @(Read-RelevantAdapters)
-    if ($adapters.Count) { throw 'Expected both guests and the private switch to have no adapters.' }
+    if ($current.Adapters.Count) { throw 'Expected both guests and the private switch to have no adapters.' }
     if ($Phase -eq 'Boot') { Test-RoleMedia }
     foreach ($guest in $current.Guests) { $null = Read-OwnedDvd $guest ($Phase -eq 'Attach') }
 
@@ -110,8 +97,8 @@ try {
         }
         foreach ($guest in $current.Guests) { $null = Read-OwnedDvd $guest $true }
         Start-VM -VM $current.Guests -Confirm:$false
-        $null = Read-OwnedGuests 'Running'
-        if (@(Read-RelevantAdapters).Count) { throw 'The booted guests must remain isolated.' }
+        $current = Read-OwnedGuests 'Running'
+        if ($current.Adapters.Count) { throw 'The booted guests must remain isolated.' }
         '{"status":"BOOTED"}'
         return
     }
@@ -126,7 +113,7 @@ try {
         $adapter[0]
     }
     $current = Read-OwnedGuests 'Running'
-    $adapters = @(Read-RelevantAdapters)
+    $adapters = $current.Adapters
     if ($adapters.Count -ne 2 -or @($adapters | Where-Object { $_.SwitchId -notin @($null, [guid]::Empty) }).Count) {
         throw 'Expected exactly two disconnected adapters before attachment.'
     }

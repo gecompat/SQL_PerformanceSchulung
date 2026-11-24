@@ -42,8 +42,25 @@ function Get-VMSwitch {
     param([guid] $Id)
     if (-not $PSBoundParameters.ContainsKey('Id') -or $Id -eq $pilotSwitch.Id) { $pilotSwitch }
 }
-function Get-VMNetworkAdapter { param([switch] $All); $fixtureAdapters }
+function Get-VMNetworkAdapter {
+    param([switch] $All, [object[]] $VM, [switch] $ManagementOS, [string] $SwitchName)
+    if ($All) { $fixtureAdapters }
+    elseif ($ManagementOS) {
+        if ($SwitchName -cne $pilotSwitch.Name) { throw 'Unexpected management switch lookup.' }
+        $fixtureAdapters | Where-Object { $_.IsManagementOs -and $_.SwitchId -eq $pilotSwitch.Id }
+    } else { $fixtureAdapters | Where-Object VMId -In $VM.Id }
+}
 function Get-VMHardDiskDrive { param($VM); [pscustomobject]@{Path=$VM.Path} }
+function Get-CimInstance {
+    param($Namespace, $ClassName, $Filter, $Property)
+    if ($ClassName -ceq 'Msvm_EthernetPortAllocationSettingData') {
+        foreach ($adapter in $fixtureAdapters | Where-Object SwitchId -EQ $pilotSwitch.Id) {
+            [pscustomobject]@{HostResource=@('root\virtualization\v2:Msvm_VirtualEthernetSwitch.Name="' + $adapter.SwitchId + '"')}
+        }
+        return
+    }
+    foreach ($guest in $fixtureGuests.Values) { [pscustomobject]@{HostResource=@($guest.Path)} }
+}
 function Get-VHD { param($Path); $disks[$Path] }
 function Get-VMDvdDrive { param($VM); if ($fixtureDvd.ContainsKey($VM.Id)) { $fixtureDvd[$VM.Id] } }
 function Add-VMDvdDrive {
