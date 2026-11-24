@@ -43,9 +43,12 @@ function Get-VMSwitch {
     if (-not $PSBoundParameters.ContainsKey('Id') -or $Id -eq $pilotSwitch.Id) { $pilotSwitch }
 }
 function Get-VMNetworkAdapter {
-    param([switch] $All, [object[]] $VM)
+    param([switch] $All, [object[]] $VM, [switch] $ManagementOS, [string] $SwitchName)
     if ($All) { $fixtureAdapters }
-    else { $fixtureAdapters | Where-Object VMId -In $VM.Id }
+    elseif ($ManagementOS) {
+        if ($SwitchName -cne $pilotSwitch.Name) { throw 'Unexpected management switch lookup.' }
+        $fixtureAdapters | Where-Object { $_.IsManagementOs -and $_.SwitchId -eq $pilotSwitch.Id }
+    } else { $fixtureAdapters | Where-Object VMId -In $VM.Id }
 }
 function Get-VMHardDiskDrive { param($VM); [pscustomobject]@{Path=$VM.Path} }
 function Get-CimInstance {

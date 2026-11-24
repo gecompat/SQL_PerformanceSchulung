@@ -84,6 +84,9 @@ function Read-OwnedInventory {
         }
     }
     if ($SwitchId -ne [guid]::Empty) {
+        if ($switch.Count -eq 1 -and @(Get-VMNetworkAdapter -ManagementOS -SwitchName $switch[0].Name).Count) {
+            throw 'Recorded switch has a management attachment.'
+        }
         $connected = @($adapters | Where-Object SwitchId -EQ $SwitchId).Count
         $ports = @(Get-CimInstance -Namespace root/virtualization/v2 -ClassName Msvm_EthernetPortAllocationSettingData -Property HostResource)
         $switchName = 'Name="' + $SwitchId.ToString() + '"'
@@ -165,11 +168,11 @@ try {
             $vm = $current.Guests[$target.Id]
             if ($null -ne $vm) {
                 if ([string]$vm.State -cne 'Off') {
-                    Stop-VM -VM $vm -TurnOff -Confirm:$false
+                    Stop-VM -VM $vm -TurnOff -Force -Confirm:$false
                     $vm = (Read-OwnedInventory).Guests[$target.Id]
                     if ($null -eq $vm -or [string]$vm.State -cne 'Off') { throw 'VM stop was not confirmed.' }
                 }
-                Remove-VM -VM $vm -Confirm:$false
+                Remove-VM -VM $vm -Force -Confirm:$false
                 $current = Read-OwnedInventory
             }
         }
@@ -184,7 +187,7 @@ try {
         }
         $remaining = $current
         if ($remaining.Guests.Count -ne 0) { throw 'A recorded VM is still present.' }
-        if ($remaining.Switch.Count -eq 1) { Remove-VMSwitch -VMSwitch $remaining.Switch[0] -Confirm:$false }
+        if ($remaining.Switch.Count -eq 1) { Remove-VMSwitch -VMSwitch $remaining.Switch[0] -Force -Confirm:$false }
         if ($PartialProvision) {
             $final = Read-OwnedInventory
             if ($final.Guests.Count -or $final.Switch.Count -or @($targets | ForEach-Object { Read-OwnedDisk $_ }).Count) {
