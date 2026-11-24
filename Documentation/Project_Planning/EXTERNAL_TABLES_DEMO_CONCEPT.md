@@ -250,6 +250,31 @@ an Dateigröße und SHA-256 binden:
 python Tests/Static/verify_external_tables_ubuntu_base.py MANIFEST --derived-vhdx VHDX
 ```
 
+### NoCloud-Startvorlage für den Offline-Pilot
+
+Die geprüfte Ubuntu-Vorlage beschränkt Cloud-init auf die Azure-Datenquelle.
+Die mitgelieferte Netplan-Datei aktiviert zudem DHCP, sobald ein Hyper-V-Netzadapter
+hinzukommt. Für den Pilot entsteht deshalb eine separate Startvorlage.
+Der [Vorlagenaufbereiter](../../Tests/Runtime/prepare_external_tables_nocloud_base.py)
+verwendet unter Linux QEMU und die ext4-Werkzeuge. Er prüft die unveränderte
+VHDX, kopiert ihre Root-Partition, stellt die Cloud-init-Datenquelle auf
+NoCloud um und deaktiviert die automatische Netzkonfiguration. Er entfernt
+die Azure-Regel für später hinzugefügte Netzadapter und maskiert den
+Azure-Gastagenten in der Kopie.
+[Microsoft-Anleitung zur NoCloud-Vorbereitung von Azure-Ubuntu-Abbildern](https://learn.microsoft.com/en-us/azure/azure-local/manage/virtual-machine-azure-marketplace-ubuntu).
+
+```text
+python Tests/Runtime/prepare_external_tables_nocloud_base.py BASIS.vhdx NOCLOUD.vhdx
+```
+
+Der Aufbereiter bindet den unveränderten Paketstatus an die bestehende
+Paketliste, prüft das Dateisystem und vergleicht die logischen Inhalte der
+erzeugten VHDX mit der bearbeiteten Kopie. Er gibt den SHA-256-Wert der
+neuen Startvorlage für die Hyper-V-Bereitstellung aus. Beide Rollen können
+dieselbe Startvorlage als Ausgangspunkt verwenden. Der Provider erstellt
+weiterhin getrennte Plattenkopien und verwendet ein eigenes Startmedium
+pro Rolle.
+
 Der isolierte Gaststart in Hyper-V bleibt offen. Die Ausführungsumgebung
 lehnte den kombinierten Befehl zum Anlegen, Starten und Entfernen der
 temporären Test-VM vor Prozessbeginn ab. Eine anschließende read-only
