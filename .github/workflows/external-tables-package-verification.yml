@@ -34,6 +34,8 @@ on:
       - 'Tests/Static/test_external_tables_hyperv_network.ps1'
       - 'Tests/Runtime/Test-ExternalTablesHyperVAbsence.ps1'
       - 'Tests/Runtime/Remove-ExternalTablesHyperVOwnedRun.ps1'
+      - 'Tests/Runtime/New-ExternalTablesHyperVDetachedRun.ps1'
+      - 'Tests/Static/test_external_tables_hyperv_provision.ps1'
       - 'Tests/Static/test_external_tables_hyperv_teardown.ps1'
       - 'Tests/Static/test_external_tables_hyperv_absence.ps1'
       - 'Tests/Runtime/Test-ExternalTablesHyperVResources.ps1'
@@ -86,6 +88,8 @@ on:
       - 'Tests/Static/test_external_tables_hyperv_network.ps1'
       - 'Tests/Runtime/Test-ExternalTablesHyperVAbsence.ps1'
       - 'Tests/Runtime/Remove-ExternalTablesHyperVOwnedRun.ps1'
+      - 'Tests/Runtime/New-ExternalTablesHyperVDetachedRun.ps1'
+      - 'Tests/Static/test_external_tables_hyperv_provision.ps1'
       - 'Tests/Static/test_external_tables_hyperv_teardown.ps1'
       - 'Tests/Static/test_external_tables_hyperv_absence.ps1'
       - 'Tests/Runtime/Test-ExternalTablesHyperVResources.ps1'
@@ -137,6 +141,7 @@ jobs:
           ./Tests/Static/test_external_tables_hyperv_network.ps1
           ./Tests/Static/test_external_tables_hyperv_absence.ps1
           ./Tests/Static/test_external_tables_hyperv_teardown.ps1
+          ./Tests/Static/test_external_tables_hyperv_provision.ps1
           ./Tests/Static/test_external_tables_hyperv_resources.ps1
         shell: pwsh
       - run: python Tests/Static/test_external_tables_source_firewall.py

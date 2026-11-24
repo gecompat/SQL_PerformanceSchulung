@@ -1,5 +1,6 @@
 from dataclasses import replace
 import json
+import os
 from pathlib import Path, PureWindowsPath
 import sys
 from tempfile import TemporaryDirectory
@@ -13,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_guest_admin import AdminAction, AdminCommand
 from external_tables_hyperv_host import (
-    _PROBES, HyperVPreparedTransport, HyperVRunInventory, RunJournal, run_prepared_hyperv_pilot,
+    _PROBES, HyperVPreparedTransport, HyperVRunInventory, RunJournal, provision_detached_hyperv, run_prepared_hyperv_pilot,
 )
 from external_tables_measurement import MeasurementResult
 from external_tables_pilot_sql import Role
@@ -160,6 +161,53 @@ class HyperVHostTests(unittest.TestCase):
             self.assertTrue(transport.remove_verified_guests(TOKEN, self.deadline))
         self.assertEqual([Path(call.args[0][4]).stem for call in probe.call_args_list][-2:],
                          ["Remove-ExternalTablesHyperVOwnedRun", "Test-ExternalTablesHyperVAbsence"])
+
+    @unittest.skipUnless(os.name == "nt", "the host receipt paths are Windows paths")
+    def test_detached_provider_receipt_binds_all_individual_records(self):
+        directory = self.directory / "fresh"
+        directory.mkdir()
+        source = self.directory / "approved-source.vhdx"
+        query = self.directory / "approved-query.vhdx"
+        source.touch()
+        query.touch()
+        prefix = f"SQLPerfExt-{TOKEN}"
+        receipt = {"run": TOKEN, **{key: str(uuid4()) for key in (
+            "source_vm", "query_vm", "switch", "source_disk_id", "query_disk_id",
+        )}}
+
+        def publish(name, content):
+            (directory / name).write_text(json.dumps(content), encoding="utf-8")
+
+        def provision(command, **kwargs):
+            self.assertTrue(command[4].endswith("New-ExternalTablesHyperVDetachedRun.ps1"))
+            self.assertIn("-ApplyOwnedRun", command)
+            self.assertEqual(kwargs["timeout_ceiling_seconds"], 600)
+            publish("external-tables-provision-intent.json", {
+                "version": 1, "run": TOKEN, "switch": prefix, "vms": [f"{prefix}-SOURCE", f"{prefix}-QUERY"],
+                "disks": ["source.vhdx", "query.vhdx"],
+            })
+            publish("external-tables-switch.json", {"name": prefix, "id": receipt["switch"]})
+            for role in Role:
+                name = role.value.lower()
+                publish(f"external-tables-vm-{role.value}.json", {
+                    "role": role.value, "name": f"{prefix}-{role.value}", "id": receipt[f"{name}_vm"],
+                })
+                publish(f"external-tables-disk-{role.value}.json", {
+                    "role": role.value, "file": f"{name}.vhdx", "id": receipt[f"{name}_disk_id"],
+                })
+            publish("external-tables-detached.json", receipt)
+            return SimpleNamespace(returncode=0, stdout=b'{"status":"DETACHED"}', stderr=b"")
+
+        with patch("external_tables_hyperv_host.collect_bounded_process", side_effect=provision):
+            journal = provision_detached_hyperv(
+                directory, TOKEN, 2762, self.deadline, source_template=source, source_sha256="a" * 64,
+                query_template=query, query_sha256="b" * 64,
+            )
+        self.assertEqual(str(journal.inventory.source_disk_id), receipt["source_disk_id"])
+        self.assertEqual(str(journal.inventory.query_vm), receipt["query_vm"])
+        publish("external-tables-disk-QUERY.json", {"role": "QUERY", "file": "query.vhdx", "id": receipt["source_disk_id"]})
+        with self.assertRaisesRegex(ValueError, "guest or disk differs"):
+            RunJournal.from_detached(directory, TOKEN, 2762)
 
     @staticmethod
     def _probe_result(command, **_):

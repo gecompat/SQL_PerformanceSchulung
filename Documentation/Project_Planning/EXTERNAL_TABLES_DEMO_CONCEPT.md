@@ -741,6 +741,30 @@ unbestätigte Abbau verhindert einen positiven Gesamtbefund. Die
 diese Teilausfälle mit simulierten Gästen. Die konkrete Linux- und
 Hyper-V-Anbindung muss im zugelassenen Pilot noch nachgewiesen werden.
 
+### Getrennte Hyper-V-Ressourcen bereitstellen
+
+Der [Provider-Starter](../../Tests/Runtime/New-ExternalTablesHyperVDetachedRun.ps1)
+prüft beide freigegebenen VHDX-Vorlagen jeweils gegen ihre SHA-256-Werte.
+Für einen zugelassenen Lauf erzeugt er Kopien ohne Überschreiben und
+verifiziert deren Bytes vor Änderung der VHDX-Kennung. Er erstellt zwei
+Generation-2-VMs mit je zwei vCPUs und 4 GiB festem RAM. Die VMs bleiben
+ausgeschaltet und ihre Netzadapter getrennt. Der private Switch bleibt
+bis zur Gastvorbereitung unbelegt.
+
+Der Starter hinterlegt zuerst eine Absichtserklärung im privaten
+Laufverzeichnis. Danach schreibt er die beobachteten IDs bei jeder
+Erstellung separat. Erst nach Bestätigung beider VM-Profile und des
+Switches entsteht die vollständige Bereitstellungsquittung.
+`provision_detached_hyperv` gleicht diese Quittung mit den einzelnen
+Aufzeichnungen ab und bindet sie an das Hostjournal. Nach einem
+unterbrochenen Abruf bleiben die bis dahin aufgezeichneten Identitäten
+für die Wiederaufnahme verfügbar. Ohne vollständige Quittung kann
+der SQL-Ablauf nicht starten.
+
+Das Starten der Gäste, Paket- und TLS-Vorbereitung, die Netzanbindung
+und der neue Gastdienst folgen im zugelassenen Providerablauf.
+[Microsoft-Referenz zur VHDX-Kennung](https://learn.microsoft.com/en-us/powershell/module/hyper-v/set-vhd?view=windowsserver2025-ps).
+
 ### Vorbereitete Gäste am Hyper-V-Host übernehmen
 
 Die [Host-Anbindung](../../Tests/Runtime/external_tables_hyperv_host.py)
