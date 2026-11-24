@@ -102,7 +102,8 @@ class GuestTransport:
         self._event("measurement", token, deadline)
         return MeasurementResult("PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE)
 
-    def close_data_connections(self, token, deadline):
+    def close_data_connections(self, token, login_sids, deadline):
+        assert login_sids == self.login_sids
         self._event("close_data", token, deadline)
         return True
 

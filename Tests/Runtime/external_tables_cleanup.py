@@ -48,9 +48,9 @@ IF DB_ID(N'{db}') IS NOT NULL
 """
 
 
-def drop_pilot_logins_batch(token: str, role: Role, login_sids: Mapping[Principal, bytes]) -> str:
-    """Run in master using SIDs recorded before attempting login creation."""
-    db = database_name(token, role)
+def _login_inventory(
+    token: str, role: Role, login_sids: Mapping[Principal, bytes],
+) -> tuple[dict[Principal, str], str]:
     principals = tuple(principal for principal in Principal if principal.role is role)
     if any(principal not in principals for principal in login_sids):
         raise ValueError("login inventory contains a principal from another guest role")
@@ -58,14 +58,7 @@ def drop_pilot_logins_batch(token: str, role: Role, login_sids: Mapping[Principa
     if len(set(sid_literals.values())) != len(sid_literals):
         raise ValueError("login inventory has duplicate SIDs")
 
-    sql = f"""SET NOCOUNT ON;
-SET XACT_ABORT ON;
-IF DB_NAME() <> N'master'
-    OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'ProductVersion')), N'') <> N'{VERSION}'
-    OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'Edition')), N'') <> N'{EDITION}'
-    OR DB_ID(N'{db}') IS NOT NULL
-    THROW 51076, 'FAIL_CLEANUP: unexpected guest or External Tables database still exists.', 1;
-"""
+    sql = ""
     for principal in principals:
         name = principal_name(token, principal)
         sid_literal = sid_literals.get(principal)
@@ -85,16 +78,58 @@ IF EXISTS (
         AND principal_id <> COALESCE(SUSER_ID(N'{name}'), -1)
 )
     THROW 51077, 'FAIL_OWNERSHIP: External Tables SQL login differs from the inventory.', 1;
-IF EXISTS (SELECT 1 FROM sys.dm_exec_sessions WHERE original_security_id = {sid_literal})
-    THROW 51078, 'FAIL_CLEANUP: an owned External Tables login still has a session.', 1;
 """
+    return sid_literals, sql
+
+
+def _require_closed_sessions(sids: dict[Principal, str]) -> str:
+    return "".join(f"""
+IF EXISTS (SELECT 1 FROM sys.dm_exec_sessions WHERE original_security_id = {sid})
+    THROW 51078, 'FAIL_CLEANUP: an owned External Tables login still has a session.', 1;
+""" for sid in sids.values())
+
+
+def _master_guard() -> str:
+    return f"""SET NOCOUNT ON;
+SET XACT_ABORT ON;
+IF DB_NAME() <> N'master'
+    OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'ProductVersion')), N'') <> N'{VERSION}'
+    OR COALESCE(CONVERT(nvarchar(128), SERVERPROPERTY(N'Edition')), N'') <> N'{EDITION}'
+    THROW 51076, 'FAIL_CLEANUP: unexpected External Tables guest.', 1;
+"""
+
+
+def quiesce_pilot_logins_batch(token: str, role: Role, login_sids: Mapping[Principal, bytes]) -> str:
+    """Disable recorded logins, then confirm no owned session remains."""
+    database_name(token, role)
+    sids, ownership = _login_inventory(token, role, login_sids)
+    sql = _master_guard() + ownership
+    for principal, sid in sids.items():
+        name = principal_name(token, principal)
+        sql += f"""
+IF EXISTS (SELECT 1 FROM sys.server_principals WHERE principal_id = SUSER_ID(N'{name}') AND sid = {sid} AND is_disabled = 0)
+    ALTER LOGIN [{name}] DISABLE;
+IF EXISTS (SELECT 1 FROM sys.server_principals WHERE sid = {sid} AND is_disabled = 0)
+    THROW 51087, 'FAIL_CLEANUP: an owned External Tables login is still enabled.', 1;
+"""
+    return sql + _require_closed_sessions(sids)
+
+
+def drop_pilot_logins_batch(token: str, role: Role, login_sids: Mapping[Principal, bytes]) -> str:
+    """Run in master using SIDs recorded before attempting login creation."""
+    db = database_name(token, role)
+    sid_literals, ownership = _login_inventory(token, role, login_sids)
+    sql = _master_guard() + f"""
+IF DB_ID(N'{db}') IS NOT NULL
+    THROW 51076, 'FAIL_CLEANUP: the External Tables database still exists.', 1;
+""" + ownership + _require_closed_sessions(sid_literals)
     for principal in sid_literals:
         name = principal_name(token, principal)
         sql += f"""
 IF EXISTS (SELECT 1 FROM sys.server_principals WHERE principal_id = SUSER_ID(N'{name}') AND sid = {sid_literals[principal]})
     DROP LOGIN [{name}];
 """
-    for principal in principals:
+    for principal in sid_literals:
         name = principal_name(token, principal)
         sql += f"""
 IF SUSER_ID(N'{name}') IS NOT NULL

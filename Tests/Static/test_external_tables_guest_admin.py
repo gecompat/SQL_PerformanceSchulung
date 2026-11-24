@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_guest_admin import (
     AdminAction, AdminCommand, _MAX_COMMAND, _SIZE, _receive_command, _send_command, invoke_guest_admin,
-    GuestSqlChannel, invoke_guest_measurement,
+    GuestSqlAccess, GuestSqlChannel, invoke_guest_measurement,
 )
 from external_tables_guest_identity import _QUERY, _REPLY, _REQUEST, _RESPONSE
 from external_tables_measurement import MeasurementResult
@@ -35,11 +35,13 @@ class GuestAdminChannelTests(unittest.TestCase):
         self.endpoint = Mock(spec=OdbcPilotAdministration)
         self.deadline = monotonic() + 5
 
-    def round_trip(self, command, role=Role.SOURCE, **capabilities):
+    def round_trip(self, command, role=Role.SOURCE, *, access=None, **capabilities):
+        if access is None:
+            access = GuestSqlAccess(TOKEN, role)
         left, right = socket.socketpair()
         with left, right, ThreadPoolExecutor(max_workers=1) as executor:
             guest = executor.submit(
-                _receive_command, right, TOKEN, role, self.endpoint, self.deadline, **capabilities,
+                _receive_command, right, TOKEN, role, self.endpoint, self.deadline, access=access, **capabilities,
             )
             try:
                 return _send_command(left, command, self.deadline)
@@ -53,7 +55,9 @@ class GuestAdminChannelTests(unittest.TestCase):
         self.assertEqual((db, deadline), ("master", self.deadline))
         self.assertIn(f"CREATE DATABASE [{database_name(TOKEN, Role.SOURCE)}]", sql)
         self.endpoint.reset_mock()
-        self.assertIsNone(self.round_trip(AdminCommand(AdminAction.DROP_LOGINS, ("SOURCE_READER", SID))))
+        access = GuestSqlAccess(TOKEN, Role.SOURCE)
+        self.assertIsNone(self.round_trip(AdminCommand(AdminAction.QUIESCE, ("SOURCE_READER", SID)), access=access))
+        self.assertIsNone(self.round_trip(AdminCommand(AdminAction.DROP_LOGINS, ("SOURCE_READER", SID)), access=access))
         db, sql, _ = self.endpoint.execute.call_args.args
         self.assertEqual(db, "master")
         self.assertIn("0x" + SID.upper(), sql)
@@ -81,6 +85,41 @@ class GuestAdminChannelTests(unittest.TestCase):
         self.endpoint.assert_not_called()
         self.assertFalse(self.endpoint.method_calls)
 
+    def test_cleanup_blocks_new_operations_even_before_session_absence_is_confirmed(self):
+        access = GuestSqlAccess(TOKEN, Role.SOURCE)
+        cleanup = AdminCommand(AdminAction.QUIESCE, ("SOURCE_READER", SID))
+        drop = AdminCommand(AdminAction.DROP_DATABASE)
+        create = AdminCommand(AdminAction.CREATE_DATABASE)
+        with self.assertRaises(OSError):
+            self.round_trip(drop, access=access)
+        self.endpoint.execute.assert_not_called()
+        self.endpoint.execute.side_effect = OSError("recorded session still connected")
+        with self.assertRaises(OSError):
+            self.round_trip(cleanup, access=access)
+        self.endpoint.execute.reset_mock(side_effect=True)
+        for command in (create, drop):
+            with self.assertRaises(OSError):
+                self.round_trip(command, access=access)
+        self.endpoint.execute.assert_not_called()
+        self.assertIsNone(self.round_trip(cleanup, access=access))
+        self.assertIsNone(self.round_trip(drop, access=access))
+        with self.assertRaises(OSError):
+            self.round_trip(create, access=access)
+        self.assertEqual(self.endpoint.execute.call_count, 2)
+
+    @patch("external_tables_guest_admin.invoke_guest_admin")
+    def test_host_attempts_both_guests_and_passes_only_their_recorded_sids(self, invoke):
+        query_vm = UUID(int=VM_ID.int + 1)
+        channel = GuestSqlChannel(TOKEN, VM_ID, query_vm, PORT, b"base", {})
+        source_sid, observer_sid = bytes.fromhex(SID), bytes.fromhex("c" * 32)
+        invoke.side_effect = [OSError("pending query session"), None]
+        self.assertFalse(channel.close_data_connections(
+            TOKEN, {Principal.SOURCE_READER: source_sid, Principal.OBSERVER: observer_sid}, self.deadline,
+        ))
+        first, second = (call.args for call in invoke.call_args_list)
+        self.assertEqual((first[0], first[3], first[4].fields), (query_vm, Role.QUERY, ("OBSERVER", observer_sid.hex())))
+        self.assertEqual((second[0], second[3], second[4].fields), (VM_ID, Role.SOURCE, ("SOURCE_READER", SID)))
+
     def test_incomplete_fixture_does_not_return_success_or_any_rows(self):
         self.endpoint.fixture_rows.return_value = ()
         with self.assertRaisesRegex(OSError, "was not confirmed"):
@@ -97,7 +136,10 @@ class GuestAdminChannelTests(unittest.TestCase):
         for wire in invalid:
             left, right = socket.socketpair()
             with left, right, ThreadPoolExecutor(max_workers=1) as executor:
-                guest = executor.submit(_receive_command, right, TOKEN, Role.SOURCE, self.endpoint, self.deadline)
+                guest = executor.submit(
+                    _receive_command, right, TOKEN, Role.SOURCE, self.endpoint, self.deadline,
+                    access=GuestSqlAccess(TOKEN, Role.SOURCE),
+                )
                 left.sendall(wire)
                 left.shutdown(socket.SHUT_WR)
                 left.settimeout(2)

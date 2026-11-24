@@ -726,10 +726,15 @@ Hyper-V-Anbindung muss im zugelassenen Pilot noch nachgewiesen werden.
 
 ### Abbau und Wiederaufnahme
 
-1. Sperre weitere Demoaufrufe und beende nur eigene ausstehende Requests.
-   Der SQL-Abbau beginnt erst, wenn der Transport die Schließung der
-   Reader- und Connectorverbindungen bestätigt. Bei fehlender Bestätigung
-   bleibt der SQL-Abbau unbestätigt und der Ablauf setzt bei Schritt 4 fort.
+1. Sperre weitere Demoaufrufe auf beiden Gästen. Der Dienst hält diese
+   Sperre ab dem ersten Cleanup-Aufruf für den gesamten Gastlauf.
+   Die [SQL-Prüfung](../../Tests/Runtime/external_tables_cleanup.py)
+   deaktiviert ausschließlich die per Namen und SID aufgezeichneten Logins.
+   Sie bestätigt danach, dass keine Sitzung mit einer dieser ursprünglichen
+   SIDs mehr offen ist. Der Gast erlaubt SQL-Abbau erst nach dieser
+   Bestätigung. Der Host versucht die Prüfung auf beiden Gästen.
+   Bei fehlender Bestätigung bleibt der SQL-Abbau offen und der Ablauf
+   setzt bei Schritt 4 fort.
 2. Prüfe in beiden Datenbanken den vollständigen Laufmarker. Entferne auf dem
    Abfrageknoten externe Tabellen, Datenquellen, Credential und Hauptschlüssel
    in dieser Reihenfolge und danach die eigene Datenbank und ihre Demoanmeldung.

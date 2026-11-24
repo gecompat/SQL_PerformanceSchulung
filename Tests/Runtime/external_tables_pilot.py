@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from secrets import token_bytes, token_hex
 from time import monotonic
@@ -51,7 +52,7 @@ class GuestPilotTransport(Protocol):
     def measure(self, token: str, reader_secret: str, observer_secret: str, deadline: float) -> MeasurementResult:
         """Return the normalized result of the query guest's local measurement."""
 
-    def close_data_connections(self, token: str, deadline: float) -> bool:
+    def close_data_connections(self, token: str, login_sids: Mapping[Principal, bytes], deadline: float) -> bool:
         """Prevent new calls and confirm closure of the owned Reader and connector sessions."""
 
     def remove_verified_guests(self, token: str, deadline: float) -> bool:
@@ -155,7 +156,7 @@ def _cleanup(
     sql_clean = True
     try:
         if attempted:
-            sql_clean = transport.close_data_connections(token, deadline) is True
+            sql_clean = transport.close_data_connections(token, login_sids, deadline) is True
     except (OSError, ValueError):
         sql_clean = False
 

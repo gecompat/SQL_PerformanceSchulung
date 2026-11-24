@@ -4,7 +4,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
-from external_tables_cleanup import drop_pilot_database_batch, drop_pilot_logins_batch
+from external_tables_cleanup import drop_pilot_database_batch, drop_pilot_logins_batch, quiesce_pilot_logins_batch
 from external_tables_pilot_sql import Role
 from external_tables_principals import Principal
 
@@ -47,6 +47,19 @@ class CleanupContractTests(unittest.TestCase):
         self.assertIn("COLLATE Latin1_General_100_BIN2", sql)
         self.assertEqual(sql.count("DROP LOGIN"), 2)
         self.assertNotIn("SqlPerfExtReader_TEST0005", sql)
+
+    def test_quiesce_validates_the_inventory_disables_owned_logins_and_checks_sessions(self):
+        sql = quiesce_pilot_logins_batch(TOKEN, Role.QUERY, {
+            Principal.QUERY_READER: READER_SID, Principal.OBSERVER: OBSERVER_SID,
+        })
+        first_disable = sql.index("ALTER LOGIN")
+        for name in ("SqlPerfExtQueryReader_TEST0005", "SqlPerfExtObserver_TEST0005"):
+            self.assertLess(sql.index(f"SUSER_ID(N'{name}')"), first_disable)
+            self.assertIn(f"ALTER LOGIN [{name}] DISABLE", sql)
+        for sid in ("1A", "2B"):
+            self.assertGreater(sql.index(f"original_security_id = 0x{sid * 16}"), sql.rindex("ALTER LOGIN"))
+        self.assertNotIn("KILL ", sql)
+        self.assertNotIn("DROP ", sql)
 
     def test_partial_inventory_rejects_adoption_of_an_unrecorded_login(self):
         sql = drop_pilot_logins_batch(TOKEN, Role.QUERY, {Principal.OBSERVER: OBSERVER_SID})

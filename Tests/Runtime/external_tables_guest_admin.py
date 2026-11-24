@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterator, Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from enum import Enum
 import json
 from socket import socket
 from struct import Struct
+from threading import Lock
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from external_tables_cleanup import drop_pilot_database_batch, drop_pilot_logins_batch
+from external_tables_cleanup import drop_pilot_database_batch, drop_pilot_logins_batch, quiesce_pilot_logins_batch
 from external_tables_guest_identity import (
     _receive, _remaining, _reply_to_probe, _send, accept_parent_connection, connect_verified_guest, linux_service_id,
 )
@@ -47,6 +49,7 @@ class AdminAction(Enum):
     DATABASE_EXISTS = "database_exists"
     DROP_DATABASE = "drop_database"
     DROP_LOGINS = "drop_logins"
+    QUIESCE = "quiesce"
 
 
 @dataclass(frozen=True)
@@ -72,6 +75,37 @@ _NO_FIELDS = {
 _QUERY_ONLY = {AdminAction.CREATE_CREDENTIAL, AdminAction.CREATE_EXTERNAL_TABLES, AdminAction.CREATE_STATISTICS}
 
 
+class GuestSqlAccess:
+    """Keep one access state for the guest service's entire run."""
+
+    def __init__(self, token: str, role: Role) -> None:
+        self._identity = token, role
+        self._lock = Lock()
+        self._closing = False
+        self._closed = False
+
+    @contextmanager
+    def command(self, token: str, role: Role, action: AdminAction, deadline: float) -> Iterator[None]:
+        if (token, role) != self._identity:
+            raise ValueError("guest command differs from the configured run or role")
+        if not self._lock.acquire(timeout=_remaining(deadline)):
+            raise TimeoutError("guest command did not acquire its service scope")
+        try:
+            if action is AdminAction.QUIESCE:
+                self._closing = True
+                self._closed = False
+            elif action in (AdminAction.DROP_DATABASE, AdminAction.DROP_LOGINS):
+                if not self._closed:
+                    raise ValueError("guest has not confirmed that its logins are closed")
+            elif self._closing and action is not AdminAction.DATABASE_EXISTS:
+                raise ValueError("guest is in SQL cleanup")
+            yield
+            if action is AdminAction.QUIESCE:
+                self._closed = True
+        finally:
+            self._lock.release()
+
+
 def dispatch_admin(
     admin: OdbcPilotAdministration, token: str, role: Role, command: AdminCommand, deadline: float,
 ) -> bool | None:
@@ -95,13 +129,14 @@ def dispatch_admin(
         admin.execute(db, create_connector_credential_batch(token, *fields), deadline)
     elif action is AdminAction.DATABASE_EXISTS and not fields:
         return admin.database_exists(db, deadline)
-    elif action is AdminAction.DROP_LOGINS and len(fields) in (0, 2, 4):
+    elif action in (AdminAction.DROP_LOGINS, AdminAction.QUIESCE) and len(fields) in (0, 2, 4):
         principals = {
             _principal(name, role): _sid(sid) for name, sid in zip(fields[::2], fields[1::2], strict=True)
         }
         if len(principals) * 2 != len(fields):
             raise ValueError("duplicate principal in guest cleanup command")
-        admin.execute("master", drop_pilot_logins_batch(token, role, principals), deadline)
+        builder = quiesce_pilot_logins_batch if action is AdminAction.QUIESCE else drop_pilot_logins_batch
+        admin.execute("master", builder(token, role, principals), deadline)
     else:
         raise ValueError("invalid guest administration command")
     return None
@@ -195,6 +230,21 @@ class GuestSqlChannel:
             base_status=self.base_status, package_lock=self.package_lock,
         )
 
+    def close_data_connections(self, token: str, login_sids: Mapping[Principal, bytes], deadline: float) -> bool:
+        self._verify_token(token)
+        confirmed = True
+        for role in (Role.QUERY, Role.SOURCE):
+            fields = tuple(
+                field for principal, sid in login_sids.items() if principal.role is role
+                for field in (principal.name, sid.hex())
+            )
+            try:
+                if self.admin(role, AdminCommand(AdminAction.QUIESCE, fields), deadline) is not None:
+                    confirmed = False
+            except (OSError, ValueError):
+                confirmed = False
+        return confirmed
+
     def _verify_token(self, token: str) -> None:
         if token != self.token:
             raise ValueError("unexpected guest channel run token")
@@ -236,6 +286,7 @@ def _encode_measurement(result: MeasurementResult) -> bytes:
 
 def serve_guest_admin(
     port: int, token: str, role: Role, open_admin: Callable[[str, int], Connection], deadline: float, *,
+    access: GuestSqlAccess,
     open_principal: PrincipalConnection | None = None,
     source_driver: OdbcDriver | None = None,
     network: GuestNetwork | None = None,
@@ -245,12 +296,13 @@ def serve_guest_admin(
         _reply_to_probe(channel, token, role, deadline)
         _receive_command(
             channel, token, role, OdbcPilotAdministration(token, role, open_admin), deadline,
-            open_principal=open_principal, source_driver=source_driver, network=network,
+            access=access, open_principal=open_principal, source_driver=source_driver, network=network,
         )
 
 
 def _receive_command(
     channel: socket, token: str, role: Role, admin: OdbcPilotAdministration, deadline: float, *,
+    access: GuestSqlAccess,
     open_principal: PrincipalConnection | None = None,
     source_driver: OdbcDriver | None = None,
     network: GuestNetwork | None = None,
@@ -263,24 +315,25 @@ def _receive_command(
         if type(fields) is not list or not fields or any(type(field) is not str for field in fields):
             raise ValueError("expected bounded guest command fields")
         command = AdminCommand(AdminAction(fields[0]), tuple(fields[1:]))
-        if command.action is AdminAction.CHECK_PRINCIPAL:
-            if open_principal is None or len(command.fields) != 2:
-                raise ValueError("guest principal check is unavailable")
-            name, secret = command.fields
-            verify_guest_principal(token, _principal(name, role), secret, deadline, open_principal)
-            reply = _DONE
-        elif command.action is AdminAction.CHECK_SOURCE_TLS:
-            if role is not Role.QUERY or source_driver is None or network is None or len(command.fields) != 1:
-                raise ValueError("guest source TLS check is unavailable")
-            verify_source_tls(source_driver, token, command.fields[0], deadline, network=network)
-            reply = _DONE
-        elif command.action is AdminAction.MEASURE:
-            if role is not Role.QUERY or open_principal is None or len(command.fields) != 2:
-                raise ValueError("query guest measurement is unavailable")
-            reply = _encode_measurement(run_guest_measurement(token, *command.fields, deadline, open_principal))
-        else:
-            result = dispatch_admin(admin, token, role, command, deadline)
-            reply = _PRESENT if result is True else _ABSENT if result is False else _DONE
+        with access.command(token, role, command.action, deadline):
+            if command.action is AdminAction.CHECK_PRINCIPAL:
+                if open_principal is None or len(command.fields) != 2:
+                    raise ValueError("guest principal check is unavailable")
+                name, secret = command.fields
+                verify_guest_principal(token, _principal(name, role), secret, deadline, open_principal)
+                reply = _DONE
+            elif command.action is AdminAction.CHECK_SOURCE_TLS:
+                if role is not Role.QUERY or source_driver is None or network is None or len(command.fields) != 1:
+                    raise ValueError("guest source TLS check is unavailable")
+                verify_source_tls(source_driver, token, command.fields[0], deadline, network=network)
+                reply = _DONE
+            elif command.action is AdminAction.MEASURE:
+                if role is not Role.QUERY or open_principal is None or len(command.fields) != 2:
+                    raise ValueError("query guest measurement is unavailable")
+                reply = _encode_measurement(run_guest_measurement(token, *command.fields, deadline, open_principal))
+            else:
+                result = dispatch_admin(admin, token, role, command, deadline)
+                reply = _PRESENT if result is True else _ABSENT if result is False else _DONE
     except (OSError, ValueError, RecursionError):
         reply = _REJECTED
     _send(channel, reply, deadline)
