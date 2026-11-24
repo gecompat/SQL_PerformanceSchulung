@@ -246,6 +246,43 @@ def _is_certificate_name_rejection(failure: Exception) -> bool:
     return "ssl provider:" in message and "subject name does not match host name" in message
 
 
+class LocalGuestConnections:
+    """Open dedicated SQL sessions on the verified guest's own TCP loopback."""
+
+    def __init__(self, driver: OdbcDriver, token: str, role: Role, admin_secret: str) -> None:
+        if driver.pooling is not False or not PASSWORD.fullmatch(admin_secret):
+            raise ValueError("guest requires a generated login secret and disabled ODBC pooling")
+        self._driver = driver
+        self._role = role
+        self._token = token
+        self._database = database_name(token, role)
+        self._admin_secret = admin_secret
+
+    def admin(self, database: str, timeout: int) -> Connection:
+        if database not in ("master", self._database):
+            raise ValueError("unexpected local admin database")
+        return self._connect(database, "sa", self._admin_secret, timeout)
+
+    def principal(self, principal: Principal, secret: str, timeout: int) -> Connection:
+        if not isinstance(principal, Principal) or principal.role is not self._role or not PASSWORD.fullmatch(secret):
+            raise ValueError("unexpected local guest principal")
+        return self._connect(self._database, principal_name(self._token, principal), secret, timeout)
+
+    def _connect(self, database: str, login: str, secret: str, timeout: int) -> Connection:
+        if type(timeout) is not int or timeout < 1:
+            raise ValueError("unexpected local SQL timeout")
+        # The endpoint is loopback within the verified guest. Connections
+        # across the private switch use the separate CA-verified TLS path.
+        settings = (
+            f"Driver={{ODBC Driver 18 for SQL Server}};Server=tcp:127.0.0.1,{SOURCE_PORT};Database={database};UID={login};PWD={secret};"
+            "Encrypt=Yes;TrustServerCertificate=Yes;MARS_Connection=No;ConnectRetryCount=0;"
+        )
+        try:
+            return self._driver.connect(settings, timeout=timeout, autocommit=True)
+        except Exception:
+            raise OSError("local guest ODBC connection failed") from None
+
+
 class OdbcPilotAdministration:
     """Execute trusted pilot SQL inside a host-verified guest.
 

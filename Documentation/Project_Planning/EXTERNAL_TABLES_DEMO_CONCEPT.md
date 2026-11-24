@@ -527,8 +527,25 @@ Die Antwort enthält den geprüften Status und die Messphase aus einem
 festen Wertebereich. SQL-Handles, Rohzeilen und Remote-Abfragetexte
 bleiben im Gast. Unbestätigtes Schließen von Messverbindungen führt zu
 `FAIL_CLEANUP`.
-Die Bereitstellung des Gastdienstes und der positive Aufruf auf zwei
-Hyper-V-Gästen bleiben Teil des Pilotlaufs.
+Der [Gastdienst](../../Tests/Runtime/external_tables_guest_service.py)
+wird einmal je vorbereiteter VM gestartet. Der Starter übergibt
+Laufkennung, Rolle, VSOCK-Port und die festgelegten Gastadressen als
+Parameter. Das erzeugte Admin-Kennwort gelangt ausschließlich über
+die private Standardeingabe zum Dienst. Der Starter schließt die Pipe
+direkt nach dem Kennwort. Der Dienst prüft Netzwerk und Treiber vor
+der ersten Annahme, verwendet einen Listener bis zum Laufende und
+behält die Cleanup-Sperre zwischen Verbindungen. Sein Zeitlimit
+umfasst 600 Sekunden für den Versuch und 120 Sekunden für den Abbau.
+Eine unvollständige Nachricht wird nach höchstens fünf Sekunden
+abgewiesen, damit weitere Hostverbindungen möglich bleiben.
+
+Die Admin- und Rollenverbindungen sind fest auf IPv4-Loopback
+beschränkt. Sie verwenden `Encrypt=Yes;TrustServerCertificate=Yes`
+innerhalb der geprüften Gastinstanz. Die Verbindung
+zwischen den Gästen prüft separat die Labor-CA und den Quellnamen.
+Die Bereitstellung aus dem Hyper-V-Starter und der positive Aufruf auf
+beiden echten Pilotgästen bleiben Teil des zugelassenen Laufs.
+[Microsoft-Referenz zu den ODBC-Verbindungsoptionen](https://learn.microsoft.com/en-us/sql/connect/odbc/dsn-connection-string-attribute?view=sql-server-ver17).
 
 ### Private Gastadressen und Routing nach der Anbindung
 

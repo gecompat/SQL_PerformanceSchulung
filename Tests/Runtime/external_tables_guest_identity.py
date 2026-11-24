@@ -86,6 +86,18 @@ def serve_guest_identity(port: int, token: str, role: Role, deadline: float) -> 
 @contextmanager
 def accept_parent_connection(port: int, deadline: float) -> Iterator[socket.socket]:
     """Accept one connection from the Linux guest's host partition."""
+    with open_parent_listener(port) as (listener, host_cid):
+        listener.settimeout(_remaining(deadline))
+        channel, (peer_cid, _) = listener.accept()
+        with channel:
+            if peer_cid != host_cid:
+                raise ValueError("guest identity probe did not come from the parent")
+            yield channel
+
+
+@contextmanager
+def open_parent_listener(port: int) -> Iterator[tuple[socket.socket, int]]:
+    """Bind the configured guest VSOCK port once."""
     linux_service_id(port)
     try:
         family, any_cid, host_cid = socket.AF_VSOCK, socket.VMADDR_CID_ANY, socket.VMADDR_CID_HOST
@@ -94,12 +106,7 @@ def accept_parent_connection(port: int, deadline: float) -> Iterator[socket.sock
     with socket.socket(family, socket.SOCK_STREAM) as listener:
         listener.bind((any_cid, port))
         listener.listen(1)
-        listener.settimeout(_remaining(deadline))
-        channel, (peer_cid, _) = listener.accept()
-        with channel:
-            if peer_cid != host_cid:
-                raise ValueError("guest identity probe did not come from the parent")
-            yield channel
+        yield listener, host_cid
 
 
 def _reply_to_probe(channel: socket.socket, token: str, role: Role, deadline: float) -> None:
