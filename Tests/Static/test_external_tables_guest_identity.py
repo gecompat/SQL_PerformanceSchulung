@@ -5,6 +5,7 @@ import socket
 import sys
 from tempfile import TemporaryDirectory
 from time import monotonic
+from types import SimpleNamespace
 import unittest
 from unittest.mock import MagicMock, patch
 from uuid import UUID
@@ -13,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_guest_identity import (
     _DETACHED_QUERY, _DETACHED_REPLY, _REQUEST, _RESPONSE, _QUERY, _REPLY, _receive, _reply_to_probe,
-    linux_service_id, serve_guest_identity, verify_guest,
+    linux_service_id, require_registered_hyperv_ports, serve_guest_identity, verify_guest,
 )
 from external_tables_package_state import installed_package_digest
 from external_tables_pilot_sql import Role
@@ -39,6 +40,28 @@ class GuestIdentityTests(unittest.TestCase):
         for invalid in (True, 22, 65536, "2761"):
             with self.subTest(port=invalid), self.assertRaises(ValueError):
                 linux_service_id(invalid)
+
+    def test_service_registration_reads_only_two_exact_registry_keys(self):
+        key = MagicMock()
+        key.__enter__.return_value = key
+        registry = SimpleNamespace(
+            HKEY_LOCAL_MACHINE=MagicMock(), KEY_READ=0x20019, KEY_WOW64_64KEY=0x100, REG_SZ=1,
+            OpenKey=MagicMock(return_value=key), QueryValueEx=MagicMock(return_value=("Guest service", 1)),
+        )
+        with patch.dict(sys.modules, {"winreg": registry}):
+            require_registered_hyperv_ports(PORT, PORT + 1)
+            self.assertEqual(registry.OpenKey.call_count, 2)
+            for call, port in zip(registry.OpenKey.call_args_list, (PORT, PORT + 1)):
+                args = call.args
+                self.assertIs(args[0], registry.HKEY_LOCAL_MACHINE)
+                self.assertEqual(args[1].split("\\")[-2:], ["GuestCommunicationServices", str(linux_service_id(port))])
+                self.assertEqual(args[2:], (0, registry.KEY_READ | registry.KEY_WOW64_64KEY))
+            self.assertEqual([call.args for call in registry.QueryValueEx.call_args_list], [(key, "ElementName")] * 2)
+            with self.assertRaisesRegex(ValueError, "distinct"):
+                require_registered_hyperv_ports(PORT, PORT)
+            registry.OpenKey.side_effect = [key, FileNotFoundError()]
+            with self.assertRaisesRegex(OSError, "both Hyper-V guest services"):
+                require_registered_hyperv_ports(PORT, PORT + 1)
 
     def test_guest_reads_fragmented_probe_and_returns_correlated_identity(self):
         deadline = monotonic() + 4

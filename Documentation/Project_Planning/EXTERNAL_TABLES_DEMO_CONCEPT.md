@@ -780,6 +780,12 @@ Die [Hyper-V-Startsteuerung](../../Tests/Runtime/Start-ExternalTablesHyperVOwned
 prüft die aufgezeichneten Ressourcen und startet ausschließlich die beiden
 eigenen, vom Netz getrennten Gäste. Der Host ruft sie im Pilotablauf auf,
 wenn der Provider beim Start einen separaten Bootstrap-Port vorgibt.
+Der zugelassene Provider registriert die Dienstkennungen beider virtueller
+Socket-Ports am Windows-Host. Die Startsteuerung liest vor dem ersten
+Laufanspruch beide konkreten Registrierungsschlüssel. Bei einem fehlenden
+Eintrag startet sie keine VM.
+[Microsoft-Referenz zur Registrierung von Hyper-V-Socket-Diensten](https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/make-integration-service).
+
 Der Pilot öffnet den privaten Switch erst nach erfolgreichem Nachweis
 beider Rollen. Er legt genau einen Adapter pro Gast an und bindet ihn
 an den aufgezeichneten Switch. Anschließend prüft er dessen Mitgliedschaft

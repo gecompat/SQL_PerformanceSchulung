@@ -139,7 +139,6 @@ class HyperVHostTests(unittest.TestCase):
                 journal = RunJournal(directory, inventory)
                 journal.bind()
                 events = []
-                transport = HyperVPreparedTransport(journal, b"base", {}, bootstrap_port=2763)
 
                 def bounded(command, **options):
                     name = Path(command[4]).stem
@@ -169,7 +168,9 @@ class HyperVHostTests(unittest.TestCase):
                 with (
                     patch("external_tables_hyperv_host.collect_bounded_process", side_effect=bounded),
                     patch("external_tables_hyperv_host.verify_guest", side_effect=verify),
+                    patch("external_tables_hyperv_host.require_registered_hyperv_ports") as registration,
                 ):
+                    transport = HyperVPreparedTransport(journal, b"base", {}, bootstrap_port=2763)
                     if missing:
                         with self.assertRaisesRegex(ValueError, "readiness mismatch"):
                             transport.start_verified_guests(TOKEN, self.deadline)
@@ -178,11 +179,27 @@ class HyperVHostTests(unittest.TestCase):
                     else:
                         transport.start_verified_guests(TOKEN, self.deadline)
                     self.assertTrue(transport.remove_verified_guests(TOKEN, self.deadline))
+                registration.assert_called_once_with(2763, inventory.service_port)
 
                 expected = ["Boot", "Test-ExternalTablesHyperVResources", (True, Role.SOURCE), (True, Role.QUERY)]
                 if missing is None:
                     expected.extend(["Attach", "Test-ExternalTablesHyperVNetwork", (False, Role.SOURCE), (False, Role.QUERY)])
                 self.assertEqual(events, [*expected, "remove", "Test-ExternalTablesHyperVAbsence"])
+
+    def test_missing_host_registration_does_not_claim_or_start_the_run(self):
+        directory = self.directory / "ports"
+        directory.mkdir()
+        inventory = replace(self.inventory, source_disk_id=uuid4(), query_disk_id=uuid4())
+        journal = RunJournal(directory, inventory)
+        journal.bind()
+        with (
+            patch("external_tables_hyperv_host.require_registered_hyperv_ports", side_effect=OSError("missing registration")),
+            patch("external_tables_hyperv_host.collect_bounded_process") as process,
+        ):
+            with self.assertRaisesRegex(OSError, "missing registration"):
+                run_prepared_hyperv_pilot(journal, b"base", {}, bootstrap_port=2763)
+        process.assert_not_called()
+        journal.claim_work()
 
     def test_default_cleanup_requires_disk_ids_and_checks_absence_after_removal(self):
         legacy = HyperVPreparedTransport(self.journal, b"base", {})

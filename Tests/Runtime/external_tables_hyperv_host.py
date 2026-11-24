@@ -13,7 +13,7 @@ from uuid import UUID
 
 from dgn004_capture_runner import CaptureRunnerError, collect_bounded_process
 from external_tables_guest_admin import AdminCommand, GuestSqlChannel
-from external_tables_guest_identity import _remaining, linux_service_id, verify_guest
+from external_tables_guest_identity import _remaining, linux_service_id, require_registered_hyperv_ports, verify_guest
 from external_tables_measurement import MeasurementResult
 from external_tables_pilot import PilotResult, run_pilot
 from external_tables_pilot_sql import Role, database_name
@@ -229,6 +229,8 @@ class HyperVPreparedTransport:
             linux_service_id(bootstrap_port)
             if bootstrap_port == self._inventory.service_port or self._inventory.source_disk_id is None:
                 raise ValueError("External Tables requires distinct preparation and SQL ports and recorded VHDX IDs")
+            journal.require_binding()
+            require_registered_hyperv_ports(bootstrap_port, self._inventory.service_port)
         self._bootstrap_port = bootstrap_port
         self._base_status = base_status
         self._package_lock = package_lock
