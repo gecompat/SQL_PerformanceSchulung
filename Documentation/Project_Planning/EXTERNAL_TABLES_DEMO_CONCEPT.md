@@ -755,8 +755,11 @@ PolyBase-Lauf über den privaten Switch aus.
 Der [Pilotablauf](../../Tests/Runtime/external_tables_pilot.py) verbindet
 Gastvorbereitung, Datenbankanlage, Datenabgleich, Rechteprüfung, TLS-Probe,
 Statistikaufbau, Messung und Abbau. Er verwendet eine gemeinsame Frist von
-600 Sekunden für den Versuch und danach 120 Sekunden für den Abbau. Der
-Gasttransport muss Eigentum, Paketstand, Isolation und Ressourcengrenzen
+600 Sekunden für den Versuch und danach 120 Sekunden für den Abbau. Der Host
+übermittelt mit jedem SQL-Auftrag seine verbleibende Zeit als Dauer.
+Der Gast begrenzt die Ausführung auf diese Dauer und seine eigene Frist.
+Nach Ende der Arbeitsfrist nimmt er nur noch SQL-Abbauaufträge an.
+Der Gasttransport muss Eigentum, Paketstand, Isolation und Ressourcengrenzen
 belegen, bevor SQL ausgeführt wird. Er speichert die Login-SIDs vor der
 Erstellung. Der Ablauf reserviert den Abbau für jede Datenbank bereits
 vor dem ersten Einrichtungsaufruf.

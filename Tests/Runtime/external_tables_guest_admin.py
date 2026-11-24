@@ -61,6 +61,7 @@ class AdminCommand:
 
 
 _SIZE = Struct("!H")
+_COMMAND_HEADER = Struct("!IH")
 _MAX_COMMAND = 1024
 _REJECTED, _DONE, _ABSENT, _PRESENT = b"\x00", b"\x01", b"\x02", b"\x03"
 _MEASUREMENT = b"\x04"
@@ -75,6 +76,9 @@ _NO_FIELDS = {
     AdminAction.CREATE_STATISTICS: statistics_batch,
     AdminAction.DROP_DATABASE: drop_pilot_database_batch,
 }
+_CLEANUP_ACTIONS = frozenset((
+    AdminAction.QUIESCE, AdminAction.DATABASE_EXISTS, AdminAction.DROP_DATABASE, AdminAction.DROP_LOGINS,
+))
 _QUERY_ONLY = {AdminAction.CREATE_CREDENTIAL, AdminAction.CREATE_EXTERNAL_TABLES, AdminAction.CREATE_STATISTICS}
 
 
@@ -257,7 +261,10 @@ def _send_command(channel: socket, command: AdminCommand, deadline: float) -> bo
     payload = json.dumps([command.action.value, *command.fields], separators=(",", ":")).encode("ascii")
     if not 0 < len(payload) <= _MAX_COMMAND:
         raise ValueError("guest administration command exceeds its frame")
-    _send(channel, _SIZE.pack(len(payload)) + payload, deadline)
+    budget_ms = int(_remaining(deadline) * 1000)
+    if not 0 < budget_ms <= 0xFFFFFFFF:
+        raise TimeoutError("guest administration budget cannot be encoded")
+    _send(channel, _COMMAND_HEADER.pack(budget_ms, len(payload)) + payload, deadline)
     reply = _receive(channel, 1, deadline)
     if command.action is AdminAction.DATABASE_EXISTS:
         if reply in (_ABSENT, _PRESENT):
@@ -303,6 +310,7 @@ def serve_guest_admin(
     open_principal: PrincipalConnection | None = None,
     source_driver: OdbcDriver | None = None,
     network: GuestNetwork | None = None,
+    work_deadline: float | None = None,
 ) -> None:
     """Serve sequential parent requests under one bounded guest lifecycle."""
     admin = OdbcPilotAdministration(token, role, open_admin)
@@ -323,7 +331,7 @@ def serve_guest_admin(
                     _reply_to_probe(channel, token, role, input_deadline)
                     _receive_command(
                         channel, token, role, admin, deadline, access=access, open_principal=open_principal,
-                        source_driver=source_driver, network=network, input_deadline=input_deadline,
+                        source_driver=source_driver, network=network, input_deadline=input_deadline, work_deadline=work_deadline,
                     )
                 except (OSError, ValueError):
                     # A failed or expired peer cannot reset admission or stop cleanup.
@@ -337,36 +345,41 @@ def _receive_command(
     source_driver: OdbcDriver | None = None,
     network: GuestNetwork | None = None,
     input_deadline: float | None = None,
+    work_deadline: float | None = None,
 ) -> None:
     receive_until = deadline if input_deadline is None else min(deadline, input_deadline)
     try:
-        (size,) = _SIZE.unpack(_receive(channel, _SIZE.size, receive_until))
-        if not 0 < size <= _MAX_COMMAND:
+        received_at = monotonic()
+        budget_ms, size = _COMMAND_HEADER.unpack(_receive(channel, _COMMAND_HEADER.size, receive_until))
+        if not budget_ms or not 0 < size <= _MAX_COMMAND:
             raise ValueError("guest administration command exceeds its frame")
         fields = json.loads(_receive(channel, size, receive_until).decode("ascii"))
         if type(fields) is not list or not fields or any(type(field) is not str for field in fields):
             raise ValueError("expected bounded guest command fields")
         command = AdminCommand(AdminAction(fields[0]), tuple(fields[1:]))
-        with access.command(token, role, command.action, deadline):
+        command_deadline = min(deadline, received_at + budget_ms / 1000)
+        if work_deadline is not None and command.action not in _CLEANUP_ACTIONS:
+            command_deadline = min(command_deadline, work_deadline)
+        with access.command(token, role, command.action, command_deadline):
             if command.action is AdminAction.CHECK_PRINCIPAL:
                 if open_principal is None or len(command.fields) != 2:
                     raise ValueError("guest principal check is unavailable")
                 name, secret = command.fields
-                verify_guest_principal(token, _principal(name, role), secret, deadline, open_principal)
+                verify_guest_principal(token, _principal(name, role), secret, command_deadline, open_principal)
                 reply = _DONE
             elif command.action is AdminAction.CHECK_SOURCE_TLS:
                 if role is not Role.QUERY or source_driver is None or network is None or len(command.fields) != 1:
                     raise ValueError("guest source TLS check is unavailable")
-                verify_source_tls(source_driver, token, command.fields[0], deadline, network=network)
+                verify_source_tls(source_driver, token, command.fields[0], command_deadline, network=network)
                 reply = _DONE
             elif command.action is AdminAction.MEASURE:
                 if role is not Role.QUERY or open_principal is None or len(command.fields) != 2:
                     raise ValueError("query guest measurement is unavailable")
                 reply = _encode_measurement(
-                    run_guest_measurement(token, *command.fields, deadline, open_principal, network=network),
+                    run_guest_measurement(token, *command.fields, command_deadline, open_principal, network=network),
                 )
             else:
-                result = dispatch_admin(admin, token, role, command, deadline)
+                result = dispatch_admin(admin, token, role, command, command_deadline)
                 reply = _PRESENT if result is True else _ABSENT if result is False else _DONE
     except (OSError, ValueError, RecursionError):
         reply = _REJECTED

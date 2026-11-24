@@ -75,7 +75,7 @@ def run_guest_engine(
         verify_polybase_service(deadline)
     serve_guest_admin(
         port, token, role, connections.admin, deadline + CLEANUP_SECONDS, open_principal=connections.principal,
-        source_driver=driver if role is Role.QUERY else None, network=network,
+        source_driver=driver if role is Role.QUERY else None, network=network, work_deadline=deadline,
     )
 
 
@@ -133,7 +133,7 @@ def main(argv: list[str] | None = None, *, secret_fd: int = 0) -> int:
         )
         serve_guest_admin(
             port, args.token, role, connections.admin, deadline, open_principal=connections.principal,
-            source_driver=driver if role is Role.QUERY else None, network=network,
+            source_driver=driver if role is Role.QUERY else None, network=network, work_deadline=deadline - CLEANUP_SECONDS,
         )
     except (KeyError, OSError, ValueError):
         print("EXTERNAL_TABLES_GUEST_SERVICE|FAIL", file=sys.stderr)

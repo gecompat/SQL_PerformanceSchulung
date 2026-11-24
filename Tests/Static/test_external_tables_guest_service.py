@@ -154,6 +154,7 @@ class GuestServiceTests(unittest.TestCase):
                     expected.append(call.serve(
                         PORT, TOKEN, Role.QUERY, events.connections.admin, deadline + 120,
                         open_principal=events.connections.principal, source_driver=events.driver, network=network,
+                        work_deadline=deadline,
                     ))
                 self.assertEqual(events.mock_calls, expected)
 
