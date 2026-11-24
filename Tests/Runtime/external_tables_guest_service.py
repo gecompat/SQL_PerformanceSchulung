@@ -17,6 +17,7 @@ from external_tables_guest_network import GuestNetwork, verify_guest_network
 from external_tables_odbc import LocalGuestConnections, load_pinned_pyodbc
 from external_tables_pilot import CLEANUP_SECONDS, WORK_SECONDS
 from external_tables_pilot_sql import Role, database_name
+from external_tables_source_firewall import SOURCE_INTERFACE, verify_source_firewall
 from external_tables_principals import PASSWORD
 
 
@@ -63,7 +64,11 @@ def main(argv: list[str] | None = None, *, secret_fd: int = 0) -> int:
         database_name(args.token, role)
         network = GuestNetwork(IPv4Interface(args.source_address), IPv4Interface(args.query_address))
         admin_secret = read_startup_secret(secret_fd, min(deadline, monotonic() + 5))
-        verify_guest_network(network, role, deadline)
+        interface = verify_guest_network(network, role, deadline)
+        if role is Role.SOURCE:
+            if interface != SOURCE_INTERFACE:
+                raise ValueError("guest interface does not match its source firewall")
+            verify_source_firewall(network, SOURCE_INTERFACE, deadline)
         wheel_lock = json.loads(_LOCK.read_text(encoding="utf-8"))["python_wheel"]
         driver = load_pinned_pyodbc(Path(args.wheel_directory), wheel_lock)
         connections = LocalGuestConnections(driver, args.token, role, admin_secret)

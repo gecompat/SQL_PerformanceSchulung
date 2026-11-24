@@ -117,17 +117,29 @@ class GuestServiceTests(unittest.TestCase):
         with (
             patch("external_tables_guest_service.sys.platform", "linux"),
             patch("external_tables_guest_service.read_startup_secret", return_value=SECRET) as read_secret,
-            patch("external_tables_guest_service.verify_guest_network") as verify_network,
+            patch("external_tables_guest_service.verify_guest_network", return_value="sqlperf0") as verify_network,
+            patch("external_tables_guest_service.verify_source_firewall") as verify_firewall,
             patch("external_tables_guest_service.load_pinned_pyodbc", return_value=driver) as load,
             patch("external_tables_guest_service.serve_guest_admin") as serve,
         ):
             self.assertEqual(main(list(ARGV), secret_fd=7), 0)
             self.assertEqual(read_secret.call_args.args[0], 7)
             self.assertEqual(verify_network.call_args.args[1], Role.SOURCE)
+            verify_firewall.assert_called_once()
+            self.assertEqual(verify_firewall.call_args.args[1], "sqlperf0")
             load.assert_called_once()
             self.assertEqual(serve.call_args.args[:3], (PORT, TOKEN, Role.SOURCE))
             self.assertIsNone(serve.call_args.kwargs["source_driver"])
             serve.reset_mock()
+            verify_network.return_value = "unknown"
+            with redirect_stderr(StringIO()):
+                self.assertEqual(main(list(ARGV), secret_fd=7), 1)
+            serve.assert_not_called()
+            verify_network.return_value = "sqlperf0"
+            verify_firewall.side_effect = OSError(SECRET)
+            with redirect_stderr(StringIO()):
+                self.assertEqual(main(list(ARGV), secret_fd=7), 1)
+            serve.assert_not_called()
             verify_network.side_effect = OSError(SECRET)
             with redirect_stderr(StringIO()) as diagnostic:
                 self.assertEqual(main(list(ARGV), secret_fd=7), 1)

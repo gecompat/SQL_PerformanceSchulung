@@ -46,6 +46,7 @@ function New-VM {
     $vm = [pscustomobject]@{
         Id=[guid]::NewGuid(); Name=$Name; State='Off'; Notes=''; ProcessorCount=0; VHDPath=$VHDPath
         MemoryStartup=$MemoryStartupBytes; DynamicMemoryEnabled=$true
+        HasAdapter=$true
     }
     $fakeGuests[$vm.Id] = $vm
     $fakeEvents.Add('vm')
@@ -70,16 +71,28 @@ function Set-VMFirmware {
 }
 function Get-VMNetworkAdapter {
     param($VM, [switch] $All)
-    if ($All) {
-        foreach ($guest in $fakeGuests.Values) { [pscustomobject]@{ VMId=$guest.Id; SwitchId=$null } }
-    } else {
-        [pscustomobject]@{ VMId=$VM.Id; SwitchId=$null }
+    $guests = if ($All) { $fakeGuests.Values } else { $VM }
+    foreach ($guest in $guests) {
+        if ($guest.HasAdapter) { [pscustomobject]@{ VMId=$guest.Id; SwitchId=$null } }
+    }
+}
+function Remove-VMNetworkAdapter {
+    param($VMNetworkAdapter, [switch] $Confirm)
+    foreach ($adapter in $VMNetworkAdapter) {
+        $guest = $fakeGuests[$adapter.VMId]
+        if ($guest.State -cne 'Off' -or -not $guest.HasAdapter -or $adapter.SwitchId) {
+            throw 'Unexpected network adapter removal.'
+        }
+        $guest.HasAdapter = $false
+        $fakeEvents.Add('nic-removed')
     }
 }
 function Get-VMHardDiskDrive { param($VM); [pscustomobject]@{Path=$VM.VHDPath} }
 function New-VMSwitch {
     param($Name, $SwitchType)
-    if ($SwitchType -cne 'Private' -or $fakeGuests.Count -ne 2) { throw 'Unexpected switch profile.' }
+    if ($SwitchType -cne 'Private' -or $fakeGuests.Count -ne 2 -or @($fakeGuests.Values | Where-Object HasAdapter).Count) {
+        throw 'Unexpected switch profile.'
+    }
     $fake.Switch = [pscustomobject]@{ Id=[guid]::NewGuid(); Name=$Name; SwitchType=$SwitchType }
     $fakeEvents.Add('switch')
     $fake.Switch
@@ -112,7 +125,7 @@ try {
     if (@(Get-ChildItem $arguments.RunDirectory).Count -or $fakeEvents.Count) { throw 'Preflight mutated its fixture.' }
     $prepared = & $scriptPath @arguments -ApplyOwnedRun | ConvertFrom-Json
     $ready = Get-Content (Join-Path $arguments.RunDirectory 'external-tables-detached.json') -Raw | ConvertFrom-Json
-    if ($prepared.status -cne 'DETACHED' -or ($fakeEvents -join ',') -cne 'disk,vm,disk,vm,switch' -or
+    if ($prepared.status -cne 'DETACHED' -or ($fakeEvents -join ',') -cne 'disk,vm,nic-removed,disk,vm,nic-removed,switch' -or
         $ready.source_disk_id -eq $ready.query_disk_id -or $ready.source_vm -eq $ready.query_vm) {
         throw 'The two detached resources were not confirmed.'
     }

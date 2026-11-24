@@ -748,8 +748,10 @@ prüft beide freigegebenen VHDX-Vorlagen jeweils gegen ihre SHA-256-Werte.
 Für einen zugelassenen Lauf erzeugt er Kopien ohne Überschreiben und
 verifiziert deren Bytes vor Änderung der VHDX-Kennung. Er erstellt zwei
 Generation-2-VMs mit je zwei vCPUs und 4 GiB festem RAM. Die VMs bleiben
-ausgeschaltet und ihre Netzadapter getrennt. Der private Switch bleibt
-bis zur Gastvorbereitung unbelegt.
+ausgeschaltet. Der Starter entfernt die virtuellen Netzadapter, damit
+Linux bei der Offline-Installation nur Loopback vorfindet. Der private
+Switch bleibt bis zur Gastvorbereitung unbelegt.
+[Microsoft-Referenz zum Entfernen virtueller Netzwerkadapter](https://learn.microsoft.com/en-us/powershell/module/hyper-v/remove-vmnetworkadapter?view=windowsserver2025-ps).
 
 Der Starter hinterlegt zuerst eine Absichtserklärung im privaten
 Laufverzeichnis. Danach schreibt er die beobachteten IDs bei jeder
@@ -761,8 +763,22 @@ unterbrochenen Abruf bleiben die bis dahin aufgezeichneten Identitäten
 für die Wiederaufnahme verfügbar. Ohne vollständige Quittung kann
 der SQL-Ablauf nicht starten.
 
-Das Starten der Gäste, Paket- und TLS-Vorbereitung, die Netzanbindung
-und der neue Gastdienst folgen im zugelassenen Providerablauf.
+Der [Gast-Bootstrap](../../Tests/Runtime/external_tables_guest_bootstrap.py)
+installiert die gesperrten Rollenpakete von einem schreibgeschützten Medium.
+Auf dem Quellgast installiert er anschließend die Eingangsregeln für
+die später hinzukommende Schnittstelle `sqlperf0`. Bei der Bereitschaftsprobe
+über den virtuellen Socket prüft der Quellgast die Firewall erneut.
+Beide Gäste müssen zu diesem Zeitpunkt weiterhin ausschließlich Loopback
+sehen. Die Antwort bindet Lauf, Rolle, einmalige Abfragekennung und das
+aktuelle Paket-Inventar. Der Host kann sie mit `verify_guest` und der Option
+`detached` prüfen. Die Bereitschaftsprobe verwendet eigene Nachrichten und
+kann daher keine spätere SQL-Dienstprüfung erfüllen. Der Quellgast prüft
+vor dem Start des SQL-Gastdiensts erneut den Schnittstellennamen und die
+Firewallregeln.
+
+Der zugelassene Providerablauf muss den Gast-Bootstrap beim Einschalten
+auslösen, beide Bereitschaftsproben abwarten, die Netzadapter konfigurieren,
+TLS bereitstellen und den SQL-Gastdienst starten.
 [Microsoft-Referenz zur VHDX-Kennung](https://learn.microsoft.com/en-us/powershell/module/hyper-v/set-vhd?view=windowsserver2025-ps).
 
 ### Vorbereitete Gäste am Hyper-V-Host übernehmen

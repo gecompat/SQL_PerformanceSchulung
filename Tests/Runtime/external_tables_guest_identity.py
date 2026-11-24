@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from math import isfinite
 from pathlib import Path
@@ -20,6 +20,8 @@ _REQUEST = Struct("!4s8sB16s")
 _RESPONSE = Struct("!4s8sB16s32s")
 _QUERY = b"SEI2"
 _REPLY = b"SER2"
+_DETACHED_QUERY = b"SED1"
+_DETACHED_REPLY = b"SEP1"
 _GUEST_STATUS_PATH = Path("/var/lib/dpkg/status")
 _ROLE_ID = {Role.SOURCE: 1, Role.QUERY: 2}
 
@@ -33,17 +35,19 @@ def linux_service_id(port: int) -> UUID:
 
 def verify_guest(
     vm_id: UUID, port: int, token: str, role: Role, deadline: float, *,
-    base_status: bytes, package_lock: dict,
+    base_status: bytes, package_lock: dict, detached: bool = False,
 ) -> None:
-    """Verify identity and package state on the recorded VM ID."""
-    with connect_verified_guest(vm_id, port, token, role, deadline, base_status=base_status, package_lock=package_lock):
+    """Verify the exact VM and role inventory in the requested phase."""
+    with connect_verified_guest(
+        vm_id, port, token, role, deadline, base_status=base_status, package_lock=package_lock, detached=detached,
+    ):
         pass
 
 
 @contextmanager
 def connect_verified_guest(
     vm_id: UUID, port: int, token: str, role: Role, deadline: float, *,
-    base_status: bytes, package_lock: dict,
+    base_status: bytes, package_lock: dict, detached: bool = False,
 ) -> Iterator[socket.socket]:
     """Yield only the channel that returned the current identity proof."""
     _remaining(deadline)
@@ -62,14 +66,15 @@ def connect_verified_guest(
         raise OSError("Hyper-V sockets are unavailable on the host") from None
     expected_digest = expected_package_digest(base_status, package_lock, role.value.lower())
     nonce = token_bytes(16)
+    request_kind, reply_kind = (_DETACHED_QUERY, _DETACHED_REPLY) if detached else (_QUERY, _REPLY)
     with socket.socket(family, socket.SOCK_STREAM, protocol) as channel:
         channel.settimeout(_remaining(deadline))
         channel.connect((str(vm_id), str(service_id)))
-        _send(channel, _REQUEST.pack(_QUERY, run_marker, role_id, nonce), deadline)
+        _send(channel, _REQUEST.pack(request_kind, run_marker, role_id, nonce), deadline)
         reply, reply_token, reply_role, reply_nonce, digest = _RESPONSE.unpack(
             _receive(channel, _RESPONSE.size, deadline)
         )
-        if (reply, reply_token, reply_role, reply_nonce) != (_REPLY, run_marker, role_id, nonce):
+        if (reply, reply_token, reply_role, reply_nonce) != (reply_kind, run_marker, role_id, nonce):
             raise ValueError("guest identity response does not match the current probe")
         if digest != expected_digest:
             raise ValueError("guest package inventory does not match the locked role")
@@ -81,6 +86,15 @@ def serve_guest_identity(port: int, token: str, role: Role, deadline: float) -> 
     _identity(token, role)
     with accept_parent_connection(port, deadline) as channel:
         _reply_to_probe(channel, token, role, deadline)
+
+
+def serve_detached_guest_ready(
+    port: int, token: str, role: Role, deadline: float, *, verify_ready: Callable[[], None],
+) -> None:
+    """Report detached preparation once, after a fresh guest-side check."""
+    _identity(token, role)
+    with accept_parent_connection(port, deadline) as channel:
+        _reply_to_probe(channel, token, role, deadline, verify_ready=verify_ready)
 
 
 @contextmanager
@@ -109,14 +123,19 @@ def open_parent_listener(port: int) -> Iterator[tuple[socket.socket, int]]:
         yield listener, host_cid
 
 
-def _reply_to_probe(channel: socket.socket, token: str, role: Role, deadline: float) -> None:
+def _reply_to_probe(
+    channel: socket.socket, token: str, role: Role, deadline: float, *, verify_ready: Callable[[], None] | None = None,
+) -> None:
     expected_token, expected_role = _identity(token, role)
+    request_kind, reply_kind = (_QUERY, _REPLY) if verify_ready is None else (_DETACHED_QUERY, _DETACHED_REPLY)
     kind, request_token, role_id, nonce = _REQUEST.unpack(_receive(channel, _REQUEST.size, deadline))
-    if (kind, request_token, role_id) != (_QUERY, expected_token, expected_role):
+    if (kind, request_token, role_id) != (request_kind, expected_token, expected_role):
         raise ValueError("guest identity probe does not match the configured run")
     _remaining(deadline)
     digest = installed_package_digest(read_dpkg_status(_GUEST_STATUS_PATH))
-    _send(channel, _RESPONSE.pack(_REPLY, expected_token, expected_role, nonce, digest), deadline)
+    if verify_ready is not None:
+        verify_ready()
+    _send(channel, _RESPONSE.pack(reply_kind, expected_token, expected_role, nonce, digest), deadline)
 
 
 def _identity(token: str, role: Role) -> tuple[bytes, int]:

@@ -19,6 +19,8 @@ on:
       - 'Tests/Runtime/external_tables_guest_identity.py'
       - 'Tests/Runtime/external_tables_guest_admin.py'
       - 'Tests/Runtime/external_tables_guest_service.py'
+      - 'Tests/Runtime/external_tables_guest_bootstrap.py'
+      - 'Tests/Static/test_external_tables_guest_bootstrap.py'
       - 'Tests/Runtime/external_tables_hyperv_host.py'
       - 'Tests/Static/test_external_tables_hyperv_host.py'
       - 'Tests/Static/test_external_tables_guest_service.py'
@@ -73,6 +75,8 @@ on:
       - 'Tests/Runtime/external_tables_guest_identity.py'
       - 'Tests/Runtime/external_tables_guest_admin.py'
       - 'Tests/Runtime/external_tables_guest_service.py'
+      - 'Tests/Runtime/external_tables_guest_bootstrap.py'
+      - 'Tests/Static/test_external_tables_guest_bootstrap.py'
       - 'Tests/Runtime/external_tables_hyperv_host.py'
       - 'Tests/Static/test_external_tables_hyperv_host.py'
       - 'Tests/Static/test_external_tables_guest_service.py'
@@ -135,6 +139,7 @@ jobs:
       - run: python Tests/Static/test_external_tables_guest_identity.py
       - run: python Tests/Static/test_external_tables_guest_admin.py
       - run: python Tests/Static/test_external_tables_guest_service.py
+      - run: python Tests/Static/test_external_tables_guest_bootstrap.py
       - run: python Tests/Static/test_external_tables_hyperv_host.py
       - run: python Tests/Static/test_external_tables_guest_network.py
       - run: |

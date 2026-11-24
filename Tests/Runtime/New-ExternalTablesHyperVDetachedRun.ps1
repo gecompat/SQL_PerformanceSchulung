@@ -125,6 +125,14 @@ try {
         Set-VM @vmOptions
         Set-VMProcessor -VM $vm -Count 2
         Set-VMFirmware -VM $vm -EnableSecureBoot On -SecureBootTemplate MicrosoftUEFICertificateAuthority
+        $adapters = @(Get-VMNetworkAdapter -VM $vm)
+        foreach ($adapter in $adapters) {
+            if ($adapter.VMId -ne $vm.Id -or $null -eq $adapter.PSObject.Properties['SwitchId'] -or
+                $adapter.SwitchId -notin @($null, [guid]::Empty)) {
+                throw 'The new VM has an unexpected network adapter.'
+            }
+        }
+        if ($adapters.Count) { Remove-VMNetworkAdapter -VMNetworkAdapter $adapters -Confirm:$false }
         $current = @(Get-VM -Id $vm.Id)
         $adapters = @(Get-VMNetworkAdapter -VM $vm)
         $drives = @(Get-VMHardDiskDrive -VM $vm)
@@ -133,8 +141,7 @@ try {
             $current[0].ProcessorCount -ne 2 -or $current[0].MemoryStartup -ne 4GB -or
             $current[0].DynamicMemoryEnabled -isnot [bool] -or $current[0].DynamicMemoryEnabled -or
             $drives.Count -ne 1 -or $drives[0].Path -ine $destination -or
-            $adapters.Count -ne 1 -or $adapters[0].VMId -ne $vm.Id -or
-            $null -eq $adapters[0].PSObject.Properties['SwitchId'] -or $adapters[0].SwitchId -notin @($null, [guid]::Empty)) {
+            $adapters.Count -ne 0) {
             throw 'Hyper-V did not confirm the detached VM profile.'
         }
     }

@@ -40,15 +40,15 @@ class GuestNetwork:
         return {Role.SOURCE: self.source, Role.QUERY: self.query}[role]
 
 
-def verify_guest_network(network: GuestNetwork, role: Role, deadline: float) -> None:
+def verify_guest_network(network: GuestNetwork, role: Role, deadline: float) -> str:
     """Check addresses and both IP routing tables in one of the prepared guests."""
     interfaces = _ip(["address", "show"], deadline)
     ipv4_routes = _ip(["-4", "route", "show", "table", "all"], deadline)
     ipv6_routes = _ip(["-6", "route", "show", "table", "all"], deadline)
-    verify_network_snapshot(network.address(role), interfaces, ipv4_routes, ipv6_routes)
+    return verify_network_snapshot(network.address(role), interfaces, ipv4_routes, ipv6_routes)
 
 
-def verify_network_snapshot(expected: IPv4Interface, interfaces: list[dict], ipv4: list[dict], ipv6: list[dict]) -> None:
+def verify_network_snapshot(expected: IPv4Interface, interfaces: list[dict], ipv4: list[dict], ipv6: list[dict]) -> str:
     names = [record.get("ifname") for record in interfaces]
     if len(names) != 2 or "lo" not in names or names[0] == names[1]:
         raise ValueError("expected loopback and exactly one private guest interface")
@@ -89,6 +89,8 @@ def verify_network_snapshot(expected: IPv4Interface, interfaces: list[dict], ipv
         if record["dev"] == device and (route.subnet_of(_LINK_LOCAL_V6) or route.subnet_of(_MULTICAST_V6)):
             continue
         raise ValueError("guest has a route outside IPv6 link-local scope")
+
+    return device
 
 
 def _route(record: dict, family: int, device: str) -> IPv4Network | IPv6Network:
