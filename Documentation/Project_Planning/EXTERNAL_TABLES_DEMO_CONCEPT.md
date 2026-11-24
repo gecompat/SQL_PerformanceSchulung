@@ -960,10 +960,9 @@ den Messablauf und gibt den normalisierten Ergebnis- und Abbaustatus aus.
 Der erste Durchlauf kann den Treiberbefund `OBSERVED` liefern. Für `PASS`
 ist zusätzlich ein unabhängig geprüfter `--driver-sha256` nötig.
 Für den Versuch und den späteren Abbau gelten 600 beziehungsweise 120
-Sekunden. Innerhalb der Versuchsfrist stehen für den Hyper-V-Start beider
-VMs einschließlich der Besitzprüfung bis zu 120 Sekunden zur Verfügung.
-Das anschließende Anschließen der Netzwerkadapter bleibt auf 60 Sekunden
-begrenzt.
+Sekunden. Innerhalb der Versuchsfrist haben der Hyper-V-Start beider VMs
+und das anschließende Anschließen der beiden Netzwerkadapter jeweils
+bis zu 120 Sekunden einschließlich der Besitzprüfungen.
 
 Wenn die Medienübergabe nach vollständiger Bereitstellung fehlschlägt,
 versucht der Einstieg den eigentumsgeprüften Abbau der noch nicht
