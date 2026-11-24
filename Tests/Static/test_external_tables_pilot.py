@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
-from external_tables_guest_admin import dispatch_admin
+from external_tables_guest_admin import AdminAction, dispatch_admin
 from external_tables_measurement import MeasurementResult
 from external_tables_pilot import CLEANUP_SECONDS, WORK_SECONDS, run_pilot
 from external_tables_pilot_sql import DAY_ZERO, ROWS, Role, database_name
@@ -38,6 +38,10 @@ class GuestTransport:
         self._event("boot", token, deadline)
 
     def admin(self, role, command, deadline):
+        if command.action is AdminAction.STOP_QUERY_ENGINE:
+            assert role is Role.QUERY and role not in self.databases
+            self._event("stop_query_engine", role, deadline)
+            return None
         endpoint = SimpleNamespace(
             execute=lambda database, sql, deadline: self.execute(role, database, sql, deadline),
             fixture_rows=lambda sql, deadline: self.fixture_rows(role, sql, deadline),
@@ -102,9 +106,9 @@ class GuestTransport:
         self._event("measurement", token, deadline)
         return MeasurementResult("PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE)
 
-    def close_data_connections(self, token, login_sids, deadline):
-        assert login_sids == self.login_sids
-        self._event("close_data", token, deadline)
+    def close_data_connections(self, role, token, login_sids, deadline):
+        assert token == TOKEN and login_sids == self.login_sids
+        self._event("close_data", role, deadline)
         return True
 
     def database_exists(self, role, name, deadline):
@@ -134,10 +138,12 @@ class PilotCoordinatorTests(unittest.TestCase):
         self.assertEqual(transport.events[0], ("boot", TOKEN, work))
         self.assertIn(("rights", Principal.SOURCE_READER, work), transport.events)
         self.assertIn(("statistics", Role.QUERY, work), transport.events)
-        relevant = [(event, value) for event, value, _ in transport.events if event in ("drop_database", "drop_logins")]
+        cleanup = {"close_data", "drop_database", "drop_logins", "stop_query_engine"}
+        relevant = [(event, value) for event, value, _ in transport.events if event in cleanup]
         self.assertEqual(relevant, [
-            ("drop_database", Role.QUERY), ("drop_logins", Role.QUERY),
-            ("drop_database", Role.SOURCE), ("drop_logins", Role.SOURCE),
+            ("close_data", Role.QUERY), ("drop_database", Role.QUERY), ("drop_logins", Role.QUERY),
+            ("stop_query_engine", Role.QUERY),
+            ("close_data", Role.SOURCE), ("drop_database", Role.SOURCE), ("drop_logins", Role.SOURCE),
         ])
         self.assertEqual(transport.events[-1], ("remove_guests", TOKEN, teardown))
         self.assertTrue(result.sql_cleanup and result.guest_cleanup)
@@ -183,7 +189,7 @@ class PilotCoordinatorTests(unittest.TestCase):
                     else:
                         close_data.return_value = confirmation
                     result = run_pilot(transport, TOKEN)
-                close_data.assert_called_once()
+                self.assertEqual([item.args[0] for item in close_data.call_args_list], [Role.QUERY, Role.SOURCE])
                 self.assertEqual((result.status, result.sql_cleanup, result.guest_cleanup),
                                  ("FAIL_CLEANUP", False, True))
                 self.assertIsNone(result.filters)

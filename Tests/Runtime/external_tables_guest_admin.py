@@ -28,6 +28,7 @@ from external_tables_pilot_sql import (
     Role, Route, configure_database_batch, create_database_batch, database_name, external_tables_batch,
     fixture_batch, fixture_read_batch, statistics_batch, verify_fixture,
 )
+from external_tables_polybase_service import stop_query_connector
 from external_tables_principals import Principal, create_connector_credential_batch, create_principal_batch
 from external_tables_pushdown_evidence import PUSHDOWN_FILTER_EVIDENCE
 
@@ -52,6 +53,7 @@ class AdminAction(Enum):
     DROP_DATABASE = "drop_database"
     DROP_LOGINS = "drop_logins"
     QUIESCE = "quiesce"
+    STOP_QUERY_ENGINE = "stop_query_engine"
 
 
 @dataclass(frozen=True)
@@ -67,7 +69,7 @@ _REJECTED, _DONE, _ABSENT, _PRESENT = b"\x00", b"\x01", b"\x02", b"\x03"
 _MEASUREMENT = b"\x04"
 _MAX_DRIVER_EVIDENCE = 512
 _MEASUREMENT_STATES = ("NOT_PROVEN", "FAIL_CLEANUP", "PASS")
-_MEASUREMENT_STAGES = ("query_connection", *(route.name for route in Route), "comparison")
+_MEASUREMENT_STAGES = ("query_connection", *(route.name for route in Route), "comparison", "driver_unconfirmed")
 _NO_FIELDS = {
     AdminAction.CREATE_DATABASE: create_database_batch,
     AdminAction.CONFIGURE_DATABASE: configure_database_batch,
@@ -78,6 +80,7 @@ _NO_FIELDS = {
 }
 _CLEANUP_ACTIONS = frozenset((
     AdminAction.QUIESCE, AdminAction.DATABASE_EXISTS, AdminAction.DROP_DATABASE, AdminAction.DROP_LOGINS,
+    AdminAction.STOP_QUERY_ENGINE,
 ))
 _QUERY_ONLY = {AdminAction.CREATE_CREDENTIAL, AdminAction.CREATE_EXTERNAL_TABLES, AdminAction.CREATE_STATISTICS}
 
@@ -90,6 +93,7 @@ class GuestSqlAccess:
         self._lock = Lock()
         self._closing = False
         self._closed = False
+        self._logins_dropped = False
 
     @contextmanager
     def command(self, token: str, role: Role, action: AdminAction, deadline: float) -> Iterator[None]:
@@ -101,14 +105,20 @@ class GuestSqlAccess:
             if action is AdminAction.QUIESCE:
                 self._closing = True
                 self._closed = False
+                self._logins_dropped = False
             elif action in (AdminAction.DROP_DATABASE, AdminAction.DROP_LOGINS):
                 if not self._closed:
                     raise ValueError("guest has not confirmed that its logins are closed")
+            elif action is AdminAction.STOP_QUERY_ENGINE:
+                if role is not Role.QUERY or not self._closed or not self._logins_dropped:
+                    raise ValueError("query engine teardown requires verified SQL object and login cleanup")
             elif self._closing and action is not AdminAction.DATABASE_EXISTS:
                 raise ValueError("guest is in SQL cleanup")
             yield
             if action is AdminAction.QUIESCE:
                 self._closed = True
+            elif action is AdminAction.DROP_LOGINS:
+                self._logins_dropped = True
         finally:
             self._lock.release()
 
@@ -134,6 +144,8 @@ def dispatch_admin(
         admin.execute(db, create_principal_batch(token, principal, fields[1], _sid(fields[2])), deadline)
     elif action is AdminAction.CREATE_CREDENTIAL and len(fields) == 2:
         admin.execute(db, create_connector_credential_batch(token, *fields), deadline)
+    elif action is AdminAction.STOP_QUERY_ENGINE and not fields and role is Role.QUERY:
+        stop_query_connector(deadline)
     elif action is AdminAction.DATABASE_EXISTS and not fields:
         return admin.database_exists(db, deadline)
     elif action in (AdminAction.DROP_LOGINS, AdminAction.QUIESCE) and len(fields) in (0, 2, 4):
@@ -237,20 +249,13 @@ class GuestSqlChannel:
             base_status=self.base_status, package_lock=self.package_lock,
         )
 
-    def close_data_connections(self, token: str, login_sids: Mapping[Principal, bytes], deadline: float) -> bool:
+    def close_data_connections(self, role: Role, token: str, login_sids: Mapping[Principal, bytes], deadline: float) -> bool:
         self._verify_token(token)
-        confirmed = True
-        for role in (Role.QUERY, Role.SOURCE):
-            fields = tuple(
-                field for principal, sid in login_sids.items() if principal.role is role
-                for field in (principal.name, sid.hex())
-            )
-            try:
-                if self.admin(role, AdminCommand(AdminAction.QUIESCE, fields), deadline) is not None:
-                    confirmed = False
-            except (OSError, ValueError):
-                confirmed = False
-        return confirmed
+        fields = tuple(
+            field for principal, sid in login_sids.items() if principal.role is role
+            for field in (principal.name, sid.hex())
+        )
+        return self.admin(role, AdminCommand(AdminAction.QUIESCE, fields), deadline) is None
 
     def _verify_token(self, token: str) -> None:
         if token != self.token:
@@ -286,7 +291,10 @@ def _decode_measurement(codes: bytes, payload: bytes) -> MeasurementResult:
     if state >= len(_MEASUREMENT_STATES) or stage >= len(_MEASUREMENT_STAGES):
         raise OSError("guest measurement result was not confirmed")
     status, phase = _MEASUREMENT_STATES[state], _MEASUREMENT_STAGES[stage]
-    if (status == "PASS" and phase != "comparison") or (payload and status != "PASS"):
+    if (
+        (status == "PASS" and phase != "comparison") or (payload and status != "PASS")
+        or (phase == "driver_unconfirmed" and status != "NOT_PROVEN")
+    ):
         raise OSError("guest measurement result was not confirmed")
     driver = None
     if payload:
@@ -294,7 +302,8 @@ def _decode_measurement(codes: bytes, payload: bytes) -> MeasurementResult:
             driver = DriverEvidence(**json.loads(payload.decode("ascii")))
         except (TypeError, ValueError, RecursionError):
             raise OSError("guest driver evidence was not confirmed") from None
-    return MeasurementResult(status, phase, PUSHDOWN_FILTER_EVIDENCE if status == "PASS" else None, driver)
+    filters = PUSHDOWN_FILTER_EVIDENCE if status == "PASS" or phase == "driver_unconfirmed" else None
+    return MeasurementResult(status, phase, filters, driver)
 
 
 def _encode_measurement(result: MeasurementResult) -> bytes:

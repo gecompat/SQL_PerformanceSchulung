@@ -341,10 +341,10 @@ class HyperVPreparedTransport:
             return MeasurementResult("NOT_PROVEN", "driver_mismatch", driver=result.driver)
         return result
 
-    def close_data_connections(self, token: str, login_sids: Mapping[Principal, bytes], deadline: float) -> bool:
+    def close_data_connections(self, role: Role, token: str, login_sids: Mapping[Principal, bytes], deadline: float) -> bool:
         if self._journal.login_sids() != login_sids:
             raise ValueError("External Tables cleanup SIDs differ from the recorded inventory")
-        return self._sql().close_data_connections(token, login_sids, deadline)
+        return self._sql().close_data_connections(role, token, login_sids, deadline)
 
     def discard_unstarted_guests(self, deadline: float) -> bool:
         """Claim an unused preparation before undoing a failed pre-start handoff."""
