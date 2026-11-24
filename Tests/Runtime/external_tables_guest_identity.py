@@ -9,7 +9,7 @@ from pathlib import Path
 from secrets import token_bytes
 import socket
 from struct import Struct
-from time import monotonic
+from time import monotonic, sleep
 from uuid import UUID
 
 from external_tables_package_state import expected_package_digest, installed_package_digest, read_dpkg_status
@@ -35,11 +35,12 @@ def linux_service_id(port: int) -> UUID:
 
 def verify_guest(
     vm_id: UUID, port: int, token: str, role: Role, deadline: float, *,
-    base_status: bytes, package_lock: dict, detached: bool = False,
+    base_status: bytes, package_lock: dict, detached: bool = False, wait: bool = False,
 ) -> None:
     """Verify the exact VM and role inventory in the requested phase."""
     with connect_verified_guest(
-        vm_id, port, token, role, deadline, base_status=base_status, package_lock=package_lock, detached=detached,
+        vm_id, port, token, role, deadline,
+        base_status=base_status, package_lock=package_lock, detached=detached, wait=wait,
     ):
         pass
 
@@ -47,7 +48,7 @@ def verify_guest(
 @contextmanager
 def connect_verified_guest(
     vm_id: UUID, port: int, token: str, role: Role, deadline: float, *,
-    base_status: bytes, package_lock: dict, detached: bool = False,
+    base_status: bytes, package_lock: dict, detached: bool = False, wait: bool = False,
 ) -> Iterator[socket.socket]:
     """Yield only the channel that returned the current identity proof."""
     _remaining(deadline)
@@ -67,9 +68,7 @@ def connect_verified_guest(
     expected_digest = expected_package_digest(base_status, package_lock, role.value.lower())
     nonce = token_bytes(16)
     request_kind, reply_kind = (_DETACHED_QUERY, _DETACHED_REPLY) if detached else (_QUERY, _REPLY)
-    with socket.socket(family, socket.SOCK_STREAM, protocol) as channel:
-        channel.settimeout(_remaining(deadline))
-        channel.connect((str(vm_id), str(service_id)))
+    with _connect_hyperv(family, protocol, (str(vm_id), str(service_id)), deadline, wait) as channel:
         _send(channel, _REQUEST.pack(request_kind, run_marker, role_id, nonce), deadline)
         reply, reply_token, reply_role, reply_nonce, digest = _RESPONSE.unpack(
             _receive(channel, _RESPONSE.size, deadline)
@@ -79,6 +78,25 @@ def connect_verified_guest(
         if digest != expected_digest:
             raise ValueError("guest package inventory does not match the locked role")
         yield channel
+
+
+@contextmanager
+def _connect_hyperv(
+    family: int, protocol: int, endpoint: tuple[str, str], deadline: float, wait: bool,
+) -> Iterator[socket.socket]:
+    while True:
+        with socket.socket(family, socket.SOCK_STREAM, protocol) as channel:
+            remaining = _remaining(deadline)
+            channel.settimeout(min(2, remaining) if wait else remaining)
+            try:
+                channel.connect(endpoint)
+            except (ConnectionRefusedError, TimeoutError):
+                if not wait:
+                    raise
+            else:
+                yield channel
+                return
+        sleep(min(0.25, _remaining(deadline)))
 
 
 def serve_guest_identity(port: int, token: str, role: Role, deadline: float) -> None:

@@ -776,9 +776,22 @@ kann daher keine spätere SQL-Dienstprüfung erfüllen. Der Quellgast prüft
 vor dem Start des SQL-Gastdiensts erneut den Schnittstellennamen und die
 Firewallregeln.
 
-Der zugelassene Providerablauf muss den Gast-Bootstrap beim Einschalten
-auslösen, beide Bereitschaftsproben abwarten, die Netzadapter konfigurieren,
-TLS bereitstellen und den SQL-Gastdienst starten.
+Die [Hyper-V-Startsteuerung](../../Tests/Runtime/Start-ExternalTablesHyperVOwnedRun.ps1)
+prüft die aufgezeichneten Ressourcen und startet ausschließlich die beiden
+eigenen, vom Netz getrennten Gäste. Der Host ruft sie im Pilotablauf auf,
+wenn der Provider beim Start einen separaten Bootstrap-Port vorgibt.
+Der Pilot öffnet den privaten Switch erst nach erfolgreichem Nachweis
+beider Rollen. Er legt genau einen Adapter pro Gast an und bindet ihn
+an den aufgezeichneten Switch. Anschließend prüft er dessen Mitgliedschaft
+und erwartet die unabhängigen Identitätsantworten des SQL-Gastdiensts.
+Alle Schritte nutzen dieselbe Arbeitsfrist. Bei einem Fehler greift
+der bereits gebundene Abbau.
+[Microsoft-Referenz zum Verbinden virtueller Adapter](https://learn.microsoft.com/en-us/powershell/module/hyper-v/connect-vmnetworkadapter?view=windowsserver2025-ps).
+
+Vor der vollständigen Ausführung muss der Provider die Startmedien
+anbinden. Der Gast muss beim Start den Bootstrap auslösen, nach dem
+Anschluss seine Schnittstelle konfigurieren, TLS einrichten und den
+SQL-Gastdienst starten.
 [Microsoft-Referenz zur VHDX-Kennung](https://learn.microsoft.com/en-us/powershell/module/hyper-v/set-vhd?view=windowsserver2025-ps).
 
 ### Vorbereitete Gäste am Hyper-V-Host übernehmen
