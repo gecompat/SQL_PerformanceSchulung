@@ -315,6 +315,25 @@ Vorlagen fehlen noch die Bindung der Betriebssystemabhängigkeiten und
 des ODBC-Treibers, die Installation und die Prüfung des Dienstzustands.
 Der Abfrage- und Cleanup-Pilot bleibt offen.
 
+### PolyBase-Ausführungsdienst ohne Netz vorbereiten
+
+Der Mediengenerator legt das gesperrte .NET-Archiv ausschließlich dem
+Abfragegast bei. Der [Offline-Baustein](../../Tests/Runtime/external_tables_polybase_service.py)
+prüft Länge und SHA-512 erneut und entpackt das Archiv vor der
+APT-Installation nach `/opt/mssql-ees-dotnet`. Er prüft dort SDK 8.0.418 sowie
+die beiden Laufzeitkomponenten Microsoft.NETCore.App und
+Microsoft.AspNetCore.App in Version 8.0.24. So findet das
+Installationsskript des PolyBase-Pakets die bereits bereitgestellten
+Komponenten, während der Gast weiterhin kein Netz hat.
+[Microsoft-Anleitung zur Offline-Installation von PolyBase](https://learn.microsoft.com/en-us/sql/relational-databases/polybase/polybase-linux-setup?view=sql-server-ver17#polybase-offline-installation).
+
+Vor dem Öffnen des SQL-Steuerdiensts prüft die Gaststeuerung den
+aktiven PolyBase-Ausführungsdienst, den erwarteten .NET-Prozess und
+eine Verbindung zu dessen lokalem TCP-Port 25100. Die Komponentenprüfung
+bestätigte das Entpacken und die Versionsabfragen mit dem tatsächlichen
+SDK-Archiv in einem Linux-Netzwerk-Namensraum ohne externe Verbindung.
+Der Dienstnachweis in der Hyper-V-Abfrage-VM steht aus.
+
 ### Tatsächlich geladenen ODBC-Treiber binden
 
 Der eingebaute Connector `sqlserver://` verwendet laut Microsoft den mit

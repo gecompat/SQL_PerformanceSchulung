@@ -149,6 +149,54 @@ class DetachedAptTests(TestCase):
                 install_verified_guest_packages(root, lock, Role.SOURCE, monotonic() + 3, wheel_install_dir=root)
             apt.assert_not_called()
 
+    def test_query_stages_dotnet_after_simulation_but_before_package_configuration(self):
+        base = package("base", "1.0")
+        after = base + package("client", "2.0")
+        sdk = {"filename": "locked-sdk.tar.gz"}
+        lock = {
+            "roles": {"query": ["client"]},
+            "dpkg_status_sha256": sha256(base).hexdigest(),
+            "dotnet_sdk": sdk,
+            "packages": [{"package": "client", "version": "2.0", "architecture": "amd64", "path": "pool/client.deb"}],
+        }
+        guest_os = SimpleNamespace(geteuid=lambda: 0, statvfs=lambda _: SimpleNamespace(f_flag=1), ST_RDONLY=1)
+        for broken in (False, True):
+            with self.subTest(broken=broken), TemporaryDirectory() as directory:
+                events = []
+                root = Path(directory).resolve()
+                deadline = monotonic() + 5
+
+                def run_apt(command, bound):
+                    self.assertEqual(bound, deadline)
+                    if "--simulate" in command:
+                        events.append("simulate")
+                        return b"Inst client (2.0 local [amd64])\n"
+                    events.append("configure")
+                    return b""
+
+                def install_sdk(stage, entry, bound):
+                    self.assertEqual((stage, entry, bound), (root, sdk, deadline))
+                    events.append("sdk")
+                    if broken:
+                        raise ValueError("wrong SDK")
+
+                with (
+                    patch("external_tables_guest_apt.sys", SimpleNamespace(platform="linux")),
+                    patch("external_tables_guest_apt.os", guest_os),
+                    patch("external_tables_guest_apt.require_guest_detached"),
+                    patch("external_tables_guest_apt.read_dpkg_status", side_effect=[base, base, after]),
+                    patch("external_tables_guest_apt.verify_packages"),
+                    patch("external_tables_guest_apt.install_dotnet_sdk", side_effect=install_sdk),
+                    patch("external_tables_guest_apt._run_apt", side_effect=run_apt),
+                ):
+                    if broken:
+                        with self.assertRaisesRegex(ValueError, "wrong SDK"):
+                            install_verified_guest_packages(root, lock, Role.QUERY, deadline)
+                        self.assertEqual(events, ["simulate", "sdk"])
+                    else:
+                        self.assertEqual(install_verified_guest_packages(root, lock, Role.QUERY, deadline), 2)
+                        self.assertEqual(events, ["simulate", "sdk", "configure"])
+
     def test_requires_detachment_again_after_the_exact_simulation(self):
         base = package("base", "1.0")
         after = base + package("client", "2.0")

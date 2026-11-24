@@ -1,4 +1,4 @@
-from hashlib import sha256
+from hashlib import sha256, sha512
 from ipaddress import IPv4Interface
 import json
 import os
@@ -50,10 +50,13 @@ class BootMediaTests(unittest.TestCase):
             path = self.cache / f"{name}.deb"
             path.write_bytes(name.encode())
             packages.append({"package": name, "path": f"pool/{path.name}", **file_lock(path)})
+        sdk = self.cache / "locked-sdk.tar.gz"
+        sdk.write_bytes(b"synthetic locked archive")
         self.repository = self.root / "repository"
         (self.repository / media._LOCK_PATH).parent.mkdir(parents=True)
         (self.repository / media._LOCK_PATH).write_text(json.dumps({
             "packages": packages, "roles": {"source": ["base"], "query": ["base", "polybase"]},
+            "dotnet_sdk": {"filename": sdk.name, "size": sdk.stat().st_size, "sha512": sha512(sdk.read_bytes()).hexdigest()},
             "python_wheel": {
                 "filename": wheel.name, **file_lock(wheel), "installed_extension": {
                     "filename": extension_name, "size": len(extension), "sha256": sha256(extension).hexdigest(),
@@ -76,7 +79,7 @@ class BootMediaTests(unittest.TestCase):
                     files = {item.name for item in (seed / "packages").iterdir()}
                     expected = {"base.deb", "pinned.whl"}
                     if role is Role.QUERY:
-                        expected.add("polybase.deb")
+                        expected.update({"polybase.deb", "locked-sdk.tar.gz"})
                     self.assertEqual(files, expected)
                     self.assertEqual(json.loads((seed / "network-config").read_bytes()), {"config": "disabled"})
                     self.assertEqual(
@@ -125,6 +128,20 @@ class BootMediaTests(unittest.TestCase):
         ):
             with self.assertRaisesRegex(ValueError, "package bytes differ"):
                 media.build_bootstrap_iso(output, self.cache, TOKEN, Role.SOURCE, PORT, NETWORK, sql_port=SQL_PORT, xorriso=self.program)
+        compiler.assert_not_called()
+        self.assertFalse(output.exists())
+
+    def test_query_media_rejects_sdk_that_differs_from_the_lock(self):
+        (self.cache / "locked-sdk.tar.gz").write_bytes(b"wrong SDK")
+        output = self.root / "bad-query.iso"
+        with (
+            patch.object(media, "_REPOSITORY", self.repository),
+            patch.object(media, "collect_bounded_process") as compiler,
+        ):
+            with self.assertRaisesRegex(ValueError, "SDK archive bytes differ"):
+                media.build_bootstrap_iso(
+                    output, self.cache, TOKEN, Role.QUERY, PORT, NETWORK, sql_port=SQL_PORT, xorriso=self.program,
+                )
         compiler.assert_not_called()
         self.assertFalse(output.exists())
 

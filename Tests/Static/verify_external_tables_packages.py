@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 from hashlib import file_digest, sha256
+import json
 from pathlib import Path
 import re
 import subprocess
@@ -13,11 +14,10 @@ import tempfile
 SIGNER = "BC528686B50D79E339D3721CEB3E94ADBE1229CF"
 INDEX_PATH = "main/binary-amd64/Packages"
 VERSION = "17.0.5065.9-3"
-SDK_FILE = "dotnet-sdk-8.0.418-linux-x64.tar.gz"
-SDK_SHA512 = (
-    "fbd9fc9f0bca73f771e79c12d721a18da97ba23c43794b941b110ccaac0fcd1615"
-    "6c996a5b9cfc0650120601791f2909e93ecb268f687c7b82889934c766c2b9"
-)
+_LOCK = Path(__file__).resolve().parents[2] / "Documentation/Project_Planning/external_tables_apt_lock.json"
+_SDK = json.loads(_LOCK.read_bytes())["dotnet_sdk"]
+SDK_FILE = _SDK["filename"]
+SDK_SHA512 = _SDK["sha512"]
 
 
 @dataclass(frozen=True)
