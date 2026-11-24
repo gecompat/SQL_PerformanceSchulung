@@ -107,7 +107,7 @@ try {
         if ((Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash -ine $target.Digest) {
             throw 'Template copy differs from its approved value.'
         }
-        Set-VHD -Path $destination -ResetDiskIdentifier -Confirm:$false
+        Set-VHD -Path $destination -ResetDiskIdentifier -Force -Confirm:$false
         $diskId = Read-IndependentDisk $destination
         if ($diskId -eq $target.TemplateId) { throw 'The copy still has its template disk identifier.' }
         $target.DiskId = $diskId

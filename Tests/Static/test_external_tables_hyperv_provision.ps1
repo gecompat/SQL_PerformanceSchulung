@@ -30,8 +30,8 @@ function Get-VHD {
     }
 }
 function Set-VHD {
-    param([string] $Path, [switch] $ResetDiskIdentifier, [switch] $Confirm)
-    if (-not $ResetDiskIdentifier -or [IO.Path]::GetDirectoryName($Path) -ine $arguments.RunDirectory -or
+    param([string] $Path, [switch] $ResetDiskIdentifier, [switch] $Force, [switch] $Confirm)
+    if (-not $ResetDiskIdentifier -or -not $Force -or $Confirm -or [IO.Path]::GetDirectoryName($Path) -ine $arguments.RunDirectory -or
         -not [IO.File]::Exists((Join-Path $arguments.RunDirectory 'external-tables-provision-intent.json'))) {
         throw 'Unexpected VHDX identity change.'
     }
