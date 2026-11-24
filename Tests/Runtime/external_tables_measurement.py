@@ -100,7 +100,7 @@ def measure_pushdown(
                         driver = current_driver
                 verify_aggregate(request.result(deadline))
                 _check_deadline(deadline)
-                records.append(transport.external_work(work_sql, deadline))
+                records.append(_read_completed_work(transport, work_sql, deadline))
         stage = "comparison"
         _check_deadline(deadline)
         filters = verify_pushdown(token, records[0], records[1])
@@ -128,6 +128,23 @@ def _observe_handle(
             return handles[0]
         sleep(max(0, min(0.025, deadline - monotonic())))
     raise ValueError("measurement request was never witnessed active")
+
+
+def _read_completed_work(transport: MeasurementTransport, sql: str, deadline: float) -> tuple[Work, ...]:
+    # A completed Reader can precede publication of the distributed terminal state.
+    settle = min(deadline, monotonic() + 5)
+    records = transport.external_work(sql, deadline)
+    while len(records) == 1 and records[0].request_status in {
+        "Pending", "Authorizing", "AcquireSystemResources", "Initializing",
+        "Plan", "Parsing", "AcquireResources", "Running",
+    }:
+        remaining = settle - monotonic()
+        if remaining <= 0:
+            break
+        sleep(min(0.05, remaining))
+        _check_deadline(deadline)
+        records = transport.external_work(sql, deadline)
+    return records
 
 
 def _check_deadline(deadline: float) -> None:
