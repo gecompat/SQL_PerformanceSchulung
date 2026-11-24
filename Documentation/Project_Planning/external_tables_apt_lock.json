@@ -242,6 +242,14 @@
       "msodbcsql18"
     ]
   },
+  "dotnet_sdk": {
+    "filename": "dotnet-sdk-8.0.418-linux-x64.tar.gz",
+    "sdk_version": "8.0.418",
+    "runtime_version": "8.0.24",
+    "size": 217238248,
+    "sha512": "fbd9fc9f0bca73f771e79c12d721a18da97ba23c43794b941b110ccaac0fcd16156c996a5b9cfc0650120601791f2909e93ecb268f687c7b82889934c766c2b9",
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/8.0.418/dotnet-sdk-8.0.418-linux-x64.tar.gz"
+  },
   "python_wheel": {
     "filename": "pyodbc-5.5.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl",
     "version": "5.5.0",

@@ -21,6 +21,7 @@ from external_tables_guest_network import GuestNetwork
 from external_tables_odbc import read_pinned_pyodbc_wheel
 from external_tables_package_state import select_role
 from external_tables_pilot_sql import Role, database_name
+from external_tables_polybase_service import verify_dotnet_archive
 
 
 _REPOSITORY = Path(__file__).resolve().parents[2]
@@ -32,7 +33,8 @@ _MODULES = (
     "external_tables_guest_network", "external_tables_guest_service", "external_tables_guest_tls",
     "external_tables_measurement", "external_tables_odbc",
     "external_tables_package_state", "external_tables_pilot", "external_tables_pilot_sql",
-    "external_tables_principals", "external_tables_pushdown_evidence", "external_tables_source_firewall",
+    "external_tables_polybase_service", "external_tables_principals", "external_tables_pushdown_evidence",
+    "external_tables_source_firewall",
     "external_tables_tls_material",
 )
 _GUEST_FILES = (
@@ -92,9 +94,13 @@ def build_bootstrap_iso(
     deadline = monotonic() + _BUILD_SECONDS
     lock_source = _REPOSITORY / _LOCK_PATH
     lock_bytes = lock_source.read_bytes()
-    role_lock = select_role(json.loads(lock_bytes), role.value.lower())
+    package_lock = json.loads(lock_bytes)
+    role_lock = select_role(package_lock, role.value.lower())
     wheel = role_lock["python_wheel"]
     names = [Path(entry["path"]).name for entry in role_lock["packages"]] + [wheel["filename"]]
+    sdk = package_lock["dotnet_sdk"] if role is Role.QUERY else None
+    if sdk is not None:
+        names.append(sdk["filename"])
     if len(set(names)) != len(names) or any(not name or Path(name).name != name for name in names):
         raise ValueError("expected unique package filenames")
     with TemporaryDirectory(prefix=".sqlperf-ext-media-", dir=output.parent) as folder:
@@ -107,6 +113,8 @@ def build_bootstrap_iso(
             copyfile(cache / name, stage / name)
         verify_packages(stage, role_lock)
         read_pinned_pyodbc_wheel(stage / wheel["filename"], wheel)
+        if sdk is not None:
+            verify_dotnet_archive(stage / sdk["filename"], sdk)
         (seed / _LOCK_PATH).parent.mkdir(parents=True)
         (seed / _LOCK_PATH).write_bytes(lock_bytes)
         for item in _GUEST_FILES:

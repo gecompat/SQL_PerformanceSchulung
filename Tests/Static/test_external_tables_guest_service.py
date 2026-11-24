@@ -124,7 +124,7 @@ class GuestServiceTests(unittest.TestCase):
                 events.connections.admin.side_effect = [OSError("not ready"), events.session]
                 events.admin.return_value = events.preflight
                 if invalid:
-                    events.preflight.prepare_instance.side_effect = OSError("wrong engine or unavailable PolyBase")
+                    events.polybase.side_effect = OSError("wrong engine or unavailable PolyBase")
                 deadline = monotonic() + 10
                 with (
                     patch("external_tables_guest_service.sys.platform", "linux"),
@@ -134,6 +134,7 @@ class GuestServiceTests(unittest.TestCase):
                     patch("external_tables_guest_service._configure_engine", events.setup),
                     patch("external_tables_guest_service.sleep"),
                     patch("external_tables_guest_service.OdbcPilotAdministration", events.admin),
+                    patch("external_tables_guest_service.verify_polybase_service", events.polybase),
                     patch("external_tables_guest_service.serve_guest_admin", events.serve),
                 ):
                     args = (PORT, TOKEN, Role.QUERY, network, Path("wheel"), deadline)
@@ -147,7 +148,7 @@ class GuestServiceTests(unittest.TestCase):
                     call.setup(SECRET, deadline), call.connections.admin("master", 2),
                     call.connections.admin("master", 2), call.session.close(),
                     call.admin(TOKEN, Role.QUERY, events.connections.admin),
-                    call.preflight.prepare_instance(deadline),
+                    call.preflight.prepare_instance(deadline), call.polybase(deadline),
                 ]
                 if not invalid:
                     expected.append(call.serve(

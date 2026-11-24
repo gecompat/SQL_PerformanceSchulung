@@ -19,6 +19,7 @@ from external_tables_guest_network import PILOT_INTERFACE, GuestNetwork, verify_
 from external_tables_odbc import LocalGuestConnections, OdbcDriver, OdbcPilotAdministration, load_pinned_pyodbc
 from external_tables_pilot import CLEANUP_SECONDS, WORK_SECONDS
 from external_tables_pilot_sql import SOURCE_PORT, Role, database_name
+from external_tables_polybase_service import verify_polybase_service
 from external_tables_source_firewall import verify_source_firewall
 from external_tables_principals import PASSWORD
 
@@ -70,6 +71,8 @@ def run_guest_engine(
             ready.close()
             break
     OdbcPilotAdministration(token, role, connections.admin).prepare_instance(deadline)
+    if role is Role.QUERY:
+        verify_polybase_service(deadline)
     serve_guest_admin(
         port, token, role, connections.admin, deadline + CLEANUP_SECONDS, open_principal=connections.principal,
         source_driver=driver if role is Role.QUERY else None, network=network,

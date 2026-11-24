@@ -19,6 +19,8 @@ on:
       - 'Tests/Runtime/external_tables_guest_identity.py'
       - 'Tests/Runtime/external_tables_guest_admin.py'
       - 'Tests/Runtime/external_tables_guest_service.py'
+      - 'Tests/Runtime/external_tables_polybase_service.py'
+      - 'Tests/Static/test_external_tables_polybase_service.py'
       - 'Tests/Runtime/external_tables_guest_tls.py'
       - 'Tests/Static/test_external_tables_guest_tls.py'
       - 'Tests/Runtime/external_tables_guest_bootstrap.py'
@@ -90,6 +92,8 @@ on:
       - 'Tests/Runtime/external_tables_guest_identity.py'
       - 'Tests/Runtime/external_tables_guest_admin.py'
       - 'Tests/Runtime/external_tables_guest_service.py'
+      - 'Tests/Runtime/external_tables_polybase_service.py'
+      - 'Tests/Static/test_external_tables_polybase_service.py'
       - 'Tests/Runtime/external_tables_guest_tls.py'
       - 'Tests/Static/test_external_tables_guest_tls.py'
       - 'Tests/Runtime/external_tables_guest_bootstrap.py'
@@ -169,6 +173,7 @@ jobs:
       - run: python Tests/Static/test_external_tables_guest_identity.py
       - run: python Tests/Static/test_external_tables_guest_admin.py
       - run: python Tests/Static/test_external_tables_guest_service.py
+      - run: python Tests/Static/test_external_tables_polybase_service.py
       - run: python Tests/Static/test_external_tables_guest_tls.py
       - run: python Tests/Static/test_external_tables_guest_bootstrap.py
       - run: python Tests/Static/test_external_tables_boot_media.py
