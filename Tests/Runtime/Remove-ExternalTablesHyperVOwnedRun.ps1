@@ -9,10 +9,14 @@ param(
     [Parameter(Mandatory)] [guid] $SourceDiskId,
     [Parameter(Mandatory)] [guid] $QueryDiskId,
     [switch] $PartialProvision,
-    [switch] $ApplyOwnedRun
+    [switch] $ApplyOwnedRun,
+    [switch] $PassThruVerifiedInventory
 )
 
 $ErrorActionPreference = 'Stop'
+if ($PassThruVerifiedInventory -and ($PartialProvision -or $ApplyOwnedRun)) {
+    throw 'The verified inventory is available for read-only checks of a complete run.'
+}
 $resourceIds = @($SourceVmId, $QueryVmId, $SwitchId, $SourceDiskId, $QueryDiskId)
 if ($PartialProvision) { $resourceIds = @($resourceIds | Where-Object { $_ -ne [guid]::Empty }) }
 if ($RunToken -cnotmatch '\A[A-Z0-9]{8}\z' -or [guid]::Empty -in $resourceIds -or
@@ -66,35 +70,40 @@ function Read-OwnedInventory {
         throw 'Recorded switch identity differs from live metadata.'
     }
     $guestIds = @(@($SourceVmId, $QueryVmId) | Where-Object { $_ -ne [guid]::Empty })
-    foreach ($adapter in @(Get-VMNetworkAdapter -All)) {
-        if ($null -eq $adapter.PSObject.Properties['SwitchId'] -or $null -eq $adapter.PSObject.Properties['VMId'] -or
-            $adapter.IsManagementOs -isnot [bool] -or
-            ($null -ne $adapter.VMId -and $adapter.VMId -isnot [guid]) -or
-            ($null -ne $adapter.SwitchId -and $adapter.SwitchId -isnot [guid])) {
-            throw 'Unexpected Hyper-V adapter record.'
+    $guests = @($vms | Where-Object Id -In $guestIds)
+    $adapters = @(
+        if ($guests.Count) { Get-VMNetworkAdapter -VM $guests }
+    )
+    foreach ($adapter in $adapters) {
+        if ($adapter.VMId -isnot [guid] -or $adapter.VMId -notin $guests.Id -or
+            $adapter.IsManagementOs -isnot [bool] -or $adapter.IsManagementOs -or
+            $null -eq $adapter.PSObject.Properties['SwitchId'] -or
+            ($null -ne $adapter.SwitchId -and $adapter.SwitchId -isnot [guid]) -or
+            $adapter.SwitchId -notin @($null, [guid]::Empty, $SwitchId)) {
+            throw 'Recorded VM has an unexpected adapter or foreign switch attachment.'
         }
-        if ($SwitchId -ne [guid]::Empty -and $adapter.SwitchId -eq $SwitchId -and
-            ($switch.Count -ne 1 -or $adapter.IsManagementOs -or $adapter.VMId -notin $guestIds)) {
-            throw 'Recorded switch has a foreign or management attachment.'
-        }
-        if ($adapter.VMId -in $guestIds -and
-            ($adapter.IsManagementOs -or $adapter.SwitchId -notin @($null, [guid]::Empty, $SwitchId))) {
-            throw 'Recorded VM has a foreign switch attachment.'
+    }
+    if ($SwitchId -ne [guid]::Empty) {
+        $connected = @($adapters | Where-Object SwitchId -EQ $SwitchId).Count
+        $ports = @(Get-CimInstance -Namespace root/virtualization/v2 -ClassName Msvm_EthernetPortAllocationSettingData -Property HostResource)
+        $switchName = 'Name="' + $SwitchId.ToString() + '"'
+        $references = @($ports | Where-Object {
+            $_.HostResource -match ('(?i):Msvm_VirtualEthernetSwitch\..*\b' + [regex]::Escape($switchName))
+        })
+        if ($references.Count -ne $connected -or ($connected -and $switch.Count -ne 1)) {
+            throw 'Recorded switch references differ from the owned guest inventory.'
         }
     }
     $owned = @{}
     foreach ($vm in $vms) {
-        $drives = @(Get-VMHardDiskDrive -VM $vm)
         $target = @($targets | Where-Object Id -EQ $vm.Id)
         if ($target.Count -eq 0) {
             if ($PartialProvision -and $vm.Name -iin @("$prefix-SOURCE", "$prefix-QUERY")) {
                 throw 'The expected VM name has no matching creation receipt.'
             }
-            if (@($drives | Where-Object { $_.Path -iin @($SourceDiskPath, $QueryDiskPath) }).Count) {
-                throw 'A foreign VM references a recorded disk.'
-            }
             continue
         }
+        $drives = @(Get-VMHardDiskDrive -VM $vm)
         $role = $target[0].Role
         if (($PartialProvision -and [string]$vm.State -cne 'Off') -or $owned.ContainsKey($vm.Id) -or $vm.Name -cne "$prefix-$role" -or
             $vm.Notes -cne "SQLPERF.ExternalTables/$RunToken/$role" -or
@@ -103,7 +112,17 @@ function Read-OwnedInventory {
         }
         $owned[$vm.Id] = $vm
     }
-    return @{ Guests = $owned; Switch = $switch }
+    # Read configured VHD references in one provider query, including those of off guests.
+    $references = @(Get-CimInstance -Namespace root/virtualization/v2 -ClassName Msvm_StorageAllocationSettingData `
+        -Filter "ResourceSubType = 'Microsoft:Hyper-V:Virtual Hard Disk'" -Property HostResource)
+    foreach ($target in $targets) {
+        $expectedReferences = [int]$owned.ContainsKey($target.Id)
+        $matchingReferences = @($references | Where-Object { $target.DiskPath -iin $_.HostResource })
+        if ($matchingReferences.Count -ne $expectedReferences) {
+            throw 'Recorded disk references differ from the owned guest inventory.'
+        }
+    }
+    return @{ Guests = $owned; Switch = $switch; Adapters = $adapters }
 }
 
 try {
@@ -127,33 +146,43 @@ try {
         }
     }
     $inventory = Read-OwnedInventory
+    $verifiedDisks = @{}
     foreach ($target in $targets) {
         $disk = Read-OwnedDisk $target
+        $verifiedDisks[$target.Id] = $disk
         if (($null -eq $disk -and $inventory.Guests.ContainsKey($target.Id)) -or
             ($null -ne $disk -and $disk.Attached -and -not $inventory.Guests.ContainsKey($target.Id))) {
             throw 'Recorded disk availability differs from the owned guest inventory.'
         }
     }
+    if ($PassThruVerifiedInventory) {
+        $inventory.Disks = $verifiedDisks
+        return $inventory
+    }
     if ($ApplyOwnedRun) {
+        $current = Read-OwnedInventory
         foreach ($target in $targets) {
-            $current = Read-OwnedInventory
             $vm = $current.Guests[$target.Id]
             if ($null -ne $vm) {
-                if ([string]$vm.State -cne 'Off') { Stop-VM -VM $vm -TurnOff -Confirm:$false }
-                $off = (Read-OwnedInventory).Guests[$target.Id]
-                if ($null -eq $off -or [string]$off.State -cne 'Off') { throw 'VM stop was not confirmed.' }
-                Remove-VM -VM $off -Confirm:$false
+                if ([string]$vm.State -cne 'Off') {
+                    Stop-VM -VM $vm -TurnOff -Confirm:$false
+                    $vm = (Read-OwnedInventory).Guests[$target.Id]
+                    if ($null -eq $vm -or [string]$vm.State -cne 'Off') { throw 'VM stop was not confirmed.' }
+                }
+                Remove-VM -VM $vm -Confirm:$false
+                $current = Read-OwnedInventory
             }
         }
         foreach ($target in $targets) {
-            if ((Read-OwnedInventory).Guests.Count -ne 0) { throw 'A recorded VM is still present.' }
+            if ($current.Guests.Count -ne 0) { throw 'A recorded VM is still present.' }
             $disk = Read-OwnedDisk $target
             if ($null -ne $disk) {
                 if ($disk.Attached) { throw 'A recorded disk is still attached.' }
                 [IO.File]::Delete($target.DiskPath)
+                $current = Read-OwnedInventory
             }
         }
-        $remaining = Read-OwnedInventory
+        $remaining = $current
         if ($remaining.Guests.Count -ne 0) { throw 'A recorded VM is still present.' }
         if ($remaining.Switch.Count -eq 1) { Remove-VMSwitch -VMSwitch $remaining.Switch[0] -Confirm:$false }
         if ($PartialProvision) {
