@@ -8,7 +8,7 @@ from external_tables_pilot_sql import Role, Route, database_guard, database_name
 
 
 HANDLE = re.compile(r"[0-9A-Fa-f]{2,128}", re.ASCII)
-IDENTIFIER = r"(?:\[[a-zA-Z_][a-zA-Z_0-9]*\]|[a-zA-Z_][a-zA-Z_0-9]*)"
+IDENTIFIER = r'(?:\[[a-zA-Z_][a-zA-Z_0-9]*\]|"[a-zA-Z_][a-zA-Z_0-9]*"|[a-zA-Z_][a-zA-Z_0-9]*)'
 COLUMN = rf"(?:(?P<qualifier>{IDENTIFIER})\s*\.\s*)?(?P<column>{IDENTIFIER})"
 COMPARISON = re.compile(rf"{COLUMN}\s*(>=|<)\s*(.+)", re.ASCII | re.IGNORECASE)
 
@@ -80,7 +80,7 @@ def _single_work(records: tuple[Work, ...], source: str) -> Work:
     if (
         not record.execution_id or len(record.execution_id) > 32
         or record.input_name != source
-        or record.request_status != "Complete" or record.work_status != "Done"
+        or record.request_status not in {"Complete", "Completed"} or record.work_status != "Done"
         or record.read_command is None
     ):
         raise ValueError("external work was incomplete or could not be bound to the source")
@@ -88,7 +88,7 @@ def _single_work(records: tuple[Work, ...], source: str) -> Work:
 
 
 def _unquote(identifier: str) -> str:
-    return identifier.strip("[]").lower()
+    return identifier.strip('[]"').lower()
 
 
 def _is_filtered(command: str | None, database: str) -> bool:
