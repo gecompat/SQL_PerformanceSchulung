@@ -311,7 +311,10 @@ class HyperVPreparedTransport:
             "-Phase", phase, *self._ownership_arguments(), "-SourceMediaSha256", media.source_sha256,
             "-QueryMediaSha256", media.query_sha256, "-ApplyOwnedRun",
         ]
-        self._run_hyperv_script(script, arguments, {"status": status}, phase.lower(), deadline, 60)
+        # Boot includes both Hyper-V starts and a fresh ownership check. Keep it within
+        # the existing pilot deadline even when the host starts the guests sequentially.
+        limit = 120 if phase == "Boot" else 60
+        self._run_hyperv_script(script, arguments, {"status": status}, phase.lower(), deadline, limit)
 
     def admin(self, role: Role, command: AdminCommand, deadline: float) -> bool | None:
         return self._sql().admin(role, command, deadline)
