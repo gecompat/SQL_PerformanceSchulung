@@ -763,6 +763,26 @@ unterbrochenen Abruf bleiben die bis dahin aufgezeichneten Identitäten
 für die Wiederaufnahme verfügbar. Ohne vollständige Quittung kann
 der SQL-Ablauf nicht starten.
 
+Der [Mediengenerator](../../Tests/Runtime/external_tables_boot_media.py)
+erstellt unter Linux mit xorriso je Gast ein ISO-Abbild mit der
+Datenträgerbezeichnung _CIDATA_. Der Aufruf erwartet die Laufkennung,
+Rolle, Bootstrap-Port, die beiden vorgesehenen privaten Gastadressen
+und das lokale Verzeichnis mit den gesperrten Paketen und dem Python-Wheel.
+Er prüft die Paketbytes gegen die Rolle und gibt den SHA-256-Wert des
+fertigen Abbilds für die spätere Zuordnung am Host aus. Das Abbild enthält
+die für den Bootstrap benötigten Projektdateien und NoCloud-Konfiguration.
+Cloud-init lädt diese Konfiguration beim Start lokal. Sie deaktiviert
+die automatische Netzkonfiguration, bindet das Medium schreibgeschützt
+ein und startet den Rollen-Bootstrap.
+[Cloud-init-Dokumentation zu NoCloud](https://docs.cloud-init.io/en/latest/reference/datasources/nocloud.html)
+und [xorriso-Referenz](https://www.gnu.org/software/xorriso/man_1_xorrisofs.html).
+
+Beim Auslesen der erzeugten Abbilder bestätigte die Komponentenprüfung
+die Datenträgerbezeichnung, das Cloud-init-Konfigurationsschema, den
+Import des Bootstrap-Programms, 20 Quellpakete, 21 Abfragepakete und
+das gesperrte Wheel in beiden Rollen. Das Auslesen erfasst die Medien
+vor dem ersten Start der Gäste.
+
 Der [Gast-Bootstrap](../../Tests/Runtime/external_tables_guest_bootstrap.py)
 installiert die gesperrten Rollenpakete von einem schreibgeschützten Medium.
 Auf dem Quellgast installiert er anschließend die Eingangsregeln für
