@@ -130,6 +130,60 @@ class HyperVHostTests(unittest.TestCase):
                      "provider removal", "Test-ExternalTablesHyperVAbsence"],
         )
 
+    def test_bootstrap_proves_both_detached_guests_before_joining_the_switch(self):
+        for missing in (None, Role.QUERY):
+            with self.subTest(missing=missing):
+                directory = self.directory / ("missing" if missing else "ready")
+                directory.mkdir()
+                inventory = replace(self.inventory, source_disk_id=uuid4(), query_disk_id=uuid4())
+                journal = RunJournal(directory, inventory)
+                journal.bind()
+                events = []
+                transport = HyperVPreparedTransport(journal, b"base", {}, bootstrap_port=2763)
+
+                def bounded(command, **options):
+                    name = Path(command[4]).stem
+                    if name == "Start-ExternalTablesHyperVOwnedRun":
+                        phase = command[command.index("-Phase") + 1]
+                        events.append(phase)
+                        self.assertIn("-ApplyOwnedRun", command)
+                        self.assertIn(str(inventory.query_disk_id), command)
+                        status = "BOOTED" if phase == "Boot" else "ATTACHED"
+                    elif name == "Remove-ExternalTablesHyperVOwnedRun":
+                        events.append("remove")
+                        status = "REMOVED"
+                    else:
+                        events.append(name)
+                        return self._probe_result(command, **options)
+                    return SimpleNamespace(returncode=0, stdout=json.dumps({"status": status}).encode(), stderr=b"")
+
+                def verify(vm_id, port, token, role, deadline, *, detached, wait, **options):
+                    self.assertTrue(wait)
+                    self.assertEqual(vm_id, inventory.source_vm if role is Role.SOURCE else inventory.query_vm)
+                    self.assertEqual(port, 2763 if detached else inventory.service_port)
+                    self.assertEqual(deadline, self.deadline)
+                    events.append((detached, role))
+                    if detached and role is missing:
+                        raise ValueError("synthetic readiness mismatch")
+
+                with (
+                    patch("external_tables_hyperv_host.collect_bounded_process", side_effect=bounded),
+                    patch("external_tables_hyperv_host.verify_guest", side_effect=verify),
+                ):
+                    if missing:
+                        with self.assertRaisesRegex(ValueError, "readiness mismatch"):
+                            transport.start_verified_guests(TOKEN, self.deadline)
+                        with self.assertRaisesRegex(OSError, "preflight"):
+                            transport.admin(Role.SOURCE, AdminCommand(AdminAction.CREATE_DATABASE), self.deadline)
+                    else:
+                        transport.start_verified_guests(TOKEN, self.deadline)
+                    self.assertTrue(transport.remove_verified_guests(TOKEN, self.deadline))
+
+                expected = ["Boot", "Test-ExternalTablesHyperVResources", (True, Role.SOURCE), (True, Role.QUERY)]
+                if missing is None:
+                    expected.extend(["Attach", "Test-ExternalTablesHyperVNetwork", (False, Role.SOURCE), (False, Role.QUERY)])
+                self.assertEqual(events, [*expected, "remove", "Test-ExternalTablesHyperVAbsence"])
+
     def test_default_cleanup_requires_disk_ids_and_checks_absence_after_removal(self):
         legacy = HyperVPreparedTransport(self.journal, b"base", {})
         with self.assertRaisesRegex(ValueError, "recorded VHDX identities"):

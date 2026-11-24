@@ -221,10 +221,15 @@ class HyperVPreparedTransport:
 
     def __init__(
         self, journal: RunJournal, base_status: bytes, package_lock: dict,
-        remove_owned: Callable[[HyperVRunInventory, float], None] | None = None,
+        remove_owned: Callable[[HyperVRunInventory, float], None] | None = None, *, bootstrap_port: int | None = None,
     ) -> None:
         self._journal = journal
         self._inventory = journal.inventory
+        if bootstrap_port is not None:
+            linux_service_id(bootstrap_port)
+            if bootstrap_port == self._inventory.service_port or self._inventory.source_disk_id is None:
+                raise ValueError("External Tables requires distinct preparation and SQL ports and recorded VHDX IDs")
+        self._bootstrap_port = bootstrap_port
         self._base_status = base_status
         self._package_lock = package_lock
         self._remove_owned = self._remove_recorded if remove_owned is None else remove_owned
@@ -244,14 +249,29 @@ class HyperVPreparedTransport:
             raise ValueError("External Tables cleanup requires both recorded VHDX identities")
         self._journal.claim_work()
         self._claimed = True
-        self._probe("resources", deadline)
+        if self._bootstrap_port is not None:
+            self._transition("Boot", "BOOTED", deadline)
+            self._probe("resources", deadline)
+            self._prove_guests(self._bootstrap_port, deadline, detached=True, wait=True)
+            self._transition("Attach", "ATTACHED", deadline)
+        else:
+            self._probe("resources", deadline)
         self._probe("network", deadline)
+        self._prove_guests(self._inventory.service_port, deadline, wait=self._bootstrap_port is not None)
+        self._verified = True
+
+    def _prove_guests(self, port: int, deadline: float, *, detached: bool = False, wait: bool = False) -> None:
         for role, vm_id in ((Role.SOURCE, self._inventory.source_vm), (Role.QUERY, self._inventory.query_vm)):
             verify_guest(
-                vm_id, self._inventory.service_port, token, role, deadline,
-                base_status=self._base_status, package_lock=self._package_lock,
+                vm_id, port, self._inventory.token, role, deadline,
+                base_status=self._base_status, package_lock=self._package_lock, detached=detached, wait=wait,
             )
-        self._verified = True
+
+    def _transition(self, phase: str, status: str, deadline: float) -> None:
+        self._journal.require_binding()
+        script = Path(__file__).resolve().with_name("Start-ExternalTablesHyperVOwnedRun.ps1")
+        arguments = ["-Phase", phase, *self._ownership_arguments(), "-ApplyOwnedRun"]
+        self._run_hyperv_script(script, arguments, {"status": status}, phase.lower(), deadline, 60)
 
     def admin(self, role: Role, command: AdminCommand, deadline: float) -> bool | None:
         return self._sql().admin(role, command, deadline)
@@ -307,16 +327,22 @@ class HyperVPreparedTransport:
         self._run_hyperv_script(script, arguments, _PROBES[name], name, deadline, 20)
 
     def _remove_recorded(self, target: HyperVRunInventory, deadline: float) -> None:
-        if target != self._inventory or target.source_disk_id is None or target.query_disk_id is None:
-            raise ValueError("External Tables cannot remove resources without the bound VHDX identities")
+        if target != self._inventory:
+            raise ValueError("External Tables can remove only the bound resources")
         script = Path(__file__).resolve().with_name("Remove-ExternalTablesHyperVOwnedRun.ps1")
-        arguments = [
+        arguments = [*self._ownership_arguments(), "-ApplyOwnedRun"]
+        self._run_hyperv_script(script, arguments, {"status": "REMOVED"}, "removal", deadline, 90)
+
+    def _ownership_arguments(self) -> list[str]:
+        target = self._inventory
+        if target.source_disk_id is None or target.query_disk_id is None:
+            raise ValueError("External Tables requires both bound VHDX identities")
+        return [
             "-RunToken", target.token, "-SourceVmId", str(target.source_vm), "-QueryVmId", str(target.query_vm),
             "-SwitchId", str(target.switch), "-SourceDiskPath", str(target.source_disk),
             "-QueryDiskPath", str(target.query_disk), "-SourceDiskId", str(target.source_disk_id),
-            "-QueryDiskId", str(target.query_disk_id), "-ApplyOwnedRun",
+            "-QueryDiskId", str(target.query_disk_id),
         ]
-        self._run_hyperv_script(script, arguments, {"status": "REMOVED"}, "removal", deadline, 90)
 
     @staticmethod
     def _run_hyperv_script(
@@ -362,7 +388,8 @@ def provision_detached_hyperv(
 
 def run_prepared_hyperv_pilot(
     journal: RunJournal, base_status: bytes, package_lock: dict,
-    remove_owned: Callable[[HyperVRunInventory, float], None] | None = None,
+    remove_owned: Callable[[HyperVRunInventory, float], None] | None = None, *, bootstrap_port: int | None = None,
 ) -> PilotResult:
-    """Run only after the provider has journaled both prepared, admitted guests."""
-    return run_pilot(HyperVPreparedTransport(journal, base_status, package_lock, remove_owned), journal.inventory.token)
+    """Run after the provider journaled both guests and staged their admitted boot inputs."""
+    transport = HyperVPreparedTransport(journal, base_status, package_lock, remove_owned, bootstrap_port=bootstrap_port)
+    return run_pilot(transport, journal.inventory.token)

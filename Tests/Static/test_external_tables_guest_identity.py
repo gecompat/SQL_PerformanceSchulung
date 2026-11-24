@@ -120,6 +120,35 @@ class GuestIdentityTests(unittest.TestCase):
                 probe()
             probe(detached=True)
 
+    def test_wait_retries_only_connection_errors_and_uses_a_fresh_socket(self):
+        waiting, ready = MagicMock(), MagicMock()
+        waiting.__enter__.return_value = waiting
+        ready.__enter__.return_value = ready
+        waiting.connect.side_effect = ConnectionRefusedError()
+        ready.recv.return_value = _RESPONSE.pack(_DETACHED_REPLY, TOKEN.encode(), 1, NONCE, SOURCE_DIGEST)
+        with (
+            patch.object(socket, "AF_HYPERV", 34, create=True),
+            patch.object(socket, "HV_PROTOCOL_RAW", 1, create=True),
+            patch.object(socket, "socket", side_effect=[waiting, ready]) as factory,
+            patch("external_tables_guest_identity.token_bytes", return_value=NONCE),
+            patch("external_tables_guest_identity.sleep") as sleep,
+        ):
+            args = (VM_ID, PORT, TOKEN, Role.SOURCE, monotonic() + 4)
+            kwargs = dict(base_status=BASE_STATUS, package_lock=PACKAGE_LOCK, detached=True, wait=True)
+            verify_guest(*args, **kwargs)
+            self.assertEqual(factory.call_count, 2)
+            sleep.assert_called_once()
+            waiting.sendall.assert_not_called()
+            ready.sendall.assert_called_once()
+            self.assertLessEqual(waiting.settimeout.call_args.args[0], 2)
+
+            factory.reset_mock(side_effect=True)
+            factory.return_value = ready
+            ready.recv.return_value = _RESPONSE.pack(_REPLY, TOKEN.encode(), 1, NONCE, SOURCE_DIGEST)
+            with self.assertRaisesRegex(ValueError, "current probe"):
+                verify_guest(*args, **kwargs)
+            factory.assert_called_once()
+
     def test_guest_refuses_non_parent_peer_before_receiving(self):
         listener, channel = MagicMock(), MagicMock()
         listener.__enter__.return_value = listener
