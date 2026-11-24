@@ -99,7 +99,9 @@ class RunJournal:
         return cls(directory, inventory)
 
     @classmethod
-    def from_detached(cls, directory: Path, token: str, service_port: int) -> RunJournal:
+    def from_detached(
+        cls, directory: Path, token: str, service_port: int, *, attempt_id: UUID | None = None,
+    ) -> RunJournal:
         """Bind the completed provision receipt and its individual ownership records."""
         root = directory.resolve(strict=True)
 
@@ -119,10 +121,8 @@ class RunJournal:
         prefix = f"SQLPerfExt-{token}"
         if set(receipt) != {"run", "source_vm", "query_vm", "switch", "source_disk_id", "query_disk_id"} or receipt["run"] != token:
             raise ValueError("detached provision receipt differs from the expected run")
-        if record("external-tables-provision-intent.json") != {
-            "version": 1, "run": token, "switch": prefix, "vms": [f"{prefix}-SOURCE", f"{prefix}-QUERY"],
-            "disks": ["source.vhdx", "query.vhdx"],
-        } or record("external-tables-switch.json") != {"name": prefix, "id": receipt["switch"]}:
+        if (record("external-tables-provision-intent.json") != _provision_intent(token, attempt_id)
+                or record("external-tables-switch.json") != {"name": prefix, "id": receipt["switch"]}):
             raise ValueError("detached provision intent or switch differs from the receipt")
         for role in Role:
             key = role.value.lower()
@@ -421,9 +421,76 @@ class HyperVPreparedTransport:
 
 
 
+def _provision_intent(token: str, attempt_id: UUID | None) -> dict:
+    prefix = f"SQLPerfExt-{token}"
+    record = {
+        "version": 1, "run": token, "switch": prefix, "vms": [f"{prefix}-SOURCE", f"{prefix}-QUERY"],
+        "disks": ["source.vhdx", "query.vhdx"],
+    }
+    if attempt_id is not None:
+        if not isinstance(attempt_id, UUID) or not attempt_id.int:
+            raise ValueError("expected one exact provisioning attempt")
+        record["attempt"] = str(attempt_id)
+    return record
+
+
+def recover_partial_hyperv(directory: Path, token: str, attempt_id: UUID, deadline: float) -> None:
+    """Discard the provable resources from this terminated, unstarted provisioning attempt."""
+    database_name(token, Role.QUERY)
+    if os.name != "nt":
+        raise OSError("External Tables Hyper-V recovery requires Windows")
+    root = directory.resolve(strict=True)
+
+    def record(name: str) -> dict | None:
+        data = RunJournal._read(root / f"external-tables-{name}.json", 4096)
+        if data is None:
+            return None
+        try:
+            result = json.loads(data)
+        except (ValueError, RecursionError):
+            raise ValueError("malformed provisioning receipt") from None
+        if type(result) is not dict:
+            raise ValueError("malformed provisioning receipt")
+        return result
+
+    def identity(name: str, profile: dict) -> str:
+        value = record(name)
+        if value is None:
+            return str(UUID(int=0))
+        try:
+            resource_id = UUID(value["id"])
+        except (KeyError, TypeError, ValueError, AttributeError):
+            raise ValueError("invalid provisioning resource identity") from None
+        if not resource_id.int or value != profile | {"id": str(resource_id)}:
+            raise ValueError("provisioning receipt does not match its expected resource")
+        return str(resource_id)
+
+    intent = _provision_intent(token, attempt_id)
+    if (attempt_id is None or record("provision-intent") != intent
+            or RunJournal._read(root / "external-tables-owner.json", 4096) is not None
+            or RunJournal._read(root / "external-tables-work", 64) is not None):
+        raise ValueError("there is no matching unstarted provisioning attempt")
+    prefix = intent["switch"]
+    arguments = ["-RunToken", token, "-SwitchId", identity("switch", {"name": prefix})]
+    for role in Role:
+        key = role.value.lower()
+        arg = key.title()
+        disk = f"{key}.vhdx"
+        arguments.extend((
+            f"-{arg}VmId", identity(f"vm-{role.value}", {"role": role.value, "name": f"{prefix}-{role.value}"}),
+            f"-{arg}DiskPath", str(root / disk),
+            f"-{arg}DiskId", identity(f"disk-{role.value}", {"role": role.value, "file": disk}),
+        ))
+    script = Path(__file__).resolve().with_name("Remove-ExternalTablesHyperVOwnedRun.ps1")
+    HyperVPreparedTransport._run_hyperv_script(
+        script, [*arguments, "-PartialProvision", "-ApplyOwnedRun"], {"status": "REMOVED"}, "partial removal", deadline, 90,
+    )
+
+
 def provision_detached_hyperv(
     directory: Path, token: str, service_port: int, deadline: float, *,
     source_template: Path, source_sha256: str, query_template: Path, query_sha256: str,
+    attempt_id: UUID | None = None,
 ) -> RunJournal:
     """Create the detached resources only inside an admitted provider operation."""
     database_name(token, Role.QUERY)
@@ -438,8 +505,11 @@ def provision_detached_hyperv(
         "-QueryTemplate", str(query_template.resolve(strict=True)), "-QuerySha256", query_sha256,
         "-ApplyOwnedRun",
     ]
+    if attempt_id is not None:
+        _provision_intent(token, attempt_id)
+        arguments.extend(["-ProvisionAttempt", str(attempt_id)])
     HyperVPreparedTransport._run_hyperv_script(script, arguments, {"status": "DETACHED"}, "provision", deadline, 600)
-    return RunJournal.from_detached(root, token, service_port)
+    return RunJournal.from_detached(root, token, service_port, attempt_id=attempt_id)
 
 
 def run_prepared_hyperv_pilot(

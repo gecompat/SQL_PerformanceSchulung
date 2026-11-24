@@ -96,6 +96,24 @@ class HyperVEntryTests(unittest.TestCase):
             self.assertEqual(provision.call_args.kwargs[f"{role}_template"], self.inputs.template)
             self.assertEqual(provision.call_args.kwargs[f"{role}_sha256"], self.inputs.template_sha256)
 
+    def test_provisioning_failure_recovers_only_its_bound_attempt(self):
+        for recovery_error in (None, ValueError("unbound")):
+            with (
+                self.subTest(recovery_error=recovery_error),
+                patch.object(entry, "require_registered_hyperv_ports"),
+                patch.object(entry, "provision_detached_hyperv", side_effect=OSError("partial")) as provision,
+                patch.object(entry, "recover_partial_hyperv", side_effect=recovery_error) as recover,
+                patch.object(entry, "run_prepared_hyperv_pilot") as execute,
+            ):
+                result = entry.run_hyperv_lab(self.inputs, apply=True)
+                self.assertEqual(result.stage, "guest_provisioning")
+                self.assertEqual(result.guest_cleanup, recovery_error is None)
+                self.assertEqual(result.status, "NOT_PROVEN" if recovery_error is None else "FAIL_CLEANUP")
+                self.assertEqual(recover.call_args.args[:3], (
+                    self.inputs.directory, TOKEN, provision.call_args.kwargs["attempt_id"],
+                ))
+                execute.assert_not_called()
+
     def test_media_changed_after_preflight_discards_only_the_bound_preparation(self):
         for cleanup in (True, False):
             with self.subTest(cleanup=cleanup):

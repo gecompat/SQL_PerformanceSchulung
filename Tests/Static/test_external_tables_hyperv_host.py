@@ -8,7 +8,7 @@ from time import monotonic
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
@@ -16,7 +16,7 @@ from external_tables_driver_evidence import DriverEvidence
 from external_tables_guest_admin import AdminAction, AdminCommand
 from external_tables_hyperv_host import (
     _PROBES, BootstrapMedia, HyperVPreparedTransport, HyperVRunInventory, RunJournal,
-    provision_detached_hyperv, run_prepared_hyperv_pilot,
+    _provision_intent, provision_detached_hyperv, recover_partial_hyperv, run_prepared_hyperv_pilot,
 )
 from external_tables_measurement import MeasurementResult
 from external_tables_pilot_sql import Role
@@ -286,6 +286,31 @@ class HyperVHostTests(unittest.TestCase):
         self.assertEqual([Path(call.args[0][4]).stem for call in probe.call_args_list][-2:],
                          ["Remove-ExternalTablesHyperVOwnedRun", "Test-ExternalTablesHyperVAbsence"])
 
+    @unittest.skipUnless(os.name == "nt", "the host recovery uses Windows paths")
+    def test_partial_recovery_requires_its_own_attempt_and_exact_receipts(self):
+        root = self.directory / "partial"
+        root.mkdir()
+        attempt, disk = uuid4(), uuid4()
+        (root / "external-tables-provision-intent.json").write_text(json.dumps(_provision_intent(TOKEN, attempt)))
+        (root / "external-tables-disk-SOURCE.json").write_text(
+            json.dumps({"role": "SOURCE", "file": "source.vhdx", "id": str(disk)}),
+        )
+        with patch.object(HyperVPreparedTransport, "_run_hyperv_script") as runner:
+            with self.assertRaises(ValueError):
+                recover_partial_hyperv(root, TOKEN, uuid4(), self.deadline)
+            runner.assert_not_called()
+            recover_partial_hyperv(root, TOKEN, attempt, self.deadline)
+            args = runner.call_args.args[1]
+            self.assertEqual(args[args.index("-SourceDiskId") + 1], str(disk))
+            self.assertEqual(args[args.index("-SourceVmId") + 1], str(UUID(int=0)))
+            self.assertIn("-PartialProvision", args)
+            self.assertIn("-ApplyOwnedRun", args)
+            runner.reset_mock()
+            (root / "external-tables-work").write_bytes(b"STARTED\n")
+            with self.assertRaises(ValueError):
+                recover_partial_hyperv(root, TOKEN, attempt, self.deadline)
+            runner.assert_not_called()
+
     @unittest.skipUnless(os.name == "nt", "the host receipt paths are Windows paths")
     def test_detached_provider_receipt_binds_all_individual_records(self):
         directory = self.directory / "fresh"
@@ -295,6 +320,7 @@ class HyperVHostTests(unittest.TestCase):
         source.touch()
         query.touch()
         prefix = f"SQLPerfExt-{TOKEN}"
+        attempt = uuid4()
         receipt = {"run": TOKEN, **{key: str(uuid4()) for key in (
             "source_vm", "query_vm", "switch", "source_disk_id", "query_disk_id",
         )}}
@@ -306,10 +332,8 @@ class HyperVHostTests(unittest.TestCase):
             self.assertTrue(command[4].endswith("New-ExternalTablesHyperVDetachedRun.ps1"))
             self.assertIn("-ApplyOwnedRun", command)
             self.assertEqual(kwargs["timeout_ceiling_seconds"], 600)
-            publish("external-tables-provision-intent.json", {
-                "version": 1, "run": TOKEN, "switch": prefix, "vms": [f"{prefix}-SOURCE", f"{prefix}-QUERY"],
-                "disks": ["source.vhdx", "query.vhdx"],
-            })
+            self.assertEqual(command[command.index("-ProvisionAttempt") + 1], str(attempt))
+            publish("external-tables-provision-intent.json", _provision_intent(TOKEN, attempt))
             publish("external-tables-switch.json", {"name": prefix, "id": receipt["switch"]})
             for role in Role:
                 name = role.value.lower()
@@ -325,13 +349,13 @@ class HyperVHostTests(unittest.TestCase):
         with patch("external_tables_hyperv_host.collect_bounded_process", side_effect=provision):
             journal = provision_detached_hyperv(
                 directory, TOKEN, 2762, self.deadline, source_template=source, source_sha256="a" * 64,
-                query_template=query, query_sha256="b" * 64,
+                query_template=query, query_sha256="b" * 64, attempt_id=attempt,
             )
         self.assertEqual(str(journal.inventory.source_disk_id), receipt["source_disk_id"])
         self.assertEqual(str(journal.inventory.query_vm), receipt["query_vm"])
         publish("external-tables-disk-QUERY.json", {"role": "QUERY", "file": "query.vhdx", "id": receipt["source_disk_id"]})
         with self.assertRaisesRegex(ValueError, "guest or disk differs"):
-            RunJournal.from_detached(directory, TOKEN, 2762)
+            RunJournal.from_detached(directory, TOKEN, 2762, attempt_id=attempt)
 
     @staticmethod
     def _probe_result(command, **_):

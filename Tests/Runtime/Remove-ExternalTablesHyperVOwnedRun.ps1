@@ -8,13 +8,17 @@ param(
     [Parameter(Mandatory)] [string] $QueryDiskPath,
     [Parameter(Mandatory)] [guid] $SourceDiskId,
     [Parameter(Mandatory)] [guid] $QueryDiskId,
+    [switch] $PartialProvision,
     [switch] $ApplyOwnedRun
 )
 
 $ErrorActionPreference = 'Stop'
 $resourceIds = @($SourceVmId, $QueryVmId, $SwitchId, $SourceDiskId, $QueryDiskId)
+if ($PartialProvision) { $resourceIds = @($resourceIds | Where-Object { $_ -ne [guid]::Empty }) }
 if ($RunToken -cnotmatch '\A[A-Z0-9]{8}\z' -or [guid]::Empty -in $resourceIds -or
-    @($resourceIds | Select-Object -Unique).Count -ne 5) {
+    @($resourceIds | Select-Object -Unique).Count -ne $resourceIds.Count -or
+    ($PartialProvision -and (($SourceVmId -ne [guid]::Empty -and $SourceDiskId -eq [guid]::Empty) -or
+                            ($QueryVmId -ne [guid]::Empty -and $QueryDiskId -eq [guid]::Empty)))) {
     throw 'External Tables expected distinct recorded Hyper-V identities.'
 }
 
@@ -32,6 +36,7 @@ function Read-OwnedDisk($Target) {
         }
         return
     }
+    if ($Target.DiskId -eq [guid]::Empty) { throw 'The expected disk path has no recorded disk identity.' }
     if ($entry.Attributes -band ([IO.FileAttributes]::Directory -bor [IO.FileAttributes]::ReparsePoint)) {
         throw 'Unexpected recorded disk object.'
     }
@@ -52,12 +57,15 @@ function Read-OwnedInventory {
     if (@(($vms + $switches) | Where-Object { $_.Id -isnot [guid] }).Count) {
         throw 'Unexpected Hyper-V inventory.'
     }
+    if ($PartialProvision -and @($switches | Where-Object { $_.Name -ieq $prefix -and $_.Id -ne $SwitchId }).Count) {
+        throw 'The expected switch name has no matching creation receipt.'
+    }
     $switch = @($switches | Where-Object Id -EQ $SwitchId)
     if ($switch.Count -gt 1 -or ($switch.Count -eq 1 -and
         ($switch[0].Name -cne $prefix -or [string]$switch[0].SwitchType -cne 'Private'))) {
         throw 'Recorded switch identity differs from live metadata.'
     }
-    $guestIds = @($SourceVmId, $QueryVmId)
+    $guestIds = @(@($SourceVmId, $QueryVmId) | Where-Object { $_ -ne [guid]::Empty })
     foreach ($adapter in @(Get-VMNetworkAdapter -All)) {
         if ($null -eq $adapter.PSObject.Properties['SwitchId'] -or $null -eq $adapter.PSObject.Properties['VMId'] -or
             $adapter.IsManagementOs -isnot [bool] -or
@@ -65,7 +73,7 @@ function Read-OwnedInventory {
             ($null -ne $adapter.SwitchId -and $adapter.SwitchId -isnot [guid])) {
             throw 'Unexpected Hyper-V adapter record.'
         }
-        if ($adapter.SwitchId -eq $SwitchId -and
+        if ($SwitchId -ne [guid]::Empty -and $adapter.SwitchId -eq $SwitchId -and
             ($switch.Count -ne 1 -or $adapter.IsManagementOs -or $adapter.VMId -notin $guestIds)) {
             throw 'Recorded switch has a foreign or management attachment.'
         }
@@ -79,13 +87,16 @@ function Read-OwnedInventory {
         $drives = @(Get-VMHardDiskDrive -VM $vm)
         $target = @($targets | Where-Object Id -EQ $vm.Id)
         if ($target.Count -eq 0) {
+            if ($PartialProvision -and $vm.Name -iin @("$prefix-SOURCE", "$prefix-QUERY")) {
+                throw 'The expected VM name has no matching creation receipt.'
+            }
             if (@($drives | Where-Object { $_.Path -iin @($SourceDiskPath, $QueryDiskPath) }).Count) {
                 throw 'A foreign VM references a recorded disk.'
             }
             continue
         }
         $role = $target[0].Role
-        if ($owned.ContainsKey($vm.Id) -or $vm.Name -cne "$prefix-$role" -or
+        if (($PartialProvision -and [string]$vm.State -cne 'Off') -or $owned.ContainsKey($vm.Id) -or $vm.Name -cne "$prefix-$role" -or
             $vm.Notes -cne "SQLPERF.ExternalTables/$RunToken/$role" -or
             $drives.Count -ne 1 -or $drives[0].Path -ine $target[0].DiskPath) {
             throw 'Recorded VM identity or disk attachment differs from live metadata.'
@@ -145,6 +156,12 @@ try {
         $remaining = Read-OwnedInventory
         if ($remaining.Guests.Count -ne 0) { throw 'A recorded VM is still present.' }
         if ($remaining.Switch.Count -eq 1) { Remove-VMSwitch -VMSwitch $remaining.Switch[0] -Confirm:$false }
+        if ($PartialProvision) {
+            $final = Read-OwnedInventory
+            if ($final.Guests.Count -or $final.Switch.Count -or @($targets | ForEach-Object { Read-OwnedDisk $_ }).Count) {
+                throw 'Partial provisioning resources are still present.'
+            }
+        }
     }
 } catch {
     throw 'External Tables could not verify or remove the recorded Hyper-V resources.'

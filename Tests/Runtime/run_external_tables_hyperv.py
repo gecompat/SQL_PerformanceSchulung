@@ -12,10 +12,11 @@ import re
 from tempfile import NamedTemporaryFile
 from time import monotonic
 from typing import BinaryIO
+from uuid import uuid4
 
 from external_tables_guest_identity import _remaining, linux_service_id, require_registered_hyperv_ports
 from external_tables_hyperv_host import (
-    BootstrapMedia, HyperVPreparedTransport, provision_detached_hyperv, run_prepared_hyperv_pilot,
+    BootstrapMedia, HyperVPreparedTransport, provision_detached_hyperv, recover_partial_hyperv, run_prepared_hyperv_pilot,
 )
 from external_tables_package_state import read_dpkg_status
 from external_tables_pilot import CLEANUP_SECONDS, WORK_SECONDS, PilotResult
@@ -74,14 +75,19 @@ def run_hyperv_lab(inputs: PilotInputs, *, apply: bool = False) -> PilotResult:
     if not apply:
         return PilotResult("VERIFIED", "host_preflight", None, False, False)
 
+    attempt = uuid4()
     try:
         journal = provision_detached_hyperv(
             directory, inputs.token, inputs.sql_port, deadline,
             source_template=inputs.template, source_sha256=inputs.template_sha256,
-            query_template=inputs.template, query_sha256=inputs.template_sha256,
+            query_template=inputs.template, query_sha256=inputs.template_sha256, attempt_id=attempt,
         )
     except (OSError, ValueError):
-        return PilotResult("FAIL_CLEANUP", "guest_provisioning", None, True, False)
+        try:
+            recover_partial_hyperv(directory, inputs.token, attempt, monotonic() + CLEANUP_SECONDS)
+        except (OSError, ValueError):
+            return PilotResult("FAIL_CLEANUP", "guest_provisioning", None, True, False)
+        return PilotResult("NOT_PROVEN", "guest_provisioning", None, True, True)
 
     stage = "host_media_staging"
     try:
