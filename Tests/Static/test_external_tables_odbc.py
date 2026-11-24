@@ -246,7 +246,7 @@ class OdbcGuestMeasurementTests(unittest.TestCase):
         opener = Mock(side_effect=[observer, reader])
         expected = MeasurementResult("PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE)
 
-        def compare(transport, token, deadline):
+        def compare(transport, token, deadline, *, observe_driver=None):
             self.assertEqual((token, deadline), (TOKEN, self.deadline))
             self.assertIs(transport._observer, observer)
             connection = transport._reader(5)

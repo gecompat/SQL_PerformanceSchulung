@@ -14,6 +14,7 @@ from external_tables_guest_admin import (
     GuestSqlAccess, GuestSqlChannel, invoke_guest_measurement,
 )
 from external_tables_guest_identity import _QUERY, _REPLY, _REQUEST, _RESPONSE
+from external_tables_driver_evidence import DriverEvidence
 from external_tables_measurement import MeasurementResult
 from external_tables_odbc import OdbcPilotAdministration
 from external_tables_pilot_sql import Role, database_name
@@ -208,13 +209,16 @@ class GuestAdminChannelTests(unittest.TestCase):
                 self.round_trip(command, role, open_principal=open_principal)
         measure.assert_not_called()
         for expected in (
-            MeasurementResult("PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE),
+            MeasurementResult(
+                "PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE,
+                DriverEvidence("mssql-ees.service", "17.0.5065.9-3", "libmsodbcsql-18.5.so.1.1", "f" * 64),
+            ),
             MeasurementResult("NOT_PROVEN", "PUSHDOWN_OFF"),
             MeasurementResult("FAIL_CLEANUP", "query_connection"),
         ):
             measure.return_value = expected
             self.assertEqual(self.round_trip(command, Role.QUERY, open_principal=opener), expected)
-            measure.assert_called_with(TOKEN, SECRET, observer, self.deadline, opener)
+            measure.assert_called_with(TOKEN, SECRET, observer, self.deadline, opener, network=None)
         measure.return_value = MeasurementResult("PASS", "comparison", ("unbound filter", "unbound filter"))
         with self.assertRaises(OSError):
             self.round_trip(command, Role.QUERY, open_principal=opener)

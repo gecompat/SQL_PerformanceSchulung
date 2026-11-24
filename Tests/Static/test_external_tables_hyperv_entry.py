@@ -77,8 +77,9 @@ class HyperVEntryTests(unittest.TestCase):
         journal = Mock()
         result = PilotResult("PASS", "comparison", ("pushdown-on", "pushdown-off"), True, True)
 
-        def execute(bound, status, package_lock, *, bootstrap_port, boot_media):
+        def execute(bound, status, package_lock, *, bootstrap_port, boot_media, expected_driver_sha256):
             self.assertIs(bound, journal)
+            self.assertEqual(expected_driver_sha256, "f" * 64)
             self.assertEqual((status, package_lock, bootstrap_port, boot_media), (STATUS, self.lock, 2760, self.inputs.media))
             self.assertEqual((self.inputs.directory / "source.iso").read_bytes(), self.inputs.source_iso.read_bytes())
             self.assertEqual((self.inputs.directory / "query.iso").read_bytes(), self.inputs.query_iso.read_bytes())
@@ -89,7 +90,7 @@ class HyperVEntryTests(unittest.TestCase):
             patch.object(entry, "provision_detached_hyperv", return_value=journal) as provision,
             patch.object(entry, "run_prepared_hyperv_pilot", side_effect=execute),
         ):
-            self.assertIs(entry.run_hyperv_lab(self.inputs, apply=True), result)
+            self.assertIs(entry.run_hyperv_lab(replace(self.inputs, expected_driver_sha256="f" * 64), apply=True), result)
         self.assertEqual(provision.call_args.args[:3], (self.inputs.directory, TOKEN, 2762))
         for role in ("source", "query"):
             self.assertEqual(provision.call_args.kwargs[f"{role}_template"], self.inputs.template)

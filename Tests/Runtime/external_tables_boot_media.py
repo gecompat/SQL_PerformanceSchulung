@@ -29,7 +29,8 @@ _LOCK_PATH = Path("Documentation/Project_Planning/external_tables_apt_lock.json"
 _RUNTIME = Path("Tests/Runtime")
 _MODULES = (
     "dgn004_capture_runner", "execution_target", "external_tables_cleanup", "external_tables_guest_admin",
-    "external_tables_guest_apt", "external_tables_guest_bootstrap", "external_tables_guest_identity",
+    "external_tables_driver_evidence", "external_tables_guest_apt", "external_tables_guest_bootstrap",
+    "external_tables_guest_identity",
     "external_tables_guest_network", "external_tables_guest_service", "external_tables_guest_tls",
     "external_tables_measurement", "external_tables_odbc",
     "external_tables_package_state", "external_tables_pilot", "external_tables_pilot_sql",
@@ -41,6 +42,7 @@ _GUEST_FILES = (
     *(_RUNTIME / f"{module}.py" for module in _MODULES),
     *(Path(f"Tests/Static/{module}.py") for module in (
         "dgn004_capture_input", "dgn004_capture_result", "dgn004_plan_frame", "dgn004_plan_transport",
+        "inspect_external_tables_driver", "verify_external_tables_packages",
     )),
     Path("Demos/00_Framework/Tools/sqlcmd_process.py"),
 )

@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from math import isfinite
 from time import monotonic, sleep
 from typing import ContextManager, Protocol
 
+from external_tables_driver_evidence import DriverEvidence
 from external_tables_pilot_sql import Role, Route, aggregate_batch, database_name, verify_aggregate
 from external_tables_pushdown_evidence import Work, active_request_batch, external_work_batch, verify_pushdown
 
@@ -52,9 +54,13 @@ class MeasurementResult:
     status: str
     stage: str
     filters: tuple[str, str] | None = None
+    driver: DriverEvidence | None = None
 
 
-def measure_pushdown(transport: MeasurementTransport, token: str, deadline: float) -> MeasurementResult:
+def measure_pushdown(
+    transport: MeasurementTransport, token: str, deadline: float, *,
+    observe_driver: Callable[[Callable[[], bool], float], DriverEvidence] | None = None,
+) -> MeasurementResult:
     """Use once per fresh run token, after fixture and statistics verification.
 
     The pilot owns the enclosing deadline and SQL/guest teardown. This function
@@ -63,6 +69,7 @@ def measure_pushdown(transport: MeasurementTransport, token: str, deadline: floa
     database_name(token, Role.QUERY)
     records: list[tuple[Work, ...]] = []
     witnessed_handles: set[str] = set()
+    driver = None
     stage = Route.LOCAL.name
     try:
         for route in Route:
@@ -79,12 +86,17 @@ def measure_pushdown(transport: MeasurementTransport, token: str, deadline: floa
                 if handle.upper() in witnessed_handles:
                     raise ValueError("measurement routes share a SQL handle")
                 witnessed_handles.add(handle.upper())
+                if observe_driver is not None:
+                    current_driver = observe_driver(request.finished, deadline)
+                    if driver is not None and driver != current_driver:
+                        raise ValueError("external routes used different mapped driver evidence")
+                    driver = current_driver
                 verify_aggregate(request.result(deadline))
                 _check_deadline(deadline)
                 records.append(transport.external_work(work_sql, deadline))
         stage = "comparison"
         _check_deadline(deadline)
-        return MeasurementResult("PASS", stage, verify_pushdown(token, records[0], records[1]))
+        return MeasurementResult("PASS", stage, verify_pushdown(token, records[0], records[1]), driver)
     except UnconfirmedRequestCleanup:
         return MeasurementResult("FAIL_CLEANUP", stage)
     except (OSError, ValueError):

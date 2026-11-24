@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 import sys
 from time import monotonic
@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
+from external_tables_driver_evidence import DriverEvidence
 from external_tables_measurement import UnconfirmedRequestCleanup, measure_pushdown
 from external_tables_pilot_sql import EXPECTED, Role, Route, aggregate_batch, database_name, measurement_marker
 from external_tables_pushdown_evidence import Work
@@ -94,6 +95,27 @@ class MeasurementTests(unittest.TestCase):
             ("open", Route.PUSHDOWN_OFF), ("active", Route.PUSHDOWN_OFF),
             ("work", Route.PUSHDOWN_OFF), ("close", Route.PUSHDOWN_OFF),
         ])
+
+    def test_connector_evidence_belongs_to_both_live_external_routes(self):
+        evidence = DriverEvidence("mssql-ees.service", "17.0.5065.9-3", "libmsodbcsql-18.5.so.1.1", "a" * 64)
+        for same in (True, False):
+            with self.subTest(same=same):
+                transport = Transport()
+                observed = []
+
+                def observe(finished, bound):
+                    self.assertTrue(monotonic() < bound)
+                    self.assertFalse(finished())
+                    self.assertEqual(transport.events[-1], ("active", transport.route))
+                    observed.append(transport.route)
+                    if transport.route is Route.PUSHDOWN_OFF and not same:
+                        return replace(evidence, sha256="b" * 64)
+                    return evidence
+
+                result = measure_pushdown(transport, TOKEN, monotonic() + 3, observe_driver=observe)
+                self.assertEqual(observed, [Route.PUSHDOWN_ON, Route.PUSHDOWN_OFF])
+                self.assertEqual((result.status, result.driver), ("PASS", evidence) if same else ("NOT_PROVEN", None))
+                self.assertIsNone(transport.route)
 
     def test_empty_observation_can_retry_within_the_same_request(self):
         transport = Transport()

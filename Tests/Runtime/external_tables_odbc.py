@@ -23,6 +23,7 @@ from time import monotonic
 from typing import TYPE_CHECKING, Protocol
 from zipfile import BadZipFile, ZipFile
 
+from external_tables_driver_evidence import observe_connector_driver
 from external_tables_measurement import (
     AggregateRows, MeasurementResult, PendingAggregate, UnconfirmedRequestCleanup, measure_pushdown,
 )
@@ -387,7 +388,8 @@ IF DB_NAME() COLLATE Latin1_General_100_BIN2 <> N'{database}'
 
 
 def run_guest_measurement(
-    token: str, reader_secret: str, observer_secret: str, deadline: float, open_principal: PrincipalConnection,
+    token: str, reader_secret: str, observer_secret: str, deadline: float, open_principal: PrincipalConnection, *,
+    network: GuestNetwork | None = None,
 ) -> MeasurementResult:
     """Run measurements and observation locally, returning only the normalized result."""
     if not all(PASSWORD.fullmatch(secret) for secret in (reader_secret, observer_secret)) or reader_secret == observer_secret:
@@ -400,7 +402,13 @@ def run_guest_measurement(
                     token, Principal.QUERY_READER, reader_secret, deadline, open_principal,
                 )
 
-            result = measure_pushdown(OdbcMeasurementTransport(token, reader, observer), token, deadline)
+            connector_probe = None
+            if network is not None:
+                def connector_probe(finished: Callable[[], bool], bound: float):
+                    return observe_connector_driver(network, finished, bound)
+            result = measure_pushdown(
+                OdbcMeasurementTransport(token, reader, observer), token, deadline, observe_driver=connector_probe,
+            )
         finally:
             _close_principal_resource(observer)
     except UnconfirmedRequestCleanup:

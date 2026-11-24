@@ -9,6 +9,7 @@ from time import monotonic
 from typing import Protocol
 
 from external_tables_guest_admin import AdminAction, AdminCommand
+from external_tables_driver_evidence import DriverEvidence
 from external_tables_measurement import MeasurementResult
 from external_tables_pilot_sql import Role, Route, database_name
 from external_tables_principals import Principal
@@ -71,6 +72,7 @@ class PilotResult:
     filters: tuple[str, str] | None
     sql_cleanup: bool
     guest_cleanup: bool
+    driver: DriverEvidence | None = None
 
 
 def run_pilot(transport: GuestPilotTransport, token: str) -> PilotResult:
@@ -125,7 +127,7 @@ def run_pilot(transport: GuestPilotTransport, token: str) -> PilotResult:
 
     if not sql_clean or not guests_clean or measured.status == "FAIL_CLEANUP":
         return PilotResult("FAIL_CLEANUP", stage, None, sql_clean, guests_clean)
-    return PilotResult(measured.status, stage, measured.filters, sql_clean, guests_clean)
+    return PilotResult(measured.status, stage, measured.filters, sql_clean, guests_clean, measured.driver)
 
 
 def _admin(

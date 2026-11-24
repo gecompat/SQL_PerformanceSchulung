@@ -12,6 +12,7 @@ from uuid import uuid4
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
+from external_tables_driver_evidence import DriverEvidence
 from external_tables_guest_admin import AdminAction, AdminCommand
 from external_tables_hyperv_host import (
     _PROBES, BootstrapMedia, HyperVPreparedTransport, HyperVRunInventory, RunJournal,
@@ -26,6 +27,7 @@ from external_tables_pushdown_evidence import PUSHDOWN_FILTER_EVIDENCE
 TOKEN = "TEST0049"
 SID = b"a" * 16
 MEDIA = BootstrapMedia("a" * 64, "b" * 64)
+DRIVER = DriverEvidence("mssql-ees.service", "17.0.5065.9-3", "libmsodbcsql-18.5.so.1.1", "f" * 64)
 
 
 class HyperVHostTests(unittest.TestCase):
@@ -109,7 +111,7 @@ class HyperVHostTests(unittest.TestCase):
         events = []
         channel = Mock()
         channel.close_data_connections.return_value = True
-        channel.measure.return_value = MeasurementResult("PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE)
+        channel.measure.return_value = MeasurementResult("PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE, DRIVER)
 
         def run_admin(role, command, deadline):
             if command.action is AdminAction.CREATE_PRINCIPAL:
@@ -135,13 +137,29 @@ class HyperVHostTests(unittest.TestCase):
             patch("external_tables_hyperv_host.collect_bounded_process", side_effect=bounded),
             patch("external_tables_hyperv_host.verify_guest"),
         ):
-            result = run_prepared_hyperv_pilot(self.journal, b"base", {}, remove)
-        self.assertEqual((result.status, result.filters), ("PASS", PUSHDOWN_FILTER_EVIDENCE))
+            result = run_prepared_hyperv_pilot(self.journal, b"base", {}, remove, expected_driver_sha256=DRIVER.sha256)
+        self.assertEqual((result.status, result.filters, result.driver), ("PASS", PUSHDOWN_FILTER_EVIDENCE, DRIVER))
         self.assertTrue(result.guest_cleanup and result.sql_cleanup)
         self.assertEqual(
             events, ["Test-ExternalTablesHyperVResources", "Test-ExternalTablesHyperVNetwork",
                      "provider removal", "Test-ExternalTablesHyperVAbsence"],
         )
+
+    def test_unreviewed_or_mismatched_driver_cannot_produce_a_positive_result(self):
+        for evidence, reviewed, expected in (
+            (None, DRIVER.sha256, ("NOT_PROVEN", "driver_evidence")),
+            (DRIVER, None, ("OBSERVED", "driver_review")),
+            (DRIVER, "a" * 64, ("NOT_PROVEN", "driver_mismatch")),
+            (DRIVER, DRIVER.sha256, ("PASS", "comparison")),
+        ):
+            with self.subTest(evidence=evidence, reviewed=reviewed):
+                transport = HyperVPreparedTransport(self.journal, b"base", {}, Mock(), expected_driver_sha256=reviewed)
+                guest = Mock()
+                guest.measure.return_value = MeasurementResult("PASS", "comparison", PUSHDOWN_FILTER_EVIDENCE, evidence)
+                with patch.object(transport, "_sql", return_value=guest):
+                    result = transport.measure(TOKEN, "reader", "observer", self.deadline)
+                self.assertEqual((result.status, result.stage), expected)
+                self.assertEqual(result.driver, evidence)
 
     def test_bootstrap_proves_both_detached_guests_before_joining_the_switch(self):
         for failure in (None, "offline", "tls"):
