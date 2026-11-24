@@ -749,17 +749,30 @@ Die [Host-Anbindung](../../Tests/Runtime/external_tables_hyperv_host.py)
 private Laufjournal. Der Host verwendet diesen Datensatz für die
 Ressourcen- und Switchprüfungen und für die beiden Gastidentitätsproben.
 Erst nach allen vier Bestätigungen öffnet die Ablaufsteuerung den
-SQL-Pfad. Der Aufruf `run_prepared_hyperv_pilot` erwartet außerdem
-einen Provider-Callback für den eigentumsgeprüften Abbau. Der Host
-bestätigt anschließend selbst die Abwesenheit aller aufgezeichneten
-Ressourcen.
+SQL-Pfad. Der Aufruf `run_prepared_hyperv_pilot` verwendet den
+[eigentumsgeprüften Standardabbau](../../Tests/Runtime/Remove-ExternalTablesHyperVOwnedRun.ps1).
+Dafür muss die Erzeugungsliste auch die unterschiedlichen VHDX-Kennungen
+beider Kopien enthalten. Der Host bestätigt anschließend selbst die
+Abwesenheit aller aufgezeichneten Ressourcen.
 
 Das Journal hält die VM- und Datenträgerbindung sowie jede SID vor
 dem Anlegen des jeweiligen Logins fest. Es liegt nur im privaten
 Laufverzeichnis. Ein atomarer Startmarker erlaubt einen Versuch.
 Ein weiterer Start greift weder auf die Gäste zu noch baut er sie
-ab. Die Gastbereitstellung und der konkrete Abbau-Callback gehören
-zum zugelassenen Hyper-V-Provider.
+ab. Der zugelassene Hyper-V-Provider bereitet die Ressourcen vor und
+setzt ihre Laufmarkierungen.
+
+Der Abbau erwartet den privaten Switch `SQLPerfExt-<Laufkennung>`,
+die VMs mit den Rollenzusätzen `-SOURCE` und `-QUERY` sowie die
+VM-Notiz `SQLPERF.ExternalTables/<Laufkennung>/<Rolle>`. Er prüft die
+aufgezeichneten IDs, die erwarteten Diskattachments und das Fehlen
+fremder Teilnehmer. Danach stoppt und entfernt er die zugehörigen VMs.
+Er entfernt nur die beiden identifizierten, getrennten VHDX-Kopien aus
+dem privaten Laufverzeichnis und anschließend den eigenen Switch. Ein
+erneuter Abbau kann fehlende Ressourcen überspringen. In der
+lesenden Standardausführung prüft das Skript das Inventar. Für den
+Abbau übergibt der zugelassene Hostaufruf `-ApplyOwnedRun`.
+[Microsoft-Referenz zum Stoppen einer Hyper-V-VM](https://learn.microsoft.com/en-us/powershell/module/hyper-v/stop-vm?view=windowsserver2025-ps).
 
 ### Abbau und Wiederaufnahme
 

@@ -1,3 +1,4 @@
+from dataclasses import replace
 import json
 from pathlib import Path, PureWindowsPath
 import sys
@@ -127,6 +128,38 @@ class HyperVHostTests(unittest.TestCase):
             events, ["Test-ExternalTablesHyperVResources", "Test-ExternalTablesHyperVNetwork",
                      "provider removal", "Test-ExternalTablesHyperVAbsence"],
         )
+
+    def test_default_cleanup_requires_disk_ids_and_checks_absence_after_removal(self):
+        legacy = HyperVPreparedTransport(self.journal, b"base", {})
+        with self.assertRaisesRegex(ValueError, "recorded VHDX identities"):
+            legacy.start_verified_guests(TOKEN, self.deadline)
+        self.assertFalse(legacy.remove_verified_guests(TOKEN, self.deadline))
+
+        directory = self.directory / "v2"
+        directory.mkdir()
+        inventory = replace(self.inventory, source_disk_id=uuid4(), query_disk_id=uuid4())
+        journal = RunJournal(directory, inventory)
+        journal.bind()
+        self.assertEqual(RunJournal.load(directory).inventory, inventory)
+        transport = HyperVPreparedTransport(journal, b"base", {})
+
+        def process(command, **options):
+            if Path(command[4]).stem == "Remove-ExternalTablesHyperVOwnedRun":
+                self.assertIn("-ApplyOwnedRun", command)
+                self.assertIn(str(inventory.source_disk_id), command)
+                self.assertIn(str(inventory.query_disk_id), command)
+                self.assertEqual(options["timeout_ceiling_seconds"], 90)
+                return SimpleNamespace(returncode=0, stdout=b'{"status":"REMOVED"}', stderr=b"")
+            return self._probe_result(command, **options)
+
+        with (
+            patch("external_tables_hyperv_host.collect_bounded_process", side_effect=process) as probe,
+            patch("external_tables_hyperv_host.verify_guest"),
+        ):
+            transport.start_verified_guests(TOKEN, self.deadline)
+            self.assertTrue(transport.remove_verified_guests(TOKEN, self.deadline))
+        self.assertEqual([Path(call.args[0][4]).stem for call in probe.call_args_list][-2:],
+                         ["Remove-ExternalTablesHyperVOwnedRun", "Test-ExternalTablesHyperVAbsence"])
 
     @staticmethod
     def _probe_result(command, **_):

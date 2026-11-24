@@ -29,6 +29,8 @@ class HyperVRunInventory:
     source_disk: PureWindowsPath = field(repr=False)
     query_disk: PureWindowsPath = field(repr=False)
     service_port: int
+    source_disk_id: UUID | None = field(default=None, repr=False)
+    query_disk_id: UUID | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
         database_name(self.token, Role.QUERY)
@@ -36,6 +38,11 @@ class HyperVRunInventory:
         ids = (self.source_vm, self.query_vm, self.switch)
         if any(not isinstance(value, UUID) or not value.int for value in ids) or len(set(ids)) != 3:
             raise ValueError("expected distinct recorded Hyper-V resource IDs")
+        disk_ids = self.source_disk_id, self.query_disk_id
+        if any(value is not None for value in disk_ids):
+            all_ids = (*ids, *disk_ids)
+            if any(not isinstance(value, UUID) or not value.int for value in all_ids) or len(set(all_ids)) != 5:
+                raise ValueError("expected distinct recorded VHDX identities")
         disks = (self.source_disk, self.query_disk)
         if any(
             not isinstance(path, PureWindowsPath) or not path.is_absolute() or len(path.drive) != 2
@@ -56,6 +63,8 @@ class HyperVRunInventory:
             "query_disk": str(self.query_disk),
             "service_port": self.service_port,
         }
+        if self.source_disk_id is not None:
+            record.update(version=2, source_disk_id=str(self.source_disk_id), query_disk_id=str(self.query_disk_id))
         return json.dumps(record, sort_keys=True, ensure_ascii=True).encode("ascii") + b"\n"
 
 
@@ -78,6 +87,8 @@ class RunJournal:
             inventory = HyperVRunInventory(
                 record["run"], UUID(record["source_vm"]), UUID(record["query_vm"]), UUID(record["switch"]),
                 PureWindowsPath(record["source_disk"]), PureWindowsPath(record["query_disk"]), record["service_port"],
+                UUID(record["source_disk_id"]) if record["version"] == 2 else None,
+                UUID(record["query_disk_id"]) if record["version"] == 2 else None,
             )
         except (AttributeError, KeyError, TypeError, ValueError, RecursionError):
             raise ValueError("invalid recorded External Tables ownership") from None
@@ -164,13 +175,14 @@ class HyperVPreparedTransport:
 
     def __init__(
         self, journal: RunJournal, base_status: bytes, package_lock: dict,
-        remove_owned: Callable[[HyperVRunInventory, float], None],
+        remove_owned: Callable[[HyperVRunInventory, float], None] | None = None,
     ) -> None:
         self._journal = journal
         self._inventory = journal.inventory
         self._base_status = base_status
         self._package_lock = package_lock
-        self._remove_owned = remove_owned
+        self._remove_owned = self._remove_recorded if remove_owned is None else remove_owned
+        self._use_builtin_cleanup = remove_owned is None
         self._channel = GuestSqlChannel(
             self._inventory.token, self._inventory.source_vm, self._inventory.query_vm,
             self._inventory.service_port, base_status, package_lock,
@@ -182,6 +194,8 @@ class HyperVPreparedTransport:
         self._check_token(token)
         self._verified = False
         _remaining(deadline)
+        if self._use_builtin_cleanup and self._inventory.source_disk_id is None:
+            raise ValueError("External Tables cleanup requires both recorded VHDX identities")
         self._journal.claim_work()
         self._claimed = True
         self._probe("resources", deadline)
@@ -244,13 +258,30 @@ class HyperVPreparedTransport:
             arguments.extend(["-SwitchId", str(target.switch)])
         if name != "network":
             arguments.extend(["-SourceDiskPath", str(target.source_disk), "-QueryDiskPath", str(target.query_disk)])
+        self._run_hyperv_script(script, arguments, _PROBES[name], name, deadline, 20)
+
+    def _remove_recorded(self, target: HyperVRunInventory, deadline: float) -> None:
+        if target != self._inventory or target.source_disk_id is None or target.query_disk_id is None:
+            raise ValueError("External Tables cannot remove resources without the bound VHDX identities")
+        script = Path(__file__).resolve().with_name("Remove-ExternalTablesHyperVOwnedRun.ps1")
+        arguments = [
+            "-RunToken", target.token, "-SourceVmId", str(target.source_vm), "-QueryVmId", str(target.query_vm),
+            "-SwitchId", str(target.switch), "-SourceDiskPath", str(target.source_disk),
+            "-QueryDiskPath", str(target.query_disk), "-SourceDiskId", str(target.source_disk_id),
+            "-QueryDiskId", str(target.query_disk_id), "-ApplyOwnedRun",
+        ]
+        self._run_hyperv_script(script, arguments, {"status": "REMOVED"}, "removal", deadline, 90)
+
+    @staticmethod
+    def _run_hyperv_script(
+        script: Path, arguments: list[str], expected: dict, name: str, deadline: float, limit: int,
+    ) -> None:
         try:
             result = collect_bounded_process(
                 ["pwsh", "-NoProfile", "-NonInteractive", "-File", str(script), *arguments],
-                input_bytes=b"", environment=os.environ.copy(), timeout_seconds=min(20, _remaining(deadline)),
-                timeout_ceiling_seconds=20, stdout_limit_bytes=4096, stderr_limit_bytes=4096,
+                input_bytes=b"", environment=os.environ.copy(), timeout_seconds=min(limit, _remaining(deadline)),
+                timeout_ceiling_seconds=limit, stdout_limit_bytes=4096, stderr_limit_bytes=4096,
             )
-            expected = _PROBES[name]
             actual = json.loads(result.stdout)
             if result.returncode or result.stderr or actual != expected or any(
                 type(actual[key]) is not type(value) for key, value in expected.items()
@@ -261,9 +292,10 @@ class HyperVPreparedTransport:
             raise OSError(f"External Tables Hyper-V {name} verification failed") from None
 
 
+
 def run_prepared_hyperv_pilot(
     journal: RunJournal, base_status: bytes, package_lock: dict,
-    remove_owned: Callable[[HyperVRunInventory, float], None],
+    remove_owned: Callable[[HyperVRunInventory, float], None] | None = None,
 ) -> PilotResult:
     """Run only after the provider has journaled both prepared, admitted guests."""
     return run_pilot(HyperVPreparedTransport(journal, base_status, package_lock, remove_owned), journal.inventory.token)
