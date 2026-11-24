@@ -331,6 +331,13 @@ class HyperVPreparedTransport:
             raise ValueError("External Tables cleanup SIDs differ from the recorded inventory")
         return self._sql().close_data_connections(token, login_sids, deadline)
 
+    def discard_unstarted_guests(self, deadline: float) -> bool:
+        """Claim an unused preparation before undoing a failed pre-start handoff."""
+        _remaining(deadline)
+        self._journal.claim_work()
+        self._claimed = True
+        return self.remove_verified_guests(self._inventory.token, deadline)
+
     def remove_verified_guests(self, token: str, deadline: float) -> bool:
         self._check_token(token)
         if not self._claimed:

@@ -928,6 +928,37 @@ lesenden Standardausführung prüft das Skript das Inventar. Für den
 Abbau übergibt der zugelassene Hostaufruf `-ApplyOwnedRun`.
 [Microsoft-Referenz zum Stoppen einer Hyper-V-VM](https://learn.microsoft.com/en-us/powershell/module/hyper-v/stop-vm?view=windowsserver2025-ps).
 
+### Einen zugelassenen Pilotlauf am Windows-Host starten
+
+Der [Host-Einstieg](../../Tests/Runtime/run_external_tables_hyperv.py)
+prüft vor der Bereitstellung beide registrierten Hyper-V-Socket-Dienste,
+den Original-Paketstatus und die SHA-256-Werte der NoCloud-Vorlage und
+beider Rollenmedien. Verwende ein leeres privates Laufverzeichnis.
+Laufkennung und Ports müssen zu den beiden ISO-Abbildern passen.
+Die Pfade zu den bereitgestellten Eingabedateien liegen außerhalb des
+Laufverzeichnisses. Der folgende Aufruf prüft lesend.
+
+```text
+python Tests/Runtime/run_external_tables_hyperv.py --token LAB00001 --run-directory LAUFVERZEICHNIS --template NOCLOUD.vhdx --template-sha256 VORLAGENHASH --source-iso QUELLE.iso --source-sha256 QUELLHASH --query-iso ABFRAGE.iso --query-sha256 ABFRAGEHASH --base-status BASISSTATUS --bootstrap-port 2760 --sql-port 2762
+```
+
+`VERIFIED` bestätigt die Vorprüfung. Die Stufe `host_services` weist auf
+fehlende oder ungültige Socket-Dienstregistrierungen hin. Die Stufe
+`host_inputs` verweist auf das Laufverzeichnis oder eine Eingabedatei.
+Ein nach DEC-078 zugelassener Pilot verwendet zusätzlich `--apply-owned-run`.
+Der Host erstellt die beiden VM-Kopien, übernimmt die Medien, startet
+den Messablauf und gibt den normalisierten Ergebnis- und Abbaustatus aus.
+Für die Messung und den späteren Abbau gelten die vorhandenen Fristen
+von 600 beziehungsweise 120 Sekunden.
+
+Wenn die Medienübergabe nach vollständiger Bereitstellung fehlschlägt,
+versucht der Einstieg den eigentumsgeprüften Abbau der noch nicht
+gestarteten Ressourcen. Bei einem Fehler während der Bereitstellung
+bleiben die bis dahin aufgezeichneten Einzelquittungen zur Wiederaufnahme
+im Laufverzeichnis. Ein unbestätigter Abbau wird mit `FAIL_CLEANUP`
+gemeldet. Die im Laufverzeichnis abgelegten Medienkopien und die
+Quittungen können nach bestätigtem Abbau lokal ausgewertet werden.
+
 ### Abbau und Wiederaufnahme
 
 1. Sperre weitere Demoaufrufe auf beiden Gästen. Der Dienst hält diese
