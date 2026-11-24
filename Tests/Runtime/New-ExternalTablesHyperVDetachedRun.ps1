@@ -6,6 +6,7 @@ param(
     [Parameter(Mandatory)] [ValidatePattern('\A[0-9a-fA-F]{64}\z')] [string] $SourceSha256,
     [Parameter(Mandatory)] [string] $QueryTemplate,
     [Parameter(Mandatory)] [ValidatePattern('\A[0-9a-fA-F]{64}\z')] [string] $QuerySha256,
+    [guid] $ProvisionAttempt = [guid]::Empty,
     [switch] $ApplyOwnedRun
 )
 
@@ -93,10 +94,12 @@ try {
         '{"status":"VERIFIED"}'
         return
     }
-    Publish-RunRecord 'external-tables-provision-intent.json' ([ordered]@{
+    $intent = [ordered]@{
         version = 1; run = $RunToken; switch = $prefix; vms = @("$prefix-SOURCE", "$prefix-QUERY")
         disks = @('source.vhdx', 'query.vhdx')
-    })
+    }
+    if ($ProvisionAttempt -ne [guid]::Empty) { $intent['attempt'] = "$ProvisionAttempt" }
+    Publish-RunRecord 'external-tables-provision-intent.json' $intent
     foreach ($target in $roles) {
         $role = $target.Role
         $destination = Join-Path $RunDirectory $target.Leaf

@@ -961,10 +961,14 @@ von 600 beziehungsweise 120 Sekunden.
 
 Wenn die Medienübergabe nach vollständiger Bereitstellung fehlschlägt,
 versucht der Einstieg den eigentumsgeprüften Abbau der noch nicht
-gestarteten Ressourcen. Bei einem Fehler während der Bereitstellung
-bleiben die bis dahin aufgezeichneten Einzelquittungen zur Wiederaufnahme
-im Laufverzeichnis. Ein unbestätigter Abbau wird mit `FAIL_CLEANUP`
-gemeldet. Die im Laufverzeichnis abgelegten Medienkopien und die
+gestarteten Ressourcen. Nach einem Abbruch während der Bereitstellung bestätigt der
+Host zuerst die eindeutige Kennung seines eigenen Versuchs. Er räumt dann
+die anhand der Einzelquittungen eindeutig gebundenen Gäste, Platten und den
+Switch ab. Fehlende Quittungen sind für Ressourcen zulässig, deren Abwesenheit
+sich eindeutig bestätigen lässt. Eine vorhandene Ressource ohne bestätigte
+Identität, eine bereits gestartete VM oder ein vorhandener Laufanspruch
+verhindern diesen Abbau. Die Quittungen bleiben zu Diagnosezwecken erhalten.
+Ein unbestätigter Abbau wird mit `FAIL_CLEANUP` gemeldet. Die im Laufverzeichnis abgelegten Medienkopien und die
 Quittungen können nach bestätigtem Abbau lokal ausgewertet werden.
 
 ### Abbau und Wiederaufnahme

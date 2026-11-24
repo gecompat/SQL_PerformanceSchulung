@@ -44,7 +44,7 @@ function Get-VMSwitch { if ($null -ne $fake.Switch) { $fake.Switch } }
 function Get-VMNetworkAdapter {
     param([switch] $All)
     foreach ($vm in $fakeGuests.Values) {
-        [pscustomobject]@{ SwitchId = $inputs.SwitchId; VMId = $vm.Id; IsManagementOs = $false }
+        [pscustomobject]@{ SwitchId = if ($fake.Switch) { $inputs.SwitchId } else { $null }; VMId = $vm.Id; IsManagementOs = $false }
     }
     if ($null -ne $fake.ExtraAdapter) { $fake.ExtraAdapter }
 }
@@ -124,6 +124,35 @@ try {
         'stop:SQLPerfExt-TEST0053-QUERY,remove:SQLPerfExt-TEST0053-QUERY,remove:switch') {
         throw 'The cleanup could not resume from an owned disk without its VM.'
     }
+    Reset-Fixture
+    $fake.Switch = $null
+    $fakeGuests[$inputs.SourceVmId].State = 'Off'
+    $fakeGuests.Remove($inputs.QueryVmId)
+    $fakeDisks[$inputs.QueryDiskPath].Attached = $false
+    $partial = $inputs.Clone()
+    $partial.QueryVmId = [guid]::Empty
+    $partial.SwitchId = [guid]::Empty
+    $knownQueryDisk = $partial.QueryDiskId
+    $partial.QueryDiskId = [guid]::Empty
+    $rejected = $false
+    try { $null = & $scriptPath @partial -PartialProvision -ApplyOwnedRun }
+    catch {
+        if ($_.Exception.Message -cne 'External Tables could not verify or remove the recorded Hyper-V resources.') { throw }
+        $rejected = $true
+    }
+    if (-not $rejected -or $fakeEvents.Count -or -not [IO.File]::Exists($inputs.QueryDiskPath)) {
+        throw 'An unrecorded disk was accepted or touched.'
+    }
+
+    $partial.QueryDiskId = $knownQueryDisk
+    $result = & $scriptPath @partial -PartialProvision -ApplyOwnedRun | ConvertFrom-Json
+    if ($result.status -cne 'REMOVED' -or ($fakeEvents -join ',') -cne 'remove:SQLPerfExt-TEST0053-SOURCE' -or
+        [IO.File]::Exists($inputs.SourceDiskPath) -or [IO.File]::Exists($inputs.QueryDiskPath)) {
+        throw 'Partial recovery did not confirm the recorded VM and both disks were gone.'
+    }
+    $fakeEvents.Clear()
+    $result = & $scriptPath @partial -PartialProvision -ApplyOwnedRun | ConvertFrom-Json
+    if ($result.status -cne 'REMOVED' -or $fakeEvents.Count) { throw 'Partial recovery was not repeatable.' }
 } finally {
     [IO.File]::Delete($inputs.SourceDiskPath)
     [IO.File]::Delete($inputs.QueryDiskPath)
