@@ -37,6 +37,8 @@ on:
       - 'Tests/Static/test_external_tables_boot_media.py'
       - 'Tests/Static/test_external_tables_guest_bootstrap.py'
       - 'Tests/Runtime/external_tables_hyperv_host.py'
+      - 'Tests/Runtime/run_external_tables_hyperv.py'
+      - 'Tests/Static/test_external_tables_hyperv_entry.py'
       - 'Tests/Static/test_external_tables_hyperv_host.py'
       - 'Tests/Static/test_external_tables_guest_service.py'
       - 'Tests/Static/test_external_tables_guest_admin.py'
@@ -110,6 +112,8 @@ on:
       - 'Tests/Static/test_external_tables_boot_media.py'
       - 'Tests/Static/test_external_tables_guest_bootstrap.py'
       - 'Tests/Runtime/external_tables_hyperv_host.py'
+      - 'Tests/Runtime/run_external_tables_hyperv.py'
+      - 'Tests/Static/test_external_tables_hyperv_entry.py'
       - 'Tests/Static/test_external_tables_hyperv_host.py'
       - 'Tests/Static/test_external_tables_guest_service.py'
       - 'Tests/Static/test_external_tables_guest_admin.py'
@@ -179,6 +183,7 @@ jobs:
       - run: python Tests/Static/test_external_tables_boot_media.py
       - run: python Tests/Static/test_external_tables_nocloud_base.py
       - run: python Tests/Static/test_external_tables_hyperv_host.py
+      - run: python Tests/Static/test_external_tables_hyperv_entry.py
       - run: python Tests/Static/test_external_tables_guest_network.py
       - run: |
           ./Tests/Static/test_external_tables_hyperv_network.ps1

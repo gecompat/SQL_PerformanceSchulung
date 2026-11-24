@@ -70,6 +70,17 @@ class HyperVHostTests(unittest.TestCase):
         verify.assert_not_called()
         remove.assert_not_called()
 
+    def test_discard_can_claim_only_an_unstarted_preparation(self):
+        remove = Mock()
+        with patch("external_tables_hyperv_host.collect_bounded_process", side_effect=self._probe_result) as probe:
+            transport = HyperVPreparedTransport(self.journal, b"base", {}, remove)
+            self.assertTrue(transport.discard_unstarted_guests(self.deadline))
+            with self.assertRaises(ValueError):
+                HyperVPreparedTransport(self.journal, b"base", {}, remove).discard_unstarted_guests(self.deadline)
+        remove.assert_called_once_with(self.inventory, self.deadline)
+        self.assertEqual([Path(call.args[0][4]).stem for call in probe.call_args_list],
+                         ["Test-ExternalTablesHyperVAbsence"])
+
     def test_sql_requires_both_host_probes_and_both_guest_identities(self):
         remove = Mock()
         transport = HyperVPreparedTransport(self.journal, b"base", {}, remove)
