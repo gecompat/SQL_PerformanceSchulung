@@ -18,6 +18,8 @@ on:
       - 'Tests/Runtime/external_tables_pilot.py'
       - 'Tests/Runtime/external_tables_guest_identity.py'
       - 'Tests/Runtime/external_tables_guest_admin.py'
+      - 'Tests/Runtime/external_tables_guest_service.py'
+      - 'Tests/Static/test_external_tables_guest_service.py'
       - 'Tests/Static/test_external_tables_guest_admin.py'
       - 'Tests/Runtime/external_tables_package_state.py'
       - 'Tests/Runtime/external_tables_guest_apt.py'
@@ -64,6 +66,8 @@ on:
       - 'Tests/Runtime/external_tables_pilot.py'
       - 'Tests/Runtime/external_tables_guest_identity.py'
       - 'Tests/Runtime/external_tables_guest_admin.py'
+      - 'Tests/Runtime/external_tables_guest_service.py'
+      - 'Tests/Static/test_external_tables_guest_service.py'
       - 'Tests/Static/test_external_tables_guest_admin.py'
       - 'Tests/Runtime/external_tables_package_state.py'
       - 'Tests/Runtime/external_tables_guest_apt.py'
@@ -118,6 +122,7 @@ jobs:
       - run: python Tests/Static/test_external_tables_pilot.py
       - run: python Tests/Static/test_external_tables_guest_identity.py
       - run: python Tests/Static/test_external_tables_guest_admin.py
+      - run: python Tests/Static/test_external_tables_guest_service.py
       - run: python Tests/Static/test_external_tables_guest_network.py
       - run: |
           ./Tests/Static/test_external_tables_hyperv_network.ps1

@@ -10,12 +10,13 @@ import json
 from socket import socket
 from struct import Struct
 from threading import Lock
+from time import monotonic
 from typing import TYPE_CHECKING
 from uuid import UUID
 
 from external_tables_cleanup import drop_pilot_database_batch, drop_pilot_logins_batch, quiesce_pilot_logins_batch
 from external_tables_guest_identity import (
-    _receive, _remaining, _reply_to_probe, _send, accept_parent_connection, connect_verified_guest, linux_service_id,
+    _receive, _remaining, _reply_to_probe, _send, connect_verified_guest, linux_service_id, open_parent_listener,
 )
 from external_tables_measurement import MeasurementResult
 from external_tables_odbc import (
@@ -286,18 +287,34 @@ def _encode_measurement(result: MeasurementResult) -> bytes:
 
 def serve_guest_admin(
     port: int, token: str, role: Role, open_admin: Callable[[str, int], Connection], deadline: float, *,
-    access: GuestSqlAccess,
     open_principal: PrincipalConnection | None = None,
     source_driver: OdbcDriver | None = None,
     network: GuestNetwork | None = None,
 ) -> None:
-    """Serve one fixed command on a dedicated parent-only VSOCK listener."""
-    with accept_parent_connection(port, deadline) as channel:
-        _reply_to_probe(channel, token, role, deadline)
-        _receive_command(
-            channel, token, role, OdbcPilotAdministration(token, role, open_admin), deadline,
-            access=access, open_principal=open_principal, source_driver=source_driver, network=network,
-        )
+    """Serve sequential parent requests under one bounded guest lifecycle."""
+    admin = OdbcPilotAdministration(token, role, open_admin)
+    access = GuestSqlAccess(token, role)
+    _remaining(deadline)
+    with open_parent_listener(port) as (listener, host_cid):
+        while monotonic() < deadline:
+            try:
+                listener.settimeout(_remaining(deadline))
+                channel, (peer_cid, _) = listener.accept()
+            except TimeoutError:
+                return
+            with channel:
+                if peer_cid != host_cid:
+                    continue
+                try:
+                    input_deadline = min(deadline, monotonic() + 5)
+                    _reply_to_probe(channel, token, role, input_deadline)
+                    _receive_command(
+                        channel, token, role, admin, deadline, access=access, open_principal=open_principal,
+                        source_driver=source_driver, network=network, input_deadline=input_deadline,
+                    )
+                except (OSError, ValueError):
+                    # A failed or expired peer cannot reset admission or stop cleanup.
+                    continue
 
 
 def _receive_command(
@@ -306,12 +323,14 @@ def _receive_command(
     open_principal: PrincipalConnection | None = None,
     source_driver: OdbcDriver | None = None,
     network: GuestNetwork | None = None,
+    input_deadline: float | None = None,
 ) -> None:
+    receive_until = deadline if input_deadline is None else min(deadline, input_deadline)
     try:
-        (size,) = _SIZE.unpack(_receive(channel, _SIZE.size, deadline))
+        (size,) = _SIZE.unpack(_receive(channel, _SIZE.size, receive_until))
         if not 0 < size <= _MAX_COMMAND:
             raise ValueError("guest administration command exceeds its frame")
-        fields = json.loads(_receive(channel, size, deadline).decode("ascii"))
+        fields = json.loads(_receive(channel, size, receive_until).decode("ascii"))
         if type(fields) is not list or not fields or any(type(field) is not str for field in fields):
             raise ValueError("expected bounded guest command fields")
         command = AdminCommand(AdminAction(fields[0]), tuple(fields[1:]))
