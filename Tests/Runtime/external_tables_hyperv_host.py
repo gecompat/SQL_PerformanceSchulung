@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 import json
 import os
 from pathlib import Path, PureWindowsPath
+import re
 from stat import S_ISREG
 from tempfile import NamedTemporaryFile
 from uuid import UUID
@@ -216,15 +217,35 @@ _PROBES = {
 }
 
 
+@dataclass(frozen=True)
+class BootstrapMedia:
+    """Recorded SHA-256 of source.iso and query.iso in the owned run directory."""
+
+    source_sha256: str
+    query_sha256: str
+
+    def __post_init__(self) -> None:
+        values = (self.source_sha256, self.query_sha256)
+        if any(not isinstance(value, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", value) for value in values):
+            raise ValueError("expected both role ISO SHA-256 values")
+        if self.source_sha256.lower() == self.query_sha256.lower():
+            raise ValueError("expected distinct role ISO SHA-256 values")
+
+
 class HyperVPreparedTransport:
     """Verify the provider's already prepared owned guests and run the SQL plan."""
 
     def __init__(
         self, journal: RunJournal, base_status: bytes, package_lock: dict,
-        remove_owned: Callable[[HyperVRunInventory, float], None] | None = None, *, bootstrap_port: int | None = None,
+        remove_owned: Callable[[HyperVRunInventory, float], None] | None = None, *,
+        bootstrap_port: int | None = None, boot_media: BootstrapMedia | None = None,
     ) -> None:
         self._journal = journal
         self._inventory = journal.inventory
+        if (bootstrap_port is None) != (boot_media is None):
+            raise ValueError("External Tables requires the bootstrap port and both role media together")
+        if boot_media is not None and not isinstance(boot_media, BootstrapMedia):
+            raise ValueError("expected recorded External Tables boot media")
         if bootstrap_port is not None:
             linux_service_id(bootstrap_port)
             if bootstrap_port == self._inventory.service_port or self._inventory.source_disk_id is None:
@@ -232,6 +253,7 @@ class HyperVPreparedTransport:
             journal.require_binding()
             require_registered_hyperv_ports(bootstrap_port, self._inventory.service_port)
         self._bootstrap_port = bootstrap_port
+        self._boot_media = boot_media
         self._base_status = base_status
         self._package_lock = package_lock
         self._remove_owned = self._remove_recorded if remove_owned is None else remove_owned
@@ -272,7 +294,13 @@ class HyperVPreparedTransport:
     def _transition(self, phase: str, status: str, deadline: float) -> None:
         self._journal.require_binding()
         script = Path(__file__).resolve().with_name("Start-ExternalTablesHyperVOwnedRun.ps1")
-        arguments = ["-Phase", phase, *self._ownership_arguments(), "-ApplyOwnedRun"]
+        media = self._boot_media
+        if media is None:
+            raise ValueError("expected recorded role media before a Hyper-V transition")
+        arguments = [
+            "-Phase", phase, *self._ownership_arguments(), "-SourceMediaSha256", media.source_sha256,
+            "-QueryMediaSha256", media.query_sha256, "-ApplyOwnedRun",
+        ]
         self._run_hyperv_script(script, arguments, {"status": status}, phase.lower(), deadline, 60)
 
     def admin(self, role: Role, command: AdminCommand, deadline: float) -> bool | None:
@@ -390,8 +418,11 @@ def provision_detached_hyperv(
 
 def run_prepared_hyperv_pilot(
     journal: RunJournal, base_status: bytes, package_lock: dict,
-    remove_owned: Callable[[HyperVRunInventory, float], None] | None = None, *, bootstrap_port: int | None = None,
+    remove_owned: Callable[[HyperVRunInventory, float], None] | None = None, *,
+    bootstrap_port: int | None = None, boot_media: BootstrapMedia | None = None,
 ) -> PilotResult:
     """Run after the provider journaled both guests and staged their admitted boot inputs."""
-    transport = HyperVPreparedTransport(journal, base_status, package_lock, remove_owned, bootstrap_port=bootstrap_port)
+    transport = HyperVPreparedTransport(
+        journal, base_status, package_lock, remove_owned, bootstrap_port=bootstrap_port, boot_media=boot_media,
+    )
     return run_pilot(transport, journal.inventory.token)

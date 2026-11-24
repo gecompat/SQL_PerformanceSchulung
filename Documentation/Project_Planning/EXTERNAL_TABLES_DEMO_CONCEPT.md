@@ -839,10 +839,20 @@ Alle Schritte nutzen dieselbe Arbeitsfrist. Bei einem Fehler greift
 der bereits gebundene Abbau.
 [Microsoft-Referenz zum Verbinden virtueller Adapter](https://learn.microsoft.com/en-us/powershell/module/hyper-v/connect-vmnetworkadapter?view=windowsserver2025-ps).
 
-Vor der vollständigen Ausführung muss der Provider die Startmedien
-anbinden. Der Gast muss beim Start den Bootstrap auslösen, nach dem
-Anschluss seine Schnittstelle konfigurieren, TLS einrichten und den
-SQL-Gastdienst starten.
+Nach der getrennten VM-Bereitstellung legt der Provider die beiden
+Abbilder als `source.iso` und `query.iso` in das private Laufverzeichnis.
+Beim Pilotaufruf übergibt er den Bootstrap-Port zusammen mit den
+beiden SHA-256-Werten in `BootstrapMedia`. Die Startsteuerung liest
+beide Dateien, bestätigt ihre Prüfsummen und bindet jede als
+virtuelles DVD-Medium an die zugehörige ausgeschaltete VM. Sie
+bricht bei einem fremden oder zusätzlichen Medium ab. Der Start
+erfolgt erst nach bestätigter Zuordnung beider Abbilder. Der
+Anschluss an den Switch prüft die Zuordnung erneut. Die ISO-Abbilder
+sind Eingabedateien des Providers.
+[Microsoft-Referenz für virtuelle DVD-Laufwerke](https://learn.microsoft.com/en-us/powershell/module/hyper-v/add-vmdvddrive?view=windowsserver2025-ps).
+
+Der Gast muss nach dem Netzanschluss seine Schnittstelle konfigurieren,
+TLS einrichten und den SQL-Gastdienst starten.
 [Microsoft-Referenz zur VHDX-Kennung](https://learn.microsoft.com/en-us/powershell/module/hyper-v/set-vhd?view=windowsserver2025-ps).
 
 ### Vorbereitete Gäste am Hyper-V-Host übernehmen
