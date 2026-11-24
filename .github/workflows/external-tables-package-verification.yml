@@ -21,6 +21,8 @@ on:
       - 'Tests/Runtime/external_tables_guest_service.py'
       - 'Tests/Runtime/external_tables_guest_bootstrap.py'
       - 'Tests/Runtime/external_tables_boot_media.py'
+      - 'Tests/Runtime/prepare_external_tables_nocloud_base.py'
+      - 'Tests/Static/test_external_tables_nocloud_base.py'
       - 'Tests/Runtime/dgn004_capture_runner.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Static/dgn004_capture_input.py'
@@ -88,6 +90,8 @@ on:
       - 'Tests/Runtime/external_tables_guest_service.py'
       - 'Tests/Runtime/external_tables_guest_bootstrap.py'
       - 'Tests/Runtime/external_tables_boot_media.py'
+      - 'Tests/Runtime/prepare_external_tables_nocloud_base.py'
+      - 'Tests/Static/test_external_tables_nocloud_base.py'
       - 'Tests/Runtime/dgn004_capture_runner.py'
       - 'Tests/Runtime/execution_target.py'
       - 'Tests/Static/dgn004_capture_input.py'
@@ -163,6 +167,7 @@ jobs:
       - run: python Tests/Static/test_external_tables_guest_service.py
       - run: python Tests/Static/test_external_tables_guest_bootstrap.py
       - run: python Tests/Static/test_external_tables_boot_media.py
+      - run: python Tests/Static/test_external_tables_nocloud_base.py
       - run: python Tests/Static/test_external_tables_hyperv_host.py
       - run: python Tests/Static/test_external_tables_guest_network.py
       - run: |
