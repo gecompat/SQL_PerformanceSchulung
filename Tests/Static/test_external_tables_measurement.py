@@ -128,6 +128,17 @@ class MeasurementTests(unittest.TestCase):
         self.assertIn(("work", Route.PUSHDOWN_OFF), transport.events)
         self.assertIsNone(transport.route)
 
+    def test_distributed_completion_can_settle_after_the_reader_without_reissuing_the_query(self):
+        transport = Transport()
+        pending, other = tuple(transport.work)
+        transport.work = iter(((replace(pending[0], request_status="Running"),), pending, other))
+        with patch("external_tables_measurement.sleep") as pause:
+            result = measure_pushdown(transport, TOKEN, monotonic() + 2)
+        self.assertEqual(result.status, "PASS")
+        self.assertEqual(transport.events.count(("open", Route.PUSHDOWN_ON)), 1)
+        self.assertEqual(transport.events.count(("work", Route.PUSHDOWN_ON)), 2)
+        pause.assert_called_once()
+
     def test_empty_observation_can_retry_within_the_same_request(self):
         transport = Transport()
         transport.handles = iter(((), ("01",), ("02",)))

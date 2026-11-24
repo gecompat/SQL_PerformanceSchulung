@@ -24,6 +24,15 @@ class PushdownEvidenceTests(TestCase):
     def test_accepts_only_correct_bounded_on_and_off_work(self):
         self.assertEqual(verify_pushdown(TOKEN, (ON,), (OFF,)), ("REMOTE_DATE_FILTER", "NO_REMOTE_FILTER"))
 
+    def test_accepts_native_completed_state_and_quoted_sql_identifiers(self):
+        statement = f'SELECT "EventDate","CategoryId","Amount" FROM "{SOURCE}"."dbo"."Facts"'
+        native_on = replace(ON, request_status="Completed", read_command=statement +
+                            ' WHERE "EventDate" >= {d \'2026-01-17\'} AND "EventDate" < {d \'2026-01-25\'}')
+        native_off = replace(OFF, request_status="Completed", read_command=statement)
+        self.assertEqual(verify_pushdown(TOKEN, (native_on,), (native_off,)), ("REMOTE_DATE_FILTER", "NO_REMOTE_FILTER"))
+        with self.assertRaises(ValueError):
+            verify_pushdown(TOKEN, (replace(native_on, request_status="Cancelled"),), (native_off,))
+
     def test_rejects_ambiguous_wrong_or_partial_work(self):
         for rows in (
             (), (ON, ON), (replace(ON, execution_id=OFF.execution_id),),
