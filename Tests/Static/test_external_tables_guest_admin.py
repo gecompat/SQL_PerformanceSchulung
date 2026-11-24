@@ -139,12 +139,34 @@ class GuestAdminChannelTests(unittest.TestCase):
         channel = GuestSqlChannel(TOKEN, VM_ID, query_vm, PORT, b"base", {})
         source_sid, observer_sid = bytes.fromhex(SID), bytes.fromhex("c" * 32)
         invoke.side_effect = [OSError("pending query session"), None]
-        self.assertFalse(channel.close_data_connections(
-            TOKEN, {Principal.SOURCE_READER: source_sid, Principal.OBSERVER: observer_sid}, self.deadline,
-        ))
+        sids = {Principal.SOURCE_READER: source_sid, Principal.OBSERVER: observer_sid}
+        with self.assertRaises(OSError):
+            channel.close_data_connections(Role.QUERY, TOKEN, sids, self.deadline)
+        self.assertTrue(channel.close_data_connections(Role.SOURCE, TOKEN, sids, self.deadline))
         first, second = (call.args for call in invoke.call_args_list)
         self.assertEqual((first[0], first[3], first[4].fields), (query_vm, Role.QUERY, ("OBSERVER", observer_sid.hex())))
         self.assertEqual((second[0], second[3], second[4].fields), (VM_ID, Role.SOURCE, ("SOURCE_READER", SID)))
+
+    @patch("external_tables_guest_admin.stop_query_connector")
+    def test_only_the_cleaned_query_guest_may_stop_its_engine(self, stop):
+        cleanup = AdminCommand(AdminAction.QUIESCE)
+        drop = AdminCommand(AdminAction.DROP_LOGINS)
+        stop_command = AdminCommand(AdminAction.STOP_QUERY_ENGINE)
+        for role in Role:
+            with self.subTest(role=role):
+                access = GuestSqlAccess(TOKEN, role)
+                with self.assertRaises(OSError):
+                    self.round_trip(stop_command, role, access=access)
+                self.round_trip(cleanup, role, access=access)
+                with self.assertRaises(OSError):
+                    self.round_trip(stop_command, role, access=access)
+                self.round_trip(drop, role, access=access)
+                if role is Role.QUERY:
+                    self.assertIsNone(self.round_trip(stop_command, role, access=access))
+                else:
+                    with self.assertRaises(OSError):
+                        self.round_trip(stop_command, role, access=access)
+        stop.assert_called_once_with(ANY)
 
     def test_incomplete_fixture_does_not_return_success_or_any_rows(self):
         self.endpoint.fixture_rows.return_value = ()
@@ -240,6 +262,7 @@ class GuestAdminChannelTests(unittest.TestCase):
                 DriverEvidence("mssql-ees.service", "17.0.5065.9-3", "libmsodbcsql-18.5.so.1.1", "f" * 64),
             ),
             MeasurementResult("NOT_PROVEN", "PUSHDOWN_OFF"),
+            MeasurementResult("NOT_PROVEN", "driver_unconfirmed", PUSHDOWN_FILTER_EVIDENCE),
             MeasurementResult("FAIL_CLEANUP", "query_connection"),
         ):
             measure.return_value = expected

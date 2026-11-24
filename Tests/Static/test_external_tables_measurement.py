@@ -9,9 +9,9 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_driver_evidence import DriverEvidence
-from external_tables_measurement import UnconfirmedRequestCleanup, measure_pushdown
+from external_tables_measurement import MeasurementResult, UnconfirmedRequestCleanup, measure_pushdown
 from external_tables_pilot_sql import EXPECTED, Role, Route, aggregate_batch, database_name, measurement_marker
-from external_tables_pushdown_evidence import Work
+from external_tables_pushdown_evidence import PUSHDOWN_FILTER_EVIDENCE, Work
 
 
 TOKEN = "TEST0001"
@@ -116,6 +116,17 @@ class MeasurementTests(unittest.TestCase):
                 self.assertEqual(observed, [Route.PUSHDOWN_ON, Route.PUSHDOWN_OFF])
                 self.assertEqual((result.status, result.driver), ("PASS", evidence) if same else ("NOT_PROVEN", None))
                 self.assertIsNone(transport.route)
+
+    def test_filter_comparison_completes_without_promoting_unavailable_driver_evidence(self):
+        transport = Transport()
+
+        def missing_driver(finished, bound):
+            raise ValueError("the mapped file is unavailable")
+
+        result = measure_pushdown(transport, TOKEN, monotonic() + 3, observe_driver=missing_driver)
+        self.assertEqual(result, MeasurementResult("NOT_PROVEN", "driver_unconfirmed", PUSHDOWN_FILTER_EVIDENCE))
+        self.assertIn(("work", Route.PUSHDOWN_OFF), transport.events)
+        self.assertIsNone(transport.route)
 
     def test_empty_observation_can_retry_within_the_same_request(self):
         transport = Transport()

@@ -365,7 +365,9 @@ einen unabhängig begutachteten Referenzwert lautet der Hostbefund
 `OBSERVED`. Eine spätere Ausführung vergleicht mit dem über
 `--driver-sha256` gebundenen Digest. Ein abweichender Digest,
 ein Prozesswechsel während der Beobachtung oder eine nicht eindeutige
-Zuordnung verhindert einen positiven Gesamtnachweis.
+Zuordnung verhindert einen positiven Gesamtnachweis. Wenn trotzdem beide
+Filtervarianten belegt sind, meldet der Runner den Filterbefund zusammen
+mit `NOT_PROVEN` und der Stufe `driver_unconfirmed`.
 [Microsoft-Dokumentation zum PolyBase-Ausführungsdienst](https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-polybase-ees-encryption?view=sql-server-ver17)
 und [iproute2-Referenz zum Socket-Filter](https://github.com/iproute2/iproute2/blob/main/man/man8/ss.8).
 
@@ -984,24 +986,19 @@ Quittungen können nach bestätigtem Abbau lokal ausgewertet werden.
 
 ### Abbau und Wiederaufnahme
 
-1. Sperre weitere Demoaufrufe auf beiden Gästen. Der Dienst hält diese
-   Sperre ab dem ersten Cleanup-Aufruf für den gesamten Gastlauf.
-   Die [SQL-Prüfung](../../Tests/Runtime/external_tables_cleanup.py)
-   deaktiviert ausschließlich die per Namen und SID aufgezeichneten Logins.
-   Sie bestätigt danach, dass keine Sitzung mit einer dieser ursprünglichen
-   SIDs mehr offen ist. Der Gast erlaubt SQL-Abbau erst nach dieser
-   Bestätigung. Der Host versucht die Prüfung auf beiden Gästen.
-   Bei fehlender Bestätigung bleibt der SQL-Abbau offen und der Ablauf
-   setzt bei Schritt 4 fort.
-2. Prüfe in beiden Datenbanken den vollständigen Laufmarker. Entferne auf dem
-   Abfrageknoten externe Tabellen, Datenquellen, Credential und Hauptschlüssel
-   in dieser Reihenfolge und danach die eigene Datenbank und ihre Demoanmeldung.
-3. Beende laut Quellinventar verbliebene Sessions des eigenen Quelllogins und
-   entferne die eigene Quelldatenbank und den Quelllogin. Die
-   [SQL-Abbaubatches](../../Tests/Runtime/external_tables_cleanup.py) prüfen
-   Datenbankmarker und bestehende Sessions vor dem Löschen. Sie erzwingen
-   keinen Verbindungsabbruch. Das Laufprogramm muss zuerst die eigenen
-   Reader- und Connectorverbindungen schließen.
+1. Sperre im Abfragegast weitere Demoaufrufe. Die
+   [SQL-Prüfung](../../Tests/Runtime/external_tables_cleanup.py)
+   deaktiviert ausschließlich die per Namen und SID aufgezeichneten Logins
+   und bestätigt die Abwesenheit ihrer Sitzungen.
+2. Prüfe den vollständigen Laufmarker im Abfragegast. Entferne externe
+   Tabellen, Datenquellen, Credential und Hauptschlüssel in dieser Reihenfolge
+   und danach die eigene Datenbank und ihre Demoanmeldungen. Erst dann
+   stoppt die Gaststeuerung den SQL-Server-Dienst der Abfrage-VM. Damit
+   schließt der integrierte Connector seine noch offenen Quellverbindungen.
+3. Sperre weitere Demoaufrufe im Quellgast. Deaktiviere den aufgezeichneten
+   Quelllogin und bestätige die Abwesenheit seiner Sitzungen, bevor die
+   markierte Quelldatenbank und der Login entfernt werden. Bei einem
+   fehlgeschlagenen SQL-Schritt bleibt der SQL-Abbau unbestätigt.
 4. Entferne nach Abgleich mit der Erzeugungsliste die beiden VM-IDs, ihre
    eigenen Plattenkopien und den privaten Switch. Bestätige die Abwesenheit
    anhand der IDs. Bei unerreichbarer VM bleibt der SQL-Abbau unbestätigt.

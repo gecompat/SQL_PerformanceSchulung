@@ -114,6 +114,14 @@ def verify_polybase_service(deadline: float) -> None:
         raise ValueError("PolyBase execution service changed during local readiness verification")
 
 
+def stop_query_connector(deadline: float) -> None:
+    """Close the owned query engine and its outbound SQL Server connections."""
+    unit = "mssql-server.service"
+    _command([_SYSTEMCTL, "stop", unit], deadline)
+    if _command([_SYSTEMCTL, "show", "--property=ActiveState", "--value", unit], deadline).strip() != b"inactive":
+        raise ValueError("the owned query engine did not stop")
+
+
 def _service_pid(deadline: float) -> int:
     value = _command([_SYSTEMCTL, "show", "--property=MainPID", "--value", _EXECUTION_SERVICE], deadline).strip()
     if re.fullmatch(rb"[1-9][0-9]{0,9}", value) is None:

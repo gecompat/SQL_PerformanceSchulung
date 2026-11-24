@@ -70,6 +70,7 @@ def measure_pushdown(
     records: list[tuple[Work, ...]] = []
     witnessed_handles: set[str] = set()
     driver = None
+    driver_unconfirmed = False
     stage = Route.LOCAL.name
     try:
         for route in Route:
@@ -87,16 +88,25 @@ def measure_pushdown(
                     raise ValueError("measurement routes share a SQL handle")
                 witnessed_handles.add(handle.upper())
                 if observe_driver is not None:
-                    current_driver = observe_driver(request.finished, deadline)
-                    if driver is not None and driver != current_driver:
-                        raise ValueError("external routes used different mapped driver evidence")
-                    driver = current_driver
+                    try:
+                        current_driver = observe_driver(request.finished, deadline)
+                    except UnconfirmedRequestCleanup:
+                        raise
+                    except (OSError, ValueError):
+                        driver_unconfirmed = True
+                    else:
+                        if driver is not None and driver != current_driver:
+                            driver_unconfirmed = True
+                        driver = current_driver
                 verify_aggregate(request.result(deadline))
                 _check_deadline(deadline)
                 records.append(transport.external_work(work_sql, deadline))
         stage = "comparison"
         _check_deadline(deadline)
-        return MeasurementResult("PASS", stage, verify_pushdown(token, records[0], records[1]), driver)
+        filters = verify_pushdown(token, records[0], records[1])
+        if driver_unconfirmed:
+            return MeasurementResult("NOT_PROVEN", "driver_unconfirmed", filters)
+        return MeasurementResult("PASS", stage, filters, driver)
     except UnconfirmedRequestCleanup:
         return MeasurementResult("FAIL_CLEANUP", stage)
     except (OSError, ValueError):

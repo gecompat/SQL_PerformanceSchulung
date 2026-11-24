@@ -53,7 +53,7 @@ class GuestPilotTransport(Protocol):
     def measure(self, token: str, reader_secret: str, observer_secret: str, deadline: float) -> MeasurementResult:
         """Return the normalized result of the query guest's local measurement."""
 
-    def close_data_connections(self, token: str, login_sids: Mapping[Principal, bytes], deadline: float) -> bool:
+    def close_data_connections(self, role: Role, token: str, login_sids: Mapping[Principal, bytes], deadline: float) -> bool:
         """Prevent new calls and confirm closure of the owned Reader and connector sessions."""
 
     def remove_verified_guests(self, token: str, deadline: float) -> bool:
@@ -156,18 +156,11 @@ def _cleanup(
 ) -> tuple[bool, bool]:
     deadline = monotonic() + CLEANUP_SECONDS
     sql_clean = True
-    try:
-        if attempted:
-            sql_clean = transport.close_data_connections(token, login_sids, deadline) is True
-    except (OSError, ValueError):
-        sql_clean = False
-
-    # The SQL batches check current sessions, but only the transport can
-    # confirm that the reader and connector can no longer start requests.
-    roles = reversed(attempted) if sql_clean else ()
-    for role in roles:
+    for role in reversed(attempted):
         try:
             _require_time(deadline)
+            if transport.close_data_connections(role, token, login_sids, deadline) is not True:
+                raise ValueError("owned login closure was not confirmed")
             exists = transport.admin(role, AdminCommand(AdminAction.DATABASE_EXISTS), deadline)
             if exists is True:
                 _admin(transport, role, AdminAction.DROP_DATABASE, deadline)
@@ -178,6 +171,10 @@ def _cleanup(
                 for field in (principal.name, sid.hex())
             )
             _admin(transport, role, AdminAction.DROP_LOGINS, deadline, *sid_fields)
+            if role is Role.QUERY:
+                # The query engine owns the outbound connection pool, even after
+                # its reader sessions and external objects are gone.
+                _admin(transport, role, AdminAction.STOP_QUERY_ENGINE, deadline)
         except (OSError, ValueError):
             sql_clean = False
 
