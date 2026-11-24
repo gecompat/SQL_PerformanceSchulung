@@ -152,7 +152,7 @@ class DetachedAptTests(TestCase):
     def test_query_stages_dotnet_after_simulation_but_before_package_configuration(self):
         base = package("base", "1.0")
         after = base + package("client", "2.0")
-        sdk = {"filename": "locked-sdk.tar.gz"}
+        sdk = {"filename": "locked-sdk.tar.gz", "sdk_version": "8.0.418"}
         lock = {
             "roles": {"query": ["client"]},
             "dpkg_status_sha256": sha256(base).hexdigest(),
@@ -180,6 +180,10 @@ class DetachedAptTests(TestCase):
                     if broken:
                         raise ValueError("wrong SDK")
 
+                def ensure_setup(version, bound):
+                    self.assertEqual((version, bound), (sdk["sdk_version"], deadline))
+                    events.append("service-setup")
+
                 with (
                     patch("external_tables_guest_apt.sys", SimpleNamespace(platform="linux")),
                     patch("external_tables_guest_apt.os", guest_os),
@@ -187,6 +191,7 @@ class DetachedAptTests(TestCase):
                     patch("external_tables_guest_apt.read_dpkg_status", side_effect=[base, base, after]),
                     patch("external_tables_guest_apt.verify_packages"),
                     patch("external_tables_guest_apt.install_dotnet_sdk", side_effect=install_sdk),
+                    patch("external_tables_guest_apt.ensure_polybase_service_setup", side_effect=ensure_setup),
                     patch("external_tables_guest_apt._run_apt", side_effect=run_apt),
                 ):
                     if broken:
@@ -195,7 +200,7 @@ class DetachedAptTests(TestCase):
                         self.assertEqual(events, ["simulate", "sdk"])
                     else:
                         self.assertEqual(install_verified_guest_packages(root, lock, Role.QUERY, deadline), 2)
-                        self.assertEqual(events, ["simulate", "sdk", "configure"])
+                        self.assertEqual(events, ["simulate", "sdk", "configure", "service-setup"])
 
     def test_requires_detachment_again_after_the_exact_simulation(self):
         base = package("base", "1.0")

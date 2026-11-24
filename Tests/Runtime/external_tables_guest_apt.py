@@ -15,7 +15,7 @@ from dgn004_capture_runner import CaptureRunnerError, CaptureTimeoutError, colle
 from external_tables_odbc import read_pinned_pyodbc_wheel, stage_pinned_pyodbc
 from external_tables_package_state import read_dpkg_status, select_role, verify_guest_state
 from external_tables_pilot_sql import Role
-from external_tables_polybase_service import install_dotnet_sdk
+from external_tables_polybase_service import ensure_polybase_service_setup, install_dotnet_sdk
 
 
 _DPKG_STATUS = Path("/var/lib/dpkg/status")
@@ -122,6 +122,9 @@ def install_verified_guest_packages(
         _run_apt(apt_install_command(package_paths, apt_state, simulate=False), deadline)
     require_guest_detached()
     installed = verify_guest_state(base_status, read_dpkg_status(_DPKG_STATUS), base_digest, role_lock)
+    if role is Role.QUERY:
+        ensure_polybase_service_setup(package_lock["dotnet_sdk"]["sdk_version"], deadline)
+        require_guest_detached()
     if wheel_payload is not None:
         _remaining(deadline)
         stage_pinned_pyodbc(wheel_install_dir, wheel, wheel_payload)
