@@ -12,7 +12,8 @@ from uuid import UUID
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Runtime"))
 
 from external_tables_guest_identity import (
-    _REQUEST, _RESPONSE, _QUERY, _REPLY, _receive, _reply_to_probe, linux_service_id, serve_guest_identity, verify_guest,
+    _DETACHED_QUERY, _DETACHED_REPLY, _REQUEST, _RESPONSE, _QUERY, _REPLY, _receive, _reply_to_probe,
+    linux_service_id, serve_guest_identity, verify_guest,
 )
 from external_tables_package_state import installed_package_digest
 from external_tables_pilot_sql import Role
@@ -85,9 +86,9 @@ class GuestIdentityTests(unittest.TestCase):
             patch.object(socket, "socket", return_value=channel) as factory,
             patch("external_tables_guest_identity.token_bytes", return_value=NONCE),
         ):
-            def probe(vm_id=VM_ID, base_status=BASE_STATUS, role=Role.SOURCE):
+            def probe(vm_id=VM_ID, base_status=BASE_STATUS, role=Role.SOURCE, *, detached=False):
                 verify_guest(vm_id, PORT, TOKEN, role, monotonic() + 4,
-                             base_status=base_status, package_lock=PACKAGE_LOCK)
+                             base_status=base_status, package_lock=PACKAGE_LOCK, detached=detached)
 
             with self.assertRaisesRegex(ValueError, "exact Hyper-V guest ID"):
                 probe(UUID(int=0))
@@ -109,6 +110,15 @@ class GuestIdentityTests(unittest.TestCase):
             query_digest = installed_package_digest(BASE_STATUS + QUERY_PACKAGE)
             channel.recv.return_value = _RESPONSE.pack(_REPLY, TOKEN.encode(), 2, NONCE, query_digest)
             probe(role=Role.QUERY)
+
+            channel.recv.return_value = _RESPONSE.pack(_REPLY, TOKEN.encode(), 1, NONCE, SOURCE_DIGEST)
+            with self.assertRaisesRegex(ValueError, "current probe"):
+                probe(detached=True)
+            channel.sendall.assert_called_with(_REQUEST.pack(_DETACHED_QUERY, TOKEN.encode(), 1, NONCE))
+            channel.recv.return_value = _RESPONSE.pack(_DETACHED_REPLY, TOKEN.encode(), 1, NONCE, SOURCE_DIGEST)
+            with self.assertRaisesRegex(ValueError, "current probe"):
+                probe()
+            probe(detached=True)
 
     def test_guest_refuses_non_parent_peer_before_receiving(self):
         listener, channel = MagicMock(), MagicMock()
